@@ -9,6 +9,7 @@ table 8613 "Config. Package Table"
 {
     Caption = 'Config. Package Table';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -41,7 +42,7 @@ table 8613 "Config. Package Table"
         }
         field(3; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
                                                                         "Object ID" = field("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -89,7 +90,7 @@ table 8613 "Config. Package Table"
         }
         field(12; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -148,7 +149,7 @@ table 8613 "Config. Package Table"
         }
         field(20; "Package Caption"; Text[50])
         {
-            CalcFormula = Lookup("Config. Package"."Package Name" where(Code = field("Package Code")));
+            CalcFormula = lookup("Config. Package"."Package Name" where(Code = field("Package Code")));
             Caption = 'Package Caption';
             Editable = false;
             FieldClass = FlowField;

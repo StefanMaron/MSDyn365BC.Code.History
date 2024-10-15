@@ -9,6 +9,7 @@ table 5005278 "Delivery Reminder Text"
     Caption = 'Delivery Reminder Text';
     DrillDownPageID = "Delivery Reminder Text";
     LookupPageID = "Delivery Reminder Text";
+    DataClassification = CustomerContent;
 
     fields
     {

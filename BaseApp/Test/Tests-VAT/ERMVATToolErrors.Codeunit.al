@@ -20,14 +20,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
+        ERMVATToolHelper.ResetToolSetup();  // This resets the setup table for all test cases.
 
         if isInitialized then
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        ERMVATToolHelper.SetupItemNos;
-        ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
+        ERMVATToolHelper.SetupItemNos();
+        ERMVATToolHelper.ResetToolSetup();  // This resets setup table for the first test case after database is restored.
 
         isInitialized := true;
         Commit();
@@ -73,10 +73,10 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATPostingSetup.DeleteAll(true);
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
-        CreateDummySetup;
+        CreateDummySetup();
 
         // Excercise: Run VAT Rate Change Tool.
-        asserterror ERMVATToolHelper.RunVATRateChangeTool;
+        asserterror ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Error message about missing VAT Posting Setup.
         Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(VATSetupError, VATPostingSetup.TableCaption())) > 0, GetLastErrorText);
@@ -104,14 +104,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATPostingSetup.DeleteAll(true);
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
-        CreateDummySetup;
+        CreateDummySetup();
 
         // Excercise: Run VAT Rate Change Tool.
         // Verify: Tool Executes Successfully, No Messages Raised.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -143,16 +143,16 @@ codeunit 134054 "ERM VAT Tool - Errors"
         ErrorText := GetLastErrorText;
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
-        CreateDummySetup;
+        CreateDummySetup();
 
         // Excercise: Run VAT Rate Change Tool.
-        asserterror ERMVATToolHelper.RunVATRateChangeTool;
+        asserterror ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Error message about missing VAT Identifier in VAT Posting Setup.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorText) > 0, GetLastErrorText);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -185,14 +185,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         until VATPostingSetup.Next() = 0;
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
-        CreateDummySetup;
+        CreateDummySetup();
 
         // Excercise: Run VAT Rate Change Tool.
         // Verify: Tool should execute successfully.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -215,14 +215,14 @@ codeunit 134054 "ERM VAT Tool - Errors"
         GeneralPostingSetup.DeleteAll(true);
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
-        CreateDummySetup;
+        CreateDummySetup();
 
         // Excercise: Run VAT Rate Change Tool.
         // Verify: Tool Should Execute successfully.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -244,17 +244,17 @@ codeunit 134054 "ERM VAT Tool - Errors"
         VATRateChangeSetup.Modify(true);
 
         // SETUP: Create Dummy Setup for VAT Rate Change Setup table.
-        CreateDummySetup;
+        CreateDummySetup();
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: VAT Rate Change Tool Completed should be set to TRUE.
         VATRateChangeSetup.Get();
         Assert.IsTrue(VATRateChangeSetup."VAT Rate Change Tool Completed", VATToolCompletedError);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134054 "ERM VAT Tool - Errors"
         asserterror VATRateChangeConv2.Validate("To Code", VATRateChangeConv."From Code");
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure CreateDummySetup()

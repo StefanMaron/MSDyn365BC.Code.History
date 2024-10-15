@@ -11,7 +11,7 @@ page 654 "Requests to Approve"
     RefreshOnActivate = true;
     SourceTable = "Approval Entry";
     SourceTableView = sorting("Approver ID", Status, "Due Date", "Date-Time Sent for Approval")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout
@@ -38,7 +38,7 @@ page 654 "Requests to Approve"
                 field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Suite;
-                    HideValue = NOT Rec.Comment;
+                    HideValue = not Rec.Comment;
                     ToolTip = 'Specifies whether there are comments relating to the approval of the record. If you want to read the comments, choose the field to open the Approval Comment Sheet window.';
                 }
                 field("Sender ID"; Rec."Sender ID")

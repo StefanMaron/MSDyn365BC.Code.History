@@ -7,6 +7,7 @@ using Microsoft.Inventory.Location;
 table 5830 "Availability Calc. Overview"
 {
     Caption = 'Availability Calc. Overview';
+    DataClassification = CustomerContent;
 
     fields
     {

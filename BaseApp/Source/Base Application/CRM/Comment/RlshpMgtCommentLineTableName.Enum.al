@@ -1,6 +1,8 @@
 namespace Microsoft.CRM.Comment;
 
+#pragma warning disable AL0659
 enum 5061 "Rlshp. Mgt. Comment Line Table Name"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

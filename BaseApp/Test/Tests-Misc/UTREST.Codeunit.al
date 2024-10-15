@@ -85,13 +85,13 @@ codeunit 139148 "UT REST"
         // [SCENARIO 227335] Function JSONMgt.XmTextlToJsonText converts XML text to Json text
 
         // [GIVEN] Xml as text
-        XmlText := MockXMLText;
+        XmlText := MockXMLText();
 
         // [WHEN] Function JSONMgt.XmTextlToJsonText is being run
         JsonText := JSONMgt.XMLTextToJSONText(XmlText);
 
         // [THEN] Resulted Json text has appropriate content
-        VerifyJsonText(JsonText, MockJsonText);
+        VerifyJsonText(JsonText, MockJsonText());
     end;
 
     [Test]
@@ -105,13 +105,13 @@ codeunit 139148 "UT REST"
         // [SCENARIO 227335] Function JSONMgt.XmTextlToJsonText converts Json text to XML text
 
         // [GIVEN] Xml as text
-        JsonText := MockJsonText;
+        JsonText := MockJsonText();
 
         // [WHEN] Function JSONMgt.JsonTextToXmlText is being run
         XmlText := JSONMgt.JSONTextToXMLText(JsonText, 'transform');
 
         // [THEN] Resulted XML text has appropriate content
-        VerifyXMLText(XmlText, MockXMLText);
+        VerifyXMLText(XmlText, MockXMLText());
     end;
 
     [Test]
@@ -366,7 +366,7 @@ codeunit 139148 "UT REST"
         OutStr: OutStream;
         Xml: Text;
     begin
-        Xml := MockXMLText;
+        Xml := MockXMLText();
         TempBlob.CreateOutStream(OutStr);
         OutStr.WriteText(Xml);
         exit(Xml);

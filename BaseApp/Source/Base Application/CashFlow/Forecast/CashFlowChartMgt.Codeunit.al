@@ -23,16 +23,15 @@ codeunit 869 "Cash Flow Chart Mgt."
 
     procedure OnOpenPage(var CashFlowChartSetup: Record "Cash Flow Chart Setup")
     begin
-        with CashFlowChartSetup do
-            if not Get(UserId) then begin
-                "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-                "Start Date" := "Start Date"::"Working Date";
-                "Period Length" := "Period Length"::Month;
-                Show := Show::Combined;
-                "Chart Type" := "Chart Type"::"Stacked Column";
-                "Group By" := "Group By"::"Source Type";
-                Insert();
-            end;
+        if not CashFlowChartSetup.Get(UserId) then begin
+            CashFlowChartSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(CashFlowChartSetup."User ID"));
+            CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"Working Date";
+            CashFlowChartSetup."Period Length" := CashFlowChartSetup."Period Length"::Month;
+            CashFlowChartSetup.Show := CashFlowChartSetup.Show::Combined;
+            CashFlowChartSetup."Chart Type" := CashFlowChartSetup."Chart Type"::"Stacked Column";
+            CashFlowChartSetup."Group By" := CashFlowChartSetup."Group By"::"Source Type";
+            CashFlowChartSetup.Insert();
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -96,47 +95,45 @@ codeunit 869 "Cash Flow Chart Mgt."
         CashFlowForecast.Get(CashFlowSetup."CF No. on Chart in Role Center");
         CashFlowChartSetup.Get(UserId);
 
-        with BusChartBuf do begin
-            Initialize();
-            "Period Length" := CashFlowChartSetup."Period Length";
-            SetPeriodXAxis();
+        BusChartBuf.Initialize();
+        BusChartBuf."Period Length" := CashFlowChartSetup."Period Length";
+        BusChartBuf.SetPeriodXAxis();
 
-            if CalcPeriods(CashFlowForecast, BusChartBuf) then begin
-                case CashFlowChartSetup.Show of
-                    CashFlowChartSetup.Show::"Accumulated Cash":
-                        AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Accumulated Cash", BusChartBuf);
-                    CashFlowChartSetup.Show::"Change in Cash":
+        if CalcPeriods(CashFlowForecast, BusChartBuf) then begin
+            case CashFlowChartSetup.Show of
+                CashFlowChartSetup.Show::"Accumulated Cash":
+                    AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Accumulated Cash", BusChartBuf);
+                CashFlowChartSetup.Show::"Change in Cash":
+                    AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Change in Cash", BusChartBuf);
+                CashFlowChartSetup.Show::Combined:
+                    begin
                         AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Change in Cash", BusChartBuf);
-                    CashFlowChartSetup.Show::Combined:
-                        begin
-                            AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Change in Cash", BusChartBuf);
-                            AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Accumulated Cash", BusChartBuf);
-                        end;
-                end;
-
-                if FindFirstMeasure(BusChartMapMeasure) then
-                    repeat
-                        Accumulate := BusChartMapMeasure.Name = TextTotal;
-                        if FindFirstColumn(BusChartMapColumn) then
-                            repeat
-                                ToDate := BusChartMapColumn.GetValueAsDate();
-
-                                if Accumulate then begin
-                                    if CashFlowChartSetup."Start Date" = CashFlowChartSetup."Start Date"::"Working Date" then
-                                        FromDate := WorkDate()
-                                    else
-                                        FromDate := 0D
-                                end else
-                                    FromDate := CalcFromDate(ToDate);
-
-                                CashFlowForecast.Reset();
-                                CashFlowForecast.SetCashFlowDateFilter(FromDate, ToDate);
-                                Amount := CalcAmountForGroupBy(CashFlowForecast, CashFlowChartSetup."Group By", BusChartMapMeasure."Value String");
-
-                                SetValue(BusChartMapMeasure.Name, BusChartMapColumn.Index, Amount);
-                            until not NextColumn(BusChartMapColumn);
-                    until not NextMeasure(BusChartMapMeasure);
+                        AddMeasures(CashFlowForecast, CashFlowChartSetup.Show::"Accumulated Cash", BusChartBuf);
+                    end;
             end;
+
+            if BusChartBuf.FindFirstMeasure(BusChartMapMeasure) then
+                repeat
+                    Accumulate := BusChartMapMeasure.Name = TextTotal;
+                    if BusChartBuf.FindFirstColumn(BusChartMapColumn) then
+                        repeat
+                            ToDate := BusChartMapColumn.GetValueAsDate();
+
+                            if Accumulate then begin
+                                if CashFlowChartSetup."Start Date" = CashFlowChartSetup."Start Date"::"Working Date" then
+                                    FromDate := WorkDate()
+                                else
+                                    FromDate := 0D
+                            end else
+                                FromDate := BusChartBuf.CalcFromDate(ToDate);
+
+                            CashFlowForecast.Reset();
+                            CashFlowForecast.SetCashFlowDateFilter(FromDate, ToDate);
+                            Amount := CalcAmountForGroupBy(CashFlowForecast, CashFlowChartSetup."Group By", BusChartMapMeasure."Value String");
+
+                            BusChartBuf.SetValue(BusChartMapMeasure.Name, BusChartMapColumn.Index, Amount);
+                        until not BusChartBuf.NextColumn(BusChartMapColumn);
+                until not BusChartBuf.NextMeasure(BusChartMapMeasure);
         end;
         exit(true);
     end;

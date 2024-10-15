@@ -19,7 +19,6 @@ codeunit 134153 "Test Intrastat"
         LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        FileManagement: Codeunit "File Management";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -28,9 +27,6 @@ codeunit 134153 "Test Intrastat"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        ReportedMustBeNoErr: Label 'Reported must be equal to ''No''  in Intrastat Jnl. Batch';
-        FileNotCreatedErr: Label 'Intrastat file was not created';
-        AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntratstatJnlFormReqPageHandler')]
@@ -52,12 +48,12 @@ codeunit 134153 "Test Intrastat"
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateItemWithTariffNo(Item);
         CreateAndPostSalesDoc(
-          SalesHeader."Document Type"::Order, CreateForeignCustomerNo, Item."No.", LibraryRandom.RandDec(10, 2));
+          SalesHeader."Document Type"::Order, CreateForeignCustomerNo(), Item."No.", LibraryRandom.RandDec(10, 2));
 
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType);
+          FindOrCreateIntrastatTransportMethod(), FindOrCreateIntrastatTransactionType());
         Commit();
 
         // Exercise
@@ -68,8 +64,8 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Transaction Type");
         IntrastatJnlLine.TestField("Transport Method");
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsTrue(LibraryReportDataset.RowCount > 0, 'Empty Dataset');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.RowCount() > 0, 'Empty Dataset');
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('TariffNo_IntraJnlLine', Item."Tariff No.") + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('TransacType_IntraJnlLine', IntrastatJnlLine."Transaction Type");
         LibraryReportDataset.AssertCurrentRowValueEquals('TransportMet_IntraJnlLine', IntrastatJnlLine."Transport Method");
@@ -93,7 +89,7 @@ codeunit 134153 "Test Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Sales Order with Quantity = 1
-        CreateAndPostSalesDoc(SalesHeader."Document Type"::Order, CreateForeignCustomerNo, Item."No.", 1);
+        CreateAndPostSalesDoc(SalesHeader."Document Type"::Order, CreateForeignCustomerNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -120,7 +116,7 @@ codeunit 134153 "Test Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Sales Return Order with Quantity = 1
-        CreateAndPostSalesDoc(SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo, Item."No.", 1);
+        CreateAndPostSalesDoc(SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -147,7 +143,7 @@ codeunit 134153 "Test Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Purchase Order with Quantity = 1
-        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo, Item."No.", 1);
+        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -174,7 +170,7 @@ codeunit 134153 "Test Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Purchase Return Order with Quantity = 1
-        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo, Item."No.", 1);
+        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -193,7 +189,7 @@ codeunit 134153 "Test Intrastat"
         // [SCENARIO 331036] Statistical Value is editable on Intrastat Journal page
         Initialize();
         RunIntrastatJournal(IntrastatJournal);
-        Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
+        Assert.IsTrue(IntrastatJournal."Statistical Value".Editable(), '');
     end;
 
     local procedure Initialize()
@@ -262,7 +258,7 @@ codeunit 134153 "Test Intrastat"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", FindCountryRegionCode);
+        Customer.Validate("Country/Region Code", FindCountryRegionCode());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -272,7 +268,7 @@ codeunit 134153 "Test Intrastat"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", FindCountryRegionCode);
+        Vendor.Validate("Country/Region Code", FindCountryRegionCode());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -291,7 +287,7 @@ codeunit 134153 "Test Intrastat"
 
     local procedure RunIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal")
     begin
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
     end;
 
     local procedure RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -299,10 +295,10 @@ codeunit 134153 "Test Intrastat"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
-        IntrastatJournal.GetEntries.Invoke;
+        IntrastatJournal.GetEntries.Invoke();
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
     end;
@@ -312,9 +308,9 @@ codeunit 134153 "Test Intrastat"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(Type);
-        IntrastatJournal.Form.Invoke;
+        IntrastatJournal.Form.Invoke();
     end;
 
     local procedure SetMandatoryFieldsOnJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; TransportMethod: Code[10]; TransactionType: Code[10])
@@ -414,35 +410,6 @@ codeunit 134153 "Test Intrastat"
         end;
     end;
 
-    local procedure VerifyTestfieldChecklistError(FieldName: Text)
-    begin
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(FieldName);
-    end;
-
-    local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        ErrorMessage: Record "Error Message";
-    begin
-        Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(AdvChecklistErr);
-        VerifyBatchError(IntrastatJnlLine, FieldName);
-    end;
-
-    local procedure VerifyBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        ErrorMessage: Record "Error Message";
-    begin
-        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
-        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
-        ErrorMessage.SetContext(IntrastatJnlBatch);
-        Assert.AreEqual(1, ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Error), '');
-        ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(FieldName, ErrorMessage."Message");
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntriesReqPage: TestRequestPage "Get Item Ledger Entries")
@@ -455,7 +422,7 @@ codeunit 134153 "Test Intrastat"
         GetItemLedgerEntriesReqPage.StartingDate.SetValue(StartDate);
         GetItemLedgerEntriesReqPage.EndingDate.SetValue(EndDate);
         GetItemLedgerEntriesReqPage."Cost Regulation %".SetValue(0);
-        GetItemLedgerEntriesReqPage.OK.Invoke;
+        GetItemLedgerEntriesReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -466,7 +433,7 @@ codeunit 134153 "Test Intrastat"
     begin
         LibraryVariableStorage.Dequeue(Type);
         IntrastatForm."Intrastat Jnl. Line".SetFilter(Type, Format(Type));
-        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

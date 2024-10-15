@@ -82,7 +82,7 @@ codeunit 142062 "ERM Reports DACH"
         RunGLSetupInformation(SetupInformation::"G/L Setup - Company Data - Consolidation");
 
         // Verify.
-        VerifyGLSetupCompanyDataConsolidation;
+        VerifyGLSetupCompanyDataConsolidation();
     end;
 
     [Test]
@@ -99,11 +99,11 @@ codeunit 142062 "ERM Reports DACH"
         RunGLSetupInformation(SetupInformation::"Posting Groups");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
-        VerifyCustomerPostingGroupOnGLSetupInformation;
-        VerifyVendorPostingGroupOnGLSetupInformation;
-        VerifyInventoryPostingGroupOnGLSetupInformation;
-        VerifyBankAccountPostingGroupOnGLSetupInformation;
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyCustomerPostingGroupOnGLSetupInformation();
+        VerifyVendorPostingGroupOnGLSetupInformation();
+        VerifyInventoryPostingGroupOnGLSetupInformation();
+        VerifyBankAccountPostingGroupOnGLSetupInformation();
     end;
 
     [Test]
@@ -120,10 +120,10 @@ codeunit 142062 "ERM Reports DACH"
         RunGLSetupInformation(SetupInformation::"Posting Matrix");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
-        VerifyGenBusinessPostingGroupOnGLSetupInformation;
-        VerifyGenProductPostingGroupOnGLSetupInformation;
-        VerifyGeneralPostingSetupOnGLSetupInformation;
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyGenBusinessPostingGroupOnGLSetupInformation();
+        VerifyGenProductPostingGroupOnGLSetupInformation();
+        VerifyGeneralPostingSetupOnGLSetupInformation();
     end;
 
     [Test]
@@ -140,10 +140,10 @@ codeunit 142062 "ERM Reports DACH"
         RunGLSetupInformation(SetupInformation::"VAT Setup");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
-        VerifyVATBusinessPostingGroupOnGLSetupInformation;
-        VerifyVATProductPostingGroupOnGLSetupInformation;
-        VerifyVATPostingSetupOnGLSetupInformation;
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyVATBusinessPostingGroupOnGLSetupInformation();
+        VerifyVATProductPostingGroupOnGLSetupInformation();
+        VerifyVATPostingSetupOnGLSetupInformation();
     end;
 
     [Test]
@@ -160,9 +160,9 @@ codeunit 142062 "ERM Reports DACH"
         RunGLSetupInformation(SetupInformation::"Source Code - Reason Code");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
-        VerifySourceCodeOnGLSetupInformation;
-        VerifySourceCodeSetupOnGLSetupInformation;
+        LibraryReportDataset.LoadDataSetFile();
+        VerifySourceCodeOnGLSetupInformation();
+        VerifySourceCodeSetupOnGLSetupInformation();
     end;
 
     [Test]
@@ -279,7 +279,7 @@ codeunit 142062 "ERM Reports DACH"
         // [GIVEN] Post purchase receipt of "N" items on workdate
         CreatePurchaseOrderPostReceipt(PurchaseLine, Item);
 
-        // [GIVEN] Completely invoice purchase on workdate + 1
+        // [GIVEN] Completely invoice purchase on WorkDate() + 1
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PostPurchaseInvoiceOnDate(PurchaseHeader, PurchaseHeader."Posting Date" + 1);
 
@@ -317,7 +317,7 @@ codeunit 142062 "ERM Reports DACH"
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
-        // [GIVEN] Invoice remaining 4 pcs on workdate + 1
+        // [GIVEN] Invoice remaining 4 pcs on WorkDate() + 1
         PurchaseLine.Find();
         PostPurchaseInvoiceOnDate(PurchaseHeader, PurchaseHeader."Posting Date" + 1);
 
@@ -446,7 +446,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         // Setup: Create Vendor and create and post Multiple invoice and payment for the Vendor. Apply Invoice to the Payment.
         Initialize();
-        VendorNo := CreateVendorWithPmtTerms;
+        VendorNo := CreateVendorWithPmtTerms();
 
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 4) do begin
             CreateAndPostPaymentJournalLine(
@@ -462,7 +462,7 @@ codeunit 142062 "ERM Reports DACH"
         RunVendorPaymentsListReport(Sorting::Vendor, Layout::Standard, VendorNo);
 
         // Verify: Total Amount on Report
-        VerifyTotalAmtOnVendorPaymentList(GenJournalLine2, TotalAmountLCY, TotalDiscLCY);
+        VerifyTotalAmtOnVendorPaymentList(TotalAmountLCY, TotalDiscLCY);
     end;
 
     [Test]
@@ -527,7 +527,7 @@ codeunit 142062 "ERM Reports DACH"
         RunVendorPaymentsListReport(Sorting::Vendor, Layout::Standard, VendorNo);
 
         // [THEN] Total Vendor Amount = "Y1" + "Y2"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyVendorLedgerEntryAmount(1, PaymentAmount[1]);
         VerifyVendorLedgerEntryAmount(2, 0);
         VerifyVendorLedgerEntryAmount(3, PaymentAmount[2]);
@@ -558,11 +558,11 @@ codeunit 142062 "ERM Reports DACH"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         PurchaseSetup.Get();
-        PurchaseSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchaseSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchaseSetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
     end;
 
@@ -696,7 +696,7 @@ codeunit 142062 "ERM Reports DACH"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 10));
         PurchaseLine.Validate("Direct Unit Cost", Item."Unit Cost");
@@ -726,9 +726,9 @@ codeunit 142062 "ERM Reports DACH"
 
     local procedure FindDataRow(GenJournalLine: Record "Gen. Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('AccNo', GenJournalLine."Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'AccNo', GenJournalLine."Account No.");
     end;
 
@@ -778,7 +778,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Bank_Posting_GroupsCaption', 'Bank Posting Groups');
         BankAccountPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Bank_Posting_GroupsCaption', 'Bank Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Account_Posting_Group_Code', BankAccountPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -793,7 +793,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Customer_Posting_GroupsCaption', 'Customer Posting Groups');
         CustomerPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Customer_Posting_GroupsCaption', 'Customer Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Customer_Posting_Group_Code', CustomerPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -818,7 +818,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Gen__Business_Posting_GroupsCaption', 'Gen. Business Posting Groups');
         GenBusinessPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Gen__Business_Posting_GroupsCaption', 'Gen. Business Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Gen__Business_Posting_Group_Code', GenBusinessPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -837,7 +837,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Gen__Posting_SetupCaption', 'Gen. Posting Setup');
         GeneralPostingSetup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Gen__Posting_SetupCaption', 'Gen. Posting Setup');
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'General_Posting_Setup__Gen__Bus__Posting_Group_', GeneralPostingSetup."Gen. Bus. Posting Group");
@@ -875,7 +875,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Gen__Product_Posting_GroupsCaption', 'Gen. Product Posting Groups');
         GenProductPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Gen__Product_Posting_GroupsCaption', 'Gen. Product Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Gen__Product_Posting_Group_Code', GenProductPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('Gen__Product_Posting_Group_Description', GenProductPostingGroup.Description);
@@ -891,11 +891,11 @@ codeunit 142062 "ERM Reports DACH"
         CompanyInformation: Record "Company Information";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         CompanyInformation.Get();
         GeneralLedgerSetup.Get();
         LibraryReportDataset.SetRange('COMPANYNAME', CompanyInformation.Name);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'COMPANYNAME', CompanyInformation.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'General_Ledger_Setup__Appln__Rounding_Precision_', GeneralLedgerSetup."Appln. Rounding Precision");
@@ -938,7 +938,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'General_Ledger_Setup__Global_Dimension_2_Code_', GeneralLedgerSetup."Global Dimension 2 Code");
 
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'COMPANYNAME', CompanyInformation.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Company_Information__Ship_to_Post_Code_', CompanyInformation."Ship-to Post Code");
@@ -967,7 +967,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Inventory_Posting_GroupsCaption', 'Inventory Posting Groups');
         InventoryPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Inventory_Posting_GroupsCaption', 'Inventory Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Posting_Group_Code', InventoryPostingGroup.Code);
         until InventoryPostingGroup.Next() = 0;
@@ -975,29 +975,29 @@ codeunit 142062 "ERM Reports DACH"
 
     local procedure VerifyInventoryValue(ItemNo: Code[20]; Quantity: Decimal; InvoicedQuantity: Decimal; ExpectedAmount: Decimal; ActualAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyItemInventoryCost(ItemNo, Quantity, InvoicedQuantity, ExpectedAmount, ActualAmount);
     end;
 
     local procedure VerifyInventoryValueAndPostingGroup(ItemJournalLine: Record "Item Journal Line"; Quantity: Decimal; InvoicedQuantity: Decimal; ExpectedAmount: Decimal; ActualAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyItemInventoryCost(ItemJournalLine."Item No.", Quantity, InvoicedQuantity, ExpectedAmount, ActualAmount);
         VerifyInventoryReportForPostingGroup(ItemJournalLine."Inventory Posting Group", ExpectedAmount, ActualAmount);
     end;
 
     local procedure VerifyInventoryValueWithDiffrentPostingGroup(FirstItemInventoryPostingGroupCode: Code[20]; SecondItemInventoryPostingGroupCode: Code[20]; FirstItemActualAmount: Decimal; FirstItemExpectedAmount: Decimal; SecondItemActualAmount: Decimal; SecondItemExpectedAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInventoryReportForPostingGroup(FirstItemInventoryPostingGroupCode, FirstItemExpectedAmount, FirstItemActualAmount);
         VerifyInventoryReportForPostingGroup(SecondItemInventoryPostingGroupCode, SecondItemExpectedAmount, SecondItemActualAmount);
     end;
 
     local procedure VerifyItemABCAnalysis(ItemJournalLine: Record "Item Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemJournalLine."Item No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'No_Item', ItemJournalLine."Item No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('InvntPostingGroup_Item', ItemJournalLine."Inventory Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('ABC', 'A');  // Value required for test.
@@ -1008,7 +1008,7 @@ codeunit 142062 "ERM Reports DACH"
     local procedure VerifyItemInventoryCost(ItemNo: Code[20]; Quantity: Decimal; InvoicedQuantity: Decimal; ExpectedAmount: Decimal; ActualAmount: Decimal)
     begin
         LibraryReportDataset.SetRange('ItemNo', ItemNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'ItemNo', ItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemNetChange', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('InvoicedQuantity', InvoicedQuantity);
@@ -1020,9 +1020,9 @@ codeunit 142062 "ERM Reports DACH"
 
     local procedure VerifyProvisionalTrialBalance(GenJournalLine: Record "Gen. Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('G_L_Account___No__', GenJournalLine."Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'G_L_Account___No__', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('ProvBalance', -GenJournalLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('ProvAmt', GenJournalLine.Amount);
@@ -1031,7 +1031,7 @@ codeunit 142062 "ERM Reports DACH"
     local procedure VerifyInventoryReportForPostingGroup(InventoryPostingGroupCode: Code[20]; ExpectedAmount: Decimal; ActualAmount: Decimal)
     begin
         LibraryReportDataset.SetRange('PostingGroupCode', InventoryPostingGroupCode);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'PostingGroupCode', InventoryPostingGroupCode);
         LibraryReportDataset.AssertCurrentRowValueEquals('PostingGroupInvValuationActual', ActualAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('PostingGroupInvValuationExp', ExpectedAmount);
@@ -1046,7 +1046,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('SourceCaption', 'Source');
         SourceCode.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'SourceCaption', 'Source');
             LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Code', SourceCode.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Description', SourceCode.Description);
@@ -1059,7 +1059,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         LibraryReportDataset.SetRange('Source_SetupCaption', 'Source Setup');
         SourceCodeSetup.Get();
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'Source_SetupCaption', 'Source Setup');
         LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Setup__General_Journal_', SourceCodeSetup."General Journal");
         LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Setup_Sales', SourceCodeSetup.Sales);
@@ -1080,7 +1080,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('VAT_Posting_GroupsCaption', 'VAT Posting Groups');
         VATBusinessPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'VAT_Posting_GroupsCaption', 'VAT Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Business_Posting_Group_Code', VATBusinessPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Business_Posting_Group_Description', VATBusinessPostingGroup.Description);
@@ -1094,7 +1094,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups');
         VATProductPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Product_Posting_Group_Code', VATProductPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Product_Posting_Group_Description', VATProductPostingGroup.Description);
@@ -1108,7 +1108,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('VAT_SetupCaption', 'VAT Setup');
         VATPostingSetup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'VAT_SetupCaption', 'VAT Setup');
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VAT_Posting_Setup__VAT_Bus__Posting_Group_', VATPostingSetup."VAT Bus. Posting Group");
@@ -1159,9 +1159,9 @@ codeunit 142062 "ERM Reports DACH"
 
     local procedure VerifyVendorPaymentListReportWithApplicationEntry(GenJournalLine: Record "Gen. Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('AccNo', GenJournalLine."Account No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'AccNo', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('TempVendorLedgerEntry__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('PaymentLCY', -GenJournalLine.Amount);
@@ -1169,13 +1169,13 @@ codeunit 142062 "ERM Reports DACH"
 
     local procedure VerifyAppliestoDocNoOnVendorPaymentList(DocumentNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TempVendorLedgerEntry__Document_No__', DocumentNo);
     end;
 
-    local procedure VerifyTotalAmtOnVendorPaymentList(GenJournalLine: Record "Gen. Journal Line"; TotalAmountLCY: Decimal; TotalDiscLCY: Decimal)
+    local procedure VerifyTotalAmtOnVendorPaymentList(TotalAmountLCY: Decimal; TotalDiscLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Total_Payment_LCY', -TotalAmountLCY);
         LibraryReportDataset.AssertElementWithValueExists('Total_Amount_LCY', -(TotalAmountLCY + TotalDiscLCY));
         LibraryReportDataset.AssertElementWithValueExists('Total_Pmt_Disc_LCY', -TotalDiscLCY);
@@ -1188,7 +1188,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Vendor_Posting_GroupsCaption', 'Vendor Posting Groups');
         VendorPostingGroup.FindSet();
         repeat
-            if not LibraryReportDataset.GetNextRow then
+            if not LibraryReportDataset.GetNextRow() then
                 Error(RowNotFound, 'Vendor_Posting_GroupsCaption', 'Vendor Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Posting_Group_Code', VendorPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -1229,16 +1229,16 @@ codeunit 142062 "ERM Reports DACH"
     begin
         LibraryVariableStorage.Dequeue(DequeueVariable);
         GLSetupInformation.SetupInformation.SetValue(DequeueVariable);
-        GLSetupInformation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLSetupInformation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InventoryValueRequestPageHandler(var InventoryValue: TestRequestPage "Inventory Value (Help Report)")
     begin
-        InventoryValue.Item.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        InventoryValue.Item.SetFilter("No.", LibraryVariableStorage.DequeueText());
         InventoryValue.StatusDate.SetValue(WorkDate());
-        InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1252,7 +1252,7 @@ codeunit 142062 "ERM Reports DACH"
         ItemABCAnalysis.ShowCategoryA.SetValue(true);
         LibraryVariableStorage.Dequeue(ItemNo);
         ItemABCAnalysis.Item.SetFilter("No.", ItemNo);
-        ItemABCAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemABCAnalysis.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1267,7 +1267,7 @@ codeunit 142062 "ERM Reports DACH"
         ProvisionalTrialBalance.WithJournal1.SetValue(JournalBatch);
         LibraryVariableStorage.Dequeue(GLAccountNo);
         ProvisionalTrialBalance."G/L Account".SetFilter("No.", GLAccountNo);
-        ProvisionalTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProvisionalTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1284,7 +1284,7 @@ codeunit 142062 "ERM Reports DACH"
         VendorPaymentsList.Sorting.SetValue(Sorting);
         VendorPaymentsList.Layout.SetValue(Layout);
         VendorPaymentsList."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        VendorPaymentsList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPaymentsList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

@@ -8,6 +8,7 @@ table 5083 Team
 {
     Caption = 'Team';
     DataCaptionFields = "Code", Name;
+    DataClassification = CustomerContent;
     DrillDownPageID = Teams;
     LookupPageID = Teams;
 

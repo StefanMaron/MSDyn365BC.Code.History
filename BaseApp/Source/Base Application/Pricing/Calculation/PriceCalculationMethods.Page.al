@@ -52,12 +52,12 @@ page 7025 "Price Calculation Methods"
     trigger OnOpenPage()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-#if not CLEAN21
+#if not CLEAN23
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
 #endif
         PriceUXManagement: Codeunit "Price UX Management";
     begin
-#if not CLEAN21
+#if not CLEAN23
         FeaturePriceCalculation.FailIfFeatureDisabled();
 #endif
         if PriceCalculationMgt.RefreshSetup() then

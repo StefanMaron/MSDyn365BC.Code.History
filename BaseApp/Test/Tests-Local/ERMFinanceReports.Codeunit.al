@@ -50,7 +50,6 @@ codeunit 144050 "ERM Finance Reports"
 
     var
         FilterValue: Label 'No.: %1';
-        FormatString: Label '<Precision,2><Standard Format,1>', Locked = true;
         PostingDateError: Label 'Specify a filter for the %1 field in the %2 table.';
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -68,7 +67,6 @@ codeunit 144050 "ERM Finance Reports"
         PeriodDebitAmountCaption: Label 'PeriodDebitAmount';
         VendorNoCaption: Label 'Vendor_Vendor__No__';
         CustomerNoCaption: Label 'No_Cust';
-        ValueNotMatch: Label 'Value must match.';
 
     [Test]
     [HandlerFunctions('VATViesDeclarationTaxHandler')]
@@ -185,7 +183,7 @@ codeunit 144050 "ERM Finance Reports"
         REPORT.Run(REPORT::"G/L Total-Balance");
 
         // Verify: Verify Amount on G/L Total-Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountOnReport(GenJournalLine."Account No.", GLAccountNoCaption, PeriodDebitAmountCaption, GenJournalLine.Amount);
     end;
 
@@ -230,7 +228,7 @@ codeunit 144050 "ERM Finance Reports"
         REPORT.Run(REPORT::"Customer Total-Balance");
 
         // Verify: Verify Amount on Customer Total-Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountOnReport(GenJournalLine."Account No.", CustomerNoCaption, PeriodDebitAmountCaption, GenJournalLine.Amount);
     end;
 
@@ -275,7 +273,7 @@ codeunit 144050 "ERM Finance Reports"
         REPORT.Run(REPORT::"Vendor Total-Balance");
 
         // Verify: Verify Amount on Vendor Total-Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyAmountOnReport(GenJournalLine."Account No.", VendorNoCaption, PeriodDebitAmountCaption, GenJournalLine.Amount);
     end;
 
@@ -310,7 +308,7 @@ codeunit 144050 "ERM Finance Reports"
         // Setup: Create and post Sales Invoice, Apply the Payment over Invoice.
         Initialize();
         GeneralLedgerSetup.Get();
-        CreateAndUpdateDACHReportSelection;
+        CreateAndUpdateDACHReportSelection();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         SetupForGLVATReconciliation(SalesLine, VATPostingSetup, UnrealizedVAT, UnrealizedVATType);
 
@@ -353,7 +351,7 @@ codeunit 144050 "ERM Finance Reports"
         // Setup: Create and post Sales Invoice with multiple lines, Apply the Payment over Invoice.
         Initialize();
         GeneralLedgerSetup.Get();
-        CreateAndUpdateDACHReportSelection;
+        CreateAndUpdateDACHReportSelection();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         SetupForGLVATReconciliation(SalesLine, VATPostingSetup, UnrealizedVAT, UnrealizedVATType);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -446,9 +444,9 @@ codeunit 144050 "ERM Finance Reports"
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Payment, AccountNo, 0);  // Taken 0 for Amount as this is not important.
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         Commit();
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -532,7 +530,7 @@ codeunit 144050 "ERM Finance Reports"
         REPORT.Run(REPORT::"Vendor Detailed Aging");
 
         // Verify: Verify Vendor filter and Remaining Amount on the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendFilterCaption, VendorFilterValue);
         LibraryReportDataset.AssertElementWithValueExists(RemainingAmountCaption, RemAmount);
     end;
@@ -554,13 +552,13 @@ codeunit 144050 "ERM Finance Reports"
         CreateAndPostGenGeneralLineAndApplyEntries(GenJournalLine, SalesHeader."Sell-to Customer No.");
         CalculateAmount(GLEntry, GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.");
         Commit();  // Commit required to run the report.
-        VATStatement.OpenView;
+        VATStatement.OpenView();
 
         // Exercise: Run G/L - VAT Reconciliation report.
-        VATStatement.GLVATReconciliation.Invoke;  // VAT Adv. Not. Acc. Proof.
+        VATStatement.GLVATReconciliation.Invoke();  // VAT Adv. Not. Acc. Proof.
 
         // Verify: Verify Payment Discount amount and VAT amount on G/L - VAT Reconciliation report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         // VerifyAmountOnReport(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.",GLAccountNo,AmountCaption,ROUND(GLEntry.Amount));
         // VerifyAmountOnReport(GeneralPostingSetup."Sales Pmt. Disc. Debit Acc.",GLAccountNo,VATControlCaption,ROUND(GLEntry."VAT Amount"));
     end;
@@ -601,7 +599,7 @@ codeunit 144050 "ERM Finance Reports"
     local procedure VerifyAmountOnReport(AccountNo: Code[20]; AccountNoCaption: Text[50]; AmountCaption: Text[50]; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(AccountNoCaption, AccountNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(AmountCaption, Amount);
     end;
 
@@ -609,8 +607,8 @@ codeunit 144050 "ERM Finance Reports"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;  // Set Applies To ID.
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();  // Set Applies To ID.
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -622,7 +620,7 @@ codeunit 144050 "ERM Finance Reports"
         VATViesDeclarationTaxDE.RepPeriod.SetValue(RepPeriod::January);  // Setting value for control 'Reporting Period'.
         VATViesDeclarationTaxDE.DateSignature.SetValue(WorkDate());  // Setting value for control 'Date of Signature'.
         VATViesDeclarationTaxDE."VAT Entry".SetFilter("VAT Reporting Date", Format(0D));
-        VATViesDeclarationTaxDE.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATViesDeclarationTaxDE.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -636,7 +634,7 @@ codeunit 144050 "ERM Finance Reports"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         VendorDetailedAging.EndingDate.SetValue(EndingDate);  // Control use for Ending Date.
         VendorDetailedAging.Vendor.SetFilter("No.", No);
-        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -650,7 +648,7 @@ codeunit 144050 "ERM Finance Reports"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         GLTotalBalance."G/L Account".SetFilter("No.", No);
         GLTotalBalance."G/L Account".SetFilter("Date Filter", Format(DateFilter));
-        GLTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -664,7 +662,7 @@ codeunit 144050 "ERM Finance Reports"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         CustomerTotalBalance.Customer.SetFilter("No.", No);
         CustomerTotalBalance.Customer.SetFilter("Date Filter", Format(DateFilter));
-        CustomerTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -678,7 +676,7 @@ codeunit 144050 "ERM Finance Reports"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         VendorTotalBalance.Vendor.SetFilter("No.", No);
         VendorTotalBalance.Vendor.SetFilter("Date Filter", Format(DateFilter));
-        VendorTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -690,7 +688,7 @@ codeunit 144050 "ERM Finance Reports"
         GLVATReconciliation.StartDate.SetValue(Format(WorkDate()));  // Setting value for control Start Date.
         GLVATReconciliation.EndDateReq.SetValue(Format(WorkDate()));  // Setting value for control End Date.
         GLVATReconciliation.PeriodSelection.SetValue(Format(PeriodSelection::"Within Period"));  // Setting value for control Period Selection.
-        GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

@@ -164,42 +164,41 @@ codeunit 397 Mail
     begin
         if not Contact.Get(ContactNo) then
             exit;
-        with ContactThrough do begin
-            if FindLast() then
-                KeyNo := Key + 1
-            else
-                KeyNo := 1;
 
-            if Contact."E-Mail" <> '' then begin
-                Key := KeyNo;
-                "Contact No." := ContactNo;
-                Name := Contact.Name;
-                Description := CopyStr(Contact.FieldCaption("E-Mail"), 1, MaxStrLen(Description));
-                "E-Mail" := Contact."E-Mail";
-                Type := Contact.Type;
-                Insert();
-                KeyNo := KeyNo + 1;
-            end;
+        if ContactThrough.FindLast() then
+            KeyNo := ContactThrough.Key + 1
+        else
+            KeyNo := 1;
 
-            // Alternative address
-            ContAltAddrDateRange.SetCurrentKey("Contact No.", "Starting Date");
-            ContAltAddrDateRange.SetRange("Contact No.", ContactNo);
-            ContAltAddrDateRange.SetRange("Starting Date", 0D, Today);
-            ContAltAddrDateRange.SetFilter("Ending Date", '>=%1|%2', Today, 0D);
-            if ContAltAddrDateRange.FindSet() then
-                repeat
-                    if ContAltAddr.Get(Contact."No.", ContAltAddrDateRange."Contact Alt. Address Code") then
-                        if ContAltAddr."E-Mail" <> '' then begin
-                            Key := KeyNo;
-                            Description :=
-                              CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("E-Mail"), 1, MaxStrLen(Description));
-                            "E-Mail" := ContAltAddr."E-Mail";
-                            Type := Contact.Type;
-                            Insert();
-                            KeyNo := KeyNo + 1;
-                        end;
-                until ContAltAddrDateRange.Next() = 0;
+        if Contact."E-Mail" <> '' then begin
+            ContactThrough.Key := KeyNo;
+            ContactThrough."Contact No." := ContactNo;
+            ContactThrough.Name := Contact.Name;
+            ContactThrough.Description := CopyStr(Contact.FieldCaption("E-Mail"), 1, MaxStrLen(ContactThrough.Description));
+            ContactThrough."E-Mail" := Contact."E-Mail";
+            ContactThrough.Type := Contact.Type;
+            ContactThrough.Insert();
+            KeyNo := KeyNo + 1;
         end;
+
+        // Alternative address
+        ContAltAddrDateRange.SetCurrentKey("Contact No.", "Starting Date");
+        ContAltAddrDateRange.SetRange("Contact No.", ContactNo);
+        ContAltAddrDateRange.SetRange("Starting Date", 0D, Today);
+        ContAltAddrDateRange.SetFilter("Ending Date", '>=%1|%2', Today, 0D);
+        if ContAltAddrDateRange.FindSet() then
+            repeat
+                if ContAltAddr.Get(Contact."No.", ContAltAddrDateRange."Contact Alt. Address Code") then
+                    if ContAltAddr."E-Mail" <> '' then begin
+                        ContactThrough.Key := KeyNo;
+                        ContactThrough.Description :=
+                            CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("E-Mail"), 1, MaxStrLen(ContactThrough.Description));
+                        ContactThrough."E-Mail" := ContAltAddr."E-Mail";
+                        ContactThrough.Type := Contact.Type;
+                        ContactThrough.Insert();
+                        KeyNo := KeyNo + 1;
+                    end;
+            until ContAltAddrDateRange.Next() = 0;
     end;
 
     local procedure Initialize()
@@ -238,25 +237,23 @@ codeunit 397 Mail
         if EmailAddress = '' then
             exit;
 
-        with TempNameValueBuffer do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    if UpperCase(Value) = UpperCase(EmailAddress) then
-                        exit(false);
-                until Next() = 0;
-            if FindLast() then
-                NextID := ID + 1
-            else
-                NextID := 1;
+        TempNameValueBuffer.Reset();
+        if TempNameValueBuffer.FindSet() then
+            repeat
+                if UpperCase(TempNameValueBuffer.Value) = UpperCase(EmailAddress) then
+                    exit(false);
+            until TempNameValueBuffer.Next() = 0;
+        if TempNameValueBuffer.FindLast() then
+            NextID := TempNameValueBuffer.ID + 1
+        else
+            NextID := 1;
 
-            Init();
+        TempNameValueBuffer.Init();
 
-            ID := NextID;
-            Name := CopyStr(EmailKey, 1, MaxStrLen(Name));
-            Value := CopyStr(EmailAddress, 1, MaxStrLen(Value));
-            Insert();
-        end;
+        TempNameValueBuffer.ID := NextID;
+        TempNameValueBuffer.Name := CopyStr(EmailKey, 1, MaxStrLen(TempNameValueBuffer.Name));
+        TempNameValueBuffer.Value := CopyStr(EmailAddress, 1, MaxStrLen(TempNameValueBuffer.Value));
+        TempNameValueBuffer.Insert();
 
         exit(true);
     end;

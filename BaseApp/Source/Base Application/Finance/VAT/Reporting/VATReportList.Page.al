@@ -61,7 +61,9 @@ page 744 "VAT Report List"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
+#pragma warning disable AL0603
                 SubPageLink = "Table ID" = const(Database::"VAT Report Header"), "No." = field("No."), "VAT Report Config. Code" = field("VAT Report Config. Code");
+#pragma warning restore AL0603
             }
         }
     }

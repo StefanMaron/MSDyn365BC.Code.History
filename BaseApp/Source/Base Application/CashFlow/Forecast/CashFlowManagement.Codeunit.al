@@ -292,19 +292,6 @@ codeunit 841 "Cash Flow Management"
     begin
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced with CashFlowNameFullLength.', '21.0')]
-    procedure CashFlowName(CashFlowNo: Code[20]): Text[50]
-    var
-        CashFlowForecast: Record "Cash Flow Forecast";
-    begin
-        if CashFlowForecast.Get(CashFlowNo) then
-            exit(CopyStr(CashFlowForecast.Description, 1, 50));
-
-        exit('')
-    end;
-#endif
-
     procedure CashFlowNameFullLength(CashFlowNo: Code[20]): Text[100]
     var
         CashFlowForecast: Record "Cash Flow Forecast";
@@ -545,12 +532,10 @@ codeunit 841 "Cash Flow Management"
 
     local procedure InitCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; SourceType: Enum "Cash Flow Source Type")
     begin
-        with CashFlowAccount do begin
-            Init();
-            Validate("Source Type", SourceType);
-            Validate("No.", GetNoFromSourceType(SourceType.AsInteger()));
-            Validate(Name, Format("Source Type", MaxStrLen(Name)));
-        end;
+        CashFlowAccount.Init();
+        CashFlowAccount.Validate("Source Type", SourceType);
+        CashFlowAccount.Validate("No.", GetNoFromSourceType(SourceType.AsInteger()));
+        CashFlowAccount.Validate(Name, Format(CashFlowAccount."Source Type", MaxStrLen(CashFlowAccount.Name)));
     end;
 
     local procedure CreateCashFlowForecast()

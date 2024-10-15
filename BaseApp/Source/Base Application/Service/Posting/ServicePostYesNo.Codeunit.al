@@ -1,9 +1,9 @@
 namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.GeneralLedger.Preview;
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Service.Document;
 using Microsoft.Utilities;
-using System.Utilities;
 
 codeunit 5981 "Service-Post (Yes/No)"
 {
@@ -18,60 +18,38 @@ codeunit 5981 "Service-Post (Yes/No)"
     var
         GlobalServiceHeader: Record "Service Header";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        Selection: Integer;
         PreviewMode: Boolean;
-
-        ShipInvoiceConsumeQst: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
-        PostConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
 
     local procedure "Code"(var PassedServLine: Record "Service Line"; var PassedServiceHeader: Record "Service Header")
     var
         ServicePost: Codeunit "Service-Post";
-        ConfirmManagement: Codeunit "Confirm Management";
         Ship: Boolean;
         Consume: Boolean;
         Invoice: Boolean;
         HideDialog: Boolean;
         IsHandled: Boolean;
+        DefaultOption: Integer;
     begin
         if not PassedServiceHeader.Find() then
             Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         HideDialog := false;
         IsHandled := false;
+        DefaultOption := 3;
         OnBeforeConfirmServPost(PassedServiceHeader, HideDialog, Ship, Consume, Invoice, IsHandled, PreviewMode, PassedServLine);
         if IsHandled then
             exit;
 
-        with PassedServiceHeader do begin
-            if not HideDialog then
-                case "Document Type" of
-                    "Document Type"::Order:
-                        begin
-                            Selection := StrMenu(ShipInvoiceConsumeQst, 3);
-                            if Selection = 0 then begin
-                                if PreviewMode then
-                                    Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
-                                exit;
-                            end;
-                            Ship := Selection in [1, 3, 4];
-                            Consume := Selection in [4];
-                            Invoice := Selection in [2, 3];
-                        end
-                    else
-                        if not PreviewMode then
-                            if not ConfirmManagement.GetResponseOrDefault(
-                                 StrSubstNo(PostConfirmQst, "Document Type"), true)
-                            then
-                                exit;
-                end;
+        if not HideDialog then
+            if not ConfirmPost(PassedServiceHeader, Ship, Consume, Invoice, DefaultOption) then
+                exit;
 
-            OnAfterConfirmPost(PassedServiceHeader, Ship, Consume, Invoice);
+        OnAfterConfirmPost(PassedServiceHeader, Ship, Consume, Invoice);
 
-            ServicePost.SetPreviewMode(PreviewMode);
-            ServicePost.PostWithLines(PassedServiceHeader, PassedServLine, Ship, Consume, Invoice);
-            GlobalServiceHeader.Copy(PassedServiceHeader);
-        end;
+        ServicePost.SetPreviewMode(PreviewMode);
+        ServicePost.PostWithLines(PassedServiceHeader, PassedServLine, Ship, Consume, Invoice);
+        GlobalServiceHeader.Copy(PassedServiceHeader);
+
 
         OnAfterPost(PassedServiceHeader);
     end;
@@ -111,6 +89,17 @@ codeunit 5981 "Service-Post (Yes/No)"
         GenJnlPostPreview.Preview(ServicePostYesNo, TempServLine);
     end;
 
+    procedure MessageIfPostingPreviewMultipleDocuments(var ServiceHeaderToPreview: Record "Service Header"; DocumentNo: Code[20])
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        RecordRefToPreview: RecordRef;
+    begin
+        RecordRefToPreview.Open(Database::"Service Header");
+        RecordRefToPreview.Copy(ServiceHeaderToPreview);
+
+        GenJnlPostPreview.MessageIfPostingPreviewMultipleDocuments(RecordRefToPreview, DocumentNo);
+    end;
+
     procedure PreviewDocumentWithLines(var ServHeader: Record "Service Header"; var PassedServLine: Record "Service Line")
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -129,6 +118,23 @@ codeunit 5981 "Service-Post (Yes/No)"
     procedure GetGlobalServiceHeader(var ServiceHeader: Record "Service Header")
     begin
         ServiceHeader.Copy(GlobalServiceHeader);
+    end;
+
+    local procedure ConfirmPost(var ServiceHeader: Record "Service Header"; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; DefaultOption: Integer) Result: Boolean
+    var
+        PostingSelectionManagement: Codeunit "Posting Selection Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmPost(ServiceHeader, Ship, Consume, Invoice, DefaultOption, PreviewMode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := PostingSelectionManagement.ConfirmPostServiceDocument(ServiceHeader, Ship, Consume, Invoice, DefaultOption, false, false, PreviewMode);
+        if not Result then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -168,6 +174,11 @@ codeunit 5981 "Service-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreviewDocument(var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPost(var ServiceHeader: Record "Service Header"; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var DefaultOption: Integer; PreviewMode: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

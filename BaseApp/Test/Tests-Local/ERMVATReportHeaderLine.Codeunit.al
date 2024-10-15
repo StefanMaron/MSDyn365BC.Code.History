@@ -13,24 +13,15 @@ codeunit 134056 "ERM VAT Report Header Line"
 
     var
         Assert: Codeunit Assert;
-        Text001: Label '%1 is not empty.';
         EditingAllowedError: Label 'Editing is not allowed because the report is marked as %1.';
         CheckReopenedError: Label 'This is not allowed because of the setup in the %1 window.';
-        CheckRealesedError: Label 'You must specify an original report for a report of type %1.';
-        CheckEndDateError: Label 'The end date cannot be earlier than the start date.';
-        CheckTypeOnValidateError: Label 'The value of %1 field in the %2 window does not allow this option.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         CheckOnRenameError: Label 'You cannot rename the report because it has been assigned a report number.';
-        CheckOriginalRepNo1: Label 'You cannot specify an original report for a report of type %1.';
-        CheckOriginalRepNo2: Label 'You cannot specify the same report as the reference report.';
-        CheckOriginalRepNo3: Label 'Original Report No. must have a value in %1';
-        DateErrorMessage: Label 'Start Date and End date should be the same as on the %1', Comment = '%1=Field Caption;';
         NoSeriesError: Label 'No. Series not set correct';
         NoOnValidateError: Label 'No. Series should be blank when manually inserting No.';
         InsertError: Label 'Wrong no. series code';
         OnModifyError: Label 'Start Date must have a value in %1';
-        CanBeSubmittedError: Label 'Status must be equal to ''Released''  in %1';
         StartDateError: Label 'Start Date must have a value in %1';
         EndDateError: Label 'End Date must have a value in %1';
 
@@ -135,11 +126,11 @@ codeunit 134056 "ERM VAT Report Header Line"
         Initialize();
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Released;
-        asserterror VATReportHdr.CheckEditingAllowed;
+        asserterror VATReportHdr.CheckEditingAllowed();
         Assert.ExpectedError(StrSubstNo(EditingAllowedError, Format(VATReportHdr.Status)));
 
         VATReportHdr.Status := VATReportHdr.Status::Submitted;
-        asserterror VATReportHdr.CheckEditingAllowed;
+        asserterror VATReportHdr.CheckEditingAllowed();
         Assert.ExpectedError(StrSubstNo(EditingAllowedError, Format(VATReportHdr.Status)));
     end;
 
@@ -152,7 +143,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         Initialize();
         VATReportHdr.Get('Test');
         VATReportHdr.Status := VATReportHdr.Status::Open;
-        VATReportHdr.CheckEditingAllowed;
+        VATReportHdr.CheckEditingAllowed();
     end;
 
     [Test]
@@ -216,17 +207,17 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportHdr.Get('Test');
         // Test Start date
         VATReportHdr."Start Date" := 0D;
-        asserterror VATReportHdr.CheckDates;
+        asserterror VATReportHdr.CheckDates();
         Assert.ExpectedError(StrSubstNo(StartDateError, VATReportHdr.TableCaption()));
 
         // Test End date
         VATReportHdr."Start Date" := Today;
         VATReportHdr."End Date" := 0D;
-        asserterror VATReportHdr.CheckDates;
+        asserterror VATReportHdr.CheckDates();
         Assert.ExpectedError(StrSubstNo(EndDateError, VATReportHdr.TableCaption()));
 
         VATReportHdr."End Date" := Today;
-        VATReportHdr.CheckDates;
+        VATReportHdr.CheckDates();
     end;
 
     [Test]
@@ -255,7 +246,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportSetup."No. Series" := NoSeries.Code;
         VATReportSetup.Modify();
 
-        Assert.AreEqual(VATReportHdr.GetNoSeriesCode, NoSeries.Code, NoSeriesError);
+        Assert.AreEqual(VATReportHdr.GetNoSeriesCode(), NoSeries.Code, NoSeriesError);
         TearDown(VATReportHdr);
     end;
 
@@ -310,7 +301,7 @@ codeunit 134056 "ERM VAT Report Header Line"
     begin
         LibraryVariableStorage.Dequeue(No);
         VATReportList.GotoKey(No);
-        VATReportList.OK.Invoke;
+        VATReportList.OK().Invoke();
     end;
 }
 

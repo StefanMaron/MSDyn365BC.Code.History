@@ -136,14 +136,14 @@ codeunit 142067 "UT COD VATSTAT"
         DACHReportSelections: Record "DACH Report Selections";
     begin
         DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10;
+        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
         DACHReportSelections."Report ID" := ReportID;
         DACHReportSelections.Insert();
     end;
 
     local procedure CreateVATStatementTemplate(var VATStatementTemplate: Record "VAT Statement Template")
     begin
-        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10;
+        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10();
         VATStatementTemplate.Insert();
     end;
 

@@ -34,7 +34,7 @@ codeunit 136133 "Service Stockout"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Stockout");
         // Clear the needed globals
-        ClearGlobals;
+        ClearGlobals();
 
         // Lazy Setup.
         if IsInitialized then
@@ -185,8 +185,8 @@ codeunit 136133 "Service Stockout"
         PurchaseQuantity := LibraryRandom.RandInt(10) * 2;  // Taking Minimum Value as 2 as the Sale Quantity should not be zero.
         ServiceQuantity := PurchaseQuantity - 1;
         LibraryInventory.CreateItem(Item);
-        LocationA := CreateLocation;
-        LocationB := CreateLocation;
+        LocationA := CreateLocation();
+        LocationB := CreateLocation();
         PurchaseOrderNo := CreatePurchaseSupplyAtLocation(Item."No.", PurchaseQuantity, LocationA);
         ServiceOrderNo := CreateServiceDemandLocatnAfter(Item."No.", ZeroQuantity, LocationB, GetReceiptDate(PurchaseOrderNo));
 
@@ -254,8 +254,8 @@ codeunit 136133 "Service Stockout"
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity;
         LibraryInventory.CreateItem(Item);
-        LocationA := CreateLocation;
-        LocationB := CreateLocation;
+        LocationA := CreateLocation();
+        LocationB := CreateLocation();
         PurchaseOrderNo := CreatePurchaseSupplyAtLocation(Item."No.", PurchaseQuantity, LocationA);
         ServiceOrderNo := CreateServiceDemandLocatnAfter(Item."No.", ServiceQuantity, LocationA, GetReceiptDate(PurchaseOrderNo));
 
@@ -284,7 +284,7 @@ codeunit 136133 "Service Stockout"
         // Test availability warning if the date of Service Demand is modified to a date where demand cannot be met
 
         // SETUP: Create Supply with Purchase Order for Item X, Qantity=Y, Date = Workdate.
-        // SETUP: Create Service Demand for Item X, Quantity=Y, Date = Workdate + 1
+        // SETUP: Create Service Demand for Item X, Quantity=Y, Date = WorkDate() + 1
         Initialize();
         PurchaseQuantity := LibraryRandom.RandInt(10);
         ServiceQuantity := PurchaseQuantity;
@@ -293,12 +293,12 @@ codeunit 136133 "Service Stockout"
         PurchaseOrderNo := CreatePurchaseSupplyAfter(Item."No.", PurchaseQuantity, GetNeededByDate(ServiceOrderNo));
         ServiceOrderNo := CreateServiceDemandAfter(Item."No.", ServiceQuantity, GetReceiptDate(PurchaseOrderNo));
 
-        // EXECUTE: Change Date on Service Order Through UI to Date = Workdate - 1.
+        // EXECUTE: Change Date on Service Order Through UI to Date = WorkDate() - 1.
         // EXECUTE: (Date Change set in EditServiceLinesNeededByDate).
         QuantityToSet := ServiceQuantity;
         EditFirstServiceLinesNeedDate(ServiceOrderNo);
 
-        // VERIFY: Quantity on service order after warning is Y and Date is Workdate - 1.
+        // VERIFY: Quantity on service order after warning is Y and Date is WorkDate() - 1.
         ValidateQuantity(ServiceOrderNo, QuantityToSet);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -635,18 +635,18 @@ codeunit 136133 "Service Stockout"
         LineNo: Text;
     begin
         ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceOrderNo);
-        ServiceLinesToReturn.OpenEdit;
+        ServiceLinesToReturn.OpenEdit();
 
         ServiceLineToSelect.SetRange("Document No.", ServiceOrderNo);
         ServiceLineToSelect.SetRange("Document Type", ServiceLineToSelect."Document Type"::Order);
         ServiceLineToSelect.FindFirst();
 
         LineNo := Format(ServiceLineToSelect."Line No.");
-        ServiceLinesToReturn.First;
+        ServiceLinesToReturn.First();
         ServiceLinesToReturn.FILTER.SetFilter("Document No.", ServiceOrderNo);
         ServiceLinesToReturn.FILTER.SetFilter("Document Type", 'Order');
         ServiceLinesToReturn.FILTER.SetFilter("Line No.", LineNo);
-        ServiceLinesToReturn.First;
+        ServiceLinesToReturn.First();
     end;
 
     local procedure ValidateQuantity(DocumentNo: Code[20]; Quantity: Integer)

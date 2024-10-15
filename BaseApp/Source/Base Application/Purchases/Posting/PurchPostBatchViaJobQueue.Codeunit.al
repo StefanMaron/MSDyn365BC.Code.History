@@ -82,7 +82,7 @@ codeunit 95 "Purch Post Batch via Job Queue"
         Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
-    local procedure SetJobQueueStatus(var PurchaseHeader: Record "Purchase Header"; NewStatus: Option)
+    local procedure SetJobQueueStatus(var PurchaseHeader: Record "Purchase Header"; NewStatus: Enum "Document Job Queue Status")
     begin
         PurchaseHeader.LockTable();
         if PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.") then begin

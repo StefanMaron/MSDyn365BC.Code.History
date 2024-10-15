@@ -214,36 +214,32 @@ codeunit 1008 "Job Calculate Statistics"
     local procedure CalcJobLedgAmounts(EntryType: Enum "Job Journal Line Entry Type"; TypeParm: Enum "Job Planning Line Type")
     begin
         JobLedgEntry2.Copy(JobLedgEntry);
-        with JobLedgEntry2 do begin
-            SetRange("Entry Type", EntryType);
-            SetRange(Type, TypeParm);
-            CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
-            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
-            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
-            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCost] := "Total Cost";
-            JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmount] := "Line Amount";
-        end;
+        JobLedgEntry2.SetRange("Entry Type", EntryType);
+        JobLedgEntry2.SetRange(Type, TypeParm);
+        JobLedgEntry2.CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
+        JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCostLCY] := JobLedgEntry2."Total Cost (LCY)";
+        JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmountLCY] := JobLedgEntry2."Line Amount (LCY)";
+        JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCost] := JobLedgEntry2."Total Cost";
+        JobLedgAmounts[1 + EntryType.AsInteger(), 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmount] := JobLedgEntry2."Line Amount";
     end;
 
     local procedure CalcJobPlanAmounts(PlanLineTypeParm: Option; TypeParm: Enum "Job Planning Line Type")
     begin
         JobPlanningLine2.Copy(JobPlanningLine);
-        with JobPlanningLine2 do begin
-            SetRange("Schedule Line");
-            SetRange("Contract Line");
-            if PlanLineTypeParm = PlanLineType::Schedule then
-                SetRange("Schedule Line", true)
-            else
-                SetRange("Contract Line", true);
-            SetRange(Type, TypeParm);
-            OnCalcJobPlanAmountsOnAfterJobPlanningLineSetFilters(JobPlanningLine2);
+        JobPlanningLine2.SetRange("Schedule Line");
+        JobPlanningLine2.SetRange("Contract Line");
+        if PlanLineTypeParm = PlanLineType::Schedule then
+            JobPlanningLine2.SetRange("Schedule Line", true)
+        else
+            JobPlanningLine2.SetRange("Contract Line", true);
+        JobPlanningLine2.SetRange(Type, TypeParm);
+        OnCalcJobPlanAmountsOnAfterJobPlanningLineSetFilters(JobPlanningLine2);
 
-            CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCostLCY] := "Total Cost (LCY)";
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmountLCY] := "Line Amount (LCY)";
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCost] := "Total Cost";
-            JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmount] := "Line Amount";
-        end;
+        JobPlanningLine2.CalcSums("Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount");
+        JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCostLCY] := JobPlanningLine2."Total Cost (LCY)";
+        JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmountLCY] := JobPlanningLine2."Line Amount (LCY)";
+        JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::TotalCost] := JobPlanningLine2."Total Cost";
+        JobPlanAmounts[1 + PlanLineTypeParm, 1 + TypeParm.AsInteger(), 1 + AmountType::LineAmount] := JobPlanningLine2."Line Amount";
     end;
 
     procedure GetLCYCostAmounts(var Amt: array[16] of Decimal)
@@ -288,21 +284,19 @@ codeunit 1008 "Job Calculate Statistics"
 
     procedure ShowPlanningLine(JobType: Option " ",Resource,Item,GL; Schedule: Boolean)
     begin
-        with JobPlanningLine do begin
-            FilterGroup(2);
-            SetRange("Contract Line");
-            SetRange("Schedule Line");
-            SetRange(Type);
-            if JobType > 0 then
-                SetRange(Type, JobType - 1);
-            if Schedule then
-                SetRange("Schedule Line", true)
-            else
-                SetRange("Contract Line", true);
-            FilterGroup(0);
-            OnShowPlanningLineOnAfterJobPlanningLineSetFilters(JobPlanningLine);
-            PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);
-        end;
+        JobPlanningLine.FilterGroup(2);
+        JobPlanningLine.SetRange("Contract Line");
+        JobPlanningLine.SetRange("Schedule Line");
+        JobPlanningLine.SetRange(Type);
+        if JobType > 0 then
+            JobPlanningLine.SetRange(Type, JobType - 1);
+        if Schedule then
+            JobPlanningLine.SetRange("Schedule Line", true)
+        else
+            JobPlanningLine.SetRange("Contract Line", true);
+        JobPlanningLine.FilterGroup(0);
+        OnShowPlanningLineOnAfterJobPlanningLineSetFilters(JobPlanningLine);
+        PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);
     end;
 
     procedure ShowLedgEntry(JobType: Option " ",Resource,Item,GL; Usage: Boolean)

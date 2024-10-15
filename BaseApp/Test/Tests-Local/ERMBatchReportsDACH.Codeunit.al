@@ -34,7 +34,7 @@ codeunit 142061 "ERM Batch Reports DACH"
         Initialize();
 
         // [GIVEN] Fixed Asset "FA" with "Sales Acc. on Disp. (Loss)" = "DispLossGLAcc", "Disposal Calculation Method" = "Gross", "VAT on Net Disposal Entries" = TRUE
-        FANo := CreateFAWithBook;
+        FANo := CreateFAWithBook();
 
         // [GIVEN] Posted purchase invoice fixed asset "FA" on "Posting Date" = 01-01-2019
         CreatePostFixedAssetPurchaseInvoice(WorkDate(), FANo, LibraryRandom.RandDecInRange(10000, 20000, 2));
@@ -70,7 +70,7 @@ codeunit 142061 "ERM Batch Reports DACH"
         Initialize();
 
         // [GIVEN] Fixed Asset "FA" with "Sales Acc. on Disp. (Loss)" = "DispLossGLAcc", "Disposal Calculation Method" = "Gross", "VAT on Net Disposal Entries" = TRUE
-        FANo := CreateFAWithBook;
+        FANo := CreateFAWithBook();
 
         // [GIVEN] Posted purchase invoice fixed asset "FA" on "Posting Date" = 01-01-2019
         BindSubscription(ERMBatchReportsDACHSubscriber);
@@ -135,7 +135,7 @@ codeunit 142061 "ERM Batch Reports DACH"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
 
@@ -152,7 +152,7 @@ codeunit 142061 "ERM Batch Reports DACH"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
 

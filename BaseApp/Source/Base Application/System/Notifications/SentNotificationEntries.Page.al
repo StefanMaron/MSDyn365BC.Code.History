@@ -32,7 +32,9 @@ page 1514 "Sent Notification Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user who received the sent notification.';
                 }
+#pragma warning disable AA0100
                 field("FORMAT(""Triggered By Record"")"; Format(Rec."Triggered By Record"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Triggered By Record';

@@ -38,7 +38,7 @@ codeunit 134032 "ERM Customer Date Compression"
         // verify the Amount and No. of Entries in Customer Ledger Entries. Take 1 Week interval between posting dates to test date
         // compression on lower and upper bounds randomly.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LastPostingDate := CustomerDateCompression(CustomerNo, DateComprRegister."Period Length"::Week, FirstPostingDate, '<1W>');
         NoOfEntries := ComputeNoOfWeek(FirstPostingDate, LastPostingDate);
@@ -86,7 +86,7 @@ codeunit 134032 "ERM Customer Date Compression"
     begin
         // Create Customer. Create multiple Invoice and Payment entries on General Journal Line and Post them. Date Compress as per the
         // Period Length selected. Verify the Amount and No. of Entries in Customer Ledger Entries.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LastPostingDate := CustomerDateCompression(CustomerNo, PeriodLength, FirstPostingDate, PeriodDifference);
 
@@ -113,7 +113,7 @@ codeunit 134032 "ERM Customer Date Compression"
 
         // Setup: Create and post General Journal Lines, Compress the Customer Ledger Entry.
         Initialize();
-        CreateDocumentLine(GenJournalLine, CreateCustomer, 1, LibraryFiscalYear.GetFirstPostingDate(true), '');
+        CreateDocumentLine(GenJournalLine, CreateCustomer(), 1, LibraryFiscalYear.GetFirstPostingDate(true), '');
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForCustomer(GenJournalLine, GenJournalLine."Posting Date", DateComprRegister."Period Length"::Week);
         FindDetailedCustLedgerEntry(DetailedCustLedgEntry, GenJournalLine."Account No.", GenJournalLine."Document Type");

@@ -70,7 +70,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         // Purpose of the test is to validate Method FormatNoText for Report 1401 - Check.
         // Setup.
         Initialize();
-        CurrencyCode := LibraryUTUtility.GetNewCode10;
+        CurrencyCode := LibraryUTUtility.GetNewCode10();
         Amount := LibraryRandom.RandDecInDecimalRange(1, 9, 2);  // Decimal range - 1 to 9.
 
         // Exercise: Function FormatNoText with Amount Value and Currency Code.
@@ -100,7 +100,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         RunGLTotalBalanceReport(GLEntry."G/L Account No.");
 
         // Verify: Verify the Header Text, Period End Balance and Account No after running GL Total Balance Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeaderText', StrSubstNo('All amounts are in %1', GLSetup."LCY Code"));
         LibraryReportDataset.AssertElementWithValueExists(GLAccNoCap, GLEntry."G/L Account No.");
         LibraryReportDataset.AssertElementWithValueExists('PeriodEndBalance', GLEntry.Amount);
@@ -120,7 +120,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         Initialize();
         CreateGLAccount(GLEntry, GLAccount."Account Type"::Heading);
         GLAccount.Get(GLEntry."G/L Account No.");
-        GLAccount."Date Filter" := SelectStartingDateAccountingPeriod;
+        GLAccount."Date Filter" := SelectStartingDateAccountingPeriod();
         GLAccount.Modify();
 
         // Exercise.
@@ -248,7 +248,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         REPORT.Run(REPORT::"Vendor Detailed Aging");  // Opens VendorDetailedAgingRequestPageHandler.
 
         // Verify: Verify VendFilter and OverDueMonths on Report Vendor Detailed Aging in VendorDetailedAgingRequestPageHandler.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VendFilter', StrSubstNo('%1: %2', Vendor.FieldCaption("No."), VendorLedgerEntry."Vendor No."));
         LibraryReportDataset.AssertElementWithValueExists('OverDueMonths', OverDueMonths);
     end;
@@ -283,11 +283,11 @@ codeunit 142070 "UT REP GERREPORTS - I"
         LibraryVariableStorage.Enqueue(StartingDate);  // Starting Date greater than the existing Accounting Period Starting Date.
     end;
 
-    local procedure CreateGLAccount(var GLEntry: Record "G/L Entry"; AccountType: Option)
+    local procedure CreateGLAccount(var GLEntry: Record "G/L Entry"; AccountType: Enum "G/L Account Type")
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Account Type" := AccountType;
         GLAccount.Insert();
         CreateGLEntry(GLEntry, GLAccount."No.");  // GL Entry required for the posted entries for G/L Account.
@@ -311,7 +311,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
 
         VendorLedgerEntry2.FindLast();
@@ -335,7 +335,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
 
     local procedure VerifyEndBalanceAndAccountNoType(EndBalance: Variant; EndBalanceType: Variant; AccountType: Variant; NoGLAcc: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('EndBalance', EndBalance);
         LibraryReportDataset.AssertElementWithValueExists('EndBalanceType', EndBalanceType);
         LibraryReportDataset.AssertElementWithValueExists(GLAccNoCap, NoGLAcc);
@@ -345,7 +345,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     local procedure UpdateGLTotalBalanceReportRequestPage(GLTotalBalance: TestRequestPage "G/L Total-Balance"; StartingDate: Date)
     begin
         GLTotalBalance."G/L Account".SetFilter("Date Filter", Format(StartingDate));
-        GLTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -373,7 +373,7 @@ codeunit 142070 "UT REP GERREPORTS - I"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         VendorDetailedAging.Vendor.SetFilter("No.", VendorNo);
-        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDetailedAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

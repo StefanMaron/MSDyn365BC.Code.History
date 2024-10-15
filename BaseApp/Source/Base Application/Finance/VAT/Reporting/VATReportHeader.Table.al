@@ -14,6 +14,7 @@ table 740 "VAT Report Header"
 {
     Caption = 'VAT Report Header';
     LookupPageID = "VAT Report List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 740 "VAT Report Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -203,9 +204,9 @@ table 740 "VAT Report Header"
                 TestField(Status, Status::Open);
                 TestField("Original Report No.", '');
                 if "Report Year" <> xRec."Report Year" then begin
-                    if LineExists then
+                    if LineExists() then
                         Error(Text010, FieldCaption("Report Year"));
-                    SetPeriod;
+                    SetPeriod();
                 end;
             end;
         }
@@ -474,9 +475,33 @@ table 740 "VAT Report Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        DefaultNoSeriesCode: Code[20];
+        IsHandled: Boolean;
+#endif
     begin
-        if "No." = '' then
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", WorkDate(), "No.", "No. Series");
+        if "No." = '' then begin
+#if not CLEAN24
+            DefaultNoSeriesCode := GetNoSeriesCode();
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := DefaultNoSeriesCode;
+                "No." := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, WorkDate(), "No.");
+            end;
+#else
+			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := GetNoSeriesCode();
+            "No." := NoSeries.GetNextNo("No. Series");
+#endif
+        end;
 
         InitRecord();
     end;
@@ -494,7 +519,7 @@ table 740 "VAT Report Header"
 
     var
         VATReportSetup: Record "VAT Report Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
 
         Text002: Label 'Editing is not allowed because the report is marked as %1.';
         Text003: Label 'The %1 cannot be earlier than the %2.';
@@ -524,8 +549,8 @@ table 740 "VAT Report Header"
 
     procedure AssistEdit(OldVATReportHeader: Record "VAT Report Header"): Boolean
     begin
-        if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldVATReportHeader."No. Series", "No. Series") then begin
-            NoSeriesMgt.SetSeries("No.");
+        if NoSeries.LookupRelatedNoSeries(GetNoSeriesCode(), OldVATReportHeader."No. Series", "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
             exit(true);
         end;
     end;
@@ -537,8 +562,7 @@ table 740 "VAT Report Header"
         "Report Period No." := Date2DMY(WorkDate(), 2);
         Validate("Report Year", Date2DMY(WorkDate(), 3));
 
-
-        FillCompanyInfo;
+        FillCompanyInfo();
 
         OnAfterInitRecord(Rec);
     end;
@@ -626,7 +650,7 @@ table 740 "VAT Report Header"
     local procedure SetPeriod()
     begin
         if "Report Period No." <> 0 then
-            CheckPeriodNo;
+            CheckPeriodNo();
         if "Report Period Type" = "Report Period Type"::Year then
             "Report Period No." := 1;
 
@@ -656,7 +680,7 @@ table 740 "VAT Report Header"
                         Validate("End Date", CalcDate('<CM + 1M>', "Start Date"));
                     end;
             end;
-        CheckPeriod;
+        CheckPeriod();
     end;
 
     local procedure CheckPeriod()
@@ -704,11 +728,9 @@ table 740 "VAT Report Header"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        with VATReportHeader do begin
-            Get(VATReportNo);
-            TestField("VAT Report Type", "VAT Report Type"::Standard);
-            TestField(Status, Status::Submitted);
-        end;
+        VATReportHeader.Get(VATReportNo);
+        VATReportHeader.TestField("VAT Report Type", VATReportHeader."VAT Report Type"::Standard);
+        VATReportHeader.TestField(Status, VATReportHeader.Status::Submitted);
     end;
 
     local procedure GetCompanyName(CompanyInformation: Record "Company Information"; VATReportSetup: Record "VAT Report Setup"): Text[100]

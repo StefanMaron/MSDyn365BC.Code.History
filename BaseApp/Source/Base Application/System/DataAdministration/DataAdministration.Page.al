@@ -35,6 +35,7 @@ using Microsoft.Service.Item;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Ledger;
 using System.Threading;
+using System.Environment.Configuration;
 
 page 9035 "Data Administration"
 {
@@ -344,6 +345,14 @@ page 9035 "Data Administration"
                         ToolTip = 'Delete media that is not being actively referenced.';
                         Ellipsis = true;
                         RunObject = Page "Detached Media Cleanup";
+                    }
+                    action(CleanupDuplicatedGuidedExperienceItem)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Delete Duplicated Guided Experience Item';
+                        ToolTip = 'Cleanup Duplicated Guided Experience Items';
+                        Ellipsis = true;
+                        RunObject = Page "Guided Experience Item Cleanup";
                     }
                 }
             }

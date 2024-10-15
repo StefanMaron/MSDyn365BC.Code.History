@@ -194,15 +194,13 @@ codeunit 249 "VAT Registration Log Mgt."
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            Init();
-            "VAT Registration No." := VATRegNo;
-            "Country/Region Code" := CountryCode;
-            "Account Type" := AccountType;
-            "Account No." := AccountNo;
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            Insert(true);
-        end;
+        VATRegistrationLog.Init();
+        VATRegistrationLog."VAT Registration No." := VATRegNo;
+        VATRegistrationLog."Country/Region Code" := CountryCode;
+        VATRegistrationLog."Account Type" := AccountType;
+        VATRegistrationLog."Account No." := AccountNo;
+        VATRegistrationLog."User ID" := CopyStr(UserId(), 1, MaxStrLen(VATRegistrationLog."User ID"));
+        VATRegistrationLog.Insert(true);
 
         OnAfterInsertVATRegistrationLog(VATRegistrationLog);
     end;
@@ -211,36 +209,30 @@ codeunit 249 "VAT Registration Log Mgt."
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            SetRange("Account Type", "Account Type"::Customer);
-            SetRange("Account No.", Customer."No.");
-            if not IsEmpty() then
-                DeleteAll();
-        end;
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Customer);
+        VATRegistrationLog.SetRange("Account No.", Customer."No.");
+        if not VATRegistrationLog.IsEmpty() then
+            VATRegistrationLog.DeleteAll();
     end;
 
     procedure DeleteVendorLog(Vendor: Record Vendor)
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", Vendor."No.");
-            if not IsEmpty() then
-                DeleteAll();
-        end;
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Vendor);
+        VATRegistrationLog.SetRange("Account No.", Vendor."No.");
+        if not VATRegistrationLog.IsEmpty() then
+            VATRegistrationLog.DeleteAll();
     end;
 
     procedure DeleteContactLog(Contact: Record Contact)
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            SetRange("Account Type", "Account Type"::Contact);
-            SetRange("Account No.", Contact."No.");
-            if not IsEmpty() then
-                DeleteAll();
-        end;
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Contact);
+        VATRegistrationLog.SetRange("Account No.", Contact."No.");
+        if not VATRegistrationLog.IsEmpty() then
+            VATRegistrationLog.DeleteAll();
     end;
 
     procedure AssistEditCustomerVATReg(Customer: Record Customer)
@@ -367,7 +359,7 @@ codeunit 249 "VAT Registration Log Mgt."
             DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
             if not DataTypeManagement.FindFieldByName(RecordRef, VatRegNoFieldRef, VATNoFieldName) then
                 exit;
-            VATRegNo := VatRegNoFieldRef.Value;
+            VATRegNo := VatRegNoFieldRef.Value();
 
             VATRegistrationLog.InitVATRegLog(VATRegistrationLog, CountryCode, AccountType, EntryNo, VATRegNo);
             CODEUNIT.Run(CODEUNIT::"VAT Lookup Ext. Data Hndl", VATRegistrationLog);
@@ -480,9 +472,8 @@ codeunit 249 "VAT Registration Log Mgt."
             ServiceConnection.Status := ServiceConnection.Status::Enabled
         else
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
-        with VATRegNoSrvConfig do
-            ServiceConnection.InsertServiceConnection(
-              ServiceConnection, RecRef.RecordId, DescriptionLbl, "Service Endpoint", PAGE::"VAT Registration Config");
+        ServiceConnection.InsertServiceConnection(
+              ServiceConnection, RecRef.RecordId, DescriptionLbl, VATRegNoSrvConfig."Service Endpoint", PAGE::"VAT Registration Config");
     end;
 
     [IntegrationEvent(false, false)]

@@ -11,6 +11,7 @@ using System.Visualization;
 table 760 "Trailing Sales Orders Setup"
 {
     Caption = 'Trailing Sales Orders Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

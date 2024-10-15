@@ -737,6 +737,9 @@ codeunit 5944 SignServContractDoc
                           Text021,
                           FromServContractHeader."Contract No.",
                           FromServContractHeader."Customer No.");
+
+                    CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(ServItem, FromServContractLine);
+
                     OnCheckServContractQuoteOnAfterCheckServItemCustomerNo(FromServContractLine, FromServContractHeader, ServItem);
                 until FromServContractLine.Next() = 0;
 
@@ -816,6 +819,8 @@ codeunit 5944 SignServContractDoc
         ServMgtSetup.Get();
         if ServMgtSetup."Salesperson Mandatory" then
             ServContractHeader.TestField("Salesperson Code");
+
+        CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(ServContractHeader);
 
         exit(CheckServContractDatesDimensionsAndResponseTime(ServContractHeader));
     end;
@@ -1094,6 +1099,29 @@ codeunit 5944 SignServContractDoc
         FromServHour.SetRange("Service Contract Type", FromServHour."Service Contract Type"::Quote);
         FromServHour.SetRange("Service Contract No.", FromServContractHeader."Contract No.");
         FromServHour.DeleteAll();
+    end;
+
+    local procedure CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(var ServiceItem: Record "Service Item"; ServiceContractLine: Record "Service Contract Line")
+    var
+        ServContractManagement: Codeunit ServContractManagement;
+    begin
+        ServiceItem.ErrorIfBlockedForServiceContract();
+        ServContractManagement.CheckItemServiceBlocked(ServiceContractLine);
+    end;
+
+    local procedure CheckServiceItemBlockedForServiceContractAndItemServiceBlocked(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        ServiceContractLine: Record "Service Contract Line";
+        ServContractManagement: Codeunit ServContractManagement;
+    begin
+        ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceContractLine.SetFilter("Service Item No.", '<>%1', '');
+        if ServiceContractLine.FindSet() then
+            repeat
+                ServContractManagement.CheckServiceItemBlockedForServiceContract(ServiceContractLine);
+                ServContractManagement.CheckItemServiceBlocked(ServiceContractLine);
+            until ServiceContractLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

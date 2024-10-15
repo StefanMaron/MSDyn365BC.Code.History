@@ -262,6 +262,34 @@ page 7383 "Invt. Movement Subform"
                         SplitLines();
                     end;
                 }
+                action(FillQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Autofill Qty. To Handle';
+                    Image = AutofillQtyToHandle;
+                    Gesture = LeftSwipe;
+                    ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.AutofillQtyToHandleOnLine(Rec);
+                    end;
+                }
+                action(ResetQtyToHandle)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Reset Qty. To Handle';
+                    Image = UndoFluent;
+                    Gesture = RightSwipe;
+                    ToolTip = 'Have the system clear the value in the Qty. To Handle field.';
+                    Scope = Repeater;
+
+                    trigger OnAction()
+                    begin
+                        Rec.DeleteQtyToHandleOnLine(Rec);
+                    end;
+                }
             }
             group("&Line")
             {

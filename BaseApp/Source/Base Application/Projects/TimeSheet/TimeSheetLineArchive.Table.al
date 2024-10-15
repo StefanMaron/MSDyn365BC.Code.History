@@ -14,6 +14,7 @@ using System.Security.User;
 table 955 "Time Sheet Line Archive"
 {
     Caption = 'Time Sheet Line Archive';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -37,12 +38,12 @@ table 955 "Time Sheet Line Archive"
         }
         field(6; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(7; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(9; "Cause of Absence Code"; Code[10])

@@ -13,6 +13,7 @@ table 560 "VAT Clause"
     Caption = 'VAT Clause';
     DrillDownPageID = "VAT Clauses";
     LookupPageID = "VAT Clauses";
+    DataClassification = CustomerContent;
 
     fields
     {

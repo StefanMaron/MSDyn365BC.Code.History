@@ -144,4 +144,3 @@ page 737 "VAT Return Period List"
         Rec.CheckOpenOrOverdue();
     end;
 }
-

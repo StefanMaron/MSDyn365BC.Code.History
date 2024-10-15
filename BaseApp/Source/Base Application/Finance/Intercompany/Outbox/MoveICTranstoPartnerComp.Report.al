@@ -18,7 +18,7 @@ report 513 "Move IC Trans. to Partner Comp"
     {
         dataitem("IC Outbox Transaction"; "IC Outbox Transaction")
         {
-            DataItemTableView = sorting("Transaction No.", "IC Partner Code", "Transaction Source", "Document Type") order(Ascending);
+            DataItemTableView = sorting("Transaction No.", "IC Partner Code", "Transaction Source", "Document Type") order(ascending);
             dataitem("IC Outbox Jnl. Line"; "IC Outbox Jnl. Line")
             {
                 DataItemLink = "Transaction No." = field("Transaction No."), "IC Partner Code" = field("IC Partner Code"), "Transaction Source" = field("Transaction Source");
@@ -26,7 +26,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 dataitem("IC Inbox/Outbox Jnl. Line Dim."; "IC Inbox/Outbox Jnl. Line Dim.")
                 {
                     DataItemLink = "IC Partner Code" = field("IC Partner Code"), "Transaction No." = field("Transaction No."), "Line No." = field("Line No.");
-                    DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") ORDER(Ascending) where("Table ID" = const(415));
+                    DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") order(ascending) where("Table ID" = const(415));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -50,7 +50,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 dataitem("IC Document Dimension SH"; "IC Document Dimension")
                 {
                     DataItemLink = "Transaction No." = field("IC Transaction No."), "IC Partner Code" = field("IC Partner Code"), "Transaction Source" = field("Transaction Source");
-                    DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") ORDER(Ascending) where("Table ID" = const(426), "Line No." = const(0));
+                    DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") order(ascending) where("Table ID" = const(426), "Line No." = const(0));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -67,7 +67,7 @@ report 513 "Move IC Trans. to Partner Comp"
                     dataitem("IC Document Dimension SL"; "IC Document Dimension")
                     {
                         DataItemLink = "Transaction No." = field("IC Transaction No."), "IC Partner Code" = field("IC Partner Code"), "Transaction Source" = field("Transaction Source"), "Line No." = field("Line No.");
-                        DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") ORDER(Ascending) where("Table ID" = const(427));
+                        DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") order(ascending) where("Table ID" = const(427));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -98,7 +98,7 @@ report 513 "Move IC Trans. to Partner Comp"
                 dataitem("IC Document Dimension PH"; "IC Document Dimension")
                 {
                     DataItemLink = "Transaction No." = field("IC Transaction No."), "IC Partner Code" = field("IC Partner Code"), "Transaction Source" = field("Transaction Source");
-                    DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") ORDER(Ascending) where("Table ID" = const(428), "Line No." = const(0));
+                    DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") order(ascending) where("Table ID" = const(428), "Line No." = const(0));
 
                     trigger OnAfterGetRecord()
                     begin
@@ -115,7 +115,7 @@ report 513 "Move IC Trans. to Partner Comp"
                     dataitem("IC Document Dimension PL"; "IC Document Dimension")
                     {
                         DataItemLink = "Transaction No." = field("IC Transaction No."), "IC Partner Code" = field("IC Partner Code"), "Transaction Source" = field("Transaction Source"), "Line No." = field("Line No.");
-                        DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") ORDER(Ascending) where("Table ID" = const(429));
+                        DataItemTableView = sorting("Table ID", "Transaction No.", "IC Partner Code", "Transaction Source", "Line No.", "Dimension Code") order(ascending) where("Table ID" = const(429));
 
                         trigger OnAfterGetRecord()
                         begin
@@ -295,87 +295,81 @@ report 513 "Move IC Trans. to Partner Comp"
                 HandledICCommentLine.Delete();
             until HandledICCommentLine.Next() = 0;
 
-        with HandledICInboxJnlLine do begin
-            SetRange("Transaction No.", ICInboxTrans."Transaction No.");
-            SetRange("IC Partner Code", ICInboxTrans."IC Partner Code");
-            SetRange("Transaction Source", ICInboxTrans."Transaction Source");
-            if Find('-') then
-                repeat
-                    ICInboxJnlLine.TransferFields(HandledICInboxJnlLine, true);
-                    ICInboxJnlLine.Insert();
-                    HandledICInboxOutboxJnlLineDim.SetRange("Table ID", DATABASE::"Handled IC Inbox Jnl. Line");
-                    HandledICInboxOutboxJnlLineDim.SetRange("Transaction No.", "Transaction No.");
-                    HandledICInboxOutboxJnlLineDim.SetRange("IC Partner Code", "IC Partner Code");
-                    if HandledICInboxOutboxJnlLineDim.Find('-') then
-                        repeat
-                            ICInboxOutboxJnlLineDim := HandledICInboxOutboxJnlLineDim;
-                            ICInboxOutboxJnlLineDim."Table ID" := DATABASE::"IC Inbox Jnl. Line";
-                            ICInboxOutboxJnlLineDim.Insert();
-                            HandledICInboxOutboxJnlLineDim.Delete();
-                        until HandledICInboxOutboxJnlLineDim.Next() = 0;
-                    Delete();
-                until Next() = 0;
-        end;
+        HandledICInboxJnlLine.SetRange("Transaction No.", ICInboxTrans."Transaction No.");
+        HandledICInboxJnlLine.SetRange("IC Partner Code", ICInboxTrans."IC Partner Code");
+        HandledICInboxJnlLine.SetRange("Transaction Source", ICInboxTrans."Transaction Source");
+        if HandledICInboxJnlLine.Find('-') then
+            repeat
+                ICInboxJnlLine.TransferFields(HandledICInboxJnlLine, true);
+                ICInboxJnlLine.Insert();
+                HandledICInboxOutboxJnlLineDim.SetRange("Table ID", DATABASE::"Handled IC Inbox Jnl. Line");
+                HandledICInboxOutboxJnlLineDim.SetRange("Transaction No.", HandledICInboxJnlLine."Transaction No.");
+                HandledICInboxOutboxJnlLineDim.SetRange("IC Partner Code", HandledICInboxJnlLine."IC Partner Code");
+                if HandledICInboxOutboxJnlLineDim.Find('-') then
+                    repeat
+                        ICInboxOutboxJnlLineDim := HandledICInboxOutboxJnlLineDim;
+                        ICInboxOutboxJnlLineDim."Table ID" := DATABASE::"IC Inbox Jnl. Line";
+                        ICInboxOutboxJnlLineDim.Insert();
+                        HandledICInboxOutboxJnlLineDim.Delete();
+                    until HandledICInboxOutboxJnlLineDim.Next() = 0;
+                HandledICInboxJnlLine.Delete();
+            until HandledICInboxJnlLine.Next() = 0;
 
-        with HandledICInboxSalesHdr do begin
-            SetRange("IC Transaction No.", ICInboxTrans."Transaction No.");
-            SetRange("IC Partner Code", ICInboxTrans."IC Partner Code");
-            SetRange("Transaction Source", ICInboxTrans."Transaction Source");
-            if Find('-') then
-                repeat
-                    ICInboxSalesHdr.TransferFields(HandledICInboxSalesHdr, true);
-                    ICInboxSalesHdr.Insert();
-                    MoveHandledICDocDim(
-                      DATABASE::"Handled IC Inbox Sales Header", DATABASE::"IC Inbox Sales Header",
-                      "IC Transaction No.", "IC Partner Code");
+        HandledICInboxSalesHdr.SetRange("IC Transaction No.", ICInboxTrans."Transaction No.");
+        HandledICInboxSalesHdr.SetRange("IC Partner Code", ICInboxTrans."IC Partner Code");
+        HandledICInboxSalesHdr.SetRange("Transaction Source", ICInboxTrans."Transaction Source");
+        if HandledICInboxSalesHdr.Find('-') then
+            repeat
+                ICInboxSalesHdr.TransferFields(HandledICInboxSalesHdr, true);
+                ICInboxSalesHdr.Insert();
+                MoveHandledICDocDim(
+                  DATABASE::"Handled IC Inbox Sales Header", DATABASE::"IC Inbox Sales Header",
+                  HandledICInboxSalesHdr."IC Transaction No.", HandledICInboxSalesHdr."IC Partner Code");
 
-                    HandledICInboxSalesLine.SetRange("IC Transaction No.", "IC Transaction No.");
-                    HandledICInboxSalesLine.SetRange("IC Partner Code", "IC Partner Code");
-                    HandledICInboxSalesLine.SetRange("Transaction Source", "Transaction Source");
-                    if HandledICInboxSalesLine.Find('-') then
-                        repeat
-                            ICInboxSalesLine.TransferFields(HandledICInboxSalesLine, true);
-                            ICInboxSalesLine.Insert();
-                            MoveHandledICDocDim(
-                              DATABASE::"Handled IC Inbox Sales Line", DATABASE::"IC Inbox Sales Line",
-                              "IC Transaction No.", "IC Partner Code");
-                            OnBeforeHandledICInboxSalesLineDelete(HandledICInboxSalesLine);
-                            HandledICInboxSalesLine.Delete();
-                        until HandledICInboxSalesLine.Next() = 0;
-                    OnBeforeHandledICInboxSalesHdrDelete(HandledICInboxSalesHdr);
-                    Delete();
-                until Next() = 0;
-        end;
+                HandledICInboxSalesLine.SetRange("IC Transaction No.", HandledICInboxSalesHdr."IC Transaction No.");
+                HandledICInboxSalesLine.SetRange("IC Partner Code", HandledICInboxSalesHdr."IC Partner Code");
+                HandledICInboxSalesLine.SetRange("Transaction Source", HandledICInboxSalesHdr."Transaction Source");
+                if HandledICInboxSalesLine.Find('-') then
+                    repeat
+                        ICInboxSalesLine.TransferFields(HandledICInboxSalesLine, true);
+                        ICInboxSalesLine.Insert();
+                        MoveHandledICDocDim(
+                          DATABASE::"Handled IC Inbox Sales Line", DATABASE::"IC Inbox Sales Line",
+                          HandledICInboxSalesHdr."IC Transaction No.", HandledICInboxSalesHdr."IC Partner Code");
+                        OnBeforeHandledICInboxSalesLineDelete(HandledICInboxSalesLine);
+                        HandledICInboxSalesLine.Delete();
+                    until HandledICInboxSalesLine.Next() = 0;
+                OnBeforeHandledICInboxSalesHdrDelete(HandledICInboxSalesHdr);
+                HandledICInboxSalesHdr.Delete();
+            until HandledICInboxSalesHdr.Next() = 0;
 
-        with HandledICInboxPurchHdr do begin
-            SetRange("IC Transaction No.", ICInboxTrans."Transaction No.");
-            SetRange("IC Partner Code", ICInboxTrans."IC Partner Code");
-            SetRange("Transaction Source", ICInboxTrans."Transaction Source");
-            if Find('-') then
-                repeat
-                    ICInboxPurchHdr.TransferFields(HandledICInboxPurchHdr, true);
-                    ICInboxPurchHdr.Insert();
-                    MoveHandledICDocDim(
-                      DATABASE::"Handled IC Inbox Purch. Header", DATABASE::"IC Inbox Purchase Header",
-                      "IC Transaction No.", "IC Partner Code");
+        HandledICInboxPurchHdr.SetRange("IC Transaction No.", ICInboxTrans."Transaction No.");
+        HandledICInboxPurchHdr.SetRange("IC Partner Code", ICInboxTrans."IC Partner Code");
+        HandledICInboxPurchHdr.SetRange("Transaction Source", ICInboxTrans."Transaction Source");
+        if HandledICInboxPurchHdr.Find('-') then
+            repeat
+                ICInboxPurchHdr.TransferFields(HandledICInboxPurchHdr, true);
+                ICInboxPurchHdr.Insert();
+                MoveHandledICDocDim(
+                  DATABASE::"Handled IC Inbox Purch. Header", DATABASE::"IC Inbox Purchase Header",
+                  HandledICInboxPurchHdr."IC Transaction No.", HandledICInboxPurchHdr."IC Partner Code");
 
-                    HandledICInboxPurchLine.SetRange("IC Transaction No.", "IC Transaction No.");
-                    HandledICInboxPurchLine.SetRange("IC Partner Code", "IC Partner Code");
-                    HandledICInboxPurchLine.SetRange("Transaction Source", "Transaction Source");
-                    if HandledICInboxPurchLine.Find('-') then
-                        repeat
-                            ICInboxPurchLine.TransferFields(HandledICInboxPurchLine, true);
-                            ICInboxPurchLine.Insert();
-                            MoveHandledICDocDim(
-                              DATABASE::"Handled IC Inbox Purch. Line", DATABASE::"IC Inbox Purchase Line",
-                              "IC Transaction No.", "IC Partner Code");
-                            OnBeforeHandledICInboxPurchLineDelete(HandledICInboxPurchLine);
-                            HandledICInboxPurchLine.Delete();
-                        until HandledICInboxPurchLine.Next() = 0;
-                    OnBeforeHandledICInboxPurchHdrDelete(HandledICInboxPurchHdr);
-                    Delete();
-                until Next() = 0;
-        end;
+                HandledICInboxPurchLine.SetRange("IC Transaction No.", HandledICInboxPurchHdr."IC Transaction No.");
+                HandledICInboxPurchLine.SetRange("IC Partner Code", HandledICInboxPurchHdr."IC Partner Code");
+                HandledICInboxPurchLine.SetRange("Transaction Source", HandledICInboxPurchHdr."Transaction Source");
+                if HandledICInboxPurchLine.Find('-') then
+                    repeat
+                        ICInboxPurchLine.TransferFields(HandledICInboxPurchLine, true);
+                        ICInboxPurchLine.Insert();
+                        MoveHandledICDocDim(
+                          DATABASE::"Handled IC Inbox Purch. Line", DATABASE::"IC Inbox Purchase Line",
+                          HandledICInboxPurchHdr."IC Transaction No.", HandledICInboxPurchHdr."IC Partner Code");
+                        OnBeforeHandledICInboxPurchLineDelete(HandledICInboxPurchLine);
+                        HandledICInboxPurchLine.Delete();
+                    until HandledICInboxPurchLine.Next() = 0;
+                OnBeforeHandledICInboxPurchHdrDelete(HandledICInboxPurchHdr);
+                HandledICInboxPurchHdr.Delete();
+            until HandledICInboxPurchHdr.Next() = 0;
     end;
 
     local procedure MoveHandledICDocDim(FromTableID: Integer; ToTableID: Integer; TransactionNo: Integer; PartnerCode: Code[20])

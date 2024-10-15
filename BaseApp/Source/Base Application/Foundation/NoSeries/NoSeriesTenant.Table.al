@@ -11,6 +11,11 @@ table 1263 "No. Series Tenant"
     DataPerCompany = false;
     Permissions = TableData "No. Series Tenant" = rimd;
     ReplicateData = false;
+    ObsoleteReason = 'No. Series is moved to Business Foundation';
+    ObsoleteState = Moved;
+    ObsoleteTag = '24.0';
+    MovedTo = 'f3552374-a1f2-4356-848e-196002525837';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -38,28 +43,5 @@ table 1263 "No. Series Tenant"
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
-
-    [Scope('OnPrem')]
-    procedure InitNoSeries(NoSeriesCode: Code[10]; NoSeriesDescription: Text[50]; LastUsedNo: Code[10])
-    var
-        NoSeriesTenant: Record "No. Series Tenant";
-    begin
-        NoSeriesTenant.Validate(Code, NoSeriesCode);
-        NoSeriesTenant.Validate(Description, NoSeriesDescription);
-        NoSeriesTenant.Validate("Last Used number", LastUsedNo);
-        NoSeriesTenant.Insert(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetNextAvailableCode() NextAvailableCode: Code[20]
-    begin
-        NextAvailableCode := IncStr(Code + "Last Used number");
-        Validate("Last Used number", IncStr("Last Used number"));
-        Modify();
-    end;
 }
 

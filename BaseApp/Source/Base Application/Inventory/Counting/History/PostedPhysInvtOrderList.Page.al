@@ -11,7 +11,7 @@ page 5884 "Posted Phys. Invt. Order List"
     PageType = List;
     SourceTable = "Pstd. Phys. Invt. Order Hdr";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

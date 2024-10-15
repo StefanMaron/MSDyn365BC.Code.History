@@ -6,7 +6,9 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Company;
+#if not CLEAN23
 using Microsoft.Foundation.Enums;
+#endif
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
 using System.IO;
@@ -350,6 +352,8 @@ report 11108 "VAT - VIES Declaration XML"
     end;
 
     trigger OnPreReport()
+    var
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         if Reportingtype = Reportingtype::"Recall of an earlier report" then
             Filter := Text000
@@ -369,7 +373,7 @@ report 11108 "VAT - VIES Declaration XML"
         if NoSeries.Code = '' then
             Error(Text1160004);
 
-        PaketNr := NoSeriesMgt.GetNextNo(NoSeries.Code, Today, true);
+        PaketNr := NoSeriesCodeunit.GetNextNo(NoSeries.Code, Today());
         if StrLen(PaketNr) <> 9 then
             Error(Text1160006, NoSeries.Code);
 
@@ -396,7 +400,6 @@ report 11108 "VAT - VIES Declaration XML"
         VATReportSetup: Record "VAT Report Setup";
         tempVATEntry: Record "VAT Entry" temporary;
         NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         FileManagement: Codeunit "File Management";
         XMLFile: File;
         "Filter": Text;

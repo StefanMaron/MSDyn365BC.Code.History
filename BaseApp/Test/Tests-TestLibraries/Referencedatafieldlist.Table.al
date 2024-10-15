@@ -1,6 +1,7 @@
 table 130060 "Reference data - field list"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -46,7 +47,7 @@ table 130060 "Reference data - field list"
 
     trigger OnInsert()
     begin
-        CheckForZeroValues;
+        CheckForZeroValues();
     end;
 
     trigger OnModify()

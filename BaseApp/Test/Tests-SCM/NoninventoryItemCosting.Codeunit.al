@@ -147,11 +147,11 @@ codeunit 137120 "Non-inventory Item Costing"
     begin
         Initialize();
         CreateItemWithAmounts(Item);
-        Item.Validate("Service Item Group", CreateServiceItemGroup);
+        Item.Validate("Service Item Group", CreateServiceItemGroup());
         Item.Modify(true);
 
         CreateNonInventoryItemWithAmounts(ItemNonInventory);
-        ItemNonInventory.Validate("Service Item Group", CreateServiceItemGroup);
+        ItemNonInventory.Validate("Service Item Group", CreateServiceItemGroup());
         ItemNonInventory.Modify(true);
 
         LibrarySales.CreateCustomer(Customer);
@@ -233,10 +233,8 @@ codeunit 137120 "Non-inventory Item Costing"
     procedure PrintAssemblyOrder()
     var
         AssemblyHeader: Record "Assembly Header";
-        SalesHeader: Record "Sales Header";
         Item: Record Item;
         Resource: Record Resource;
-        AssemblyHeaderNo: Code[20];
     begin
         // [SCENARIO 459646] Too many decimals printed on Assembly order (Quantity per) report 902
         // [GIVEN] Create Item with Resource Asm. BOM.
@@ -273,7 +271,7 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        Setup;
+        Setup();
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         ItemJournalTemplate.Type := ItemJournalTemplate.Type::Consumption;
         ItemJournalTemplate.Recurring := false;
@@ -307,16 +305,16 @@ codeunit 137120 "Non-inventory Item Costing"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        ManufacturingSetup.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         ManufacturingSetup.Validate("Normal Starting Time", 080000T);
         ManufacturingSetup.Validate("Normal Ending Time", 160000T);
         ManufacturingSetup.Modify(true);
@@ -345,15 +343,15 @@ codeunit 137120 "Non-inventory Item Costing"
         ServiceItemGroup: Record "Service Item Group";
         ServiceItemGroups: TestPage "Service Item Groups";
     begin
-        ServiceItemGroups.OpenEdit;
-        ServiceItemGroups.New;
+        ServiceItemGroups.OpenEdit();
+        ServiceItemGroups.New();
         ServiceItemGroupCode :=
           LibraryUtility.GenerateRandomCodeWithLength(
             ServiceItemGroup.FieldNo(Code), DATABASE::"Service Item Group", MaxStrLen(ServiceItemGroup.Code));
         ServiceItemGroups.Code.SetValue(ServiceItemGroupCode);
         ServiceItemGroups."Default Response Time (Hours)".SetValue(LibraryRandom.RandInt(10));
         ServiceItemGroups."Create Service Item".SetValue(true);
-        ServiceItemGroups.OK.Invoke;
+        ServiceItemGroups.OK().Invoke();
         Commit();
     end;
 
@@ -442,7 +440,7 @@ codeunit 137120 "Non-inventory Item Costing"
 
         repeat
             LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_AssemblyLine', AssemblyLine.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('QuantityPer_AssemblyLine', AssemblyLine."Quantity per");
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_AssemblyLine', AssemblyLine.Quantity);
@@ -459,7 +457,7 @@ codeunit 137120 "Non-inventory Item Costing"
     [Scope('OnPrem')]
     procedure AssemblyOrderRequestPageHandler(var AssemblyOrder: TestRequestPage "Assembly Order")
     begin
-        AssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]

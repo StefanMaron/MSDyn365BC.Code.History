@@ -40,42 +40,42 @@ codeunit 131015 "Library - Azure AD Auth Flow"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireTokenByAuthorizationCode', '', false, false)]
     local procedure OnAcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceName: Text; var AccessToken: Text)
     begin
-        if CanHandle and TokenAvailable then
+        if CanHandle() and TokenAvailable then
             AccessToken := TokenByAuthCodeTxt;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireTokenByAuthorizationCodeWithCredentials', '', false, false)]
     local procedure OnAcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode: Text; ClientID: Text; ApplicationKey: Text; ResourceName: Text; var AccessToken: Text)
     begin
-        if CanHandle and TokenAvailable then
+        if CanHandle() and TokenAvailable then
             AccessToken := TokenByAuthCodeWithCredsTxt;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireTokenFromCache', '', false, false)]
     local procedure OnAcquireTokenFromCache(ResourceName: Text; var AccessToken: Text)
     begin
-        if CanHandle and CachedTokenAvailable then
+        if CanHandle() and CachedTokenAvailable then
             AccessToken := TokenFromCacheTxt;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireTokenFromCacheWithCredentials', '', false, false)]
     local procedure OnAcquireTokenFromCacheWithCredentials(ClientID: Text; AppKey: Text; ResourceName: Text; var AccessToken: Text)
     begin
-        if CanHandle and CachedTokenAvailable then
+        if CanHandle() and CachedTokenAvailable then
             AccessToken := TokenFromCacheWithCredentialsTxt;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnAcquireGuestToken', '', false, false)]
     local procedure OnAcquireGuestToken(ResourceName: Text; GuestTenantId: Text; var AccessToken: Text)
     begin
-        if CanHandle and GuestTokenAvailable then
+        if CanHandle() and GuestTokenAvailable then
             AccessToken := GuestTokenTxt;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Auth Flow", 'OnGetSaasClientId', '', false, false)]
     local procedure OnGetSaasClientId(var ClientID: Text)
     begin
-        if CanHandle and ClientIdAvailable then
+        if CanHandle() and ClientIdAvailable then
             ClientID := SaasClientIdTxt;
     end;
 
@@ -92,7 +92,7 @@ codeunit 131015 "Library - Azure AD Auth Flow"
         ServiceFactory: DotNet ServiceWrapperFactory;
     begin
         if CanHandle() then
-            Service := ServiceFactory.CreateServiceWrapper2013;
+            Service := ServiceFactory.CreateServiceWrapper2013();
     end;
 
     procedure SetTokenAvailable(Available: Boolean)

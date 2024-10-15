@@ -288,7 +288,7 @@ codeunit 136126 "Service Resource Skill"
     begin
         ResourceSkill.SetRange(Type, ResourceSkill.Type::"Service Item");
         ResourceSkill.SetRange("No.", ServiceItemNo);
-        Assert.IsFalse(ResourceSkill.FindFirst, StrSubstNo(ErrorResourceSkillFound, ResourceSkill.TableCaption()));
+        Assert.IsFalse(ResourceSkill.FindFirst(), StrSubstNo(ErrorResourceSkillFound, ResourceSkill.TableCaption()));
     end;
 
     [Normal]

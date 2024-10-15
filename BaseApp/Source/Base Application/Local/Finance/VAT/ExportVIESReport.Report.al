@@ -226,19 +226,17 @@ report 11008 "Export VIES Report"
     [Scope('OnPrem')]
     procedure GetReportPeriod(VATReportHeader: Record "VAT Report Header") ReportPeriod: Text[4]
     begin
-        with VATReportHeader do begin
-            case "Report Period Type" of
-                "Report Period Type"::Quarter:
-                    ReportPeriod := '0' + Format("Report Period No.");
-                "Report Period Type"::Month:
-                    ReportPeriod := Format("Report Period No." + 20);
-                "Report Period Type"::Year:
-                    ReportPeriod := '05';
-                "Report Period Type"::"Bi-Monthly":
-                    ReportPeriod := Format("Report Period No." + 10);
-            end;
-            ReportPeriod := ReportPeriod + Format("Report Year" - 2000);
+        case VATReportHeader."Report Period Type" of
+            VATReportHeader."Report Period Type"::Quarter:
+                ReportPeriod := '0' + Format(VATReportHeader."Report Period No.");
+            VATReportHeader."Report Period Type"::Month:
+                ReportPeriod := Format(VATReportHeader."Report Period No." + 20);
+            VATReportHeader."Report Period Type"::Year:
+                ReportPeriod := '05';
+            VATReportHeader."Report Period Type"::"Bi-Monthly":
+                ReportPeriod := Format(VATReportHeader."Report Period No." + 10);
         end;
+        ReportPeriod := ReportPeriod + Format(VATReportHeader."Report Year" - 2000);
     end;
 
     [Scope('OnPrem')]
@@ -317,12 +315,10 @@ report 11008 "Export VIES Report"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", ReportNo);
-            SetRange(Base, 0);
-            SetFilter("Line Type", '<>%1', "Line Type"::Correction);
-            exit(Count);
-        end;
+        VATReportLine.SetRange("VAT Report No.", ReportNo);
+        VATReportLine.SetRange(Base, 0);
+        VATReportLine.SetFilter("Line Type", '<>%1', VATReportLine."Line Type"::Correction);
+        exit(VATReportLine.Count);
     end;
 
     local procedure GetCancellationLineCountCorrection(ReportNo: Code[20]): Integer
@@ -332,11 +328,9 @@ report 11008 "Export VIES Report"
         if not VATReportSetup."Export Cancellation Lines" then
             exit(0);
 
-        with VATReportLine do begin
-            SetRange("VAT Report No.", ReportNo);
-            SetRange("Line Type", "Line Type"::Cancellation);
-            exit(Count);
-        end;
+        VATReportLine.SetRange("VAT Report No.", ReportNo);
+        VATReportLine.SetRange("Line Type", VATReportLine."Line Type"::Cancellation);
+        exit(VATReportLine.Count);
     end;
 
     local procedure GetVATRegNo(VATReportLine: Record "VAT Report Line"): Text[14]
@@ -361,15 +355,14 @@ report 11008 "Export VIES Report"
     [Scope('OnPrem')]
     procedure FormatProcessingDate(VATReportHeader: Record "VAT Report Header"): Text[6]
     begin
-        with VATReportHeader do
-            case "Report Period Type" of
-                "Report Period Type"::Month:
-                    exit(StrSubstNo('m%1%2', CopyStr(Format(Date2DMY("Processing Date", 3), 4), 3, 2), GetDateNumber("Processing Date")));
-                "Report Period Type"::Quarter:
-                    exit(StrSubstNo('q%1%2', CopyStr(Format(Date2DMY("Processing Date", 3), 4), 3, 2), GetDateNumber("Processing Date")));
-                "Report Period Type"::Year:
-                    exit(StrSubstNo('y%1%2', CopyStr(Format(Date2DMY("Processing Date", 3), 4), 3, 2), GetDateNumber("Processing Date")));
-            end;
+        case VATReportHeader."Report Period Type" of
+            VATReportHeader."Report Period Type"::Month:
+                exit(StrSubstNo('m%1%2', CopyStr(Format(Date2DMY(VATReportHeader."Processing Date", 3), 4), 3, 2), GetDateNumber(VATReportHeader."Processing Date")));
+            VATReportHeader."Report Period Type"::Quarter:
+                exit(StrSubstNo('q%1%2', CopyStr(Format(Date2DMY(VATReportHeader."Processing Date", 3), 4), 3, 2), GetDateNumber(VATReportHeader."Processing Date")));
+            VATReportHeader."Report Period Type"::Year:
+                exit(StrSubstNo('y%1%2', CopyStr(Format(Date2DMY(VATReportHeader."Processing Date", 3), 4), 3, 2), GetDateNumber(VATReportHeader."Processing Date")));
+        end;
     end;
 
     [Scope('OnPrem')]

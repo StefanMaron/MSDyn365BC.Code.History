@@ -167,7 +167,7 @@ report 11500 "Provisional Trial Balance"
                 DebitEntries();
                 ProvBalance := "Balance at Date" + ProvAmt;
 
-                AccountTypeInt := "Account Type";
+                AccountTypeInt := "Account Type".AsInteger();
                 if NewPage then begin
                     PageGroupNo := PageGroupNo + 1;
                     NewPage := false;

@@ -17,7 +17,9 @@ codeunit 134155 "ERM Table Fields UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         BalAccountNoConfirmTxt: Label 'The %1 %2 has a %3 %4.\\Do you still want to use %1 %2 in this journal line';
         LibraryERM: Codeunit "Library - ERM";
+#if not CLEAN22
         LibraryInventory: Codeunit "Library - Inventory";
+#endif
         LibraryTablesUT: Codeunit "Library - Tables UT";
 
     [Test]
@@ -34,7 +36,7 @@ codeunit 134155 "ERM Table Fields UT"
         LibrarySales.CreateCustomer(Customer);
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedCustLedgEntry.Amount;
-        NewDate := WorkDate + 1;
+        NewDate := WorkDate() + 1;
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", NewDate, NewDate);
         TotalAmount += DetailedCustLedgEntry.Amount;
 
@@ -58,7 +60,7 @@ codeunit 134155 "ERM Table Fields UT"
         LibrarySales.CreateCustomer(Customer);
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedCustLedgEntry."Amount (LCY)";
-        NewDate := WorkDate + 1;
+        NewDate := WorkDate() + 1;
         MockDtldCustLedgEntry(DetailedCustLedgEntry, Customer."No.", NewDate, NewDate);
         TotalAmount += DetailedCustLedgEntry."Amount (LCY)";
 
@@ -213,7 +215,7 @@ codeunit 134155 "ERM Table Fields UT"
         GenJournalLine.Init();
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         Customer.Modify(true);
 
         LibraryVariableStorage.Enqueue(
@@ -225,7 +227,7 @@ codeunit 134155 "ERM Table Fields UT"
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Customer);
         GenJournalLine.Validate("Bal. Account No.", Customer."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -241,14 +243,14 @@ codeunit 134155 "ERM Table Fields UT"
         GenJournalLine.Init();
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         Customer.Modify(true);
 
         GenJournalLine.SetHideValidation(true);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Customer);
         GenJournalLine.Validate("Bal. Account No.", Customer."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -264,7 +266,7 @@ codeunit 134155 "ERM Table Fields UT"
         GenJournalLine.Init();
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         Vendor.Modify(true);
 
         LibraryVariableStorage.Enqueue(
@@ -276,7 +278,7 @@ codeunit 134155 "ERM Table Fields UT"
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
         GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -292,14 +294,14 @@ codeunit 134155 "ERM Table Fields UT"
         GenJournalLine.Init();
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         Vendor.Modify(true);
 
         GenJournalLine.SetHideValidation(true);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
         GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -312,7 +314,7 @@ codeunit 134155 "ERM Table Fields UT"
     begin
         // [FEATURE] [Accounting Period]
         // [SCENARIO 273709] Average cost adjustment entry point is created when creating a new accounting period
-        PeriodStartingDate := FindNextAccountingPeriodStartingDate;
+        PeriodStartingDate := FindNextAccountingPeriodStartingDate();
 
         // [GIVEN] Item with a value entry on 01-01-2020
         MockItem(Item);
@@ -336,7 +338,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 273709] "Cost is Adjusted" is reset on item and average cost adjustment entry point when deleting an accounting period
 
         // [GIVEN] Accounting period with starting date "01-01-2020"
-        CreateAccountingPeriod(AccountingPeriod, FindNextAccountingPeriodStartingDate, true);
+        CreateAccountingPeriod(AccountingPeriod, FindNextAccountingPeriodStartingDate(), true);
 
         // [GIVEN] Item with a value entry on 01-01-2020
         MockItem(Item);
@@ -364,7 +366,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 273709] "Cost is Adjusted" is reset on item and average cost adjustment entry point when modifying an accounting period
 
         // [GIVEN] Accounting period with starting date "01-01-2020"
-        CreateAccountingPeriod(AccountingPeriod, FindNextAccountingPeriodStartingDate, true);
+        CreateAccountingPeriod(AccountingPeriod, FindNextAccountingPeriodStartingDate(), true);
 
         // [GIVEN] Item with a value entry on 01-01-2020
         MockItem(Item);
@@ -395,7 +397,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 273709] When changing the starting date of an acc. period to a later date, "Cost is Adjusted" is reset on item and all avg. cost adjmt. entry points that fall within the date range between the old and the new values
 
         // [GIVEN] Accounting period with starting date "01-01-2020"
-        PeriodStartingDate := FindNextAccountingPeriodStartingDate;
+        PeriodStartingDate := FindNextAccountingPeriodStartingDate();
         CreateAccountingPeriod(AccountingPeriod, PeriodStartingDate, true);
 
         // [GIVEN] Item with two value entries having valuation dates "01-01-2020" and "02-01-2020"
@@ -428,7 +430,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 273709] When changing the starting date of an acc. period to an earlier date, "Cost is Adjusted" is reset on item and all avg. cost adjmt. entry points that fall within the date range between the old and the new values
 
         // [GIVEN] Accounting period with starting date "01-01-2020"
-        PeriodStartingDate := FindNextAccountingPeriodStartingDate;
+        PeriodStartingDate := FindNextAccountingPeriodStartingDate();
         CreateAccountingPeriod(AccountingPeriod, PeriodStartingDate, true);
 
         // [GIVEN] Item with two value entries having valuation dates "31-12-2019" and "01-01-2020"
@@ -459,7 +461,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 273709] "Cost is Adjusted" is not reset when changing the starting date of an accounting period that does not start new financial year
 
         // [GIVEN] Accounting period with starting date "01-02-2020" which is not a new financial year
-        CreateAccountingPeriod(AccountingPeriod, FindNextAccountingPeriodStartingDate, false);
+        CreateAccountingPeriod(AccountingPeriod, FindNextAccountingPeriodStartingDate(), false);
 
         // [GIVEN] Item with a value entries on 01-02-2020
         MockItem(Item);
@@ -518,7 +520,7 @@ codeunit 134155 "ERM Table Fields UT"
 
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Validate("Item No.", LibraryInventory.CreateItemNo);
+        IntrastatJnlLine.Validate("Item No.", LibraryInventory.CreateItemNo());
         TariffNumber.Init();
         TariffNumber."No." := LibraryUtility.GenerateRandomCode20(TariffNumber.FieldNo("No."), DATABASE::"Tariff Number");
         TariffNumber.Insert();
@@ -1090,10 +1092,10 @@ codeunit 134155 "ERM Table Fields UT"
 
     local procedure MockItem(var Item: Record Item)
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         Clear(Item);
-        Item."No." := NoSeriesManagement.GetNextNo(LibraryUtility.GetGlobalNoSeriesCode, WorkDate(), true);
+        Item."No." := NoSeries.GetNextNo(LibraryUtility.GetGlobalNoSeriesCode());
         Item."Costing Method" := Item."Costing Method"::Average;
         Item."Cost is Adjusted" := true;
         Item.Insert();
@@ -1125,7 +1127,7 @@ codeunit 134155 "ERM Table Fields UT"
     [Scope('OnPrem')]
     procedure VerifyingConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }

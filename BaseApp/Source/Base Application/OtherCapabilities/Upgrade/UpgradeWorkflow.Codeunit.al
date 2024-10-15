@@ -24,7 +24,7 @@ codeunit 104056 "Upgrade Workflow"
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeWorkflow: Codeunit "Upgrade Workflow";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetWorkflowDelegatedAdminSetupTemplateUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetWorkflowDelegatedAdminSetupTemplateUpgradeTag()) then
             exit;
 
         BindSubscription(UpgradeWorkflow);

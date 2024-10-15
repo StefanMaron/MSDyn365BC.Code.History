@@ -29,7 +29,7 @@ report 6037 "Change Customer in Contract"
                         Caption = 'Contract No.';
                         DrillDown = true;
                         Editable = false;
-                        ToolTip = 'Specifies all billable profits for the job task, expressed in the local currency.';
+                        ToolTip = 'Specifies all billable profits for the project task, expressed in the local currency.';
 
                         trigger OnDrillDown()
                         begin
@@ -49,14 +49,18 @@ report 6037 "Change Customer in Contract"
                             PAGE.RunModal(PAGE::"Service Item List", TempServItem);
                         end;
                     }
+#pragma warning disable AA0100
                     field("ServContract.""Customer No."""; ServContract."Customer No.")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Existing Customer No.';
                         Editable = false;
                         ToolTip = 'Specifies the field to see the existing customer number in the contract.';
                     }
+#pragma warning disable AA0100
                     field("ServContract.""Ship-to Code"""; ServContract."Ship-to Code")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Service;
                         Caption = 'Existing Ship-to Code';

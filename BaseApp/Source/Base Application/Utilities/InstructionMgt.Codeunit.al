@@ -131,13 +131,6 @@ codeunit 1330 "Instruction Mgt."
         exit(DefaultDimPrioritiesMissingDescriptionTxt);
     end;
 
-#if not CLEAN21
-    [Obsolete('Renamed to PostingAfterWorkingDateNotAllowedCode', '21.0')]
-    procedure PostingAfterCurrentCalendarDateNotAllowedCode(): Code[50]
-    begin
-        exit(PostingAfterWorkingDateNotAllowedCode());
-    end;
-#endif
     procedure PostingAfterWorkingDateNotAllowedCode(): Code[50]
     begin
         exit('POSTINGAFTERCURRENTCALENDARDATENOTALLOWED');
@@ -191,13 +184,6 @@ codeunit 1330 "Instruction Mgt."
         exit('882980DE-C2F6-4D4F-BF39-BB3A9FE3D7DA');
     end;
 
-#if not CLEAN21
-    [Obsolete('Renamed to GetPostingAfterWorkingDateNotificationId', '21.0')]
-    procedure GetPostingAfterCurrentCalendarDateNotificationId(): Guid
-    begin
-        exit(GetPostingAfterWorkingDateNotificationId())
-    end;
-#endif
     procedure GetPostingAfterWorkingDateNotificationId(): Guid
     begin
         exit('F76D6004-5EC5-4DEA-B14D-71B2AEB53ACF');

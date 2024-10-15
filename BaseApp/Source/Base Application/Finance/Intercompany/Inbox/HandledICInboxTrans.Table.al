@@ -7,6 +7,7 @@ using Microsoft.Intercompany.Partner;
 table 420 "Handled IC Inbox Trans."
 {
     Caption = 'Handled IC Inbox Trans.';
+    DataClassification = CustomerContent;
 
     fields
     {

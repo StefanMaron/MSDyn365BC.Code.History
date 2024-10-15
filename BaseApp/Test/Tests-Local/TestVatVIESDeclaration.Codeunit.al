@@ -178,8 +178,8 @@ codeunit 142078 "Test Vat VIES Declaration"
             else
                 ReportingDate.SetValue(0D);
 
-            RepPeriodFrom.SetValue(WorkDate - 2); // Starting Date
-            RepPeriodTo.SetValue(WorkDate + 5); // Ending Date
+            RepPeriodFrom.SetValue(WorkDate() - 2); // Starting Date
+            RepPeriodTo.SetValue(WorkDate() + 5); // Ending Date
             NoSeries.SetValue(NoSeriesVar);
             "VAT Entry".SetFilter("VAT Bus. Posting Group", VATBusPostingGroupVar);
             SaveAsXml(FileMgt.ServerTempFileName('xml'), FileMgt.ServerTempFileName('xml'));

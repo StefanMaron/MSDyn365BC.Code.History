@@ -27,7 +27,9 @@ codeunit 136309 "Job Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         TargetJobNo: Code[20];
         JournalTemplateName: Code[10];
         SerialNo: array[15] of Code[50];
@@ -45,14 +47,14 @@ codeunit 136309 "Job Posting"
         JobNotExistErr: Label '%1 %2 does not exist.', Comment = '%1 - Table Caption;%2 - Field Value.';
         DimensionMustMatchMsg: Label 'Global Dimension must match';
         BinContentNotDeletedErr: Label 'Bin content must be deleted after reverting the receipt.';
-        WrongJobCurrencyCodeErr: Label 'Wrong Job Currency Code';
-        JobWithManualNoCreatedErr: Label 'Job with manual number is created.';
+        WrongJobCurrencyCodeErr: Label 'Wrong Project Currency Code';
+        JobWithManualNoCreatedErr: Label 'Project with manual number is created.';
         ApplToItemEntryErr: Label 'Field "Appl.-to Item Entry" on Reservation Entry must be equal to correspondent Reservation Entry No.';
-        OverBudgetSetIncorrectlyErr: Label 'Field "Over Budget" on table Job is set incorrectly.';
-        JobCueIncorrectErr: Label 'Jobs Over Budget cue has incorrect value.';
+        OverBudgetSetIncorrectlyErr: Label 'Field "Over Budget" on table Project is set incorrectly.';
+        JobCueIncorrectErr: Label 'Projects Over Budget cue has incorrect value.';
         TrackingOption: Option SelectSerialNo,AssignManualSN;
         PostJournaLinesQst: Label 'Do you want to post the journal lines?';
-        UsageWillNotBeLinkedQst: Label 'Usage will not be linked to the job planning line because the Line Type field is empty.';
+        UsageWillNotBeLinkedQst: Label 'Usage will not be linked to the project planning line because the Line Type field is empty.';
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
 
     [Test]
@@ -71,7 +73,7 @@ codeunit 136309 "Job Posting"
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
 
         // 2. Exercise: Post Job Journal Line.
@@ -79,8 +81,8 @@ codeunit 136309 "Job Posting"
 
         // 3. Verify: Verify posted values in Job Ledger Entry and Job Planning Line.
         VerifyJobLedgerEntry(JobJournalLine);
-        VerifyJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeSchedule);
-        VerifyJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeContract);
+        VerifyJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeSchedule());
+        VerifyJobPlanningLine(JobJournalLine, LibraryJob.PlanningLineTypeContract());
     end;
 
     [Test]
@@ -139,12 +141,12 @@ codeunit 136309 "Job Posting"
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, LibraryResource.CreateResourceNo,
+          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
         CreateJobPlanningLine(
-          JobPlanningLine2, LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, LibraryResource.CreateResourceNo,
+          JobPlanningLine2, LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);    // Using Random because value is not important.
-        TargetJobNo := GenerateJobNo;  // Use TargetJobNo as global for CopyJobHandler.
+        TargetJobNo := GenerateJobNo();  // Use TargetJobNo as global for CopyJobHandler.
 
         // 2. Exercise: Run Copy Job with From Source as Job Planning Lines.
         FromSource := FromSource::"Job Planning Lines";  // Use FromSource as global for CopyJobHandler.
@@ -176,13 +178,13 @@ codeunit 136309 "Job Posting"
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, LibraryResource.CreateResourceNo,
+          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
         LibraryJob.PostJobJournal(JobJournalLine);
-        TargetJobNo := GenerateJobNo;  // Use TargetJobNo as global for CopyJobHandler.
+        TargetJobNo := GenerateJobNo();  // Use TargetJobNo as global for CopyJobHandler.
 
         // 2. Exercise:  Run Copy Job with From Source as Job Ledger Entries.
         FromSource := FromSource::"Job Ledger Entries";  // Use FromSource as global for CopyJobHandler.
@@ -540,7 +542,7 @@ codeunit 136309 "Job Posting"
         CreateJobWithJobTask(JobTask);
         LibraryInventory.CreateItemCharge(ItemCharge);
         CreatePurchaseOrderWithJob(
-          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem,
+          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem(),
           PurchaseLine."Job Line Type"::"Both Budget and Billable");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.");
@@ -763,7 +765,7 @@ codeunit 136309 "Job Posting"
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+          LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
         LibraryJob.PostJobJournal(JobJournalLine);
 
@@ -793,7 +795,7 @@ codeunit 136309 "Job Posting"
         for Counter := 1 to 1 + LibraryRandom.RandInt(3) do begin
             LibraryJob.CreateJobTask(Job, JobTask);
             CreateJobJournalLine(
-              LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+              LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
               RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
             LibraryJob.PostJobJournal(JobJournalLine);
         end;
@@ -826,7 +828,7 @@ codeunit 136309 "Job Posting"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateJobWithJobTask(JobTask);
         CreatePurchaseOrderWithJob(
-          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem, PurchaseLine."Job Line Type"::Billable);
+          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem(), PurchaseLine."Job Line Type"::Billable);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreatePurchaseHeader(PurchaseHeader, PurchaseLine."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
@@ -907,7 +909,7 @@ codeunit 136309 "Job Posting"
             JobLedgerEntry.TableCaption()));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure JobPlanningLineUnitPriceWithItemSalesPrice()
@@ -925,7 +927,7 @@ codeunit 136309 "Job Posting"
         Initialize();
         CreateJobWithJobTask(JobTask);
         Job.Get(JobTask."Job No.");
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Job."Bill-to Customer No.", WorkDate(), '', '',
           Item."Base Unit of Measure", 1 + LibraryRandom.RandInt(10), Item."Unit Price" - LibraryRandom.RandInt(10));
@@ -959,7 +961,7 @@ codeunit 136309 "Job Posting"
 
         // 1. Setup: Create Currency and update it on Customer.
         Initialize();
-        InvoiceCurrencyForJob(CreateCurrency);
+        InvoiceCurrencyForJob(CreateCurrency());
     end;
 
     local procedure InvoiceCurrencyForJob(InvoiceCurrencyCode: Code[10])
@@ -990,7 +992,7 @@ codeunit 136309 "Job Posting"
 
         // 1. Setup: Set Automatic Cost Posting as TRUE and Automatic Cost Adjustment to Always, Create Item, Create multiple Item Journal Lines.
         Initialize();
-        ItemNo := CreateItemWithInventoryAdjustmentAccount;
+        ItemNo := CreateItemWithInventoryAdjustmentAccount();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         NoOfLines := 1 + LibraryRandom.RandInt(3);  // To create 2 to 4 Item Journal Lines Boundary 2 is important.
         TotalAmount := CreateMultipleItemJournalLines(ItemJournalLine, ItemNo, NoOfLines);
@@ -1027,7 +1029,7 @@ codeunit 136309 "Job Posting"
         Initialize();
         InventorySetup.Get();
         GeneralLedgerSetup.Get();
-        Item.Get(CreateItemWithInventoryAdjustmentAccount);
+        Item.Get(CreateItemWithInventoryAdjustmentAccount());
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         NoOfLines := 1 + LibraryRandom.RandInt(3);  // To create 2 to 4 Item Journal Lines Boundary 2 is important.
         TotalAmount := CreateMultipleItemJournalLines(ItemJournalLine, Item."No.", NoOfLines);
@@ -1035,7 +1037,7 @@ codeunit 136309 "Job Posting"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         CreateJobWithJobTask(JobTask);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Item, JobJournalLine, JobTask, Item."No.", 1, Item."Unit Cost", Item."Unit Price");  // Taking Quantity as 1 is important for test.
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Item, JobJournalLine, JobTask, Item."No.", 1, Item."Unit Cost", Item."Unit Price");  // Taking Quantity as 1 is important for test.
         TempItemJournalLine.FindFirst();  // Required for the verification of Item "Unit Cost" and Item Ledger Entry.
 
         // 2. Exercise: Post Job Journal Line.
@@ -1089,7 +1091,7 @@ codeunit 136309 "Job Posting"
         // Excercise : Undo Purchase Reciept on Posted Purchase Invoice.
         CreateJobWithJobTask(JobTask);
         CreatePurchaseOrderWithJob(
-          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem, PurchaseLine."Job Line Type"::Billable);
+          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem(), PurchaseLine."Job Line Type"::Billable);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PostedOrderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         UndoPurchaseReceiptLine(PostedOrderNo, PurchaseLine."No.");
@@ -1115,7 +1117,7 @@ codeunit 136309 "Job Posting"
         UpdateInventorySetupWithExpectedCost(true, true);
         CreateJobWithJobTask(JobTask);
         CreatePurchaseOrderWithJob(
-          PurchaseLine, PurchaseLine."Document Type"::"Return Order", JobTask, CreateItem, PurchaseLine."Job Line Type"::Billable);
+          PurchaseLine, PurchaseLine."Document Type"::"Return Order", JobTask, CreateItem(), PurchaseLine."Job Line Type"::Billable);
 
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PostedRetunOrderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1178,7 +1180,7 @@ codeunit 136309 "Job Posting"
         CreateJobWithJobTask(JobTask);
 
         // Exercise: Open Copy Job Planning Lines page and set the value on the controls TargetJobNo and TargetJobTaskNo.
-        CopyJobPlanningLinesPage.OpenEdit;
+        CopyJobPlanningLinesPage.OpenEdit();
         CopyJobPlanningLinesPage.TargetJobNo.SetValue(JobTask."Job No.");
         CopyJobPlanningLinesPage.TargetJobTaskNo.SetValue(JobTask."Job Task No.");
 
@@ -1201,9 +1203,9 @@ codeunit 136309 "Job Posting"
         CreateJobWithJobTask(JobTask);
 
         // Exercise: Open Copy Job Planning Lines page and set the value on the control TargetJobNo and then lookup TargetJobTaskNo.
-        CopyJobPlanningLinesPage.OpenEdit;
+        CopyJobPlanningLinesPage.OpenEdit();
         CopyJobPlanningLinesPage.TargetJobNo.SetValue(JobTask."Job No.");
-        CopyJobPlanningLinesPage.TargetJobTaskNo.Lookup;
+        CopyJobPlanningLinesPage.TargetJobTaskNo.Lookup();
 
         // Verify: Verify that the TargetJobTaskNo contains the correct Job task no. of the TargetJobNo.
         CopyJobPlanningLinesPage.TargetJobTaskNo.AssertEquals(JobTask."Job Task No.");
@@ -1223,7 +1225,7 @@ codeunit 136309 "Job Posting"
         CreateJobWithJobTask(JobTask);
 
         // Exercise: Open Copy Job Planning Lines page and set the value on the controls SourceJobNo and TargetJobTaskNo.
-        CopyJobPlanningLinesPage.OpenEdit;
+        CopyJobPlanningLinesPage.OpenEdit();
         CopyJobPlanningLinesPage.SourceJobNo.SetValue(JobTask."Job No.");
         asserterror CopyJobPlanningLinesPage.TargetJobTaskNo.SetValue(JobTask."Job Task No.");
 
@@ -1247,7 +1249,7 @@ codeunit 136309 "Job Posting"
         CreateJobWithJobTask(JobTask);
         SourceJob.Get(JobTask."Job No.");
         UpdateGlobalDimensionOnJob(SourceJob);
-        TargetJobNo := GenerateJobNo;
+        TargetJobNo := GenerateJobNo();
 
         // Exercise: Create new Job using Copy Job functionality.
         RunCopyJob(JobTask."Job No.");
@@ -1292,10 +1294,10 @@ codeunit 136309 "Job Posting"
         LibraryJob.CreateJobTask(Job, JobTask);
         // [GIVEN] Purchase invoice with a line and pointed to the job
         CreatePurchaseOrderWithJob(
-          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem,
+          PurchaseLine, PurchaseLine."Document Type"::Order, JobTask, CreateItem(),
           PurchaseLine."Job Line Type"::" ");
         // [WHEN] Another Item set to the line
-        PurchaseLine.Validate("No.", CreateItem);
+        PurchaseLine.Validate("No.", CreateItem());
         PurchaseLine.Modify(true);
         // [THEN] Job Currency Code must be kept and equal to Job's Currency Code
         Assert.AreEqual(Job."Currency Code", PurchaseLine."Job Currency Code", WrongJobCurrencyCodeErr);
@@ -1320,7 +1322,7 @@ codeunit 136309 "Job Posting"
         SetupManualNosInJobNoSeries(false);
 
         // [WHEN] Copy the job to new TargetJobNo
-        TargetJobNo := GenerateJobNo;
+        TargetJobNo := GenerateJobNo();
         FromSource := FromSource::"Job Planning Lines";
         RunCopyJob(Job."No.");
 
@@ -1375,7 +1377,7 @@ codeunit 136309 "Job Posting"
 
         // [GIVEN] Job with "Currency Code" = EUR
         LibraryJob.CreateJob(Job);
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Job.Validate("Currency Code", CurrencyCode);
 
         // [GIVEN] Customer "X" without Currency Code
@@ -1405,7 +1407,7 @@ codeunit 136309 "Job Posting"
         CreateJobWithCurrency(Job);
 
         // [WHEN] Update "Invoice Currency Code" in job with EUR
-        Job.Validate("Invoice Currency Code", CreateCurrency);
+        Job.Validate("Invoice Currency Code", CreateCurrency());
 
         // [THEN] "Currency Code" is blank
         Job.TestField("Currency Code", '');
@@ -1423,10 +1425,10 @@ codeunit 136309 "Job Posting"
 
         // [GIVEN] Job with "Invoice Currency Code" = RUB
         LibraryJob.CreateJob(Job);
-        Job.Validate("Invoice Currency Code", CreateCurrency);
+        Job.Validate("Invoice Currency Code", CreateCurrency());
 
         // [WHEN] Update "Currency Code" in job with EUR
-        Job.Validate("Currency Code", CreateCurrency);
+        Job.Validate("Currency Code", CreateCurrency());
 
         // [THEN] "Invoice Currency Code" is blank
         Job.TestField("Invoice Currency Code", '');
@@ -1447,11 +1449,11 @@ codeunit 136309 "Job Posting"
         CreateJobWithCurrency(Job);
 
         // [WHEN] Open "Job Card" page
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
 
         // [THEN] "Invoice Currency Code" is editable
-        Assert.IsTrue(JobCard."Invoice Currency Code".Editable, StrSubstNo('%1 must be editable', Job.FieldName("Invoice Currency Code")));
+        Assert.IsTrue(JobCard."Invoice Currency Code".Editable(), StrSubstNo('%1 must be editable', Job.FieldName("Invoice Currency Code")));
     end;
 
     [Test]
@@ -1467,15 +1469,15 @@ codeunit 136309 "Job Posting"
 
         // [GIVEN] Job with "Invoice Currency Code" = RUB
         LibraryJob.CreateJob(Job);
-        Job.Validate("Invoice Currency Code", CreateCurrency);
+        Job.Validate("Invoice Currency Code", CreateCurrency());
         Job.Modify(true);
 
         // [WHEN] Open "Job Card" page
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
 
         // [THEN] "Currency Code" is editable
-        Assert.IsTrue(JobCard."Currency Code".Editable, StrSubstNo('%1 must be editable', Job.FieldName("Currency Code")));
+        Assert.IsTrue(JobCard."Currency Code".Editable(), StrSubstNo('%1 must be editable', Job.FieldName("Currency Code")));
     end;
 
     [Test]
@@ -1530,14 +1532,14 @@ codeunit 136309 "Job Posting"
         LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Currency Code updated
-        Job."Currency Code" := CreateCurrency;
+        Job."Currency Code" := CreateCurrency();
         Job.Modify(true);
 
         // [WHEN] Update Bill-to Customer field on Job Card by another Customer with Currency Code
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.FILTER.SetFilter("No.", Job."No.");
-        JobCard."Bill-to Name".SetValue(CreateCustomer(CreateCurrency));
-        JobCard.OK.Invoke;
+        JobCard."Bill-to Name".SetValue(CreateCustomer(CreateCurrency()));
+        JobCard.OK().Invoke();
 
         // [THEN] Job."Currency Code" is empty
         Job.Find();
@@ -1654,7 +1656,7 @@ codeunit 136309 "Job Posting"
         Assert.AreEqual(false, Job."Over Budget", OverBudgetSetIncorrectlyErr);
 
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
           10, 10, 10);  // Using Random because value is not important.
         // [THEN] Verify job is not over budget as nothing has been consumed against it yet.
         Job.Get(JobTask."Job No.");
@@ -1974,7 +1976,7 @@ codeunit 136309 "Job Posting"
         JobPlanningLine.Modify(true);
 
         // [GIVEN] Purchase order with "Currency Code" = "C", "Posting Date" = Jan 2nd, "Total Cost" = 300 and linked to job "J"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Currency Code", Currency.Code);
         PurchaseHeader.Modify(true);
 
@@ -2298,24 +2300,24 @@ codeunit 136309 "Job Posting"
         RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
         CreateJobWithJobTask(JobTask);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+          LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo(),
           RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror JobJournalPost.Preview(JobJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, JobLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ResLegerEntry.TableCaption(), 1);
 
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     local procedure Initialize()
@@ -2325,7 +2327,7 @@ codeunit 136309 "Job Posting"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Posting");
         // Clear the needed global variables.
-        ClearGlobals;
+        ClearGlobals();
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -2337,13 +2339,13 @@ codeunit 136309 "Job Posting"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
-        NoSeries.Get(LibraryJob.GetJobTestNoSeries);
+        NoSeries.Get(LibraryJob.GetJobTestNoSeries());
         NoSeries."Manual Nos." := true;
         NoSeries.Modify();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries;
+        DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries();
         DummyJobsSetup.Modify();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -2357,7 +2359,7 @@ codeunit 136309 "Job Posting"
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
-        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(),
           StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 
@@ -2374,9 +2376,9 @@ codeunit 136309 "Job Posting"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke;
+        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
     end;
 
@@ -2385,9 +2387,9 @@ codeunit 136309 "Job Posting"
         JobJournal: TestPage "Job Journal";
     begin
         Commit();
-        JobJournal.OpenEdit;
+        JobJournal.OpenEdit();
         JobJournal.CurrentJnlBatchName.SetValue(JobJournalLine."Journal Batch Name");
-        JobJournal.ItemTrackingLines.Invoke;
+        JobJournal.ItemTrackingLines.Invoke();
         JobJournalLine.Get(JobJournalLine."Journal Template Name", JobJournalLine."Journal Batch Name", JobJournalLine."Line No.");
     end;
 
@@ -2475,19 +2477,19 @@ codeunit 136309 "Job Posting"
     local procedure CreateItemWithNewUOM(var ItemUnitOfMeasure: Record "Item Unit of Measure")
     begin
         // Create Item with one more Unit of Measure Code where Qty. per Unit of Measure is 1.
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CreateItem, 1);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CreateItem(), 1);
     end;
 
     local procedure CreateItemWithInventoryAdjustmentAccount(): Code[20]
     begin
-        exit(CreateItem);
+        exit(CreateItem());
     end;
 
     local procedure CreateItemWithTrackingCode(LotSpecificTracking: Boolean; SNSpecificTracking: Boolean): Code[20]
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Item Tracking Code", CreateTrackingCodeWithLotSpecific(LotSpecificTracking, SNSpecificTracking));
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));  // Take Random value for Last Direct Cost.
         Item.Modify(true);
@@ -2570,18 +2572,18 @@ codeunit 136309 "Job Posting"
         JobCard: TestPage "Job Card";
     begin
         JobCard.OpenNew();
-        JobCard.Description.Activate; // Need to change focus to get Job No. assigned.
-        JobNo := JobCard."No.".Value;
-        JobCard.OK.Invoke;
+        JobCard.Description.Activate(); // Need to change focus to get Job No. assigned.
+        JobNo := JobCard."No.".Value();
+        JobCard.OK().Invoke();
 
-        JobCard.OpenEdit; // Need to reopen page to refresh fields.
+        JobCard.OpenEdit(); // Need to reopen page to refresh fields.
         JobCard.FILTER.SetFilter("No.", JobNo);
         JobCard."Sell-to Customer No.".SetValue(Job."Sell-to Customer No.");
         JobCard."Person Responsible".SetValue(Job."Person Responsible");
         JobCard."Job Posting Group".SetValue(Job."Job Posting Group");
         JobCard."WIP Method".SetValue(Job."WIP Method");
         JobCard.Status.SetValue(Job.Status);
-        JobCard.OK.Invoke;
+        JobCard.OK().Invoke();
     end;
 
     local procedure CreateJobJournalLine(LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type"; var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20]; Quantity: Decimal; UnitCost: Decimal; UnitPrice: Decimal)
@@ -2608,14 +2610,14 @@ codeunit 136309 "Job Posting"
         UnitCost := LibraryRandom.RandDec(50, 2);
         UnitPrice := LibraryRandom.RandDec(100, 2);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Resource, JobJournalLine, JobTask,
-          LibraryResource.CreateResourceNo, Quantity, UnitCost, UnitPrice);
+          LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::Resource, JobJournalLine, JobTask,
+          LibraryResource.CreateResourceNo(), Quantity, UnitCost, UnitPrice);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::Item, JobJournalLine, JobTask,
-          CreateItemWithInventoryAdjustmentAccount, Quantity, UnitCost, UnitPrice);
+          LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::Item, JobJournalLine, JobTask,
+          CreateItemWithInventoryAdjustmentAccount(), Quantity, UnitCost, UnitPrice);
         CreateJobJournalLine(
-          LibraryJob.UsageLineTypeSchedule, JobJournalLine.Type::"G/L Account", JobJournalLine, JobTask,
-          LibraryERM.CreateGLAccountWithSalesSetup, Quantity, UnitCost, UnitPrice);
+          LibraryJob.UsageLineTypeSchedule(), JobJournalLine.Type::"G/L Account", JobJournalLine, JobTask,
+          LibraryERM.CreateGLAccountWithSalesSetup(), Quantity, UnitCost, UnitPrice);
         AssignGlobalVariables(
           JobJournalLine."Line Amount (LCY)", JobJournalLine."Total Cost (LCY)", JobJournalLine."Line Amount", JobJournalLine."Total Cost");  // Assigning global variables as required in Page Handler.
     end;
@@ -2659,14 +2661,14 @@ codeunit 136309 "Job Posting"
         UnitCost := LibraryRandom.RandDec(50, 2);
         UnitPrice := LibraryRandom.RandDec(100, 2);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ResourceType, JobTask, LibraryResource.CreateResourceNo,
+          JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.ResourceType(), JobTask, LibraryResource.CreateResourceNo(),
           Quantity, UnitCost, UnitPrice);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.ItemType, JobTask, CreateItemWithInventoryAdjustmentAccount,
+          JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), JobTask, CreateItemWithInventoryAdjustmentAccount(),
           Quantity, UnitCost, UnitPrice);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryJob.GLAccountType, JobTask,
-          LibraryERM.CreateGLAccountWithSalesSetup, Quantity, UnitCost, UnitPrice);
+          JobPlanningLine, LibraryJob.PlanningLineTypeContract(), LibraryJob.GLAccountType(), JobTask,
+          LibraryERM.CreateGLAccountWithSalesSetup(), Quantity, UnitCost, UnitPrice);
         AssignGlobalVariables(
           JobPlanningLine."Line Amount (LCY)", JobPlanningLine."Total Cost (LCY)", JobPlanningLine."Line Amount",
           JobPlanningLine."Total Cost");  // Assigning global variables as required in Page Handler.
@@ -2675,7 +2677,7 @@ codeunit 136309 "Job Posting"
     local procedure CreateJobWithCurrency(var Job: Record Job)
     begin
         LibraryJob.CreateJob(Job, CreateCustomer(''));  // Blank value for Currency Code.
-        Job.Validate("Currency Code", CreateCurrency);
+        Job.Validate("Currency Code", CreateCurrency());
         Job.Modify(true);
     end;
 
@@ -2806,11 +2808,11 @@ codeunit 136309 "Job Posting"
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
         CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemNo, LocationCode, ItemJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignManualSN);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID());
         ItemJournalLine.OpenItemTrackingLines(false);
         CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemNo, LocationCode, ItemJournalLine."Entry Type"::"Positive Adjmt.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignManualSN);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID());
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -2852,9 +2854,9 @@ codeunit 136309 "Job Posting"
     begin
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLine(
-          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, JobPlanningLine.Type::Item, JobTask, ItemNo, Qty, 0, 0);
+          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), JobPlanningLine.Type::Item, JobTask, ItemNo, Qty, 0, 0);
         CreateJobJournalLineForItem(
-          JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule, ItemNo, Qty);
+          JobJournalLine, JobTask, LibraryJob.UsageLineTypeSchedule(), ItemNo, Qty);
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
@@ -2869,7 +2871,7 @@ codeunit 136309 "Job Posting"
 
     local procedure CreateCustomerWithCurrency(var CustomerNo: Code[20]; var CurrencyCode: Code[10])
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CustomerNo := CreateCustomer(CurrencyCode);
     end;
 
@@ -2916,29 +2918,29 @@ codeunit 136309 "Job Posting"
     var
         JobCard: TestPage "Job Card";
     begin
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.FILTER.SetFilter("No.", JobNo);
-        JobCard."&Statistics".Invoke;
-        JobCard.OK.Invoke;
+        JobCard."&Statistics".Invoke();
+        JobCard.OK().Invoke();
     end;
 
     local procedure OpenJobTaskLines(JobNo: Code[20])
     var
         JobTaskLines: TestPage "Job Task Lines";
     begin
-        JobTaskLines.OpenEdit;
+        JobTaskLines.OpenEdit();
         JobTaskLines.FILTER.SetFilter("Job No.", JobNo);
-        JobTaskLines.JobTaskStatistics.Invoke;
-        JobTaskLines.OK.Invoke;
+        JobTaskLines.JobTaskStatistics.Invoke();
+        JobTaskLines.OK().Invoke();
     end;
 
     local procedure GetPostedDocumentLinesToReverse(No: Code[20])
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
-        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
+        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
     end;
 
     local procedure PostPurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
@@ -3003,7 +3005,7 @@ codeunit 136309 "Job Posting"
 
         // Excercise : Create And Post Purchase Order With Job No.
         CreateJobWithJobTask(JobTask);
-        CreatePurchaseOrderWithJob(PurchaseLine, DocumentType, JobTask, CreateItem, PurchaseLine."Job Line Type"::Billable);
+        CreatePurchaseOrderWithJob(PurchaseLine, DocumentType, JobTask, CreateItem(), PurchaseLine."Job Line Type"::Billable);
         LibraryERM.CreateGLAccount(GLAccount);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         UpdateGeneralPostingSetup(GeneralPostingSetup, GLAccount."No.");
@@ -3044,9 +3046,9 @@ codeunit 136309 "Job Posting"
     var
         JobList: TestPage "Job List";
     begin
-        JobList.OpenView;
+        JobList.OpenView();
         JobList.FILTER.SetFilter("No.", No);
-        JobList.CopyJob.Invoke;
+        JobList.CopyJob.Invoke();
     end;
 
     local procedure SalesDocumentDoesNotExistWhenItemBlocked(SalesDocumentType: Boolean)
@@ -3081,7 +3083,7 @@ codeunit 136309 "Job Posting"
         // Verify: Verify Error Message and Sales Document should not be Created with Customer No.
         Assert.ExpectedError(StrSubstNo(BlockedErr, ItemForBlocking."No."));
         SalesHeader.SetRange("Sell-to Customer No.", Job."Bill-to Customer No.");
-        Assert.IsFalse(SalesHeader.FindFirst, SalesDocumentMsg);
+        Assert.IsFalse(SalesHeader.FindFirst(), SalesDocumentMsg);
     end;
 
     local procedure SalesDocumentExistWithExtendedText(SalesDocumentType: Boolean)
@@ -3162,7 +3164,7 @@ codeunit 136309 "Job Posting"
         SourceJob.Modify(true);
     end;
 
-    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateInventorySetup(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -3404,21 +3406,21 @@ codeunit 136309 "Job Posting"
     [Scope('OnPrem')]
     procedure CopyJobHandler(var CopyJob: TestPage "Copy Job")
     begin
-        CopyJob.FromJobTaskNo.Lookup;
-        CopyJob.ToJobTaskNo.Lookup;
+        CopyJob.FromJobTaskNo.Lookup();
+        CopyJob.ToJobTaskNo.Lookup();
         CopyJob.TargetJobNo.SetValue(TargetJobNo);
         CopyJob."From Source".SetValue(FromSource);
         CopyJob.CopyJobPrices.SetValue(true);
         CopyJob.CopyQuantity.SetValue(true);
         CopyJob.CopyDimensions.SetValue(true);
-        CopyJob.OK.Invoke;
+        CopyJob.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure JobTaskListHandler(var JobTaskList: TestPage "Job Task List")
     begin
-        JobTaskList.OK.Invoke;
+        JobTaskList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -3434,7 +3436,7 @@ codeunit 136309 "Job Posting"
     var
         ExpectedQuestion: Text;
     begin
-        ExpectedQuestion := LibraryVariableStorage.DequeueText;
+        ExpectedQuestion := LibraryVariableStorage.DequeueText();
         Assert.ExpectedMessage(ExpectedQuestion, ActualQuestion);
         Reply := true;
     end;
@@ -3444,9 +3446,9 @@ codeunit 136309 "Job Posting"
     procedure EnterCustomizedSNPageHandler(var EnterCustomizedSN: TestPage "Enter Customized SN")
     begin
         EnterCustomizedSN.CustomizedSN.SetValue(LibraryUtility.GenerateGUID());
-        EnterCustomizedSN.QtyToCreate.SetValue(LibraryVariableStorage.DequeueDecimal);
+        EnterCustomizedSN.QtyToCreate.SetValue(LibraryVariableStorage.DequeueDecimal());
         EnterCustomizedSN.Increment.SetValue(1);
-        EnterCustomizedSN.OK.Invoke;
+        EnterCustomizedSN.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -3459,21 +3461,21 @@ codeunit 136309 "Job Posting"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        if LibraryVariableStorage.DequeueBoolean then begin
-            ItemTrackingLines."Select Entries".Invoke;
-            ItemTrackingLines.OK.Invoke;
+        if LibraryVariableStorage.DequeueBoolean() then begin
+            ItemTrackingLines."Select Entries".Invoke();
+            ItemTrackingLines.OK().Invoke();
             exit;
         end;
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSelectEntriesPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3485,29 +3487,29 @@ codeunit 136309 "Job Posting"
     begin
         if VerifyTrackingLine then begin
             Count := 1;
-            ItemTrackingLines.First;
+            ItemTrackingLines.First();
             repeat
                 ItemTrackingLines."Serial No.".AssertEquals(SerialNo[Count]);
                 Count := Count + 1;
             until not ItemTrackingLines.Next();
         end else begin
-            ItemTrackingLines.CreateCustomizedSN.Invoke;
+            ItemTrackingLines.CreateCustomizedSN.Invoke();
             Count2 := 1;
-            ItemTrackingLines.First;
+            ItemTrackingLines.First();
             repeat
-                SerialNo[Count2] := ItemTrackingLines."Serial No.".Value;
+                SerialNo[Count2] := ItemTrackingLines."Serial No.".Value();
                 Count2 := Count2 + 1;
             until not ItemTrackingLines.Next();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3515,14 +3517,14 @@ codeunit 136309 "Job Posting"
     procedure JobJournalTemplateListPageHandler(var JobJournalTemplateList: TestPage "Job Journal Template List")
     begin
         JobJournalTemplateList.FILTER.SetFilter(Name, JournalTemplateName);
-        JobJournalTemplateList.OK.Invoke;
+        JobJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseDocumentLinesPageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
     begin
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3823,14 +3825,14 @@ codeunit 136309 "Job Posting"
     [Scope('OnPrem')]
     procedure JobTransferToSalesInvoiceHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobTransferToSalesCreditMemoHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
     begin
-        JobTransferToCreditMemo.OK.Invoke;
+        JobTransferToCreditMemo.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3838,7 +3840,7 @@ codeunit 136309 "Job Posting"
     procedure PostedPurchaseDocumentLinePageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
     begin
         PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue('Posted Invoices');
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3847,24 +3849,24 @@ codeunit 136309 "Job Posting"
     var
         TrackingOptionValue: Option;
     begin
-        TrackingOptionValue := LibraryVariableStorage.DequeueInteger;
+        TrackingOptionValue := LibraryVariableStorage.DequeueInteger();
         case TrackingOptionValue of
             TrackingOption::SelectSerialNo:
-                ItemTrackingLines."Serial No.".AssistEdit;
+                ItemTrackingLines."Serial No.".AssistEdit();
             TrackingOption::AssignManualSN:
                 begin
-                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
                     ItemTrackingLines."Quantity (Base)".SetValue(1);
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     // Setups Item A with default bin code A and item B with non-default bin code B.

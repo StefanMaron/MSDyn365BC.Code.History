@@ -13,6 +13,7 @@ table 5005274 "Delivery Reminder Ledger Entry"
     Caption = 'Delivery Reminder Ledger Entry';
     DrillDownPageID = "Deliv. Reminder Ledger Entries";
     LookupPageID = "Deliv. Reminder Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

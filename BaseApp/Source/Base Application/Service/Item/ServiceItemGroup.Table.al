@@ -8,6 +8,7 @@ table 5904 "Service Item Group"
 {
     Caption = 'Service Item Group';
     LookupPageID = "Service Item Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

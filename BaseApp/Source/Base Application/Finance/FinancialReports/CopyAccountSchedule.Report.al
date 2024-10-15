@@ -9,7 +9,7 @@ report 26 "Copy Account Schedule"
     {
         dataitem(SourceAccScheduleName; "Acc. Schedule Name")
         {
-            DataItemTableView = sorting(Name) order(Ascending);
+            DataItemTableView = sorting(Name) order(ascending);
 
             trigger OnAfterGetRecord()
             var

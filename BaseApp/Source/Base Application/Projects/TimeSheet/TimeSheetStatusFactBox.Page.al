@@ -101,5 +101,21 @@ page 957 "Time Sheet Status FactBox"
         Comment := TimeSheetHeader.Comment;
         CurrPage.Update(false);
     end;
+
+    procedure UpdateDataInclFilters(var TimeSheetHeader: Record "Time Sheet Header")
+    begin
+        TimeSheetMgt.CalcStatusFactBoxData(
+          TimeSheetHeader,
+          OpenQty,
+          SubmittedQty,
+          RejectedQty,
+          ApprovedQty,
+          PostedQty,
+          TotalQuantity);
+
+        TimeSheetHeader.CalcFields(Comment);
+        Comment := TimeSheetHeader.Comment;
+        CurrPage.Update(false);
+    end;
 }
 

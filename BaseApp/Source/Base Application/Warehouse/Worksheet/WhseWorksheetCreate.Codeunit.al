@@ -44,56 +44,53 @@ codeunit 7311 "Whse. Worksheet-Create"
         if IsHandled then
             exit;
 
-        with WhseShptLine do begin
-            WhseWkshLine.SetCurrentKey(
-              "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
-            WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::Shipment);
-            WhseWkshLine.SetRange("Whse. Document No.", "No.");
-            WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if WhseWkshLine.Find('-') then
-                exit;
+        WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+        WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::Shipment);
+        WhseWkshLine.SetRange("Whse. Document No.", WhseShptLine."No.");
+        WhseWkshLine.SetRange("Whse. Document Line No.", WhseShptLine."Line No.");
+        if WhseWkshLine.Find('-') then
+            exit;
 
-            FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, "Location Code");
-            WhseShptHeader.Get("No.");
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, WhseShptLine."Location Code");
+        WhseShptHeader.Get(WhseShptLine."No.");
 
-            WhseWkshLine.Init();
-            WhseWkshLine.SetHideValidationDialog(true);
-            WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
-            WhseWkshLine."Source Type" := "Source Type";
-            WhseWkshLine."Source Subtype" := "Source Subtype";
-            WhseWkshLine."Source No." := "Source No.";
-            WhseWkshLine."Source Line No." := "Source Line No.";
-            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument("Source Type", "Source Subtype");
-            WhseWkshLine."Location Code" := "Location Code";
-            WhseWkshLine."Item No." := "Item No.";
-            WhseWkshLine."Variant Code" := "Variant Code";
-            WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
-            WhseWkshLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
-            WhseWkshLine.Description := Description;
-            WhseWkshLine."Description 2" := "Description 2";
-            WhseWkshLine."Due Date" := "Due Date";
-            WhseWkshLine."Qty. Handled" := "Qty. Picked" + "Pick Qty.";
-            WhseWkshLine."Qty. Handled (Base)" := "Qty. Picked (Base)" + "Pick Qty. (Base)";
-            WhseWkshLine.Validate(Quantity, Quantity);
-            WhseWkshLine."To Zone Code" := "Zone Code";
-            WhseWkshLine."To Bin Code" := "Bin Code";
-            WhseWkshLine."Shelf No." := "Shelf No.";
-            WhseWkshLine."Destination Type" := "Destination Type";
-            WhseWkshLine."Destination No." := "Destination No.";
-            if WhseShptHeader."Shipment Date" = 0D then
-                WhseWkshLine."Shipment Date" := "Shipment Date"
-            else
-                WhseWkshLine."Shipment Date" := WhseShptHeader."Shipment Date";
-            WhseWkshLine."Shipping Advice" := "Shipping Advice";
-            WhseWkshLine."Shipping Agent Code" := WhseShptHeader."Shipping Agent Code";
-            WhseWkshLine."Shipping Agent Service Code" := WhseShptHeader."Shipping Agent Service Code";
-            WhseWkshLine."Shipment Method Code" := WhseShptHeader."Shipment Method Code";
-            WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Shipment;
-            WhseWkshLine."Whse. Document No." := "No.";
-            WhseWkshLine."Whse. Document Line No." := "Line No.";
-        end;
+        WhseWkshLine.Init();
+        WhseWkshLine.SetHideValidationDialog(true);
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Source Type" := WhseShptLine."Source Type";
+        WhseWkshLine."Source Subtype" := WhseShptLine."Source Subtype";
+        WhseWkshLine."Source No." := WhseShptLine."Source No.";
+        WhseWkshLine."Source Line No." := WhseShptLine."Source Line No.";
+        WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseShptLine."Source Type", WhseShptLine."Source Subtype");
+        WhseWkshLine."Location Code" := WhseShptLine."Location Code";
+        WhseWkshLine."Item No." := WhseShptLine."Item No.";
+        WhseWkshLine."Variant Code" := WhseShptLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := WhseShptLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := WhseShptLine."Qty. per Unit of Measure";
+        WhseWkshLine."Qty. Rounding Precision" := WhseShptLine."Qty. Rounding Precision";
+        WhseWkshLine."Qty. Rounding Precision (Base)" := WhseShptLine."Qty. Rounding Precision (Base)";
+        WhseWkshLine.Description := WhseShptLine.Description;
+        WhseWkshLine."Description 2" := WhseShptLine."Description 2";
+        WhseWkshLine."Due Date" := WhseShptLine."Due Date";
+        WhseWkshLine."Qty. Handled" := WhseShptLine."Qty. Picked" + WhseShptLine."Pick Qty.";
+        WhseWkshLine."Qty. Handled (Base)" := WhseShptLine."Qty. Picked (Base)" + WhseShptLine."Pick Qty. (Base)";
+        WhseWkshLine.Validate(Quantity, WhseShptLine.Quantity);
+        WhseWkshLine."To Zone Code" := WhseShptLine."Zone Code";
+        WhseWkshLine."To Bin Code" := WhseShptLine."Bin Code";
+        WhseWkshLine."Shelf No." := WhseShptLine."Shelf No.";
+        WhseWkshLine."Destination Type" := WhseShptLine."Destination Type";
+        WhseWkshLine."Destination No." := WhseShptLine."Destination No.";
+        if WhseShptHeader."Shipment Date" = 0D then
+            WhseWkshLine."Shipment Date" := WhseShptLine."Shipment Date"
+        else
+            WhseWkshLine."Shipment Date" := WhseShptHeader."Shipment Date";
+        WhseWkshLine."Shipping Advice" := WhseShptLine."Shipping Advice";
+        WhseWkshLine."Shipping Agent Code" := WhseShptHeader."Shipping Agent Code";
+        WhseWkshLine."Shipping Agent Service Code" := WhseShptHeader."Shipping Agent Service Code";
+        WhseWkshLine."Shipment Method Code" := WhseShptHeader."Shipment Method Code";
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Shipment;
+        WhseWkshLine."Whse. Document No." := WhseShptLine."No.";
+        WhseWkshLine."Whse. Document Line No." := WhseShptLine."Line No.";
 
         OnAfterTransferFromWhseShptLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, WhseShptLine);
     end;
@@ -102,38 +99,35 @@ codeunit 7311 "Whse. Worksheet-Create"
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        with WhseInternalPickLine do begin
-            WhseWkshLine.SetCurrentKey(
-              "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
-            WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Pick");
-            WhseWkshLine.SetRange("Whse. Document No.", "No.");
-            WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if not WhseWkshLine.IsEmpty() then
-                exit;
+        WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+        WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Pick");
+        WhseWkshLine.SetRange("Whse. Document No.", WhseInternalPickLine."No.");
+        WhseWkshLine.SetRange("Whse. Document Line No.", WhseInternalPickLine."Line No.");
+        if not WhseWkshLine.IsEmpty() then
+            exit;
 
-            FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init();
-            WhseWkshLine.SetHideValidationDialog(true);
-            WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
-            WhseWkshLine."Location Code" := "Location Code";
-            WhseWkshLine."Item No." := "Item No.";
-            WhseWkshLine."Variant Code" := "Variant Code";
-            WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine.Description := Description;
-            WhseWkshLine."Description 2" := "Description 2";
-            WhseWkshLine."Due Date" := "Due Date";
-            WhseWkshLine."Qty. Handled" := "Qty. Picked" + "Pick Qty.";
-            WhseWkshLine."Qty. Handled (Base)" := "Qty. Picked (Base)" + "Pick Qty. (Base)";
-            WhseWkshLine.Validate(Quantity, Quantity);
-            WhseWkshLine."To Zone Code" := "To Zone Code";
-            WhseWkshLine."To Bin Code" := "To Bin Code";
-            WhseWkshLine."Shelf No." := "Shelf No.";
-            WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::"Internal Pick";
-            WhseWkshLine."Whse. Document No." := "No.";
-            WhseWkshLine."Whse. Document Line No." := "Line No.";
-        end;
+        WhseWkshLine.Init();
+        WhseWkshLine.SetHideValidationDialog(true);
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Location Code" := WhseInternalPickLine."Location Code";
+        WhseWkshLine."Item No." := WhseInternalPickLine."Item No.";
+        WhseWkshLine."Variant Code" := WhseInternalPickLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := WhseInternalPickLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := WhseInternalPickLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := WhseInternalPickLine.Description;
+        WhseWkshLine."Description 2" := WhseInternalPickLine."Description 2";
+        WhseWkshLine."Due Date" := WhseInternalPickLine."Due Date";
+        WhseWkshLine."Qty. Handled" := WhseInternalPickLine."Qty. Picked" + WhseInternalPickLine."Pick Qty.";
+        WhseWkshLine."Qty. Handled (Base)" := WhseInternalPickLine."Qty. Picked (Base)" + WhseInternalPickLine."Pick Qty. (Base)";
+        WhseWkshLine.Validate(Quantity, WhseInternalPickLine.Quantity);
+        WhseWkshLine."To Zone Code" := WhseInternalPickLine."To Zone Code";
+        WhseWkshLine."To Bin Code" := WhseInternalPickLine."To Bin Code";
+        WhseWkshLine."Shelf No." := WhseInternalPickLine."Shelf No.";
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::"Internal Pick";
+        WhseWkshLine."Whse. Document No." := WhseInternalPickLine."No.";
+        WhseWkshLine."Whse. Document Line No." := WhseInternalPickLine."Line No.";
 
         OnFromWhseInternalPickLineOnAfterTransferFields(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, WhseInternalPickLine);
 
@@ -146,45 +140,43 @@ codeunit 7311 "Whse. Worksheet-Create"
         Bin: Record Bin;
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        with ProdOrderCompLine do begin
-            WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-            WhseWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
-            WhseWkshLine.SetRange("Source Subtype", Status);
-            WhseWkshLine.SetRange("Source No.", "Prod. Order No.");
-            WhseWkshLine.SetRange("Source Line No.", "Prod. Order Line No.");
-            WhseWkshLine.SetRange("Source Subline No.", "Line No.");
-            if not WhseWkshLine.IsEmpty() then
-                exit;
+        WhseWkshLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+        WhseWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
+        WhseWkshLine.SetRange("Source Subtype", ProdOrderCompLine.Status);
+        WhseWkshLine.SetRange("Source No.", ProdOrderCompLine."Prod. Order No.");
+        WhseWkshLine.SetRange("Source Line No.", ProdOrderCompLine."Prod. Order Line No.");
+        WhseWkshLine.SetRange("Source Subline No.", ProdOrderCompLine."Line No.");
+        if not WhseWkshLine.IsEmpty() then
+            exit;
 
-            FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init();
-            WhseWkshLine.SetHideValidationDialog(true);
-            WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
-            WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Production;
-            WhseWkshLine."Whse. Document No." := "Prod. Order No.";
-            WhseWkshLine."Whse. Document Line No." := "Prod. Order Line No.";
-            WhseWkshLine."Source Type" := Database::"Prod. Order Component";
-            WhseWkshLine."Source Subtype" := Status;
-            WhseWkshLine."Source No." := "Prod. Order No.";
-            WhseWkshLine."Source Line No." := "Prod. Order Line No.";
-            WhseWkshLine."Source Subline No." := "Line No.";
-            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
-            WhseWkshLine."Location Code" := "Location Code";
-            WhseWkshLine."Item No." := "Item No.";
-            WhseWkshLine."Variant Code" := "Variant Code";
-            WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine.Description := Description;
-            WhseWkshLine."Due Date" := "Due Date";
-            WhseWkshLine."Qty. Handled" := "Qty. Picked" + "Pick Qty.";
-            WhseWkshLine."Qty. Handled (Base)" := "Qty. Picked (Base)" + "Pick Qty. (Base)";
-            WhseWkshLine.Validate(Quantity, "Expected Quantity");
-            WhseWkshLine."To Bin Code" := ToBinCode;
-            if ("Location Code" <> '') and (ToBinCode <> '') then begin
-                Bin.Get(LocationCode, ToBinCode);
-                WhseWkshLine."To Zone Code" := Bin."Zone Code";
-            end;
+        WhseWkshLine.Init();
+        WhseWkshLine.SetHideValidationDialog(true);
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Production;
+        WhseWkshLine."Whse. Document No." := ProdOrderCompLine."Prod. Order No.";
+        WhseWkshLine."Whse. Document Line No." := ProdOrderCompLine."Prod. Order Line No.";
+        WhseWkshLine."Source Type" := Database::"Prod. Order Component";
+        WhseWkshLine."Source Subtype" := ProdOrderCompLine.Status.AsInteger();
+        WhseWkshLine."Source No." := ProdOrderCompLine."Prod. Order No.";
+        WhseWkshLine."Source Line No." := ProdOrderCompLine."Prod. Order Line No.";
+        WhseWkshLine."Source Subline No." := ProdOrderCompLine."Line No.";
+        WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
+        WhseWkshLine."Location Code" := ProdOrderCompLine."Location Code";
+        WhseWkshLine."Item No." := ProdOrderCompLine."Item No.";
+        WhseWkshLine."Variant Code" := ProdOrderCompLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := ProdOrderCompLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := ProdOrderCompLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := ProdOrderCompLine.Description;
+        WhseWkshLine."Due Date" := ProdOrderCompLine."Due Date";
+        WhseWkshLine."Qty. Handled" := ProdOrderCompLine."Qty. Picked" + ProdOrderCompLine."Pick Qty.";
+        WhseWkshLine."Qty. Handled (Base)" := ProdOrderCompLine."Qty. Picked (Base)" + ProdOrderCompLine."Pick Qty. (Base)";
+        WhseWkshLine.Validate(Quantity, ProdOrderCompLine."Expected Quantity");
+        WhseWkshLine."To Bin Code" := ToBinCode;
+        if (ProdOrderCompLine."Location Code" <> '') and (ToBinCode <> '') then begin
+            Bin.Get(LocationCode, ToBinCode);
+            WhseWkshLine."To Zone Code" := Bin."Zone Code";
         end;
         OnAfterFromProdOrderCompLineCreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine, LocationCode, ToBinCode);
         if CreateWhseWkshLine(WhseWkshLine, ProdOrderCompLine) then
@@ -195,18 +187,16 @@ codeunit 7311 "Whse. Worksheet-Create"
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        with AssemblyLine do begin
-            if WhseWkshLineForAsmLineExists(AssemblyLine) then
-                exit;
+        if WhseWkshLineForAsmLineExists(AssemblyLine) then
+            exit;
 
-            FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, "Location Code");
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, AssemblyLine."Location Code");
 
-            WhseWkshLine.Init();
-            TransferAllButWhseDocDetailsFromAssemblyLine(WhseWkshLine, AssemblyLine);
-            WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Assembly;
-            WhseWkshLine."Whse. Document No." := "Document No.";
-            WhseWkshLine."Whse. Document Line No." := "Line No.";
-        end;
+        WhseWkshLine.Init();
+        TransferAllButWhseDocDetailsFromAssemblyLine(WhseWkshLine, AssemblyLine);
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Assembly;
+        WhseWkshLine."Whse. Document No." := AssemblyLine."Document No.";
+        WhseWkshLine."Whse. Document Line No." := AssemblyLine."Line No.";
         if CreateWhseWkshLine(WhseWkshLine, AssemblyLine) then
             exit(true);
     end;
@@ -308,38 +298,36 @@ codeunit 7311 "Whse. Worksheet-Create"
         Location: Record Location;
         Bin: Record Bin;
     begin
-        with AssemblyLine do begin
-            WhseWkshLine.SetHideValidationDialog(true);
-            FindLastWhseWkshLine(WhseWkshLine1, WhseWkshLine."Worksheet Template Name", WhseWkshLine.Name, WhseWkshLine."Location Code");
-            WhseWkshLine."Line No." := WhseWkshLine1."Line No." + 10000;
-            WhseWkshLine."Source Type" := Database::"Assembly Line";
-            WhseWkshLine."Source Subtype" := "Document Type";
-            WhseWkshLine."Source No." := "Document No.";
-            WhseWkshLine."Source Line No." := "Line No.";
-            WhseWkshLine."Source Subline No." := 0;
-            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
-            WhseWkshLine."Location Code" := "Location Code";
-            TestField(Type, Type::Item);
-            WhseWkshLine."Item No." := "No.";
-            WhseWkshLine."Variant Code" := "Variant Code";
-            WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine.Description := Description;
-            WhseWkshLine."Description 2" := "Description 2";
-            WhseWkshLine."Due Date" := "Due Date";
-            CalcFields("Pick Qty.", "Pick Qty. (Base)");
-            WhseWkshLine."Qty. Handled" := "Qty. Picked" + "Pick Qty.";
-            WhseWkshLine."Qty. Handled (Base)" := "Qty. Picked (Base)" + "Pick Qty. (Base)";
-            Location.Get("Location Code");
-            if Location."Require Shipment" then
-                WhseWkshLine.Validate(Quantity, Quantity)
-            else
-                WhseWkshLine.Validate(Quantity, "Quantity to Consume");
-            WhseWkshLine."To Bin Code" := "Bin Code";
-            if ("Location Code" <> '') and ("Bin Code" <> '') then begin
-                Bin.Get("Location Code", "Bin Code");
-                WhseWkshLine."To Zone Code" := Bin."Zone Code";
-            end;
+        WhseWkshLine.SetHideValidationDialog(true);
+        FindLastWhseWkshLine(WhseWkshLine1, WhseWkshLine."Worksheet Template Name", WhseWkshLine.Name, WhseWkshLine."Location Code");
+        WhseWkshLine."Line No." := WhseWkshLine1."Line No." + 10000;
+        WhseWkshLine."Source Type" := Database::"Assembly Line";
+        WhseWkshLine."Source Subtype" := AssemblyLine."Document Type".AsInteger();
+        WhseWkshLine."Source No." := AssemblyLine."Document No.";
+        WhseWkshLine."Source Line No." := AssemblyLine."Line No.";
+        WhseWkshLine."Source Subline No." := 0;
+        WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseWkshLine."Source Type", WhseWkshLine."Source Subtype");
+        WhseWkshLine."Location Code" := AssemblyLine."Location Code";
+        AssemblyLine.TestField(AssemblyLine.Type, AssemblyLine.Type::Item);
+        WhseWkshLine."Item No." := AssemblyLine."No.";
+        WhseWkshLine."Variant Code" := AssemblyLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := AssemblyLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := AssemblyLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := AssemblyLine.Description;
+        WhseWkshLine."Description 2" := AssemblyLine."Description 2";
+        WhseWkshLine."Due Date" := AssemblyLine."Due Date";
+        AssemblyLine.CalcFields(AssemblyLine."Pick Qty.", AssemblyLine."Pick Qty. (Base)");
+        WhseWkshLine."Qty. Handled" := AssemblyLine."Qty. Picked" + AssemblyLine."Pick Qty.";
+        WhseWkshLine."Qty. Handled (Base)" := AssemblyLine."Qty. Picked (Base)" + AssemblyLine."Pick Qty. (Base)";
+        Location.Get(AssemblyLine."Location Code");
+        if Location."Require Shipment" then
+            WhseWkshLine.Validate(Quantity, AssemblyLine.Quantity)
+        else
+            WhseWkshLine.Validate(Quantity, AssemblyLine."Quantity to Consume");
+        WhseWkshLine."To Bin Code" := AssemblyLine."Bin Code";
+        if (AssemblyLine."Location Code" <> '') and (AssemblyLine."Bin Code" <> '') then begin
+            Bin.Get(AssemblyLine."Location Code", AssemblyLine."Bin Code");
+            WhseWkshLine."To Zone Code" := Bin."Zone Code";
         end;
         OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(WhseWkshLine, AssemblyLine);
     end;
@@ -348,51 +336,47 @@ codeunit 7311 "Whse. Worksheet-Create"
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        with PostedWhseRcptLine do begin
-            if "Qty. Put Away" = Quantity then
-                exit;
+        if PostedWhseRcptLine."Qty. Put Away" = PostedWhseRcptLine.Quantity then
+            exit;
 
-            WhseWkshLine.SetCurrentKey(
-              "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
-            WhseWkshLine.SetRange(
-              "Whse. Document Type", WhseWkshLine."Whse. Document Type"::Receipt);
-            WhseWkshLine.SetRange("Whse. Document No.", "No.");
-            WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if not WhseWkshLine.IsEmpty() then
-                exit;
+        WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+        WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::Receipt);
+        WhseWkshLine.SetRange("Whse. Document No.", PostedWhseRcptLine."No.");
+        WhseWkshLine.SetRange("Whse. Document Line No.", PostedWhseRcptLine."Line No.");
+        if not WhseWkshLine.IsEmpty() then
+            exit;
 
-            FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init();
-            WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
-            WhseWkshLine."Source Type" := "Source Type";
-            WhseWkshLine."Source Subtype" := "Source Subtype";
-            WhseWkshLine."Source No." := "Source No.";
-            WhseWkshLine."Source Line No." := "Source Line No.";
-            WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument("Source Type", "Source Subtype");
-            WhseWkshLine."Location Code" := "Location Code";
-            WhseWkshLine."Item No." := "Item No.";
-            WhseWkshLine."Variant Code" := "Variant Code";
-            WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine.Description := Description;
-            WhseWkshLine."Description 2" := "Description 2";
-            WhseWkshLine."Due Date" := "Due Date";
-            WhseWkshLine.Validate(Quantity, Quantity);
-            WhseWkshLine.Validate("Qty. Handled", "Qty. Put Away" + "Put-away Qty.");
-            WhseWkshLine."From Zone Code" := "Zone Code";
-            WhseWkshLine."From Bin Code" := "Bin Code";
-            WhseWkshLine."Shelf No." := "Shelf No.";
-            WhseWkshLine."From Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per From Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
-            WhseWkshLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
-            WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Receipt;
-            WhseWkshLine."Whse. Document No." := "No.";
-            WhseWkshLine."Whse. Document Line No." := "Line No.";
+        WhseWkshLine.Init();
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Source Type" := PostedWhseRcptLine."Source Type";
+        WhseWkshLine."Source Subtype" := PostedWhseRcptLine."Source Subtype";
+        WhseWkshLine."Source No." := PostedWhseRcptLine."Source No.";
+        WhseWkshLine."Source Line No." := PostedWhseRcptLine."Source Line No.";
+        WhseWkshLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(PostedWhseRcptLine."Source Type", PostedWhseRcptLine."Source Subtype");
+        WhseWkshLine."Location Code" := PostedWhseRcptLine."Location Code";
+        WhseWkshLine."Item No." := PostedWhseRcptLine."Item No.";
+        WhseWkshLine."Variant Code" := PostedWhseRcptLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := PostedWhseRcptLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := PostedWhseRcptLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := PostedWhseRcptLine.Description;
+        WhseWkshLine."Description 2" := PostedWhseRcptLine."Description 2";
+        WhseWkshLine."Due Date" := PostedWhseRcptLine."Due Date";
+        WhseWkshLine.Validate(Quantity, PostedWhseRcptLine.Quantity);
+        WhseWkshLine.Validate("Qty. Handled", PostedWhseRcptLine."Qty. Put Away" + PostedWhseRcptLine."Put-away Qty.");
+        WhseWkshLine."From Zone Code" := PostedWhseRcptLine."Zone Code";
+        WhseWkshLine."From Bin Code" := PostedWhseRcptLine."Bin Code";
+        WhseWkshLine."Shelf No." := PostedWhseRcptLine."Shelf No.";
+        WhseWkshLine."From Unit of Measure Code" := PostedWhseRcptLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per From Unit of Measure" := PostedWhseRcptLine."Qty. per Unit of Measure";
+        WhseWkshLine."Qty. Rounding Precision" := PostedWhseRcptLine."Qty. Rounding Precision";
+        WhseWkshLine."Qty. Rounding Precision (Base)" := PostedWhseRcptLine."Qty. Rounding Precision (Base)";
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::Receipt;
+        WhseWkshLine."Whse. Document No." := PostedWhseRcptLine."No.";
+        WhseWkshLine."Whse. Document Line No." := PostedWhseRcptLine."Line No.";
 
-            OnAfterFromWhseRcptLineCreateWhseWkshLine(WhseWkshLine, PostedWhseRcptLine);
-        end;
+        OnAfterFromWhseRcptLineCreateWhseWkshLine(WhseWkshLine, PostedWhseRcptLine);
         if CreateWhseWkshLine(WhseWkshLine, PostedWhseRcptLine) then
             exit(true);
     end;
@@ -401,42 +385,38 @@ codeunit 7311 "Whse. Worksheet-Create"
     var
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        with WhseInternalPutawayLine do begin
-            if "Qty. Put Away" = Quantity then
-                exit;
+        if WhseInternalPutawayLine."Qty. Put Away" = WhseInternalPutawayLine.Quantity then
+            exit;
 
-            WhseWkshLine.SetCurrentKey(
-              "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
-            WhseWkshLine.SetRange(
-              "Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
-            WhseWkshLine.SetRange("Whse. Document No.", "No.");
-            WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
-            if not WhseWkshLine.IsEmpty() then
-                exit;
+        WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
+        WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
+        WhseWkshLine.SetRange("Whse. Document No.", WhseInternalPutawayLine."No.");
+        WhseWkshLine.SetRange("Whse. Document Line No.", WhseInternalPutawayLine."Line No.");
+        if not WhseWkshLine.IsEmpty() then
+            exit;
 
-            FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
+        FindLastWhseWkshLine(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, LocationCode);
 
-            WhseWkshLine.Init();
-            WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
-            WhseWkshLine."Location Code" := "Location Code";
-            WhseWkshLine."Item No." := "Item No.";
-            WhseWkshLine."Variant Code" := "Variant Code";
-            WhseWkshLine."Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine.Description := Description;
-            WhseWkshLine."Description 2" := "Description 2";
-            WhseWkshLine."Due Date" := "Due Date";
-            WhseWkshLine.Validate(Quantity, Quantity);
-            WhseWkshLine.Validate("Qty. Handled", "Qty. Put Away" + "Put-away Qty.");
-            WhseWkshLine."From Zone Code" := "From Zone Code";
-            WhseWkshLine."From Bin Code" := "From Bin Code";
-            WhseWkshLine."Shelf No." := "Shelf No.";
-            WhseWkshLine."From Unit of Measure Code" := "Unit of Measure Code";
-            WhseWkshLine."Qty. per From Unit of Measure" := "Qty. per Unit of Measure";
-            WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::"Internal Put-away";
-            WhseWkshLine."Whse. Document No." := "No.";
-            WhseWkshLine."Whse. Document Line No." := "Line No.";
-        end;
+        WhseWkshLine.Init();
+        WhseWkshLine."Line No." := WhseWkshLine."Line No." + 10000;
+        WhseWkshLine."Location Code" := WhseInternalPutawayLine."Location Code";
+        WhseWkshLine."Item No." := WhseInternalPutawayLine."Item No.";
+        WhseWkshLine."Variant Code" := WhseInternalPutawayLine."Variant Code";
+        WhseWkshLine."Unit of Measure Code" := WhseInternalPutawayLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per Unit of Measure" := WhseInternalPutawayLine."Qty. per Unit of Measure";
+        WhseWkshLine.Description := WhseInternalPutawayLine.Description;
+        WhseWkshLine."Description 2" := WhseInternalPutawayLine."Description 2";
+        WhseWkshLine."Due Date" := WhseInternalPutawayLine."Due Date";
+        WhseWkshLine.Validate(Quantity, WhseInternalPutawayLine.Quantity);
+        WhseWkshLine.Validate("Qty. Handled", WhseInternalPutawayLine."Qty. Put Away" + WhseInternalPutawayLine."Put-away Qty.");
+        WhseWkshLine."From Zone Code" := WhseInternalPutawayLine."From Zone Code";
+        WhseWkshLine."From Bin Code" := WhseInternalPutawayLine."From Bin Code";
+        WhseWkshLine."Shelf No." := WhseInternalPutawayLine."Shelf No.";
+        WhseWkshLine."From Unit of Measure Code" := WhseInternalPutawayLine."Unit of Measure Code";
+        WhseWkshLine."Qty. per From Unit of Measure" := WhseInternalPutawayLine."Qty. per Unit of Measure";
+        WhseWkshLine."Whse. Document Type" := WhseWkshLine."Whse. Document Type"::"Internal Put-away";
+        WhseWkshLine."Whse. Document No." := WhseInternalPutawayLine."No.";
+        WhseWkshLine."Whse. Document Line No." := WhseInternalPutawayLine."Line No.";
 
         OnFromWhseInternalPutawayLineOnAfterTransferFields(WhseWkshLine, WhseWkshTemplateName, WhseWkshName, WhseInternalPutawayLine);
 
@@ -455,24 +435,22 @@ codeunit 7311 "Whse. Worksheet-Create"
         if IsHandled then
             exit(Created);
 
-        with WhseWkshLine do begin
-            if "Shelf No." = '' then begin
-                Item."No." := "Item No.";
-                Item.ItemSKUGet(Item, "Location Code", "Variant Code");
-                "Shelf No." := Item."Shelf No.";
-            end;
-            OnCreateWhseWkshLineOnBeforeInsert(WhseWkshLine, SourceRecord);
-            if Insert() then begin
-                Created := true;
+        if WhseWkshLine."Shelf No." = '' then begin
+            Item."No." := WhseWkshLine."Item No.";
+            Item.ItemSKUGet(Item, WhseWkshLine."Location Code", WhseWkshLine."Variant Code");
+            WhseWkshLine."Shelf No." := Item."Shelf No.";
+        end;
+        OnCreateWhseWkshLineOnBeforeInsert(WhseWkshLine, SourceRecord);
+        if WhseWkshLine.Insert() then begin
+            Created := true;
 
-                IsHandled := false;
-                OnCreateWhseWkshLineOnBeforeGetWhseItemTrkgSetup(WhseWkshLine, IsHandled, SourceRecord);
-                if not IsHandled then
-                    if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then
-                        ItemTrackingMgt.InitTrackingSpecification(WhseWkshLine);
+            IsHandled := false;
+            OnCreateWhseWkshLineOnBeforeGetWhseItemTrkgSetup(WhseWkshLine, IsHandled, SourceRecord);
+            if not IsHandled then
+                if ItemTrackingMgt.GetWhseItemTrkgSetup(WhseWkshLine."Item No.") then
+                    ItemTrackingMgt.InitTrackingSpecification(WhseWkshLine);
 
-                OnCreateWhseWkshLineOnAfterInsert(WhseWkshLine, SourceRecord);
-            end;
+            OnCreateWhseWkshLineOnAfterInsert(WhseWkshLine, SourceRecord);
         end;
     end;
 

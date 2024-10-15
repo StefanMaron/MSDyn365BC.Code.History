@@ -12,11 +12,8 @@ codeunit 142083 "SCM Misc. DACH"
         LocationGreen: Record Location;
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibrarySales: Codeunit "Library - Sales";
-        LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryRandom: Codeunit "Library - Random";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -44,8 +41,8 @@ codeunit 142083 "SCM Misc. DACH"
         // [WHEN] Invoke Calculate Inventory button on Phys. Inventory Journal page ("Items Not on Inventory" flag is up while "Include Item without Transactions" flag is down)
         Commit();
         LibraryVariableStorage.Enqueue(Item."No.");
-        PhysInvJournal.OpenEdit;
-        PhysInvJournal.CalculateInventory.Invoke;
+        PhysInvJournal.OpenEdit();
+        PhysInvJournal.CalculateInventory.Invoke();
 
         // [THEN] Report dataset doesn't contain Item with no transactions
         Assert.RecordIsEmpty(ItemJournalLine);
@@ -88,10 +85,10 @@ codeunit 142083 "SCM Misc. DACH"
     [Scope('OnPrem')]
     procedure CalculateInventoryItemsNotOnInventoryHandler(var CalculateInventory: TestRequestPage "Calculate Inventory")
     begin
-        CalculateInventory.Item.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        CalculateInventory.Item.SetFilter("No.", LibraryVariableStorage.DequeueText());
         CalculateInventory.ItemsNotOnInventory.SetValue(true);
         CalculateInventory.IncludeItemWithNoTransaction.SetValue(false);
-        CalculateInventory.OK.Invoke;
+        CalculateInventory.OK().Invoke();
     end;
 }
 

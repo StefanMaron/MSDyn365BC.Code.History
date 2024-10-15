@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Inventory.Location;
@@ -291,5 +292,24 @@ table 5774 "Warehouse Pick Summary"
         PickWorksheetPage.SetTableView(WhseWorksheetLine);
         PickWorksheetPage.DrillDownFromCalculationSummary(WhseWorksheetLine);
         PickWorksheetPage.RunModal();
+    end;
+
+    internal procedure ShowReservationEntries()
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservationEntry);
+        Page.RunModal(Page::"Reservation Entries", ReservationEntry);
+    end;
+
+    local procedure SetReservationFilters(var ReservationEntry: Record "Reservation Entry")
+    begin
+        ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
+        ReservationEntry.SetRange("Source Subtype", 0);
+        ReservationEntry.SetRange("Reservation Status", Enum::"Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Location Code", Rec."Location Code");
+        ReservationEntry.SetRange("Item No.", Rec."Item No.");
+        ReservationEntry.SetRange("Variant Code", Rec."Variant Code");
     end;
 }

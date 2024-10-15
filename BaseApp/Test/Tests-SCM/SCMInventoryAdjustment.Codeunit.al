@@ -526,7 +526,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         // Update Sales Setup, Create Child Items with respective costing method. Create Purchase Order and Receive only.
         // Create Production BOM and Create Parent Item and attach Production BOM.
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         CreateItemsAndCopyToTemp(TempItem, CostingMethod, NoOfComponents);
@@ -752,7 +752,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         Item.Get(ItemNo);
         RecRef.GetTable(Item);
         FieldRef := RecRef.Field(FieldNo);
-        CurrentValue := FieldRef.Value;
+        CurrentValue := FieldRef.Value();
     end;
 
     local procedure AdjustCostItemEntries(var TempItem: Record Item temporary; ItemNo: Code[20])

@@ -88,7 +88,7 @@ codeunit 142058 "UT REP VATDECL"
         // Setup: Run Report VAT - VIES Declaration XML to verify Error Code, Actual error message: The No. Series should only contain numbers.
         Initialize();
         RunReportVATVIESDeclarationXML(ReportingType::"Normal transmission", 0D,
-          CreateNoSeries(DelStr(LibraryUTUtility.GetNewCode10, 10, 1)));
+          CreateNoSeries(DelStr(LibraryUTUtility.GetNewCode10(), 10, 1)));
         // XML File Name, Reportingdate, No. Series of 9 digit length which contain alphanumeric characters.
     end;
 
@@ -116,7 +116,7 @@ codeunit 142058 "UT REP VATDECL"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries.Insert();
 
         NoSeriesLine."Series Code" := NoSeries.Code;
@@ -139,7 +139,7 @@ codeunit 142058 "UT REP VATDECL"
         VATVIESDeclarationXML.ReportingType.SetValue(ReportingType);
         VATVIESDeclarationXML.ReportingDate.SetValue(ReportingDate);
         VATVIESDeclarationXML.NoSeries.SetValue(NoSeries);
-        VATVIESDeclarationXML.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATVIESDeclarationXML.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

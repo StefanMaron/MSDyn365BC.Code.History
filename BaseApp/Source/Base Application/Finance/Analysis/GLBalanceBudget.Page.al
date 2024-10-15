@@ -489,8 +489,6 @@ page 422 "G/L Balance/Budget"
 
     var
         GLSetup: Record "General Ledger Setup";
-        PeriodType: Enum "Analysis Period Type";
-        AmountType: Enum "Analysis Amount Type";
         ClosingEntryFilter: Option Include,Exclude;
         GLAccCategoryFilter: Enum "G/L Account Category";
         IncomeBalanceGLAccFilter: Option " ","Income Statement","Balance Sheet";
@@ -504,6 +502,10 @@ page 422 "G/L Balance/Budget"
         GlobalDim1Filter: Text;
         GlobalDim2Filter: Text;
         GLAccFilter: Text;
+
+    protected var
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     procedure FindPeriod(SearchText: Code[10])
     var

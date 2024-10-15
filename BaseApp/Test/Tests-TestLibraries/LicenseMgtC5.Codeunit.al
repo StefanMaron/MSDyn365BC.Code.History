@@ -3,7 +3,7 @@ codeunit 130031 "License Mgt. C5"
 
     trigger OnRun()
     begin
-        ReduceDemoData;
+        ReduceDemoData();
     end;
 
     [Scope('OnPrem')]
@@ -153,7 +153,7 @@ codeunit 130031 "License Mgt. C5"
         ProductionBOMCommentLine: Record "Production BOM Comment Line";
         LicenseManagementStarter: Codeunit "License Management Starter";
     begin
-        LicenseManagementStarter.ReduceDemoData;
+        LicenseManagementStarter.ReduceDemoData();
         BOMComponent.DeleteAll();
         SalesShipmentHeader.DeleteAll();
         PurchRcptHeader.DeleteAll();

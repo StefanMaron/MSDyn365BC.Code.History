@@ -512,32 +512,30 @@ codeunit 99000772 "Prod. Order Route Management"
         if SkipUpdate then
             exit(not ErrorOccured);
 
-        with FilteredProdOrderRtngLineSet do begin
-            if not FindFirst() then
-                exit;
-            SetOrderLineRoutingFilter(ProdOrderLine, Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
-            if ProdOrderLine.FindSet(false) then
-                repeat
-                    SetProdOrderComponentFilter(ProdOrderComponent, ProdOrderLine, FilteredProdOrderRtngLineSet);
-                    if ProdOrderComponent.FindSet(true) then
-                        repeat
-                            if IgnoreErrors then
-                                ProdOrderComponent.SetIgnoreErrors();
-                            BinCode := ProdOrderComponent.GetDefaultConsumptionBin(FilteredProdOrderRtngLineSet);
-                            if BinCode <> ProdOrderComponent."Bin Code" then begin
-                                if not AutoUpdateCompBinCode then
-                                    if Confirm(Text009, false) then
-                                        AutoUpdateCompBinCode := true
-                                    else
-                                        exit;
-                                ProdOrderComponent.Validate("Bin Code", BinCode);
-                                ProdOrderComponent.Modify();
-                                if ProdOrderComponent.HasErrorOccured() then
-                                    ErrorOccured := true;
-                            end;
-                        until ProdOrderComponent.Next() = 0;
-                until ProdOrderLine.Next() = 0;
-        end;
+        if not FilteredProdOrderRtngLineSet.FindFirst() then
+            exit;
+        SetOrderLineRoutingFilter(ProdOrderLine, FilteredProdOrderRtngLineSet.Status, FilteredProdOrderRtngLineSet."Prod. Order No.", FilteredProdOrderRtngLineSet."Routing No.", FilteredProdOrderRtngLineSet."Routing Reference No.");
+        if ProdOrderLine.FindSet(false) then
+            repeat
+                SetProdOrderComponentFilter(ProdOrderComponent, ProdOrderLine, FilteredProdOrderRtngLineSet);
+                if ProdOrderComponent.FindSet(true) then
+                    repeat
+                        if IgnoreErrors then
+                            ProdOrderComponent.SetIgnoreErrors();
+                        BinCode := ProdOrderComponent.GetDefaultConsumptionBin(FilteredProdOrderRtngLineSet);
+                        if BinCode <> ProdOrderComponent."Bin Code" then begin
+                            if not AutoUpdateCompBinCode then
+                                if Confirm(Text009, false) then
+                                    AutoUpdateCompBinCode := true
+                                else
+                                    exit;
+                            ProdOrderComponent.Validate("Bin Code", BinCode);
+                            ProdOrderComponent.Modify();
+                            if ProdOrderComponent.HasErrorOccured() then
+                                ErrorOccured := true;
+                        end;
+                    until ProdOrderComponent.Next() = 0;
+            until ProdOrderLine.Next() = 0;
         exit(not ErrorOccured);
     end;
 

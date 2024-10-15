@@ -7,14 +7,10 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 11028 "Electronic VAT Decl. Buffer"
 {
     ObsoleteReason = 'Moved to Elster extension';
-#if not CLEAN21
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '24.0';
-#endif
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

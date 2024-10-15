@@ -10,6 +10,7 @@ table 11005 "Data Export Record Field"
 {
     Caption = 'Data Exp. Rec. Field';
     DataCaptionFields = "Data Export Code", "Data Exp. Rec. Type Code";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -174,14 +175,9 @@ table 11005 "Data Export Record Field"
     begin
         TempLineNo1 := DataExportRecordField1."Line No.";
         TempLineNo2 := DataExportRecordField2."Line No.";
-        with DataExportRecordField1 do
-            Rename("Data Export Code", "Data Exp. Rec. Type Code", "Source Line No.", "Table No.", FindUnusedLineNo(DataExportRecordField1));
-
-        with DataExportRecordField2 do
-            Rename("Data Export Code", "Data Exp. Rec. Type Code", "Source Line No.", "Table No.", TempLineNo1);
-
-        with DataExportRecordField1 do
-            Rename("Data Export Code", "Data Exp. Rec. Type Code", "Source Line No.", "Table No.", TempLineNo2);
+        DataExportRecordField1.Rename(DataExportRecordField1."Data Export Code", DataExportRecordField1."Data Exp. Rec. Type Code", DataExportRecordField1."Source Line No.", DataExportRecordField1."Table No.", FindUnusedLineNo(DataExportRecordField1));
+        DataExportRecordField2.Rename(DataExportRecordField2."Data Export Code", DataExportRecordField2."Data Exp. Rec. Type Code", DataExportRecordField2."Source Line No.", DataExportRecordField2."Table No.", TempLineNo1);
+        DataExportRecordField1.Rename(DataExportRecordField1."Data Export Code", DataExportRecordField1."Data Exp. Rec. Type Code", DataExportRecordField1."Source Line No.", DataExportRecordField1."Table No.", TempLineNo2);
     end;
 
     local procedure FindPreviousRecordLineNo(SearchDataExportRecordField: Record "Data Export Record Field"): Integer

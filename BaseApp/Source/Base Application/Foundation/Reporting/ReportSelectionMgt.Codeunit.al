@@ -183,6 +183,7 @@ codeunit 1901 "Report Selection Mgt."
     begin
         OnBeforeInitReportSelectionJobs();
         InitReportSelection("Report Selection Usage"::JQ);
+        InitReportSelection("Report Selection Usage"::"Job Task Quote");
         OnAfterInitReportSelectionJobs();
     end;
 
@@ -319,6 +320,8 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::"Posted Payment Reconciliation", '1', REPORT::"Posted Payment Reconciliation");
             "Report Selection Usage"::JQ:
                 InsertRepSelection("Report Selection Usage"::JQ, '1', Report::"Job Quote");
+            "Report Selection Usage"::"Job Task Quote":
+                InsertRepSelection("Report Selection Usage"::"Job Task Quote", '1', Report::"Job Task Quote");
             else
                 OnInitReportUsage(ReportUsage.AsInteger());
         end;
@@ -356,20 +359,19 @@ codeunit 1901 "Report Selection Mgt."
     var
         DACHReportSelections: Record "DACH Report Selections";
     begin
-        with DACHReportSelections do
-            if not FindFirst() then begin
-                InsertDACHRepSelection(Usage::"VAT Statement", '1', REPORT::"VAT Statement Germany");
-                InsertDACHRepSelection(Usage::"Sales VAT Acc. Proof", '1', REPORT::"G/L - VAT Reconciliation");
-                InsertDACHRepSelection(Usage::"VAT Statement Schedule", '1', REPORT::"VAT Statement Schedule");
-                InsertDACHRepSelection(Usage::"Delivery Reminder Test", '1', REPORT::"Delivery Reminder - Test");
-                InsertDACHRepSelection(Usage::"Issued Delivery Reminder", '1', REPORT::"Issued Delivery Reminder");
+        if not DACHReportSelections.FindFirst() then begin
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Sales VAT Acc. Proof", '1', REPORT::"G/L - VAT Reconciliation");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"VAT Statement Schedule", '1', REPORT::"VAT Statement Schedule");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Delivery Reminder Test", '1', REPORT::"Delivery Reminder - Test");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Issued Delivery Reminder", '1', REPORT::"Issued Delivery Reminder");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"VAT Statement", '1', REPORT::"VAT Statement Germany");
 #if not CLEAN22
-                InsertDACHRepSelection(Usage::"Intrastat Form", '1', REPORT::"Intrastat - Form DE");
-                InsertDACHRepSelection(Usage::"Intrastat Disk", '1', REPORT::"Intrastat - Disk Tax Auth DE");
-                InsertDACHRepSelection(Usage::"Intrastat Checklist", '1', REPORT::"Intrastat - Checklist DE");
-                InsertDACHRepSelection(Usage::"Intrastat Disklabel", '1', REPORT::"Intrastat  Disk (Labels)");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Form", '1', REPORT::"Intrastat - Form DE");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Disk", '1', REPORT::"Intrastat - Disk Tax Auth DE");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Checklist", '1', REPORT::"Intrastat - Checklist DE");
+            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Disklabel", '1', REPORT::"Intrastat  Disk (Labels)");
 #endif
-            end;
+        end;
     end;
 
     local procedure InsertRepSelection(ReportUsage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)

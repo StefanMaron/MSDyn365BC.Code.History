@@ -11,6 +11,7 @@ table 11004 "Data Export Record Source"
 {
     Caption = 'Data Export Record Source';
     DataCaptionFields = "Data Export Code", "Data Exp. Rec. Type Code";
+    DataClassification = CustomerContent;
 
     fields
     {

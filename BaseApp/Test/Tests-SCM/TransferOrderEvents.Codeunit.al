@@ -33,7 +33,7 @@ codeunit 139490 "Transfer Order Events"
     begin
         EventSubscription.SetRange("Subscriber Codeunit ID", 139490);
         EventSubscription.SetRange("Subscriber Function", Subscriber);
-        Assert.IsTrue(EventSubscription.FindFirst, StrSubstNo('%1 does not apear in the Event Subscriber list', Subscriber));
+        Assert.IsTrue(EventSubscription.FindFirst(), StrSubstNo('%1 does not apear in the Event Subscriber list', Subscriber));
         Assert.IsTrue(EventSubscription.Active, StrSubstNo('%1 is not active', Subscriber));
     end;
 

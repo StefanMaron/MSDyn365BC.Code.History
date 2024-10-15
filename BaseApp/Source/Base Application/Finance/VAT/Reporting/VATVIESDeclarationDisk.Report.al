@@ -236,34 +236,32 @@ report 88 "VAT- VIES Declaration Disk"
 
     local procedure WriteGrTotalsToFile(TotalValueofServiceSupplies: Decimal; TotalValueofItemSupplies: Decimal; EU3PartyServiceTradeAmt: Decimal; EU3PartyItemTradeAmt: Decimal; HasEU3Party: Boolean; HasItem: Boolean; HasService: Boolean; VATDate: Date)
     begin
-        with "VAT Entry" do begin
-            if "VAT Registration No." = '' then begin
-                Type := Type::Sale;
-                Error(
-                  Text003,
-                  FieldCaption("VAT Registration No."), FieldCaption(Type), Type);
-            end;
-
-            if not SkipCustomerDataCheck then begin
-                Cust.Get(GetCustomerNoToCheck("VAT Entry"));
-                Cust.TestField("Country/Region Code");
-                Country.Get(Cust."Country/Region Code");
-                Cust.TestField("VAT Registration No.");
-            end;
-            Country.Get("Country/Region Code");
-            Country.TestField("EU Country/Region Code");
-            NoOfGrTotal := NoOfGrTotal + 1;
-
-            InternalReferenceNo := IncStr(InternalReferenceNo);
-            ModifyVATEntryInternalRefNo("Country/Region Code", "Bill-to/Pay-to No.", InternalReferenceNo, VATDate);
-
-            if HasItem then
-                WriteLineToFile(-TotalValueofItemSupplies, 'L');
-            if HasService then
-                WriteLineToFile(-TotalValueofServiceSupplies, 'S');
-            if HasEU3Party then
-                WriteLineToFile(-(EU3PartyItemTradeAmt + EU3PartyServiceTradeAmt), 'D');
+        if "VAT Entry"."VAT Registration No." = '' then begin
+            "VAT Entry".Type := "VAT Entry".Type::Sale;
+            Error(
+              Text003,
+              "VAT Entry".FieldCaption("VAT Registration No."), "VAT Entry".FieldCaption(Type), "VAT Entry".Type);
         end;
+
+        if not SkipCustomerDataCheck then begin
+            Cust.Get(GetCustomerNoToCheck("VAT Entry"));
+            Cust.TestField("Country/Region Code");
+            Country.Get(Cust."Country/Region Code");
+            Cust.TestField("VAT Registration No.");
+        end;
+        Country.Get("VAT Entry"."Country/Region Code");
+        Country.TestField("EU Country/Region Code");
+        NoOfGrTotal := NoOfGrTotal + 1;
+
+        InternalReferenceNo := IncStr(InternalReferenceNo);
+        ModifyVATEntryInternalRefNo("VAT Entry"."Country/Region Code", "VAT Entry"."Bill-to/Pay-to No.", InternalReferenceNo, VATDate);
+
+        if HasItem then
+            WriteLineToFile(-TotalValueofItemSupplies, 'L');
+        if HasService then
+            WriteLineToFile(-TotalValueofServiceSupplies, 'S');
+        if HasEU3Party then
+            WriteLineToFile(-(EU3PartyItemTradeAmt + EU3PartyServiceTradeAmt), 'D');
     end;
 
     local procedure GetCustomerNoToCheck(VATEntry: Record "VAT Entry"): Code[20]
@@ -298,16 +296,14 @@ report 88 "VAT- VIES Declaration Disk"
     var
         VATRegNo: Text[20];
     begin
-        with "VAT Entry" do begin
-            VATRegNo := "VAT Registration No.";
-            if CopyStr(VATRegNo, 1, StrLen(Country."EU Country/Region Code")) = Country."EU Country/Region Code" then
-                VATRegNo := CopyStr(VATRegNo, StrLen(Country."EU Country/Region Code") + 1);
-            VATFile.Write(
-              Format(Country."EU Country/Region Code", 2) + ',' +
-              Format(VATRegNo) + ',' +
-              DelChr(Format(Round(ExportAmount, 1)), '=', '.,') + ',' +
-              DLS);
-        end;
+        VATRegNo := "VAT Entry"."VAT Registration No.";
+        if CopyStr(VATRegNo, 1, StrLen(Country."EU Country/Region Code")) = Country."EU Country/Region Code" then
+            VATRegNo := CopyStr(VATRegNo, StrLen(Country."EU Country/Region Code") + 1);
+        VATFile.Write(
+          Format(Country."EU Country/Region Code", 2) + ',' +
+          Format(VATRegNo) + ',' +
+          DelChr(Format(Round(ExportAmount, 1)), '=', '.,') + ',' +
+          DLS);
     end;
 
     local procedure ModifyVATEntryInternalRefNo(CountryRegionCode: Code[10]; BillToPayToNo: Code[20]; InternalRefNo: Text[30]; VATDate: Date)

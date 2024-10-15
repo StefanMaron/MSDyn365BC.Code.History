@@ -20,7 +20,7 @@ codeunit 134254 "Calc. Posting Date Test"
         IsInitialized: Boolean;
         PaymentWarningMsg: Label 'This posting date will cause an overdue payment.';
         ReplacePostDateMsg: Label 'For one or more entries, the requested posting date is before the work date.';
-        PmtDiscUnavailableErr: Label 'You cannot use Find Payment Discounts or Summarize per Vendor together with Calculate Posting Date from Applies-to-Doc. Due Date, because the resulting posting date might not match the payment discount date.';
+        PmtDiscUnavailableErr: Label 'You cannot use Summarize per Vendor together with Calculate Posting Date from Applies-to-Doc. Due Date, because the resulting posting date might not match the due date.';
 
     local procedure Initialize()
     var
@@ -118,7 +118,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
 
         // Exercise.
-        DueDateOffset := -(VendorLedgerEntry."Due Date" - WorkDate + LibraryRandom.RandIntInRange(2, 10));
+        DueDateOffset := -(VendorLedgerEntry."Due Date" - WorkDate() + LibraryRandom.RandIntInRange(2, 10));
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorLedgerEntry."Due Date", false, false, true, Format(DueDateOffset) + 'D',
           Vendor."No.");
 
@@ -146,7 +146,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
 
         // Exercise.
-        DueDateOffset := WorkDate - VendorLedgerEntry."Due Date" + LibraryRandom.RandIntInRange(1, 10);
+        DueDateOffset := WorkDate() - VendorLedgerEntry."Due Date" + LibraryRandom.RandIntInRange(1, 10);
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorLedgerEntry."Due Date", false, false, true, Format(DueDateOffset) + 'D',
           Vendor."No.");
 
@@ -175,7 +175,7 @@ codeunit 134254 "Calc. Posting Date Test"
         LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
 
         // Exercise.
-        DueDateOffset := LibraryRandom.RandInt(WorkDate - VendorLedgerEntry."Due Date");
+        DueDateOffset := LibraryRandom.RandInt(WorkDate() - VendorLedgerEntry."Due Date");
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorLedgerEntry."Due Date", false, false, true, Format(DueDateOffset) + 'D',
           Vendor."No.");
 
@@ -321,26 +321,6 @@ codeunit 134254 "Calc. Posting Date Test"
     [Test]
     [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure SuggVendFindDiscountsErrorMsg()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        GenJnlBatch: Record "Gen. Journal Batch";
-    begin
-        Initialize();
-
-        // Setup.
-        LibraryPurchase.SelectPmtJnlBatch(GenJnlBatch);
-
-        // Exercise.
-        asserterror SuggestVendorPayments(GenJnlLine, GenJnlBatch, WorkDate(), true, false, true, '0D', '');
-
-        // Verify.
-        Assert.ExpectedError(PmtDiscUnavailableErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler')]
-    [Scope('OnPrem')]
     procedure SuggVendSummarizePerVendErrorMsg()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -407,7 +387,7 @@ codeunit 134254 "Calc. Posting Date Test"
 
         // Exercise.
         WorkDateOffset := -LibraryRandom.RandInt(10);
-        WorkDate(WorkDate + WorkDateOffset);
+        WorkDate(WorkDate() + WorkDateOffset);
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorLedgerEntry1."Due Date", false, false, true, '-1D',
           Vendor."No.");
 
@@ -456,7 +436,7 @@ codeunit 134254 "Calc. Posting Date Test"
         // Exercise.
         GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
         GenJnlLine.SetRange("Account No.", Vendor."No.");
-        GenJnlLine.CalculatePostingDate;
+        GenJnlLine.CalculatePostingDate();
 
         // Verify.
         VerifyMultipleGenJnlLines(GenJnlBatch, Vendor."No.", 0, 3);
@@ -494,7 +474,7 @@ codeunit 134254 "Calc. Posting Date Test"
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Invoice,
           GenJnlLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(1000, 2));
         GenJnlLine.Validate("Posting Date", WorkDate());
-        GenJnlLine.Validate("Due Date", WorkDate + DateOffset);
+        GenJnlLine.Validate("Due Date", WorkDate() + DateOffset);
         if DiscDateOffset <> 0 then begin
             GenJnlLine.Validate("Pmt. Discount Date", GenJnlLine."Due Date" - DiscDateOffset);
             GenJnlLine.Validate("Payment Discount %", LibraryRandom.RandInt(10));
@@ -605,7 +585,7 @@ codeunit 134254 "Calc. Posting Date Test"
         SuggestVendorPayments.StartingDocumentNo.SetValue(VendorNo);
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
 
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -619,8 +599,8 @@ codeunit 134254 "Calc. Posting Date Test"
     [Scope('OnPrem')]
     procedure ModalPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.First;
-        Assert.AreEqual(false, VendorLedgerEntries.Next, 'More entries than expected on the vendor ledger entries page.');
+        VendorLedgerEntries.First();
+        Assert.AreEqual(false, VendorLedgerEntries.Next(), 'More entries than expected on the vendor ledger entries page.');
     end;
 }
 

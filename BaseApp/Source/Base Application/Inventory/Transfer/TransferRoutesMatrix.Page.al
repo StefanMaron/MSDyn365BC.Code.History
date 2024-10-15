@@ -568,26 +568,9 @@ page 9285 "Transfer Routes Matrix"
     end;
 
     local procedure RunShowRouteSpecificationCaseElse()
-#if not CLEAN21
-    var
-        ShowOpt: Option;
-#endif
     begin
-#if not CLEAN21
-        ShowOpt := Show.AsInteger();
-        OnShowRouteSpecificationCaseElse(TransferRoute, ShowOpt, Specification);
-        Show := "Transfer Routes Show".FromInteger(ShowOpt);
-#endif
         OnShowRouteSpecificationOnCaseElse(TransferRoute, Show, Specification);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by OnShowRouteSpecificationOnCaseElse with Enum', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnShowRouteSpecificationCaseElse(var TransferRoute: Record "Transfer Route"; var Show: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code"; var SpecificationText: Text[80])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnShowRouteSpecificationOnCaseElse(var TransferRoute: Record "Transfer Route"; var Show: Enum "Transfer Routes Show"; var SpecificationText: Text[80])

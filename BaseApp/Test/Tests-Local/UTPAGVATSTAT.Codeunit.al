@@ -57,7 +57,7 @@ codeunit 142066 "UT PAG VATSTAT"
     begin
         // Create DACH Report Selections for different Usage.
         CreateDACHReportSelections(DACHReportSelections, Usage, ReportID);
-        ReportSelectionVAT.OpenEdit;
+        ReportSelectionVAT.OpenEdit();
 
         // Exercise: Report Selection VAT Page for different ReportUsage2.
         ReportSelectionVAT.ReportUsage2.SetValue(ReportUsage);
@@ -80,11 +80,11 @@ codeunit 142066 "UT PAG VATSTAT"
         // Purpose of the test is to validate Print Action of Page 317 - VAT Statement.
         // Setup.
         VATStatementName.FindFirst();
-        VATStatement.OpenEdit;
+        VATStatement.OpenEdit();
         VATStatement.CurrentStmtName.SetValue(VATStatementName.Name);
 
         // Excercise & verify: Invoke Action Print on Page VAT Statement. Opens Report - VAT Statement Germany handled in VATStatementGermanyRequestPageHandler.
-        VATStatement.Print.Invoke;
+        VATStatement.Print.Invoke();
         VATStatement.Close();
     end;
 
@@ -128,7 +128,7 @@ codeunit 142066 "UT PAG VATSTAT"
         // Open VAT Statement Page.
         CreateDACHReportSelections(DACHReportSelections, Usage, ReportID);
         VATStatementName.FindFirst();
-        VATStatement.OpenEdit;
+        VATStatement.OpenEdit();
         VATStatement.CurrentStmtName.SetValue(VATStatementName.Name);
 
         // Excercise & verify: Invoke different Actions on Page - VAT Statement. Verified different Reports opened successfully.
@@ -138,7 +138,7 @@ codeunit 142066 "UT PAG VATSTAT"
     local procedure CreateDACHReportSelections(var DACHReportSelections: Record "DACH Report Selections"; Usage: Option; ReportID: Integer)
     begin
         DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10;
+        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
         DACHReportSelections."Report ID" := ReportID;
         DACHReportSelections.Insert();
     end;
@@ -149,9 +149,9 @@ codeunit 142066 "UT PAG VATSTAT"
     begin
         case Action of
             VATStatementAction::GLVATReconciliation:
-                VATStatement.GLVATReconciliation.Invoke;  // Opens handler GLVATReconciliationRequestPageHandler.
+                VATStatement.GLVATReconciliation.Invoke();  // Opens handler GLVATReconciliationRequestPageHandler.
             VATStatementAction::VATStatementSchedule:
-                VATStatement.VATStatementSchedule.Invoke;  // Opens handler VATStatementScheduleRequestPageHandler.
+                VATStatement.VATStatementSchedule.Invoke();  // Opens handler VATStatementScheduleRequestPageHandler.
         end;
         VATStatement.Close();
     end;

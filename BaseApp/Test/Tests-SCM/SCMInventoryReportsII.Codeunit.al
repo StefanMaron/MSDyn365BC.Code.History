@@ -19,7 +19,9 @@
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+#if not CLEAN23
         LibraryMarketing: Codeunit "Library - Marketing";
+#endif
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -41,9 +43,8 @@
         StatusConstantCap: Label 'Finished';
         ReportQtyErr: Label 'Wrong Quantity on Report';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
-        PriceCalculationV15Err: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.';
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -63,7 +64,7 @@
     begin
         // Test Price List Report - Sales Type: Customer, and Random Currency.
         Initialize();
-        CurrencyCode := SelectCurrencyCode;
+        CurrencyCode := SelectCurrencyCode();
         CustomerPriceListReport(CurrencyCode);
     end;
 
@@ -105,7 +106,7 @@
     begin
         // Test Price List Report - Sales Type: Customer Price Group, and Random Currency.
         Initialize();
-        CurrencyCode := SelectCurrencyCode;
+        CurrencyCode := SelectCurrencyCode();
         CustPriceGroupPriceListReport(CurrencyCode);
     end;
 
@@ -148,7 +149,7 @@
     begin
         // Test Price List Report - Sales Type: All Customer, and Random Currency.
         Initialize();
-        CurrencyCode := SelectCurrencyCode;
+        CurrencyCode := SelectCurrencyCode();
         AllCustomerPriceListReport(CurrencyCode);
     end;
 
@@ -173,7 +174,6 @@
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PriceListReportCampaignNative()
-    var
     begin
         // Test Price List Report - Sales Type: Campaign.
         Initialize();
@@ -189,7 +189,7 @@
     begin
         // Test Price List Report - Sales Type: Campaign, and Random Currency.
         Initialize();
-        CurrencyCode := SelectCurrencyCode;
+        CurrencyCode := SelectCurrencyCode();
         CampaignPriceListReport(CurrencyCode);
     end;
 
@@ -242,9 +242,9 @@
         REPORT.Run(REPORT::"Inventory Posting - Test", true, false, ItemJournalLine);
 
         // 3. Verify: Check the values of Quantity, Unit Cost and Cost Amount in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Item_Journal_Line__Item_No__', Item."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Item_Journal_Line_Quantity', ItemJournalLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('Item_Journal_Line__Unit_Cost_', ItemJournalLine."Unit Cost");
         LibraryReportDataset.AssertCurrentRowValueEquals('CostAmount', ItemJournalLine.Quantity * ItemJournalLine."Unit Cost");
@@ -274,10 +274,10 @@
         RunStatusReport(Item."No.");
 
         // 3. Verify: Check the value of Quantity in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', Item."No.");
         Item.CalcFields(Inventory);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', Item.Inventory);
 
         // 4. Tear Down.
@@ -332,7 +332,7 @@
         RunInvtValuationCostSpecReport(Item."No.");
 
         // 3. Verify: Check the value of Quantity in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', Item."No.");
         Quantity := LibraryReportDataset.Sum('RemainingQty');
         ItemJournalLine.TestField(Quantity, Quantity);
@@ -369,9 +369,9 @@
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
 
         // 3. Verify: Check the value of Source No. and Consumption.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ProductionOrder', ProductionOrder."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('SourceNo_ProductionOrder', ProductionOrder."Source No.");
 
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
@@ -399,9 +399,9 @@
         PurchaseReserveAvailReport(PurchaseHeader, Item."No.", false);  // PurchaseReserveAvailReport contains Exercise.
 
         // Verify: Check Expected Receipt Date value in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentStatus', FullShipmentValueTxt);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ExpctRecptDate_PurchLine', Format(PurchaseHeader."Expected Receipt Date"));
     end;
 
@@ -420,10 +420,10 @@
         PurchaseReserveAvailReport(PurchaseHeader, Item."No.", true);  // PurchaseReserveAvailReport contains Exercise.
 
         // Verify: Check Outstanding Quantity (Base) in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_PurchaseLine', Item."No.");
         FindPurchaseOrderLine(PurchaseLine, PurchaseHeader."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OutstQtyBase_PurchLine', PurchaseLine."Outstanding Qty. (Base)")
     end;
 
@@ -441,9 +441,9 @@
         SalesReserveAvailReport(SalesHeader, Item."No.", false);  // SalesReserveAvailReport contains Exercise.
 
         // Verify: Check the Shipment Date in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocumentStatus', NoShipmentValueTxt);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentDt_SalesHeader', Format(SalesHeader."Shipment Date"));
     end;
 
@@ -462,10 +462,10 @@
         SalesReserveAvailReport(SalesHeader, Item."No.", true);  // SalesReserveAvailReport contains Exercise.
 
         // Verify: Check the Outstanding Quantity (Base) in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesLine', Item."No.");
         SelectSalesLine(SalesLine, SalesHeader."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('OutstdngQtyBase_SalesLine', SalesLine."Outstanding Qty. (Base)")
     end;
 
@@ -497,11 +497,11 @@
         RunSalesReservationAvail(SalesHeader."No.", true, true);
 
         // Verify: Check the Reserved Quantity in the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesLine', Item."No.");
         SelectSalesLine(SalesLine, SalesHeader."No.");
         SalesLine.CalcFields("Reserved Qty. (Base)");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ReservationEntry', -SalesLine."Reserved Qty. (Base)");
         LibraryReportDataset.AssertCurrentRowValueEquals('ResrvdQtyBase_SalesLine', SalesLine."Reserved Qty. (Base)");
     end;
@@ -524,14 +524,14 @@
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
 
         // Verify: Check Item details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify Child Items exist in the report.
         SelectProductionBOMLines(ProductionBOMLine, Item."Production BOM No.");
         repeat
             LibraryReportDataset.SetRange('ProdBOMLineIndexNo', ProductionBOMLine."No.");
             Item.Get(ProductionBOMLine."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('ProdBOMLineIndexDesc', Item.Description);
         until ProductionBOMLine.Next() = 0;
     end;
@@ -553,9 +553,9 @@
         REPORT.Run(REPORT::"Single-level Cost Shares", true, false, Item);
 
         // Verify: Check Item details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', Item."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitCost_Item', Item."Unit Cost");
     end;
 
@@ -577,13 +577,13 @@
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
         // Verify: Check Item details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify Child Items exist in the report.
         SelectProductionBOMLines(ProductionBOMLine, Item."Production BOM No.");
         repeat
             LibraryReportDataset.SetRange('ProdBOMLineLevelNo', ProductionBOMLine."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             Item.Get(ProductionBOMLine."No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('ProdBOMLineLevelDesc', Item.Description);
         until ProductionBOMLine.Next() = 0;
@@ -608,9 +608,9 @@
         REPORT.Run(REPORT::"Where-Used (Top Level)", true, false, Item);
 
         // Verify: Check Item details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ProductionBOMLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('WhereUsedListItemNo', Item."No.");
     end;
 
@@ -639,9 +639,9 @@
         REPORT.Run(REPORT::"Inventory Availability", true, false, Item);
 
         // Verify: Check Item details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', Item."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('ScheduledReceipt', ScheduledReceipt);
         LibraryReportDataset.AssertCurrentRowValueEquals('GrossRequirement', GrossReq);
         LibraryReportDataset.AssertCurrentRowValueEquals('ProjAvailBalance', ScheduledReceipt - GrossReq);
@@ -725,7 +725,7 @@
 
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Stock");
@@ -872,18 +872,16 @@
         VerifyQtyToReceiveInPurchLine(PurchHeader[3]);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PriceListReportVariant()
     var
         Item: Record Item;
-        SalesPrice: Record "Sales Price";
         ItemVariant1: Record "Item Variant";
         ItemVariant2: Record "Item Variant";
         PriceListLine: Record "Price List Line";
-        SalesLineDiscount: Record "Sales Line Discount";
         SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
         CustomerNo: Code[20];
         MinimumQty: array[4] of Decimal;
@@ -925,7 +923,7 @@
         RunPriceListReport(Item."No.", SalesType::Customer, CustomerNo, '');
 
         // 3. Verify: Check Variant lines in Price List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyVariantLineInPriceListReport(
           'ItemNo_Variant_SalesPrices', ItemVariant1.Code, 'MinimumQty_Variant_SalesPrices', MinimumQty[1],
@@ -962,7 +960,7 @@
         ValidateInventoryValuationWIPReport(ProdOrderArray);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1009,9 +1007,9 @@
             CostPostedToGL += ValueEntry."Cost Posted to G/L";
         until ValueEntry.Next() = 0;
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('SourceNo_ProductionOrder', Item."No.");
-        if LibraryReportDataset.GetNextRow then
+        if LibraryReportDataset.GetNextRow() then
             LibraryReportDataset.AssertCurrentRowValueEquals('ValueEntryCostPostedtoGL', -CostPostedToGL);
     end;
 
@@ -1113,7 +1111,7 @@
         RunInventoryValuationWIPReport(ProductionOrder, CalcDate('<+1D>', WorkDate()), CalcDate('<' + Format(Number + 1) + 'D>', WorkDate()));
 
         // Verify: Verify "As of..." value is correct in report Inventory Valuation - WIP
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyVariantLineInPriceListReport(
           'SourceNo_ProductionOrder', Item."No.", 'LastWIP', -ComponentItem."Unit Cost", 'AtLastDate', ComponentItem."Unit Cost");
     end;
@@ -1165,7 +1163,7 @@
 
         // [GIVEN] Item "I1" with bill of materials "ParentBOM"
         LibraryInventory.CreateItem(ParentItem);
-        LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeaderParent, LibraryInventory.CreateItemNo, 1);
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeaderParent, LibraryInventory.CreateItemNo(), 1);
         ParentItem.Validate("Production BOM No.", ProdBOMHeaderParent."No.");
         ParentItem.Modify(true);
 
@@ -1176,7 +1174,7 @@
 
         // [GIVEN] Version of the "ParentBOM" including the "ChildBOM" as a phantom BOM
         LibraryManufacturing.CreateProductionBOMVersion(
-          ProductionBomVersion, ProdBOMHeaderParent."No.", LibraryUtility.GenerateGUID, ProdBOMHeaderParent."Unit of Measure Code");
+          ProductionBomVersion, ProdBOMHeaderParent."No.", LibraryUtility.GenerateGUID(), ProdBOMHeaderParent."Unit of Measure Code");
         LibraryManufacturing.CreateProductionBOMLine(
           ProdBOMHeaderParent, ProductionBOMLine, ProductionBomVersion."Version Code",
           ProductionBOMLine.Type::"Production BOM", ProdBOMHeaderChild."No.", 1);
@@ -1189,7 +1187,7 @@
         REPORT.Run(REPORT::"Detailed Calculation", true, false, ParentItem);
 
         // [THEN] Item "I2" is reported in the list of components
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ProdBOMLineLevelNo', ChildItem."No.");
     end;
 
@@ -1572,7 +1570,7 @@
           'Item_Journal_Batch_Name', ExtraItemJournalBatch.Name);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1641,7 +1639,7 @@
         // [THEN] Report dataset contains exactly one "LD".
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('LineDisc_SalesLineDisc', LineDiscount);
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, '');
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), '');
     end;
 
     [HandlerFunctions('PriceListRequestPageHandler')]
@@ -1678,7 +1676,7 @@
         RunPriceListReport(Item."No.", SalesType::Customer, CustomerNo, '');
 
         // [THEN] Both "Unit Price" are shown
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice[1]);
         LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice[2]);
     end;
@@ -1691,7 +1689,7 @@
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-#if not CLEAN21
+#if not CLEAN23
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 #else
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
@@ -1784,7 +1782,7 @@
         ProductionBOMCopy: Codeunit "Production BOM-Copy";
     begin
         LibraryManufacturing.CreateProductionBOMVersion(
-          ProductionBOMVersion, ProductionBOMHeader."No.", LibraryUtility.GenerateGUID, UoMCode);
+          ProductionBOMVersion, ProductionBOMHeader."No.", LibraryUtility.GenerateGUID(), UoMCode);
 
         ProductionBOMCopy.CopyBOM(ProductionBOMHeader."No.", '', ProductionBOMHeader, ProductionBOMVersion."Version Code");
         ProductionBOMVersion.Validate(Status, ProductionBOMVersion.Status::Certified);
@@ -1824,13 +1822,13 @@
     local procedure CreateProdBOMVersion(var ProductionBOMVersion: Record "Production BOM Version"; Item: Record Item; Status: Enum "BOM Status")
     begin
         LibraryManufacturing.CreateProductionBOMVersion(
-          ProductionBOMVersion, Item."Production BOM No.", LibraryUtility.GenerateGUID, Item."Base Unit of Measure");
+          ProductionBOMVersion, Item."Production BOM No.", LibraryUtility.GenerateGUID(), Item."Base Unit of Measure");
         UpdateProdBOMVersionLine(Item."Production BOM No.", ProductionBOMVersion."Version Code");
         ProductionBOMVersion.Validate(Status, Status);
         ProductionBOMVersion.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure RunPriceListReport(NoFilter: Text; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
@@ -1849,17 +1847,17 @@
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         if CurrencyCode <> '' then begin
             CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
             CurrencyExchangeRate.FindFirst();
             LibraryReportDataset.SetRange('UnitPriceFieldCaption', Item.FieldCaption("Unit Price") + ' ' + '(' + CurrencyCode + ')');
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPriceUnitPrice', ExpUnitPrice /
               (CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount"));
         end else begin
             LibraryReportDataset.SetRange('UnitPriceFieldCaption', Item.FieldCaption("Unit Price"));
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPriceUnitPrice', ExpUnitPrice);
         end;
     end;
@@ -1907,7 +1905,7 @@
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; CampaignNo: Code[20])
     begin
         // Create Sales Price with random unit price.
@@ -2482,7 +2480,7 @@
 
     local procedure ExplodeAndPostOutputJournal(ItemNo: Code[20]; ProductionOrderNo: Code[20])
     begin
-        OutputJournalSetup;
+        OutputJournalSetup();
 
         ExplodeOutputJournal(ItemNo, ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(OutputItemJournalTemplate.Name, OutputItemJournalBatch.Name);
@@ -2502,7 +2500,7 @@
 
     local procedure CalculateAndPostConsumption(ProductionOrder: Record "Production Order")
     begin
-        ConsumptionJournalSetup;
+        ConsumptionJournalSetup();
 
         LibraryManufacturing.CalculateConsumption(
           ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
@@ -2594,15 +2592,15 @@
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.");
 
         // Verify Item No exist on the Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         UnitCost := LibraryReportDataset.Sum('UnitCost');
         LibraryReportDataset.SetRange('No_Item', PurchaseLine."No.");
         LibraryReportDataset.SetRange('DocumentNo_ItemLedgerEntry', ItemLedgerEntry."Document No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         // Verify Unit Cost on the Report.
         Assert.AreNearlyEqual(PurchaseLine."Direct Unit Cost" / PurchaseLine."Qty. per Unit of Measure", UnitCost,
-          LibraryERM.GetAmountRoundingPrecision, 'Wrong unit cost in report.');
+          LibraryERM.GetAmountRoundingPrecision(), 'Wrong unit cost in report.');
 
         // Verify Quantity on the Report.
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', PurchaseLine."Quantity (Base)");
@@ -2613,22 +2611,22 @@
         UnitCost: Decimal;
     begin
         // Verify Item No exist on the Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         UnitCost := LibraryReportDataset.Sum('UnitCost1');
         LibraryReportDataset.SetRange('No_Item', PurchaseLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         // Verify Direct Unit Cost, quantity and line amount on the Report.
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalCostTotal1', PurchaseLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', PurchaseLine.Quantity);
-        Assert.AreNearlyEqual(PurchaseLine."Unit Cost (LCY)", UnitCost, LibraryERM.GetAmountRoundingPrecision, DirectUnitCostErr);
+        Assert.AreNearlyEqual(PurchaseLine."Unit Cost (LCY)", UnitCost, LibraryERM.GetAmountRoundingPrecision(), DirectUnitCostErr);
     end;
 
     local procedure VerifyComponentItem(ProductionBOMNo: Code[20]; VersionCode: Code[20])
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ProductionBOMLine.SetRange("Version Code", VersionCode);
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.FindSet();
@@ -2644,9 +2642,9 @@
         GLEntry.SetCurrentKey("Document No.");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.CalcSums(Amount);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ProductionOrder', ProductionOrderNo);
-        if LibraryReportDataset.GetNextRow then
+        if LibraryReportDataset.GetNextRow() then
             LibraryReportDataset.AssertCurrentRowValueEquals('ValueEntryCostPostedtoGL', GLEntry.Amount);
     end;
 
@@ -2654,7 +2652,7 @@
     var
         DocTypeAndNo: Text;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         SelectSalesLine(SalesLine, SalesHeaderNo);
         DocTypeAndNo := StrSubstNo('%1 %2', Format(SalesLine."Document Type"), Format(SalesLine."Document No."));
         LibraryReportDataset.SetRange('StrsubstnoDocTypeDocNo', DocTypeAndNo);
@@ -2672,7 +2670,7 @@
 
     local procedure ValidateInventoryValuationWIPReport(var ProdOrderArray: array[3] of Code[10])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         asserterror LibraryReportDataset.AssertElementWithValueExists('No_ProductionOrder', ProdOrderArray[1]);
         asserterror LibraryReportDataset.AssertElementWithValueExists('No_ProductionOrder', ProdOrderArray[2]);
@@ -2705,7 +2703,7 @@
         InventoryValuationWIP.StartingDate.SetValue(StartingDate);
         LibraryVariableStorage.Dequeue(EndingDate);
         InventoryValuationWIP.EndingDate.SetValue(EndingDate);
-        InventoryValuationWIP.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        InventoryValuationWIP.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [MessageHandler]
@@ -2715,7 +2713,7 @@
         // Dummy message Handler.
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")
@@ -2733,7 +2731,7 @@
         PriceList.SalesCodeCtrl.SetValue(SalesCode);
         LibraryVariableStorage.Dequeue(CurrencyCode);
         PriceList."Currency.Code".SetValue(CurrencyCode);
-        PriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #endif
 
@@ -2741,7 +2739,7 @@
     [Scope('OnPrem')]
     procedure InventoryPostingTestRequestPageHandler(var InventoryPostingTest: TestRequestPage "Inventory Posting - Test")
     begin
-        InventoryPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2752,7 +2750,7 @@
     begin
         LibraryVariableStorage.Dequeue(StatusDate);
         Status.StatusDate.SetValue(StatusDate);
-        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2760,7 +2758,7 @@
     procedure InvtValCostSpecWithFiltersPageHandler(var InvtValuationCostSpec: TestRequestPage "Invt. Valuation - Cost Spec.")
     begin
         InvtValuationCostSpec.ValuationDate.SetValue(WorkDate());
-        InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2771,7 +2769,7 @@
     begin
         LibraryVariableStorage.Dequeue(ValuationDate);
         InvtValuationCostSpec.ValuationDate.SetValue(ValuationDate);
-        InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2788,7 +2786,7 @@
         PurchaseReservationAvail.ShowReservationEntries.SetValue(ShowResEntries);
         LibraryVariableStorage.Dequeue(ModifyQtyToShip);
         PurchaseReservationAvail.ModifyQtuantityToShip.SetValue(ModifyQtyToShip);
-        PurchaseReservationAvail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReservationAvail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2805,49 +2803,49 @@
         SalesReservationAvail.ShowReservationEntries.SetValue(ShowResEntries);
         LibraryVariableStorage.Dequeue(ModifyQtyToShip);
         SalesReservationAvail.ModifyQuantityToShip.SetValue(ModifyQtyToShip);
-        SalesReservationAvail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesReservationAvail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RolledUpCostSharesRequestPageHandler(var RolledUpCostShares: TestRequestPage "Rolled-up Cost Shares")
     begin
-        RolledUpCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RolledUpCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SglLevelCostSharesRequestPageHandler(var SingleLevelCostShares: TestRequestPage "Single-level Cost Shares")
     begin
-        SingleLevelCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SingleLevelCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DetailedCalculationRequestPageHandler(var DetailedCalculation: TestRequestPage "Detailed Calculation")
     begin
-        DetailedCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DetailedCalculation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedTopLevelRequestPageHandler(var WhereUsedTopLevel: TestRequestPage "Where-Used (Top Level)")
     begin
-        WhereUsedTopLevel.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WhereUsedTopLevel.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InventoryAvailabilityRequestPageHandler(var InventoryAvailability: TestRequestPage "Inventory Availability")
     begin
-        InventoryAvailability.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryAvailability.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
     begin
-        ProductionJournal.Post.Invoke;
+        ProductionJournal.Post.Invoke();
     end;
 
     [ConfirmHandler]
@@ -2874,7 +2872,7 @@
         InventoryValuationWIPRep."Production Order".SetFilter(Status, StatusConstantCap);
         InventoryValuationWIPRep."Production Order".SetFilter("No.", ProductNoFilter);
 
-        InventoryValuationWIPRep.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValuationWIPRep.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2891,21 +2889,21 @@
         PostInventoryCostToGL.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
         LibraryVariableStorage.Dequeue(Post); // Post to G/L.
         PostInventoryCostToGL.Post.SetValue(Post);
-        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyInventoryAvailabilityReport(ItemNo: Code[20]; Qty: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PlannedOrderReceipt', Qty);
         LibraryReportDataset.AssertCurrentRowValueEquals('ProjAvailBalance', Qty);
     end;
 
     local procedure VerifyLibraryReportDatasetQuantity(ExpectedQty: Decimal; ItemNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemNo);
         Assert.AreEqual(ExpectedQty, LibraryReportDataset.Sum('RemainingQty'), ReportQtyErr);
     end;

@@ -4,6 +4,7 @@ table 1625 "Office Contact Associations"
     ObsoleteState = Removed;
     ObsoleteReason = 'Had to change the key field, so moved to Office Contact Details table.';
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

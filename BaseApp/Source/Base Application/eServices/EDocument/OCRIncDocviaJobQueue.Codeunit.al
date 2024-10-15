@@ -46,7 +46,7 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
         IncomingDocumentScheduledMsg: Label 'Incoming Document No. %1 has been scheduled for OCR.', Comment = '%1=document type, %2=number, e.g. Order 123  or Invoice 234.';
         WrongJobQueueStatusErr: Label 'Incoming Document No. %1 cannot be processed because it has already been scheduled for OCR. Choose the Remove from Job Queue action to reset the job queue status and then OCR again.', Comment = '%1 = document type, %2 = document number. Example: Purchase Order 1234 or Invoice 1234.';
 
-    local procedure SetJobQueueStatus(var IncomingDocument: Record "Incoming Document"; NewStatus: Option)
+    local procedure SetJobQueueStatus(var IncomingDocument: Record "Incoming Document"; NewStatus: Enum "Inc. Doc. Job Queue Status")
     begin
         IncomingDocument.LockTable();
         if IncomingDocument.Find() then begin
@@ -58,53 +58,47 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
 
     procedure EnqueueIncomingDoc(var IncomingDocument: Record "Incoming Document")
     begin
-        with IncomingDocument do begin
-            if not ("Job Queue Status" in ["Job Queue Status"::" ", "Job Queue Status"::Error]) then
-                Error(WrongJobQueueStatusErr, "Entry No.");
-            if Status = Status::New then
-                CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);
+        if not (IncomingDocument."Job Queue Status" in [IncomingDocument."Job Queue Status"::" ", IncomingDocument."Job Queue Status"::Error]) then
+            Error(WrongJobQueueStatusErr, IncomingDocument."Entry No.");
+        if IncomingDocument.Status = IncomingDocument.Status::New then
+            CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);
 
-            "Job Queue Status" := "Job Queue Status"::Scheduled;
-            "Job Queue Entry ID" := EnqueueJobEntry(IncomingDocument);
-            Modify();
-            Message(IncomingDocumentScheduledMsg, "Entry No.");
-        end;
+        IncomingDocument."Job Queue Status" := IncomingDocument."Job Queue Status"::Scheduled;
+        IncomingDocument."Job Queue Entry ID" := EnqueueJobEntry(IncomingDocument);
+        IncomingDocument.Modify();
+        Message(IncomingDocumentScheduledMsg, IncomingDocument."Entry No.");
     end;
 
     local procedure EnqueueJobEntry(IncomingDocument: Record "Incoming Document"): Guid
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"OCR Inc. Doc. via Job Queue";
-            "Record ID to Process" := IncomingDocument.RecordId;
-            // Set Timeout to prevent the Job Queue from hanging (eg. as a result of a printer dialog).
-            "Maximum No. of Attempts to Run" := 10;
-            "Rerun Delay (sec.)" := 5;
-            Description :=
-              CopyStr(StrSubstNo(OCRSendReceiveDescriptionTxt, IncomingDocument."Entry No."), 1, MaxStrLen(Description));
-            "Notify On Success" := true;
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-            exit(ID);
-        end;
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"OCR Inc. Doc. via Job Queue";
+        JobQueueEntry."Record ID to Process" := IncomingDocument.RecordId;
+        // Set Timeout to prevent the Job Queue from hanging (eg. as a result of a printer dialog).
+        JobQueueEntry."Maximum No. of Attempts to Run" := 10;
+        JobQueueEntry."Rerun Delay (sec.)" := 5;
+        JobQueueEntry.Description :=
+          CopyStr(StrSubstNo(OCRSendReceiveDescriptionTxt, IncomingDocument."Entry No."), 1, MaxStrLen(JobQueueEntry.Description));
+        JobQueueEntry."Notify On Success" := true;
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        exit(JobQueueEntry.ID);
     end;
 
     procedure CancelQueueEntry(var IncomingDocument: Record "Incoming Document")
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with IncomingDocument do begin
-            if "Job Queue Status" = "Job Queue Status"::" " then
-                exit;
-            if not IsNullGuid("Job Queue Entry ID") then
-                JobQueueEntry.SetRange(ID, "Job Queue Entry ID");
-            JobQueueEntry.SetRange("Record ID to Process", RecordId);
-            if not JobQueueEntry.IsEmpty() then
-                JobQueueEntry.DeleteAll(true);
-            "Job Queue Status" := "Job Queue Status"::" ";
-            Modify();
-        end;
+        if IncomingDocument."Job Queue Status" = IncomingDocument."Job Queue Status"::" " then
+            exit;
+        if not IsNullGuid(IncomingDocument."Job Queue Entry ID") then
+            JobQueueEntry.SetRange(ID, IncomingDocument."Job Queue Entry ID");
+        JobQueueEntry.SetRange("Record ID to Process", IncomingDocument.RecordId);
+        if not JobQueueEntry.IsEmpty() then
+            JobQueueEntry.DeleteAll(true);
+        IncomingDocument."Job Queue Status" := IncomingDocument."Job Queue Status"::" ";
+        IncomingDocument.Modify();
     end;
 }
 

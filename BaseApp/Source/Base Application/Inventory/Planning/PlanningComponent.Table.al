@@ -21,6 +21,7 @@ table 99000829 "Planning Component"
     Caption = 'Planning Component';
     DrillDownPageID = "Planning Component List";
     LookupPageID = "Planning Component List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -64,6 +65,7 @@ table 99000829 "Planning Component"
                 end;
 
                 GetItem();
+                Item.TestField(Blocked, false);
                 Description := Item.Description;
                 OnItemNoOnValidateOnAfterInitFromItem(Rec, Item);
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
@@ -194,7 +196,12 @@ table 99000829 "Planning Component"
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
+            var
+                ItemVariant: Record "Item Variant";
             begin
+                ItemVariant.SetLoadFields(Blocked);
+                if ItemVariant.Get("Item No.", "Variant Code") then
+                    ItemVariant.TestField(Blocked, false);
                 ReservePlanningComponent.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. (Base)");
                 TestField("Reserved Qty. (Base)", 0);

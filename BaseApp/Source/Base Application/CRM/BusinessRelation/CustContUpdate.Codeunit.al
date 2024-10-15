@@ -8,13 +8,13 @@ using Microsoft.Sales.Customer;
 codeunit 5056 "CustCont-Update"
 {
     Permissions = tabledata Contact = rimd;
-                  
+
     trigger OnRun()
     begin
     end;
 
     var
-        RMSetup: Record "Marketing Setup";
+        MarketingSetup: Record "Marketing Setup";
         CustContactUpdateCategoryTxt: Label 'Customer Contact Orphaned Links', Locked = true;
         CustContactUpdateTelemetryMsg: Label 'Contact does not exist. The contact business relation which points to it has been deleted', Locked = true;
 
@@ -27,8 +27,8 @@ codeunit 5056 "CustCont-Update"
         if IsHandled then
             exit;
 
-        RMSetup.Get();
-        if RMSetup."Bus. Rel. Code for Customers" = '' then
+        MarketingSetup.Get();
+        if MarketingSetup."Bus. Rel. Code for Customers" = '' then
             exit;
 
         InsertNewContact(Cust, true);
@@ -36,73 +36,72 @@ codeunit 5056 "CustCont-Update"
 
     procedure OnModify(var Cust: Record Customer)
     var
-        ContBusRel: Record "Contact Business Relation";
-        Cont: Record Contact;
-        OldCont: Record Contact;
-        ContNo: Code[20];
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Contact: Record Contact;
+        OldContact: Record Contact;
+        ContactNo: Code[20];
         NoSeries: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnModify(Cust, ContBusRel, IsHandled);
+        OnBeforeOnModify(Cust, ContactBusinessRelation, IsHandled);
         if not IsHandled then begin
-            with ContBusRel do begin
-                SetCurrentKey("Link to Table", "No.");
-                SetRange("Link to Table", "Link to Table"::Customer);
-                SetRange("No.", Cust."No.");
-                if not FindFirst() then
-                    exit;
-                if not Cont.Get("Contact No.") then begin
-                    Delete();
-                    Session.LogMessage('0000B37', CustContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
-                    exit;
-                end;
-                OldCont := Cont;
+            ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+            ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+            ContactBusinessRelation.SetRange("No.", Cust."No.");
+            if not ContactBusinessRelation.FindFirst() then
+                exit;
+            if not Contact.Get(ContactBusinessRelation."Contact No.") then begin
+                ContactBusinessRelation.Delete();
+                Session.LogMessage('0000B37', CustContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustContactUpdateCategoryTxt);
+                exit;
             end;
+            OldContact := Contact;
 
-            ContNo := Cont."No.";
-            NoSeries := Cont."No. Series";
-            Cont.Validate("E-Mail", Cust."E-Mail");
+            ContactNo := Contact."No.";
+            NoSeries := Contact."No. Series";
+            Contact.Validate("E-Mail", Cust."E-Mail");
 
-            Cont.TransferFields(Cust);
-            Cont."No." := ContNo;
-            Cont."No. Series" := NoSeries;
-            OnAfterTransferFieldsFromCustToCont(Cont, Cust);
+            Contact.TransferFields(Cust);
+            Contact."No." := ContactNo;
+            Contact."No. Series" := NoSeries;
+            OnAfterTransferFieldsFromCustToCont(Contact, Cust);
 
-            Cont.Type := OldCont.Type;
-            Cont.Validate(Name);
-            Cont.DoModify(OldCont);
-            Cont.Modify(true);
+            Contact.Type := OldContact.Type;
+            Contact.Validate(Name);
+            Contact.DoModify(OldContact);
+            Contact.Modify(true);
 
             Cust.Get(Cust."No.");
         end;
 
-        OnAfterOnModify(Cont, OldCont, Cust);
+        OnAfterOnModify(Contact, OldContact, Cust);
     end;
 
     procedure OnDelete(var Cust: Record Customer)
     var
-        ContBusRel: Record "Contact Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnDelete(Cust, ContBusRel, IsHandled);
+        OnBeforeOnDelete(Cust, ContactBusinessRelation, IsHandled);
         if IsHandled then
             exit;
 
-        with ContBusRel do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Customer);
-            SetRange("No.", Cust."No.");
-            DeleteAll(true);
-        end;
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Cust."No.");
+        ContactBusinessRelation.DeleteAll(true);
     end;
 
     procedure InsertNewContact(var Cust: Record Customer; LocalCall: Boolean)
     var
-        ContBusRel: Record "Contact Business Relation";
-        Cont: Record Contact;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Contact: Record Contact;
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -111,77 +110,79 @@ codeunit 5056 "CustCont-Update"
             exit;
 
         if not LocalCall then begin
-            RMSetup.Get();
-            RMSetup.TestField("Bus. Rel. Code for Customers");
+            MarketingSetup.Get();
+            MarketingSetup.TestField("Bus. Rel. Code for Customers");
         end;
 
-        if ContBusRel.UpdateEmptyNoForContact(Cust."No.", Cust."Primary Contact No.", ContBusRel."Link to Table"::Customer) then
+        if ContactBusinessRelation.UpdateEmptyNoForContact(Cust."No.", Cust."Primary Contact No.", ContactBusinessRelation."Link to Table"::Customer) then
             exit;
 
-        with Cont do begin
-            Init();
-            TransferFields(Cust);
-            OnAfterTransferFieldsFromCustToCont(Cont, Cust);
-            Validate(Name);
-            Validate("E-Mail");
-            IsHandled := false;
-            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Cust);
+        Contact.Init();
+        Contact.TransferFields(Cust);
+        OnAfterTransferFieldsFromCustToCont(Contact, Cust);
+        Contact.Validate(Contact.Name);
+        Contact.Validate(Contact."E-Mail");
+        IsHandled := false;
+        OnInsertNewContactOnBeforeAssignNo(Contact, IsHandled, Cust);
+        if not IsHandled then begin
+            Contact."No." := '';
+            Contact."No. Series" := '';
+            MarketingSetup.TestField("Contact Nos.");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MarketingSetup."Contact Nos.", '', 0D, Contact."No.", Contact."No. Series", IsHandled);
             if not IsHandled then begin
-                "No." := '';
-                "No. Series" := '';
-                RMSetup.TestField("Contact Nos.");
-                NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+#endif
+                Contact."No. Series" := MarketingSetup."Contact Nos.";
+                Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Contact."No. Series", MarketingSetup."Contact Nos.", 0D, Contact."No.");
             end;
-            Type := Cust."Contact Type";
-            SetSkipDefault();
-            OnBeforeContactInsert(Cont, Cust);
-            Insert(true);
+#endif
         end;
+        Contact.Type := Cust."Contact Type";
+        Contact.SetSkipDefault();
+        OnBeforeContactInsert(Contact, Cust);
+        Contact.Insert(true);
 
-        OnInsertNewContactOnAfterContInsert(Cont, Cust);
+        OnInsertNewContactOnAfterContInsert(Contact, Cust);
 
-        with ContBusRel do begin
-            Init();
-            "Contact No." := Cont."No.";
-            "Business Relation Code" := RMSetup."Bus. Rel. Code for Customers";
-            "Link to Table" := "Link to Table"::Customer;
-            "No." := Cust."No.";
-            OnInsertNewContactOnBeforeContBusRelInsert(ContBusRel, Cont, Cust);
-            Insert(true);
-        end;
+        ContactBusinessRelation.Init();
+        ContactBusinessRelation."Contact No." := Contact."No.";
+        ContactBusinessRelation."Business Relation Code" := MarketingSetup."Bus. Rel. Code for Customers";
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
+        ContactBusinessRelation."No." := Cust."No.";
+        OnInsertNewContactOnBeforeContBusRelInsert(ContactBusinessRelation, Contact, Cust);
+        ContactBusinessRelation.Insert(true);
     end;
 
     procedure InsertNewContactPerson(var Cust: Record Customer; LocalCall: Boolean)
     var
-        ContComp: Record Contact;
-        ContBusRel: Record "Contact Business Relation";
-        Cont: Record Contact;
+        CompanyContact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        PersonContact: Record Contact;
     begin
         if not LocalCall then begin
-            RMSetup.Get();
-            RMSetup.TestField("Bus. Rel. Code for Customers");
+            MarketingSetup.Get();
+            MarketingSetup.TestField("Bus. Rel. Code for Customers");
         end;
 
-        ContBusRel.SetCurrentKey("Link to Table", "No.");
-        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-        ContBusRel.SetRange("No.", Cust."No.");
-        if ContBusRel.FindFirst() then
-            if ContComp.Get(ContBusRel."Contact No.") then
-                with Cont do begin
-                    Init();
-                    "No." := '';
-                    OnInsertNewContactPersonOnBeforeValidateType(Cont, Cust, ContComp);
-                    Validate(Type, Type::Person);
-                    Insert(true);
-                    "Company No." := ContComp."No.";
-                    Validate(Name, Cust.Contact);
-                    InheritCompanyToPersonData(ContComp);
-                    UpdateBusinessRelation();
-                    OnInsertNewContactPersonOnBeforeContactModify(Cont, Cust);
-                    Modify(true);
-                    OnInsertNewContactPersonOnAfterContactModify(Cont, Cust);
-                    Cust."Primary Contact No." := "No.";
-                end
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Cust."No.");
+        if ContactBusinessRelation.FindFirst() then
+            if CompanyContact.Get(ContactBusinessRelation."Contact No.") then begin
+                OnInsertNewContactPersonOnBeforeValidateType(PersonContact, Cust, CompanyContact);
+                PersonContact.Validate(PersonContact.Type, PersonContact.Type::Person);
+                PersonContact.Insert(true);
+                PersonContact."Company No." := CompanyContact."No.";
+                PersonContact.Validate(PersonContact.Name, Cust.Contact);
+                PersonContact.InheritCompanyToPersonData(CompanyContact);
+                PersonContact.UpdateBusinessRelation();
+                OnInsertNewContactPersonOnBeforeContactModify(PersonContact, Cust);
+                PersonContact.Modify(true);
+                OnInsertNewContactPersonOnAfterContactModify(PersonContact, Cust);
+                Cust."Primary Contact No." := PersonContact."No.";
+            end
     end;
 
     procedure DeleteCustomerContacts(var Customer: Record Customer)
@@ -189,16 +190,14 @@ codeunit 5056 "CustCont-Update"
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        with ContactBusinessRelation do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Customer);
-            SetRange("No.", Customer."No.");
-            if FindSet() then
-                repeat
-                    if Contact.Get("Contact No.") then
-                        Contact.Delete(true);
-                until Next() = 0;
-        end;
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Customer."No.");
+        if ContactBusinessRelation.FindSet() then
+            repeat
+                if Contact.Get(ContactBusinessRelation."Contact No.") then
+                    Contact.Delete(true);
+            until ContactBusinessRelation.Next() = 0;
     end;
 
     procedure ContactNameIsBlank(CustomerNo: Code[20]): Boolean
@@ -206,16 +205,14 @@ codeunit 5056 "CustCont-Update"
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        with ContactBusinessRelation do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Customer);
-            SetRange("No.", CustomerNo);
-            if not FindFirst() then
-                exit(false);
-            if not Contact.Get("Contact No.") then
-                exit(true);
-            exit(Contact.Name = '');
-        end;
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", CustomerNo);
+        if not ContactBusinessRelation.FindFirst() then
+            exit(false);
+        if not Contact.Get(ContactBusinessRelation."Contact No.") then
+            exit(true);
+        exit(Contact.Name = '');
     end;
 
     [IntegrationEvent(false, false)]

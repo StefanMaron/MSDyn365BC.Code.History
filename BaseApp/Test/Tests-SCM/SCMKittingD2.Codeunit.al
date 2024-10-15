@@ -22,6 +22,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -58,13 +59,12 @@ codeunit 137091 "SCM Kitting - D2"
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         StdCostLevel := 2;
         LibraryAssembly.UpdateAssemblySetup(
-          AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
+          AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode());
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D2");
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure RefillDeleteItem()
     var
@@ -88,10 +88,10 @@ codeunit 137091 "SCM Kitting - D2"
         VerifyOrderLines(AssemblyHeader."No.", false);
         Assert.AreEqual(StrSubstNo(ErrorDeleteItem, Item."No."), GetLastErrorText, 'Unexpected error message when deleting item.');
         ClearLastError();
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure NegQtyHeaderLine()
     var
@@ -119,10 +119,12 @@ codeunit 137091 "SCM Kitting - D2"
 
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ItemSubstitutionPageHandler,SendNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('ItemSubstitutionPageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure UseSubstitute()
     var
@@ -151,7 +153,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange("No.", BOMComponent."No.");
 
         if AssemblyLine.FindFirst() then
-            AssemblyLine.ShowItemSub;
+            AssemblyLine.ShowItemSub();
 
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
@@ -177,7 +179,7 @@ codeunit 137091 "SCM Kitting - D2"
         Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, Location.Code,
-          AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
+          AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode());
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', false);
@@ -196,11 +198,13 @@ codeunit 137091 "SCM Kitting - D2"
 
         // Teardown.
         LibraryAssembly.UpdateAssemblySetup(
-          AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
+          AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode());
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure LineUpdate()
     begin
@@ -208,7 +212,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure NoLineUpdate()
     begin
@@ -233,10 +237,11 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", (NewComps > 0));
         VerifyParentFlowFields(AssemblyHeader);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure TwoItemOneRes()
     begin
@@ -265,7 +270,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure PurchItem()
     begin
@@ -302,10 +306,11 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderHeader(AssemblyHeader."No.");
         VerifyInitialAssemblyList(TempBOMComponent, AssemblyHeader."Item No.");
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdParentFIFOCompCostAdj()
     begin
@@ -313,7 +318,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdParentAvgCompCostAdj()
     begin
@@ -321,7 +325,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdParent()
     begin
@@ -329,7 +332,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgParentFIFOCompCostAdj()
     begin
@@ -337,7 +339,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCompOverhead()
     begin
@@ -345,7 +346,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCompIndCost()
     begin
@@ -353,7 +353,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOParentAndCompIndCostOvhd()
     begin
@@ -362,7 +361,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgParentAndCompOverhead()
     begin
@@ -371,7 +369,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgParentAndCompIndCost()
     begin
@@ -379,7 +376,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgUpdateParent()
     begin
@@ -387,7 +383,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgParentIndCost()
     begin
@@ -395,7 +390,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgParentOverhead()
     begin
@@ -403,7 +397,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOParentAvgComp()
     begin
@@ -437,6 +430,7 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
         VerifyInitialAssemblyList(TempBOMComponent, AssemblyHeader."Item No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
         exit(AssemblyHeader."No.");
     end;
 
@@ -474,10 +468,10 @@ codeunit 137091 "SCM Kitting - D2"
         VerifyOrderLines(AssemblyHeader."No.", true);
         VerifyOrderHeader(AssemblyHeader."No.");
         VerifyInitialAssemblyList(TempBOMComponent, AssemblyHeader."Item No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ItemQtyPer()
     begin
@@ -486,7 +480,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ResQtyPer()
     begin
@@ -495,7 +488,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure UnitOfMeasure()
     begin
@@ -504,7 +496,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ReplaceItemWRes()
     begin
@@ -513,7 +504,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ReplaceItemWItem()
     begin
@@ -522,7 +512,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddItem()
     begin
@@ -531,7 +520,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddDirectRes()
     begin
@@ -540,7 +528,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AddFixedRes()
     begin
@@ -549,7 +536,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteItem()
     begin
@@ -558,7 +544,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteRes()
     begin
@@ -567,7 +552,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DeleteAll()
     begin
@@ -576,7 +560,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure Usage()
     begin
@@ -585,7 +568,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostItemQtyPer()
     begin
@@ -594,7 +576,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostResQtyPer()
     begin
@@ -603,7 +584,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostUnitOfMeasure()
     begin
@@ -612,7 +592,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostReplaceItemWItem()
     begin
@@ -621,7 +600,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostReplaceItemWRes()
     begin
@@ -630,7 +608,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostAddItem()
     begin
@@ -639,7 +616,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostAddDirectRes()
     begin
@@ -648,7 +624,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostAddFixedRes()
     begin
@@ -657,7 +632,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostDeleteItem()
     begin
@@ -666,7 +640,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostDeleteRes()
     begin
@@ -675,7 +648,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostDeleteAll()
     begin
@@ -684,7 +656,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure CostUsage()
     begin
@@ -693,7 +664,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostItemQtyPer()
     begin
@@ -702,7 +672,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostResQtyPer()
     begin
@@ -711,7 +680,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostUnitOfMeasure()
     begin
@@ -720,7 +688,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostReplaceItemWItem()
     begin
@@ -729,7 +696,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostReplaceItemWRes()
     begin
@@ -738,7 +704,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostAddItem()
     begin
@@ -747,7 +712,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+
     [Scope('OnPrem')]
     procedure AvgCostAddDirectRes()
     begin
@@ -756,7 +721,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostAddFixedRes()
     begin
@@ -765,7 +729,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostDeleteItem()
     begin
@@ -774,7 +737,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostDeleteRes()
     begin
@@ -783,7 +745,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostDeleteAll()
     begin
@@ -792,7 +753,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostUsage()
     begin
@@ -801,7 +761,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostItemQtyPer()
     begin
@@ -810,7 +769,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostResQtyPer()
     begin
@@ -819,7 +777,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostUnitOfMeasure()
     begin
@@ -828,7 +785,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostReplaceItemWItem()
     begin
@@ -837,7 +793,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostReplaceItemWRes()
     begin
@@ -846,7 +801,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostAddItem()
     begin
@@ -855,7 +809,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostAddDirectRes()
     begin
@@ -864,7 +817,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostAddFixedRes()
     begin
@@ -873,7 +825,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostDeleteItem()
     begin
@@ -882,7 +833,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostDeleteRes()
     begin
@@ -891,7 +841,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostDeleteAll()
     begin
@@ -900,7 +849,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FIFOCostUsage()
     begin
@@ -937,7 +885,7 @@ codeunit 137091 "SCM Kitting - D2"
 
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
-
+        NotificationLifecycleMgt.RecallAllNotifications();
         exit(AssemblyHeader."No.");
     end;
 
@@ -958,7 +906,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure IncreaseQty()
     begin
@@ -966,7 +913,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure ZeroQty()
     begin
@@ -974,7 +920,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdCostIncQty()
     begin
@@ -982,7 +927,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdCostZeroQty()
     begin
@@ -990,7 +934,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure NonBaseUoM()
     begin
@@ -998,7 +941,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdCostNonBaseUoM()
     begin
@@ -1006,7 +948,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostIncQty()
     begin
@@ -1014,7 +955,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostZeroQty()
     begin
@@ -1022,7 +962,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgCostNonBaseUoM()
     begin
@@ -1052,17 +991,18 @@ codeunit 137091 "SCM Kitting - D2"
 
         // Exercise.
         LibraryAssembly.UpdateOrderCost(AssemblyHeader);
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
         LibraryAssembly.UpdateOrderCost(AssemblyHeader);
 
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", false);
         VerifyOrderHeader(AssemblyHeader."No.");
         VerifyInitialAssemblyList(TempBOMComponent, AssemblyHeader."Item No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmRefreshLines')]
+    [HandlerFunctions('ConfirmRefreshLines')]
     [Scope('OnPrem')]
     procedure SimpleRefresh()
     begin
@@ -1071,7 +1011,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmRefreshLines')]
+    [HandlerFunctions('ConfirmRefreshLines')]
     [Scope('OnPrem')]
     procedure StdChangeAssemblyList()
     begin
@@ -1080,7 +1020,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmRefreshLines')]
+    [HandlerFunctions('ConfirmRefreshLines')]
     [Scope('OnPrem')]
     procedure AvgChangeAssemblyList()
     begin
@@ -1089,7 +1029,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure RefreshAfterDeleteAll()
     begin
@@ -1133,10 +1072,10 @@ codeunit 137091 "SCM Kitting - D2"
         VerifyOrderLines(AssemblyHeader."No.", false);
         VerifyOrderHeader(AssemblyHeader."No.");
         VerifyInitialAssemblyList(TempBOMComponent, Item."No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdTwoLevelsNoRollup()
     begin
@@ -1144,7 +1083,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdOneLevelNoRollup()
     begin
@@ -1152,7 +1090,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure StdOneLevelRollup()
     begin
@@ -1160,7 +1097,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure StdTwoLevelsRollup()
     begin
@@ -1168,7 +1105,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgTwoLevelsNoRollup()
     begin
@@ -1176,7 +1112,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgOneLevelNoRollup()
     begin
@@ -1184,7 +1119,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure AvgOneLevelRollup()
     begin
@@ -1192,7 +1126,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure AvgTwoLevelsRollup()
     begin
@@ -1226,7 +1160,7 @@ codeunit 137091 "SCM Kitting - D2"
             repeat
                 Item.Get(AssemblyLine."No.");
                 if Item."Assembly BOM" then begin
-                    AssemblyLine.ExplodeAssemblyList;
+                    AssemblyLine.ExplodeAssemblyList();
                     TempAssemblyLine := AssemblyLine;
                     TempAssemblyLine.Insert();
                 end;
@@ -1236,15 +1170,16 @@ codeunit 137091 "SCM Kitting - D2"
         VerifyExplodedLines(TempAssemblyLine, AssemblyHeader."No.");
 
         // Exercise
-        AssemblyHeader.RefreshBOM;
+        AssemblyHeader.RefreshBOM();
 
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", false);
         VerifyInitialAssemblyList(TempBOMComponent, Item1."No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmRefreshLines')]
+    [HandlerFunctions('ConfirmRefreshLines')]
     [Scope('OnPrem')]
     procedure OneLevel()
     begin
@@ -1252,7 +1187,7 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmRefreshLines')]
+    [HandlerFunctions('ConfirmRefreshLines')]
     [Scope('OnPrem')]
     procedure TwoLevels()
     begin
@@ -1260,7 +1195,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure FakeExplode()
     var
@@ -1280,7 +1214,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
         if AssemblyLine.FindSet() then
             repeat
-                asserterror AssemblyLine.ExplodeAssemblyList;
+                asserterror AssemblyLine.ExplodeAssemblyList();
                 // Validate.
                 if AssemblyLine.Type = "BOM Component Type"::Item then
                     Assert.AreEqual(
@@ -1289,6 +1223,8 @@ codeunit 137091 "SCM Kitting - D2"
                     Assert.IsTrue(StrPos(GetLastErrorText, ErrorLineType) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorLineType);
                 ClearLastError();
             until AssemblyLine.Next() = 0;
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1340,7 +1276,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(5, 2));
-        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
 
         // Exercise.
         asserterror SalesExplodeBOM.Run(SalesLine);
@@ -1405,7 +1341,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(5, 2));
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine1, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, 1);
+          PurchaseLine1, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
 
         // Exercise.
         asserterror PurchExplodeBOM.Run(PurchaseLine);
@@ -1543,7 +1479,6 @@ codeunit 137091 "SCM Kitting - D2"
         Item: Record Item;
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
-        PurchaseLine1: Record "Purchase Line";
         TransferExplodeBOM: Codeunit "Transfer-Explode BOM";
     begin
         Initialize();
@@ -1563,7 +1498,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Normal]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     local procedure ResUsage(CostingMethod: Enum "Costing Method"; UseSameRes: Boolean; LotSize: Integer)
     var
         Item: Record Item;
@@ -1707,10 +1641,10 @@ codeunit 137091 "SCM Kitting - D2"
         VerifyOrderLines(AssemblyHeader."No.", true);
         VerifyOrderHeader(AssemblyHeader."No.");
         VerifyInitialAssemblyList(TempBOMComponent, Item."No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SameItem()
     begin
@@ -1718,7 +1652,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SameItemDiffVar()
     begin
@@ -1752,10 +1685,10 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
         VerifyOrderHeader(AssemblyHeader."No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure DirectLoop()
     begin
@@ -1763,7 +1696,6 @@ codeunit 137091 "SCM Kitting - D2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure IndirectLoop()
     begin
@@ -1828,20 +1760,20 @@ codeunit 137091 "SCM Kitting - D2"
             OrderQty := AssemblyHeader.Quantity;
 
         Assert.AreEqual(
-          Round(OrderQty * AssemblyLine."Quantity per", LibraryERM.GetAmountRoundingPrecision),
-          Round(AssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision), 'Wrong Quantity on Line.');
+          Round(OrderQty * AssemblyLine."Quantity per", LibraryERM.GetAmountRoundingPrecision()),
+          Round(AssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision()), 'Wrong Quantity on Line.');
         Assert.AreEqual(
-          Round(AssemblyLine.Quantity * AssemblyLine."Qty. per Unit of Measure", LibraryERM.GetUnitAmountRoundingPrecision),
-          Round(AssemblyLine."Quantity (Base)", LibraryERM.GetUnitAmountRoundingPrecision), 'Wrong Base Qty calculation.');
+          Round(AssemblyLine.Quantity * AssemblyLine."Qty. per Unit of Measure", LibraryERM.GetUnitAmountRoundingPrecision()),
+          Round(AssemblyLine."Quantity (Base)", LibraryERM.GetUnitAmountRoundingPrecision()), 'Wrong Base Qty calculation.');
         Assert.AreEqual(AssemblyLine.Quantity, AssemblyLine."Remaining Quantity", 'Wrong Remaining Qty.');
         Assert.AreEqual(AssemblyLine."Quantity (Base)", AssemblyLine."Remaining Quantity (Base)", 'Wrong Remaining Qty (Base).');
 
         LibraryAssembly.GetCostInformation(UnitCost, Overhead, IndirectCost, AssemblyLine.Type, AssemblyLine."No.", '', '');
-        Assert.AreNearlyEqual(Round(UnitCost, LibraryERM.GetUnitAmountRoundingPrecision),
-          Round(AssemblyLine."Unit Cost" / AssemblyLine."Qty. per Unit of Measure", LibraryERM.GetUnitAmountRoundingPrecision),
-          LibraryERM.GetAmountRoundingPrecision, 'Wrong line Unit Cost.');
+        Assert.AreNearlyEqual(Round(UnitCost, LibraryERM.GetUnitAmountRoundingPrecision()),
+          Round(AssemblyLine."Unit Cost" / AssemblyLine."Qty. per Unit of Measure", LibraryERM.GetUnitAmountRoundingPrecision()),
+          LibraryERM.GetAmountRoundingPrecision(), 'Wrong line Unit Cost.');
         Assert.AreEqual(
-          Round(AssemblyLine."Unit Cost" * AssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision),
+          Round(AssemblyLine."Unit Cost" * AssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision()),
           AssemblyLine."Cost Amount", 'Wrong line Cost Amount.');
     end;
 
@@ -1854,7 +1786,7 @@ codeunit 137091 "SCM Kitting - D2"
         Item.CalcFields("Qty. on Assembly Order", "Qty. on Asm. Component");
         Assert.AreNearlyEqual(
           AssemblyHeader.Quantity * AssemblyHeader."Qty. per Unit of Measure", Item."Qty. on Assembly Order",
-          LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong qty on assembly order - header.');
+          LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong qty on assembly order - header.');
         Assert.AreEqual(0, Item."Qty. on Asm. Component", 'Wrong qty on component lines - header.');
     end;
 
@@ -1883,7 +1815,7 @@ codeunit 137091 "SCM Kitting - D2"
                 TempAssemblyLine.SetRange("No.", TempBOMComponent."Parent Item No.");
                 if TempAssemblyLine.FindFirst() then
                     Assert.AreNearlyEqual(TempAssemblyLine."Quantity per" * TempBOMComponent."Quantity per", AssemblyLine."Quantity per",
-                      LibraryERM.GetAmountRoundingPrecision, 'Wrong qty per in exploded line for ' + TempAssemblyLine."No.");
+                      LibraryERM.GetAmountRoundingPrecision(), 'Wrong qty per in exploded line for ' + TempAssemblyLine."No.");
                 VerifyOrderLine(AssemblyLine);
             until AssemblyLine.Next() = 0
     end;
@@ -1908,7 +1840,7 @@ codeunit 137091 "SCM Kitting - D2"
             Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
             TempBOMComponent.FindFirst();
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempSalesLine.Quantity, SalesLine.Quantity,
-              LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + SalesLine."No.");
+              LibraryERM.GetAmountRoundingPrecision(), 'Wrong qty in exploded line for ' + SalesLine."No.");
             TempBOMComponent.Delete(true);
         until SalesLine.Next() = 0;
 
@@ -1937,7 +1869,7 @@ codeunit 137091 "SCM Kitting - D2"
             Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
             TempBOMComponent.FindFirst();
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempPurchaseLine.Quantity, PurchaseLine.Quantity,
-              LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + PurchaseLine."No.");
+              LibraryERM.GetAmountRoundingPrecision(), 'Wrong qty in exploded line for ' + PurchaseLine."No.");
             TempBOMComponent.Delete(true);
         until PurchaseLine.Next() = 0;
 
@@ -1966,7 +1898,7 @@ codeunit 137091 "SCM Kitting - D2"
             Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
             TempBOMComponent.FindFirst();
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempTransferLine.Quantity, TransferLine.Quantity,
-              LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + TransferLine."Item No.");
+              LibraryERM.GetAmountRoundingPrecision(), 'Wrong qty in exploded line for ' + TransferLine."Item No.");
             TempBOMComponent.Delete(true);
         until TransferLine.Next() = 0;
 
@@ -2004,10 +1936,10 @@ codeunit 137091 "SCM Kitting - D2"
         CostAmount := LibraryAssembly.CalcOrderCostAmount(MaterialCost, ResourceCost, ResourceOvhd, AssemblyOvhd, AssemblyHeaderNo);
 
         Assert.AreNearlyEqual(
-          CostAmount, AssemblyHeader."Cost Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong header cost amount.');
+          CostAmount, AssemblyHeader."Cost Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong header cost amount.');
         Assert.AreNearlyEqual(CostAmount,
-          Round(AssemblyHeader.Quantity * AssemblyHeader."Unit Cost", LibraryERM.GetAmountRoundingPrecision),
-          LibraryERM.GetAmountRoundingPrecision, 'Wrong header unit cost.');
+          Round(AssemblyHeader.Quantity * AssemblyHeader."Unit Cost", LibraryERM.GetAmountRoundingPrecision()),
+          LibraryERM.GetAmountRoundingPrecision(), 'Wrong header unit cost.');
     end;
 
     [Normal]
@@ -2028,7 +1960,6 @@ codeunit 137091 "SCM Kitting - D2"
     [Normal]
     local procedure CreateDimensionsForItemComponents(TempBOMComponent: Record "BOM Component" temporary)
     var
-        BOMComponent: Record "BOM Component";
         Item: Record Item;
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
@@ -2092,13 +2023,6 @@ codeunit 137091 "SCM Kitting - D2"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := UpdateOrderLines;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
     end;
 
     [ConfirmHandler]

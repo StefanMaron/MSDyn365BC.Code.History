@@ -70,51 +70,49 @@ codeunit 744 "VAT Report Validate"
     var
         OrigVATReport: Record "VAT Report Header";
     begin
-        with VATReportHeader do begin
-            if "No." = '' then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("No."), TableCaption));
-            if "Start Date" = 0D then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Start Date"), TableCaption));
-            if "End Date" = 0D then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("End Date"), TableCaption));
-            if "Processing Date" = 0D then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Processing Date"), TableCaption));
-            if "Report Period Type" = "Report Period Type"::" " then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Report Period Type"), TableCaption));
-            if "Report Period No." = 0 then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Report Period No."), TableCaption));
-            if "Report Year" = 0 then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Report Year"), TableCaption));
-            if "Company Name" = '' then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Company Name"), TableCaption));
-            if "Company Address" = '' then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Company Address"), TableCaption));
-            if "Post Code" = '' then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("Post Code"), TableCaption));
-            if City = '' then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption(City), TableCaption));
-            if "VAT Registration No." = '' then
-                InsertErrorLog(StrSubstNo(Text001, FieldCaption("VAT Registration No."), TableCaption));
-            case "VAT Report Type" of
-                "VAT Report Type"::Standard:
-                    begin
-                        TestField("Original Report No.", '');
-                        ValidateVATReportPeriod(VATReportHeader);
-                    end;
-                "VAT Report Type"::Corrective:
-                    begin
-                        TestField("Original Report No.");
-                        OrigVATReport.Get("Original Report No.");
-                        TestField("Start Date", OrigVATReport."Start Date");
-                        TestField("End Date", OrigVATReport."End Date");
-                        TestField("Report Period Type", OrigVATReport."Report Period Type");
-                        TestField("Report Period No.", OrigVATReport."Report Period No.");
-                        TestField("Report Year", OrigVATReport."Report Year");
-                        if OrigVATReport."Processing Date" > "Processing Date" then
-                            Error(Text004,
-                              FieldCaption("Processing Date"), OrigVATReport."Processing Date", OrigVATReport."No.");
-                    end;
-            end;
+        if VATReportHeader."No." = '' then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("No."), VATReportHeader.TableCaption));
+        if VATReportHeader."Start Date" = 0D then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Start Date"), VATReportHeader.TableCaption));
+        if VATReportHeader."End Date" = 0D then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("End Date"), VATReportHeader.TableCaption));
+        if VATReportHeader."Processing Date" = 0D then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Processing Date"), VATReportHeader.TableCaption));
+        if VATReportHeader."Report Period Type" = VATReportHeader."Report Period Type"::" " then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Report Period Type"), VATReportHeader.TableCaption));
+        if VATReportHeader."Report Period No." = 0 then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Report Period No."), VATReportHeader.TableCaption));
+        if VATReportHeader."Report Year" = 0 then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Report Year"), VATReportHeader.TableCaption));
+        if VATReportHeader."Company Name" = '' then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Company Name"), VATReportHeader.TableCaption));
+        if VATReportHeader."Company Address" = '' then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Company Address"), VATReportHeader.TableCaption));
+        if VATReportHeader."Post Code" = '' then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("Post Code"), VATReportHeader.TableCaption));
+        if VATReportHeader.City = '' then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption(City), VATReportHeader.TableCaption));
+        if VATReportHeader."VAT Registration No." = '' then
+            InsertErrorLog(StrSubstNo(Text001, VATReportHeader.FieldCaption("VAT Registration No."), VATReportHeader.TableCaption));
+        case VATReportHeader."VAT Report Type" of
+            VATReportHeader."VAT Report Type"::Standard:
+                begin
+                    VATReportHeader.TestField("Original Report No.", '');
+                    ValidateVATReportPeriod(VATReportHeader);
+                end;
+            VATReportHeader."VAT Report Type"::Corrective:
+                begin
+                    VATReportHeader.TestField("Original Report No.");
+                    OrigVATReport.Get(VATReportHeader."Original Report No.");
+                    VATReportHeader.TestField("Start Date", OrigVATReport."Start Date");
+                    VATReportHeader.TestField("End Date", OrigVATReport."End Date");
+                    VATReportHeader.TestField("Report Period Type", OrigVATReport."Report Period Type");
+                    VATReportHeader.TestField("Report Period No.", OrigVATReport."Report Period No.");
+                    VATReportHeader.TestField("Report Year", OrigVATReport."Report Year");
+                    if OrigVATReport."Processing Date" > VATReportHeader."Processing Date" then
+                        Error(Text004,
+                          VATReportHeader.FieldCaption("Processing Date"), OrigVATReport."Processing Date", OrigVATReport."No.");
+                end;
         end;
     end;
 
@@ -124,24 +122,22 @@ codeunit 744 "VAT Report Validate"
         CancelLines: Integer;
         CorrectLines: Integer;
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            if FindSet() then
-                repeat
-                    if "Country/Region Code" = '' then
-                        InsertErrorLog(StrSubstNo(Text001, FieldCaption("Country/Region Code"), TableCaption));
-                    if "VAT Registration No." = '' then
-                        InsertErrorLog(StrSubstNo(Text001, FieldCaption("VAT Registration No."), TableCaption));
-                    case "Line Type" of
-                        "Line Type"::Cancellation:
-                            CancelLines += 1;
-                        "Line Type"::Correction:
-                            CorrectLines += 1;
-                    end;
-                until Next() = 0;
-            if CancelLines <> CorrectLines then
-                Error(Text003);
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        if VATReportLine.FindSet() then
+            repeat
+                if VATReportLine."Country/Region Code" = '' then
+                    InsertErrorLog(StrSubstNo(Text001, VATReportLine.FieldCaption("Country/Region Code"), VATReportLine.TableCaption));
+                if VATReportLine."VAT Registration No." = '' then
+                    InsertErrorLog(StrSubstNo(Text001, VATReportLine.FieldCaption("VAT Registration No."), VATReportLine.TableCaption));
+                case VATReportLine."Line Type" of
+                    VATReportLine."Line Type"::Cancellation:
+                        CancelLines += 1;
+                    VATReportLine."Line Type"::Correction:
+                        CorrectLines += 1;
+                end;
+            until VATReportLine.Next() = 0;
+        if CancelLines <> CorrectLines then
+            Error(Text003);
     end;
 
     [Scope('OnPrem')]

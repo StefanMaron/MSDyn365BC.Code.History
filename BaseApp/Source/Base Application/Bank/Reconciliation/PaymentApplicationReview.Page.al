@@ -343,7 +343,7 @@ page 1287 "Payment Application Review"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Accept Application';
                     Image = Approve;
-                    Enabled = Not LineNotAppliedVisible;
+                    Enabled = not LineNotAppliedVisible;
                     ToolTip = 'Accept an automatic payment application after reviewing it or manually applying it. This closes the payment application and sets the Match Confidence field to Accepted.';
 
                     trigger OnAction()
@@ -361,7 +361,7 @@ page 1287 "Payment Application Review"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Application';
                     Image = Reject;
-                    Enabled = Not LineNotAppliedVisible;
+                    Enabled = not LineNotAppliedVisible;
                     ToolTip = 'Remove a payment application from a ledger entry. This unapplies the payment.';
 
                     trigger OnAction()

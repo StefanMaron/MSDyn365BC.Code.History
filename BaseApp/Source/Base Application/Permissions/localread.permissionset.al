@@ -1,11 +1,14 @@
 namespace System.Security.AccessControl;
 
+#if not CLEAN22
 using Microsoft;
+#endif
 using Microsoft.Foundation.Reporting;
 using Microsoft.Finance.AuditFileExport;
 using Microsoft.Purchases.Document;
-using Microsoft.Finance.VAT.Reporting;
+#if not CLEAN24
 using Microsoft.Inventory.Counting;
+#endif
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Inventory.Intrastat;
 
@@ -37,12 +40,14 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Delivery Reminder Line" = R,
                   tabledata "Delivery Reminder Term" = R,
                   tabledata "Delivery Reminder Text" = R,
-                  tabledata "Electronic VAT Decl. Setup" = R,
+#if not CLEAN24
                   tabledata "Expect. Phys. Inv. Track. Line" = R,
+#endif
                   tabledata "Issued Deliv. Reminder Header" = R,
                   tabledata "Issued Deliv. Reminder Line" = R,
                   tabledata "Key Buffer" = R,
                   tabledata "Number Series Buffer" = R,
+#if not CLEAN24
                   tabledata "Phys. Inventory Comment Line" = R,
                   tabledata "Phys. Inventory Order Header" = R,
                   tabledata "Phys. Inventory Order Line" = R,
@@ -50,14 +55,17 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Phys. Invt. Recording Header" = R,
                   tabledata "Phys. Invt. Recording Line" = R,
                   tabledata "Phys. Invt. Tracking Buffer" = R,
+#endif
                   tabledata "Place of Dispatcher" = R,
+#if not CLEAN24
                   tabledata "Place of Receiver" = R,
                   tabledata "Post. Exp. Ph. In. Track. Line" = R,
                   tabledata "Post. Phys. Invt. Order Header" = R,
                   tabledata "Posted Phys. Invt. Order Line" = R,
                   tabledata "Posted Phys. Invt. Rec. Header" = R,
                   tabledata "Posted Phys. Invt. Rec. Line" = R,
-                  tabledata "Posted Phys. Invt. Track. Line" = R,
-                  tabledata "Sales VAT Advance Notification" = R,
-                  tabledata "Transmission Log Entry" = R;
+                  tabledata "Posted Phys. Invt. Track. Line" = R;
+#else
+                  tabledata "Place of Receiver" = R;
+#endif
 }

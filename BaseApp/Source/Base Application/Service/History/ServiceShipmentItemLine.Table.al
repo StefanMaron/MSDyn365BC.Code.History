@@ -20,6 +20,7 @@ table 5989 "Service Shipment Item Line"
     Caption = 'Service Shipment Item Line';
     DrillDownPageID = "Posted Shpt. Item Line List";
     LookupPageID = "Posted Shpt. Item Line List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -142,7 +143,7 @@ table 5989 "Service Shipment Item Line"
         }
         field(27; "Location of Service Item"; Text[30])
         {
-            CalcFormula = Lookup("Service Item"."Location of Service Item" where("No." = field("Service Item No.")));
+            CalcFormula = lookup("Service Item"."Location of Service Item" where("No." = field("Service Item No.")));
             Caption = 'Location of Service Item';
             Editable = false;
             FieldClass = FlowField;

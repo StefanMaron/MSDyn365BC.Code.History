@@ -71,7 +71,7 @@
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup.
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
 
         // Create, Post, Apply and Unapply General journal Lines.
         PostApplyUnapplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount);
@@ -114,7 +114,7 @@
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup.
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
 
         // Create, Post, Apply, Unapply and again Apply Unapplied General journal Lines.
         PostApplyUnapplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount);
@@ -318,7 +318,7 @@
     begin
         // Setup.
         NoOfLines := 2 * LibraryRandom.RandInt(2);
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
         CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount);
 
         // Exercise: Apply and Unapply Posted General Lines for Customer Ledger Entry.
@@ -578,7 +578,7 @@
         PostingDate: Date;
     begin
         // Setup: Update General Ledger Setup, Create and post General Journal Lines, Apply Payment/Refund from Customer Ledger Entry.
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'M>', WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, 1, Amount);  // Using 1 to create single Payment/Refund line.
         ApplyAndPostCustomerEntry(
@@ -777,7 +777,7 @@
 
         // Setup: Create and Post Sales Invoice with Currency, Create a Customer Payment without Currency and apply it to posted Invoice after modifying Payment Amount.
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithCurrency(CreateCurrency));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithCurrency(CreateCurrency()));
         ModifyCurrency(SalesHeader."Currency Code", LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         Amount := CreateAndModifySalesLine(SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         Amount := LibraryERM.ConvertCurrency(Amount, SalesHeader."Currency Code", '', WorkDate());
@@ -815,12 +815,12 @@
         // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Customer with Currency and with Payment method with a balance account.
         Initialize();
         LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
-        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount);  // Taken Zero value for Currency Application Rounding Precision.
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount());  // Taken Zero value for Currency Application Rounding Precision.
 
         // Exercise: Create and post Sales Order with Random Quantity and Unit Price.
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
+            SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify GL, Customer and Detailed Customer ledger entries.
@@ -838,12 +838,12 @@
     begin
         // Setup.
         Initialize();
-        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount);
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount());
 
         // Exercise: Create and post Sales Order.
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
+            SalesLine, WorkDate(), Customer."No.", LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::Order,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
 
         // Verify: Try to modify Payment Method Code in Customer Ledger Entry.
@@ -982,7 +982,7 @@
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type having VAT.
         Initialize();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithSalesSetup);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithSalesSetup());
     end;
 
     [Test]
@@ -991,7 +991,7 @@
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type does not having VAT.
         Initialize();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo());
     end;
 
     [Test]
@@ -1000,7 +1000,7 @@
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type having VAT.
         Initialize();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithSalesSetup);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithSalesSetup());
     end;
 
     [Test]
@@ -1009,7 +1009,7 @@
     begin
         // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type does not having VAT.
         Initialize();
-        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo);
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo());
     end;
 
     [Test]
@@ -1173,7 +1173,7 @@
         Assert.RecordIsEmpty(GLEntry);
 
         // Cleanup: Return back the old value of "Adjust For Payment Discount".
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -1384,7 +1384,7 @@
         // [GIVEN] Batch GJB posted
         Amount := LibraryRandom.RandDec(1000, 2);
         DocNo := LibraryERM.CreateAndPostTwoGenJourLinesWithSameBalAccAndDocNo(
-            DummyGenJournalLine, DummyGenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, -Amount);
+            DummyGenJournalLine, DummyGenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), -Amount);
 
         // [GIVEN] Openned Customer Ledger Entries for Customer CCC, selected Payment JL2 and called action "Apply Entries"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocNo);
@@ -1477,7 +1477,7 @@
     begin
         // [FEATURE] [FCY] [Adjust Exchange Rate]
         // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
-        Initialize;
+        Initialize();
         BindSubscription(ERMApplyUnapplyCustomer);
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
@@ -1609,13 +1609,13 @@
         // [GIVEN] Invoice "INV001" of 200 USD posted on 02.01
         Amount[2] := LibraryRandom.RandDecInRange(10000, 20000, 2);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[2], GenJournalBatch, WorkDate + 1,
+          GenJournalLine[2], GenJournalBatch, WorkDate() + 1,
           GenJournalLine[2]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[2]);
 
         // [GIVEN] Payment of 300 USD posted on 05.01
         Amount[3] := -Amount[1] - Amount[2];
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[3], GenJournalBatch, WorkDate + 4,
+          GenJournalLine[3], GenJournalBatch, WorkDate() + 4,
           GenJournalLine[3]."Document Type"::Payment, Customer."No.", CurrencyCode, Amount[3]);
 
         // [GIVEN] Payment applied to Invoices
@@ -1627,10 +1627,10 @@
           GenJournalLine[2]."Document Type", GenJournalLine[3]."Document Type");
 
         // [GIVEN] Created Exchange Rate "ER2" for 03.01
-        CreateExchangeRate(CurrencyCode, LibraryRandom.RandDec(10, 2), 1, WorkDate + 2);
+        CreateExchangeRate(CurrencyCode, LibraryRandom.RandDec(10, 2), 1, WorkDate() + 2);
 
         // [GIVEN] Payment has been adjusted by "ER2"
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate + 3, WorkDate + 3);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() + 3, WorkDate() + 3);
 
         // [WHEN] Unapply Invoices from Payment
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
@@ -1661,7 +1661,7 @@
     begin
         // [FEATURE] [FCY] [Adjust Exchange Rate]
         // [SCENARIO 360284] Two Invoices are correctly unapplied from the Payment after running Currency Adjustment for the later date
-        Initialize;
+        Initialize();
         BindSubscription(ERMApplyUnapplyCustomer);
 
         // [GIVEN] Create Currency Code with Exchange Rate "ER1" for 01.01
@@ -1678,13 +1678,13 @@
         // [GIVEN] Invoice "INV001" of 200 USD posted on 02.01
         Amount[2] := LibraryRandom.RandDecInRange(10000, 20000, 2);
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[2], GenJournalBatch, WorkDate + 1,
+          GenJournalLine[2], GenJournalBatch, WorkDate() + 1,
           GenJournalLine[2]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[2]);
 
         // [GIVEN] Payment of 300 USD posted on 05.01
         Amount[3] := -Amount[1] - Amount[2];
         CreateAndPostGenJnlLineWithCurrency(
-          GenJournalLine[3], GenJournalBatch, WorkDate + 4,
+          GenJournalLine[3], GenJournalBatch, WorkDate() + 4,
           GenJournalLine[3]."Document Type"::Payment, Customer."No.", CurrencyCode, Amount[3]);
 
         // [GIVEN] Payment applied to Invoices
@@ -1696,10 +1696,10 @@
           GenJournalLine[2]."Document Type", GenJournalLine[3]."Document Type");
 
         // [GIVEN] Created Exchange Rate "ER2" for 03.01
-        CreateExchangeRate(CurrencyCode, LibraryRandom.RandDec(10, 2), 1, WorkDate + 2);
+        CreateExchangeRate(CurrencyCode, LibraryRandom.RandDec(10, 2), 1, WorkDate() + 2);
 
         // [GIVEN] Payment has been adjusted by "ER2"
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate + 3, WorkDate + 3);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() + 3, WorkDate() + 3);
 
         // [WHEN] Unapply Invoices from Payment
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
@@ -2214,7 +2214,7 @@
         GenJnlLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
-        // [WHEN] Unapply payment and invoice with Posting Date = WORKDATE + 1;
+        // [WHEN] Unapply payment and invoice with Posting Date = WorkDate() + 1;
         LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, PaymentDocumentType, GenJnlLine."Document No.");
         UnapplyDate := WorkDate() + 1;
         LibraryERMUnapply.UnapplyCustomerLedgerEntryBase(CustLedgEntry, UnapplyDate);
@@ -2305,7 +2305,7 @@
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Method Code", PaymentMethodCode);
         Customer.Validate("Application Method", ApplicationMethod);
-        Customer.Validate("Currency Code", CreateCurrency);
+        Customer.Validate("Currency Code", CreateCurrency());
         Customer.Modify(true);
     end;
 
@@ -2317,7 +2317,7 @@
     begin
         // Setup: Create 1 Invoice General Line and Post it.
         SelectGenJournalBatch(GenJournalBatch, false);
-        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, CreateCustomer, DocumentType, Amount);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, CreateCustomer(), DocumentType, Amount);
         DocumentNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -2363,7 +2363,7 @@
         SelectGenJournalBatch(GenJournalBatch, false);
         DocumentNo :=
           CreateAndPostSalesDocument(
-            SalesLine, WorkDate(), LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, DocumentType,
+            SalesLine, WorkDate(), LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo(), DocumentType,
             LibraryRandom.RandInt(100), Abs(UnitPrice));
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, SalesLine."Sell-to Customer No.", DocumentType2, -UnitPrice);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2392,7 +2392,7 @@
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGenJnlLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandInt(100));
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         GenJournalLine.Validate("Sales/Purch. (LCY)", 0);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2521,7 +2521,7 @@
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -2564,7 +2564,7 @@
     local procedure CreateCustomerWithPaymentTerm(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermCode);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermCode());
         Customer.Modify(true);
     end;
 
@@ -2606,7 +2606,7 @@
         DocumentNo :=
           CreateAndPostSalesDocument(
             SalesLine, WorkDate(),
-            CustomerNo, LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Invoice,
+            CustomerNo, LibraryInventory.CreateItemNo(), SalesHeader."Document Type"::Invoice,
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGeneralJournalLines(
@@ -2686,9 +2686,9 @@
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Use Random Number Generator for Exchange Rate.
-        CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.GetAddReportingCurrency);
+        CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.GetAddReportingCurrency());
         CurrencyExchangeRate.FindFirst();
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, LibraryERM.GetAddReportingCurrency, PostingDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, LibraryERM.GetAddReportingCurrency(), PostingDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(100));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -2764,9 +2764,9 @@
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
             FindFirst();
             if "Sales VAT Account" = '' then
-                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
             if "Purchase VAT Account" = '' then
-                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
             exit("VAT Prod. Posting Group");
         end;
@@ -2816,13 +2816,13 @@
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
         GeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
         LibraryVariableStorage.Enqueue(true); // Invoke set applies to ID action
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
         Amount := LibraryRandom.RandDec(10, 2);  // Used Random value to make difference in General Journal line Amount.
-        GeneralJournal.OK.Invoke;
+        GeneralJournal.OK().Invoke();
     end;
 
     local procedure PostApplyPaymentForeignCurrency(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal; AppliedDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentNo: Code[20])
@@ -2859,7 +2859,7 @@
         // General Journal Lines.
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         if SetNoSeries then begin
-            GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
             GenJournalBatch.Modify(true);
         end;
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
@@ -2871,8 +2871,8 @@
         SelectionString: Text;
     begin
         SelectionString :=
-          SelectionFilterManagement.AddQuotes(LibrarySales.CreateCustomerNo) + '..' +
-          SelectionFilterManagement.AddQuotes(LibrarySales.CreateCustomerNo);
+          SelectionFilterManagement.AddQuotes(LibrarySales.CreateCustomerNo()) + '..' +
+          SelectionFilterManagement.AddQuotes(LibrarySales.CreateCustomerNo());
         Customer.SetFilter("No.", SelectionString);
         exit(SelectionString);
     end;
@@ -2908,7 +2908,7 @@
             if FindSet() then
                 repeat
                     Result += Amount;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -3032,7 +3032,7 @@
         Currency: Record Currency;
         AddCurrAmt: Decimal;
     begin
-        Currency.Get(LibraryERM.GetAddReportingCurrency);
+        Currency.Get(LibraryERM.GetAddReportingCurrency());
         Currency.InitRoundingPrecision();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindSet();
@@ -3051,7 +3051,7 @@
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
         DetailedCustLedgEntry.SetRange("Source Code", SourceCode);
-        Assert.IsTrue(DetailedCustLedgEntry.FindFirst, 'Detailed Customer Ledger Entry must found.');
+        Assert.IsTrue(DetailedCustLedgEntry.FindFirst(), 'Detailed Customer Ledger Entry must found.');
     end;
 
     local procedure VerifyNoVATEntriesOnUnapplication(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
@@ -3077,7 +3077,7 @@
             FindSet();
             repeat
                 Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -3204,7 +3204,7 @@
                     Validate("Applies-to ID", AppliesToID);
                     Validate("Amount to Apply", AmountsToApply[i]);
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -3242,7 +3242,7 @@
                 TestField("Dimension Set ID", DimSetIDs[1]);
                 TestField(Amount, -Amounts[Index]);
                 TotalAmount += Amounts[Index];
-                Next;
+                Next();
             end;
             TestField("Dimension Set ID", DimSetIDs[1]);
             TestField(Amount, TotalAmount);
@@ -3310,8 +3310,8 @@
         LibraryVariableStorage.Dequeue(SetAppliesToIDValue);
         SetAppliesToID := SetAppliesToIDValue;  // Assign Variant to Boolean.
         if SetAppliesToID then
-            ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+            ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3334,16 +3334,16 @@
 
         with ApplyCustomerEntries do begin
             // verify cr. memo entry
-            "Set Applies-to ID".Invoke; // apply entry
-            AppliedAmount.AssertEquals(Round(-PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision));
-            "Set Applies-to ID".Invoke; // unapply
+            "Set Applies-to ID".Invoke(); // apply entry
+            AppliedAmount.AssertEquals(Round(-PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
+            "Set Applies-to ID".Invoke(); // unapply
 
             // verify invoice entry
-            Next;
-            "Set Applies-to ID".Invoke; // apply next entry
-            AppliedAmount.AssertEquals(Round(InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision));
+            Next();
+            "Set Applies-to ID".Invoke(); // apply next entry
+            AppliedAmount.AssertEquals(Round(InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
 
-            OK.Invoke;
+            OK().Invoke();
         end;
     end;
 
@@ -3360,7 +3360,7 @@
         SalesLineAmountLCY := Value;
         LibraryVariableStorage.Dequeue(Value);
         JournalLineAmount := Value;
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
 
         Evaluate(PageControlValue, ApplyCustomerEntries.ApplnRounding.Value);
         Assert.AreEqual(
@@ -3370,7 +3370,7 @@
         Assert.AreEqual(
           0, PageControlValue, ApplyCustomerEntries.ControlBalance.Caption);
 
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
 #if not CLEAN23
@@ -3386,14 +3386,14 @@
     [Scope('OnPrem')]
     procedure CustomerLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ConfirmHandler]

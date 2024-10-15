@@ -31,7 +31,9 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the invoice number.';
                 }
+#pragma warning disable AA0100
                 field("SalesInvHeader.""Posting Date"""; SalesInvHeader."Posting Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
@@ -186,14 +188,18 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
+#pragma warning disable AA0100
                 field("SalesInvHeader.""Currency Code"""; SalesInvHeader."Currency Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency Code';
                     ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("SalesInvHeader.""Prices Including VAT"""; SalesInvHeader."Prices Including VAT")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices Including VAT';
@@ -227,7 +233,7 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -443,31 +449,29 @@ page 5852 "Get Post.Doc - S.InvLn Subform"
         if IsHandled then
             exit(ReturnValue);
 
-        with SalesInvLine2 do begin
-            QtyNotReturned := 0;
-            if "Document No." <> SalesInvHeader."No." then
-                SalesInvHeader.Get("Document No.");
-            if SalesInvHeader."Prepayment Invoice" then
+        QtyNotReturned := 0;
+        if SalesInvLine2."Document No." <> SalesInvHeader."No." then
+            SalesInvHeader.Get(SalesInvLine2."Document No.");
+        if SalesInvHeader."Prepayment Invoice" then
+            exit(false);
+        if RevQtyFilter then begin
+            if SalesInvHeader."Currency Code" <> ToSalesHeader."Currency Code" then
                 exit(false);
-            if RevQtyFilter then begin
-                if SalesInvHeader."Currency Code" <> ToSalesHeader."Currency Code" then
-                    exit(false);
-                if Type = Type::" " then
-                    exit("Attached to Line No." = 0);
-            end;
-
-            IsHandled := false;
-            OnIsShowRecOnBeforeCheckIsTypeNotItem(SalesInvLine2, QtyNotReturned, ReturnValue, IsHandled);
-            if IsHandled then
-                exit(ReturnValue);
-
-            if Type <> Type::Item then
-                exit(true);
-            CalcShippedSaleNotReturned(QtyNotReturned, RevUnitCostLCY, FillExactCostReverse);
-            if not RevQtyFilter then
-                exit(true);
-            exit(QtyNotReturned > 0);
+            if SalesInvLine2.Type = SalesInvLine2.Type::" " then
+                exit(SalesInvLine2."Attached to Line No." = 0);
         end;
+
+        IsHandled := false;
+        OnIsShowRecOnBeforeCheckIsTypeNotItem(SalesInvLine2, QtyNotReturned, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+        if SalesInvLine2.Type <> SalesInvLine2.Type::Item then
+            exit(true);
+        SalesInvLine2.CalcShippedSaleNotReturned(QtyNotReturned, RevUnitCostLCY, FillExactCostReverse);
+        if not RevQtyFilter then
+            exit(true);
+        exit(QtyNotReturned > 0);
     end;
 
     local procedure GetQtyReturned() Result: Decimal

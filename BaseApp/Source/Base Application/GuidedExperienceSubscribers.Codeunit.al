@@ -34,7 +34,7 @@ codeunit 1878 "Guided Experience Subscribers"
         CustomerListSpotlightTourStep2TextTxt: Label 'When you choose to open the list in Excel you can use it for analysis and calculations that you do not need to save back into Business Central.';
         MarketingAISpotlightTourTitleTxt: Label 'AI-powered product descriptions';
         MarketingAISpotlightTourShortTitleTxt: Label 'Create with Copilot';
-        MarketingAISpotlightTourDescriptionTxt: Label 'Copilot in Business Central helps you get more done with less effort. Experience how product description suggestions accelerate your time to market.';
+        MarketingAISpotlightTourDescriptionTxt: Label 'Copilot in Business Central helps you get more done with less effort. Experience how product description suggestions (preview) accelerate your time to market.';
         MarketingAISpotlightStep1TitleTxt: Label 'Stop typing and start selling';
         MarketingAISpotlightStep1TextTxt: Label 'Creating product descriptions has never been easier. Get AI-powered marketing text for your products in a style that speaks to your customers and reflects your brand, right from where you manage your products.';
         MarketingAISpotlightStep2TitleTxt: Label 'Ready. Set. Create!';
@@ -120,7 +120,7 @@ codeunit 1878 "Guided Experience Subscribers"
             Page::"Chart of Accounts");
         GuidedExperience.InsertApplicationFeature(BankAccountsSetupTitleTxt, BankAccountsSetupShortTitleTxt, BankAccountsSetupDescriptionTxt, 5, ObjectType::Page,
             Page::"Bank Account List");
-        GuidedExperience.InsertApplicationFeature(SalesQuotesTitleTxt, SalesQuotesShortTitleTxt, SalesQuotesDescriptionTxt, 15, ObjectType::Page,
+        GuidedExperience.InsertApplicationFeature(SalesQuotesTitleTxt, SalesQuotesShortTitleTxt, SalesQuotesDescriptionTxt, 2, ObjectType::Page,
             Page::"Sales Quotes");
         GuidedExperience.InsertApplicationFeature(SalesOrdersTitleTxt, SalesOrdersShortTitleTxt, SalesOrdersDescriptionTxt, 15, ObjectType::Page,
             Page::"Sales Order List");

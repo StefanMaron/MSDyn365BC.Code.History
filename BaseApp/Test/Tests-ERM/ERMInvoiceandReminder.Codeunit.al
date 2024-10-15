@@ -2,7 +2,8 @@ codeunit 134907 "ERM Invoice and Reminder"
 {
     Permissions = TableData "Issued Reminder Header" = rimd,
                   TableData "Issued Reminder Line" = rimd,
-                  TableData "Cust. Ledger Entry" = rimd;
+                  TableData "Cust. Ledger Entry" = rimd,
+                  TableData "Feature Data Update Status" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -455,7 +456,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         // [GIVEN] Reminder with G/L Account Line = 1912.41
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         Customer.Modify(true);
         CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
@@ -496,7 +497,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         // [GIVEN] Reminder with G/L Account Line = 1912.41
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         Customer.Modify(true);
         CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
@@ -536,7 +537,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         Customer.Modify(true);
         CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
@@ -569,7 +570,6 @@ codeunit 134907 "ERM Invoice and Reminder"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderLine: Record "Issued Reminder Line";
-        ReminderTerms: Record "Reminder Terms";
         CancelIssuedReminder: Codeunit "Cancel Issued Reminder";
     begin
         // [FEATURE] [Last Issued Reminder Level]
@@ -668,10 +668,22 @@ codeunit 134907 "ERM Invoice and Reminder"
 
     local procedure Initialize()
     var
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Invoice and Reminder");
         LibrarySetupStorage.Restore();
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+            Commit();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+            Commit();
+        end;
         // Lazy Setup.
         if IsInitialized then
             exit;
@@ -718,7 +730,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // Take Random Quantity for Sales Line.
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item,
           LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -786,8 +798,8 @@ codeunit 134907 "ERM Invoice and Reminder"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Currency Code", CreateCurrency);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Currency Code", CreateCurrency());
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -942,7 +954,7 @@ codeunit 134907 "ERM Invoice and Reminder"
     begin
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Reminder Nos." = '' then
-            SalesReceivablesSetup.Validate("Reminder Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            SalesReceivablesSetup.Validate("Reminder Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup."Issued Reminder Nos." := SalesReceivablesSetup."Reminder Nos.";
         SalesReceivablesSetup.Modify();
 
@@ -971,7 +983,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryERM.CreateReminderLine(
           ReminderLine, ReminderHeader."No.", ReminderLine.Type::"G/L Account");
 
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GenProductPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
         GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
         GenProductPostingGroup.Modify(true);
@@ -1029,7 +1041,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
     local procedure ModifyReminderHeader(var ReminderHeader: Record "Reminder Header")
     begin
-        ReminderHeader.Validate("Currency Code", CreateCurrency);
+        ReminderHeader.Validate("Currency Code", CreateCurrency());
         ReminderHeader.Modify(true);
     end;
 
@@ -1041,7 +1053,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -1097,7 +1109,7 @@ codeunit 134907 "ERM Invoice and Reminder"
 
     local procedure VerifyAmtDueTextAndRemaininAmt(IssuedReminderHeader: Record "Issued Reminder Header")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         IssuedReminderHeader.CalcFields("Remaining Amount");
         LibraryReportDataset.AssertElementWithValueExists('RemainingAmountText', Format(IssuedReminderHeader."Remaining Amount"));
         LibraryReportDataset.AssertElementWithValueExists('AmtDueText', StrSubstNo(AmtDueLbl, IssuedReminderHeader."Due Date"));
@@ -1112,7 +1124,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Validate("Due Date", DueDate);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
@@ -1159,14 +1171,14 @@ codeunit 134907 "ERM Invoice and Reminder"
     [Scope('OnPrem')]
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderTestRequestPageHandler(var ReminderTest: TestRequestPage "Reminder - Test")
     begin
-        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

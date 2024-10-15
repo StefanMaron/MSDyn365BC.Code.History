@@ -38,7 +38,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Finance Payment Tolerance");
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetApplnBetweenCurrencies(SalesReceivablesSetup."Appln. between Currencies"::All);
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -106,7 +106,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // 1.Setup: Update General Ledger Setup,Create new Customer with Payment Terms,new General Journal Batch and General Journal
         // Template. Create G/L Account and Create and post General Journal Lines of type Invoice,Payment and Credit Memo.
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -174,7 +174,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // 1.Setup: Update General Ledger Setup.Create Customer with Payment Terms,General Journal Batch and General Journal Template.
         // Create a new G/L Account and Create and post General Journal Lines of type Invoice and Credit memo.
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -214,8 +214,8 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // 1.Setup: Update General Ledger Setup.Create a new Customer with Payment Terms, new General Journal Batch and General Journal
         // Template.Create a new G/L Account and Create and post General Journal Line of type Invoice.
         Initialize();
-        UpdateGeneralLedgerSetup;
-        UpdatePaymentGracePeriod;
+        UpdateGeneralLedgerSetup();
+        UpdatePaymentGracePeriod();
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -261,8 +261,8 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // 1.Setup: Update General Ledger Setup.Create a new Customer with Payment Terms, new General Journal Batch and
         // General Journal Template. Create G/L Account and Create and post General Journal Line of type Invoice.
         Initialize();
-        UpdateGeneralLedgerSetup;
-        UpdatePaymentGracePeriod;
+        UpdateGeneralLedgerSetup();
+        UpdatePaymentGracePeriod();
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -312,8 +312,8 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // 1.Setup: Update and General Ledger Setup,Create a new Customer with Payment Terms, new General Journal Batch and
         // General Journal Template.Create a new G/L Account and Create and post General Journal Lines of type Invoice.
         Initialize();
-        UpdateGeneralLedgerSetup;
-        GracePeriodDays := UpdatePaymentGracePeriod;
+        UpdateGeneralLedgerSetup();
+        GracePeriodDays := UpdatePaymentGracePeriod();
         DiscountDays := CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         GLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -785,7 +785,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
         CreateGenJournalLine(GenJournalLine, Customer."No.", '', GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount / 2;
+        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount() / 2;
         CreateGenJournalLine(
           GenJournalLine2, Customer."No.", '', GenJournalLine2."Document Type"::Payment, -PaymentAmount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -803,7 +803,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         VerifyDetldCustomerLedgerEntry(
           GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Discount", -CustLedgerEntry."Original Pmt. Disc. Possible");
         VerifyDetldCustomerLedgerEntry(
-          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", Round(GetMaxTolerancePaymentAmount / 2, 0.01, '='));
+          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", Round(GetMaxTolerancePaymentAmount() / 2, 0.01, '='));
         VerifyLedgerEntries(GenJournalLine, GenJournalLine2);
     end;
 
@@ -891,7 +891,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         CreateGenJournalLine(
           GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount;
+        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount();
         CreateGenJournalLine(
           GenJournalLine2, Customer."No.", Currency.Code, GenJournalLine2."Document Type"::Payment, -PaymentAmount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -1530,7 +1530,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
         CreateGenJournalLine(GenJournalLine, Customer."No.", '', GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount / 2;
+        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount() / 2;
         CreateGenJournalLine(
           GenJournalLine2, Customer."No.", '', GenJournalLine2."Document Type"::Payment, -PaymentAmount,
           CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
@@ -1549,7 +1549,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
           GenJournalLine2,
           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance", -CustLedgerEntry."Original Pmt. Disc. Possible");
         VerifyDetldCustomerLedgerEntry(
-          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", Round(GetMaxTolerancePaymentAmount / 2, 0.01, '='));
+          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", Round(GetMaxTolerancePaymentAmount() / 2, 0.01, '='));
         VerifyLedgerEntries(GenJournalLine, GenJournalLine2);
     end;
 
@@ -1581,7 +1581,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         CreateGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::"Credit Memo", -Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         //LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
-        RefundAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount / 2;
+        RefundAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount() / 2;
         CreateGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Refund, RefundAmount,
           CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -1684,7 +1684,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
         CreateGenJournalLine(GenJournalLine, Customer."No.", '', GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) - GetMaxTolerancePaymentAmount;
+        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) - GetMaxTolerancePaymentAmount();
         CreateGenJournalLine(
           GenJournalLine2, Customer."No.", '', GenJournalLine2."Document Type"::Payment, -PaymentAmount,
           CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
@@ -1703,7 +1703,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
           GenJournalLine2,
           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance", -CustLedgerEntry."Original Pmt. Disc. Possible");
         VerifyDetldCustomerLedgerEntry(
-          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", -GetMaxTolerancePaymentAmount);
+          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", -GetMaxTolerancePaymentAmount());
         VerifyLedgerEntries(GenJournalLine, GenJournalLine2);
     end;
 
@@ -1789,7 +1789,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
         CreateGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) - GetMaxTolerancePaymentAmount / 2;
+        PaymentAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) - GetMaxTolerancePaymentAmount() / 2;
         CreateGenJournalLine(GenJournalLine2, Customer."No.", Currency.Code, GenJournalLine2."Document Type"::Payment, -PaymentAmount,
           CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
@@ -2251,7 +2251,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     [Normal]
     local procedure ApplicationRoundingInCurrency(var Currency: Record Currency)
     begin
-        Currency.Validate("Appln. Rounding Precision", LibraryUtility.GenerateRandomFraction);
+        Currency.Validate("Appln. Rounding Precision", LibraryUtility.GenerateRandomFraction());
         Currency.Modify(true);
     end;
 
@@ -2404,7 +2404,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
@@ -2421,7 +2421,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -2437,7 +2437,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -2552,10 +2552,10 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CustomerPostingGroup.Get(PostingGroupCode);
-        CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
-        CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
-        CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", LibraryERM.CreateGLAccountNo);
-        CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo);
+        CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
+        CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
+        CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", LibraryERM.CreateGLAccountNo());
+        CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo());
         CustomerPostingGroup.Modify(true);
     end;
 

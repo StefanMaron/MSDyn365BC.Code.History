@@ -11,7 +11,7 @@ page 709 "Error Message Register"
     PageType = List;
     SourceTable = "Error Message Register";
     SourceTableView = sorting("Created On")
-                      order(Descending);
+                      order(descending);
     UsageCategory = Administration;
 
     layout

@@ -151,16 +151,6 @@ codeunit 138300 "RS Pack Content - Standard"
         Assert.TableIsNotEmpty(DATABASE::"Shipping Agent Services");
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure FixedAssetSetupTablesAreNotEmpty()
-    begin
-        // [SCENARIO] Fixed Asset setup tables should not be empty
-        Assert.TableIsNotEmpty(DATABASE::"FA Subclass");
-        Assert.TableIsNotEmpty(DATABASE::"FA Location");
-        Assert.TableIsNotEmpty(DATABASE::"FA Posting Group");
-    end;
-
     local procedure VerifyContactCompany(var CompanyNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
     var
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -330,19 +320,6 @@ codeunit 138300 "RS Pack Content - Standard"
         O365HTMLTemplate.TestField("Media Resources Ref");
         MediaResources.Get(O365HTMLTemplate."Media Resources Ref");
     end;
-
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure O365CompanySocialNetworks()
-    var
-        O365SocialNetwork: Record "O365 Social Network";
-    begin
-        // [SCENARIO 207285] There should be 7 social networks with empty URL
-        O365SocialNetwork.SetRange(URL, '');
-        Assert.RecordCount(O365SocialNetwork, 7);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]

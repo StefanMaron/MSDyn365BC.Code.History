@@ -65,7 +65,10 @@ codeunit 740 "VAT Report Mediator"
         case VATReportHeader.Status of
             VATReportHeader.Status::Open:
                 PrintOpen(VATReportHeader);
-            VATReportHeader.Status::Released, VATReportHeader.Status::Exported,
+            VATReportHeader.Status::Released:
+                PrintReleased(VATReportHeader);
+            VATReportHeader.Status::Exported:
+                PrintReleased(VATReportHeader);
             VATReportHeader.Status::Submitted:
                 PrintReleased(VATReportHeader);
         end;

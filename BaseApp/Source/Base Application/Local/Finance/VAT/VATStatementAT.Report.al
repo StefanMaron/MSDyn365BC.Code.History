@@ -7,7 +7,9 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Company;
+#if not CLEAN23
 using Microsoft.Foundation.Enums;
+#endif
 using System.Globalization;
 using System.IO;
 using System.Utilities;
@@ -348,7 +350,7 @@ report 11110 "VAT Statement AT"
         end else begin
             FileManagement.CopyServerFile(FDFFileName, TestFdfFileName, true);
             FileManagement.CopyServerFile(XMLFileName, TestXmlFileName, true);
-        end
+        end;
     end;
 
     trigger OnPreReport()

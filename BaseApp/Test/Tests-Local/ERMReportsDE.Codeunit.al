@@ -112,7 +112,7 @@ codeunit 144051 "ERM Reports DE"
         RunInventoryValue(Item."No." + '|' + Item2."No.");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInventoryValuationExpectedOnInventoryValue(Item);
         VerifyInventoryValuationExpectedOnInventoryValue(Item2);
     end;
@@ -183,7 +183,7 @@ codeunit 144051 "ERM Reports DE"
         RunInventoryValue(Item."No." + '|' + Item2."No.");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyInventoryValuationExpectedOnInventoryValue(Item);
         VerifyInventoryValuationExpectedOnInventoryValue(Item2);
     end;
@@ -200,10 +200,10 @@ codeunit 144051 "ERM Reports DE"
 
         // [GIVEN] Posted Sales Invoice with VAT Entry "X"
         Initialize();
-        DocumentNo := CreateAndPostSalesDocument;
+        DocumentNo := CreateAndPostSalesDocument();
         FindVATEntry(VATEntry, DocumentNo);
         // [GIVEN] Set value for "File Version" and blank for "File version 2 (Elster online)" for VATVIESDeclarationDiskRequestPageHandler
-        LibraryVariableStorage.Enqueue(LibraryUTUtility.GetNewCode);
+        LibraryVariableStorage.Enqueue(LibraryUTUtility.GetNewCode());
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(false);
 
@@ -229,11 +229,11 @@ codeunit 144051 "ERM Reports DE"
 
         // [GIVEN] Posted Sales Invoice with VAT Entry "X"
         Initialize();
-        DocumentNo := CreateAndPostSalesDocument;
+        DocumentNo := CreateAndPostSalesDocument();
         FindVATEntry(VATEntry, DocumentNo);
         // [GIVEN] Set blank for "File Version" and value for "File version 2 (Elster online)" for VATVIESDeclarationDiskRequestPageHandler
         LibraryVariableStorage.Enqueue('');
-        LibraryVariableStorage.Enqueue(LibraryUTUtility.GetNewCode);
+        LibraryVariableStorage.Enqueue(LibraryUTUtility.GetNewCode());
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run report "VAT - VIES Declaration Disk" against VAT Entry with Request Page and "File version 2 (Elster online)" not defined
@@ -258,7 +258,7 @@ codeunit 144051 "ERM Reports DE"
         Initialize();
 
         // [GIVEN] Enable Basic setup
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
         Commit();
 
         // [WHEN] Run "VAT- VIES Declaration Disk"
@@ -471,8 +471,8 @@ codeunit 144051 "ERM Reports DE"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -482,11 +482,11 @@ codeunit 144051 "ERM Reports DE"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         PurchaseSetup.Get();
-        PurchaseSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchaseSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchaseSetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
     end;
 
@@ -553,7 +553,7 @@ codeunit 144051 "ERM Reports DE"
         DACHReportSelections: Record "DACH Report Selections";
     begin
         DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10;
+        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
         DACHReportSelections."Report ID" := ReportID;
         DACHReportSelections.Insert();
     end;
@@ -639,7 +639,7 @@ codeunit 144051 "ERM Reports DE"
         VATVIESDeclarationDisk.SetTableView(VATEntry);
         VATVIESDeclarationDisk.InitializeRequest(true);
         VATVIESDeclarationDisk.RunModal();
-        exit(VATVIESDeclarationDisk.GetFileName);
+        exit(VATVIESDeclarationDisk.GetFileName());
     end;
 
     local procedure UpdateDirectUnitCostOnPurchaseLine(DocumentNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal; PartialInvoice: Boolean)
@@ -658,7 +658,7 @@ codeunit 144051 "ERM Reports DE"
 
     local procedure UpdateCountryAndVATRegNoOnVATEntry(var VATEntry: Record "VAT Entry")
     begin
-        VATEntry.Validate("Country/Region Code", CreateEUCountryRegion);
+        VATEntry.Validate("Country/Region Code", CreateEUCountryRegion());
         VATEntry.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(VATEntry."Country/Region Code"));
         VATEntry.Modify(true);
     end;
@@ -693,7 +693,7 @@ codeunit 144051 "ERM Reports DE"
     local procedure VerifyInventoryValuationExpectedOnInventoryValue(Item: Record Item)
     begin
         LibraryReportDataset.SetRange('PostingGroupCode', Item."Inventory Posting Group");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'PostingGroupCode', Item."Inventory Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'PostingGroupInvValuationTotal', CalculateInventoryValuationTotal(Item."No."));
@@ -741,10 +741,10 @@ codeunit 144051 "ERM Reports DE"
         ValueEntry.SetRange(Adjustment, Adjustment);
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
-          CostAmountExpected, ValueEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountExpected, ValueEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValueMustBeEqual, ValueEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected));
         Assert.AreNearlyEqual(
-          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValueMustBeEqual, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
     end;
 
@@ -757,7 +757,7 @@ codeunit 144051 "ERM Reports DE"
         LibraryVariableStorage.Dequeue(ItemNoFilter);
         InventoryValue.Item.SetFilter("No.", ItemNoFilter);
         InventoryValue.StatusDate.SetValue(WorkDate());
-        InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
 #if not CLEAN22
@@ -768,7 +768,7 @@ codeunit 144051 "ERM Reports DE"
 #pragma warning restore AS0072
     procedure IntrastatFormDERequestHandler(var IntrastatFormDE: TestRequestPage "Intrastat - Form DE")
     begin
-        IntrastatFormDE.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatFormDE.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #endif
 
@@ -776,21 +776,21 @@ codeunit 144051 "ERM Reports DE"
     [Scope('OnPrem')]
     procedure VATVIESDeclarationDiskRequestPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
     begin
-        VATVIESDeclarationDisk.FileVersion.SetValue(LibraryVariableStorage.DequeueText);
-        VATVIESDeclarationDisk."FileVersion 2".SetValue(LibraryVariableStorage.DequeueText);
-        VATVIESDeclarationDisk.SkipCustomerDataCheck.SetValue(LibraryVariableStorage.DequeueBoolean);
-        VATVIESDeclarationDisk.OK.Invoke;
+        VATVIESDeclarationDisk.FileVersion.SetValue(LibraryVariableStorage.DequeueText());
+        VATVIESDeclarationDisk."FileVersion 2".SetValue(LibraryVariableStorage.DequeueText());
+        VATVIESDeclarationDisk.SkipCustomerDataCheck.SetValue(LibraryVariableStorage.DequeueBoolean());
+        VATVIESDeclarationDisk.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VATVIESDeclarationDiskReqPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
     begin
-        Assert.IsTrue(VATVIESDeclarationDisk.FileVersion.Visible, 'File version (Elster online) field has to be visible');
-        Assert.IsTrue(VATVIESDeclarationDisk."FileVersion 2".Visible, 'File version 2 (Elster online) field has to be visible');
+        Assert.IsTrue(VATVIESDeclarationDisk.FileVersion.Visible(), 'File version (Elster online) field has to be visible');
+        Assert.IsTrue(VATVIESDeclarationDisk."FileVersion 2".Visible(), 'File version 2 (Elster online) field has to be visible');
         Assert.IsTrue(
-          VATVIESDeclarationDisk.ShowAmtInAddRepCurr.Visible, 'Show Amounts in Add. Reporting Currency field has to be visible');
-        VATVIESDeclarationDisk.Cancel.Invoke;
+          VATVIESDeclarationDisk.ShowAmtInAddRepCurr.Visible(), 'Show Amounts in Add. Reporting Currency field has to be visible');
+        VATVIESDeclarationDisk.Cancel().Invoke();
     end;
 }
 

@@ -73,30 +73,28 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     procedure Summarize(var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
-        with TempToItemChargeAssignmentPurch do begin
-            SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-            if FindSet() then
-                repeat
-                    if ("Item Charge No." <> ToItemChargeAssignmentPurch."Item Charge No.") or
-                       ("Applies-to Doc. No." <> ToItemChargeAssignmentPurch."Applies-to Doc. No.") or
-                       ("Applies-to Doc. Line No." <> ToItemChargeAssignmentPurch."Applies-to Doc. Line No.")
-                    then begin
-                        if ToItemChargeAssignmentPurch."Line No." <> 0 then
-                            ToItemChargeAssignmentPurch.Insert();
-                        ToItemChargeAssignmentPurch := TempToItemChargeAssignmentPurch;
-                        ToItemChargeAssignmentPurch."Qty. to Assign" := 0;
-                        ToItemChargeAssignmentPurch."Amount to Assign" := 0;
-                        ToItemChargeAssignmentPurch."Qty. to Handle" := 0;
-                        ToItemChargeAssignmentPurch."Amount to Handle" := 0;
-                    end;
-                    ToItemChargeAssignmentPurch."Qty. to Assign" += "Qty. to Assign";
-                    ToItemChargeAssignmentPurch."Amount to Assign" += "Amount to Assign";
-                    ToItemChargeAssignmentPurch."Qty. to Handle" += "Qty. to Handle";
-                    ToItemChargeAssignmentPurch."Amount to Handle" += "Amount to Handle";
-                until Next() = 0;
-            if ToItemChargeAssignmentPurch."Line No." <> 0 then
-                ToItemChargeAssignmentPurch.Insert();
-        end;
+        TempToItemChargeAssignmentPurch.SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
+        if TempToItemChargeAssignmentPurch.FindSet() then
+            repeat
+                if (TempToItemChargeAssignmentPurch."Item Charge No." <> ToItemChargeAssignmentPurch."Item Charge No.") or
+                   (TempToItemChargeAssignmentPurch."Applies-to Doc. No." <> ToItemChargeAssignmentPurch."Applies-to Doc. No.") or
+                   (TempToItemChargeAssignmentPurch."Applies-to Doc. Line No." <> ToItemChargeAssignmentPurch."Applies-to Doc. Line No.")
+                then begin
+                    if ToItemChargeAssignmentPurch."Line No." <> 0 then
+                        ToItemChargeAssignmentPurch.Insert();
+                    ToItemChargeAssignmentPurch := TempToItemChargeAssignmentPurch;
+                    ToItemChargeAssignmentPurch."Qty. to Assign" := 0;
+                    ToItemChargeAssignmentPurch."Amount to Assign" := 0;
+                    ToItemChargeAssignmentPurch."Qty. to Handle" := 0;
+                    ToItemChargeAssignmentPurch."Amount to Handle" := 0;
+                end;
+                ToItemChargeAssignmentPurch."Qty. to Assign" += TempToItemChargeAssignmentPurch."Qty. to Assign";
+                ToItemChargeAssignmentPurch."Amount to Assign" += TempToItemChargeAssignmentPurch."Amount to Assign";
+                ToItemChargeAssignmentPurch."Qty. to Handle" += TempToItemChargeAssignmentPurch."Qty. to Handle";
+                ToItemChargeAssignmentPurch."Amount to Handle" += TempToItemChargeAssignmentPurch."Amount to Handle";
+            until TempToItemChargeAssignmentPurch.Next() = 0;
+        if ToItemChargeAssignmentPurch."Line No." <> 0 then
+            ToItemChargeAssignmentPurch.Insert();
     end;
 
     procedure CreateDocChargeAssgnt(LastItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ReceiptNo: Code[20])
@@ -107,34 +105,32 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     begin
         OnBeforeCreateDocChargeAssgn(LastItemChargeAssgntPurch, FromPurchLine);
 
-        with LastItemChargeAssgntPurch do begin
-            FromPurchLine.SetRange("Document Type", "Document Type");
-            FromPurchLine.SetRange("Document No.", "Document No.");
-            FromPurchLine.SetRange(Type, FromPurchLine.Type::Item);
-            OnCreateDocChargeAssgntOnAfterFromPurchLineSetFilters(LastItemChargeAssgntPurch, FromPurchLine);
-            if FromPurchLine.Find('-') then begin
-                NextLineNo := "Line No.";
-                ItemChargeAssgntPurch.Reset();
-                ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
-                ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
-                ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
-                ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", "Document No.");
-                repeat
-                    if (FromPurchLine.Quantity <> 0) and
-                       (FromPurchLine.Quantity <> FromPurchLine."Quantity Invoiced") and
-                       (FromPurchLine."Work Center No." = '') and
-                       ((ReceiptNo = '') or (FromPurchLine."Receipt No." = ReceiptNo)) and
-                       FromPurchLine."Allow Item Charge Assignment"
-                    then begin
-                        ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", FromPurchLine."Line No.");
-                        if not ItemChargeAssgntPurch.FindFirst() then
-                            InsertItemChargeAssignment(
-                                LastItemChargeAssgntPurch, FromPurchLine."Document Type",
-                                FromPurchLine."Document No.", FromPurchLine."Line No.",
-                                FromPurchLine."No.", FromPurchLine.Description, NextLineNo);
-                    end;
-                until FromPurchLine.Next() = 0;
-            end;
+        FromPurchLine.SetRange("Document Type", LastItemChargeAssgntPurch."Document Type");
+        FromPurchLine.SetRange("Document No.", LastItemChargeAssgntPurch."Document No.");
+        FromPurchLine.SetRange(Type, FromPurchLine.Type::Item);
+        OnCreateDocChargeAssgntOnAfterFromPurchLineSetFilters(LastItemChargeAssgntPurch, FromPurchLine);
+        if FromPurchLine.Find('-') then begin
+            NextLineNo := LastItemChargeAssgntPurch."Line No.";
+            ItemChargeAssgntPurch.Reset();
+            ItemChargeAssgntPurch.SetRange("Document Type", LastItemChargeAssgntPurch."Document Type");
+            ItemChargeAssgntPurch.SetRange("Document No.", LastItemChargeAssgntPurch."Document No.");
+            ItemChargeAssgntPurch.SetRange("Document Line No.", LastItemChargeAssgntPurch."Document Line No.");
+            ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", LastItemChargeAssgntPurch."Document No.");
+            repeat
+                if (FromPurchLine.Quantity <> 0) and
+                   (FromPurchLine.Quantity <> FromPurchLine."Quantity Invoiced") and
+                   (FromPurchLine."Work Center No." = '') and
+                   ((ReceiptNo = '') or (FromPurchLine."Receipt No." = ReceiptNo)) and
+                   FromPurchLine."Allow Item Charge Assignment"
+                then begin
+                    ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", FromPurchLine."Line No.");
+                    if not ItemChargeAssgntPurch.FindFirst() then
+                        InsertItemChargeAssignment(
+                            LastItemChargeAssgntPurch, FromPurchLine."Document Type",
+                            FromPurchLine."Document No.", FromPurchLine."Line No.",
+                            FromPurchLine."No.", FromPurchLine.Description, NextLineNo);
+                end;
+            until FromPurchLine.Next() = 0;
         end;
 
         OnAfterCreateDocChargeAssgnt(LastItemChargeAssgntPurch, ReceiptNo);
@@ -290,12 +286,10 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         SuggestItemChargeMessageTxt: Text;
         IsHandled: Boolean;
     begin
-        with PurchLine do begin
-            TestField("Qty. to Invoice");
-            ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
-            ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
-            ItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
-        end;
+        PurchLine.TestField("Qty. to Invoice");
+        ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
+        ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
+        ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
         if ItemChargeAssgntPurch.IsEmpty() then
             exit;
 
@@ -333,15 +327,6 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         OnSuggestAssgntOnBeforeAssignItemCharges(PurchLine, ItemChargeAssgntPurch);
         AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, TotalQtyToHandle, TotalAmtToHandle, SelectionTxt);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by AssignItemCharges()', '21.0')]
-    procedure SuggestAssgnt2(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; Selection: Option Equally,"By Amount","By Weight","By Volume")
-    begin
-        // this function will be deprecated. Please use AssignItemCharges instead.
-        AssignItemCharges(PurchLine, TotalQtyToAssign, TotalAmtToAssign, Format(Selection));
-    end;
-#endif
 
     procedure AssignItemCharges(PurchLine: Record "Purchase Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; SelectedOptionValue: Integer)
     begin
@@ -727,54 +712,53 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         if not IsHandled then begin
 
             Clear(DecimalArray);
-            with TempItemChargeAssgntPurch do
-                case "Applies-to Doc. Type" of
-                    "Applies-to Doc. Type"::Order,
-                    "Applies-to Doc. Type"::Invoice,
-                    "Applies-to Doc. Type"::"Return Order",
-                    "Applies-to Doc. Type"::"Credit Memo":
-                        begin
-                            PurchLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                            DecimalArray[1] := PurchLine.Quantity;
-                            DecimalArray[2] := PurchLine."Gross Weight";
-                            DecimalArray[3] := PurchLine."Unit Volume";
-                        end;
-                    "Applies-to Doc. Type"::Receipt:
-                        begin
-                            PurchRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                            DecimalArray[1] := PurchRcptLine.Quantity;
-                            DecimalArray[2] := PurchRcptLine."Gross Weight";
-                            DecimalArray[3] := PurchRcptLine."Unit Volume";
-                        end;
-                    "Applies-to Doc. Type"::"Return Receipt":
-                        begin
-                            ReturnRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                            DecimalArray[1] := ReturnRcptLine.Quantity;
-                            DecimalArray[2] := ReturnRcptLine."Gross Weight";
-                            DecimalArray[3] := ReturnRcptLine."Unit Volume";
-                        end;
-                    "Applies-to Doc. Type"::"Return Shipment":
-                        begin
-                            ReturnShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                            DecimalArray[1] := ReturnShptLine.Quantity;
-                            DecimalArray[2] := ReturnShptLine."Gross Weight";
-                            DecimalArray[3] := ReturnShptLine."Unit Volume";
-                        end;
-                    "Applies-to Doc. Type"::"Transfer Receipt":
-                        begin
-                            TransferRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                            DecimalArray[1] := TransferRcptLine.Quantity;
-                            DecimalArray[2] := TransferRcptLine."Gross Weight";
-                            DecimalArray[3] := TransferRcptLine."Unit Volume";
-                        end;
-                    "Applies-to Doc. Type"::"Sales Shipment":
-                        begin
-                            SalesShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                            DecimalArray[1] := SalesShptLine.Quantity;
-                            DecimalArray[2] := SalesShptLine."Gross Weight";
-                            DecimalArray[3] := SalesShptLine."Unit Volume";
-                        end;
-                end;
+            case TempItemChargeAssgntPurch."Applies-to Doc. Type" of
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::Order,
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::Invoice,
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Order",
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Credit Memo":
+                    begin
+                        PurchLine.Get(TempItemChargeAssgntPurch."Applies-to Doc. Type", TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                        DecimalArray[1] := PurchLine.Quantity;
+                        DecimalArray[2] := PurchLine."Gross Weight";
+                        DecimalArray[3] := PurchLine."Unit Volume";
+                    end;
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::Receipt:
+                    begin
+                        PurchRcptLine.Get(TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                        DecimalArray[1] := PurchRcptLine.Quantity;
+                        DecimalArray[2] := PurchRcptLine."Gross Weight";
+                        DecimalArray[3] := PurchRcptLine."Unit Volume";
+                    end;
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Receipt":
+                    begin
+                        ReturnRcptLine.Get(TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                        DecimalArray[1] := ReturnRcptLine.Quantity;
+                        DecimalArray[2] := ReturnRcptLine."Gross Weight";
+                        DecimalArray[3] := ReturnRcptLine."Unit Volume";
+                    end;
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Shipment":
+                    begin
+                        ReturnShptLine.Get(TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                        DecimalArray[1] := ReturnShptLine.Quantity;
+                        DecimalArray[2] := ReturnShptLine."Gross Weight";
+                        DecimalArray[3] := ReturnShptLine."Unit Volume";
+                    end;
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt":
+                    begin
+                        TransferRcptLine.Get(TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                        DecimalArray[1] := TransferRcptLine.Quantity;
+                        DecimalArray[2] := TransferRcptLine."Gross Weight";
+                        DecimalArray[3] := TransferRcptLine."Unit Volume";
+                    end;
+                TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Sales Shipment":
+                    begin
+                        SalesShptLine.Get(TempItemChargeAssgntPurch."Applies-to Doc. No.", TempItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                        DecimalArray[1] := SalesShptLine.Quantity;
+                        DecimalArray[2] := SalesShptLine."Gross Weight";
+                        DecimalArray[3] := SalesShptLine."Unit Volume";
+                    end;
+            end;
         end;
 
         OnAfterGetItemValues(TempItemChargeAssgntPurch, DecimalArray);
@@ -793,77 +777,75 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntLineAmt: Decimal;
         ItemChargeAssgntLineQty: Decimal;
     begin
-        with FromItemChargeAssignmentPurch do begin
-            PurchHeader.Get("Document Type", "Document No.");
-            if not Currency.Get(PurchHeader."Currency Code") then
-                Currency.InitRoundingPrecision();
+        PurchHeader.Get(FromItemChargeAssignmentPurch."Document Type", FromItemChargeAssignmentPurch."Document No.");
+        if not Currency.Get(PurchHeader."Currency Code") then
+            Currency.InitRoundingPrecision();
 
-            GetItemChargeAssgntLineAmounts(
-              "Document Type", "Document No.", "Document Line No.",
-              ItemChargeAssgntLineQty, ItemChargeAssgntLineAmt);
+        GetItemChargeAssgntLineAmounts(
+          FromItemChargeAssignmentPurch."Document Type", FromItemChargeAssignmentPurch."Document No.", FromItemChargeAssignmentPurch."Document Line No.",
+          ItemChargeAssgntLineQty, ItemChargeAssgntLineAmt);
 
-            if not ItemChargeAssignmentPurch.Get("Document Type", "Document No.", "Document Line No.", "Line No.") then
-                exit;
+        if not ItemChargeAssignmentPurch.Get(FromItemChargeAssignmentPurch."Document Type", FromItemChargeAssignmentPurch."Document No.", FromItemChargeAssignmentPurch."Document Line No.", FromItemChargeAssignmentPurch."Line No.") then
+            exit;
 
-            ItemChargeAssignmentPurch."Qty. to Assign" := "Qty. to Assign";
-            ItemChargeAssignmentPurch."Amount to Assign" := "Amount to Assign";
-            ItemChargeAssignmentPurch."Qty. to Handle" := "Qty. to Handle";
-            ItemChargeAssignmentPurch."Amount to Handle" := "Amount to Handle";
-            ItemChargeAssignmentPurch.Modify();
+        ItemChargeAssignmentPurch."Qty. to Assign" := FromItemChargeAssignmentPurch."Qty. to Assign";
+        ItemChargeAssignmentPurch."Amount to Assign" := FromItemChargeAssignmentPurch."Amount to Assign";
+        ItemChargeAssignmentPurch."Qty. to Handle" := FromItemChargeAssignmentPurch."Qty. to Handle";
+        ItemChargeAssignmentPurch."Amount to Handle" := FromItemChargeAssignmentPurch."Amount to Handle";
+        ItemChargeAssignmentPurch.Modify();
 
-            ItemChargeAssignmentPurch.SetRange("Document Type", "Document Type");
-            ItemChargeAssignmentPurch.SetRange("Document No.", "Document No.");
-            ItemChargeAssignmentPurch.SetRange("Document Line No.", "Document Line No.");
-            ItemChargeAssignmentPurch.CalcSums("Qty. to Assign", "Amount to Assign", "Qty. to Handle", "Amount to Handle");
-            TotalQtyToAssign := ItemChargeAssignmentPurch."Qty. to Assign";
-            TotalAmountToAssign := ItemChargeAssignmentPurch."Amount to Assign";
-            TotalQtyToHandle := ItemChargeAssignmentPurch."Qty. to Handle";
-            TotalAmountToHandle := ItemChargeAssignmentPurch."Amount to Handle";
+        ItemChargeAssignmentPurch.SetRange("Document Type", FromItemChargeAssignmentPurch."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", FromItemChargeAssignmentPurch."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Document Line No.", FromItemChargeAssignmentPurch."Document Line No.");
+        ItemChargeAssignmentPurch.CalcSums("Qty. to Assign", "Amount to Assign", "Qty. to Handle", "Amount to Handle");
+        TotalQtyToAssign := ItemChargeAssignmentPurch."Qty. to Assign";
+        TotalAmountToAssign := ItemChargeAssignmentPurch."Amount to Assign";
+        TotalQtyToHandle := ItemChargeAssignmentPurch."Qty. to Handle";
+        TotalAmountToHandle := ItemChargeAssignmentPurch."Amount to Handle";
 
-            if TotalAmountToAssign = ItemChargeAssgntLineAmt then begin
-                FromItemChargeAssignmentPurch.Find();
-                exit;
-            end;
-
-            if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
-                TotalAmountToAssign := ItemChargeAssgntLineAmt;
-                TotalAmountToHandle := ItemChargeAssgntLineAmt;
-                ItemChargeAssignmentPurch.FindSet();
-                repeat
-                    if not ItemChargeAssignmentPurch.PurchLineInvoiced() then begin
-                        TempItemChargeAssgntPurch := ItemChargeAssignmentPurch;
-                        TempItemChargeAssgntPurch.Insert();
-                    end;
-                until ItemChargeAssignmentPurch.Next() = 0;
-
-                if TempItemChargeAssgntPurch.FindSet() then
-                    repeat
-                        ItemChargeAssignmentPurch.Get(
-                          TempItemChargeAssgntPurch."Document Type",
-                          TempItemChargeAssgntPurch."Document No.",
-                          TempItemChargeAssgntPurch."Document Line No.",
-                          TempItemChargeAssgntPurch."Line No.");
-                        if TotalQtyToAssign <> 0 then begin
-                            ItemChargeAssignmentPurch."Amount to Assign" :=
-                              Round(
-                                ItemChargeAssignmentPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmountToAssign,
-                                Currency."Amount Rounding Precision");
-                            if TotalQtyToHandle <> 0 then
-                                ItemChargeAssignmentPurch."Amount to Handle" :=
-                                  Round(
-                                    ItemChargeAssignmentPurch."Qty. to Handle" / TotalQtyToHandle * TotalAmountToHandle,
-                                    Currency."Amount Rounding Precision");
-                            TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
-                            TotalAmountToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
-                            TotalQtyToHandle -= ItemChargeAssignmentPurch."Qty. to Handle";
-                            TotalAmountToHandle -= ItemChargeAssignmentPurch."Amount to Handle";
-                            ItemChargeAssignmentPurch.Modify();
-                        end;
-                    until TempItemChargeAssgntPurch.Next() = 0;
-            end;
-
-            ItemChargeAssignmentPurch.Get("Document Type", "Document No.", "Document Line No.", "Line No.");
+        if TotalAmountToAssign = ItemChargeAssgntLineAmt then begin
+            FromItemChargeAssignmentPurch.Find();
+            exit;
         end;
+
+        if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
+            TotalAmountToAssign := ItemChargeAssgntLineAmt;
+            TotalAmountToHandle := ItemChargeAssgntLineAmt;
+            ItemChargeAssignmentPurch.FindSet();
+            repeat
+                if not ItemChargeAssignmentPurch.PurchLineInvoiced() then begin
+                    TempItemChargeAssgntPurch := ItemChargeAssignmentPurch;
+                    TempItemChargeAssgntPurch.Insert();
+                end;
+            until ItemChargeAssignmentPurch.Next() = 0;
+
+            if TempItemChargeAssgntPurch.FindSet() then
+                repeat
+                    ItemChargeAssignmentPurch.Get(
+                      TempItemChargeAssgntPurch."Document Type",
+                      TempItemChargeAssgntPurch."Document No.",
+                      TempItemChargeAssgntPurch."Document Line No.",
+                      TempItemChargeAssgntPurch."Line No.");
+                    if TotalQtyToAssign <> 0 then begin
+                        ItemChargeAssignmentPurch."Amount to Assign" :=
+                          Round(
+                            ItemChargeAssignmentPurch."Qty. to Assign" / TotalQtyToAssign * TotalAmountToAssign,
+                            Currency."Amount Rounding Precision");
+                        if TotalQtyToHandle <> 0 then
+                            ItemChargeAssignmentPurch."Amount to Handle" :=
+                              Round(
+                                ItemChargeAssignmentPurch."Qty. to Handle" / TotalQtyToHandle * TotalAmountToHandle,
+                                Currency."Amount Rounding Precision");
+                        TotalQtyToAssign -= ItemChargeAssignmentPurch."Qty. to Assign";
+                        TotalAmountToAssign -= ItemChargeAssignmentPurch."Amount to Assign";
+                        TotalQtyToHandle -= ItemChargeAssignmentPurch."Qty. to Handle";
+                        TotalAmountToHandle -= ItemChargeAssignmentPurch."Amount to Handle";
+                        ItemChargeAssignmentPurch.Modify();
+                    end;
+                until TempItemChargeAssgntPurch.Next() = 0;
+        end;
+
+        ItemChargeAssignmentPurch.Get(FromItemChargeAssignmentPurch."Document Type", FromItemChargeAssignmentPurch."Document No.", FromItemChargeAssignmentPurch."Document Line No.", FromItemChargeAssignmentPurch."Line No.");
 
         FromItemChargeAssignmentPurch := ItemChargeAssignmentPurch;
     end;
@@ -878,31 +860,29 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         if not Currency.Get(PurchHeader."Currency Code") then
             Currency.InitRoundingPrecision();
 
-        with PurchLine do begin
-            Get(DocumentType, DocumentNo, DocumentLineNo);
-            TestField(Type, Type::"Charge (Item)");
-            TestField("No.");
-            TestField(Quantity);
+        PurchLine.Get(DocumentType, DocumentNo, DocumentLineNo);
+        PurchLine.TestField(Type, PurchLine.Type::"Charge (Item)");
+        PurchLine.TestField("No.");
+        PurchLine.TestField(Quantity);
 
-            if ("Inv. Discount Amount" = 0) and
-               ("Line Discount Amount" = 0) and
-               (not PurchHeader."Prices Including VAT")
-            then
-                ItemChargeAssgntLineAmt := "Line Amount"
+        if (PurchLine."Inv. Discount Amount" = 0) and
+           (PurchLine."Line Discount Amount" = 0) and
+           (not PurchHeader."Prices Including VAT")
+        then
+            ItemChargeAssgntLineAmt := PurchLine."Line Amount"
+        else
+            if PurchHeader."Prices Including VAT" then
+                ItemChargeAssgntLineAmt :=
+                  Round((PurchLine."Line Amount" - PurchLine."Inv. Discount Amount") / (1 + PurchLine."VAT %" / 100),
+                    Currency."Amount Rounding Precision")
             else
-                if PurchHeader."Prices Including VAT" then
-                    ItemChargeAssgntLineAmt :=
-                      Round(("Line Amount" - "Inv. Discount Amount") / (1 + "VAT %" / 100),
-                        Currency."Amount Rounding Precision")
-                else
-                    ItemChargeAssgntLineAmt := "Line Amount" - "Inv. Discount Amount";
+                ItemChargeAssgntLineAmt := PurchLine."Line Amount" - PurchLine."Inv. Discount Amount";
 
-            ItemChargeAssgntLineAmt :=
-              Round(
-                ItemChargeAssgntLineAmt * ("Qty. to Invoice" / Quantity),
-                Currency."Amount Rounding Precision");
-            ItemChargeAssgntLineQty := "Qty. to Invoice";
-        end;
+        ItemChargeAssgntLineAmt :=
+          Round(
+            ItemChargeAssgntLineAmt * (PurchLine."Qty. to Invoice" / PurchLine.Quantity),
+            Currency."Amount Rounding Precision");
+        ItemChargeAssgntLineQty := PurchLine."Qty. to Invoice";
     end;
 
     [IntegrationEvent(false, false)]

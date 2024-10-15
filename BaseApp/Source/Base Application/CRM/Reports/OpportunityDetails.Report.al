@@ -50,7 +50,7 @@ report 5068 "Opportunity - Details"
             dataitem(PreTodo; "To-do")
             {
                 DataItemLink = "Opportunity No." = field("No.");
-                DataItemTableView = sorting("Opportunity No.", Date, Closed) ORDER(Ascending) where("Opportunity Entry No." = const(0), "System To-do Type" = filter(Team | Organizer));
+                DataItemTableView = sorting("Opportunity No.", Date, Closed) order(ascending) where("Opportunity Entry No." = const(0), "System To-do Type" = filter(Team | Organizer));
                 column(Status_Pretodo; Status)
                 {
                     IncludeCaption = true;
@@ -86,7 +86,7 @@ report 5068 "Opportunity - Details"
             dataitem("Opportunity Entry"; "Opportunity Entry")
             {
                 DataItemLink = "Opportunity No." = field("No.");
-                DataItemTableView = sorting("Opportunity No.") ORDER(Ascending) where("Sales Cycle Stage" = filter(<> 0));
+                DataItemTableView = sorting("Opportunity No.") order(ascending) where("Sales Cycle Stage" = filter(<> 0));
                 column(SalesCycleStage_OppEntry; "Sales Cycle Stage")
                 {
                 }
@@ -133,7 +133,7 @@ report 5068 "Opportunity - Details"
                 dataitem("To-do"; "To-do")
                 {
                     DataItemLink = "Opportunity No." = field("Opportunity No."), "Opportunity Entry No." = field("Entry No.");
-                    DataItemTableView = sorting("Opportunity No.", Date, Closed) ORDER(Ascending) where("System To-do Type" = filter(Team | Organizer));
+                    DataItemTableView = sorting("Opportunity No.", Date, Closed) order(ascending) where("System To-do Type" = filter(Team | Organizer));
                     column(Status_Todo; Status)
                     {
                         IncludeCaption = true;

@@ -10,11 +10,8 @@
 
     var
         Assert: Codeunit Assert;
-        ReleaseError: Label 'Status should be Released';
         ReopenError: Label 'Status should be Open';
         MissingSetupError: Label 'This is not allowed because of the setup in the %1 window.';
-        SubmitError: Label 'Status should be sumbitted';
-        SubmitError2: Label 'Status must be equal to ''Released''  in %1', Comment = '%1=Table Caption;';
 
     [Test]
     [Scope('OnPrem')]
@@ -30,7 +27,7 @@
 
         Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, ReopenError);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -52,7 +49,7 @@
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
         Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption()));
 
-        TearDown;
+        TearDown();
     end;
 
     local procedure CreateVATReportHeaderAndLines(var VATReportHdr: Record "VAT Report Header")

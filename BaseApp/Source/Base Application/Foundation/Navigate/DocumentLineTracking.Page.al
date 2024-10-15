@@ -187,7 +187,7 @@ page 6560 "Document Line Tracking"
         BlanketPurchOrderLine: Record "Purchase Line";
         BlanketPurchOrderLineArchive: Record "Purchase Line Archive";
         Window: Dialog;
-        SourceDocType: Option SalesOrder,PurchaseOrder,BlanketSalesOrder,BlanketPurchaseOrder,SalesShipment,PurchaseReceipt,SalesInvoice,PurchaseInvoice,SalesReturnOrder,PurchaseReturnOrder,SalesCreditMemo,PurchaseCreditMemo,ReturnReceipt,ReturnShipment;
+        SourceDocType: Enum "Document Line Source Type";
         SourceDocNo: Code[20];
         SourceDocBlanketOrderNo: Code[20];
         SourceDocOrderNo: Code[20];
@@ -201,7 +201,7 @@ page 6560 "Document Line Tracking"
         DocArchive: Text[30];
         DocLineType: Text[30];
         DocLineDescription: Text[100];
-        DocLineUnit: Text[10];
+        DocLineUnit: Code[10];
         DocLineQuantity: Decimal;
         DocExists: Boolean;
         ShowEnable: Boolean;
@@ -233,7 +233,17 @@ page 6560 "Document Line Tracking"
         PostedReturnShipmentLinesTxt: Label 'Posted Return Shipment Lines';
         PostedPurchaseCreditMemoLinesTxt: Label 'Posted Purchase Credit Memo Lines';
 
+#if not CLEAN24
+    [Obsolete('Replaced by procedure SetSourceDoc() with enum parameter', '24.0')]
     procedure SetDoc(NewSourceDocType: Option SalesOrder,PurchaseOrder,BlanketSalesOrder,BlanketPurchaseOrder,SalesShipment,PurchaseReceipt,SalesInvoice,PurchaseInvoice,SalesReturnOrder,PurchaseReturnOrder,SalesCreditMemo,PurchaseCreditMemo,ReturnReceipt,ReturnShipment; NewDocNo: Code[20]; NewSourceDocLineNo: Integer; NewDocBlanketOrderNo: Code[20]; NewDocBlanketOrderLineNo: Integer; NewDocOrderNo: Code[20]; NewDocOrderLineNo: Integer)
+    begin
+        SetSourceDoc(
+            "Document Line Source Type".FromInteger(NewSourceDocType),
+            NewDocNo, NewSourceDocLineNo, NewDocBlanketOrderNo, NewDocBlanketOrderLineNo, NewDocOrderNo, NewDocOrderLineNo);
+    end;
+#endif
+
+    procedure SetSourceDoc(NewSourceDocType: Enum "Document Line Source Type"; NewDocNo: Code[20]; NewSourceDocLineNo: Integer; NewDocBlanketOrderNo: Code[20]; NewDocBlanketOrderLineNo: Integer; NewDocOrderNo: Code[20]; NewDocOrderLineNo: Integer)
     begin
         SourceDocType := NewSourceDocType;
         SourceDocNo := NewDocNo;
@@ -251,60 +261,61 @@ page 6560 "Document Line Tracking"
 
     protected procedure FindRecords(ClearSourceTable: Boolean)
     begin
-        with TempDocumentEntry do begin
-            Window.Open(CountingRecordsMsg);
-            if ClearSourceTable then
-                DeleteAll();
-            "Entry No." := 0;
+        Window.Open(CountingRecordsMsg);
+        if ClearSourceTable then
+            TempDocumentEntry.DeleteAll();
+        TempDocumentEntry."Entry No." := 0;
 
+        case SourceDocType of
+            SourceDocType::"Sales Order":
+                FindRecordsForSalesOrder();
+            SourceDocType::"Purchase Order":
+                FindRecordsForPurchOrder();
+            SourceDocType::"Blanket Sales Order":
+                FindRecordsForBlanketSalesOrder();
+            SourceDocType::"Blanket Purchase Order":
+                FindRecordsForBlanketPurchOrder();
+            SourceDocType::"Sales Shipment":
+                FindRecordsForSalesShipment();
+            SourceDocType::"Purchase Receipt":
+                FindRecordsForPurchaseReceipt();
+            SourceDocType::"Sales Invoice":
+                FindRecordsForSalesInvoice();
+            SourceDocType::"Purchase Invoice":
+                FindRecordsForPurchInvoice();
+            SourceDocType::"Sales Return Order":
+                FindRecordsForSalesReturnOrder();
+            SourceDocType::"Purchase Return Order":
+                FindRecordsForPurchReturnOrder();
+            SourceDocType::"Sales Credit Memo":
+                FindRecordsForSalesCreditMemo();
+            SourceDocType::"Purchase Credit Memo":
+                FindRecordsForPurchCreditMemo();
+            SourceDocType::"Return Receipt":
+                FindRecordsForReturnReceipt();
+            SourceDocType::"Return Shipment":
+                FindRecordsForReturnShipment();
+            else
+                OnFindRecordsAfterCase(
+                    TempDocumentEntry, SourceDocType, SourceDocNo, SourceDocLineNo, SourceDocBlanketOrderNo, SourceDocBlanketOrderLineNo);
+        end;
+
+        GetDocumentData();
+
+        if DocNo = '' then
             case SourceDocType of
-                SourceDocType::SalesOrder:
-                    FindRecordsForSalesOrder();
-                SourceDocType::PurchaseOrder:
-                    FindRecordsForPurchOrder();
-                SourceDocType::BlanketSalesOrder:
-                    FindRecordsForBlanketSalesOrder();
-                SourceDocType::BlanketPurchaseOrder:
-                    FindRecordsForBlanketPurchOrder();
-                SourceDocType::SalesShipment:
-                    FindRecordsForSalesShipment();
-                SourceDocType::PurchaseReceipt:
-                    FindRecordsForPurchaseReceipt();
-                SourceDocType::SalesInvoice:
-                    FindRecordsForSalesInvoice();
-                SourceDocType::PurchaseInvoice:
-                    FindRecordsForPurchInvoice();
-                SourceDocType::SalesReturnOrder:
-                    FindRecordsForSalesReturnOrder();
-                SourceDocType::PurchaseReturnOrder:
-                    FindRecordsForPurchReturnOrder();
-                SourceDocType::SalesCreditMemo:
-                    FindRecordsForSalesCreditMemo();
-                SourceDocType::PurchaseCreditMemo:
-                    FindRecordsForPurchCreditMemo();
-                SourceDocType::ReturnReceipt:
-                    FindRecordsForReturnReceipt();
-                SourceDocType::ReturnShipment:
-                    FindRecordsForReturnShipment();
+                SourceDocType::"Sales Order":
+                    Message(NoSalesOrderMsg);
+                SourceDocType::"Purchase Order":
+                    Message(NoPurchaseOrderMsg);
             end;
 
-            GetDocumentData();
-
-            if DocNo = '' then
-                case SourceDocType of
-                    SourceDocType::SalesOrder:
-                        Message(NoSalesOrderMsg);
-                    SourceDocType::PurchaseOrder:
-                        Message(NoPurchaseOrderMsg);
-                end;
-
-            DocExists := Find('-');
-            ShowEnable := DocExists;
-            CurrPage.Update(false);
-            DocExists := Find('-');
-            if DocExists then;
-            Window.Close();
-        end;
+        DocExists := TempDocumentEntry.Find('-');
+        ShowEnable := DocExists;
+        CurrPage.Update(false);
+        DocExists := TempDocumentEntry.Find('-');
+        if DocExists then;
+        Window.Close();
     end;
 
     local procedure FindRecordsForSalesOrder()
@@ -413,51 +424,59 @@ page 6560 "Document Line Tracking"
             FindRecordsRelatedToPurchaseReturn(SourceDocBlanketOrderNo, SourceDocBlanketOrderLineNo);
     end;
 
-    local procedure FindRecordsRelatedToPurchaseBlanketOrder(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindRecordsRelatedToPurchaseBlanketOrder(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
-        FindPurchBlanketOrderLines(DocNo, DocLineNo);
-        FindPurchBlanketOrderLinesArchive(DocNo, DocLineNo);
+        FindPurchBlanketOrderLines(DocNo2, DocLineNo2);
+        FindPurchBlanketOrderLinesArchive(DocNo2, DocLineNo2);
     end;
 
-    local procedure FindRecordsRelatedToPurchaseOrder(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindRecordsRelatedToPurchaseOrder(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
-        FindPurchOrderLines(DocNo, DocLineNo);
-        FindPurchOrderLinesArchive(DocNo, DocLineNo);
-        FindPurchReceiptLinesByOrder(DocNo, DocLineNo);
-        FindPurchInvoiceLinesByOrder(DocNo, DocLineNo);
+        FindPurchOrderLines(DocNo2, DocLineNo2);
+        FindPurchOrderLinesArchive(DocNo2, DocLineNo2);
+        FindPurchReceiptLinesByOrder(DocNo2, DocLineNo2);
+        FindPurchInvoiceLinesByOrder(DocNo2, DocLineNo2);
+
+        OnAfterFindRecordsRelatedToPurchaseOrder(DocNo2, DocLineNo2, TempDocumentEntry);
     end;
 
-    local procedure FindRecordsRelatedToPurchaseReturn(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindRecordsRelatedToPurchaseReturn(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
-        FindPurchReturnOrderLines(DocNo, DocLineNo);
-        FindPurchReturnOrderLinesArchive(DocNo, DocLineNo);
-        FindReturnShipmentLines(DocNo, DocLineNo);
-        FindPurchCreditMemoLines(DocNo, DocLineNo);
+        FindPurchReturnOrderLines(DocNo2, DocLineNo2);
+        FindPurchReturnOrderLinesArchive(DocNo2, DocLineNo2);
+        FindReturnShipmentLines(DocNo2, DocLineNo2);
+        FindPurchCreditMemoLines(DocNo2, DocLineNo2);
+
+        OnAfterFindRecordsRelatedToPurchaseReturnOrder(DocNo2, DocLineNo2, TempDocumentEntry);
     end;
 
-    local procedure FindRecordsRelatedToSalesBlanketOrder(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindRecordsRelatedToSalesBlanketOrder(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
-        FindSalesBlanketOrderLines(DocNo, DocLineNo);
-        FindSalesBlanketOrderLinesArchive(DocNo, DocLineNo);
+        FindSalesBlanketOrderLines(DocNo2, DocLineNo2);
+        FindSalesBlanketOrderLinesArchive(DocNo2, DocLineNo2);
     end;
 
-    local procedure FindRecordsRelatedToSalesOrder(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindRecordsRelatedToSalesOrder(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
-        FindSalesOrderLines(DocNo, DocLineNo);
-        FindSalesOrderLinesArchive(DocNo, DocLineNo);
-        FindSalesShipmentLinesByOrder(DocNo, DocLineNo);
-        FindSalesInvoiceLinesByOrder(DocNo, DocLineNo);
+        FindSalesOrderLines(DocNo2, DocLineNo2);
+        FindSalesOrderLinesArchive(DocNo2, DocLineNo2);
+        FindSalesShipmentLinesByOrder(DocNo2, DocLineNo2);
+        FindSalesInvoiceLinesByOrder(DocNo2, DocLineNo2);
+
+        OnAfterFindRecordsRelatedToSalesOrder(DocNo2, DocLineNo2, TempDocumentEntry);
     end;
 
-    local procedure FindRecordsRelatedToSalesReturnOrder(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindRecordsRelatedToSalesReturnOrder(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
-        FindSalesReturnOrderLines(DocNo, DocLineNo);
-        FindSalesReturnOrderLinesArchive(DocNo, DocLineNo);
-        FindReturnReceiptLines(DocNo, DocLineNo);
-        FindSalesCreditMemoLines(DocNo, DocLineNo);
+        FindSalesReturnOrderLines(DocNo2, DocLineNo2);
+        FindSalesReturnOrderLinesArchive(DocNo2, DocLineNo2);
+        FindReturnReceiptLines(DocNo2, DocLineNo2);
+        FindSalesCreditMemoLines(DocNo2, DocLineNo2);
+
+        OnAfterFindRecordsRelatedToSalesReturnOrder(DocNo2, DocLineNo2, TempDocumentEntry);
     end;
 
-    local procedure InsertIntoDocEntry(DocTableID: Integer; DocType: Enum "Document Entry Document Type"; DocTableName: Text[50]; DocNoOfRecords: Integer)
+    local procedure InsertIntoDocEntry(DocTableID: Integer; DocType2: Enum "Document Entry Document Type"; DocTableName: Text[50]; DocNoOfRecords: Integer)
     begin
         if DocNoOfRecords = 0 then
             exit;
@@ -465,7 +484,7 @@ page 6560 "Document Line Tracking"
         TempDocumentEntry.Init();
         TempDocumentEntry."Entry No." := TempDocumentEntry."Entry No." + 1;
         TempDocumentEntry."Table ID" := DocTableID;
-        TempDocumentEntry."Document Type" := DocType;
+        TempDocumentEntry."Document Type" := DocType2;
         TempDocumentEntry."Table Name" := CopyStr(DocTableName, 1, MaxStrLen(TempDocumentEntry."Table Name"));
         TempDocumentEntry."No. of Records" := DocNoOfRecords;
         TempDocumentEntry.Insert();
@@ -484,7 +503,7 @@ page 6560 "Document Line Tracking"
 
         AssignLineFieldFromDocument();
 
-        DocumentCaption := DelChr(DocArchive + ' ' + DocType + ' ' + DocNo, '<', ' ');
+        DocumentCaption := CopyStr(DelChr(DocArchive + ' ' + DocType + ' ' + DocNo, '<', ' '), 1, MaxStrLen(DocumentCaption));
     end;
 
     local procedure ShowRecords()
@@ -493,174 +512,183 @@ page 6560 "Document Line Tracking"
         if TempDocumentEntry.Find() then
             Rec := TempDocumentEntry;
 
-        with TempDocumentEntry do
-            case "Table ID" of
-                DATABASE::"Sales Line":
-                    if "Document Type" = "Document Type"::"Blanket Order" then
-                        PAGE.RunModal(PAGE::"Sales Lines", BlanketSalesOrderLine)
-                    else
-                        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
-                DATABASE::"Sales Shipment Line":
-                    PAGE.RunModal(0, SalesShptLine);
-                DATABASE::"Sales Invoice Line":
-                    PAGE.RunModal(0, SalesInvLine);
-                DATABASE::"Sales Cr.Memo Line":
-                    PAGE.RunModal(0, SalesCrMemoLine);
-                DATABASE::"Sales Line Archive":
-                    if "Document Type" = "Document Type"::"Blanket Order" then
-                        PAGE.RunModal(PAGE::"Sales Line Archive List", BlanketSalesOrderLineArchive)
-                    else
-                        PAGE.RunModal(PAGE::"Sales Line Archive List", SalesLineArchive);
-                DATABASE::"Return Receipt Line":
-                    PAGE.RunModal(0, ReturnReceiptLine);
-                DATABASE::"Purchase Line":
-                    if "Document Type" = "Document Type"::"Blanket Order" then
-                        PAGE.RunModal(PAGE::"Purchase Lines", BlanketPurchOrderLine)
-                    else
-                        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
-                DATABASE::"Purch. Rcpt. Line":
-                    PAGE.RunModal(0, PurchRcptLine);
-                DATABASE::"Purch. Inv. Line":
-                    PAGE.RunModal(0, PurchInvLine);
-                DATABASE::"Purch. Cr. Memo Line":
-                    PAGE.RunModal(0, PurchCrMemoLine);
-                DATABASE::"Purchase Line Archive":
-                    if "Document Type" = "Document Type"::"Blanket Order" then
-                        PAGE.RunModal(PAGE::"Purchase Line Archive List", BlanketPurchOrderLineArchive)
-                    else
-                        PAGE.RunModal(PAGE::"Purchase Line Archive List", PurchLineArchive);
-                DATABASE::"Return Shipment Line":
-                    PAGE.RunModal(0, ReturnShipmentLine);
-            end;
+        case TempDocumentEntry."Table ID" of
+            DATABASE::"Sales Line":
+                if TempDocumentEntry."Document Type" = TempDocumentEntry."Document Type"::"Blanket Order" then
+                    PAGE.RunModal(PAGE::"Sales Lines", BlanketSalesOrderLine)
+                else
+                    PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
+            DATABASE::"Sales Shipment Line":
+                PAGE.RunModal(0, SalesShptLine);
+            DATABASE::"Sales Invoice Line":
+                PAGE.RunModal(0, SalesInvLine);
+            DATABASE::"Sales Cr.Memo Line":
+                PAGE.RunModal(0, SalesCrMemoLine);
+            DATABASE::"Sales Line Archive":
+                if TempDocumentEntry."Document Type" = TempDocumentEntry."Document Type"::"Blanket Order" then
+                    PAGE.RunModal(PAGE::"Sales Line Archive List", BlanketSalesOrderLineArchive)
+                else
+                    PAGE.RunModal(PAGE::"Sales Line Archive List", SalesLineArchive);
+            DATABASE::"Return Receipt Line":
+                PAGE.RunModal(0, ReturnReceiptLine);
+            DATABASE::"Purchase Line":
+                if TempDocumentEntry."Document Type" = TempDocumentEntry."Document Type"::"Blanket Order" then
+                    PAGE.RunModal(PAGE::"Purchase Lines", BlanketPurchOrderLine)
+                else
+                    PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
+            DATABASE::"Purch. Rcpt. Line":
+                PAGE.RunModal(0, PurchRcptLine);
+            DATABASE::"Purch. Inv. Line":
+                PAGE.RunModal(0, PurchInvLine);
+            DATABASE::"Purch. Cr. Memo Line":
+                PAGE.RunModal(0, PurchCrMemoLine);
+            DATABASE::"Purchase Line Archive":
+                if TempDocumentEntry."Document Type" = TempDocumentEntry."Document Type"::"Blanket Order" then
+                    PAGE.RunModal(PAGE::"Purchase Line Archive List", BlanketPurchOrderLineArchive)
+                else
+                    PAGE.RunModal(PAGE::"Purchase Line Archive List", PurchLineArchive);
+            DATABASE::"Return Shipment Line":
+                PAGE.RunModal(0, ReturnShipmentLine);
+        end;
     end;
 
     local procedure AssignLineFieldFromDocument();
     begin
         case SourceDocType of
-            SourceDocType::SalesOrder:
+            SourceDocType::"Sales Order":
                 begin
-                    with SalesLine do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                            exit;
-                        end;
-                    with SalesLineArchive do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                        end;
+                    if FilteredRecordExist(SalesLine.GetFilters(), SalesLine.IsEmpty()) then begin
+                        SalesLine.FindFirst();
+                        AssignLineFields(
+                            Format(SalesLine."Document Type"), SalesLine."Document No.", '', Format(SalesLine.Type),
+                            SalesLine."No.", SalesLine.Description, SalesLine.Quantity, SalesLine."Unit of Measure Code");
+                        exit;
+                    end;
+                    if FilteredRecordExist(SalesLineArchive.GetFilters(), SalesLineArchive.IsEmpty()) then begin
+                        SalesLineArchive.FindFirst();
+                        AssignLineFields(
+                            Format(SalesLineArchive."Document Type"), SalesLineArchive."Document No.", ArchivedTxt, Format(SalesLineArchive.Type),
+                            SalesLineArchive."No.", SalesLineArchive.Description, SalesLineArchive.Quantity, SalesLineArchive."Unit of Measure Code");
+                    end;
                 end;
-            SourceDocType::BlanketSalesOrder:
+            SourceDocType::"Blanket Sales Order":
                 begin
-                    with BlanketSalesOrderLine do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                            exit;
-                        end;
-                    with BlanketSalesOrderLineArchive do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                        end;
+                    if FilteredRecordExist(BlanketSalesOrderLine.GetFilters(), BlanketSalesOrderLine.IsEmpty()) then begin
+                        BlanketSalesOrderLine.FindFirst();
+                        AssignLineFields(
+                            Format(BlanketSalesOrderLine."Document Type"), BlanketSalesOrderLine."Document No.", '', Format(BlanketSalesOrderLine.Type),
+                            BlanketSalesOrderLine."No.", BlanketSalesOrderLine.Description, BlanketSalesOrderLine.Quantity, BlanketSalesOrderLine."Unit of Measure Code");
+                        exit;
+                    end;
+                    if FilteredRecordExist(BlanketSalesOrderLineArchive.GetFilters(), BlanketSalesOrderLineArchive.IsEmpty()) then begin
+                        BlanketSalesOrderLineArchive.FindFirst();
+                        AssignLineFields(
+                            Format(BlanketSalesOrderLineArchive."Document Type"), BlanketSalesOrderLineArchive."Document No.", ArchivedTxt, Format(BlanketSalesOrderLineArchive.Type),
+                            BlanketSalesOrderLineArchive."No.", BlanketSalesOrderLineArchive.Description, BlanketSalesOrderLineArchive.Quantity, BlanketSalesOrderLineArchive."Unit of Measure Code");
+                    end;
                 end;
-            SourceDocType::PurchaseOrder, SourceDocType::PurchaseReturnOrder:
+            SourceDocType::"Purchase Order", SourceDocType::"Purchase Return Order":
                 begin
-                    with PurchLine do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                            exit;
-                        end;
-                    with PurchLineArchive do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                        end;
+                    if FilteredRecordExist(PurchLine.GetFilters(), PurchLine.IsEmpty()) then begin
+                        PurchLine.FindFirst();
+                        AssignLineFields(
+                            Format(PurchLine."Document Type"), PurchLine."Document No.", '', Format(PurchLine.Type),
+                            PurchLine."No.", PurchLine.Description, PurchLine.Quantity, PurchLine."Unit of Measure Code");
+                        exit;
+                    end;
+                    if FilteredRecordExist(PurchLineArchive.GetFilters(), PurchLineArchive.IsEmpty()) then begin
+                        PurchLineArchive.FindFirst();
+                        AssignLineFields(
+                            Format(PurchLineArchive."Document Type"), PurchLineArchive."Document No.", ArchivedTxt, Format(PurchLineArchive.Type),
+                            PurchLineArchive."No.", PurchLineArchive.Description, PurchLineArchive.Quantity, PurchLineArchive."Unit of Measure Code");
+                    end;
                 end;
-            SourceDocType::BlanketPurchaseOrder:
+            SourceDocType::"Blanket Purchase Order":
                 begin
-                    with BlanketPurchOrderLine do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                            exit;
-                        end;
-                    with BlanketPurchOrderLineArchive do
-                        if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                            FindFirst();
-                            AssignLineFields(
-                              Format("Document Type"), "Document No.", ArchivedTxt, Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                        end;
+                    if FilteredRecordExist(BlanketPurchOrderLine.GetFilters(), BlanketPurchOrderLine.IsEmpty()) then begin
+                        BlanketPurchOrderLine.FindFirst();
+                        AssignLineFields(
+                            Format(BlanketPurchOrderLine."Document Type"), BlanketPurchOrderLine."Document No.", '', Format(BlanketPurchOrderLine.Type),
+                            BlanketPurchOrderLine."No.", BlanketPurchOrderLine.Description, BlanketPurchOrderLine.Quantity, BlanketPurchOrderLine."Unit of Measure Code");
+                        exit;
+                    end;
+                    if FilteredRecordExist(BlanketPurchOrderLineArchive.GetFilters(), BlanketPurchOrderLineArchive.IsEmpty()) then begin
+                        BlanketPurchOrderLineArchive.FindFirst();
+                        AssignLineFields(
+                            Format(BlanketPurchOrderLineArchive."Document Type"), BlanketPurchOrderLineArchive."Document No.", ArchivedTxt, Format(BlanketPurchOrderLineArchive.Type),
+                            BlanketPurchOrderLineArchive."No.", BlanketPurchOrderLineArchive.Description, BlanketPurchOrderLineArchive.Quantity, BlanketPurchOrderLineArchive."Unit of Measure Code");
+                    end;
                 end;
-            SourceDocType::SalesShipment:
-                with SalesShptLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::PurchaseReceipt:
-                with PurchRcptLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::SalesInvoice:
-                with SalesInvLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::PurchaseInvoice:
-                with PurchInvLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::ReturnShipment:
-                with ReturnShipmentLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::PurchaseCreditMemo:
-                with PurchCrMemoLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::SalesReturnOrder:
-                with SalesLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::ReturnReceipt:
-                with ReturnReceiptLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
-            SourceDocType::SalesCreditMemo:
-                with SalesCrMemoLine do
-                    if FilteredRecordExist(GetFilters, IsEmpty) then begin
-                        FindFirst();
-                        AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
-                    end;
+            SourceDocType::"Sales Shipment":
+                if FilteredRecordExist(SalesShptLine.GetFilters(), SalesShptLine.IsEmpty()) then begin
+                    SalesShptLine.FindFirst();
+                    AssignLineFields(
+                        SalesShptLine.TableCaption(), SalesShptLine."Document No.", '', Format(SalesShptLine.Type),
+                        SalesShptLine."No.", SalesShptLine.Description, SalesShptLine.Quantity, SalesShptLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Purchase Receipt":
+                if FilteredRecordExist(PurchRcptLine.GetFilters(), PurchRcptLine.IsEmpty()) then begin
+                    PurchRcptLine.FindFirst();
+                    AssignLineFields(
+                        PurchRcptLine.TableCaption(), PurchRcptLine."Document No.", '', Format(PurchRcptLine.Type),
+                        PurchRcptLine."No.", PurchRcptLine.Description, PurchRcptLine.Quantity, PurchRcptLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Sales Invoice":
+                if FilteredRecordExist(SalesInvLine.GetFilters(), SalesInvLine.IsEmpty()) then begin
+                    SalesInvLine.FindFirst();
+                    AssignLineFields(
+                        SalesInvLine.TableCaption(), SalesInvLine."Document No.", '', Format(SalesInvLine.Type),
+                        SalesInvLine."No.", SalesInvLine.Description, SalesInvLine.Quantity, SalesInvLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Purchase Invoice":
+                if FilteredRecordExist(PurchInvLine.GetFilters(), PurchInvLine.IsEmpty()) then begin
+                    PurchInvLine.FindFirst();
+                    AssignLineFields(
+                        PurchInvLine.TableCaption(), PurchInvLine."Document No.", '', Format(PurchInvLine.Type),
+                        PurchInvLine."No.", PurchInvLine.Description, PurchInvLine.Quantity, PurchInvLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Return Shipment":
+                if FilteredRecordExist(ReturnShipmentLine.GetFilters(), ReturnShipmentLine.IsEmpty()) then begin
+                    ReturnShipmentLine.FindFirst();
+                    AssignLineFields(
+                        ReturnShipmentLine.TableCaption(), ReturnShipmentLine."Document No.", '', Format(ReturnShipmentLine.Type),
+                        ReturnShipmentLine."No.", ReturnShipmentLine.Description, ReturnShipmentLine.Quantity, ReturnShipmentLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Purchase Credit Memo":
+                if FilteredRecordExist(PurchCrMemoLine.GetFilters(), PurchCrMemoLine.IsEmpty()) then begin
+                    PurchCrMemoLine.FindFirst();
+                    AssignLineFields(PurchCrMemoLine.TableCaption(), PurchCrMemoLine."Document No.", '', Format(PurchCrMemoLine.Type),
+                    PurchCrMemoLine."No.", PurchCrMemoLine.Description, PurchCrMemoLine.Quantity, PurchCrMemoLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Sales Return Order":
+                if FilteredRecordExist(SalesLine.GetFilters(), SalesLine.IsEmpty()) then begin
+                    SalesLine.FindFirst();
+                    AssignLineFields(
+                        SalesLine.TableCaption(), SalesLine."Document No.", '', Format(SalesLine.Type),
+                        SalesLine."No.", SalesLine.Description, SalesLine.Quantity, SalesLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Return Receipt":
+                if FilteredRecordExist(ReturnReceiptLine.GetFilters(), ReturnReceiptLine.IsEmpty()) then begin
+                    ReturnReceiptLine.FindFirst();
+                    AssignLineFields(
+                        ReturnReceiptLine.TableCaption(), ReturnReceiptLine."Document No.", '', Format(ReturnReceiptLine.Type),
+                        ReturnReceiptLine."No.", ReturnReceiptLine.Description, ReturnReceiptLine.Quantity, ReturnReceiptLine."Unit of Measure Code");
+                end;
+            SourceDocType::"Sales Credit Memo":
+                if FilteredRecordExist(SalesCrMemoLine.GetFilters(), SalesCrMemoLine.IsEmpty()) then begin
+                    SalesCrMemoLine.FindFirst();
+                    AssignLineFields(
+                        SalesCrMemoLine.TableCaption(), SalesCrMemoLine."Document No.", '', Format(SalesCrMemoLine.Type),
+                        SalesCrMemoLine."No.", SalesCrMemoLine.Description, SalesCrMemoLine.Quantity, SalesCrMemoLine."Unit of Measure Code");
+                end;
+            else
+                OnAssignLineFieldFromDocumentAfterCase(DocType, DocNo, DocArchive, DocLineType, DocLineNo, DocLineDescription, DocLineQuantity, DocLineUnit);
         end;
     end;
 
-    local procedure AssignLineFields(NewDocType: Text[30]; NewDocNo: Code[20]; NewDocArchive: Text[30]; NewDocLineType: Text[30]; NewDocLineItemNo: Code[20]; NewDocLineDescription: Text[100]; NewDocLineQuantity: Decimal; NewDocLineUnit: Code[10])
+    local procedure AssignLineFields(NewDocType: Text; NewDocNo: Code[20]; NewDocArchive: Text[30]; NewDocLineType: Text[30]; NewDocLineItemNo: Code[20]; NewDocLineDescription: Text[100]; NewDocLineQuantity: Decimal; NewDocLineUnit: Code[10])
     begin
-        DocType := NewDocType;
+        DocType := CopyStr(NewDocType, 1, MaxStrLen(DocType));
         DocNo := NewDocNo;
         DocArchive := NewDocArchive;
         DocLineType := NewDocLineType;
@@ -681,13 +709,13 @@ page 6560 "Document Line Tracking"
         end;
     end;
 
-    local procedure FindPurchOrderLines(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindPurchOrderLines(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if PurchLine.ReadPermission then begin
             PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-            PurchLine.SetRange("Document No.", DocNo);
-            PurchLine.SetRange("Line No.", DocLineNo);
+            PurchLine.SetRange("Document No.", DocNo2);
+            PurchLine.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Purchase Line", Enum::"Document Entry Document Type"::Order,
                 PurchaseOrderLinesTxt, PurchLine.Count);
@@ -707,65 +735,65 @@ page 6560 "Document Line Tracking"
         end;
     end;
 
-    local procedure FindPurchBlanketOrderLines(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindPurchBlanketOrderLines(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if BlanketPurchOrderLine.ReadPermission then begin
             BlanketPurchOrderLine.Reset();
             BlanketPurchOrderLine.SetRange("Document Type", BlanketPurchOrderLine."Document Type"::"Blanket Order");
-            BlanketPurchOrderLine.SetRange("Document No.", DocNo);
-            BlanketPurchOrderLine.SetRange("Line No.", DocLineNo);
+            BlanketPurchOrderLine.SetRange("Document No.", DocNo2);
+            BlanketPurchOrderLine.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Purchase Line", Enum::"Document Entry Document Type"::"Blanket Order",
                 BlanketPurchaseOrderLinesTxt, BlanketPurchOrderLine.Count);
         end;
     end;
 
-    local procedure FindPurchReturnOrderLines(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindPurchReturnOrderLines(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if PurchLine.ReadPermission then begin
             PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Return Order");
-            PurchLine.SetRange("Document No.", DocNo);
-            PurchLine.SetRange("Line No.", DocLineNo);
+            PurchLine.SetRange("Document No.", DocNo2);
+            PurchLine.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Purchase Line", Enum::"Document Entry Document Type"::"Return Order",
                 PurchaseReturnOrderLinesTxt, PurchLine.Count);
         end;
     end;
 
-    local procedure FindPurchOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindPurchOrderLinesArchive(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if PurchLineArchive.ReadPermission then begin
             PurchLineArchive.Reset();
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::Order);
-            PurchLineArchive.SetRange("Document No.", DocNo);
-            PurchLineArchive.SetRange("Line No.", DocLineNo);
+            PurchLineArchive.SetRange("Document No.", DocNo2);
+            PurchLineArchive.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Purchase Line Archive", Enum::"Document Entry Document Type"::Order,
                 ArchivedPurchaseOrderLinesTxt, PurchLineArchive.Count);
         end;
     end;
 
-    local procedure FindPurchBlanketOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindPurchBlanketOrderLinesArchive(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if BlanketPurchOrderLineArchive.ReadPermission then begin
             BlanketPurchOrderLineArchive.Reset();
             BlanketPurchOrderLineArchive.SetRange("Document Type", BlanketPurchOrderLineArchive."Document Type"::"Blanket Order");
-            BlanketPurchOrderLineArchive.SetRange("Document No.", DocNo);
-            BlanketPurchOrderLineArchive.SetRange("Line No.", DocLineNo);
+            BlanketPurchOrderLineArchive.SetRange("Document No.", DocNo2);
+            BlanketPurchOrderLineArchive.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
               DATABASE::"Purchase Line Archive", Enum::"Document Entry Document Type"::"Blanket Order",
               ArchivedBlanketPurchaseOrderLinesTxt, BlanketPurchOrderLineArchive.Count);
         end;
     end;
 
-    local procedure FindPurchReturnOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindPurchReturnOrderLinesArchive(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if PurchLineArchive.ReadPermission then begin
             PurchLineArchive.Reset();
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::"Return Order");
-            PurchLineArchive.SetRange("Document No.", DocNo);
-            PurchLineArchive.SetRange("Line No.", DocLineNo);
+            PurchLineArchive.SetRange("Document No.", DocNo2);
+            PurchLineArchive.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Purchase Line Archive", Enum::"Document Entry Document Type"::"Return Order",
                 ArchivedPurchaseReturnOrderLinesTxt, PurchLineArchive.Count);
@@ -870,13 +898,13 @@ page 6560 "Document Line Tracking"
         end;
     end;
 
-    local procedure FindSalesOrderLines(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindSalesOrderLines(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if SalesLine.ReadPermission then begin
             SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-            SalesLine.SetRange("Document No.", DocNo);
-            SalesLine.SetRange("Line No.", DocLineNo);
+            SalesLine.SetRange("Document No.", DocNo2);
+            SalesLine.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Sales Line", Enum::"Document Entry Document Type"::Order,
                 SalesOrderLinesTxt, SalesLine.Count);
@@ -896,65 +924,65 @@ page 6560 "Document Line Tracking"
         end;
     end;
 
-    local procedure FindSalesBlanketOrderLines(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindSalesBlanketOrderLines(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if BlanketSalesOrderLine.ReadPermission then begin
             BlanketSalesOrderLine.Reset();
             BlanketSalesOrderLine.SetRange("Document Type", BlanketSalesOrderLine."Document Type"::"Blanket Order");
-            BlanketSalesOrderLine.SetRange("Document No.", DocNo);
-            BlanketSalesOrderLine.SetRange("Line No.", DocLineNo);
+            BlanketSalesOrderLine.SetRange("Document No.", DocNo2);
+            BlanketSalesOrderLine.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Sales Line", Enum::"Document Entry Document Type"::"Blanket Order",
                 BlanketSalesOrderLinesTxt, BlanketSalesOrderLine.Count);
         end;
     end;
 
-    local procedure FindSalesReturnOrderLines(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindSalesReturnOrderLines(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if SalesLine.ReadPermission then begin
             SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
-            SalesLine.SetRange("Document No.", DocNo);
-            SalesLine.SetRange("Line No.", DocLineNo);
+            SalesLine.SetRange("Document No.", DocNo2);
+            SalesLine.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Sales Line", Enum::"Document Entry Document Type"::"Return Order",
                 SalesReturnOrderLinesTxt, SalesLine.Count);
         end;
     end;
 
-    local procedure FindSalesOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindSalesOrderLinesArchive(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if SalesLineArchive.ReadPermission then begin
             SalesLineArchive.Reset();
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::Order);
-            SalesLineArchive.SetRange("Document No.", DocNo);
-            SalesLineArchive.SetRange("Line No.", DocLineNo);
+            SalesLineArchive.SetRange("Document No.", DocNo2);
+            SalesLineArchive.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Sales Line Archive", Enum::"Document Entry Document Type"::Order,
                 ArchivedSalesOrderLinesTxt, SalesLineArchive.Count);
         end;
     end;
 
-    local procedure FindSalesBlanketOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindSalesBlanketOrderLinesArchive(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if BlanketSalesOrderLineArchive.ReadPermission then begin
             BlanketSalesOrderLineArchive.Reset();
             BlanketSalesOrderLineArchive.SetRange("Document Type", BlanketSalesOrderLineArchive."Document Type"::"Blanket Order");
-            BlanketSalesOrderLineArchive.SetRange("Document No.", DocNo);
-            BlanketSalesOrderLineArchive.SetRange("Line No.", DocLineNo);
+            BlanketSalesOrderLineArchive.SetRange("Document No.", DocNo2);
+            BlanketSalesOrderLineArchive.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Sales Line Archive", Enum::"Document Entry Document Type"::"Blanket Order",
                 ArchivedBlanketSalesOrderLinesTxt, BlanketSalesOrderLineArchive.Count);
         end;
     end;
 
-    local procedure FindSalesReturnOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
+    local procedure FindSalesReturnOrderLinesArchive(DocNo2: Code[20]; DocLineNo2: Integer)
     begin
         if SalesLineArchive.ReadPermission then begin
             SalesLineArchive.Reset();
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::"Return Order");
-            SalesLineArchive.SetRange("Document No.", DocNo);
-            SalesLineArchive.SetRange("Line No.", DocLineNo);
+            SalesLineArchive.SetRange("Document No.", DocNo2);
+            SalesLineArchive.SetRange("Line No.", DocLineNo2);
             InsertIntoDocEntry(
                 DATABASE::"Sales Line Archive", Enum::"Document Entry Document Type"::"Return Order",
                 ArchivedSalesReturnOrderLinesTxt, SalesLineArchive.Count);
@@ -1017,7 +1045,7 @@ page 6560 "Document Line Tracking"
             SalesInvLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesInvLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
             InsertIntoDocEntry(
-                DATABASE::"Sales Invoice Line", Enum::"Document Entry Document Type"::" ",
+                DATABASE::"Sales Invoice Line", "Document Entry Document Type"::" ",
                 PostedSalesInvoiceLinesTxt, SalesInvLine.Count);
         end;
     end;
@@ -1028,6 +1056,36 @@ page 6560 "Document Line Tracking"
             exit(false);
 
         exit(not IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordsAfterCase(var TempDocumentEntry: Record "Document Entry" temporary; SourceDocType: Enum "Document Line Source Type"; SourceDocNo: Code[20]; SourceDocLineNo: Integer; SourceDocBlanketOrderNo: Code[20]; SourceDocBlanketOrderLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignLineFieldFromDocumentAfterCase(var DocType: Text[30]; var DocNo: Code[20]; var DocArchive: Text[30]; var DocLineType: Text[30]; var DocLineItemNo: Code[20]; var DocLineDescription: Text[100]; var DocLineQuantity: Decimal; var DocLineUnit: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindRecordsRelatedToSalesOrder(DocNo: Code[20]; DocLineNo: Integer; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindRecordsRelatedToPurchaseOrder(DocNo: Code[20]; DocLineNo: Integer; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindRecordsRelatedToSalesReturnOrder(DocNo: Code[20]; DocLineNo: Integer; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindRecordsRelatedToPurchaseReturnOrder(DocNo: Code[20]; DocLineNo: Integer; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
     end;
 }
 

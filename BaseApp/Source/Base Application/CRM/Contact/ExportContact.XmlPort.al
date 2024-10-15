@@ -2,7 +2,6 @@ namespace Microsoft.CRM.Contact;
 
 using Microsoft.CRM.Setup;
 using System.Utilities;
-using Microsoft.Utilities;
 
 xmlport 5050 "Export Contact"
 {
@@ -453,7 +452,6 @@ xmlport 5050 "Export Contact"
     }
 
     var
-        GM: Codeunit GeneralMgt;
         Text001: Label 'Salutation';
 }
 

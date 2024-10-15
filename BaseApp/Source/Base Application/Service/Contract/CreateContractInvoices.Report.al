@@ -33,41 +33,39 @@ report 6030 "Create Contract Invoices"
                 OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtInitCodeUnit("Service Contract Header", ServContractMgt);
                 ServContractMgt.InitCodeUnit();
                 ServContractHeader := "Service Contract Header";
-                with ServContractHeader do begin
-                    TestField("Serv. Contract Acc. Gr. Code");
-                    ServContractAccGr.Get("Serv. Contract Acc. Gr. Code");
-                    ServContractAccGr.TestField("Non-Prepaid Contract Acc.");
-                    if Prepaid then
-                        ServContractAccGr.TestField("Prepaid Contract Acc.");
-                    Cust.Get("Customer No.");
-                    ResultDescription := '';
-                    ServContractMgt.GetNextInvoicePeriod(ServContractHeader, InvoiceFrom, InvoiceTo);
-                    ContractExist := CheckIfCombinationExists("Service Contract Header");
-                    if "Amount per Period" > 0 then begin
-                        if not ServContractMgt.CheckIfServiceExist(ServContractHeader) then
-                            ResultDescription := Text006;
-                        if ResultDescription = '' then begin
-                            InvoicedAmount := Round(
-                                ServContractMgt.CalcContractAmount(ServContractHeader, InvoiceFrom, InvoiceTo),
-                                Currency."Amount Rounding Precision");
-                            if InvoicedAmount = 0 then
-                                CurrReport.Skip();
-                            if not "Combine Invoices" or (LastCustomer <> "Bill-to Customer No.") or not LastContractCombined
-                            then begin
-                                InvoiceNo := ServContractMgt.CreateServHeader(ServContractHeader, PostingDate, ContractExist);
-                                NoOfInvoices := NoOfInvoices + 1;
-                            end;
-                            ResultDescription := InvoiceNo;
-                            ServContractMgt.CreateAllServLines(InvoiceNo, ServContractHeader);
-                            LastCustomer := "Bill-to Customer No.";
-                            LastContractCombined := "Combine Invoices";
+                ServContractHeader.TestField("Serv. Contract Acc. Gr. Code");
+                ServContractAccGr.Get(ServContractHeader."Serv. Contract Acc. Gr. Code");
+                ServContractAccGr.TestField("Non-Prepaid Contract Acc.");
+                if ServContractHeader.Prepaid then
+                    ServContractAccGr.TestField("Prepaid Contract Acc.");
+                Cust.Get(ServContractHeader."Customer No.");
+                ResultDescription := '';
+                ServContractMgt.GetNextInvoicePeriod(ServContractHeader, InvoiceFrom, InvoiceTo);
+                ContractExist := CheckIfCombinationExists("Service Contract Header");
+                if ServContractHeader."Amount per Period" > 0 then begin
+                    if not ServContractMgt.CheckIfServiceExist(ServContractHeader) then
+                        ResultDescription := Text006;
+                    if ResultDescription = '' then begin
+                        InvoicedAmount := Round(
+                            ServContractMgt.CalcContractAmount(ServContractHeader, InvoiceFrom, InvoiceTo),
+                            Currency."Amount Rounding Precision");
+                        if InvoicedAmount = 0 then
+                            CurrReport.Skip();
+                        if not ServContractHeader."Combine Invoices" or (LastCustomer <> ServContractHeader."Bill-to Customer No.") or not LastContractCombined
+                        then begin
+                            InvoiceNo := ServContractMgt.CreateServHeader(ServContractHeader, PostingDate, ContractExist);
+                            NoOfInvoices := NoOfInvoices + 1;
                         end;
-                    end else
-                        if "Annual Amount" = 0 then
-                            ResultDescription := StrSubstNo(Text009, FieldCaption("Annual Amount"))
-                        else
-                            ResultDescription := '';
-                end;
+                        ResultDescription := InvoiceNo;
+                        ServContractMgt.CreateAllServLines(InvoiceNo, ServContractHeader);
+                        LastCustomer := ServContractHeader."Bill-to Customer No.";
+                        LastContractCombined := ServContractHeader."Combine Invoices";
+                    end;
+                end else
+                    if ServContractHeader."Annual Amount" = 0 then
+                        ResultDescription := StrSubstNo(Text009, ServContractHeader.FieldCaption(ServContractHeader."Annual Amount"))
+                    else
+                        ResultDescription := '';
                 OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtFinishCodeunit("Service Contract Header", LastCustomer, LastContractCombined, InvoiceNo);
                 ServContractMgt.FinishCodeunit();
 

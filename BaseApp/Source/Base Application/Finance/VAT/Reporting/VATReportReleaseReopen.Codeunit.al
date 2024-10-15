@@ -60,11 +60,9 @@ codeunit 741 "VAT Report Release/Reopen"
 
         UpdateLinesToCorrect(VATReportHeader."No.");
 
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            SetFilter("Line Type", '%1|%2', "Line Type"::New, "Line Type"::Correction);
-            ModifyAll("Able to Correct Line", true, false);
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        VATReportLine.SetFilter("Line Type", '%1|%2', VATReportLine."Line Type"::New, VATReportLine."Line Type"::Correction);
+        VATReportLine.ModifyAll("Able to Correct Line", true, false);
     end;
 
     local procedure UpdateLinesToCorrect(VATReportNo: Code[20])

@@ -9,13 +9,9 @@ table 6311 "Power BI User License"
     DataPerCompany = false;
     ReplicateData = false;
     ObsoleteReason = 'Caching the license state caused a degraded user experience. Power BI license will be checked just in time.';
-#if not CLEAN21
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '24.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {

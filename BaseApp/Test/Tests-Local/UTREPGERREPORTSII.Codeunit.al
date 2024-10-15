@@ -28,7 +28,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnPreReport Trigger of Report 11003 - Customer Total-Balance.
         // Setup.
         Initialize();
-        CreateCustomer;
+        CreateCustomer();
         AccountingPeriod.FindLast();
 
         // Enqueue Accounting Period - Starting Date as Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - CustomerTotalBalanceRequestPageHandler.
@@ -50,7 +50,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnPreReport Trigger of Report 11003 - Customer Total-Balance.
         // Setup.
         Initialize();
-        CreateCustomer;
+        CreateCustomer();
         EnqueueTotalBalanceReports(WorkDate(), false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - CustomerTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Customer Total-Balance set Date Filter and Adjustment Exchange Rate Differences as FALSE on Handler - CustomerTotalBalanceRequestPageHandler.
@@ -79,7 +79,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         DebitAmountLCY := LibraryRandom.RandDecInRange(1, 10, 2);  // Generating Debit Amount LCY greater than zero.
         CreditAmountLCY := DebitAmountLCY + LibraryRandom.RandDecInRange(1, 10, 2);  // Credit Amount LCY greater than Debit Amount LCY.
         CustLedgerEntry.FindLast();
-        CreateDetailedCustLedgEntry(DetailedCustLedgEntry, CreateCustomer, DebitAmountLCY, DebitAmountLCY, 0, DetailedCustLedgEntry."Entry Type"::"Realized Loss", DetailedCustLedgEntry."Document Type", CustLedgerEntry."Entry No.");  // Credit Amount LCY 0.
+        CreateDetailedCustLedgEntry(DetailedCustLedgEntry, CreateCustomer(), DebitAmountLCY, DebitAmountLCY, 0, DetailedCustLedgEntry."Entry Type"::"Realized Loss", DetailedCustLedgEntry."Document Type", CustLedgerEntry."Entry No.");  // Credit Amount LCY 0.
 
         // Debit Amount LCY - 0.
         CreateDetailedCustLedgEntry(
@@ -152,7 +152,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnPreReport Trigger of Report 11004 - Vendor Total-Balance.
         // Setup.
         Initialize();
-        CreateVendor;
+        CreateVendor();
         AccountingPeriod.FindLast();
 
         // Enqueue Accounting Period  Starting Date as Date Filter and Adjustment Exchange Rate Differences Boolean as TRUE on Handler - VendorTotalBalanceRequestPageHandler.
@@ -174,7 +174,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         // Purpose of the test is to validate OnPreReport Trigger of Report 11004 - Vendor Total-Balance.
         // Setup.
         Initialize();
-        CreateVendor;
+        CreateVendor();
         EnqueueTotalBalanceReports(WorkDate(), false);  // Enqueue Work Date and Adjustment Exchange Rate Differences Boolean as FALSE on Handler - VendorTotalBalanceRequestPageHandler.
 
         // Exercise: Run Report - Vendor Total-Balance set Date Filter and Adjustment Exchange Rate Differences as FALSE on Handler - VendorTotalBalanceRequestPageHandler.
@@ -204,7 +204,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         CreditAmountLCY := DebitAmountLCY + LibraryRandom.RandDecInRange(1, 10, 2);  // Credit Amount LCY greater than Debit Amount LCY.
         VendorLedgerEntry.FindLast();
         CreateDetailedVendorLedgEntry(
-          DetailedVendorLedgEntry, CreateVendor, DebitAmountLCY, DebitAmountLCY, 0, DetailedVendorLedgEntry."Entry Type"::"Realized Loss", DetailedVendorLedgEntry."Document Type", VendorLedgerEntry."Entry No.");  // Value 0 for Credit Amount LCY.
+          DetailedVendorLedgEntry, CreateVendor(), DebitAmountLCY, DebitAmountLCY, 0, DetailedVendorLedgEntry."Entry Type"::"Realized Loss", DetailedVendorLedgEntry."Document Type", VendorLedgerEntry."Entry No.");  // Value 0 for Credit Amount LCY.
 
         // Value 0 for Debit Amount LCY.
         CreateDetailedVendorLedgEntry(
@@ -275,7 +275,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue value for CustomerTotalBalanceRequestPageHandler.
         exit(Customer."No.");
@@ -306,7 +306,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         end;
     end;
 
-    local procedure CreateDetailedCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; CustLedgerEntryNo: Integer)
+    local procedure CreateDetailedCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; CustLedgerEntryNo: Integer)
     var
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -331,14 +331,14 @@ codeunit 142071 "UT REP GERREPORTS - II"
         DebitAmountLCY := LibraryRandom.RandDecInRange(1, 10, 2);  // Generating Positive Debit Amount LCY.
         CreateCustomerLedgerEntry(CustLedgerEntry, EntryNo, ClosedByEntryNo);
         CreateDetailedCustLedgEntry(
-          DetailedCustLedgEntry, CreateCustomer, DebitAmountLCY, DebitAmountLCY, 0, DetailedCustLedgEntry."Entry Type"::"Realized Loss", DetailedCustLedgEntry."Document Type", CustLedgerEntry."Entry No.");  // Credit Amount LCY 0.
+          DetailedCustLedgEntry, CreateCustomer(), DebitAmountLCY, DebitAmountLCY, 0, DetailedCustLedgEntry."Entry Type"::"Realized Loss", DetailedCustLedgEntry."Document Type", CustLedgerEntry."Entry No.");  // Credit Amount LCY 0.
     end;
 
     local procedure CreateVendor(): Code[20]
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for VendorTotalBalanceRequestPageHandler.
         exit(Vendor."No.");
@@ -369,7 +369,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         end;
     end;
 
-    local procedure CreateDetailedVendorLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; VendorLedgerEntryNo: Integer)
+    local procedure CreateDetailedVendorLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; VendorLedgerEntryNo: Integer)
     var
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -395,7 +395,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         CreateVendorLedgerEntry(VendorLedgerEntry, EntryNo, ClosedByEntryNo);
 
         // Credit Amount LCY - 0.
-        CreateDetailedVendorLedgEntry(DetailedVendorLedgEntry, CreateVendor, DebitAmountLCY, DebitAmountLCY, 0, DetailedVendorLedgEntry."Entry Type"::"Realized Loss", DetailedVendorLedgEntry."Document Type", VendorLedgerEntry."Entry No.");
+        CreateDetailedVendorLedgEntry(DetailedVendorLedgEntry, CreateVendor(), DebitAmountLCY, DebitAmountLCY, 0, DetailedVendorLedgEntry."Entry Type"::"Realized Loss", DetailedVendorLedgEntry."Document Type", VendorLedgerEntry."Entry No.");
     end;
 
     local procedure EnqueueTotalBalanceReports(DateFilter: Date; AdjustExchRateDifferences: Boolean)
@@ -406,7 +406,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
 
     local procedure VerifyTotalBalanceReports(ElementName: Text; ExpectedValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -424,7 +424,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         CustomerTotalBalance.Customer.SetFilter("No.", No);
         CustomerTotalBalance.Customer.SetFilter("Date Filter", Format(DateFilter));
         CustomerTotalBalance.AdjustExchRateDifferences.SetValue(AdjustExchRateDifferences);
-        CustomerTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -441,7 +441,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         VendorTotalBalance.Vendor.SetFilter("No.", No);
         VendorTotalBalance.Vendor.SetFilter("Date Filter", Format(DateFilter));
         VendorTotalBalance.AdjustExchRateDifferences.SetValue(AdjustExchRateDifferences);
-        VendorTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorTotalBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

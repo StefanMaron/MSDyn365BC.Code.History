@@ -438,6 +438,7 @@ codeunit 9002 "Permission Manager"
             if User.Count = 0 then
                 exit;
 
+            User.FindSet();
             repeat
                 if not UserPermissions.IsSuper(User."User Security ID") and not IsNullGuid(User."User Security ID") then begin
                     AccessControl.SetRange("User Security ID", User."User Security ID");

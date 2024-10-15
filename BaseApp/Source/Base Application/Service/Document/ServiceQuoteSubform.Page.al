@@ -59,6 +59,12 @@ page 5965 "Service Quote Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item number linked to this service item.';
                 }
+                field("Variant Code"; Rec."Variant Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the variant of the item on the line.';
+                    Visible = false;
+                }
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;

@@ -39,10 +39,10 @@ report 840 "Suggest Worksheet Lines"
     {
         dataitem("Cash Flow Forecast"; "Cash Flow Forecast")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             dataitem("Cash Flow Account"; "Cash Flow Account")
             {
-                DataItemTableView = sorting("No.") ORDER(Ascending) where("G/L Integration" = filter(Balance | Both), "G/L Account Filter" = filter(<> ''));
+                DataItemTableView = sorting("No.") order(ascending) where("G/L Integration" = filter(Balance | Both), "G/L Account Filter" = filter(<> ''));
 
                 trigger OnAfterGetRecord()
                 var
@@ -75,7 +75,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
-                DataItemTableView = sorting(Open, "Due Date") ORDER(Ascending) where(Open = const(true), "Remaining Amount" = filter(<> 0));
+                DataItemTableView = sorting(Open, "Due Date") order(ascending) where(Open = const(true), "Remaining Amount" = filter(<> 0));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -103,7 +103,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
-                DataItemTableView = sorting(Open, "Due Date") ORDER(Ascending) where(Open = const(true), "Remaining Amount" = filter(<> 0));
+                DataItemTableView = sorting(Open, "Due Date") order(ascending) where(Open = const(true), "Remaining Amount" = filter(<> 0));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -131,7 +131,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem("Purchase Line"; "Purchase Line")
             {
-                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") ORDER(Ascending) where("Document Type" = const(Order));
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") order(ascending) where("Document Type" = const(Order));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -161,7 +161,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem("Sales Line"; "Sales Line")
             {
-                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") ORDER(Ascending) where("Document Type" = const(Order));
+                DataItemTableView = sorting("Document Type", "Document No.", "Line No.") order(ascending) where("Document Type" = const(Order));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -244,7 +244,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem("Cash Flow Manual Expense"; "Cash Flow Manual Expense")
             {
-                DataItemTableView = sorting(Code) order(Ascending);
+                DataItemTableView = sorting(Code) order(ascending);
 
                 trigger OnAfterGetRecord()
                 begin
@@ -265,7 +265,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem("Cash Flow Manual Revenue"; "Cash Flow Manual Revenue")
             {
-                DataItemTableView = sorting(Code) order(Ascending);
+                DataItemTableView = sorting(Code) order(ascending);
 
                 trigger OnAfterGetRecord()
                 begin
@@ -286,7 +286,7 @@ report 840 "Suggest Worksheet Lines"
             }
             dataitem(CFAccountForBudget; "Cash Flow Account")
             {
-                DataItemTableView = sorting("No.") ORDER(Ascending) where("G/L Integration" = filter(Budget | Both), "G/L Account Filter" = filter(<> ''));
+                DataItemTableView = sorting("No.") order(ascending) where("G/L Integration" = filter(Budget | Both), "G/L Account Filter" = filter(<> ''));
 
                 trigger OnAfterGetRecord()
                 var
@@ -521,7 +521,9 @@ report 840 "Suggest Worksheet Lines"
                     group("Source Types to Include:")
                     {
                         Caption = 'Source Types to Include:';
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Liquid Funds""]"; ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Liquid Funds';
@@ -533,25 +535,33 @@ report 840 "Suggest Worksheet Lines"
                             Caption = 'Receivables';
                             ToolTip = 'Specifies if you want to include open customer ledger entries in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Sales Order""]"; ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Sales Orders';
                             ToolTip = 'Specifies if you want to include sales orders in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Service Orders""]"; ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Service;
                             Caption = 'Service Orders';
                             ToolTip = 'Specifies if you want to include service orders in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Sale of Fixed Asset""]"; ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Assets Disposal';
                             ToolTip = 'Specifies if planned sales of fixed assets as revenues are included in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Cash Flow Manual Revenue""]"; ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Manual Revenues';
@@ -563,25 +573,33 @@ report 840 "Suggest Worksheet Lines"
                             Caption = 'Payables';
                             ToolTip = 'Specifies if you want to include open vendor ledger entries in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Purchase Order""]"; ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Purchase Orders';
                             ToolTip = 'Specifies if you want to include purchase orders in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Budgeted Fixed Asset""]"; ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Fixed Assets Budget';
                             ToolTip = 'Specifies if planned investments of fixed assets are included in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Cash Flow Manual Expense""]"; ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Manual Expenses';
                             ToolTip = 'Specifies if manual expenses in the cash flow forecast are included.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""G/L Budget""]"; ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Budget';
@@ -597,8 +615,8 @@ report 840 "Suggest Worksheet Lines"
                         field("ConsiderSource[SourceType::Job]"; ConsiderSource["Cash Flow Source Type"::Job.AsInteger()])
                         {
                             ApplicationArea = Jobs;
-                            Caption = 'Jobs';
-                            ToolTip = 'Specifies if you want to include jobs in the cash flow forecast.';
+                            Caption = 'Projects';
+                            ToolTip = 'Specifies if you want to include projects in the cash flow forecast.';
                         }
                         field("ConsiderSource[SourceType::Tax]"; ConsiderSource["Cash Flow Source Type"::Tax.AsInteger()])
                         {
@@ -606,7 +624,9 @@ report 840 "Suggest Worksheet Lines"
                             Caption = 'Taxes';
                             ToolTip = 'Specifies if you want to include tax information in the cash flow forecast.';
                         }
+#pragma warning disable AA0100
                         field("ConsiderSource[SourceType::""Azure AI""]"; ConsiderSource["Cash Flow Source Type"::"Azure AI".AsInteger()])
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Azure AI Forecast';
@@ -739,7 +759,7 @@ report 840 "Suggest Worksheet Lines"
         Text033: Label 'Search for          #2####################\';
         Text034: Label 'Record found        #3####################';
         ManualPmtRevExpNeedsUpdateMsg: Label 'There are one or more Cash Flow Manual Revenues/Expenses with a Recurring Frequency.\But the Recurring Frequency cannot be applied because the Manual Payments To date in Cash Flow Forecast %1 is empty.\Fill in this date in order to get multiple lines.';
-        JobsMsg: Label 'Jobs';
+        JobsMsg: Label 'Projects';
         PostedSalesDocumentDescriptionTxt: Label 'Posted Sales %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Customer Name). Example: Posted Sales Invoice - 04-05-18 The Cannon Group PLC';
         PostedPurchaseDocumentDescriptionTxt: Label 'Posted Purchase %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Vendor Name). Example: Posted Purchase Invoice - 04-05-18 The Cannon Group PLC';
         SalesDocumentDescriptionTxt: Label 'Sales %1 - %2 %3', Comment = '%1 = Source Document Type (e.g. Invoice), %2 = Due Date, %3 = Source Name (e.g. Customer Name). Example: Sales Invoice - 04-05-18 The Cannon Group PLC';
@@ -792,26 +812,24 @@ report 840 "Suggest Worksheet Lines"
     var
         IsHandled: Boolean;
     begin
-        with TempCFWorksheetLine do begin
-            LineNo := LineNo + 100;
-            TransferFields(CashFlowWorksheetLine);
-            "Cash Flow Forecast No." := "Cash Flow Forecast"."No.";
-            "Line No." := LineNo;
+        LineNo := LineNo + 100;
+        TempCFWorksheetLine.TransferFields(CashFlowWorksheetLine);
+        TempCFWorksheetLine."Cash Flow Forecast No." := "Cash Flow Forecast"."No.";
+        TempCFWorksheetLine."Line No." := LineNo;
 
-            IsHandled := false;
-            OnInsertTempCFWorksheetLineOnBeforeCalculateCFAmountAndCFDate(TempCFWorksheetLine, IsHandled);
-            if not IsHandled then
-                CalculateCFAmountAndCFDate();
-            SetCashFlowDate(TempCFWorksheetLine, "Cash Flow Date");
+        IsHandled := false;
+        OnInsertTempCFWorksheetLineOnBeforeCalculateCFAmountAndCFDate(TempCFWorksheetLine, IsHandled);
+        if not IsHandled then
+            TempCFWorksheetLine.CalculateCFAmountAndCFDate();
+        SetCashFlowDate(TempCFWorksheetLine, TempCFWorksheetLine."Cash Flow Date");
 
-            if Abs("Amount (LCY)") < Abs(MaxPmtTolerance) then
-                "Amount (LCY)" := 0
-            else
-                "Amount (LCY)" := "Amount (LCY)" - MaxPmtTolerance;
+        if Abs(TempCFWorksheetLine."Amount (LCY)") < Abs(MaxPmtTolerance) then
+            TempCFWorksheetLine."Amount (LCY)" := 0
+        else
+            TempCFWorksheetLine."Amount (LCY)" := TempCFWorksheetLine."Amount (LCY)" - MaxPmtTolerance;
 
-            if InsertConditionMet() then
-                Insert();
-        end;
+        if InsertConditionMet() then
+            TempCFWorksheetLine.Insert();
     end;
 
     local procedure InsertWorksheetLines(var TempCashFlowForecast: Record "Cash Flow Forecast" temporary)
@@ -860,122 +878,116 @@ report 840 "Suggest Worksheet Lines"
 
     local procedure InsertCFLineForGLAccount(GLAcc: Record "G/L Account")
     begin
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::"Liquid Funds";
-            "Source No." := GLAcc."No.";
-            "Document No." := GLAcc."No.";
-            "Cash Flow Account No." := "Cash Flow Account"."No.";
-            Description :=
-              CopyStr(
-                StrSubstNo(Text013, GLAcc.Name, Format(GLAcc.Balance)),
-                1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, WorkDate());
-            "Amount (LCY)" := GLAcc.Balance;
-            "Shortcut Dimension 2 Code" := GLAcc."Global Dimension 2 Code";
-            "Shortcut Dimension 1 Code" := GLAcc."Global Dimension 1 Code";
-            MoveDefualtDimToJnlLineDim(DATABASE::"G/L Account", GLAcc."No.", "Dimension Set ID");
-            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
-        end;
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Liquid Funds";
+        CFWorksheetLine2."Source No." := GLAcc."No.";
+        CFWorksheetLine2."Document No." := GLAcc."No.";
+        CFWorksheetLine2."Cash Flow Account No." := "Cash Flow Account"."No.";
+        CFWorksheetLine2.Description :=
+          CopyStr(
+            StrSubstNo(Text013, GLAcc.Name, Format(GLAcc.Balance)),
+            1, MaxStrLen(CFWorksheetLine2.Description));
+        SetCashFlowDate(CFWorksheetLine2, WorkDate());
+        CFWorksheetLine2."Amount (LCY)" := GLAcc.Balance;
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := GLAcc."Global Dimension 2 Code";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := GLAcc."Global Dimension 1 Code";
+        CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"G/L Account", GLAcc."No.", CFWorksheetLine2."Dimension Set ID");
+        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
     local procedure InsertCFLineForCustLedgerEntry()
     var
         MaxPmtTolerance: Decimal;
     begin
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::Receivables;
-            "Source No." := "Cust. Ledger Entry"."Document No.";
-            "Document Type" := "Cust. Ledger Entry"."Document Type";
-            "Document Date" := "Cust. Ledger Entry"."Document Date";
-            "Shortcut Dimension 2 Code" := "Cust. Ledger Entry"."Global Dimension 2 Code";
-            "Shortcut Dimension 1 Code" := "Cust. Ledger Entry"."Global Dimension 1 Code";
-            "Dimension Set ID" := "Cust. Ledger Entry"."Dimension Set ID";
-            "Cash Flow Account No." := CFSetup."Receivables CF Account No.";
-            Description := CopyStr(
-                StrSubstNo(PostedSalesDocumentDescriptionTxt,
-                  Format("Document Type"),
-                  Format("Cust. Ledger Entry"."Due Date"),
-                  Customer.Name),
-                1, MaxStrLen(Description));
-            "Document No." := "Cust. Ledger Entry"."Document No.";
-            SetCashFlowDate(CFWorksheetLine2, "Cust. Ledger Entry"."Due Date");
-            "Amount (LCY)" := "Cust. Ledger Entry"."Remaining Amt. (LCY)";
-            "Pmt. Discount Date" := "Cust. Ledger Entry"."Pmt. Discount Date";
-            "Pmt. Disc. Tolerance Date" := "Cust. Ledger Entry"."Pmt. Disc. Tolerance Date";
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::Receivables;
+        CFWorksheetLine2."Source No." := "Cust. Ledger Entry"."Document No.";
+        CFWorksheetLine2."Document Type" := "Cust. Ledger Entry"."Document Type";
+        CFWorksheetLine2."Document Date" := "Cust. Ledger Entry"."Document Date";
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := "Cust. Ledger Entry"."Global Dimension 2 Code";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := "Cust. Ledger Entry"."Global Dimension 1 Code";
+        CFWorksheetLine2."Dimension Set ID" := "Cust. Ledger Entry"."Dimension Set ID";
+        CFWorksheetLine2."Cash Flow Account No." := CFSetup."Receivables CF Account No.";
+        CFWorksheetLine2.Description := CopyStr(
+            StrSubstNo(PostedSalesDocumentDescriptionTxt,
+              Format(CFWorksheetLine2."Document Type"),
+              Format("Cust. Ledger Entry"."Due Date"),
+              Customer.Name),
+            1, MaxStrLen(CFWorksheetLine2.Description));
+        CFWorksheetLine2."Document No." := "Cust. Ledger Entry"."Document No.";
+        SetCashFlowDate(CFWorksheetLine2, "Cust. Ledger Entry"."Due Date");
+        CFWorksheetLine2."Amount (LCY)" := "Cust. Ledger Entry"."Remaining Amt. (LCY)";
+        CFWorksheetLine2."Pmt. Discount Date" := "Cust. Ledger Entry"."Pmt. Discount Date";
+        CFWorksheetLine2."Pmt. Disc. Tolerance Date" := "Cust. Ledger Entry"."Pmt. Disc. Tolerance Date";
 
-            if "Cust. Ledger Entry"."Currency Code" <> '' then
-                Currency.Get("Cust. Ledger Entry"."Currency Code")
-            else
-                Currency.InitRoundingPrecision();
+        if "Cust. Ledger Entry"."Currency Code" <> '' then
+            Currency.Get("Cust. Ledger Entry"."Currency Code")
+        else
+            Currency.InitRoundingPrecision();
 
-            "Payment Discount" := Round("Cust. Ledger Entry"."Remaining Pmt. Disc. Possible" /
-                "Cust. Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision");
+        CFWorksheetLine2."Payment Discount" := Round("Cust. Ledger Entry"."Remaining Pmt. Disc. Possible" /
+            "Cust. Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision");
 
-            if "Cash Flow Forecast"."Consider Pmt. Tol. Amount" then
-                MaxPmtTolerance := Round("Cust. Ledger Entry"."Max. Payment Tolerance" /
-                    "Cust. Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision")
-            else
-                MaxPmtTolerance := 0;
+        if "Cash Flow Forecast"."Consider Pmt. Tol. Amount" then
+            MaxPmtTolerance := Round("Cust. Ledger Entry"."Max. Payment Tolerance" /
+                "Cust. Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision")
+        else
+            MaxPmtTolerance := 0;
 
-            if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
-                "Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
-            else
-                "Payment Terms Code" := '';
+        if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
+            CFWorksheetLine2."Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
+        else
+            CFWorksheetLine2."Payment Terms Code" := '';
 
-            OnInsertCFLineForCustLedgerEntryOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, "Cash Flow Forecast", "Cust. Ledger Entry");
-            InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
-        end;
+        OnInsertCFLineForCustLedgerEntryOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, "Cash Flow Forecast", "Cust. Ledger Entry");
+        InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
     end;
 
     local procedure InsertCFLineForVendorLedgEntry()
     var
         MaxPmtTolerance: Decimal;
     begin
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::Payables;
-            "Source No." := "Vendor Ledger Entry"."Document No.";
-            "Document Type" := "Vendor Ledger Entry"."Document Type";
-            "Document Date" := "Vendor Ledger Entry"."Document Date";
-            "Shortcut Dimension 2 Code" := "Vendor Ledger Entry"."Global Dimension 2 Code";
-            "Shortcut Dimension 1 Code" := "Vendor Ledger Entry"."Global Dimension 1 Code";
-            "Dimension Set ID" := "Vendor Ledger Entry"."Dimension Set ID";
-            "Cash Flow Account No." := CFSetup."Payables CF Account No.";
-            Description := CopyStr(
-                StrSubstNo(PostedPurchaseDocumentDescriptionTxt,
-                  Format("Document Type"),
-                  Format("Vendor Ledger Entry"."Due Date"),
-                  Vendor.Name),
-                1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, "Vendor Ledger Entry"."Due Date");
-            "Document No." := "Vendor Ledger Entry"."Document No.";
-            "Amount (LCY)" := "Vendor Ledger Entry"."Remaining Amt. (LCY)";
-            "Pmt. Discount Date" := "Vendor Ledger Entry"."Pmt. Discount Date";
-            "Pmt. Disc. Tolerance Date" := "Vendor Ledger Entry"."Pmt. Disc. Tolerance Date";
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::Payables;
+        CFWorksheetLine2."Source No." := "Vendor Ledger Entry"."Document No.";
+        CFWorksheetLine2."Document Type" := "Vendor Ledger Entry"."Document Type";
+        CFWorksheetLine2."Document Date" := "Vendor Ledger Entry"."Document Date";
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := "Vendor Ledger Entry"."Global Dimension 2 Code";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := "Vendor Ledger Entry"."Global Dimension 1 Code";
+        CFWorksheetLine2."Dimension Set ID" := "Vendor Ledger Entry"."Dimension Set ID";
+        CFWorksheetLine2."Cash Flow Account No." := CFSetup."Payables CF Account No.";
+        CFWorksheetLine2.Description := CopyStr(
+            StrSubstNo(PostedPurchaseDocumentDescriptionTxt,
+              Format(CFWorksheetLine2."Document Type"),
+              Format("Vendor Ledger Entry"."Due Date"),
+              Vendor.Name),
+            1, MaxStrLen(CFWorksheetLine2.Description));
+        SetCashFlowDate(CFWorksheetLine2, "Vendor Ledger Entry"."Due Date");
+        CFWorksheetLine2."Document No." := "Vendor Ledger Entry"."Document No.";
+        CFWorksheetLine2."Amount (LCY)" := "Vendor Ledger Entry"."Remaining Amt. (LCY)";
+        CFWorksheetLine2."Pmt. Discount Date" := "Vendor Ledger Entry"."Pmt. Discount Date";
+        CFWorksheetLine2."Pmt. Disc. Tolerance Date" := "Vendor Ledger Entry"."Pmt. Disc. Tolerance Date";
 
-            if "Vendor Ledger Entry"."Currency Code" <> '' then
-                Currency.Get("Vendor Ledger Entry"."Currency Code")
-            else
-                Currency.InitRoundingPrecision();
+        if "Vendor Ledger Entry"."Currency Code" <> '' then
+            Currency.Get("Vendor Ledger Entry"."Currency Code")
+        else
+            Currency.InitRoundingPrecision();
 
-            "Payment Discount" := Round("Vendor Ledger Entry"."Remaining Pmt. Disc. Possible" /
-                "Vendor Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision");
+        CFWorksheetLine2."Payment Discount" := Round("Vendor Ledger Entry"."Remaining Pmt. Disc. Possible" /
+            "Vendor Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision");
 
-            if "Cash Flow Forecast"."Consider Pmt. Tol. Amount" then
-                MaxPmtTolerance := Round("Vendor Ledger Entry"."Max. Payment Tolerance" /
-                    "Vendor Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision")
-            else
-                MaxPmtTolerance := 0;
+        if "Cash Flow Forecast"."Consider Pmt. Tol. Amount" then
+            MaxPmtTolerance := Round("Vendor Ledger Entry"."Max. Payment Tolerance" /
+                "Vendor Ledger Entry"."Adjusted Currency Factor", Currency."Amount Rounding Precision")
+        else
+            MaxPmtTolerance := 0;
 
-            if "Cash Flow Forecast"."Consider CF Payment Terms" and (Vendor."Cash Flow Payment Terms Code" <> '') then
-                "Payment Terms Code" := Vendor."Cash Flow Payment Terms Code"
-            else
-                "Payment Terms Code" := '';
+        if "Cash Flow Forecast"."Consider CF Payment Terms" and (Vendor."Cash Flow Payment Terms Code" <> '') then
+            CFWorksheetLine2."Payment Terms Code" := Vendor."Cash Flow Payment Terms Code"
+        else
+            CFWorksheetLine2."Payment Terms Code" := '';
 
-            InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
-        end;
+        InsertTempCFWorksheetLine(CFWorksheetLine2, MaxPmtTolerance);
     end;
 
     local procedure InsertCFLineForPurchaseLine()
@@ -988,44 +1000,43 @@ report 840 "Suggest Worksheet Lines"
         then begin
             TotalAmt += CalculateLineAmountForPurchaseLine(PurchHeader, "Purchase Line");
             MultiSalesLines := true;
-        end else
-            with CFWorksheetLine2 do begin
-                Init();
-                "Source Type" := "Source Type"::"Purchase Orders";
-                "Source No." := "Purchase Line"."Document No.";
-                "Source Line No." := "Purchase Line"."Line No.";
-                "Document Type" := "Document Type"::Invoice;
-                "Document Date" := PurchHeader."Document Date";
-                "Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
-                "Dimension Set ID" := PurchHeader."Dimension Set ID";
-                "Cash Flow Account No." := CFSetup."Purch. Order CF Account No.";
-                Description :=
-                  CopyStr(
-                    StrSubstNo(
-                      PurchaseDocumentDescriptionTxt,
-                      PurchHeader."Document Type",
-                      Format(PurchHeader."Order Date"),
-                      PurchHeader."Buy-from Vendor Name"),
-                    1, MaxStrLen(Description));
-                SetCashFlowDate(CFWorksheetLine2, PurchHeader."Due Date");
-                "Document No." := "Purchase Line"."Document No.";
-                "Amount (LCY)" := CalculateLineAmountForPurchaseLine(PurchHeader, "Purchase Line");
+        end else begin
+            CFWorksheetLine2.Init();
+            CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Purchase Orders";
+            CFWorksheetLine2."Source No." := "Purchase Line"."Document No.";
+            CFWorksheetLine2."Source Line No." := "Purchase Line"."Line No.";
+            CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::Invoice;
+            CFWorksheetLine2."Document Date" := PurchHeader."Document Date";
+            CFWorksheetLine2."Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
+            CFWorksheetLine2."Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
+            CFWorksheetLine2."Dimension Set ID" := PurchHeader."Dimension Set ID";
+            CFWorksheetLine2."Cash Flow Account No." := CFSetup."Purch. Order CF Account No.";
+            CFWorksheetLine2.Description :=
+              CopyStr(
+                StrSubstNo(
+                  PurchaseDocumentDescriptionTxt,
+                  PurchHeader."Document Type",
+                  Format(PurchHeader."Order Date"),
+                  PurchHeader."Buy-from Vendor Name"),
+                1, MaxStrLen(CFWorksheetLine2.Description));
+            SetCashFlowDate(CFWorksheetLine2, PurchHeader."Due Date");
+            CFWorksheetLine2."Document No." := "Purchase Line"."Document No.";
+            CFWorksheetLine2."Amount (LCY)" := CalculateLineAmountForPurchaseLine(PurchHeader, "Purchase Line");
 
-                if Summarized and MultiSalesLines then begin
-                    "Amount (LCY)" := "Amount (LCY)" + TotalAmt;
-                    MultiSalesLines := false;
-                    TotalAmt := 0;
-                end;
-
-                if "Cash Flow Forecast"."Consider CF Payment Terms" and (Vendor."Cash Flow Payment Terms Code" <> '') then
-                    "Payment Terms Code" := Vendor."Cash Flow Payment Terms Code"
-                else
-                    "Payment Terms Code" := PurchHeader."Payment Terms Code";
-
-                OnInsertCFLineForPurchaseLineOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, PurchHeader, "Purchase Line");
-                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+            if Summarized and MultiSalesLines then begin
+                CFWorksheetLine2."Amount (LCY)" := CFWorksheetLine2."Amount (LCY)" + TotalAmt;
+                MultiSalesLines := false;
+                TotalAmt := 0;
             end;
+
+            if "Cash Flow Forecast"."Consider CF Payment Terms" and (Vendor."Cash Flow Payment Terms Code" <> '') then
+                CFWorksheetLine2."Payment Terms Code" := Vendor."Cash Flow Payment Terms Code"
+            else
+                CFWorksheetLine2."Payment Terms Code" := PurchHeader."Payment Terms Code";
+
+            OnInsertCFLineForPurchaseLineOnBeforeInsertTempCFWorksheetLine(CFWorksheetLine2, PurchHeader, "Purchase Line");
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+        end;
     end;
 
     local procedure InsertCFLineForSalesLine()
@@ -1038,46 +1049,45 @@ report 840 "Suggest Worksheet Lines"
         then begin
             TotalAmt += CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
             MultiSalesLines := true;
-        end else
-            with CFWorksheetLine2 do begin
-                Init();
-                "Document Type" := "Document Type"::Invoice;
-                "Document Date" := SalesHeader."Document Date";
-                "Source Type" := "Source Type"::"Sales Orders";
-                "Source No." := "Sales Line"."Document No.";
-                "Source Line No." := "Sales Line"."Line No.";
-                "Shortcut Dimension 1 Code" := SalesHeader."Shortcut Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
-                "Dimension Set ID" := SalesHeader."Dimension Set ID";
-                "Cash Flow Account No." := CFSetup."Sales Order CF Account No.";
-                Description :=
-                  CopyStr(
-                    StrSubstNo(
-                      SalesDocumentDescriptionTxt,
-                      SalesHeader."Document Type",
-                      Format(SalesHeader."Order Date"),
-                      SalesHeader."Sell-to Customer Name"),
-                    1, MaxStrLen(Description));
-                SetCashFlowDate(CFWorksheetLine2, SalesHeader."Due Date");
-                "Document No." := "Sales Line"."Document No.";
-                if SalesHeader."Prepayment %" = 100 then
-                    "Amount (LCY)" := GetSalesOrderPrepaymentAmt("Sales Line")
-                else
-                    "Amount (LCY)" := CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
+        end else begin
+            CFWorksheetLine2.Init();
+            CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::Invoice;
+            CFWorksheetLine2."Document Date" := SalesHeader."Document Date";
+            CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Sales Orders";
+            CFWorksheetLine2."Source No." := "Sales Line"."Document No.";
+            CFWorksheetLine2."Source Line No." := "Sales Line"."Line No.";
+            CFWorksheetLine2."Shortcut Dimension 1 Code" := SalesHeader."Shortcut Dimension 1 Code";
+            CFWorksheetLine2."Shortcut Dimension 2 Code" := SalesHeader."Shortcut Dimension 2 Code";
+            CFWorksheetLine2."Dimension Set ID" := SalesHeader."Dimension Set ID";
+            CFWorksheetLine2."Cash Flow Account No." := CFSetup."Sales Order CF Account No.";
+            CFWorksheetLine2.Description :=
+              CopyStr(
+                StrSubstNo(
+                  SalesDocumentDescriptionTxt,
+                  SalesHeader."Document Type",
+                  Format(SalesHeader."Order Date"),
+                  SalesHeader."Sell-to Customer Name"),
+                1, MaxStrLen(CFWorksheetLine2.Description));
+            SetCashFlowDate(CFWorksheetLine2, SalesHeader."Due Date");
+            CFWorksheetLine2."Document No." := "Sales Line"."Document No.";
+            if SalesHeader."Prepayment %" = 100 then
+                CFWorksheetLine2."Amount (LCY)" := GetSalesOrderPrepaymentAmt("Sales Line")
+            else
+                CFWorksheetLine2."Amount (LCY)" := CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
 
-                if Summarized and MultiSalesLines then begin
-                    "Amount (LCY)" := "Amount (LCY)" + TotalAmt;
-                    MultiSalesLines := false;
-                    TotalAmt := 0;
-                end;
-
-                if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
-                    "Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
-                else
-                    "Payment Terms Code" := SalesHeader."Payment Terms Code";
-
-                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+            if Summarized and MultiSalesLines then begin
+                CFWorksheetLine2."Amount (LCY)" := CFWorksheetLine2."Amount (LCY)" + TotalAmt;
+                MultiSalesLines := false;
+                TotalAmt := 0;
             end;
+
+            if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
+                CFWorksheetLine2."Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
+            else
+                CFWorksheetLine2."Payment Terms Code" := SalesHeader."Payment Terms Code";
+
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+        end;
     end;
 
     local procedure InsertCFLineForFixedAssetsBudget()
@@ -1102,138 +1112,128 @@ report 840 "Suggest Worksheet Lines"
 
     local procedure InitCFLineForFixedAssetsBudget()
     begin
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::"Fixed Assets Budget";
-            "Source No." := InvestmentFixedAsset."No.";
-            "Document No." := InvestmentFixedAsset."No.";
-            "Cash Flow Account No." := CFSetup."FA Budget CF Account No.";
-            Description :=
-              CopyStr(
-                StrSubstNo(
-                  Text027, InvestmentFixedAsset."No.", Format(-FALedgerEntry.Amount)),
-                1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, FALedgerEntry."Posting Date");
-            "Amount (LCY)" := -FALedgerEntry.Amount;
-            "Shortcut Dimension 2 Code" := InvestmentFixedAsset."Global Dimension 2 Code";
-            "Shortcut Dimension 1 Code" := InvestmentFixedAsset."Global Dimension 1 Code";
-        end;
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Fixed Assets Budget";
+        CFWorksheetLine2."Source No." := InvestmentFixedAsset."No.";
+        CFWorksheetLine2."Document No." := InvestmentFixedAsset."No.";
+        CFWorksheetLine2."Cash Flow Account No." := CFSetup."FA Budget CF Account No.";
+        CFWorksheetLine2.Description :=
+          CopyStr(
+            StrSubstNo(
+              Text027, InvestmentFixedAsset."No.", Format(-FALedgerEntry.Amount)),
+            1, MaxStrLen(CFWorksheetLine2.Description));
+        SetCashFlowDate(CFWorksheetLine2, FALedgerEntry."Posting Date");
+        CFWorksheetLine2."Amount (LCY)" := -FALedgerEntry.Amount;
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := InvestmentFixedAsset."Global Dimension 2 Code";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := InvestmentFixedAsset."Global Dimension 1 Code";
         OnAfterInitCFLineForFixedAssetsBudget(CFWorksheetLine2, FADeprBook, InvestmentFixedAsset);
     end;
 
     local procedure InsertCFLineForFixedAssetsDisposal()
     begin
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::"Fixed Assets Disposal";
-            "Source No." := SaleFixedAsset."No.";
-            "Document No." := SaleFixedAsset."No.";
-            "Cash Flow Account No." := CFSetup."FA Disposal CF Account No.";
-            Description :=
-              CopyStr(
-                StrSubstNo(
-                  Text027, SaleFixedAsset."No.", Format(FADeprBook."Projected Proceeds on Disposal")),
-                1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, FADeprBook."Projected Disposal Date");
-            "Amount (LCY)" := FADeprBook."Projected Proceeds on Disposal";
-            "Shortcut Dimension 2 Code" := SaleFixedAsset."Global Dimension 2 Code";
-            "Shortcut Dimension 1 Code" := SaleFixedAsset."Global Dimension 1 Code";
-            MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", SaleFixedAsset."No.", "Dimension Set ID");
-            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
-        end;
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Fixed Assets Disposal";
+        CFWorksheetLine2."Source No." := SaleFixedAsset."No.";
+        CFWorksheetLine2."Document No." := SaleFixedAsset."No.";
+        CFWorksheetLine2."Cash Flow Account No." := CFSetup."FA Disposal CF Account No.";
+        CFWorksheetLine2.Description :=
+          CopyStr(
+            StrSubstNo(
+              Text027, SaleFixedAsset."No.", Format(FADeprBook."Projected Proceeds on Disposal")),
+            1, MaxStrLen(CFWorksheetLine2.Description));
+        SetCashFlowDate(CFWorksheetLine2, FADeprBook."Projected Disposal Date");
+        CFWorksheetLine2."Amount (LCY)" := FADeprBook."Projected Proceeds on Disposal";
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := SaleFixedAsset."Global Dimension 2 Code";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := SaleFixedAsset."Global Dimension 1 Code";
+        CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"Fixed Asset", SaleFixedAsset."No.", CFWorksheetLine2."Dimension Set ID");
+        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
     local procedure InsertCFLineForManualExpense()
     begin
-        with CFWorksheetLine2 do begin
-            "Cash Flow Manual Expense".TestField("Starting Date");
-            Init();
-            "Source Type" := "Source Type"::"Cash Flow Manual Expense";
-            "Source No." := "Cash Flow Manual Expense".Code;
-            "Document No." := "Cash Flow Manual Expense".Code;
-            "Cash Flow Account No." := "Cash Flow Manual Expense"."Cash Flow Account No.";
-            "Shortcut Dimension 1 Code" := "Cash Flow Manual Expense"."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := "Cash Flow Manual Expense"."Global Dimension 2 Code";
-            MoveDefualtDimToJnlLineDim(DATABASE::"Cash Flow Manual Expense", "Cash Flow Manual Expense".Code, "Dimension Set ID");
-            Description := CopyStr(StrSubstNo(Text028, "Cash Flow Manual Expense".Description), 1, MaxStrLen(Description));
-            DateLastExecution := "Cash Flow Forecast"."Manual Payments To";
-            if ("Cash Flow Manual Expense"."Ending Date" <> 0D) and
-               ("Cash Flow Manual Expense"."Ending Date" < "Cash Flow Forecast"."Manual Payments To")
-            then
-                DateLastExecution := "Cash Flow Manual Expense"."Ending Date";
-            ExecutionDate := "Cash Flow Manual Expense"."Starting Date";
-            if Format("Cash Flow Manual Expense"."Recurring Frequency") <> '' then begin
-                if DateLastExecution = 0D then begin
-                    NeedsManualPmtUpdate := true;
+        "Cash Flow Manual Expense".TestField("Starting Date");
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Cash Flow Manual Expense";
+        CFWorksheetLine2."Source No." := "Cash Flow Manual Expense".Code;
+        CFWorksheetLine2."Document No." := "Cash Flow Manual Expense".Code;
+        CFWorksheetLine2."Cash Flow Account No." := "Cash Flow Manual Expense"."Cash Flow Account No.";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := "Cash Flow Manual Expense"."Global Dimension 1 Code";
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := "Cash Flow Manual Expense"."Global Dimension 2 Code";
+        CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"Cash Flow Manual Expense", "Cash Flow Manual Expense".Code, CFWorksheetLine2."Dimension Set ID");
+        CFWorksheetLine2.Description := CopyStr(StrSubstNo(Text028, "Cash Flow Manual Expense".Description), 1, MaxStrLen(CFWorksheetLine2.Description));
+        DateLastExecution := "Cash Flow Forecast"."Manual Payments To";
+        if ("Cash Flow Manual Expense"."Ending Date" <> 0D) and
+           ("Cash Flow Manual Expense"."Ending Date" < "Cash Flow Forecast"."Manual Payments To")
+        then
+            DateLastExecution := "Cash Flow Manual Expense"."Ending Date";
+        ExecutionDate := "Cash Flow Manual Expense"."Starting Date";
+        if Format("Cash Flow Manual Expense"."Recurring Frequency") <> '' then begin
+            if DateLastExecution = 0D then begin
+                NeedsManualPmtUpdate := true;
+                InsertManualData(
+                  ExecutionDate, "Cash Flow Forecast", -"Cash Flow Manual Expense".Amount);
+            end else
+                while ExecutionDate <= DateLastExecution do begin
                     InsertManualData(
                       ExecutionDate, "Cash Flow Forecast", -"Cash Flow Manual Expense".Amount);
-                end else
-                    while ExecutionDate <= DateLastExecution do begin
-                        InsertManualData(
-                          ExecutionDate, "Cash Flow Forecast", -"Cash Flow Manual Expense".Amount);
-                        ExecutionDate := CalcDate("Cash Flow Manual Expense"."Recurring Frequency", ExecutionDate);
-                    end;
-            end else
-                InsertManualData(ExecutionDate, "Cash Flow Forecast", -"Cash Flow Manual Expense".Amount);
-        end;
+                    ExecutionDate := CalcDate("Cash Flow Manual Expense"."Recurring Frequency", ExecutionDate);
+                end;
+        end else
+            InsertManualData(ExecutionDate, "Cash Flow Forecast", -"Cash Flow Manual Expense".Amount);
     end;
 
     local procedure InsertCFLineForManualRevenue()
     begin
-        with CFWorksheetLine2 do begin
-            "Cash Flow Manual Revenue".TestField("Starting Date");
-            Init();
-            "Source Type" := "Source Type"::"Cash Flow Manual Revenue";
-            "Source No." := "Cash Flow Manual Revenue".Code;
-            "Document No." := "Cash Flow Manual Revenue".Code;
-            "Cash Flow Account No." := "Cash Flow Manual Revenue"."Cash Flow Account No.";
-            "Shortcut Dimension 1 Code" := "Cash Flow Manual Revenue"."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := "Cash Flow Manual Revenue"."Global Dimension 2 Code";
-            MoveDefualtDimToJnlLineDim(DATABASE::"Cash Flow Manual Revenue", "Cash Flow Manual Revenue".Code, "Dimension Set ID");
-            Description := CopyStr(StrSubstNo(Text029, "Cash Flow Manual Revenue".Description), 1, MaxStrLen(Description));
-            DateLastExecution := "Cash Flow Forecast"."Manual Payments To";
-            if ("Cash Flow Manual Revenue"."Ending Date" <> 0D) and
-               ("Cash Flow Manual Revenue"."Ending Date" < "Cash Flow Forecast"."Manual Payments To")
-            then
-                DateLastExecution := "Cash Flow Manual Revenue"."Ending Date";
-            ExecutionDate := "Cash Flow Manual Revenue"."Starting Date";
-            if Format("Cash Flow Manual Revenue"."Recurring Frequency") <> '' then begin
-                if DateLastExecution = 0D then begin
-                    NeedsManualPmtUpdate := true;
+        "Cash Flow Manual Revenue".TestField("Starting Date");
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Cash Flow Manual Revenue";
+        CFWorksheetLine2."Source No." := "Cash Flow Manual Revenue".Code;
+        CFWorksheetLine2."Document No." := "Cash Flow Manual Revenue".Code;
+        CFWorksheetLine2."Cash Flow Account No." := "Cash Flow Manual Revenue"."Cash Flow Account No.";
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := "Cash Flow Manual Revenue"."Global Dimension 1 Code";
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := "Cash Flow Manual Revenue"."Global Dimension 2 Code";
+        CFWorksheetLine2.MoveDefualtDimToJnlLineDim(DATABASE::"Cash Flow Manual Revenue", "Cash Flow Manual Revenue".Code, CFWorksheetLine2."Dimension Set ID");
+        CFWorksheetLine2.Description := CopyStr(StrSubstNo(Text029, "Cash Flow Manual Revenue".Description), 1, MaxStrLen(CFWorksheetLine2.Description));
+        DateLastExecution := "Cash Flow Forecast"."Manual Payments To";
+        if ("Cash Flow Manual Revenue"."Ending Date" <> 0D) and
+           ("Cash Flow Manual Revenue"."Ending Date" < "Cash Flow Forecast"."Manual Payments To")
+        then
+            DateLastExecution := "Cash Flow Manual Revenue"."Ending Date";
+        ExecutionDate := "Cash Flow Manual Revenue"."Starting Date";
+        if Format("Cash Flow Manual Revenue"."Recurring Frequency") <> '' then begin
+            if DateLastExecution = 0D then begin
+                NeedsManualPmtUpdate := true;
+                InsertManualData(
+                  ExecutionDate, "Cash Flow Forecast", "Cash Flow Manual Revenue".Amount);
+            end else
+                while ExecutionDate <= DateLastExecution do begin
                     InsertManualData(
                       ExecutionDate, "Cash Flow Forecast", "Cash Flow Manual Revenue".Amount);
-                end else
-                    while ExecutionDate <= DateLastExecution do begin
-                        InsertManualData(
-                          ExecutionDate, "Cash Flow Forecast", "Cash Flow Manual Revenue".Amount);
-                        ExecutionDate := CalcDate("Cash Flow Manual Revenue"."Recurring Frequency", ExecutionDate);
-                    end;
-            end else
-                InsertManualData(ExecutionDate, "Cash Flow Forecast", "Cash Flow Manual Revenue".Amount);
-        end;
+                    ExecutionDate := CalcDate("Cash Flow Manual Revenue"."Recurring Frequency", ExecutionDate);
+                end;
+        end else
+            InsertManualData(ExecutionDate, "Cash Flow Forecast", "Cash Flow Manual Revenue".Amount);
     end;
 
     local procedure InsertCFLineForGLBudget(GLAcc: Record "G/L Account")
     begin
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::"G/L Budget";
-            "Source No." := GLAcc."No.";
-            "G/L Budget Name" := GLBudgEntry."Budget Name";
-            "Document No." := Format(GLBudgEntry."Entry No.");
-            "Cash Flow Account No." := CFAccountForBudget."No.";
-            Description :=
-              CopyStr(
-                StrSubstNo(
-                  Text030, GLAcc.Name, Format(GLBudgEntry.Description)),
-                1, MaxStrLen(Description));
-            SetCashFlowDate(CFWorksheetLine2, GLBudgEntry.Date);
-            "Amount (LCY)" := -GLBudgEntry.Amount;
-            "Shortcut Dimension 1 Code" := GLBudgEntry."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := GLBudgEntry."Global Dimension 2 Code";
-            "Dimension Set ID" := GLBudgEntry."Dimension Set ID";
-            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
-        end;
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"G/L Budget";
+        CFWorksheetLine2."Source No." := GLAcc."No.";
+        CFWorksheetLine2."G/L Budget Name" := GLBudgEntry."Budget Name";
+        CFWorksheetLine2."Document No." := Format(GLBudgEntry."Entry No.");
+        CFWorksheetLine2."Cash Flow Account No." := CFAccountForBudget."No.";
+        CFWorksheetLine2.Description :=
+          CopyStr(
+            StrSubstNo(
+              Text030, GLAcc.Name, Format(GLBudgEntry.Description)),
+            1, MaxStrLen(CFWorksheetLine2.Description));
+        SetCashFlowDate(CFWorksheetLine2, GLBudgEntry.Date);
+        CFWorksheetLine2."Amount (LCY)" := -GLBudgEntry.Amount;
+        CFWorksheetLine2."Shortcut Dimension 1 Code" := GLBudgEntry."Global Dimension 1 Code";
+        CFWorksheetLine2."Shortcut Dimension 2 Code" := GLBudgEntry."Global Dimension 2 Code";
+        CFWorksheetLine2."Dimension Set ID" := GLBudgEntry."Dimension Set ID";
+        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
     local procedure InsertCFLineForServiceLine()
@@ -1247,43 +1247,42 @@ report 840 "Suggest Worksheet Lines"
             TotalAmt += CalculateLineAmountForServiceLine("Service Line");
 
             MultiSalesLines := true;
-        end else
-            with CFWorksheetLine2 do begin
-                Init();
-                "Source Type" := "Source Type"::"Service Orders";
-                "Source No." := "Service Line"."Document No.";
-                "Source Line No." := "Service Line"."Line No.";
-                "Document Type" := "Document Type"::Invoice;
-                "Document Date" := ServiceHeader."Document Date";
-                "Shortcut Dimension 1 Code" := ServiceHeader."Shortcut Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := ServiceHeader."Shortcut Dimension 2 Code";
-                "Dimension Set ID" := ServiceHeader."Dimension Set ID";
-                "Cash Flow Account No." := CFSetup."Service CF Account No.";
-                Description :=
-                  CopyStr(
-                    StrSubstNo(
-                      ServiceDocumentDescriptionTxt,
-                      ServiceHeader."Document Type",
-                      ServiceHeader.Name,
-                      Format(ServiceHeader."Order Date")),
-                    1, MaxStrLen(Description));
-                SetCashFlowDate(CFWorksheetLine2, ServiceHeader."Due Date");
-                "Document No." := "Service Line"."Document No.";
-                "Amount (LCY)" := CalculateLineAmountForServiceLine("Service Line");
+        end else begin
+            CFWorksheetLine2.Init();
+            CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Service Orders";
+            CFWorksheetLine2."Source No." := "Service Line"."Document No.";
+            CFWorksheetLine2."Source Line No." := "Service Line"."Line No.";
+            CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::Invoice;
+            CFWorksheetLine2."Document Date" := ServiceHeader."Document Date";
+            CFWorksheetLine2."Shortcut Dimension 1 Code" := ServiceHeader."Shortcut Dimension 1 Code";
+            CFWorksheetLine2."Shortcut Dimension 2 Code" := ServiceHeader."Shortcut Dimension 2 Code";
+            CFWorksheetLine2."Dimension Set ID" := ServiceHeader."Dimension Set ID";
+            CFWorksheetLine2."Cash Flow Account No." := CFSetup."Service CF Account No.";
+            CFWorksheetLine2.Description :=
+              CopyStr(
+                StrSubstNo(
+                  ServiceDocumentDescriptionTxt,
+                  ServiceHeader."Document Type",
+                  ServiceHeader.Name,
+                  Format(ServiceHeader."Order Date")),
+                1, MaxStrLen(CFWorksheetLine2.Description));
+            SetCashFlowDate(CFWorksheetLine2, ServiceHeader."Due Date");
+            CFWorksheetLine2."Document No." := "Service Line"."Document No.";
+            CFWorksheetLine2."Amount (LCY)" := CalculateLineAmountForServiceLine("Service Line");
 
-                if Summarized and MultiSalesLines then begin
-                    "Amount (LCY)" := "Amount (LCY)" + TotalAmt;
-                    MultiSalesLines := false;
-                    TotalAmt := 0;
-                end;
-
-                if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
-                    "Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
-                else
-                    "Payment Terms Code" := ServiceHeader."Payment Terms Code";
-
-                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+            if Summarized and MultiSalesLines then begin
+                CFWorksheetLine2."Amount (LCY)" := CFWorksheetLine2."Amount (LCY)" + TotalAmt;
+                MultiSalesLines := false;
+                TotalAmt := 0;
             end;
+
+            if "Cash Flow Forecast"."Consider CF Payment Terms" and (Customer."Cash Flow Payment Terms Code" <> '') then
+                CFWorksheetLine2."Payment Terms Code" := Customer."Cash Flow Payment Terms Code"
+            else
+                CFWorksheetLine2."Payment Terms Code" := ServiceHeader."Payment Terms Code";
+
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+        end;
     end;
 
     local procedure InsertCFLineForJobPlanningLine()
@@ -1299,37 +1298,36 @@ report 840 "Suggest Worksheet Lines"
             InsertConditionHasBeenMetAlready := InsertConditionMet();
             TempCFWorksheetLine."Amount (LCY)" += GetJobPlanningAmountForCFLine("Job Planning Line");
             InsertOrModifyCFLine(InsertConditionHasBeenMetAlready);
-        end else
-            with CFWorksheetLine2 do begin
-                Init();
-                "Source Type" := "Source Type"::Job;
-                "Source No." := "Job Planning Line"."Job No.";
-                "Document Type" := "Document Type"::Invoice;
-                "Document Date" := "Job Planning Line"."Planning Date";
+        end else begin
+            CFWorksheetLine2.Init();
+            CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::Job;
+            CFWorksheetLine2."Source No." := "Job Planning Line"."Job No.";
+            CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::Invoice;
+            CFWorksheetLine2."Document Date" := "Job Planning Line"."Planning Date";
 
-                Job.Get("Job Planning Line"."Job No.");
-                "Shortcut Dimension 1 Code" := Job."Global Dimension 1 Code";
-                "Shortcut Dimension 2 Code" := Job."Global Dimension 2 Code";
-                "Cash Flow Account No." := CFSetup."Job CF Account No.";
-                Description :=
-                  CopyStr(
-                    StrSubstNo(
-                      Text025,
-                      Job.TableCaption(),
-                      Job.Description,
-                      Format("Job Planning Line"."Document Date")),
-                    1, MaxStrLen(Description));
+            Job.Get("Job Planning Line"."Job No.");
+            CFWorksheetLine2."Shortcut Dimension 1 Code" := Job."Global Dimension 1 Code";
+            CFWorksheetLine2."Shortcut Dimension 2 Code" := Job."Global Dimension 2 Code";
+            CFWorksheetLine2."Cash Flow Account No." := CFSetup."Job CF Account No.";
+            CFWorksheetLine2.Description :=
+              CopyStr(
+                StrSubstNo(
+                  Text025,
+                  Job.TableCaption(),
+                  Job.Description,
+                  Format("Job Planning Line"."Document Date")),
+                1, MaxStrLen(CFWorksheetLine2.Description));
 
-                if "Job Planning Line"."Planning Due Date" = 0D then
-                    if "Job Planning Line".UpdatePlannedDueDate() then
-                        "Job Planning Line".Modify();
-                SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Due Date");
+            if "Job Planning Line"."Planning Due Date" = 0D then
+                if "Job Planning Line".UpdatePlannedDueDate() then
+                    "Job Planning Line".Modify();
+            SetCashFlowDate(CFWorksheetLine2, "Job Planning Line"."Planning Due Date");
 
-                "Document No." := "Job Planning Line"."Document No.";
-                "Amount (LCY)" := GetJobPlanningAmountForCFLine("Job Planning Line");
+            CFWorksheetLine2."Document No." := "Job Planning Line"."Document No.";
+            CFWorksheetLine2."Amount (LCY)" := GetJobPlanningAmountForCFLine("Job Planning Line");
 
-                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
-            end;
+            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+        end;
     end;
 
     local procedure InsertCFLineForTax(SourceTableNum: Integer)
@@ -1355,30 +1353,29 @@ report 840 "Suggest Worksheet Lines"
                 InsertConditionHasBeenMetAlready := InsertConditionMet();
                 TempCFWorksheetLine."Amount (LCY)" += GetTaxAmountFromSource(SourceTableNum);
                 InsertOrModifyCFLine(InsertConditionHasBeenMetAlready);
-            end else
-                with CFWorksheetLine2 do begin
-                    Init();
-                    "Source Type" := "Source Type"::Tax;
-                    "Source No." := SourceNo;
-                    "Document Type" := "Document Type"::" ";
-                    "Document Date" := TaxPayableDate;
+            end else begin
+                CFWorksheetLine2.Init();
+                CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::Tax;
+                CFWorksheetLine2."Source No." := SourceNo;
+                CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::" ";
+                CFWorksheetLine2."Document Date" := TaxPayableDate;
 
-                    "Shortcut Dimension 1 Code" := '';
-                    "Shortcut Dimension 2 Code" := '';
-                    "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                    Description := GetDescriptionForTaxCashFlowLine(SourceTableNum);
-                    SetCashFlowDate(CFWorksheetLine2, "Document Date");
-                    "Document No." := '';
-                    "Amount (LCY)" := GetTaxAmountFromSource(SourceTableNum);
+                CFWorksheetLine2."Shortcut Dimension 1 Code" := '';
+                CFWorksheetLine2."Shortcut Dimension 2 Code" := '';
+                CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                CFWorksheetLine2.Description := GetDescriptionForTaxCashFlowLine(SourceTableNum);
+                SetCashFlowDate(CFWorksheetLine2, CFWorksheetLine2."Document Date");
+                CFWorksheetLine2."Document No." := '';
+                CFWorksheetLine2."Amount (LCY)" := GetTaxAmountFromSource(SourceTableNum);
 
-                    if Summarized and MultiSalesLines and (TaxLastSourceTableNumProcessed = SourceTableNum) then begin
-                        "Amount (LCY)" := "Amount (LCY)" + TotalAmt;
-                        MultiSalesLines := false;
-                        TotalAmt := 0;
-                    end;
-
-                    InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+                if Summarized and MultiSalesLines and (TaxLastSourceTableNumProcessed = SourceTableNum) then begin
+                    CFWorksheetLine2."Amount (LCY)" := CFWorksheetLine2."Amount (LCY)" + TotalAmt;
+                    MultiSalesLines := false;
+                    TotalAmt := 0;
                 end;
+
+                InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
+            end;
 
         TaxLastSourceTableNumProcessed := SourceTableNum;
         TaxLastPayableDateProcessed := TaxPayableDate;
@@ -1389,99 +1386,97 @@ report 840 "Suggest Worksheet Lines"
         if "Cash Flow Azure AI Buffer"."Delta %" > CFSetup."Variance %" then
             exit;
 
-        with CFWorksheetLine2 do begin
-            Init();
-            "Source Type" := "Source Type"::"Azure AI";
-            "Source No." := Format(SourceTableNum);
-            "Document Type" := "Document Type"::" ";
-            "Document Date" := "Cash Flow Azure AI Buffer"."Period Start";
-            SetCashFlowDate(CFWorksheetLine2, "Document Date");
-            "Amount (LCY)" := "Cash Flow Azure AI Buffer".Amount;
+        CFWorksheetLine2.Init();
+        CFWorksheetLine2."Source Type" := CFWorksheetLine2."Source Type"::"Azure AI";
+        CFWorksheetLine2."Source No." := Format(SourceTableNum);
+        CFWorksheetLine2."Document Type" := CFWorksheetLine2."Document Type"::" ";
+        CFWorksheetLine2."Document Date" := "Cash Flow Azure AI Buffer"."Period Start";
+        SetCashFlowDate(CFWorksheetLine2, CFWorksheetLine2."Document Date");
+        CFWorksheetLine2."Amount (LCY)" := "Cash Flow Azure AI Buffer".Amount;
 
-            case "Cash Flow Azure AI Buffer"."Group Id" of
-                XRECEIVABLESTxt:
-                    begin
-                        "Cash Flow Account No." := CFSetup."Receivables CF Account No.";
-                        Description :=
-                          StrSubstNo(
-                            AzureAIForecastDescriptionTxt, LowerCase(XRECEIVABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
-                            Round("Cash Flow Azure AI Buffer".Delta));
-                    end;
-                XPAYABLESTxt:
-                    begin
-                        "Cash Flow Account No." := CFSetup."Payables CF Account No.";
-                        Description :=
-                          StrSubstNo(
-                            AzureAIForecastDescriptionTxt, LowerCase(XPAYABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
-                            Round("Cash Flow Azure AI Buffer".Delta));
-                    end;
-                XPAYABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Payables.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Payables CF Account No.";
-                        Description := StrSubstNo(AzureAICorrectionDescriptionTxt, LowerCase(XPAYABLESTxt));
-                    end else
-                        exit;
-                XRECEIVABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Receivables.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Receivables CF Account No.";
-                        Description := StrSubstNo(AzureAICorrectionDescriptionTxt, LowerCase(XRECEIVABLESTxt))
-                    end else
-                        exit;
-                XPURCHORDERSTxt:
-                    if ConsiderSource["Source Type"::"Purchase Orders".AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Purch. Order CF Account No.";
-                        Description := StrSubstNo(AzureAIOrdersCorrectionDescriptionTxt, LowerCase(XPURCHORDERSTxt))
-                    end else
-                        exit;
-                XSALESORDERSTxt:
-                    if ConsiderSource["Source Type"::"Sales Orders".AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Sales Order CF Account No.";
-                        Description := StrSubstNo(AzureAIOrdersCorrectionDescriptionTxt, LowerCase(XSALESORDERSTxt))
-                    end else
-                        exit;
-                XTAXRECEIVABLESTxt:
-                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                        Description :=
-                          StrSubstNo(
-                            AzureAIForecastTaxDescriptionTxt, LowerCase(XRECEIVABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
-                            Round("Cash Flow Azure AI Buffer".Delta))
-                    end else
-                        exit;
-                XTAXPAYABLESTxt:
-                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                        Description :=
-                          StrSubstNo(
-                            AzureAIForecastTaxDescriptionTxt, LowerCase(XPAYABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
-                            Round("Cash Flow Azure AI Buffer".Delta));
-                    end else
-                        exit;
-                XTAXPAYABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                        Description := StrSubstNo(AzureAICorrectionTaxDescriptionTxt, LowerCase(XPAYABLESTxt));
-                    end else
-                        exit;
-                XTAXRECEIVABLESCORRECTIONTxt:
-                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                        Description := StrSubstNo(AzureAICorrectionTaxDescriptionTxt, LowerCase(XRECEIVABLESTxt))
-                    end else
-                        exit;
-                XTAXPURCHORDERSTxt:
-                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                        Description := StrSubstNo(AzureAIOrdersTaxCorrectionDescriptionTxt, LowerCase(XPURCHORDERSTxt))
-                    end else
-                        exit;
-                XTAXSALESORDERSTxt:
-                    if ConsiderSource["Source Type"::Tax.AsInteger()] then begin
-                        "Cash Flow Account No." := CFSetup."Tax CF Account No.";
-                        Description := StrSubstNo(AzureAIOrdersTaxCorrectionDescriptionTxt, LowerCase(XSALESORDERSTxt))
-                    end else
-                        exit;
-            end;
+        case "Cash Flow Azure AI Buffer"."Group Id" of
+            XRECEIVABLESTxt:
+                begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Receivables CF Account No.";
+                    CFWorksheetLine2.Description :=
+                      StrSubstNo(
+                        AzureAIForecastDescriptionTxt, LowerCase(XRECEIVABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
+                        Round("Cash Flow Azure AI Buffer".Delta));
+                end;
+            XPAYABLESTxt:
+                begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Payables CF Account No.";
+                    CFWorksheetLine2.Description :=
+                      StrSubstNo(
+                        AzureAIForecastDescriptionTxt, LowerCase(XPAYABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
+                        Round("Cash Flow Azure AI Buffer".Delta));
+                end;
+            XPAYABLESCORRECTIONTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Payables.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Payables CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAICorrectionDescriptionTxt, LowerCase(XPAYABLESTxt));
+                end else
+                    exit;
+            XRECEIVABLESCORRECTIONTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Receivables.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Receivables CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAICorrectionDescriptionTxt, LowerCase(XRECEIVABLESTxt))
+                end else
+                    exit;
+            XPURCHORDERSTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::"Purchase Orders".AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Purch. Order CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAIOrdersCorrectionDescriptionTxt, LowerCase(XPURCHORDERSTxt))
+                end else
+                    exit;
+            XSALESORDERSTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::"Sales Orders".AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Sales Order CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAIOrdersCorrectionDescriptionTxt, LowerCase(XSALESORDERSTxt))
+                end else
+                    exit;
+            XTAXRECEIVABLESTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Tax.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                    CFWorksheetLine2.Description :=
+                      StrSubstNo(
+                        AzureAIForecastTaxDescriptionTxt, LowerCase(XRECEIVABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
+                        Round("Cash Flow Azure AI Buffer".Delta))
+                end else
+                    exit;
+            XTAXPAYABLESTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Tax.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                    CFWorksheetLine2.Description :=
+                      StrSubstNo(
+                        AzureAIForecastTaxDescriptionTxt, LowerCase(XPAYABLESTxt), "Cash Flow Azure AI Buffer"."Period Start",
+                        Round("Cash Flow Azure AI Buffer".Delta));
+                end else
+                    exit;
+            XTAXPAYABLESCORRECTIONTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Tax.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAICorrectionTaxDescriptionTxt, LowerCase(XPAYABLESTxt));
+                end else
+                    exit;
+            XTAXRECEIVABLESCORRECTIONTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Tax.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAICorrectionTaxDescriptionTxt, LowerCase(XRECEIVABLESTxt))
+                end else
+                    exit;
+            XTAXPURCHORDERSTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Tax.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAIOrdersTaxCorrectionDescriptionTxt, LowerCase(XPURCHORDERSTxt))
+                end else
+                    exit;
+            XTAXSALESORDERSTxt:
+                if ConsiderSource[CFWorksheetLine2."Source Type"::Tax.AsInteger()] then begin
+                    CFWorksheetLine2."Cash Flow Account No." := CFSetup."Tax CF Account No.";
+                    CFWorksheetLine2.Description := StrSubstNo(AzureAIOrdersTaxCorrectionDescriptionTxt, LowerCase(XSALESORDERSTxt))
+                end else
+                    exit;
         end;
 
         InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
@@ -1630,11 +1625,9 @@ report 840 "Suggest Worksheet Lines"
         then
             exit;
 
-        with CFWorksheetLine2 do begin
-            SetCashFlowDate(CFWorksheetLine2, ExecutionDate);
-            "Amount (LCY)" := ManualAmount;
-            InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
-        end;
+        SetCashFlowDate(CFWorksheetLine2, ExecutionDate);
+        CFWorksheetLine2."Amount (LCY)" := ManualAmount;
+        InsertTempCFWorksheetLine(CFWorksheetLine2, 0);
     end;
 
     local procedure GetPurchaseAmountForCFLine(PurchaseLine: Record "Purchase Line"): Decimal

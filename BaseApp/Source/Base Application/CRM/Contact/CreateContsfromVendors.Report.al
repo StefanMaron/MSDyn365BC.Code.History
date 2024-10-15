@@ -22,12 +22,10 @@ report 5194 "Create Conts. from Vendors"
             begin
                 Window.Update(1);
 
-                with ContBusRel do begin
-                    SetRange("Link to Table", "Link to Table"::Vendor);
-                    SetRange("No.", Vendor."No.");
-                    if FindFirst() then
-                        CurrReport.Skip();
-                end;
+                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+                ContBusRel.SetRange("No.", Vendor."No.");
+                if ContBusRel.FindFirst() then
+                    CurrReport.Skip();
 
                 Cont.Init();
                 Cont.TransferFields(Vendor);
@@ -41,14 +39,12 @@ report 5194 "Create Conts. from Vendors"
                 if not DuplicateContactExist then
                     DuplicateContactExist := DuplMgt.DuplicateExist(Cont);
 
-                with ContBusRel do begin
-                    Init();
-                    "Contact No." := Cont."No.";
-                    "Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
-                    "Link to Table" := "Link to Table"::Vendor;
-                    "No." := Vendor."No.";
-                    Insert();
-                end;
+                ContBusRel.Init();
+                ContBusRel."Contact No." := Cont."No.";
+                ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
+                ContBusRel."Link to Table" := ContBusRel."Link to Table"::Vendor;
+                ContBusRel."No." := Vendor."No.";
+                ContBusRel.Insert();
 
                 InsertNewContactIfNeeded(Vendor);
                 Modify(true);

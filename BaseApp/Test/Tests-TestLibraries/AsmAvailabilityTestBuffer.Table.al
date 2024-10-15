@@ -1,6 +1,7 @@
 table 137093 "Asm. Availability Test Buffer"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -126,7 +127,7 @@ table 137093 "Asm. Availability Test Buffer"
         ReadHeaderFromPage(AsmAvailability);
         Insert();
 
-        if AsmAvailability.AssemblyLineAvail.First then
+        if AsmAvailability.AssemblyLineAvail.First() then
             repeat
                 Init();
                 ReadLineFromPage(AsmAvailability);
@@ -136,35 +137,35 @@ table 137093 "Asm. Availability Test Buffer"
 
     local procedure ReadHeaderFromPage(var AsmAvailability: TestPage "Assembly Availability")
     begin
-        "Document No." := AsmAvailability."No.".Value;
+        "Document No." := AsmAvailability."No.".Value();
         "Document Line No." := 0;
-        "Item No." := AsmAvailability."Item No.".Value;
-        "Variant Code" := AsmAvailability."Variant Code".Value;
-        "Location Code" := AsmAvailability."Location Code".Value;
-        "Unit of Measure Code" := AsmAvailability."Unit of Measure Code".Value;
-        Description := AsmAvailability.Description.Value;
-        Quantity := AsmAvailability."Current Quantity".AsDEcimal;
-        Inventory := AsmAvailability.Inventory.AsDEcimal;
-        "Gross Requirement" := AsmAvailability.GrossRequirement.AsDEcimal;
-        "Scheduled Receipts" := AsmAvailability.ScheduledReceipts.AsDEcimal;
-        "Able To Assemble" := AsmAvailability.AbleToAssemble.AsDEcimal;
+        "Item No." := AsmAvailability."Item No.".Value();
+        "Variant Code" := AsmAvailability."Variant Code".Value();
+        "Location Code" := AsmAvailability."Location Code".Value();
+        "Unit of Measure Code" := AsmAvailability."Unit of Measure Code".Value();
+        Description := AsmAvailability.Description.Value();
+        Quantity := AsmAvailability."Current Quantity".AsDecimal();
+        Inventory := AsmAvailability.Inventory.AsDecimal();
+        "Gross Requirement" := AsmAvailability.GrossRequirement.AsDecimal();
+        "Scheduled Receipts" := AsmAvailability.ScheduledReceipts.AsDecimal();
+        "Able To Assemble" := AsmAvailability.AbleToAssemble.AsDecimal();
         Evaluate("Earliest Availability Date", AsmAvailability.EarliestAvailableDate.Value);
     end;
 
     local procedure ReadLineFromPage(var AsmAvailability: TestPage "Assembly Availability")
     begin
-        "Document No." := AsmAvailability."No.".Value;
+        "Document No." := AsmAvailability."No.".Value();
         "Document Line No." += 1;
-        "Item No." := AsmAvailability.AssemblyLineAvail."No.".Value;
-        "Variant Code" := AsmAvailability.AssemblyLineAvail."Variant Code".Value;
-        "Location Code" := AsmAvailability.AssemblyLineAvail."Location Code".Value;
-        "Unit of Measure Code" := AsmAvailability.AssemblyLineAvail."Unit of Measure Code".Value;
-        "Quantity Per" := AsmAvailability.AssemblyLineAvail."Quantity per".AsDEcimal;
-        Quantity := AsmAvailability.AssemblyLineAvail.CurrentQuantity.AsDEcimal;
-        "Gross Requirement" := AsmAvailability.AssemblyLineAvail.GrossRequirement.AsDEcimal;
-        "Scheduled Receipts" := AsmAvailability.AssemblyLineAvail.ScheduledReceipt.AsDEcimal;
-        "Expected Inventory" := AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AsDEcimal;
-        "Able To Assemble" := AsmAvailability.AssemblyLineAvail.AbleToAssemble.AsDEcimal;
+        "Item No." := AsmAvailability.AssemblyLineAvail."No.".Value();
+        "Variant Code" := AsmAvailability.AssemblyLineAvail."Variant Code".Value();
+        "Location Code" := AsmAvailability.AssemblyLineAvail."Location Code".Value();
+        "Unit of Measure Code" := AsmAvailability.AssemblyLineAvail."Unit of Measure Code".Value();
+        "Quantity Per" := AsmAvailability.AssemblyLineAvail."Quantity per".AsDecimal();
+        Quantity := AsmAvailability.AssemblyLineAvail.CurrentQuantity.AsDecimal();
+        "Gross Requirement" := AsmAvailability.AssemblyLineAvail.GrossRequirement.AsDecimal();
+        "Scheduled Receipts" := AsmAvailability.AssemblyLineAvail.ScheduledReceipt.AsDecimal();
+        "Expected Inventory" := AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AsDecimal();
+        "Able To Assemble" := AsmAvailability.AssemblyLineAvail.AbleToAssemble.AsDecimal();
         Evaluate("Earliest Availability Date", AsmAvailability.AssemblyLineAvail.EarliestAvailableDate.Value);
     end;
 

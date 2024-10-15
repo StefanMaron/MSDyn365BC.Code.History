@@ -26,7 +26,7 @@ codeunit 130502 "Library - Item Tracking"
     begin
         CreateItemTrackingCode(ItemTrackingCode, true, false);
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -36,7 +36,7 @@ codeunit 130502 "Library - Item Tracking"
     begin
         CreateItemTrackingCode(ItemTrackingCode, false, true);
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -585,7 +585,7 @@ codeunit 130502 "Library - Item Tracking"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         CalcWhseAdjmnt: Report "Calculate Whse. Adjustment";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         LibraryAssembly: Codeunit "Library - Assembly";
     begin
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
@@ -595,7 +595,7 @@ codeunit 130502 "Library - Item Tracking"
         Commit();
         CalcWhseAdjmnt.SetItemJnlLine(ItemJournalLine);
         if DocumentNo = '' then
-            DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", NewPostingDate, false);
+            DocumentNo := NoSeries.PeekNextNo(ItemJournalBatch."No. Series", NewPostingDate);
         CalcWhseAdjmnt.InitializeRequest(NewPostingDate, DocumentNo);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
@@ -788,21 +788,15 @@ codeunit 130502 "Library - Item Tracking"
                     // COPY END
                     case WhseShptLine."Source Type" of
                         DATABASE::"Sales Line":
-                            begin
-                                if SalesLine.Get(WhseShptLine."Source Subtype", WhseShptLine."Source No.", WhseShptLine."Source Line No.") then
-                                    CreateSalesOrderItemTracking(ReservEntry, SalesLine, ItemTrackingSetup, QtyBase);
-                            end;
+                            if SalesLine.Get(WhseShptLine."Source Subtype", WhseShptLine."Source No.", WhseShptLine."Source Line No.") then
+                                CreateSalesOrderItemTracking(ReservEntry, SalesLine, ItemTrackingSetup, QtyBase);
                         DATABASE::"Purchase Line":
-                            begin
-                                if PurchLine.Get(WhseShptLine."Source Subtype", WhseShptLine."Source No.", WhseShptLine."Source Line No.") then
-                                    CreatePurchOrderItemTracking(ReservEntry, PurchLine, ItemTrackingSetup, QtyBase);
-                            end;
+                            if PurchLine.Get(WhseShptLine."Source Subtype", WhseShptLine."Source No.", WhseShptLine."Source Line No.") then
+                                CreatePurchOrderItemTracking(ReservEntry, PurchLine, ItemTrackingSetup, QtyBase);
                         DATABASE::"Transfer Line":
-                            begin
-                                // Outbound only
-                                if TransLine.Get(WhseShptLine."Source No.", WhseShptLine."Source Line No.") then
-                                    CreateTransferOrderItemTracking(ReservEntry, TransLine, ItemTrackingSetup, QtyBase);
-                            end;
+                            // Outbound only
+                            if TransLine.Get(WhseShptLine."Source No.", WhseShptLine."Source Line No.") then
+                                CreateTransferOrderItemTracking(ReservEntry, TransLine, ItemTrackingSetup, QtyBase);
                     end;
                 end;
             DATABASE::"Warehouse Receipt Line":
@@ -817,15 +811,11 @@ codeunit 130502 "Library - Item Tracking"
                     // COPY END
                     case WhseRcptLine."Source Type" of
                         DATABASE::"Purchase Line":
-                            begin
-                                if PurchLine.Get(WhseRcptLine."Source Subtype", WhseRcptLine."Source No.", WhseRcptLine."Source Line No.") then
-                                    CreatePurchOrderItemTracking(ReservEntry, PurchLine, ItemTrackingSetup, QtyBase);
-                            end;
+                            if PurchLine.Get(WhseRcptLine."Source Subtype", WhseRcptLine."Source No.", WhseRcptLine."Source Line No.") then
+                                CreatePurchOrderItemTracking(ReservEntry, PurchLine, ItemTrackingSetup, QtyBase);
                         DATABASE::"Sales Line":
-                            begin
-                                if SalesLine.Get(WhseRcptLine."Source Subtype", WhseRcptLine."Source No.", WhseRcptLine."Source Line No.") then
-                                    CreateSalesOrderItemTracking(ReservEntry, SalesLine, ItemTrackingSetup, QtyBase);
-                            end;
+                            if SalesLine.Get(WhseRcptLine."Source Subtype", WhseRcptLine."Source No.", WhseRcptLine."Source Line No.") then
+                                CreateSalesOrderItemTracking(ReservEntry, SalesLine, ItemTrackingSetup, QtyBase);
                         DATABASE::"Transfer Line":
                             // Inbound only - not possible to ADD item tracking lines- so throw error
                             Error(Text001, RecRef.Number);
@@ -856,90 +846,90 @@ codeunit 130502 "Library - Item Tracking"
         if (ItemTrackingSetup."Serial No." <> '') and (Abs(QtyBase) > 1) then
             Error(Text002, ItemTrackingSetup."Serial No.", QtyBase);
         Clear(ReservEntry);
-        with ReservEntry do begin
-            if FindLast() then
-                LastEntryNo := "Entry No." + 1
-            else
-                LastEntryNo := 1;
-            Init();
-            "Entry No." := LastEntryNo;
-            Positive := Positive2;
-            if (SourceType = DATABASE::"Item Journal Line") or
-               ((SourceType = DATABASE::"Prod. Order Line") and (SourceSubType in [0, 1])) or // simulated or planned prod line
-               ((SourceType = DATABASE::"Prod. Order Component") and (SourceSubType in [0, 1])) or // simulated or planned prod comp
-               (SourceType = DATABASE::"Requisition Line")
-            then
-                Validate("Reservation Status", "Reservation Status"::Prospect)
-            else
-                Validate("Reservation Status", "Reservation Status"::Surplus);
+        if ReservEntry.FindLast() then
+            LastEntryNo := ReservEntry."Entry No." + 1
+        else
+            LastEntryNo := 1;
+        ReservEntry.Init();
+        ReservEntry."Entry No." := LastEntryNo;
+        ReservEntry.Positive := Positive2;
+        if (SourceType = DATABASE::"Item Journal Line") or
+           ((SourceType = DATABASE::"Prod. Order Line") and (SourceSubType in [0, 1])) or
+           // simulated or planned prod line
+           ((SourceType = DATABASE::"Prod. Order Component") and (SourceSubType in [0, 1])) or
+           // simulated or planned prod comp
+           (SourceType = DATABASE::"Requisition Line")
+        then
+            ReservEntry.Validate("Reservation Status", ReservEntry."Reservation Status"::Prospect)
+        else
+            ReservEntry.Validate("Reservation Status", ReservEntry."Reservation Status"::Surplus);
 
-            Validate("Item No.", Item);
-            Validate("Location Code", Location);
-            Validate("Variant Code", Variant);
-            Validate("Qty. per Unit of Measure", QtyperUOM);
-            Validate("Quantity (Base)", QtyBase);
+        ReservEntry.Validate("Item No.", Item);
+        ReservEntry.Validate("Location Code", Location);
+        ReservEntry.Validate("Variant Code", Variant);
+        ReservEntry.Validate("Qty. per Unit of Measure", QtyperUOM);
+        ReservEntry.Validate("Quantity (Base)", QtyBase);
 
-            case SourceType of
-                DATABASE::"Item Journal Line":
-                    case "Item Ledger Entry Type".FromInteger(SourceSubType) of
-                        ItemJnlLine."Entry Type"::Purchase,
-                        ItemJnlLine."Entry Type"::"Positive Adjmt.",
-                        ItemJnlLine."Entry Type"::Output:
-                            Validate("Expected Receipt Date", DueDate);
-                        ItemJnlLine."Entry Type"::Sale,
-                        ItemJnlLine."Entry Type"::"Negative Adjmt.",
-                        ItemJnlLine."Entry Type"::Consumption:
-                            Validate("Shipment Date", DueDate);
-                    end;
-                DATABASE::"Prod. Order Line":
-                    Validate("Expected Receipt Date", DueDate);
-                DATABASE::"Requisition Line",
-                DATABASE::"Prod. Order Component":
-                    Validate("Shipment Date", DueDate);
-                DATABASE::"Sales Line":
-                    case SourceSubType of
-                        SalesLine."Document Type"::Order.AsInteger(),
-                        SalesLine."Document Type"::Invoice.AsInteger(),
-                        SalesLine."Document Type"::Quote.AsInteger():
-                            Validate("Shipment Date", DueDate);
-                        SalesLine."Document Type"::"Return Order".AsInteger(),
-                        SalesLine."Document Type"::"Credit Memo".AsInteger():
-                            Validate("Expected Receipt Date", DueDate);
-                    end;
-                DATABASE::"Purchase Line":
-                    case SourceSubType of
-                        PurchLine."Document Type"::Order.AsInteger(),
-                        PurchLine."Document Type"::Invoice.AsInteger(),
-                        PurchLine."Document Type"::Quote.AsInteger():
-                            Validate("Expected Receipt Date", DueDate);
-                        PurchLine."Document Type"::"Return Order".AsInteger(),
-                        PurchLine."Document Type"::"Credit Memo".AsInteger():
-                            Validate("Shipment Date", DueDate);
-                    end;
+        case SourceType of
+            DATABASE::"Item Journal Line":
+                case "Item Ledger Entry Type".FromInteger(SourceSubType) of
+                    ItemJnlLine."Entry Type"::Purchase,
+                    ItemJnlLine."Entry Type"::"Positive Adjmt.",
+                    ItemJnlLine."Entry Type"::Output:
+                        ReservEntry.Validate("Expected Receipt Date", DueDate);
+                    ItemJnlLine."Entry Type"::Sale,
+                    ItemJnlLine."Entry Type"::"Negative Adjmt.",
+                    ItemJnlLine."Entry Type"::Consumption:
+                        ReservEntry.Validate("Shipment Date", DueDate);
+                end;
+            DATABASE::"Prod. Order Line":
+                ReservEntry.Validate("Expected Receipt Date", DueDate);
+            DATABASE::"Requisition Line",
+            DATABASE::"Prod. Order Component":
+                ReservEntry.Validate("Shipment Date", DueDate);
+            DATABASE::"Sales Line":
+                case SourceSubType of
+                    SalesLine."Document Type"::Order.AsInteger(),
+                    SalesLine."Document Type"::Invoice.AsInteger(),
+                    SalesLine."Document Type"::Quote.AsInteger():
+                        ReservEntry.Validate("Shipment Date", DueDate);
+                    SalesLine."Document Type"::"Return Order".AsInteger(),
+                    SalesLine."Document Type"::"Credit Memo".AsInteger():
+                        ReservEntry.Validate("Expected Receipt Date", DueDate);
+                end;
+            DATABASE::"Purchase Line":
+                case SourceSubType of
+                    PurchLine."Document Type"::Order.AsInteger(),
+                    PurchLine."Document Type"::Invoice.AsInteger(),
+                    PurchLine."Document Type"::Quote.AsInteger():
+                        ReservEntry.Validate("Expected Receipt Date", DueDate);
+                    PurchLine."Document Type"::"Return Order".AsInteger(),
+                    PurchLine."Document Type"::"Credit Memo".AsInteger():
+                        ReservEntry.Validate("Shipment Date", DueDate);
+                end;
+            else
+                if Positive2 then
+                    ReservEntry.Validate("Expected Receipt Date", DueDate)
                 else
-                    if Positive2 then
-                        Validate("Expected Receipt Date", DueDate)
-                    else
-                        Validate("Shipment Date", DueDate);
-            end;
-            Validate("Creation Date", WorkDate());
-            "Created By" := UserId;
-
-            Validate("Serial No.", ItemTrackingSetup."Serial No.");
-            Validate("Lot No.", ItemTrackingSetup."Lot No.");
-            Validate("Package No.", ItemTrackingSetup."Package No.");
-
-            UpdateItemTracking();
-
-            Validate("Source Type", SourceType);
-            Validate("Source Subtype", SourceSubType);
-            Validate("Source ID", SourceID);
-            Validate("Source Batch Name", SourceBatchName);
-            Validate("Source Prod. Order Line", SourceProdOrderLine);
-            Validate("Source Ref. No.", SourceRefNo);
-
-            Insert(true);
+                    ReservEntry.Validate("Shipment Date", DueDate);
         end;
+        ReservEntry.Validate("Creation Date", WorkDate());
+        ReservEntry."Created By" := CopyStr(UserId(), 1, MaxStrLen(ReservEntry."Created By"));
+
+        ReservEntry.Validate("Serial No.", ItemTrackingSetup."Serial No.");
+        ReservEntry.Validate("Lot No.", ItemTrackingSetup."Lot No.");
+        ReservEntry.Validate("Package No.", ItemTrackingSetup."Package No.");
+
+        ReservEntry.UpdateItemTracking();
+
+        ReservEntry.Validate("Source Type", SourceType);
+        ReservEntry.Validate("Source Subtype", SourceSubType);
+        ReservEntry.Validate("Source ID", SourceID);
+        ReservEntry.Validate("Source Batch Name", SourceBatchName);
+        ReservEntry.Validate("Source Prod. Order Line", SourceProdOrderLine);
+        ReservEntry.Validate("Source Ref. No.", SourceRefNo);
+
+        ReservEntry.Insert(true);
     end;
 
     local procedure WhseItemTracking(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; RecRef: RecordRef; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
@@ -1030,11 +1020,11 @@ codeunit 130502 "Library - Item Tracking"
                                 SourceRefNo := WhseWkshLine."Whse. Document Line No.";
                             end;
                         else begin
-                                SourceType := DATABASE::"Whse. Worksheet Line";
-                                SourceID := WhseWkshLine.Name;
-                                SourceBatchName := WhseWkshLine."Worksheet Template Name";
-                                SourceRefNo := WhseWkshLine."Line No.";
-                            end;
+                            SourceType := DATABASE::"Whse. Worksheet Line";
+                            SourceID := WhseWkshLine.Name;
+                            SourceBatchName := WhseWkshLine."Worksheet Template Name";
+                            SourceRefNo := WhseWkshLine."Line No.";
+                        end;
                     end;
                     // COPY END
                     WhseInsertItemTracking(WhseItemTrackingLine,
@@ -1107,33 +1097,31 @@ codeunit 130502 "Library - Item Tracking"
         if (WhseItemTrackingSetup."Serial No." <> '') and (Abs(QtyBase) > 1) then
             Error(Text002, WhseItemTrackingSetup."Serial No.", QtyBase);
         Clear(WhseItemTrackingLine);
-        with WhseItemTrackingLine do begin
-            if FindLast() then
-                LastEntryNo := "Entry No." + 1
-            else
-                LastEntryNo := 1;
-            Init();
-            "Entry No." := LastEntryNo;
+        if WhseItemTrackingLine.FindLast() then
+            LastEntryNo := WhseItemTrackingLine."Entry No." + 1
+        else
+            LastEntryNo := 1;
+        WhseItemTrackingLine.Init();
+        WhseItemTrackingLine."Entry No." := LastEntryNo;
 
-            Validate("Item No.", Item);
-            Validate("Location Code", Location);
-            Validate("Variant Code", Variant);
-            Validate("Qty. per Unit of Measure", QtyperUOM);
-            Validate("Quantity (Base)", Abs(QtyBase));
+        WhseItemTrackingLine.Validate("Item No.", Item);
+        WhseItemTrackingLine.Validate("Location Code", Location);
+        WhseItemTrackingLine.Validate("Variant Code", Variant);
+        WhseItemTrackingLine.Validate("Qty. per Unit of Measure", QtyperUOM);
+        WhseItemTrackingLine.Validate("Quantity (Base)", Abs(QtyBase));
 
-            Validate("Serial No.", WhseItemTrackingSetup."Serial No.");
-            Validate("Lot No.", WhseItemTrackingSetup."Lot No.");
-            Validate("Package No.", WhseItemTrackingSetup."Package No.");
+        WhseItemTrackingLine.Validate("Serial No.", WhseItemTrackingSetup."Serial No.");
+        WhseItemTrackingLine.Validate("Lot No.", WhseItemTrackingSetup."Lot No.");
+        WhseItemTrackingLine.Validate("Package No.", WhseItemTrackingSetup."Package No.");
 
-            Validate("Source Type", SourceType);
-            Validate("Source Subtype", SourceSubType);
-            Validate("Source ID", SourceID);
-            Validate("Source Batch Name", SourceBatchName);
-            Validate("Source Prod. Order Line", SourceProdOrderLine);
-            Validate("Source Ref. No.", SourceRefNo);
+        WhseItemTrackingLine.Validate("Source Type", SourceType);
+        WhseItemTrackingLine.Validate("Source Subtype", SourceSubType);
+        WhseItemTrackingLine.Validate("Source ID", SourceID);
+        WhseItemTrackingLine.Validate("Source Batch Name", SourceBatchName);
+        WhseItemTrackingLine.Validate("Source Prod. Order Line", SourceProdOrderLine);
+        WhseItemTrackingLine.Validate("Source Ref. No.", SourceRefNo);
 
-            Insert(true);
-        end;
+        WhseItemTrackingLine.Insert(true);
     end;
 
     procedure CreateSalesTrackingFromReservation(SalesHeader: Record "Sales Header"; HideDialog: Boolean)

@@ -3,6 +3,9 @@ namespace Microsoft.Inventory.Counting.Recording;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Tracking;
+#if not CLEAN24
+using Microsoft.Inventory.Counting.Tracking;
+#endif
 
 page 5881 "Phys. Invt. Recording Subform"
 {
@@ -102,6 +105,14 @@ page 5881 "Phys. Invt. Recording Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the lot number of the entered item.';
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the package number of the entered item.';
+#if not CLEAN24
+                    Visible = PackageTrackingEnabled;
+#endif
+                }
                 field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
@@ -180,9 +191,6 @@ page 5881 "Phys. Invt. Recording Subform"
                     ApplicationArea = Warehouse;
                     Caption = 'Serial No. Information Card';
                     Image = SNInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Serial No. Information List";
                     RunPageLink = "Item No." = field("Item No."),
                                   "Variant Code" = field("Variant Code"),
@@ -194,14 +202,25 @@ page 5881 "Phys. Invt. Recording Subform"
                     ApplicationArea = Warehouse;
                     Caption = 'Lot No. Information Card';
                     Image = LotInfo;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Lot No. Information List";
                     RunPageLink = "Item No." = field("Item No."),
                                   "Variant Code" = field("Variant Code"),
                                   "Lot No." = field("Lot No.");
                     ToolTip = 'Show Lot No. Information Card.';
+                }
+                action("Package No. Information Card")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Package No. Information Card';
+                    Image = LotInfo;
+                    RunObject = Page "Package No. Information List";
+                    RunPageLink = "Item No." = field("Item No."),
+                                  "Variant Code" = field("Variant Code"),
+                                  "Package No." = field("Package No.");
+                    ToolTip = 'Show Package No. Information Card.';
+#if not CLEAN24
+                    Visible = PackageTrackingEnabled;
+#endif
                 }
             }
         }
@@ -215,11 +234,21 @@ page 5881 "Phys. Invt. Recording Subform"
     trigger OnAfterGetRecord()
     begin
         SetVariantCodeMandatory();
+#if not CLEAN24
+        PackageTrackingEnabled := PhysInvtTrackingMgt.IsPackageTrackingEnabled();
+#endif
     end;
 
     var
         CopyPhysInvtRecording: Report "Copy Phys. Invt. Recording";
-        VariantCodeMandatory, ItemReferenceVisible : Boolean;
+#if not CLEAN24
+        PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
+#endif
+        VariantCodeMandatory: Boolean;
+        ItemReferenceVisible: Boolean;
+#if not CLEAN24
+        PackageTrackingEnabled: Boolean;
+#endif
 
     procedure CopyLine()
     begin

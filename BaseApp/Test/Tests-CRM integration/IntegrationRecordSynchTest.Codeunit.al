@@ -34,9 +34,9 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
         Commit();
-        Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the transfer to return true');
+        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the transfer to return true');
         // [THEN] Field values are copied and WasModified flags is true
-        Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected the modified flag to be set');
+        Assert.IsTrue(IntegrationRecordSynch.GetWasModified(), 'Expected the modified flag to be set');
 
         ValidateComparisonTypeRow(SourceTableRecRef, DestinationTableRecRef);
     end;
@@ -61,8 +61,8 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
         Commit();
-        Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the first transfer to succeed');
-        Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected first transfer to set the modified flag to true');
+        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the first transfer to succeed');
+        Assert.IsTrue(IntegrationRecordSynch.GetWasModified(), 'Expected first transfer to set the modified flag to true');
 
         // Re-create the fieldmapping without the primary key default. If we do not the all transfers will reset the primary key to default value.
         TempIntegrationFieldMapping.DeleteAll();
@@ -72,9 +72,9 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, true);
         Commit();
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'true'
-        Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the second transfer to succeed');
+        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the second transfer to succeed');
         // [THEN] WasModified flag will be 'false'
-        Assert.IsFalse(IntegrationRecordSynch.GetWasModified, 'Expected second transfer to set the modified flag to false');
+        Assert.IsFalse(IntegrationRecordSynch.GetWasModified(), 'Expected second transfer to set the modified flag to false');
 
         // [GIVEN] Destination row has already been synchronized but one value has changed.
         SourceFieldRef := SourceTableRecRef.Field(TempComparisonType.FieldNo("Text Field"));
@@ -83,16 +83,16 @@ codeunit 139166 "Integration Record Synch. Test"
         Commit();
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'true'
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, true);
-        Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the third transfer to succeed');
+        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the third transfer to succeed');
         // [THEN] Modified field should be transfered and WasModified flags set to 'true'
-        Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected third transfer to set the modified flag to true');
+        Assert.IsTrue(IntegrationRecordSynch.GetWasModified(), 'Expected third transfer to set the modified flag to true');
 
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
         Commit();
         // [WHEN] Run IntegrationRecordSynch, where "Copy Only Modified" is 'false'
-        Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the fourth transfer to succeed');
+        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the fourth transfer to succeed');
         // [THEN] All fields should be copied and WasModified flags should be 'true'
-        Assert.IsTrue(IntegrationRecordSynch.GetWasModified, 'Expected fourth transfer to set the modified flag to true');
+        Assert.IsTrue(IntegrationRecordSynch.GetWasModified(), 'Expected fourth transfer to set the modified flag to true');
     end;
 
     [Test]
@@ -110,14 +110,14 @@ codeunit 139166 "Integration Record Synch. Test"
         // [GIVEN] Process parameters has not been set
         // [WHEN] Copying source row fields to Destination row
         // [THEN] Processing should not succeed
-        Assert.IsFalse(IntegrationRecordSynch.Run, 'Expected run to fail');
+        Assert.IsFalse(IntegrationRecordSynch.Run(), 'Expected run to fail');
 
         // [GIVEN] Processing parameters are invalid
         // [WHEN] Copying source row fields to Destination row
         // [THEN] Processing should not succeed
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Assert.IsFalse(IntegrationRecordSynch.Run, 'Expected run to fail when set with empty parameters');
+        Assert.IsFalse(IntegrationRecordSynch.Run(), 'Expected run to fail when set with empty parameters');
 
         CreateComparisonTypeRowTempIntegrationFieldMapping(TempIntegrationFieldMapping, true);
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
@@ -125,21 +125,21 @@ codeunit 139166 "Integration Record Synch. Test"
         // [WHEN] Copying source row fields to Destination row
         // [THEN] Processing should not succeed
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Assert.IsFalse(IntegrationRecordSynch.Run, 'Expected run to fail when set with empty source and Destination');
+        Assert.IsFalse(IntegrationRecordSynch.Run(), 'Expected run to fail when set with empty source and Destination');
 
         // [GIVEN] Destination has not been initialized
         // [WHEN] Copying source row fields to Destination row
         // [THEN] Processing should not succeed
         SourceTableRecRef.Open(DATABASE::Customer);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Assert.IsFalse(IntegrationRecordSynch.Run, 'Expected run to fail when set with empty Destination');
+        Assert.IsFalse(IntegrationRecordSynch.Run(), 'Expected run to fail when set with empty Destination');
 
         // [GIVEN] Destination does not have the expected fields
         // [WHEN] Copying source row fields to Destination row
         // [THEN] Processing should not succeed
         DestinationTableRecRef.Open(DATABASE::Contact);
         IntegrationRecordSynch.SetParameters(SourceTableRecRef, DestinationTableRecRef, false);
-        Assert.IsFalse(IntegrationRecordSynch.Run, 'Expected run to fail when Destination does not have the required fields');
+        Assert.IsFalse(IntegrationRecordSynch.Run(), 'Expected run to fail when Destination does not have the required fields');
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 139166 "Integration Record Synch. Test"
         IntegrationRecordSynch.SetFieldMapping(TempIntegrationFieldMapping);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, false);
         Commit();
-        Assert.IsTrue(IntegrationRecordSynch.Run, 'Expected the transfer to succeed');
+        Assert.IsTrue(IntegrationRecordSynch.Run(), 'Expected the transfer to succeed');
 
         // [THEN] Calculated flowfield value will be transfered.
         DestinationRecordRef.SetTable(ComparisonType);

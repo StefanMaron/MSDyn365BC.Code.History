@@ -130,7 +130,7 @@ codeunit 142034 "UT COD DELIVREM"
         DelivRemExtTextTransfer.ReminderCheckIfAnyExtText(DeliveryReminderLine, false);
 
         // Verify: Verify Function MakeUpdate return value as False.
-        Assert.IsFalse(DelivRemExtTextTransfer.MakeUpdate, FalseValueMsg);
+        Assert.IsFalse(DelivRemExtTextTransfer.MakeUpdate(), FalseValueMsg);
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 142034 "UT COD DELIVREM"
         DelivRemExtTextTransfer.ReminderCheckIfAnyExtText(DeliveryReminderLine, false);
 
         // Verify: Verify Function MakeUpdate return value as True.
-        Assert.IsTrue(DelivRemExtTextTransfer.MakeUpdate, TrueValueMsg);
+        Assert.IsTrue(DelivRemExtTextTransfer.MakeUpdate(), TrueValueMsg);
     end;
 
     [Test]
@@ -167,7 +167,7 @@ codeunit 142034 "UT COD DELIVREM"
     begin
         // Purpose of the test is to validate Function ReminderCheckIfAnyExtText With Type Item for Codeunit 5005272 - Deliv.-Rem. Ext. Text Transfer.
         // Setup.
-        ReminderCheckIfAnyExtTextOnDelivRemExtTextTransfer(DeliveryReminderLine.Type::Item, LibraryUTUtility.GetNewCode, true);  // Forcefully check Extended Text Header  - True.
+        ReminderCheckIfAnyExtTextOnDelivRemExtTextTransfer(DeliveryReminderLine.Type::Item, LibraryUTUtility.GetNewCode(), true);  // Forcefully check Extended Text Header  - True.
     end;
 
     [Test]
@@ -191,7 +191,7 @@ codeunit 142034 "UT COD DELIVREM"
     begin
         // Purpose of the test is to validate Function ReminderCheckIfAnyExtText With Type Account (G/L) for Codeunit 5005272 - Deliv.-Rem. Ext. Text Transfer.
         // Setup.
-        ReminderCheckIfAnyExtTextOnDelivRemExtTextTransfer(DeliveryReminderLine.Type::"Account (G/L)", CreateGLAccount, false);  // Forcefully check Extended Text Header  - False.
+        ReminderCheckIfAnyExtTextOnDelivRemExtTextTransfer(DeliveryReminderLine.Type::"Account (G/L)", CreateGLAccount(), false);  // Forcefully check Extended Text Header  - False.
     end;
 
     local procedure ReminderCheckIfAnyExtTextOnDelivRemExtTextTransfer(Type: Option; No: Code[20]; AutoCheckExtendedTextHeader: Boolean)
@@ -247,7 +247,7 @@ codeunit 142034 "UT COD DELIVREM"
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
         UpdateDeliveryReminderHeader(DeliveryReminderHeader, ReminderLanguageCode);
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);  // Line No as 1.
-        UpdateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderLine.Type::" ", LibraryUTUtility.GetNewCode);
+        UpdateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderLine.Type::" ", LibraryUTUtility.GetNewCode());
         CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text table Name".FromInteger(DeliveryReminderLine.Type), DeliveryReminderLine."No.", ExtendedTextLanguageCode);
         UpdateExtendedTextHeader(ExtendedTextHeader, false);
 
@@ -271,7 +271,7 @@ codeunit 142034 "UT COD DELIVREM"
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
         UpdateDeliveryReminderHeader(DeliveryReminderHeader, 'ENU');  // Language Code as ENU.
         CreateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderHeader."No.", 1);  // Line No as 1.
-        UpdateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderLine.Type::Item, LibraryUTUtility.GetNewCode);
+        UpdateDeliveryReminderLine(DeliveryReminderLine, DeliveryReminderLine.Type::Item, LibraryUTUtility.GetNewCode());
         CreateExtendedTextHeader(ExtendedTextHeader, "Extended Text Table Name".FromInteger(DeliveryReminderLine.Type), DeliveryReminderLine."No.", 'ENU');  // Language Code as ENU.
         UpdateExtendedTextHeader(ExtendedTextHeader, true);
         CreateExtendedTextLine(ExtendedTextLine, ExtendedTextHeader."Table Name", ExtendedTextHeader."No.", ExtendedTextHeader."Language Code", ExtendedTextHeader."Text No.");
@@ -396,7 +396,7 @@ codeunit 142034 "UT COD DELIVREM"
         // Setup.
         UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Default Del. Rem. Date Field"::"Expected Receipt Date");
 
-        PurchaseLine."Document No." := LibraryUTUtility.GetNewCode;
+        PurchaseLine."Document No." := LibraryUTUtility.GetNewCode();
         PurchaseLine."Line No." := 1;
         PurchaseLine."Expected Receipt Date" := WorkDate();
         PurchaseLine."Outstanding Quantity" := 1;
@@ -405,7 +405,7 @@ codeunit 142034 "UT COD DELIVREM"
         DeliveryReminderTerm."Max. No. of Delivery Reminders" := 1;
         DeliveryReminderTerm.Insert();
 
-        DeliveryReminderLedgerEntry."Entry No." := SelectDeliveryReminderLedgerEntryNo;
+        DeliveryReminderLedgerEntry."Entry No." := SelectDeliveryReminderLedgerEntryNo();
         DeliveryReminderLedgerEntry."Posting Date" := WorkDate();
         DeliveryReminderLedgerEntry."Document Date" := WorkDate();
         DeliveryReminderLedgerEntry."Order No." := PurchaseLine."Document No.";
@@ -445,15 +445,15 @@ codeunit 142034 "UT COD DELIVREM"
 
     local procedure CreateIssuedDelivReminderHeader(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header")
     begin
-        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode;
-        IssuedDelivReminderHeader.Name := LibraryUTUtility.GetNewCode;
+        IssuedDelivReminderHeader."No." := LibraryUTUtility.GetNewCode();
+        IssuedDelivReminderHeader.Name := LibraryUTUtility.GetNewCode();
         IssuedDelivReminderHeader.Insert();
     end;
 
     local procedure CreateDeliveryReminderHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header")
     begin
-        DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode;
-        DeliveryReminderHeader.Name := LibraryUTUtility.GetNewCode;
+        DeliveryReminderHeader."No." := LibraryUTUtility.GetNewCode();
+        DeliveryReminderHeader.Name := LibraryUTUtility.GetNewCode();
         DeliveryReminderHeader.Insert();
     end;
 
@@ -486,7 +486,7 @@ codeunit 142034 "UT COD DELIVREM"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         GLAccount."Automatic Ext. Texts" := true;
         GLAccount.Modify();

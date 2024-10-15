@@ -130,7 +130,7 @@ codeunit 137207 "SCM Archive Orders"
         SaveArchivedPurchQuote(PurchaseHeaderArchive);
 
         // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Header_Archive_No_', PurchaseHeader."No.");
     end;
 
@@ -157,7 +157,7 @@ codeunit 137207 "SCM Archive Orders"
         SaveArchivedPurchOrder(PurchaseHeaderArchive);
 
         // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Header_Archive_No_', PurchaseHeader."No.");
     end;
 
@@ -184,7 +184,7 @@ codeunit 137207 "SCM Archive Orders"
         SaveArchivedPurchReturnOrder(PurchaseHeaderArchive);
 
         // Verify: Verify Saved Report Data.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Header_Archive_No_', PurchaseHeader."No.");
     end;
 
@@ -229,7 +229,7 @@ codeunit 137207 "SCM Archive Orders"
 
         // [GIVEN] "Sales & Receivables Setup"."Archive Orders" = TRUE
         LibrarySales.SetArchiveOrders(true);
-        LibrarySales.SetArchiveQuoteAlways;
+        LibrarySales.SetArchiveQuoteAlways();
 
         // [GIVEN] Sales Quote
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
@@ -304,7 +304,7 @@ codeunit 137207 "SCM Archive Orders"
         Initialize();
 
         // [GIVEN] Purchase Order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Clear "Buy-from Vendor No." field value
         PurchaseHeader.Validate("Buy-from Vendor No.", '');
@@ -377,7 +377,7 @@ codeunit 137207 "SCM Archive Orders"
         Initialize();
 
         // [GIVEN] Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Clear "Sell-to Customer No." field value
         SalesHeader.Validate("Sell-to Customer No.", '');
@@ -403,12 +403,12 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.SetArchiveOrders(false);
 
         // [GIVEN] Purchase Order "PO"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Run REP 1322 "Standard Purchase - Order"
         // [GIVEN] Report request page's field "Archive Document" has predefined value = FALSE
         // [WHEN] Print the order
-        DeleteObjectOptions;
+        DeleteObjectOptions();
         RunStandardPurchaseOrderReport(PurchaseHeader."No.", false);
 
         // [THEN] There is no archived "PO" purchase order
@@ -433,12 +433,12 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.SetArchiveOrders(true);
 
         // [GIVEN] Purchase Order "PO"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Run REP 1322 "Standard Purchase - Order"
         // [GIVEN] Report request page's field "Archive Document" has predefined value = TRUE
         // [WHEN] Print the order
-        DeleteObjectOptions;
+        DeleteObjectOptions();
         RunStandardPurchaseOrderReport(PurchaseHeader."No.", true);
 
         // [THEN] There is an archived "PO" purchase order
@@ -816,8 +816,8 @@ codeunit 137207 "SCM Archive Orders"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         CODEUNIT.Run(CODEUNIT::"Blnkt Purch Ord. to Ord. (Y/N)", PurchaseHeader);
         PurchaseHeaderOrder.SetRange("Document Type", PurchaseHeaderOrder."Document Type"::Order);
         PurchaseHeaderOrder.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -830,8 +830,8 @@ codeunit 137207 "SCM Archive Orders"
         SalesLine: Record "Sales Line";
         BlanketSalesOrderToOrder: Codeunit "Blanket Sales Order to Order";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         BlanketSalesOrderToOrder.SetHideValidationDialog(true);
         BlanketSalesOrderToOrder.Run(SalesHeader);
         SalesHeaderOrder.SetRange("Document Type", SalesHeaderOrder."Document Type"::Order);
@@ -942,8 +942,8 @@ codeunit 137207 "SCM Archive Orders"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
@@ -951,8 +951,8 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
@@ -1166,65 +1166,65 @@ codeunit 137207 "SCM Archive Orders"
     [Scope('OnPrem')]
     procedure ReportHandlerPurchArchivedReturnOrder(var ArchPurchReturnOrder: TestRequestPage "Arch.Purch. Return Order")
     begin
-        ArchPurchReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchPurchReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerPurchArchivedOrder(var ArchivedPurchaseOrder: TestRequestPage "Archived Purchase Order")
     begin
-        ArchivedPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchivedPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerPurchArchivedQuote(var ArchivedPurchaseQuote: TestRequestPage "Archived Purchase Quote")
     begin
-        ArchivedPurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchivedPurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
     procedure SalesQuote_RH(var SalesQuote: Report "Standard Sales - Quote")
     begin
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName);
+        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardPurchaseOrder_RPH(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
     begin
-        StandardPurchaseOrder.ArchiveDocument.AssertEquals(LibraryVariableStorage.DequeueBoolean);
-        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardPurchaseOrder.ArchiveDocument.AssertEquals(LibraryVariableStorage.DequeueBoolean());
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetReceiptLinesModalPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.OK.Invoke;
+        GetReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetReturnShipmentLinesForPurchaseModalPageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
     begin
-        GetReturnShipmentLines.OK.Invoke;
+        GetReturnShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetReturnReceiptLinesModalPageHandler(var GetReturnReceiptLines: TestPage "Get Return Receipt Lines")
     begin
-        GetReturnReceiptLines.OK.Invoke;
+        GetReturnReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesModalPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.First;
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.First();
+        GetShipmentLines.OK().Invoke();
     end;
 }
 

@@ -32,10 +32,6 @@ page 741 "VAT Report Subform"
 
                     trigger OnAssistEdit()
                     var
-                        VATReportLineRelation: Record "VAT Report Line Relation";
-                        VATEntry: Record "VAT Entry";
-                        FilterText: Text[1024];
-                        TableNo: Integer;
                     begin
                         ShowVATReportEntries(Rec."VAT Report No.", Rec."Line No.");
                     end;

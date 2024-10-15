@@ -21,7 +21,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
     begin
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
 
         UserSetup.DeleteAll();
     end;
@@ -40,7 +40,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create a Workflow
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
 
         // Excercise - Export the Workflow
         Workflow.SetRecFilter();
@@ -67,7 +67,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // Setup - Create 2 Workflows
         Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
 
         // Excercise - Export the selected workflows
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
@@ -93,7 +93,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create a Workflow and export it to a file
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         WorkflowCode := Workflow.Code;
         Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
@@ -104,7 +104,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Workflow.ImportFromBlob(TempBlob);
 
         // Verify that the workflow is created
-        CheckWorkflowStepsAreEqual(WorkflowCode, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        CheckWorkflowStepsAreEqual(WorkflowCode, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         // Setup - Create a Workflow and export it to a file
         Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
         Workflow.ExportToBlob(TempBlob);
         Workflow.DeleteAll(true);
@@ -137,7 +137,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Verify
         CheckWorkflowStepsAreEqual(Workflow1.Code, 'MS-' + WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
-        CheckWorkflowStepsAreEqual(Workflow2.Code, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        CheckWorkflowStepsAreEqual(Workflow2.Code, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
     end;
 
     [Test]
@@ -157,7 +157,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create a Workflow and export it to a file
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         WorkflowCode := Workflow.Code;
         Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
@@ -166,7 +166,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         WorkflowImpExpMgt.ReplaceWorkflow(Workflow, TempBlob);
 
         // Verify that the workflow is created
-        CheckWorkflowStepsAreEqual(WorkflowCode, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        CheckWorkflowStepsAreEqual(WorkflowCode, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
     end;
 
     [Test]
@@ -186,7 +186,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create a Workflow and export it to a file
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         Workflow.SetRecFilter();
         Workflow.ExportToBlob(TempBlob);
         Workflow.DeleteAll(true);
@@ -197,7 +197,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         WorkflowImpExpMgt.ReplaceWorkflow(Workflow, TempBlob);
 
         // Verify that the workflow is created
-        CheckWorkflowStepsAreEqual(WorkflowCode, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        CheckWorkflowStepsAreEqual(WorkflowCode, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
     end;
 
     [Test]
@@ -219,7 +219,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // Setup - Create a Workflow and export it to a file
         Initialize();
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
         Workflow.SetFilter(Code, '%1|%2', Workflow1.Code, Workflow2.Code);
         Workflow.ExportToBlob(TempBlob);

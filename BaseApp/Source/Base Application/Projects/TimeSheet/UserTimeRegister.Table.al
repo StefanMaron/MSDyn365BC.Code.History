@@ -11,6 +11,7 @@ table 51 "User Time Register"
 {
     Caption = 'User Time Register';
     LookupPageID = "User Time Registers";
+    DataClassification = CustomerContent;
 
     fields
     {

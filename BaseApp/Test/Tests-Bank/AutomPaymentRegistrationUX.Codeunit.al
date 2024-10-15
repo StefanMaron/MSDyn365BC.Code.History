@@ -25,12 +25,12 @@ codeunit 134711 "Autom. Payment Registration.UX"
     begin
         Initialize();
 
-        BankAccNo := CreateBankAcc;
+        BankAccNo := CreateBankAcc();
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
         BankAccReconciliation."Bank Account No." := BankAccNo;
 
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
     end;
 
     [Test]
@@ -42,9 +42,9 @@ codeunit 134711 "Autom. Payment Registration.UX"
     begin
         Initialize();
 
-        DeleteAllBankAcc;
+        DeleteAllBankAcc();
 
-        BankAccReconciliation.OpenNewWorksheet;
+        BankAccReconciliation.OpenNewWorksheet();
 
         // Validation for this case in HandlerFunctions
     end;
@@ -58,11 +58,11 @@ codeunit 134711 "Autom. Payment Registration.UX"
     begin
         Initialize();
 
-        DeleteAllBankAcc;
-        CreateBankAcc;
+        DeleteAllBankAcc();
+        CreateBankAcc();
 
-        BankPaymentWorksheet.Trap;
-        BankAccReconciliation.OpenNewWorksheet;
+        BankPaymentWorksheet.Trap();
+        BankAccReconciliation.OpenNewWorksheet();
 
         BankPaymentWorksheet.Close();
     end;
@@ -78,11 +78,11 @@ codeunit 134711 "Autom. Payment Registration.UX"
     begin
         Initialize();
 
-        DeleteAllBankAcc;
-        BankAccNo := CreateBankAcc;
+        DeleteAllBankAcc();
+        BankAccNo := CreateBankAcc();
 
-        BankPaymentWorksheet.Trap;
-        BankAccReconciliation.OpenNewWorksheet;
+        BankPaymentWorksheet.Trap();
+        BankAccReconciliation.OpenNewWorksheet();
         BankPaymentWorksheet.Close();
 
         BankAccount.Get(BankAccNo);
@@ -108,16 +108,16 @@ codeunit 134711 "Autom. Payment Registration.UX"
     begin
         Initialize();
 
-        InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation, 1);
+        InsertDummyBankReconHeaderAndLine("Bank Acc. Rec. Stmt. Type"::"Payment Application", '0', BankAccReconciliation, 1);
 
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
         BankAccReconciliationLine.FindFirst();
 
-        BankPaymentApplication.OpenEdit;
+        BankPaymentApplication.OpenEdit();
         BankPaymentApplication.GotoRecord(BankAccReconciliationLine);
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
-        asserterror BankPaymentApplication.Post.Invoke;
+        asserterror BankPaymentApplication.Post.Invoke();
         Assert.ExpectedError(
           StrSubstNo(LineNoTAppliedErr, BankAccReconciliationLine."Transaction Date", BankAccReconciliationLine."Transaction Text"));
     end;
@@ -132,15 +132,15 @@ codeunit 134711 "Autom. Payment Registration.UX"
     begin
         Initialize();
 
-        InsertDummyBankReconHeaderAndLine(1, '0', BankAccReconciliation, 0);
+        InsertDummyBankReconHeaderAndLine("Bank Acc. Rec. Stmt. Type"::"Payment Application", '0', BankAccReconciliation, 0);
 
         BankAccReconciliation.SetFiltersOnBankAccReconLineTable(
           BankAccReconciliation, BankAccReconciliationLine);
         BankAccReconciliationLine.FindFirst();
 
-        BankPaymentApplication.OpenEdit;
+        BankPaymentApplication.OpenEdit();
         BankPaymentApplication.GotoRecord(BankAccReconciliationLine);
-        asserterror BankPaymentApplication.ApplyEntries.Invoke;
+        asserterror BankPaymentApplication.ApplyEntries.Invoke();
         Assert.ExpectedError(TransactionAmountMustNotBeZeroErr);
     end;
 
@@ -153,13 +153,13 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccReconciliation.DeleteAll(true);
     end;
 
-    local procedure InsertDummyBankReconHeaderAndLine(StatementType: Option; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; StatementAmount: Decimal)
+    local procedure InsertDummyBankReconHeaderAndLine(StatementType: Enum "Bank Acc. Rec. Stmt. Type"; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; StatementAmount: Decimal)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
-        BankAccReconciliation."Bank Account No." := CreateBankAcc;
+        BankAccReconciliation."Bank Account No." := CreateBankAcc();
         BankAccReconciliation."Statement No." := StatementNo;
         BankAccReconciliation.Insert();
 
@@ -183,7 +183,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         BankAccount: Record "Bank Account";
     begin
         BankAccount.Init();
-        BankAccount."No." := CopyStr(CreateGuid, 1, 20);
+        BankAccount."No." := CopyStr(CreateGuid(), 1, 20);
         BankAccount.Insert();
 
         exit(BankAccount."No.");
@@ -218,14 +218,14 @@ codeunit 134711 "Autom. Payment Registration.UX"
     [Scope('OnPrem')]
     procedure ModalBasicBankAccountCardHandler(var BasicBankAccountCard: TestPage "Bank Account Card")
     begin
-        BasicBankAccountCard.OK.Invoke;
+        BasicBankAccountCard.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 }
 

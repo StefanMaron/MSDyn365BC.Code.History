@@ -60,7 +60,7 @@ codeunit 142065 "UT TAB VATSTAT"
         // Purpose of the test is to validate Trigger OnValidate of Page ID for Table 255 - VAT Statement Template.
 
         // Setup: Create VAT Statement Template.
-        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10;
+        VATStatementTemplate.Name := LibraryUTUtility.GetNewCode10();
         VATStatementTemplate.Insert();
 
         // Exercise.
@@ -72,7 +72,7 @@ codeunit 142065 "UT TAB VATSTAT"
 
     local procedure CreatePostCode(var PostCode: Record "Post Code")
     begin
-        PostCode.Code := LibraryUTUtility.GetNewCode;
+        PostCode.Code := LibraryUTUtility.GetNewCode();
         PostCode.City := 'City';
         PostCode."Search City" := PostCode.City;
         PostCode.Insert();
@@ -80,7 +80,7 @@ codeunit 142065 "UT TAB VATSTAT"
 
     local procedure CreateCompanyInformation(var CompanyInformation: Record "Company Information")
     begin
-        CompanyInformation."Primary Key" := LibraryUTUtility.GetNewCode10;
+        CompanyInformation."Primary Key" := LibraryUTUtility.GetNewCode10();
         CompanyInformation.Insert();
     end;
 }

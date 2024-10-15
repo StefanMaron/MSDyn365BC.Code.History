@@ -269,13 +269,11 @@ report 11015 "Export Business Data"
     var
         RecordRef: RecordRef;
     begin
-        with DataExportRecordSource do begin
-            RecordRef.Open("Table No.");
-            RecordRef.CurrentKeyIndex("Key No.");
-            SetPeriodFilter("Period Field No.", RecordRef);
-            TotalRecords := RecordRef.Count();
-            RecordRef.Close();
-        end;
+        RecordRef.Open(DataExportRecordSource."Table No.");
+        RecordRef.CurrentKeyIndex(DataExportRecordSource."Key No.");
+        SetPeriodFilter(DataExportRecordSource."Period Field No.", RecordRef);
+        TotalRecords := RecordRef.Count();
+        RecordRef.Close();
     end;
 
     local procedure InsertFilesExportBuffer(DataExportRecordSource: Record "Data Export Record Source")
@@ -322,22 +320,20 @@ report 11015 "Export Business Data"
         TempBlob.CreateOutStream(FileWriteStream);
         WriteLineToOutStream(FileWriteStream, StrSubstNo(DateFilterMsg, Format(StartDate), Format(CalcEndDate(EndDate))));
         WriteLineToOutStream(FileWriteStream, Format(Today));
-        with TempDataExportRecordSource do begin
-            Reset();
-            if FindSet() then begin
-                NoOfDefinedTables := 0;
-                NoOfEmptyTables := 0;
-                WriteLineToOutStream(FileWriteStream, "Data Export Code" + ';' + "Data Exp. Rec. Type Code");
-                repeat
-                    FirstBlobIndex := GetFirstBlobIndex("Line No.");
-                    if NoOfRecordsArr[FirstBlobIndex] = 0 then
-                        NoOfEmptyTables += 1
-                    else
-                        NoOfDefinedTables += 1;
-                    CalcFields("Table Name");
-                    WriteLineToOutStream(FileWriteStream, StrSubstNo(LogEntryMsg, "Table Name", NoOfRecordsArr[FirstBlobIndex], "Export File Name"));
-                until Next() = 0;
-            end;
+        TempDataExportRecordSource.Reset();
+        if TempDataExportRecordSource.FindSet() then begin
+            NoOfDefinedTables := 0;
+            NoOfEmptyTables := 0;
+            WriteLineToOutStream(FileWriteStream, TempDataExportRecordSource."Data Export Code" + ';' + TempDataExportRecordSource."Data Exp. Rec. Type Code");
+            repeat
+                FirstBlobIndex := GetFirstBlobIndex(TempDataExportRecordSource."Line No.");
+                if NoOfRecordsArr[FirstBlobIndex] = 0 then
+                    NoOfEmptyTables += 1
+                else
+                    NoOfDefinedTables += 1;
+                TempDataExportRecordSource.CalcFields("Table Name");
+                WriteLineToOutStream(FileWriteStream, StrSubstNo(LogEntryMsg, TempDataExportRecordSource."Table Name", NoOfRecordsArr[FirstBlobIndex], TempDataExportRecordSource."Export File Name"));
+            until TempDataExportRecordSource.Next() = 0;
         end;
         WriteLineToOutStream(FileWriteStream, StrSubstNo(NoOfDefinedTablesMsg, NoOfDefinedTables));
         WriteLineToOutStream(FileWriteStream, StrSubstNo(NoOfEmptyTablesMsg, NoOfEmptyTables));
@@ -351,21 +347,19 @@ report 11015 "Export Business Data"
         CurrTempDataExportRecordSource: Record "Data Export Record Source";
         RecRef: RecordRef;
     begin
-        with TempDataExportRecordSource do begin
-            Reset();
-            SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecordDefinition."Data Exp. Rec. Type Code");
-            SetRange("Relation To Line No.", 0);
-            if FindSet() then
-                repeat
-                    CurrTempDataExportRecordSource.Copy(TempDataExportRecordSource);
-                    RecRef.Open("Table No.");
-                    ApplyTableFilter(TempDataExportRecordSource, RecRef);
-                    WriteTable(TempDataExportRecordSource, RecRef);
-                    RecRef.Close();
-                    Copy(CurrTempDataExportRecordSource);
-                until Next() = 0;
-        end;
+        TempDataExportRecordSource.Reset();
+        TempDataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
+        TempDataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecordDefinition."Data Exp. Rec. Type Code");
+        TempDataExportRecordSource.SetRange("Relation To Line No.", 0);
+        if TempDataExportRecordSource.FindSet() then
+            repeat
+                CurrTempDataExportRecordSource.Copy(TempDataExportRecordSource);
+                RecRef.Open(TempDataExportRecordSource."Table No.");
+                ApplyTableFilter(TempDataExportRecordSource, RecRef);
+                WriteTable(TempDataExportRecordSource, RecRef);
+                RecRef.Close();
+                TempDataExportRecordSource.Copy(CurrTempDataExportRecordSource);
+            until TempDataExportRecordSource.Next() = 0;
     end;
 
     local procedure WriteTable(DataExportRecordSource: Record "Data Export Record Source"; var RecRef: RecordRef)
@@ -374,20 +368,19 @@ report 11015 "Export Business Data"
         CurrBlobIndex: Integer;
         FirstBlobIndex: Integer;
     begin
-        with DataExportRecordSource do
-            if RecRef.FindSet() then begin
-                CurrBlobIndex := GetCurrentBlobIndex(DataExportRecordSource."Line No.");
-                FirstBlobIndex := GetFirstBlobIndex(DataExportRecordSource."Line No.");
-                NoOfRecordsArr[FirstBlobIndex] += RecRef.Count();
-                if GuiAllowed then
-                    Window.Update(1, RecRef.Caption);
-                repeat
-                    RecRefToExport := RecRef.Duplicate();
-                    WriteRecord(DataExportRecordSource, RecRefToExport, CurrBlobIndex);
-                    UpdateProgressBar();
-                    WriteRelatedRecords(DataExportRecordSource, RecRefToExport);
-                until RecRef.Next() = 0;
-            end;
+        if RecRef.FindSet() then begin
+            CurrBlobIndex := GetCurrentBlobIndex(DataExportRecordSource."Line No.");
+            FirstBlobIndex := GetFirstBlobIndex(DataExportRecordSource."Line No.");
+            NoOfRecordsArr[FirstBlobIndex] += RecRef.Count();
+            if GuiAllowed then
+                Window.Update(1, RecRef.Caption);
+            repeat
+                RecRefToExport := RecRef.Duplicate();
+                WriteRecord(DataExportRecordSource, RecRefToExport, CurrBlobIndex);
+                UpdateProgressBar();
+                WriteRelatedRecords(DataExportRecordSource, RecRefToExport);
+            until RecRef.Next() = 0;
+        end;
     end;
 
     local procedure UpdateProgressBar()
@@ -406,16 +399,14 @@ report 11015 "Export Business Data"
         TableFilterPage: Page "Table Filter";
         TableFilterText: Text;
     begin
-        with DataExportRecordSource do begin
-            TableFilterText := Format("Table Filter");
-            if TableFilterText <> '' then begin
-                TableFilterPage.SetSourceTable(TableFilterText, "Table No.", "Table Name");
-                RecRef.SetView(TableFilterPage.GetViewFilter());
-                SetFlowFilterDateFields(DataExportRecordSource, RecRef);
-            end;
-            RecRef.CurrentKeyIndex("Key No.");
-            SetPeriodFilter("Period Field No.", RecRef);
+        TableFilterText := Format(DataExportRecordSource."Table Filter");
+        if TableFilterText <> '' then begin
+            TableFilterPage.SetSourceTable(TableFilterText, DataExportRecordSource."Table No.", DataExportRecordSource."Table Name");
+            RecRef.SetView(TableFilterPage.GetViewFilter());
+            SetFlowFilterDateFields(DataExportRecordSource, RecRef);
         end;
+        RecRef.CurrentKeyIndex(DataExportRecordSource."Key No.");
+        SetPeriodFilter(DataExportRecordSource."Period Field No.", RecRef);
     end;
 
     local procedure WriteRelatedRecords(var ParentDataExportRecordSource: Record "Data Export Record Source"; ParentRecRef: RecordRef)
@@ -425,38 +416,36 @@ report 11015 "Export Business Data"
         RelatedFieldRef: FieldRef;
         ParentFieldRef: FieldRef;
     begin
-        with TempDataExportRecordSource do begin
-            Reset();
-            SetRange("Data Export Code", ParentDataExportRecordSource."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", ParentDataExportRecordSource."Data Exp. Rec. Type Code");
-            SetRange("Relation To Line No.", ParentDataExportRecordSource."Line No.");
-            if FindSet() then begin
-                DataExportTableRelation.Reset();
-                DataExportTableRelation.SetRange("Data Export Code", "Data Export Code");
-                DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
-                DataExportTableRelation.SetRange("From Table No.", ParentDataExportRecordSource."Table No.");
-                repeat
-                    DataExportTableRelation.SetRange("To Table No.", "Table No.");
-                    if DataExportTableRelation.FindSet() then begin
-                        RelatedRecRef.Open("Table No.");
-                        ApplyTableFilter(TempDataExportRecordSource, RelatedRecRef);
-                        repeat
-                            ParentFieldRef := ParentRecRef.Field(DataExportTableRelation."From Field No.");
-                            RelatedFieldRef := RelatedRecRef.Field(DataExportTableRelation."To Field No.");
-                            RelatedFieldRef.SetRange(ParentFieldRef.Value);
-                        until DataExportTableRelation.Next() = 0;
+        TempDataExportRecordSource.Reset();
+        TempDataExportRecordSource.SetRange("Data Export Code", ParentDataExportRecordSource."Data Export Code");
+        TempDataExportRecordSource.SetRange("Data Exp. Rec. Type Code", ParentDataExportRecordSource."Data Exp. Rec. Type Code");
+        TempDataExportRecordSource.SetRange("Relation To Line No.", ParentDataExportRecordSource."Line No.");
+        if TempDataExportRecordSource.FindSet() then begin
+            DataExportTableRelation.Reset();
+            DataExportTableRelation.SetRange("Data Export Code", TempDataExportRecordSource."Data Export Code");
+            DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", TempDataExportRecordSource."Data Exp. Rec. Type Code");
+            DataExportTableRelation.SetRange("From Table No.", ParentDataExportRecordSource."Table No.");
+            repeat
+                DataExportTableRelation.SetRange("To Table No.", TempDataExportRecordSource."Table No.");
+                if DataExportTableRelation.FindSet() then begin
+                    RelatedRecRef.Open(TempDataExportRecordSource."Table No.");
+                    ApplyTableFilter(TempDataExportRecordSource, RelatedRecRef);
+                    repeat
+                        ParentFieldRef := ParentRecRef.Field(DataExportTableRelation."From Field No.");
+                        RelatedFieldRef := RelatedRecRef.Field(DataExportTableRelation."To Field No.");
+                        RelatedFieldRef.SetRange(ParentFieldRef.Value);
+                    until DataExportTableRelation.Next() = 0;
 
-                        WriteTable(TempDataExportRecordSource, RelatedRecRef);
+                    WriteTable(TempDataExportRecordSource, RelatedRecRef);
 
-                        SetRange("Relation To Line No.", ParentDataExportRecordSource."Line No.");
+                    TempDataExportRecordSource.SetRange("Relation To Line No.", ParentDataExportRecordSource."Line No.");
 
-                        RelatedRecRef.Close();
-                    end else begin
-                        CalcFields("Table Name");
-                        Error(DefineTableRelationErr, DataExportTableRelation.TableCaption(), "Table Name");
-                    end;
-                until Next() = 0;
-            end;
+                    RelatedRecRef.Close();
+                end else begin
+                    TempDataExportRecordSource.CalcFields("Table Name");
+                    Error(DefineTableRelationErr, DataExportTableRelation.TableCaption(), TempDataExportRecordSource."Table Name");
+                end;
+            until TempDataExportRecordSource.Next() = 0;
         end;
     end;
 
@@ -496,26 +485,24 @@ report 11015 "Export Business Data"
     var
         OptionNo: Integer;
     begin
-        with DataExportRecordField do begin
-            case "Field Type" of
-                "Field Type"::Option:
-                    begin
-                        OptionNo := FieldRef.Value;
-                        if OptionNo <= GetMaxOptionIndex(FieldRef.OptionCaption) then
-                            FieldValueText := SelectStr(OptionNo + 1, Format(FieldRef.OptionCaption))
-                        else
-                            FieldValueText := Format(OptionNo);
-                    end;
-                "Field Type"::Decimal:
-                    FieldValueText := Format(FieldRef.Value, 0, '<Precision,' + GLSetup."Amount Decimal Places" + '><Standard Format,0>');
-                "Field Type"::Date:
-                    FieldValueText := Format(FieldRef.Value, 10, '<day,2>.<month,2>.<year4>');
-                else
-                    FieldValueText := Format(FieldRef.Value);
-            end;
-            if "Field Type" in ["Field Type"::Boolean, "Field Type"::Code, "Field Type"::Option, "Field Type"::Text] then
-                FieldValueText := StrSubstNo(ValueWithQuotesTxt, ConvertString(FieldValueText));
+        case DataExportRecordField."Field Type" of
+            DataExportRecordField."Field Type"::Option:
+                begin
+                    OptionNo := FieldRef.Value();
+                    if OptionNo <= GetMaxOptionIndex(FieldRef.OptionCaption) then
+                        FieldValueText := SelectStr(OptionNo + 1, Format(FieldRef.OptionCaption))
+                    else
+                        FieldValueText := Format(OptionNo);
+                end;
+            DataExportRecordField."Field Type"::Decimal:
+                FieldValueText := Format(FieldRef.Value, 0, '<Precision,' + GLSetup."Amount Decimal Places" + '><Standard Format,0>');
+            DataExportRecordField."Field Type"::Date:
+                FieldValueText := Format(FieldRef.Value, 10, '<day,2>.<month,2>.<year4>');
+            else
+                FieldValueText := Format(FieldRef.Value);
         end;
+        if DataExportRecordField."Field Type" in [DataExportRecordField."Field Type"::Boolean, DataExportRecordField."Field Type"::Code, DataExportRecordField."Field Type"::Option, DataExportRecordField."Field Type"::Text] then
+            FieldValueText := StrSubstNo(ValueWithQuotesTxt, ConvertString(FieldValueText));
     end;
 
     local procedure ConvertString(String: Text) NewString: Text
@@ -587,12 +574,10 @@ report 11015 "Export Business Data"
     [Scope('OnPrem')]
     procedure FindFields(var DataExportRecordField: Record "Data Export Record Field"; var DataExportRecordSource: Record "Data Export Record Source"): Boolean
     begin
-        with DataExportRecordField do begin
-            SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
-            SetRange("Source Line No.", DataExportRecordSource."Line No.");
-            exit(FindSet());
-        end;
+        DataExportRecordField.SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
+        DataExportRecordField.SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
+        DataExportRecordField.SetRange("Source Line No.", DataExportRecordSource."Line No.");
+        exit(DataExportRecordField.FindSet());
     end;
 
     local procedure SetFlowFilterDateFields(DataExportRecordSource: Record "Data Export Record Source"; var RecRef: RecordRef)

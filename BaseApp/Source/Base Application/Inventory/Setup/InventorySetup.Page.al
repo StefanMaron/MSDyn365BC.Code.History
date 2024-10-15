@@ -5,7 +5,9 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
-using Microsoft.Inventory.Tracking;
+#if not CLEAN24
+using System.Environment.Configuration;
+#endif
 
 page 461 "Inventory Setup"
 {
@@ -39,6 +41,11 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if item value entries are automatically adjusted when an item transaction is posted. This ensures correct inventory valuation in the general ledger, so that sales and profit statistics are up to date. The cost adjustment forwards any cost changes from inbound entries, such as those for purchases or production output, to the related outbound entries, such as sales or transfers. To minimize reduced performance during posting, select a time option to define how far back in time from the work date an inbound transaction can occur to potentially trigger adjustment of related outbound value entries. Alternatively, you can manually adjust costs at regular intervals with the Adjust Cost - Item Entries batch job.';
+                }
+                field("Cost Adjustment Logging"; Rec."Cost Adjustment Logging")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to log cost adjustments runs. Disabled: No logging. Errors Only: The program will only log cost adjustment runs that have errors. All: The program will log all cost adjustment runs.';
                 }
                 field("Default Costing Method"; Rec."Default Costing Method")
                 {
@@ -135,7 +142,6 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the alternative caption of Package tracking dimension that you want to use for captions for this dimension. For example, Size.';
-                    Visible = PackageVisible;
                 }
             }
             group(Numbering)
@@ -259,12 +265,23 @@ page 461 "Inventory Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
+#if not CLEAN24
+                field("Invt. Orders Package Tracking"; Rec."Invt. Orders Package Tracking")
+                {
+                    ApplicationArea = ItemTracking;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if package tracking for inventory counting orders is enabled.';
+                    ObsoleteReason = 'Temporary setup to enable/disable package tracking in Phys. Inventory Orders';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    Visible = IsInvtOrdersPackageTrackingVisible;
+                }
+#endif
                 field("Package Nos."; Rec."Package Nos.")
                 {
                     ApplicationArea = ItemTracking;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to item tracking packages.';
-                    Visible = PackageVisible;
                 }
             }
             group("Gen. Journal Templates")
@@ -438,29 +455,28 @@ page 461 "Inventory Setup"
             Rec.Insert();
         end;
 
-        SetPackageVisibility();
         SetAdjustCostWizardActionVisibility();
 
         GLSetup.Get();
         IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";
+#if not CLEAN24
+        IsInvtOrdersPackageTrackingVisible := FeatureKeyManagement.IsPhysInvtOrderPackageTrackingEnabled();
+#endif        
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
-        PackageMgt: Codeunit "Package Management";
         SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
-        PackageVisible: Boolean;
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+        IsInvtOrdersPackageTrackingVisible: Boolean;
+#endif
         AdjustCostWizardVisible: Boolean;
         IsJournalTemplatesVisible: Boolean;
 
-    local procedure SetPackageVisibility()
-    begin
-        PackageVisible := PackageMgt.IsEnabled();
-    end;
-
     local procedure SetAdjustCostWizardActionVisibility()
     begin
-        if (Rec."Automatic Cost Posting" = False) and (not SchedulingManager.PostInvCostToGLJobQueueExists()) or
+        if (Rec."Automatic Cost Posting" = false) and (not SchedulingManager.PostInvCostToGLJobQueueExists()) or
            (Rec."Automatic Cost Adjustment" = Rec."Automatic Cost Adjustment"::Never) and (not SchedulingManager.AdjCostJobQueueExists()) then
             AdjustCostWizardVisible := true;
     end;

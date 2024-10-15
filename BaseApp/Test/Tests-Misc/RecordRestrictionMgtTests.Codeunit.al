@@ -68,7 +68,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Exercise.
         Commit();
-        asserterror SalesHeader.OnCheckSalesPostRestrictions;
+        asserterror SalesHeader.OnCheckSalesPostRestrictions();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(RestrictionErr, Format(Customer.RecordId, 0, 1)));
@@ -87,13 +87,13 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Setup.
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         RecordRestrictionMgt.RestrictRecordUsage(SalesHeader, '');
 
         // Exercise.
         Commit();
-        asserterror SalesHeader.OnCheckSalesPostRestrictions;
+        asserterror SalesHeader.OnCheckSalesPostRestrictions();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(RestrictionErr, Format(SalesHeader.RecordId, 0, 1)));
@@ -112,13 +112,13 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Setup.
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         RecordRestrictionMgt.RestrictRecordUsage(PurchaseHeader, '');
 
         // Exercise.
         Commit();
-        asserterror PurchaseHeader.OnCheckPurchasePostRestrictions;
+        asserterror PurchaseHeader.OnCheckPurchasePostRestrictions();
 
         // Verify.
         Assert.ExpectedError(StrSubstNo(RestrictionErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -169,7 +169,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Setup.
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
 
@@ -196,7 +196,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Setup.
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalBatch, '');
@@ -257,10 +257,10 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         RestrictedRecord.FindFirst();
 
         // Exercise.
-        CustomerCard.Trap;
-        RestrictedRecords.OpenView;
+        CustomerCard.Trap();
+        RestrictedRecords.OpenView();
         RestrictedRecords.GotoRecord(RestrictedRecord);
-        RestrictedRecords.Record.Invoke;
+        RestrictedRecords.Record.Invoke();
 
         // Verify.
         CustomerCard."No.".AssertEquals(Customer."No.");
@@ -268,12 +268,12 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Exercise.
         Customer.Delete();
-        RestrictedRecords.Record.Invoke;
+        RestrictedRecords.Record.Invoke();
 
         // Verify.
         VerifyApprovalEntryNotExists(Customer);
         asserterror RestrictedRecord.Get();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Setup.
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
         CreateApprovalEntry(GenJournalLine);
@@ -304,7 +304,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Verify.
         VerifyApprovalEntryNotExists(GenJournalLine);
         asserterror RestrictedRecord.Get();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -323,7 +323,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Setup.
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalBatch, '');
@@ -337,7 +337,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Verify.
         VerifyApprovalEntryNotExists(GenJournalBatch);
         asserterror RestrictedRecord.Get();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -354,7 +354,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Setup.
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         RecordRestrictionMgt.RestrictRecordUsage(SalesHeader, '');
         RestrictedRecord.SetRange("Record ID", SalesHeader.RecordId);
@@ -365,7 +365,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Verify.
         asserterror RestrictedRecord.Get();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -382,7 +382,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Setup.
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         RecordRestrictionMgt.RestrictRecordUsage(PurchaseHeader, '');
         RestrictedRecord.SetRange("Record ID", PurchaseHeader.RecordId);
@@ -393,7 +393,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
 
         // Verify.
         asserterror RestrictedRecord.Get();
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -411,7 +411,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Setup.
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
         RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
@@ -470,7 +470,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // Setup.
         Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         TempGenJournalLine := GenJournalLine;
         TempGenJournalLine.Insert();
         GenJournalLine.Delete();
@@ -510,22 +510,22 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         GenJournalTemplate.DeleteAll();
 
         // Setup
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
 
         LibraryERM.CreateBankAccount(BankAccount);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", LibraryRandom.RandDec(100, 2));
 
         // Exercise
         Commit();
 
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         GeneralJournal.GotoRecord(GenJournalLine);
-        GeneralJournal.Preview.Invoke;
+        GeneralJournal.Preview.Invoke();
         GLPostingPreview.Close();
 
         asserterror Error(''); // Rollback previewing inconsistencies
@@ -732,7 +732,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
         // [SCENARIO 223228] Restriction record and approval entry are not deleted on deleting temporary gen. journal line copied from existing one
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(10));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(10));
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
 
@@ -784,7 +784,7 @@ codeunit 134320 "Record Restriction Mgt. Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Record Restriction Mgt. Tests");
 
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryApplicationArea.EnableFoundationSetup();
     end;
 

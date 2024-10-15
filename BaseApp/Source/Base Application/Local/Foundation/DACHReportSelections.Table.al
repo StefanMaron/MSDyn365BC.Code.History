@@ -9,6 +9,7 @@ using System.Reflection;
 table 26100 "DACH Report Selections"
 {
     Caption = 'DACH Report Selections';
+    DataClassification = CustomerContent;
 
     fields
     {

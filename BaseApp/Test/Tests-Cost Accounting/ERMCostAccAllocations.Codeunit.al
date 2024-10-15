@@ -269,7 +269,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Exercise.
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         VerifyCostRegisterAndEntry(CostRegister);
 
@@ -305,7 +305,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Exercise.
         SelectedCostBudget := CostBudgetName.Name;
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         if not CostBudgetRegister.FindLast() then
             Error(NoRecordsInFilterErr, CostBudgetRegister.TableCaption(), CostBudgetRegister.GetFilters);
@@ -542,7 +542,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Exercise.
         SelectedCostBudget := CostBudgetName.Name;
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify.
         Clear(CostAllocationSource);
@@ -589,7 +589,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         GetCostJournalLineEntries(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
         AllocToDateField := AllocToDate;
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify.
         Clear(CostAllocationSource);
@@ -632,7 +632,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Exercise.
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify.
         LibraryCostAccounting.CheckAllocTargetSharePercent(CostAllocationSource);
@@ -676,7 +676,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         GetCostJournalLineEntries(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
         VariantField := Variant;
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify.
         Clear(CostAllocationSource);
@@ -764,7 +764,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         // Verify that system does not throw error while running the report Cost Allocation with Single level when Cost entry, Cost budget entries are empty.
         Initialize();
         MaxLevel := 1;
-        RunCostAllocationReportForLevels;
+        RunCostAllocationReportForLevels();
     end;
 
     [Test]
@@ -774,7 +774,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         // Verify that system does not throw error while running the report Cost Allocation with multiple level when Cost entry, Cost budget entries are empty.
         Initialize();
-        RunCostAllocationReportForLevels;
+        RunCostAllocationReportForLevels();
     end;
 
     [Test]
@@ -790,13 +790,13 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Setup:  Delete the Cost Entry, Cost Register and Cost budget Entry Table and create a new cost budget.
         Initialize();
-        DeleteEntryAndRegisterOfCostAcc;
+        DeleteEntryAndRegisterOfCostAcc();
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         SelectedCostBudget := CostBudgetName.Name;
         MaxLevel := 1;
 
         // Exercise: Run the report Cost Allocation.
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify: Verify that no error comes up and also verifies that Cost register and Cost allocation entries gets created.
         if not CostBudgetRegister.FindLast() then
@@ -819,11 +819,11 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
         // Setup:  Delete the Cost Entry, Cost Register and Cost budget Entry Table.
         Initialize();
-        DeleteEntryAndRegisterOfCostAcc;
+        DeleteEntryAndRegisterOfCostAcc();
         MaxLevel := 1;
 
         // Exercise: Run the report Cost Allocation.
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify: Verify that no error comes up and verify that Cost budget register is empty.
         if CostBudgetRegister.FindLast() then
@@ -896,6 +896,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
     local procedure Initialize()
     begin
+        LibraryHumanResource.FindEmployeePostingGroup();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Acc. Allocations");
         LibraryVariableStorage.Clear();
         ResetGlobalVariables();
@@ -943,7 +944,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     procedure AllocateCostsForBudget(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
         LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate(), '', SelectedCostBudget);
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -951,7 +952,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     procedure AllocateCostsForDateRange(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
         LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, AllocToDateField, '', '');
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -959,7 +960,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     procedure AllocateCostsForLevels(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
         LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate(), '', '');
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -967,7 +968,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     procedure AllocateCostsForVariant(var CostAllocation: TestRequestPage "Cost Allocation")
     begin
         LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, MaxLevel, MaxLevel, WorkDate(), VariantField, '');
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     local procedure CalcAllocKeysUpdateShareInit(var CostAllocationTarget: Record "Cost Allocation Target")
@@ -1073,7 +1074,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         Reply := true;
     end;
 
-    local procedure CreateAllocSourceAndTargets(var CostAllocationSource: Record "Cost Allocation Source"; Level: Integer; Base: Option)
+    local procedure CreateAllocSourceAndTargets(var CostAllocationSource: Record "Cost Allocation Source"; Level: Integer; Base: Enum "Cost Allocation Target Base")
     var
         CostAllocationTarget: Record "Cost Allocation Target";
         Index: Integer;
@@ -1227,7 +1228,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostCenterCode, WorkDate());
     end;
 
-    local procedure CreateValueEntry(BaseInput: Option; DateFilterCode: Option)
+    local procedure CreateValueEntry(BaseInput: Enum "Cost Allocation Target Base"; DateFilterCode: Enum "Cost Allocation Target Period")
     var
         CostAllocTarget: Record "Cost Allocation Target";
         ValueEntry: Record "Value Entry";
@@ -1307,7 +1308,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryVariableStorage.Dequeue(RegisterNo);
         DeleteCostEntries.FromRegisterNo.SetValue(RegisterNo);
         DeleteCostEntries.ToRegisterNo.SetValue(RegisterNo);
-        DeleteCostEntries.OK.Invoke;
+        DeleteCostEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1319,7 +1320,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryVariableStorage.Dequeue(RegisterNo);
         DeleteCostBudgetEntries.FromRegisterNo.SetValue(RegisterNo);
         DeleteCostBudgetEntries.ToRegisterNo.SetValue(RegisterNo);
-        DeleteCostBudgetEntries.OK.Invoke;
+        DeleteCostBudgetEntries.OK().Invoke();
     end;
 
     local procedure DeleteEntryAndRegisterOfCostAcc()
@@ -1434,11 +1435,11 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostRegister: Record "Cost Register";
     begin
         // Setup:  Delete the Cost Entry, Cost Register and Cost budget Entry Table and then run the TransferGLEntries batch.
-        DeleteEntryAndRegisterOfCostAcc;
-        LibraryCostAccounting.TransferGLEntries;
+        DeleteEntryAndRegisterOfCostAcc();
+        LibraryCostAccounting.TransferGLEntries();
 
         // Exercise: Run the report Cost Allocation.
-        RunCostAllocationReport;
+        RunCostAllocationReport();
 
         // Verify: Verify that no error comes up and also verifies that Cost allocation entries gets created.
         VerifyCostRegisterAndEntry(CostRegister);
@@ -1467,27 +1468,27 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         // Setup.
         Initialize();
-        LastAllocationID := LibraryCostAccounting.LastAllocSourceID;
+        LastAllocationID := LibraryCostAccounting.LastAllocSourceID();
 
         // Exercise.
         LibraryCostAccounting.CreateAllocSourceWithCCenter(CostAllocationSource, ID);
 
         // Verify.
         if ID = TypeOfID::"Auto Generated" then begin
-            CostAllocationSource.TestField(ID, LibraryCostAccounting.LastAllocSourceID);
+            CostAllocationSource.TestField(ID, LibraryCostAccounting.LastAllocSourceID());
             Assert.AreEqual(
-              LibraryCostAccounting.LastAllocSourceID, IncStr(LastAllocationID),
+              LibraryCostAccounting.LastAllocSourceID(), IncStr(LastAllocationID),
               StrSubstNo(LastAllocIDNotUpdatedErr, CostAllocationSource.ID));
         end else
             if ID = TypeOfID::Custom then
                 Assert.AreNotEqual(
-                  LibraryCostAccounting.LastAllocSourceID, CostAllocationSource.ID,
+                  LibraryCostAccounting.LastAllocSourceID(), CostAllocationSource.ID,
                   StrSubstNo(LastAllocIDWrongUpdateErr, CostAllocationSource.ID))
             else
                 Error(UnexpectedOptionValueErr, Format(ID));
     end;
 
-    local procedure ValidateDynAllocItems(Base: Option; DateFilterCode: Option)
+    local procedure ValidateDynAllocItems(Base: Enum "Cost Allocation Target Base"; DateFilterCode: Enum "Cost Allocation Target Period")
     var
         CostAllocationSource: Record "Cost Allocation Source";
         CostAllocationTarget: Record "Cost Allocation Target";
@@ -1523,7 +1524,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryCostAccounting.CheckAllocTargetSharePercent(CostAllocationSource);
     end;
 
-    local procedure ValidateStaticAllocTarget(AllocationType: Option)
+    local procedure ValidateStaticAllocTarget(AllocationType: Enum "Cost Allocation Target Type")
     var
         CostAllocationSource: Record "Cost Allocation Source";
         CostAllocationTarget: Record "Cost Allocation Target";
@@ -1560,7 +1561,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         CostAllocationSource.FindLast();
         LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, 1, CostAllocationSource.Level, WorkDate(), '', '');
-        CostAllocation.OK.Invoke;
+        CostAllocation.OK().Invoke();
     end;
 
     local procedure CostAllocTargetBaseSales(CostAllocTarget: Record "Cost Allocation Target"): Boolean

@@ -27,7 +27,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         // Check VAT Entries Page is running successfully and displaying the correct VAT Entries when click OnAssitEdit for Amount field.
 
         Initialize();
-        CreateVATReportSetup;
+        CreateVATReportSetup();
 
         // 1. Setup: Create VAT Report Header, VAT Report Line and VAT Report Line Mapping.
         CreateVATReportHeader(VATReportHeader);
@@ -35,9 +35,9 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         CreateVATReportLineMapping(VATReportHeader."No.");
 
         // 2. Exercise: Open VAT Report Page and click AssistEdit for Amount field on VAT Report Subform.
-        VATReport.OpenEdit;
+        VATReport.OpenEdit();
         VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
-        VATReport.VATReportLines.Base.AssistEdit;
+        VATReport.VATReportLines.Base.AssistEdit();
 
         // 3. Verify: Verify VAT Entry No. Verification done in VATEntriesPageHandler.
     end;
@@ -50,11 +50,11 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportPage: TestPage "VAT Report";
     begin
         Initialize();
-        CreateVATReportSetup;
+        CreateVATReportSetup();
 
         // Open VAT Report Page.
         VATReportPage.OpenNew();
-        VATReportPage."No.".AssistEdit;
+        VATReportPage."No.".AssistEdit();
         Assert.AreNotEqual(VATReportPage."No.".Value, '', ValueNotAssignedError);
     end;
 
@@ -67,16 +67,16 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportListPage: TestPage "VAT Report List";
     begin
         Initialize();
-        CreateVATReportSetup;
+        CreateVATReportSetup();
 
         // Open VAT Report List.
         CreateVATReportHeader(VATReportHeader);
-        VATReportListPage.OpenView;
+        VATReportListPage.OpenView();
         VATReportListPage.GotoRecord(VATReportHeader);
 
         // Open VAT Report Page.
-        VATReportPage.Trap;
-        VATReportListPage.Card.Invoke;
+        VATReportPage.Trap();
+        VATReportListPage.Card.Invoke();
 
         // Verify correct VAT Report was opened.
         VATReportPage."No.".AssertEquals(VATReportHeader."No.");
@@ -95,11 +95,11 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportSetup.DeleteAll();
 
         // Open VAT Report Setup Page.
-        VATReportSetupPage.OpenEdit;
-        VATReportSetupPage.OK.Invoke;
+        VATReportSetupPage.OpenEdit();
+        VATReportSetupPage.OK().Invoke();
 
         // Verify that VAT Report Setup was created.
-        Assert.IsTrue(VATReportSetup.Get, RecordNotCreatedError);
+        Assert.IsTrue(VATReportSetup.Get(), RecordNotCreatedError);
     end;
 
     local procedure Initialize()
@@ -114,7 +114,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert();
-        VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
         VATReportSetup.Modify();
     end;
 
@@ -156,9 +156,9 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         EntryNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(EntryNo);
-        VATEntries.First;
+        VATEntries.First();
         VATEntries."Entry No.".AssertEquals(EntryNo);
-        VATEntries.OK.Invoke;
+        VATEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]

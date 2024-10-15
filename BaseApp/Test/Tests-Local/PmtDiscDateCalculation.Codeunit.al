@@ -71,7 +71,7 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
             LibrarySales.CreateCustomer(Customer);
             Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
             Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Validate("Payment Terms Code", CreatePmtTermsWithDateCalcSetupAndZeroDisc);
+            Validate("Payment Terms Code", CreatePmtTermsWithDateCalcSetupAndZeroDisc());
             Validate("Combine Shipments", true);
             Modify(true);
             exit("No.");

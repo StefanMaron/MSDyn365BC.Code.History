@@ -57,12 +57,12 @@ codeunit 136600 "ERM RS Questionnaire"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Windows);
 
-        ConfigQuestionnairePage.OpenEdit;
+        ConfigQuestionnairePage.OpenEdit();
         ConfigQuestionnairePage.GotoRecord(ConfigQuestionnaire);
-        Assert.IsTrue(ConfigQuestionnairePage.ExportToExcel.Visible, ExcelControlVisibilityErr);
-        Assert.IsTrue(ConfigQuestionnairePage.ExportToXML.Visible, ExcelControlVisibilityErr);
-        Assert.IsTrue(ConfigQuestionnairePage.ImportFromXML.Visible, ExcelControlVisibilityErr);
-        ConfigQuestionnairePage.OK.Invoke;
+        Assert.IsTrue(ConfigQuestionnairePage.ExportToExcel.Visible(), ExcelControlVisibilityErr);
+        Assert.IsTrue(ConfigQuestionnairePage.ExportToXML.Visible(), ExcelControlVisibilityErr);
+        Assert.IsTrue(ConfigQuestionnairePage.ImportFromXML.Visible(), ExcelControlVisibilityErr);
+        ConfigQuestionnairePage.OK().Invoke();
     end;
 
     [Test]
@@ -81,12 +81,12 @@ codeunit 136600 "ERM RS Questionnaire"
         BindSubscription(TestClientTypeSubscriber);
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
 
-        ConfigQuestionnairePage.OpenEdit;
+        ConfigQuestionnairePage.OpenEdit();
         ConfigQuestionnairePage.GotoRecord(ConfigQuestionnaire);
-        Assert.IsTrue(ConfigQuestionnairePage.ExportToExcel.Visible, ExcelControlVisibilityErr);
-        Assert.IsTrue(ConfigQuestionnairePage.ExportToXML.Visible, ExcelControlVisibilityErr);
-        Assert.IsTrue(ConfigQuestionnairePage.ImportFromXML.Visible, ExcelControlVisibilityErr);
-        ConfigQuestionnairePage.OK.Invoke;
+        Assert.IsTrue(ConfigQuestionnairePage.ExportToExcel.Visible(), ExcelControlVisibilityErr);
+        Assert.IsTrue(ConfigQuestionnairePage.ExportToXML.Visible(), ExcelControlVisibilityErr);
+        Assert.IsTrue(ConfigQuestionnairePage.ImportFromXML.Visible(), ExcelControlVisibilityErr);
+        ConfigQuestionnairePage.OK().Invoke();
     end;
 
     [Test]
@@ -101,10 +101,10 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] Questionnaire Setup can be exported to XML.
 
         // [GIVEN] Create new Config. Questionnaire, Question Area, update Questions and input Comments.
-        SetupQuestionnaireTestScenarioWithComments(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
+        SetupQuestionnaireTestScenarioWithComments(ConfigQuestionnaire, ConfigQuestionArea, FindTable());
 
         // [WHEN] Export Questionnaire to XML.
-        QuestionnaireManagement.SetCalledFromCode;
+        QuestionnaireManagement.SetCalledFromCode();
         FilePath := FileMgt.ServerTempFileName('xml');
         QuestionnaireManagement.ExportQuestionnaireAsXML(FilePath, ConfigQuestionnaire);
 
@@ -128,10 +128,10 @@ codeunit 136600 "ERM RS Questionnaire"
 
         // [GIVEN] Create new Config. Questionnaire, Question Area, update Questions and input Comments.
         // [GIVEN] Copy Question in temporary record, export Questionnaire to XML and delete it.
-        SetupQuestionnaireTestScenarioWithComments(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
+        SetupQuestionnaireTestScenarioWithComments(ConfigQuestionnaire, ConfigQuestionArea, FindTable());
         CopyQuestion(TempConfigQuestion, ConfigQuestionArea);
 
-        QuestionnaireManagement.SetCalledFromCode;
+        QuestionnaireManagement.SetCalledFromCode();
         FilePath := FileMgt.ServerTempFileName('xml');
         QuestionnaireManagement.ExportQuestionnaireAsXML(CopyStr(FilePath, 1, 250), ConfigQuestionnaire);
         ConfigQuestionnaire.Delete(true);
@@ -173,7 +173,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [THEN] Check that new Customer is created having Name as Answer inputted.
         Assert.AreEqual(CustomerCount + 1, Customer.Count, StrSubstNo(CustomerMustMatchError, Customer.TableCaption()));
         Customer.SetRange(Name, ConfigQuestion.Answer);
-        Assert.IsTrue(Customer.FindFirst, AnswerNotAppliedError);
+        Assert.IsTrue(Customer.FindFirst(), AnswerNotAppliedError);
     end;
 
     [Test]
@@ -274,7 +274,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] a Config. Questionnaire can be deleted.
 
         // [GIVEN] Create new Config. Questionnaire, Question Area, update Questions.
-        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
+        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable());
 
         // [WHEN] Delete Config. Questionnaire.
         QuestionnaireCode := ConfigQuestionnaire.Code;
@@ -292,7 +292,7 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
         Assert.IsFalse(
-          ConfigQuestion.FindFirst,
+          ConfigQuestion.FindFirst(),
           StrSubstNo(MustNotExistError, QuestionAreaCode, ConfigQuestion.TableCaption()));
     end;
 
@@ -310,7 +310,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [GIVEN] Create new Config. Questionnaire, Question Area, Question.
         Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
-        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
+        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable());
         LibraryRapidStart.CreateQuestion(ConfigQuestion, ConfigQuestionArea);
 
         // [WHEN] Input and apply answer.
@@ -395,7 +395,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [GIVEN] Create new Config. Questionnaire, two new Question Areas.
         Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
-        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
+        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable());
         CreateQuestionAreaWithTableID(ConfigQuestionArea2, ConfigQuestionnaire.Code, FindNextTable(ConfigQuestionArea."Table ID"));
 
         // [WHEN] Update Questionnaire.
@@ -416,7 +416,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [SCENARIO] Update questions works properly for selected Question Area.
 
         // [GIVEN] Create new Config. Questionnaire, a new Question Area.
-        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
+        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable());
 
         // 2. Verify: Check that the Questions have been auto-generated properly.
         VerifyAutogeneratedQuestions(ConfigQuestionArea);
@@ -464,7 +464,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionNo: Integer;
         XMLText: Text[1024];
     begin
-        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
+        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable());
 
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
@@ -559,7 +559,7 @@ codeunit 136600 "ERM RS Questionnaire"
         Initialize();
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
-        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
+        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable());
 
         XMLDocument := XMLDocument.XmlDocument();
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(XMLDocument, ConfigQuestionnaire);
@@ -586,7 +586,7 @@ codeunit 136600 "ERM RS Questionnaire"
         QuestionAreaCode: Code[10];
         InnerText: Text;
     begin
-        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
+        SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable());
 
         XMLDocument := XMLDocument.XmlDocument();
         QuestionnaireManagement.GenerateQuestionnaireXMLDocument(XMLDocument, ConfigQuestionnaire);
@@ -625,7 +625,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [GIVEN] Create new Config. Questionnaire, Question Area, update Questions.
         Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
-        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
+        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable());
         QuestionnaireManagement.UpdateQuestions(ConfigQuestionArea);
 
         // [WHEN] Delete Config. Question Area.
@@ -640,7 +640,7 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
         Assert.IsFalse(
-          ConfigQuestion.FindFirst,
+          ConfigQuestion.FindFirst(),
           StrSubstNo(MustNotExistError, ConfigQuestion.TableName, QuestionAreaCode));
     end;
 
@@ -656,7 +656,7 @@ codeunit 136600 "ERM RS Questionnaire"
         // [GIVEN] Create new Config. Questionnaire.
         Initialize();
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
-        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
+        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable());
 
         // [WHEN] Try to rename the Config. Question Area.
         asserterror ConfigQuestionArea.Rename(ConfigQuestionnaire.Code,
@@ -792,14 +792,14 @@ codeunit 136600 "ERM RS Questionnaire"
             ConfigQuestion.TestField(
               Question,
               CopyStr(
-                LibraryReportValidation.GetValue, 1,
+                LibraryReportValidation.GetValue(), 1,
                 LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo(Question))));
 
             LibraryReportValidation.SetColumn(ConfigQuestion.FieldCaption("Answer Option"));
             Assert.AreEqual(
               DelChr(DelChr(ConfigQuestion."Answer Option", '<'), '>'),
               CopyStr(
-                LibraryReportValidation.GetValue,
+                LibraryReportValidation.GetValue(),
                 1,
                 LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo("Answer Option"))),
               StrSubstNo(AnswerOptionMustMatchError, ConfigQuestion.FieldCaption("Answer Option")));
@@ -808,7 +808,7 @@ codeunit 136600 "ERM RS Questionnaire"
             ConfigQuestion.TestField(
               Reference,
               CopyStr(
-                LibraryReportValidation.GetValue, 1,
+                LibraryReportValidation.GetValue(), 1,
                 LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo(Reference))));
         until ConfigQuestion.Next() = 0;
     end;
@@ -952,7 +952,7 @@ codeunit 136600 "ERM RS Questionnaire"
     local procedure CreatePostingGLAccount(var GLAccount: Record "G/L Account")
     begin
         GLAccount.Init();
-        GLAccount.Validate("No.", GenerateGLAccountNoFromGUID);
+        GLAccount.Validate("No.", GenerateGLAccountNoFromGUID());
         GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.Insert(true);
     end;
@@ -969,8 +969,8 @@ codeunit 136600 "ERM RS Questionnaire"
     [Scope('OnPrem')]
     procedure FieldListLookupHandler(var FieldsLookup: TestPage "Fields Lookup")
     begin
-        FieldsLookup.First;
-        FieldsLookup.OK.INVOKE;
+        FieldsLookup.First();
+        FieldsLookup.OK().Invoke();
     end;
 
     [Test]
@@ -986,10 +986,10 @@ codeunit 136600 "ERM RS Questionnaire"
         Initialize();
 
         LibraryRapidStart.CreateQuestionnaire(ConfigQuestionnaire);
-        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable);
+        CreateQuestionAreaWithTableID(ConfigQuestionArea, ConfigQuestionnaire.Code, FindTable());
 
         InitConfigQuestion(ConfigQuestionnaire.Code, ConfigQuestionArea.Code, ConfigQuestion);
-        ConfigQuestion.FieldLookup;
+        ConfigQuestion.FieldLookup();
 
         Field.SetRange(TableNo, ConfigQuestionArea."Table ID");
         Field.FindFirst();
@@ -1069,11 +1069,11 @@ codeunit 136600 "ERM RS Questionnaire"
 
         InitQuestionnaireAnswerScenario(ConfigQuestionArea, ConfigQuestion, ConfigPackage);
 
-        ConfigQuestionAreaPage.OpenEdit;
+        ConfigQuestionAreaPage.OpenEdit();
         ConfigQuestionAreaPage.GotoRecord(ConfigQuestionArea);
         ConfigQuestionAreaPage.ConfigQuestionSubform.GotoRecord(ConfigQuestion);
-        ConfigQuestionAreaPage.ConfigQuestionSubform.Answer.Lookup;
-        ConfigQuestionAreaPage.OK.Invoke;
+        ConfigQuestionAreaPage.ConfigQuestionSubform.Answer.Lookup();
+        ConfigQuestionAreaPage.OK().Invoke();
 
         ConfigPackageData.Get(ConfigPackage.Code, DATABASE::"G/L Account", 1, GLAccount.FieldNo("No."));
         VerifyConfigQuestionAnswer(ConfigPackageData.Value, ConfigQuestion);
@@ -1096,12 +1096,12 @@ codeunit 136600 "ERM RS Questionnaire"
 
         ConfigPackageData.Get(ConfigPackage.Code, DATABASE::"G/L Account", 1, GLAccount.FieldNo("No."));
 
-        ConfigQuestionAreaPage.OpenEdit;
+        ConfigQuestionAreaPage.OpenEdit();
         ConfigQuestionAreaPage.GotoRecord(ConfigQuestionArea);
         ConfigQuestionAreaPage.ConfigQuestionSubform.GotoRecord(ConfigQuestion);
 
         ConfigQuestionAreaPage.ConfigQuestionSubform.Answer.SetValue(ConfigPackageData.Value);
-        ConfigQuestionAreaPage.OK.Invoke;
+        ConfigQuestionAreaPage.OK().Invoke();
 
         VerifyConfigQuestionAnswer(ConfigPackageData.Value, ConfigQuestion);
     end;

@@ -10,9 +10,7 @@
     end;
 
     var
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
-        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         FieldMustEnabledMsg: Label 'Field must be enabled';
         NothingToAdjustTxt: Label 'There is nothing to adjust.';
@@ -22,7 +20,6 @@
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJournals: Codeunit "Library - Journals";
         RefValuationMethod: Option Standard,"Lowest Value","BilMoG (Germany)";
-        RatesAdjustedMsg: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
     [HandlerFunctions('AdjustExchangeRatesDueDateLimitRequestPageHandler')]
@@ -175,7 +172,7 @@
 
         // [GIVEN] Bank accounts "A" and "B" with "Currency Code" = "C" and "Bank Acc. Posting Group" = "G"
         LibraryERM.CreateBankAccountPostingGroup(BankAccountPostingGroup);
-        BankAccountPostingGroup.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo);
+        BankAccountPostingGroup.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo());
         BankAccountPostingGroup.Modify(true);
 
         CreateBankAccountWithCurrencyAndGroup(BankAccount[1], CurrencyCode, BankAccountPostingGroup.Code);
@@ -223,7 +220,7 @@
         Currency: Record Currency;
     begin
         Currency.Init();
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
 
         CurrencyExchangeRate.Init();
@@ -368,8 +365,8 @@
         ExchRateAdjustment.Method.SetValue(RefValuationMethod::"BilMoG (Germany)");
         ExchRateAdjustment.ValPerEnd.SetValue(WorkDate());
         ExchRateAdjustment.DueDateLimit.AssertEquals(CalcDate('<+1Y>', WorkDate()));  // DueDateLimit is equal to same day of next year of ValPerEnd.
-        Assert.IsTrue(ExchRateAdjustment.DueDateLimit.Enabled, FieldMustEnabledMsg);
-        Assert.IsTrue(ExchRateAdjustment.ValPerEnd.Enabled, FieldMustEnabledMsg);
+        Assert.IsTrue(ExchRateAdjustment.DueDateLimit.Enabled(), FieldMustEnabledMsg);
+        Assert.IsTrue(ExchRateAdjustment.ValPerEnd.Enabled(), FieldMustEnabledMsg);
     end;
 
     [MessageHandler]

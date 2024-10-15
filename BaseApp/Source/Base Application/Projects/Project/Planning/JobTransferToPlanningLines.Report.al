@@ -5,7 +5,7 @@ using Microsoft.Projects.Project.Ledger;
 
 report 1091 "Job Transfer To Planning Lines"
 {
-    Caption = 'Job Transfer To Planning Lines';
+    Caption = 'Project Transfer To Planning Lines';
     ProcessingOnly = true;
 
     dataset

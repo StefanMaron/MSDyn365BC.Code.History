@@ -31,7 +31,7 @@ codeunit 11110 "Update VAT-AT"
     [Scope('OnPrem')]
     procedure UpdateVATStatementTemplate(TemplateName: Code[10]; TemplateDescription: Text[80]; AgricultureVATProdPostingGroups: Text)
     var
-      IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateVATStatementTemplate(TemplateName, IsHandled);
@@ -210,19 +210,17 @@ codeunit 11110 "Update VAT-AT"
 
     local procedure InsertEUShipments()
     begin
-        with VATPostingSetup do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            SetRange("VAT %");
-            if FindSet() then begin
-                InsertData('', '', 3, 0, 0, '', false, false);
-                InsertData('', 'Lieferungen in die EU', 3, 0, 0, '', false, false);
-                repeat
-                    InsertData(
-                      'EULIEF',
-                      CopyStr('   ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", 1, 50),
-                      1, VATStatementLine."Gen. Posting Type"::Sale.AsInteger(), VATStatementLine."Amount Type"::Base.AsInteger(), '', false, true);
-                until Next() = 0;
-            end;
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        VATPostingSetup.SetRange("VAT %");
+        if VATPostingSetup.FindSet() then begin
+            InsertData('', '', 3, 0, 0, '', false, false);
+            InsertData('', 'Lieferungen in die EU', 3, 0, 0, '', false, false);
+            repeat
+                InsertData(
+                  'EULIEF',
+                  CopyStr('   ' + VATPostingSetup."VAT Bus. Posting Group" + ' / ' + VATPostingSetup."VAT Prod. Posting Group", 1, 50),
+                  1, VATStatementLine."Gen. Posting Type"::Sale.AsInteger(), VATStatementLine."Amount Type"::Base.AsInteger(), '', false, true);
+            until VATPostingSetup.Next() = 0;
         end;
     end;
 
@@ -348,18 +346,16 @@ codeunit 11110 "Update VAT-AT"
         if IsAgriculture then
             RowNoPrefix += 'LW';
 
-        with VATPostingSetup do begin
-            SetRange("VAT Calculation Type", VATCalculationType);
-            SetRange("VAT %", VATPercentage);
-            SetFilter("VAT Prod. Posting Group", GetFilterString(IsAgriculture, AgricultureVATProdPostingGroups));
-            if FindSet() then
-                repeat
-                    InsertData(
-                      RowNoPrefix + Format(VATPercentage),
-                      CopyStr('   ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", 1, 50),
-                      1, GenPostingType.AsInteger(), AmountType.AsInteger(), '', false, GenPostingType = VATStatementLine."Gen. Posting Type"::Sale);
-                until Next() = 0;
-        end;
+        VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.SetRange("VAT %", VATPercentage);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", GetFilterString(IsAgriculture, AgricultureVATProdPostingGroups));
+        if VATPostingSetup.FindSet() then
+            repeat
+                InsertData(
+                  RowNoPrefix + Format(VATPercentage),
+                  CopyStr('   ' + VATPostingSetup."VAT Bus. Posting Group" + ' / ' + VATPostingSetup."VAT Prod. Posting Group", 1, 50),
+                  1, GenPostingType.AsInteger(), AmountType.AsInteger(), '', false, GenPostingType = VATStatementLine."Gen. Posting Type"::Sale);
+            until VATPostingSetup.Next() = 0;
     end;
 
     local procedure GetFilterString(IsAgriculture: Boolean; AgricultureVATProdPostingGroups: Text): Text

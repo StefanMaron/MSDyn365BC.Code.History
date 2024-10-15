@@ -385,7 +385,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Item Charge Extendibility");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         if IsInitialized then
             exit;
@@ -504,14 +504,14 @@ codeunit 134350 "Test Item Charge Extendibility"
 
     local procedure SetItemChargeAssignmentStrMenuOneOptionByFairyDust(var TestItemChargeExtendibility: Codeunit "Test Item Charge Extendibility")
     begin
-        TestItemChargeExtendibility.SetStrMenuGlobalsForSubscriber(AssignByFairyDustMenuText, 1, 1, 'Select from one option');
+        TestItemChargeExtendibility.SetStrMenuGlobalsForSubscriber(AssignByFairyDustMenuText(), 1, 1, 'Select from one option');
         BindSubscription(TestItemChargeExtendibility);
     end;
 
     local procedure SetItemChargeAssignmentStrMenuThreeOptionsEqually(var TestItemChargeExtendibility: Codeunit "Test Item Charge Extendibility")
     begin
         SetStrMenuGlobalsForSubscriber(
-          StrSubstNo('By Amount,%1,%2', AssignByFairyDustMenuText, AssignEquallyMenuText), 1, 3, 'Select from one option');
+          StrSubstNo('By Amount,%1,%2', AssignByFairyDustMenuText(), AssignEquallyMenuText()), 1, 3, 'Select from one option');
         TestItemChargeExtendibility.SetStrMenuGlobalsForSubscriber(NewStrMenuTxt, NewDefault, NewSelection, NewInstruction);
         BindSubscription(TestItemChargeExtendibility);
     end;
@@ -519,7 +519,7 @@ codeunit 134350 "Test Item Charge Extendibility"
     local procedure SetItemChargeAssignmentStrMenuSixOptionsByFairyDust(var TestItemChargeExtendibility: Codeunit "Test Item Charge Extendibility")
     begin
         SetStrMenuGlobalsForSubscriber(
-          StrSubstNo('By Amount,%1,By Weight,%2,By Volume,Random', AssignByFairyDustMenuText, AssignEquallyMenuText),
+          StrSubstNo('By Amount,%1,By Weight,%2,By Volume,Random', AssignByFairyDustMenuText(), AssignEquallyMenuText()),
           1, 2, 'Select from one option');
         TestItemChargeExtendibility.SetStrMenuGlobalsForSubscriber(NewStrMenuTxt, NewDefault, NewSelection, NewInstruction);
         BindSubscription(TestItemChargeExtendibility);
@@ -788,7 +788,7 @@ codeunit 134350 "Test Item Charge Extendibility"
     local procedure AssignByFairyDustOnAssignItemChargesSales(SelectionTxt: Text; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; SalesHeader: Record "Sales Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
     begin
         Assert.AreEqual(SelectStr(NewSelection, NewStrMenuTxt), SelectionTxt, 'Wrong option selected');
-        Assert.AreEqual(AssignByFairyDustMenuText, SelectionTxt, 'Wrong option selected');
+        Assert.AreEqual(AssignByFairyDustMenuText(), SelectionTxt, 'Wrong option selected');
         AssignByFairyDustSales(ItemChargeAssignmentSales, TotalQtyToAssign, TotalAmtToAssign);
         ItemChargesAssigned := true;
     end;
@@ -805,7 +805,7 @@ codeunit 134350 "Test Item Charge Extendibility"
     local procedure AssignByFairyDustOnAssignItemChargesPurch(SelectionTxt: Text; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; PurchaseHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
     begin
         Assert.AreEqual(SelectStr(NewSelection, NewStrMenuTxt), SelectionTxt, 'Wrong option selected');
-        Assert.AreEqual(AssignByFairyDustMenuText, SelectionTxt, 'Wrong option selected');
+        Assert.AreEqual(AssignByFairyDustMenuText(), SelectionTxt, 'Wrong option selected');
         AssignByFairyDustPurch(ItemChargeAssignmentPurch, TotalQtyToAssign, TotalAmtToAssign);
         ItemChargesAssigned := true;
     end;

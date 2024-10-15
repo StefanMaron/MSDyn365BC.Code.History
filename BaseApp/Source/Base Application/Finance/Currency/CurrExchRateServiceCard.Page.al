@@ -96,7 +96,7 @@ page 1651 "Curr. Exch. Rate Service Card"
                     ApplicationArea = Basic, Suite;
                     Editable = NotEnabledAndCurrPageEditable;
                     ToolTip = 'Specifies whether to log exceptions that occur when connecting to the service. The log is located in the server Temp folder.';
-                    Visible = NOT IsSoftwareAsService;
+                    Visible = not IsSoftwareAsService;
                 }
             }
             part(SimpleDataExchSetup; "Data Exch. Setup Subform")

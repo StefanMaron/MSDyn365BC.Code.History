@@ -117,8 +117,8 @@ codeunit 142035 "UT PAG INTRASTAT"
 
         // Exercise & verify: Invokes Action - Form on Intrastat Journal page. Added ReportHandler - IntrastatFormDEReportHandler.
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.Form.Invoke;  // Invokes IntrastatFormDEReportHandler.
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.Form.Invoke();  // Invokes IntrastatFormDEReportHandler.
         IntrastatJournal.Close();
     end;
 
@@ -152,8 +152,8 @@ codeunit 142035 "UT PAG INTRASTAT"
 
         // Exercise & verify: Invokes Action - Checklist on Intrastat Journal page. Added ReportHandler - IntrastatChecklistReportPageHandler.
         Commit();  // Commit required for explicit commit used  in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.ChecklistReport.Invoke;  // Invokes IntrastatChecklistReportPageHandler.
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.ChecklistReport.Invoke();  // Invokes IntrastatChecklistReportPageHandler.
         IntrastatJournal.Close();
 
         IntrastatJnlTemplate.DeleteAll();
@@ -186,8 +186,8 @@ codeunit 142035 "UT PAG INTRASTAT"
 
         // Exercise & verify: Invokes Action - MakeDiskette on Intrastat Journal page. Added ReportHandler - IntrastatDiskTaxAuthDEReportPageHandler.
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.CreateFile.Invoke;  // Invokes IntrastatDiskTaxAuthDEReportPageHandler.
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.CreateFile.Invoke();  // Invokes IntrastatDiskTaxAuthDEReportPageHandler.
         IntrastatJournal.Close();
     end;
 
@@ -212,8 +212,8 @@ codeunit 142035 "UT PAG INTRASTAT"
 
         // Exercise & verify: Invokes Action - Disklabels on Intrastat Journal page. Added ReportHandler - IntrastatMakeDiskTaxAuthReportPageHandler.
         Commit();  // Commit required for explicit commit used in function TemplateSelection of Codeunit 350, IntraJnlManagement called by OnOpenPage Trigger of Intrastat Journal Page.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.DiskLabels.Invoke;  // Invokes IntrastatMakeDiskTaxAuthReportPageHandler.
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.DiskLabels.Invoke();  // Invokes IntrastatMakeDiskTaxAuthReportPageHandler.
         IntrastatJournal.Close();
     end;
 
@@ -229,8 +229,8 @@ codeunit 142035 "UT PAG INTRASTAT"
           DACHReportSelections, DACHReportSelections.Usage::"Intrastat Form",
           REPORT::"Intrastat - Form DE", 'Intrastat - Form DE');  // Report ID of Intrastat - Form DE.
         Commit();
-        IntrastatJournal.OpenView;
-        IntrastatJournal.Form.Invoke; // no error occured when report exists
+        IntrastatJournal.OpenView();
+        IntrastatJournal.Form.Invoke(); // no error occured when report exists
     end;
 
     [Test]
@@ -245,8 +245,8 @@ codeunit 142035 "UT PAG INTRASTAT"
           DACHReportSelections, DACHReportSelections.Usage::"Intrastat Disklabel",
           REPORT::"Intrastat  Disk (Labels)", 'Intrastat - Make Disk Tax Auth');  // Report ID of - Intrastat - Make Disk Tax Auth.
         Commit();
-        IntrastatJournal.OpenView;
-        IntrastatJournal.DiskLabels.Invoke; // no error occured when report exists
+        IntrastatJournal.OpenView();
+        IntrastatJournal.DiskLabels.Invoke(); // no error occured when report exists
     end;
 
     [Test]
@@ -262,8 +262,8 @@ codeunit 142035 "UT PAG INTRASTAT"
           DACHReportSelections, DACHReportSelections.Usage::"Intrastat Disk",
           REPORT::"Intrastat - Disk Tax Auth DE", 'Intrastat - Disk Tax Auth DE');  // Report ID of - Intrastat - Disk Tax Auth DE.
         Commit();
-        IntrastatJournal.OpenView;
-        IntrastatJournal.CreateFile.Invoke; // no error occured when report exists
+        IntrastatJournal.OpenView();
+        IntrastatJournal.CreateFile.Invoke(); // no error occured when report exists
     end;
 
     local procedure CreateDACHReportSelections(var DACHReportSelections: Record "DACH Report Selections"; Usage: Option; ReportID: Integer; ReportName: Text[80])
@@ -271,7 +271,7 @@ codeunit 142035 "UT PAG INTRASTAT"
         DACHReportSelections.DeleteAll();
 
         DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10;
+        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
         DACHReportSelections.Insert();
         DACHReportSelections."Report ID" := ReportID;
         DACHReportSelections."Report Name" := ReportName;
@@ -289,11 +289,11 @@ codeunit 142035 "UT PAG INTRASTAT"
     local procedure CreateIntrastatJnlTemplateAndBatch(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template"; var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     begin
         IntrastatJnlTemplate.DeleteAll();
-        IntrastatJnlTemplate.Name := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlTemplate.Name := LibraryUTUtility.GetNewCode10();
         IntrastatJnlTemplate.Insert();
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
-        IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10();
         IntrastatJnlBatch.Insert();
     end;
 
@@ -301,7 +301,7 @@ codeunit 142035 "UT PAG INTRASTAT"
     var
         ReportSelectionIntrastat: TestPage "Report Selection - Intrastat";
     begin
-        ReportSelectionIntrastat.OpenEdit;
+        ReportSelectionIntrastat.OpenEdit();
         ReportSelectionIntrastat.ReportUsage2.SetValue(ReportUsage);
         ReportSelectionIntrastat.FILTER.SetFilter(Sequence, Sequence);
         ReportSelectionIntrastat."Report ID".AssertEquals(ReportID);
@@ -347,21 +347,21 @@ codeunit 142035 "UT PAG INTRASTAT"
     [Scope('OnPrem')]
     procedure IntrastatFormDERPH(var IntrastatFormDE: TestRequestPage "Intrastat - Form DE")
     begin
-        IntrastatFormDE.Cancel.Invoke;
+        IntrastatFormDE.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatDiskLabelsRPH(var IntrastatDiskLabels: TestRequestPage "Intrastat  Disk (Labels)")
     begin
-        IntrastatDiskLabels.Cancel.Invoke;
+        IntrastatDiskLabels.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatDiskTaxAuthDERPH(var IntrastatDiskTaxAuthDE: TestRequestPage "Intrastat - Disk Tax Auth DE")
     begin
-        IntrastatDiskTaxAuthDE.Cancel.Invoke;
+        IntrastatDiskTaxAuthDE.Cancel().Invoke();
     end;
 }
 #endif

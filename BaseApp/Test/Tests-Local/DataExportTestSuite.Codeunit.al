@@ -66,7 +66,6 @@ codeunit 142007 "Data Export Test Suite"
     procedure FormatForIndexXML_LongText()
     var
         InputTxt: Text[1024];
-        Index: Integer;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 363817] The index.xml file created from the Business Data Export has maximum length of 50.

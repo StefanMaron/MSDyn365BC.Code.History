@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ using Microsoft.Sales.Customer;
 table 741 "VAT Report Line"
 {
     Caption = 'VAT Report Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -168,7 +169,7 @@ table 741 "VAT Report Line"
             trigger OnValidate()
             begin
                 TestStatusOpen();
-                CheckLineType;
+                CheckLineType();
             end;
         }
         field(31; "Line Type"; Option)
@@ -198,7 +199,7 @@ table 741 "VAT Report Line"
             trigger OnValidate()
             begin
                 TestStatusOpen();
-                CheckLineType;
+                CheckLineType();
             end;
         }
         field(39; "VAT Bus. Posting Group"; Code[20])
@@ -231,7 +232,7 @@ table 741 "VAT Report Line"
             trigger OnValidate()
             begin
                 TestStatusOpen();
-                CheckLineType;
+                CheckLineType();
             end;
         }
         field(55; "VAT Registration No."; Text[20])
@@ -394,53 +395,51 @@ table 741 "VAT Report Line"
         CancellationLineNo: Integer;
     begin
         CheckLineAlreadyCorrected(VATReportHeader, CorrectionVATReportLine);
-        with VATReportLine2 do begin
-            Init();
-            "VAT Report No." := VATReportHeader."No.";
-            "Line No." := GetNextLineNo(VATReportHeader."No.");
-            "Trade Type" := CancellationVATReportLine."Trade Type";
-            "Line Type" := "Line Type"::Cancellation;
-            "Related Line No." := CancellationVATReportLine."Line No.";
-            "Country/Region Code" := CancellationVATReportLine."Country/Region Code";
-            "VAT Registration No." := CancellationVATReportLine."VAT Registration No.";
-            "EU 3-Party Trade" := CancellationVATReportLine."EU 3-Party Trade";
-            "EU Service" := CancellationVATReportLine."EU Service";
-            "Trade Role Type" := CancellationVATReportLine."Trade Role Type";
-            "Number of Supplies" := CancellationVATReportLine."Number of Supplies";
-            Base := -CancellationVATReportLine.Base;
-            Amount := -CancellationVATReportLine.Amount;
-            "System-Created" := true;
-            Insert(true);
-            CancellationLineNo := "Line No.";
+        VATReportLine2.Init();
+        VATReportLine2."VAT Report No." := VATReportHeader."No.";
+        VATReportLine2."Line No." := VATReportLine2.GetNextLineNo(VATReportHeader."No.");
+        VATReportLine2."Trade Type" := CancellationVATReportLine."Trade Type";
+        VATReportLine2."Line Type" := VATReportLine2."Line Type"::Cancellation;
+        VATReportLine2."Related Line No." := CancellationVATReportLine."Line No.";
+        VATReportLine2."Country/Region Code" := CancellationVATReportLine."Country/Region Code";
+        VATReportLine2."VAT Registration No." := CancellationVATReportLine."VAT Registration No.";
+        VATReportLine2."EU 3-Party Trade" := CancellationVATReportLine."EU 3-Party Trade";
+        VATReportLine2."EU Service" := CancellationVATReportLine."EU Service";
+        VATReportLine2."Trade Role Type" := CancellationVATReportLine."Trade Role Type";
+        VATReportLine2."Number of Supplies" := CancellationVATReportLine."Number of Supplies";
+        VATReportLine2.Base := -CancellationVATReportLine.Base;
+        VATReportLine2.Amount := -CancellationVATReportLine.Amount;
+        VATReportLine2."System-Created" := true;
+        VATReportLine2.Insert(true);
+        CancellationLineNo := VATReportLine2."Line No.";
 
-            Init();
-            "VAT Report No." := VATReportHeader."No.";
-            "Line No." += 10000;
-            "Trade Type" := CorrectionVATReportLine."Trade Type";
-            "Line Type" := "Line Type"::Correction;
-            "Related Line No." := CorrectionVATReportLine."Line No.";
-            "Country/Region Code" := CorrectionVATReportLine."Country/Region Code";
-            "VAT Registration No." := CorrectionVATReportLine."VAT Registration No.";
-            "EU 3-Party Trade" := CorrectionVATReportLine."EU 3-Party Trade";
-            "EU Service" := CorrectionVATReportLine."EU Service";
-            "Trade Role Type" := CorrectionVATReportLine."Trade Role Type";
-            "Number of Supplies" := CorrectionVATReportLine."Number of Supplies";
-            Base := RoundBase(CorrectionVATReportLine.Base);
-            Amount := RoundBase(CorrectionVATReportLine.Amount);
-            "System-Created" := true;
-            Insert(true);
+        VATReportLine2.Init();
+        VATReportLine2."VAT Report No." := VATReportHeader."No.";
+        VATReportLine2."Line No." += 10000;
+        VATReportLine2."Trade Type" := CorrectionVATReportLine."Trade Type";
+        VATReportLine2."Line Type" := VATReportLine2."Line Type"::Correction;
+        VATReportLine2."Related Line No." := CorrectionVATReportLine."Line No.";
+        VATReportLine2."Country/Region Code" := CorrectionVATReportLine."Country/Region Code";
+        VATReportLine2."VAT Registration No." := CorrectionVATReportLine."VAT Registration No.";
+        VATReportLine2."EU 3-Party Trade" := CorrectionVATReportLine."EU 3-Party Trade";
+        VATReportLine2."EU Service" := CorrectionVATReportLine."EU Service";
+        VATReportLine2."Trade Role Type" := CorrectionVATReportLine."Trade Role Type";
+        VATReportLine2."Number of Supplies" := CorrectionVATReportLine."Number of Supplies";
+        VATReportLine2.Base := VATReportLine2.RoundBase(CorrectionVATReportLine.Base);
+        VATReportLine2.Amount := VATReportLine2.RoundBase(CorrectionVATReportLine.Amount);
+        VATReportLine2."System-Created" := true;
+        VATReportLine2.Insert(true);
 
-            TempVATReportLineRelation.SetRange("VAT Report No.", "VAT Report No.");
-            TempVATReportLineRelation.SetRange("VAT Report Line No.", CorrectionVATReportLine."Line No.");
-            if TempVATReportLineRelation.FindSet() then
-                repeat
-                    VATReportLineRelation := TempVATReportLineRelation;
-                    VATReportLineRelation."VAT Report Line No." := "Line No.";
-                    VATReportLineRelation.Insert();
-                    VATReportLineRelation."VAT Report Line No." := CancellationLineNo;
-                    VATReportLineRelation.Insert();
-                until TempVATReportLineRelation.Next() = 0;
-        end;
+        TempVATReportLineRelation.SetRange("VAT Report No.", VATReportLine2."VAT Report No.");
+        TempVATReportLineRelation.SetRange("VAT Report Line No.", CorrectionVATReportLine."Line No.");
+        if TempVATReportLineRelation.FindSet() then
+            repeat
+                VATReportLineRelation := TempVATReportLineRelation;
+                VATReportLineRelation."VAT Report Line No." := VATReportLine2."Line No.";
+                VATReportLineRelation.Insert();
+                VATReportLineRelation."VAT Report Line No." := CancellationLineNo;
+                VATReportLineRelation.Insert();
+            until TempVATReportLineRelation.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -448,17 +447,15 @@ table 741 "VAT Report Line"
     var
         VATReportLine1: Record "VAT Report Line";
     begin
-        with VATReportLine1 do begin
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            SetRange("VAT Registration No.", VATReportLine."VAT Registration No.");
-            SetRange("Country/Region Code", VATReportLine."Country/Region Code");
-            SetRange("Registration No.", VATReportLine."Registration No.");
-            SetRange("Trade Role Type", VATReportLine."Trade Role Type");
-            SetRange("EU 3-Party Trade", VATReportLine."EU 3-Party Trade");
-            SetRange("EU Service", VATReportLine."EU Service");
-            if FindFirst() then
-                Error(CorrectionEntryExistsErr, VATReportHeader."No.");
-        end;
+        VATReportLine1.SetRange("VAT Report No.", VATReportHeader."No.");
+        VATReportLine1.SetRange("VAT Registration No.", VATReportLine."VAT Registration No.");
+        VATReportLine1.SetRange("Country/Region Code", VATReportLine."Country/Region Code");
+        VATReportLine1.SetRange("Registration No.", VATReportLine."Registration No.");
+        VATReportLine1.SetRange("Trade Role Type", VATReportLine."Trade Role Type");
+        VATReportLine1.SetRange("EU 3-Party Trade", VATReportLine."EU 3-Party Trade");
+        VATReportLine1.SetRange("EU Service", VATReportLine."EU Service");
+        if VATReportLine1.FindFirst() then
+            Error(CorrectionEntryExistsErr, VATReportHeader."No.");
     end;
 }
 

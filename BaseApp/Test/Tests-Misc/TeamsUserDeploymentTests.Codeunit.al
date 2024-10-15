@@ -24,10 +24,10 @@ codeunit 139322 "Teams User Deployment Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [WHEN] The Teams Individual Deployment is completed
-        TeamsIndividualDeployment.Trap;
+        TeamsIndividualDeployment.Trap();
         Page.Run(Page::"Teams Individual Deployment");
         with TeamsIndividualDeployment do begin
-            Assert.IsTrue(ActionOkay.Visible, 'Okay is not visible');
+            Assert.IsTrue(ActionOkay.Visible(), 'Okay is not visible');
             ActionOkay.Invoke();
         end;
 
@@ -49,10 +49,10 @@ codeunit 139322 "Teams User Deployment Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] The Teams Individual Deployment is completed
-        TeamsIndividualDeployment.Trap;
+        TeamsIndividualDeployment.Trap();
         Page.Run(Page::"Teams Individual Deployment");
         with TeamsIndividualDeployment do begin
-            Assert.IsFalse(ActionOkay.Visible, 'Okay is visible');
+            Assert.IsFalse(ActionOkay.Visible(), 'Okay is visible');
             ActionGetFromStore.Invoke();
         end;
 

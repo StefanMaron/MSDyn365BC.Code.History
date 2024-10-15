@@ -10,12 +10,15 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
 
 table 86 "Exch. Rate Adjmt. Reg."
 {
     Caption = 'Exch. Rate Adjmt. Reg.';
     DrillDownPageId = "Exchange Rate Adjmt. Register";
     LookupPageID = "Exchange Rate Adjmt. Register";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -38,7 +41,10 @@ table 86 "Exch. Rate Adjmt. Reg."
             else
             if ("Account Type" = const(Vendor)) "Vendor Posting Group"
             else
-            if ("Account Type" = const("Bank Account")) "Bank Account Posting Group";
+            if ("Account Type" = const("Bank Account")) "Bank Account Posting Group"
+            else
+            if ("Account Type" = const(Employee)) "Employee Posting Group";
+
         }
         field(5; "Currency Code"; Code[10])
         {
@@ -107,6 +113,13 @@ table 86 "Exch. Rate Adjmt. Reg."
         {
             Caption = 'Adjustment Amount';
             CalcFormula = sum("Exch. Rate Adjmt. Ledg. Entry"."Adjustment Amount" where("Register No." = field("No.")));
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(24; "Adjusted Employees"; Integer)
+        {
+            Caption = 'No. of Adj. Empl. Ledger Entries';
+            CalcFormula = count("Detailed Employee Ledger Entry" where("Exch. Rate Adjmt. Reg. No." = field("No.")));
             Editable = false;
             FieldClass = FlowField;
         }

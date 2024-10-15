@@ -144,16 +144,14 @@ codeunit 5342 "CRM Synch. Helper"
         CRMOrganization.FindFirst();
         FindCurrencyCRMIntegrationRecord(CRMIntegrationRecord, CurrencyCode);
 
-        with CRMPricelevel do begin
-            Init();
-            PriceLevelId := Format(CreateGuid());
-            OrganizationId := CRMOrganization.OrganizationId;
-            Name :=
-              CopyStr(StrSubstNo(CurrencyPriceListNameTxt, CurrencyCode), 1, MaxStrLen(Name));
-            TransactionCurrencyId := CRMIntegrationRecord."CRM ID";
-            ExchangeRate := NewExchangeRate;
-            Insert();
-        end;
+        CRMPricelevel.Init();
+        CRMPricelevel.PriceLevelId := Format(CreateGuid());
+        CRMPricelevel.OrganizationId := CRMOrganization.OrganizationId;
+        CRMPricelevel.Name :=
+          CopyStr(StrSubstNo(CurrencyPriceListNameTxt, CurrencyCode), 1, MaxStrLen(CRMPricelevel.Name));
+        CRMPricelevel.TransactionCurrencyId := CRMIntegrationRecord."CRM ID";
+        CRMPricelevel.ExchangeRate := NewExchangeRate;
+        CRMPricelevel.Insert();
     end;
 
     procedure CreateCRMPriceList(SalesHeader: Record "Sales Header"; var CRMPricelevel: Record "CRM Pricelevel")
@@ -267,17 +265,15 @@ codeunit 5342 "CRM Synch. Helper"
     var
         CRMProductpricelevel: Record "CRM Productpricelevel";
     begin
-        with CRMProductpricelevel do begin
-            Init();
-            PriceLevelId := NewPriceLevelId;
-            UoMId := CRMProduct.DefaultUoMId;
-            UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
-            ProductId := CRMProduct.ProductId;
-            Amount := CRMProduct.Price;
-            TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
-            ProductNumber := CRMProduct.ProductNumber;
-            Insert();
-        end;
+        CRMProductpricelevel.Init();
+        CRMProductpricelevel.PriceLevelId := NewPriceLevelId;
+        CRMProductpricelevel.UoMId := CRMProduct.DefaultUoMId;
+        CRMProductpricelevel.UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
+        CRMProductpricelevel.ProductId := CRMProduct.ProductId;
+        CRMProductpricelevel.Amount := CRMProduct.Price;
+        CRMProductpricelevel.TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
+        CRMProductpricelevel.ProductNumber := CRMProduct.ProductNumber;
+        CRMProductpricelevel.Insert();
     end;
 
     procedure CreateCRMProductpricelevelForProductAndUom(CRMProduct: Record "CRM Product"; NewPriceLevelId: Guid; CRMUom: Record "CRM Uom")
@@ -316,41 +312,35 @@ codeunit 5342 "CRM Synch. Helper"
             exit;
         CRMInvoice.Get(CRMInvoicedetail.InvoiceId);
         CRMUom.Get(CRMInvoicedetail.UoMId);
-        with CRMProductpricelevel do begin
-            Init();
-            PriceLevelId := CRMInvoice.PriceLevelId;
-            ProductId := CRMInvoicedetail.ProductId;
-            UoMId := CRMInvoicedetail.UoMId;
-            UoMScheduleId := CRMUom.UoMScheduleId;
-            Amount := CRMInvoicedetail.PricePerUnit;
-            Insert();
-        end;
+        CRMProductpricelevel.Init();
+        CRMProductpricelevel.PriceLevelId := CRMInvoice.PriceLevelId;
+        CRMProductpricelevel.ProductId := CRMInvoicedetail.ProductId;
+        CRMProductpricelevel.UoMId := CRMInvoicedetail.UoMId;
+        CRMProductpricelevel.UoMScheduleId := CRMUom.UoMScheduleId;
+        CRMProductpricelevel.Amount := CRMInvoicedetail.PricePerUnit;
+        CRMProductpricelevel.Insert();
     end;
 
     local procedure CreateCRMTransactioncurrency(var CRMTransactioncurrency: Record "CRM Transactioncurrency"; CurrencyCode: Code[10])
     begin
-        with CRMTransactioncurrency do begin
-            Init();
-            ISOCurrencyCode := CopyStr(CurrencyCode, 1, MaxStrLen(ISOCurrencyCode));
-            CurrencyName := ISOCurrencyCode;
-            CurrencySymbol := ISOCurrencyCode;
-            CurrencyPrecision := GetCRMCurrencyDefaultPrecision();
-            ExchangeRate := GetCRMLCYToFCYExchangeRate(ISOCurrencyCode);
-            Insert();
-        end;
+        CRMTransactioncurrency.Init();
+        CRMTransactioncurrency.ISOCurrencyCode := CopyStr(CurrencyCode, 1, MaxStrLen(CRMTransactioncurrency.ISOCurrencyCode));
+        CRMTransactioncurrency.CurrencyName := CRMTransactioncurrency.ISOCurrencyCode;
+        CRMTransactioncurrency.CurrencySymbol := CRMTransactioncurrency.ISOCurrencyCode;
+        CRMTransactioncurrency.CurrencyPrecision := GetCRMCurrencyDefaultPrecision();
+        CRMTransactioncurrency.ExchangeRate := GetCRMLCYToFCYExchangeRate(CRMTransactioncurrency.ISOCurrencyCode);
+        CRMTransactioncurrency.Insert();
     end;
 
     procedure FindCRMDefaultPriceList(var CRMPricelevel: Record "CRM Pricelevel")
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        with CRMConnectionSetup do begin
-            Get();
-            if not FindCRMPriceList(CRMPricelevel, "Default CRM Price List ID") then begin
-                CreateCRMDefaultPriceList(CRMPricelevel);
-                Validate("Default CRM Price List ID", CRMPricelevel.PriceLevelId);
-                Modify();
-            end;
+        CRMConnectionSetup.Get();
+        if not FindCRMPriceList(CRMPricelevel, CRMConnectionSetup."Default CRM Price List ID") then begin
+            CreateCRMDefaultPriceList(CRMPricelevel);
+            CRMConnectionSetup.Validate("Default CRM Price List ID", CRMPricelevel.PriceLevelId);
+            CRMConnectionSetup.Modify();
         end;
     end;
 
@@ -788,36 +778,33 @@ codeunit 5342 "CRM Synch. Helper"
     var
         IsHandled: Boolean;
     begin
-        with CRMInvoice do begin
-            CustLedgerEntry.CalcFields("Remaining Amount", Amount);
+        CustLedgerEntry.CalcFields("Remaining Amount", Amount);
 
-            IsHandled := false;
-            OnBeforeCalculateActualStatusCode(CustLedgerEntry, CRMInvoice, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnBeforeCalculateActualStatusCode(CustLedgerEntry, CRMInvoice, IsHandled);
+        if IsHandled then
+            exit;
 
-            if CustLedgerEntry."Remaining Amount" = 0 then begin
-                StateCode := StateCode::Paid;
-                StatusCode := StatusCode::Complete;
-            end else
-                if CustLedgerEntry."Remaining Amount" <> CustLedgerEntry.Amount then begin
-                    StateCode := StateCode::Paid;
-                    StatusCode := StatusCode::Partial;
-                end else begin
-                    StateCode := StateCode::Active;
-                    StatusCode := StatusCode::Billed;
-                end;
-        end;
+        if CustLedgerEntry."Remaining Amount" = 0 then begin
+            CRMInvoice.StateCode := CRMInvoice.StateCode::Paid;
+            CRMInvoice.StatusCode := CRMInvoice.StatusCode::Complete;
+        end else
+            if CustLedgerEntry."Remaining Amount" <> CustLedgerEntry.Amount then begin
+                CRMInvoice.StateCode := CRMInvoice.StateCode::Paid;
+                CRMInvoice.StatusCode := CRMInvoice.StatusCode::Partial;
+            end else begin
+                CRMInvoice.StateCode := CRMInvoice.StateCode::Active;
+                CRMInvoice.StatusCode := CRMInvoice.StatusCode::Billed;
+            end;
     end;
 
     local procedure ActivateInvoiceForFurtherUpdate(var CRMInvoice: Record "CRM Invoice")
     begin
-        with CRMInvoice do
-            if StateCode <> StateCode::Active then begin
-                StateCode := StateCode::Active;
-                StatusCode := StatusCode::Billed;
-                Modify();
-            end;
+        if CRMInvoice.StateCode <> CRMInvoice.StateCode::Active then begin
+            CRMInvoice.StateCode := CRMInvoice.StateCode::Active;
+            CRMInvoice.StatusCode := CRMInvoice.StatusCode::Billed;
+            CRMInvoice.Modify();
+        end;
     end;
 
     procedure UpdateCRMPriceListItem(var CRMProduct: Record "CRM Product") AdditionalFieldsWereModified: Boolean
@@ -908,40 +895,38 @@ codeunit 5342 "CRM Synch. Helper"
 
     local procedure UpdateCRMProductpricelevel(var CRMProductpricelevel: Record "CRM Productpricelevel"; CRMProduct: Record "CRM Product") AdditionalFieldsWereModified: Boolean
     begin
-        with CRMProductpricelevel do begin
-            if PriceLevelId <> CRMProduct.PriceLevelId then begin
-                PriceLevelId := CRMProduct.PriceLevelId;
-                AdditionalFieldsWereModified := true;
-            end;
-
-            if UoMId <> CRMProduct.DefaultUoMId then begin
-                UoMId := CRMProduct.DefaultUoMId;
-                AdditionalFieldsWereModified := true;
-            end;
-
-            if UoMScheduleId <> CRMProduct.DefaultUoMScheduleId then begin
-                UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
-                AdditionalFieldsWereModified := true;
-            end;
-
-            if Amount <> CRMProduct.Price then begin
-                Amount := CRMProduct.Price;
-                AdditionalFieldsWereModified := true;
-            end;
-
-            if TransactionCurrencyId <> CRMProduct.TransactionCurrencyId then begin
-                TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
-                AdditionalFieldsWereModified := true;
-            end;
-
-            if ProductNumber <> CRMProduct.ProductNumber then begin
-                ProductNumber := CRMProduct.ProductNumber;
-                AdditionalFieldsWereModified := true;
-            end;
-
-            if AdditionalFieldsWereModified then
-                Modify();
+        if CRMProductpricelevel.PriceLevelId <> CRMProduct.PriceLevelId then begin
+            CRMProductpricelevel.PriceLevelId := CRMProduct.PriceLevelId;
+            AdditionalFieldsWereModified := true;
         end;
+
+        if CRMProductpricelevel.UoMId <> CRMProduct.DefaultUoMId then begin
+            CRMProductpricelevel.UoMId := CRMProduct.DefaultUoMId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.UoMScheduleId <> CRMProduct.DefaultUoMScheduleId then begin
+            CRMProductpricelevel.UoMScheduleId := CRMProduct.DefaultUoMScheduleId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.Amount <> CRMProduct.Price then begin
+            CRMProductpricelevel.Amount := CRMProduct.Price;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.TransactionCurrencyId <> CRMProduct.TransactionCurrencyId then begin
+            CRMProductpricelevel.TransactionCurrencyId := CRMProduct.TransactionCurrencyId;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if CRMProductpricelevel.ProductNumber <> CRMProduct.ProductNumber then begin
+            CRMProductpricelevel.ProductNumber := CRMProduct.ProductNumber;
+            AdditionalFieldsWereModified := true;
+        end;
+
+        if AdditionalFieldsWereModified then
+            CRMProductpricelevel.Modify();
     end;
 
     local procedure UpdateCRMProductpricelevelWithUom(var CRMProductpricelevel: Record "CRM Productpricelevel"; CRMProduct: Record "CRM Product"; CRMUom: Record "CRM Uom") AdditionalFieldsWereModified: Boolean
@@ -1589,14 +1574,13 @@ codeunit 5342 "CRM Synch. Helper"
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        if FindSourceIntegrationTableMapping(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef) then
-            with IntegrationFieldMapping do begin
-                SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-                SetRange("Field No.", SourceFieldRef.Number());
-                SetRange("Integration Table Field No.", DestinationFieldRef.Number());
-                FindFirst();
-                exit("Clear Value on Failed Sync");
-            end;
+        if FindSourceIntegrationTableMapping(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef) then begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.SetRange("Field No.", SourceFieldRef.Number());
+            IntegrationFieldMapping.SetRange("Integration Table Field No.", DestinationFieldRef.Number());
+            IntegrationFieldMapping.FindFirst();
+            exit(IntegrationFieldMapping."Clear Value on Failed Sync");
+        end;
         exit(false);
     end;
 
@@ -2148,10 +2132,12 @@ codeunit 5342 "CRM Synch. Helper"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnFindAndSynchRecordIDFromIntegrationSystemId(IntegrationSystemId: Guid; TableId: Integer; var LocalRecordID: RecordID; IsHandled: Boolean)
+    local procedure OnFindAndSynchRecordIDFromIntegrationSystemId(IntegrationSystemId: Guid; TableId: Integer; var LocalRecordID: RecordID; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AS0077
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCRMInvoiceStatusFromEntryOnBeforeModify(var CRMInvoice: Record "CRM Invoice"; var NewCRMInvoice: Record "CRM Invoice"; CustLedgerEntry: Record "Cust. Ledger Entry")

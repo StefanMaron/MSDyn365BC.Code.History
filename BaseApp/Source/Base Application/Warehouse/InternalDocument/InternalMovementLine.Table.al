@@ -13,6 +13,7 @@ table 7347 "Internal Movement Line"
 {
     Caption = 'Internal Movement Line';
     LookupPageID = "Whse. Internal Put-away Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -307,7 +308,7 @@ table 7347 "Internal Movement Line"
     begin
         GetInternalMovementHeader("No.");
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
-        if InternalMovementLine.Count > 0 then
+        if not InternalMovementLine.IsEmpty() then
             LastLineNo := LastInternalMovementLine."Line No."
         else
             LastLineNo := 0;

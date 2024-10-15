@@ -176,14 +176,19 @@ page 35517 "Payment Journal FactBox"
     end;
 
     var
+        Vend: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
         GenJnlManagement: Codeunit GenJnlManagement;
         AccName: Text[100];
         BalAccName: Text[100];
         RemainAfterPaymentCaption: Text[30];
+        Factor: Integer;
+
+        RemainingAfterPaymentTxt: Label 'Remaining after Payment';
+
+    protected var
         Balance: Decimal;
         TotalBalance: Decimal;
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        Vend: Record Vendor;
         AgeDays: Integer;
         PaymDiscDays: Integer;
         DueDays: Integer;
@@ -193,13 +198,11 @@ page 35517 "Payment Journal FactBox"
         TotalPayAmount: Decimal;
         PmtDiscount: Decimal;
         AcceptedPaymentTol: Decimal;
-        Text001: Label 'Remaining after Payment';
         PostingDate: Date;
         DueDate: Date;
         PmtDiscDate: Date;
         PaymentAmt: Decimal;
         PaymentTerms: Code[10];
-        Factor: Integer;
 
     local procedure UpdateBalance()
     var
@@ -251,7 +254,7 @@ page 35517 "Payment Journal FactBox"
         DueDate := 0D;
         PmtDiscDate := 0D;
         PaymentAmt := 0;
-        RemainAfterPaymentCaption := Text001;
+        RemainAfterPaymentCaption := RemainingAfterPaymentTxt;
         PaymentTerms := '';
         Balance := 0;
         TotalBalance := 0;
@@ -290,7 +293,7 @@ page 35517 "Payment Journal FactBox"
         RemainAfterPayment := -Rec.Amount * Factor;
         PmtDiscount := 0;
         AcceptedPaymentTol := 0;
-        RemainAfterPaymentCaption := Text001;
+        RemainAfterPaymentCaption := RemainingAfterPaymentTxt;
         PostingDate := 0D;
         DueDate := 0D;
         PmtDiscDate := 0D;

@@ -176,12 +176,12 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Run the Release function.
-        VATReportErrorLog.Trap;
+        VATReportErrorLog.Trap();
         asserterror VATReportMediator.Release(VATReportHeader);
 
         // 3. Verify: Error occurs for No VAT Report Lines.
         VATReportErrorLog."Error Message".AssertEquals(StrSubstNo(NoLinesError, CopyStr(VATReportHeader.TableCaption(), 1, 3)));
-        VATReportErrorLog.OK.Invoke;
+        VATReportErrorLog.OK().Invoke();
     end;
 
     [Test]
@@ -222,9 +222,9 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CreateVATReportLinesWithData(VATReportHeader."No.");
 
         // 2. Click OnAssist Button in VAT Report Line and look VAT Entries.
-        VATReport.OpenEdit;
+        VATReport.OpenEdit();
         VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
-        VATReport.VATReportLines.Base.AssistEdit;
+        VATReport.VATReportLines.Base.AssistEdit();
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
             exit;
 
         IsInitialized := true;
-        CreateVATReportSetup;
+        CreateVATReportSetup();
         Commit();
     end;
 
@@ -304,7 +304,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Create VAT Report Setup.
         if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert();
-        VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
         VATReportSetup.Modify();
     end;
 
@@ -389,31 +389,25 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        with CountryRegion do begin
-            "EU Country/Region Code" := LibraryUtility.GenerateGUID();
-            Modify();
-            exit(Code);
-        end;
+        CountryRegion."EU Country/Region Code" := LibraryUtility.GenerateGUID();
+        CountryRegion.Modify();
+        exit(CountryRegion.Code);
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            "Country/Region Code" := CreateCountryRegionCode;
-            "VAT Registration No." := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        Customer."Country/Region Code" := CreateCountryRegionCode();
+        Customer."VAT Registration No." := LibraryUtility.GenerateGUID();
+        Customer.Modify();
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            "Country/Region Code" := CreateCountryRegionCode;
-            "VAT Registration No." := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        Vendor."Country/Region Code" := CreateCountryRegionCode();
+        Vendor."VAT Registration No." := LibraryUtility.GenerateGUID();
+        Vendor.Modify();
     end;
 
     local procedure CreateGLAccount(GenPostingType: Enum "General Posting Type"): Code[20]
@@ -484,17 +478,15 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
     [Scope('OnPrem')]
     procedure SuggestLinesReportHandler(var SuggestLinesRequestPage: TestRequestPage "VAT Report Suggest Lines")
     begin
-        SuggestLinesRequestPage.OK.Invoke;
+        SuggestLinesRequestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VATEntriesPageHandler(var VATEntries: TestPage "VAT Entries")
-    var
-        EntryNo: Variant;
     begin
-        VATEntries.First;
-        VATEntries.OK.Invoke;
+        VATEntries.First();
+        VATEntries.OK().Invoke();
     end;
 }
 

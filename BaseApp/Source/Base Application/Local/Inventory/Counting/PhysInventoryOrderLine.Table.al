@@ -17,8 +17,14 @@ table 5005351 "Phys. Inventory Order Line"
 {
     Caption = 'Phys. Inventory Order Line';
     ObsoleteReason = 'Merged to W1';
+#if not CLEAN24
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '27.0';
+#endif
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -92,6 +98,14 @@ table 5005351 "Phys. Inventory Order Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'Merged to W1';
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '27.0';
+#endif
         }
         field(53; "Use Tracking Lines"; Boolean)
         {

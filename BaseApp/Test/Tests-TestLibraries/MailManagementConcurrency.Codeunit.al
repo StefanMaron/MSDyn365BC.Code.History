@@ -3,7 +3,7 @@ codeunit 139029 "Mail Management Concurrency"
 
     trigger OnRun()
     begin
-        PrintingFunction;
+        PrintingFunction();
     end;
 
     [Scope('OnPrem')]
@@ -14,7 +14,7 @@ codeunit 139029 "Mail Management Concurrency"
     begin
         BindSubscription(MailManagement);
 
-        Sleep(GetSleepDuration);
+        Sleep(GetSleepDuration());
         InsertNameValueBuffer(NameValueBuffer);
 
         UnbindSubscription(MailManagement);

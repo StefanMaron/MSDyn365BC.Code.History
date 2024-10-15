@@ -3,6 +3,7 @@ namespace Microsoft.Manufacturing.Routing;
 table 99000802 "Routing Tool"
 {
     Caption = 'Routing Tool';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -13,7 +13,7 @@ page 922 "Posted Assembly Orders"
     PageType = List;
     SourceTable = "Posted Assembly Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

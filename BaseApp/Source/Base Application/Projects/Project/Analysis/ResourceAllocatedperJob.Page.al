@@ -10,7 +10,7 @@ using System.Utilities;
 
 page 221 "Resource Allocated per Job"
 {
-    Caption = 'Resource Allocated per Job';
+    Caption = 'Resource Allocated per Project';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -100,7 +100,7 @@ page 221 "Resource Allocated per Job"
                 begin
                     IsHandled := false;
                     OnActionShowMatrix(JobRec, ResourceFilter, MatrixColumnCaptions, MatrixRecords, AmountType, IsHandled);
-                    If IsHandled then
+                    if IsHandled then
                         exit;
 
                     HorizontalRecord.SetRange("No.", ResourceFilter);
@@ -194,7 +194,7 @@ page 221 "Resource Allocated per Job"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; AmountType: Enum "Analysis Amount Type"; var IsHandled: Boolean)
+    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceFilter: Text; MatrixColumnCaptions: array[32] of Text; MatrixRecords: array[32] of Record Date; AmountType: Enum "Analysis Amount Type"; var IsHandled: Boolean)
     begin
     end;
 

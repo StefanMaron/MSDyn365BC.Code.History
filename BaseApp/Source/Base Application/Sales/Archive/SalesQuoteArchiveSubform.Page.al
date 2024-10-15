@@ -171,19 +171,19 @@ page 5163 "Sales Quote Archive Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the job number that the archived document was linked to.';
+                    ToolTip = 'Specifies the project number that the archived document was linked to.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Contract Entry No."; Rec."Job Contract Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry number of the job planning line that the sales line is linked to.';
+                    ToolTip = 'Specifies the entry number of the project planning line that the sales line is linked to.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")

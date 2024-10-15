@@ -224,7 +224,7 @@ report 11002 "G/L Total-Balance"
 
                 SetRange("Date Filter", StartDate, EndDate);
 
-                AccountTypeInt := "G/L Account"."Account Type";
+                AccountTypeInt := "G/L Account"."Account Type".AsInteger();
                 if NewPage then begin
                     PageGroupNo := PageGroupNo + 1;
                     NewPage := false;

@@ -11,7 +11,6 @@ codeunit 5469 "Library API - General Journal"
 
     var
         GenJnlManagement: Codeunit GenJnlManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
 
     procedure InitializeLine(var GenJournalLine: Record "Gen. Journal Line"; LineNo: Integer; DocumentNo: Code[20]; ExternalDocumentNo: Code[35])
     var
@@ -102,20 +101,13 @@ codeunit 5469 "Library API - General Journal"
 
     local procedure AlterDocNoBasedOnExternalDocNo(var GenJournalLine: Record "Gen. Journal Line"; CopyValuesFromGenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; CopyValuesFromGenJnlLineSpecified: Boolean)
     var
-        NoSeriesLine: Record "No. Series Line";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
     begin
         if CopyValuesFromGenJnlLineSpecified and
            (CopyValuesFromGenJnlLine."Document No." = GenJournalLine."Document No.") and
            (CopyValuesFromGenJnlLine."External Document No." <> GenJournalLine."External Document No.")
         then
-            if GenJnlBatch."No. Series" <> '' then begin
-                NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, GenJnlBatch."No. Series", GenJournalLine."Posting Date");
-                if NoSeriesLine."Increment-by No." > 1 then
-                    NoSeriesMgt.IncrementNoText(GenJournalLine."Document No.", NoSeriesLine."Increment-by No.")
-                else
-                    GenJournalLine."Document No." := IncStr(GenJournalLine."Document No.");
-            end else
-                GenJournalLine."Document No." := IncStr(GenJournalLine."Document No.");
+            GenJournalLine."Document No." := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", GenJournalLine."Posting Date", GenJournalLine."Document No.");
     end;
 
     procedure GetBatchNameFromId(JournalBatchId: Guid): Code[10]

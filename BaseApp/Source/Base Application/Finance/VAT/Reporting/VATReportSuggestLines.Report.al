@@ -31,7 +31,7 @@ report 741 "VAT Report Suggest Lines"
                         if "VAT Reporting Date" < 20100101D then
                             Error(Text11000, FieldCaption("VAT Reporting Date"), 20100101D);
 
-                    UpdateProgressBar;
+                    UpdateProgressBar();
                     AddVATReportLine(VATEntrySales);
                 end;
 
@@ -55,7 +55,7 @@ report 741 "VAT Report Suggest Lines"
 
                 trigger OnAfterGetRecord()
                 begin
-                    UpdateProgressBar;
+                    UpdateProgressBar();
                     AddVATReportLine(VATEntryPurchases);
                 end;
 
@@ -175,14 +175,12 @@ report 741 "VAT Report Suggest Lines"
             UpdateNumberOfSupplies(TempVATReportLine, VATEntry."Transaction No.");
             TempVATReportLine.Insert();
         end;
-        with TempVATReportLineRelation do begin
-            Init();
-            "VAT Report No." := TempVATReportLine."VAT Report No.";
-            "VAT Report Line No." := TempVATReportLine."Line No.";
-            "Table No." := DATABASE::"VAT Entry";
-            "Entry No." := VATEntry."Entry No.";
-            Insert();
-        end;
+        TempVATReportLineRelation.Init();
+        TempVATReportLineRelation."VAT Report No." := TempVATReportLine."VAT Report No.";
+        TempVATReportLineRelation."VAT Report Line No." := TempVATReportLine."Line No.";
+        TempVATReportLineRelation."Table No." := DATABASE::"VAT Entry";
+        TempVATReportLineRelation."Entry No." := VATEntry."Entry No.";
+        TempVATReportLineRelation.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -341,25 +339,23 @@ report 741 "VAT Report Suggest Lines"
         if not IsEUCountry(VATEntry) then
             exit;
 
-        with VATReportLine do begin
-            Init();
-            "VAT Report No." := VATReportHeader."No.";
-            case VATEntry.Type of
-                VATEntry.Type::Sale:
-                    "Trade Type" := "Trade Type"::Sale;
-                VATEntry.Type::Purchase:
-                    "Trade Type" := "Trade Type"::Purchase;
-            end;
-            "Country/Region Code" := GetCountryCode(VATEntry);
-            "VAT Registration No." := VATEntry."VAT Registration No.";
-            Base := -VATEntry.Base;
-            Amount := -VATEntry.Amount;
-            "EU 3-Party Trade" := VATEntry."EU 3-Party Trade";
-            "Trade Role Type" := GetTradeRoleType(VATEntry."EU 3-Party Trade");
-            "EU Service" := VATEntry."EU Service";
-            "System-Created" := true;
-            AddBuffer(VATEntry);
+        VATReportLine.Init();
+        VATReportLine."VAT Report No." := VATReportHeader."No.";
+        case VATEntry.Type of
+            VATEntry.Type::Sale:
+                VATReportLine."Trade Type" := VATReportLine."Trade Type"::Sale;
+            VATEntry.Type::Purchase:
+                VATReportLine."Trade Type" := VATReportLine."Trade Type"::Purchase;
         end;
+        VATReportLine."Country/Region Code" := GetCountryCode(VATEntry);
+        VATReportLine."VAT Registration No." := VATEntry."VAT Registration No.";
+        VATReportLine.Base := -VATEntry.Base;
+        VATReportLine.Amount := -VATEntry.Amount;
+        VATReportLine."EU 3-Party Trade" := VATEntry."EU 3-Party Trade";
+        VATReportLine."Trade Role Type" := GetTradeRoleType(VATEntry."EU 3-Party Trade");
+        VATReportLine."EU Service" := VATEntry."EU Service";
+        VATReportLine."System-Created" := true;
+        AddBuffer(VATEntry);
     end;
 
     [Scope('OnPrem')]
@@ -380,16 +376,14 @@ report 741 "VAT Report Suggest Lines"
     [Scope('OnPrem')]
     procedure SetFilters(var VATEntry: Record "VAT Entry")
     begin
-        with VATReportHeader do begin
-            VATEntry.SetRange("EU Service");
-            case "EU Goods/Services" of
-                "EU Goods/Services"::Goods:
-                    VATEntry.SetRange("EU Service", false);
-                "EU Goods/Services"::Services:
-                    VATEntry.SetRange("EU Service", true);
-            end;
-            VATEntry.SetRange("VAT Reporting Date", "Start Date", "End Date");
+        VATEntry.SetRange("EU Service");
+        case VATReportHeader."EU Goods/Services" of
+            VATReportHeader."EU Goods/Services"::Goods:
+                VATEntry.SetRange("EU Service", false);
+            VATReportHeader."EU Goods/Services"::Services:
+                VATEntry.SetRange("EU Service", true);
         end;
+        VATEntry.SetRange("VAT Reporting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
     end;
 
     local procedure HaveDifferentRelations(VATReportLine: Record "VAT Report Line"; VATReportLineTmp: Record "VAT Report Line"): Boolean

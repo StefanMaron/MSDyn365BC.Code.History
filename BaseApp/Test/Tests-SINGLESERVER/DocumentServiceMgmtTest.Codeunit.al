@@ -45,11 +45,11 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
         ClearLastError();
-        DocumentServiceMgt.TestConnection;
+        DocumentServiceMgt.TestConnection();
         if GetLastErrorText <> '' then
             Error(TestUnexpectedErr, GetLastErrorText);
     end;
@@ -58,7 +58,7 @@ codeunit 139101 "Document Service Mgmt Test"
     [Scope('OnPrem')]
     procedure TestFailedTestConnection()
     begin
-        CreateInvalidDocumentServiceConfig;
+        CreateInvalidDocumentServiceConfig();
         CallTestConnectionAndExpectError(MockConnectErr);
     end;
 
@@ -76,7 +76,7 @@ codeunit 139101 "Document Service Mgmt Test"
     [Scope('OnPrem')]
     procedure TestMultipleConfigsTestConnection()
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         InsertDocumentServiceRec('SO2', 'Cassies Service', 'http://sharepoint', 'x@y.z', 'p', 'Shared Documents', 'myFolder');
 
         CallTestConnectionAndExpectError(MultipleConfigsErr);
@@ -88,12 +88,12 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         if not DocumentServiceMgt.IsConfigured() then
             Error(TestIsConfiguredTrue1Err);
 
         // IsConfigured should not care whether the configuration can successfully connect.
-        CreateInvalidDocumentServiceConfig;
+        CreateInvalidDocumentServiceConfig();
         if not DocumentServiceMgt.IsConfigured() then
             Error(TestIsConfiguredTrue2Err);
     end;
@@ -116,10 +116,10 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         InsertDocumentServiceRec('SO2', 'Cassies Service', 'http://sharepoint', 'a@b.c', 'p', 'Shared Documents', 'myFolder');
 
-        asserterror DocumentServiceMgt.IsConfigured;
+        asserterror DocumentServiceMgt.IsConfigured();
         Assert.ExpectedError(MultipleConfigsErr);
     end;
 
@@ -127,7 +127,7 @@ codeunit 139101 "Document Service Mgmt Test"
     [Scope('OnPrem')]
     procedure TestSaveEmptyInputs()
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
 
         // Expect these inputs to fail fast.
 
@@ -142,9 +142,9 @@ codeunit 139101 "Document Service Mgmt Test"
         FileName: Text;
         ExpectedError: Text[1024];
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
 
-        FileName := CreateSampleFile;
+        FileName := CreateSampleFile();
         if Exists(FileName) then
             Erase(FileName);
 
@@ -164,7 +164,7 @@ codeunit 139101 "Document Service Mgmt Test"
         SampleFile: Text;
     begin
         DocumentServiceConfiguration.DeleteAll();
-        SampleFile := CreateSampleFile;
+        SampleFile := CreateSampleFile();
 
         CallSaveFileAndExpectError(SampleFile, 'My.txt', Enum::"Doc. Sharing Conflict Behavior"::Rename, NoConfigErr);
     end;
@@ -175,9 +175,9 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         SampleFile: Text;
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         InsertDocumentServiceRec('SO2', 'Cassies Service', 'http://sharepoint', 'a@b.c', 'p', 'Shared Documents', 'MyFolder');
-        SampleFile := CreateSampleFile;
+        SampleFile := CreateSampleFile();
 
         CallSaveFileAndExpectError(SampleFile, 'My.txt', Enum::"Doc. Sharing Conflict Behavior"::Rename, MultipleConfigsErr);
     end;
@@ -188,8 +188,8 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         SampleFile: Text;
     begin
-        CreateInvalidDocumentServiceConfig;
-        SampleFile := CreateSampleFile;
+        CreateInvalidDocumentServiceConfig();
+        SampleFile := CreateSampleFile();
 
         CallSaveFileAndExpectError(SampleFile, MockNonExistingTargetFileTok, Enum::"Doc. Sharing Conflict Behavior"::Rename, MockConnectOnSaveErr);
     end;
@@ -201,8 +201,8 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt: Codeunit "Document Service Management";
         SampleFile: Text;
     begin
-        CreateValidDocumentServiceConfig;
-        SampleFile := CreateSampleFile;
+        CreateValidDocumentServiceConfig();
+        SampleFile := CreateSampleFile();
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
         ClearLastError();
@@ -220,8 +220,8 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt: Codeunit "Document Service Management";
         SampleFile: Text;
     begin
-        CreateValidDocumentServiceConfig;
-        SampleFile := CreateSampleFile;
+        CreateValidDocumentServiceConfig();
+        SampleFile := CreateSampleFile();
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
         ClearLastError();
@@ -238,8 +238,8 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         SampleFile: Text;
     begin
-        CreateValidDocumentServiceConfig;
-        SampleFile := CreateSampleFile;
+        CreateValidDocumentServiceConfig();
+        SampleFile := CreateSampleFile();
 
         CallSaveFileAndExpectError(SampleFile, MockExistingTargetFileTok, Enum::"Doc. Sharing Conflict Behavior"::Rename, MockTargetFileExistsErr);
     end;
@@ -251,12 +251,12 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt: Codeunit "Document Service Management";
         ActualServiceType: Text;
     begin
-        ActualServiceType := DocumentServiceMgt.GetServiceType;
+        ActualServiceType := DocumentServiceMgt.GetServiceType();
         if ActualServiceType <> '' then
             Error(TestDefaultServiceTypeErr, ActualServiceType);
 
         DocumentServiceMgt.SetServiceType('Hello World!');
-        ActualServiceType := DocumentServiceMgt.GetServiceType;
+        ActualServiceType := DocumentServiceMgt.GetServiceType();
         if ActualServiceType <> 'Hello World!' then
             Error(TestUpdatedServiceTypeErr);
     end;
@@ -267,17 +267,17 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
-        CreateInvalidDocumentServiceConfig;
+        CreateInvalidDocumentServiceConfig();
 
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
-        asserterror DocumentServiceMgt.TestConnection;
+        asserterror DocumentServiceMgt.TestConnection();
         Assert.ExpectedError(MockConnectErr);
 
         DocumentServiceMgt.SetServiceType(AlternateMockServiceTypeTok);
 
         ClearLastError();
-        asserterror DocumentServiceMgt.TestConnection;
+        asserterror DocumentServiceMgt.TestConnection();
         Assert.ExpectedError(AlternateMockCannotConnectErr);
     end;
 
@@ -287,16 +287,16 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
-        CreateInvalidDocumentServiceConfig;
+        CreateInvalidDocumentServiceConfig();
 
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
 
         ClearLastError();
-        asserterror DocumentServiceMgt.TestConnection;
+        asserterror DocumentServiceMgt.TestConnection();
         Assert.ExpectedError(MockConnectErr);
 
         ClearLastError();
-        asserterror DocumentServiceMgt.TestConnection;
+        asserterror DocumentServiceMgt.TestConnection();
         Assert.ExpectedError(MockConnectErr);
     end;
 
@@ -344,7 +344,7 @@ codeunit 139101 "Document Service Mgmt Test"
         Permission.SetFilter("Modify Permission", '=%1', Permission."Modify Permission"::" ");
         Permission.SetFilter("Delete Permission", '=%1', Permission."Delete Permission"::" ");
         Permission.SetFilter("Execute Permission", '=%1', Permission."Execute Permission"::" ");
-        Permission.FindFirst
+        Permission.FindFirst();
     end;
 
     [Test]
@@ -383,7 +383,7 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
         Assert.IsTrue(DocumentServiceManagement.IsServiceUri(MockValidLocationTok + '/path/document.ext'),
           'Expected call to IsValidUri to return true when document path a valid location');
@@ -395,7 +395,7 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
-        CreateValidDocumentServiceConfig;
+        CreateValidDocumentServiceConfig();
         if not DocumentServiceManagement.IsConfigured() then
             Error(TestIsConfiguredTrue1Err);
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
@@ -408,7 +408,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
         DocumentServiceMgt.SetServiceType(MockServiceTypeTok);
-        asserterror DocumentServiceMgt.TestConnection;
+        asserterror DocumentServiceMgt.TestConnection();
         Assert.ExpectedError(ExpectedError);
     end;
 

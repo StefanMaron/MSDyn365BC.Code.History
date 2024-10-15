@@ -7,7 +7,9 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
+#if not CLEAN23
 using Microsoft.Foundation.Enums;
+#endif
 using Microsoft.Sales.Customer;
 using System.Utilities;
 

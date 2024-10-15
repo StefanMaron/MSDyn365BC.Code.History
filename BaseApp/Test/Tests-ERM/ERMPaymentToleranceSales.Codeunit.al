@@ -73,7 +73,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Invoice with Currency.
 
         // Create and Post Sales Invoice with Currency.
-        DocumentNo := CreateAndPostSalesDocument(CreateCurrency, "Sales Document Type"::Invoice);
+        DocumentNo := CreateAndPostSalesDocument(CreateCurrency(), "Sales Document Type"::Invoice);
 
         // Verify: Verify Customer Ledger Entry Amount.
         ExpectedPmtTolAmount := CalcPaymentTolInvoiceFCY(DocumentNo);
@@ -92,7 +92,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry  for Payment Tolerance after posting Sales Credit Memo with Currency.
 
         // Create and Post Sales Credit Memo with Currency.
-        DocumentNo := CreateAndPostSalesDocument(CreateCurrency, "Sales Document Type"::"Credit Memo");
+        DocumentNo := CreateAndPostSalesDocument(CreateCurrency(), "Sales Document Type"::"Credit Memo");
 
         // Verify: Verify Customer Ledger Entry Amount.
         SalesCrMemoHeader.Get(DocumentNo);
@@ -148,11 +148,11 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Setup: Update General Ledger Setup and Create and Post Sales invoice and take a Random quantity.
         Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5)); // Use Random value for Payment Discount.
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
 
@@ -205,7 +205,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance Sales");
         LibrarySetupStorage.Restore();
-        ExecuteUIHandler;  // This function required for confirmation message to appear always.
+        ExecuteUIHandler();  // This function required for confirmation message to appear always.
 
         // Setup demo data.
         if isInitialized then
@@ -284,14 +284,14 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         SalesLine: Record "Sales Line";
         Counter: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
 
         // Use Counter for Creating Multiple Sales Lines with Random Quantity.
         for Counter := 1 to LibraryRandom.RandInt(3) do begin
             LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(3));
+              SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(3));
             if DocumentType = SalesLine."Document Type"::"Credit Memo" then begin
                 SalesLine.Validate("Qty. to Ship", 0); // Quantity to ship must be 0 for Sales Credit Memo.
                 SalesLine.Modify(true);

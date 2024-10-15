@@ -864,7 +864,7 @@ codeunit 135000 "Error Message Tests"
             SetRange("Message Type", "Message Type"::Warning);
 
             // [WHEN] ClearLog is called
-            ClearLog;
+            ClearLog();
 
             // [THEN] No entries exists in the error message table
             Reset();
@@ -1072,7 +1072,7 @@ codeunit 135000 "Error Message Tests"
             LogSimpleMessage("Message Type"::Error, GenericErrorDescriptionTxt);
 
             // [WHEN] ToString is called
-            ErrorMessage := ToString;
+            ErrorMessage := ToString();
 
             // [THEN] A string is returned that contains information about the two logged messages
             Assert.AreEqual(StrSubstNo('Error: %1\Warning: %1', GenericErrorDescriptionTxt), ErrorMessage, ErrorLoggedForValidDataErr);
@@ -1094,7 +1094,7 @@ codeunit 135000 "Error Message Tests"
 
             // [WHEN] ThrowError is called
             // [THEN] An error is thrown
-            asserterror ThrowError;
+            asserterror ThrowError();
 
             // [THEN] The thrown error contains the logged error message
             Assert.ExpectedError(StrSubstNo('Error: %1', GenericErrorDescriptionTxt));
@@ -1140,14 +1140,14 @@ codeunit 135000 "Error Message Tests"
             TempErrorMessage.LogSimpleMessage("Message Type"::Warning, GenericErrorDescriptionTxt);
 
             // Exercise
-            ErrorMessages.Trap;
+            ErrorMessages.Trap();
             SetContext(GLBCustomerContext);
             ShowErrorMessages(false);
 
             // Verify - only persistent message corresponding to one context will be displayed
-            ErrorMessages.First;
+            ErrorMessages.First();
             Assert.AreEqual(ErrorMessages.Description.Value, Format(GenericErrorDescriptionTxt), '');
-            Assert.IsFalse(ErrorMessages.Next, 'Records are not filtered to proper context.');
+            Assert.IsFalse(ErrorMessages.Next(), 'Records are not filtered to proper context.');
         end;
     end;
 
@@ -1163,11 +1163,11 @@ codeunit 135000 "Error Message Tests"
         ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Information, GenericErrorDescriptionTxt);
 
         ErrorMessage.TestField("Context Table Number", DATABASE::Customer);
-        Assert.AreEqual(1, ErrorMessage.GetLastID, 'GetLastID#1');
+        Assert.AreEqual(1, ErrorMessage.GetLastID(), 'GetLastID#1');
 
         ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, GenericErrorDescriptionTxt);
         ErrorMessage.TestField("Context Table Number", DATABASE::Customer);
-        Assert.AreEqual(2, ErrorMessage.GetLastID, 'GetLastID#2');
+        Assert.AreEqual(2, ErrorMessage.GetLastID(), 'GetLastID#2');
     end;
 
     [Test]
@@ -1245,16 +1245,16 @@ codeunit 135000 "Error Message Tests"
           GLBVendorContext, GLBVendorContext.FieldNo("VAT Registration No."), '');
 
         // [WHEN] Open "Error Messages" page
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         TempErrorMessage.ShowErrors();
 
         // [THEN] Context "Field Name" is 'GLN', Source "Field Name" is 'VAT Registration No.'
         ErrorMessagesPage."Context Field Name".AssertEquals(GLBCustomerContext.FieldCaption(GLN));
         ErrorMessagesPage."Field Name".AssertEquals(GLBVendorContext.FieldCaption("VAT Registration No."));
         // [THEN] No drilldown on "Field Name" columns.
-        asserterror ErrorMessagesPage."Context Field Name".DrillDown;
+        asserterror ErrorMessagesPage."Context Field Name".DrillDown();
         Assert.ExpectedError(DrillDownErr);
-        asserterror ErrorMessagesPage."Field Name".DrillDown;
+        asserterror ErrorMessagesPage."Field Name".DrillDown();
         Assert.ExpectedError(DrillDownErr);
     end;
 
@@ -1276,7 +1276,7 @@ codeunit 135000 "Error Message Tests"
           GLBVendorContext, GLBVendorContext.FieldNo("VAT Registration No."), '');
 
         // [WHEN] Open "Error Messages" page
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         TempErrorMessage.ShowErrors();
         // [THEN] Context "Field Name" is <blank>, Source "Field Name" is 'VAT Registration No.'
         ErrorMessagesPage."Context Field Name".AssertEquals('');

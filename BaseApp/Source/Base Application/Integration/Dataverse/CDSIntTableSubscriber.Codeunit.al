@@ -265,11 +265,13 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CDSConnectionSetup: Record "CDS Connection Setup";
         Item: Record Item;
         Resource: Record Resource;
+        Contact: Record Contact;
         PriceListLine: Record "Price List Line";
         CRMProduct: Record "CRM Product";
         SalesLine: Record "Sales Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
         CRMTransactionCurrency: Record "CRM Transactioncurrency";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         DestinationRecRef: RecordRef;
         TransactionCurrencyId: Guid;
@@ -280,6 +282,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         TableValue: Text;
         SourceValue: Text;
         CoupledSalespersonPurchaserCode: Code[20];
+        ContactNo: Code[20];
     begin
         if IsValueFound then
             exit;
@@ -344,6 +347,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             SourceValue := Format(SourceFieldRef.Value());
             if (SourceValue = '') or (SourceValue = Format(EmptyGuid)) then begin
                 // in case of bringing in a blank value for a field that is marked as "Clear Value on Failed Sync", keep the Destination value
+                // except if the original contact is coupled. in this case, we know that the Primary Contact No. was updated, so this change (blanking it) is valid
+                ContactNo := OriginalDestinationFieldValue;
+                if Contact.Get(ContactNo) then
+                    if CRMIntegrationRecord.FindByRecordID(Contact.RecordId) then
+                        exit;
                 NewValue := OriginalDestinationFieldValue;
                 IsValueFound := true;
                 NeedsConversion := false;
@@ -1017,7 +1025,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         if IgnoreRecord then
             exit;
 
-        If not CDSIntegrationImpl.IsIntegrationEnabled() then
+        if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
         if CRMSynchHelper.IsContactBusinessRelationOptional() then

@@ -12,6 +12,7 @@ using System.Threading;
 table 5336 "Integration Field Mapping"
 {
     Caption = 'Integration Field Mapping';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -148,6 +149,11 @@ table 5336 "Integration Field Mapping"
         {
             Caption = 'Integration Field Caption';
         }
+        field(20; "User Defined"; Boolean)
+        {
+            Caption = 'User Defined';
+            Description = 'Indicates whether the field mapping was defined manually by the user or by the system.';
+        }
     }
 
     keys
@@ -184,10 +190,10 @@ table 5336 "Integration Field Mapping"
 
     procedure CreateRecord(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
     begin
-        CreateRecord(IntegrationTableMappingName, TableFieldNo, IntegrationTableFieldNo, SynchDirection, ConstValue, ValidateField, ValidateIntegrationTableField, true);
+        CreateRecord(IntegrationTableMappingName, TableFieldNo, IntegrationTableFieldNo, SynchDirection, ConstValue, ValidateField, ValidateIntegrationTableField, true, '', false);
     end;
 
-    internal procedure CreateRecord(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean; Enabled: Boolean)
+    internal procedure CreateRecord(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean; Enabled: Boolean; TransformationRule: Code[20]; UserDefined: Boolean)
     begin
         Init();
         "No." := 0;
@@ -202,6 +208,9 @@ table 5336 "Integration Field Mapping"
             Status := Status::Enabled
         else
             Status := Status::Disabled;
+
+        "Transformation Rule" := TransformationRule;
+        "User Defined" := UserDefined;
         Insert();
     end;
 

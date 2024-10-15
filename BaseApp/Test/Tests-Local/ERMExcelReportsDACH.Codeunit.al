@@ -67,7 +67,7 @@ codeunit 142082 "ERM Excel Reports DACH"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
         ReminderTestReport.SetTableView(ReminderLine);
-        ReminderTestReport.SaveAsExcel(LibraryReportValidation.GetFileName);
+        ReminderTestReport.SaveAsExcel(LibraryReportValidation.GetFileName());
 
         // [THEN] Both beginning text lines are printed in column 2 of lines 23 and 24
         // [THEN] Both ending text lines are printed in column 2 of lines 28 and 29
@@ -75,7 +75,19 @@ codeunit 142082 "ERM Excel Reports DACH"
     end;
 
     local procedure Initialize()
+    var
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
     begin
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
+        Commit();
         Clear(LibraryReportValidation);
     end;
 
@@ -105,8 +117,8 @@ codeunit 142082 "ERM Excel Reports DACH"
     var
         ExcelSheetNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
-        ExcelSheetNo := LibraryReportValidation.CountWorksheets;
+        LibraryReportValidation.OpenExcelFile();
+        ExcelSheetNo := LibraryReportValidation.CountWorksheets();
         Assert.AreEqual(
           ReminderTextBeginning[1].Text,
           LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(ExcelSheetNo, 23, 2),

@@ -170,7 +170,7 @@ codeunit 134303 "Workflow Event Response Tests"
     [Scope('OnPrem')]
     procedure TestWorkflowThatDoesNothingUsingDoNothing()
     begin
-        TestWorkflowThatDoesNothing(WorkflowResponseHandling.DoNothingCode);
+        TestWorkflowThatDoesNothing(WorkflowResponseHandling.DoNothingCode());
     end;
 
     [Test]
@@ -199,9 +199,9 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // Setup.
         Initialize();
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         CreateWorkflowThatDoesNothing(ResponseFunctionName);
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
 
         // Exercise.
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
@@ -250,11 +250,11 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // Setup.
         Initialize();
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
 
-        CreateTwoStepsWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-          WorkflowResponseHandling.PostDocumentAsyncCode);
+        CreateTwoStepsWorkflow(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+          WorkflowResponseHandling.PostDocumentAsyncCode());
 
         // Exercise.
         asserterror ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
@@ -279,12 +279,12 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // Setup.
         Initialize();
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandInt(100));
 
-        CreateTwoStepsWorkflow(WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode,
-          WorkflowResponseHandling.CreateNotificationEntryCode);
+        CreateTwoStepsWorkflow(WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(),
+          WorkflowResponseHandling.CreateNotificationEntryCode());
 
         // Exercise.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -314,12 +314,12 @@ codeunit 134303 "Workflow Event Response Tests"
         Initialize();
 
         // Pre-Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandInt(100));
 
         // Setup
-        CreateWorkflowWithMultipleResponse(WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
+        CreateWorkflowWithMultipleResponse(WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
 
         // Exercise
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -347,7 +347,7 @@ codeunit 134303 "Workflow Event Response Tests"
         WorkflowEvent.DeleteAll();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(100, 2), '', 0D);
+          LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2), '', 0D);
 
         // Exercise
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -370,13 +370,13 @@ codeunit 134303 "Workflow Event Response Tests"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowEventHandling.CreateEventsLibrary;
-        WorkflowResponseHandling.CreateResponsesLibrary;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
+        WorkflowEventHandling.CreateEventsLibrary();
+        WorkflowResponseHandling.CreateResponsesLibrary();
 
-        LibraryWorkflow.DeleteNotifications;
-        CreateWorkflowToGenerateGeneralJournalLines;
-        ConfigureEmail;
+        LibraryWorkflow.DeleteNotifications();
+        CreateWorkflowToGenerateGeneralJournalLines();
+        ConfigureEmail();
 
         if IsInitialized then
             exit;
@@ -406,17 +406,17 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // 1. Create payment line
         WorkflowEntryPointStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode());
         WorkflowResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode, WorkflowEntryPointStep);
+            WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode(), WorkflowEntryPointStep);
 
         LibraryWorkflow.InsertPmtLineCreationArgument(WorkflowResponseStep1, GeneralJnlTemplateCode, GeneralJnlBatchCode);
 
         // 2. Notify user about new payment line
         WorkflowEventStep1 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode(),
             WorkflowResponseStep1);
-        WorkflowResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+        WorkflowResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             WorkflowEventStep1);
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowResponseStep2, UserId, 0, '');
@@ -437,17 +437,17 @@ codeunit 134303 "Workflow Event Response Tests"
 
         // 1. Incoming document created.
         WorkflowEntryPointStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
         WorkflowResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, ResponseFunctionName, WorkflowEntryPointStep);
 
         // 2. Purchase invoice posted.
-        WorkflowEventStep1 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode,
+        WorkflowEventStep1 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(),
             WorkflowResponseStep1);
         WorkflowResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, ResponseFunctionName, WorkflowEventStep1);
 
         // 3. Payment journal line created.
         WorkflowEventStep2 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode(),
             WorkflowResponseStep2);
         LibraryWorkflow.InsertResponseStep(Workflow, ResponseFunctionName, WorkflowEventStep2);
 
@@ -465,8 +465,8 @@ codeunit 134303 "Workflow Event Response Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EventID := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
-        ResponseID1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EventID);
-        ResponseID2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, ResponseID1);
+        ResponseID1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EventID);
+        ResponseID2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), ResponseID1);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseID2, UserId, 0, '');
 
@@ -496,7 +496,7 @@ codeunit 134303 "Workflow Event Response Tests"
         if not UserSetup.Get(UserId) then begin
             UserSetup."User ID" := UserId;
             UserSetup."E-Mail" := UserEmailAddressTxt;
-            UserSetup.Insert
+            UserSetup.Insert();
         end else
             if UserSetup."E-Mail" = '' then begin
                 UserSetup."E-Mail" := UserEmailAddressTxt;

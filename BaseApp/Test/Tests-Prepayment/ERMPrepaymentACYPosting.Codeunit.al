@@ -165,7 +165,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostPurchasePrepayment(PurchaseHeader);
 
         UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate()));
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo());
         PurchaseHeader.Modify(true);
         PostPurchasePrepmtCreditMemo(PurchaseHeader);
 
@@ -595,7 +595,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
             FindSet();
             repeat
                 Assert.AreEqual(0, "Additional-Currency Amount", LCYAmtMustBeZeroErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -631,19 +631,19 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         // Adjustment amount for the first Sales Line.
         GLEntry.SetRange("G/L Account No.", PrepmtGLAccountNo[1]);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(-AdjustmentAmountLCY[1], GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(-AdjustmentAmountLCY[1], GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision(), '');
 
         // Adjustment amount for the second Sales Line.
         GLEntry.SetRange("G/L Account No.", PrepmtGLAccountNo[2]);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(-AdjustmentAmountLCY[2], GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(-AdjustmentAmountLCY[2], GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision(), '');
 
         // Sum of adjustment amounts with opposite sign posted on Realized Losses Account.
         Currency.Get(CurrencyCode);
         GLEntry.SetRange("G/L Account No.", Currency."Realized Losses Acc.");
         GLEntry.FindFirst();
         TotalRealizedLossAmt := AdjustmentAmountLCY[1] + AdjustmentAmountLCY[2];
-        Assert.AreNearlyEqual(TotalRealizedLossAmt, GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(TotalRealizedLossAmt, GLEntry.Amount, 10 * LibraryERM.GetAmountRoundingPrecision(), '');
     end;
 
     [ConfirmHandler]

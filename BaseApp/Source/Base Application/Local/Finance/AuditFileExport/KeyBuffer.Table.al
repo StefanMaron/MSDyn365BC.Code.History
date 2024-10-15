@@ -7,6 +7,7 @@ namespace Microsoft.Finance.AuditFileExport;
 table 11015 "Key Buffer"
 {
     Caption = 'Key Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

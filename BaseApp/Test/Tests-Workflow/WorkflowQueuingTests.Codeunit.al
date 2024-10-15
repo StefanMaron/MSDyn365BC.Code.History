@@ -41,7 +41,7 @@ codeunit 134315 "Workflow Queuing Tests"
         LibraryERMCountryData.CreateVATData();
         WorkflowStepInstanceArchive.DeleteAll();
 
-        CreateIncomingDocumentWorkflow;
+        CreateIncomingDocumentWorkflow();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
@@ -69,14 +69,14 @@ codeunit 134315 "Workflow Queuing Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         SecondEvent :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
-        SecondResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, SecondEvent);
-        ThirdResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, SecondResponse);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
+        SecondResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), SecondEvent);
+        ThirdResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), SecondResponse);
 
         ThirdEvent :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ThirdResponse);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ThirdResponse);
         FourthResponse := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode, ThirdEvent);
+            WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode(), ThirdEvent);
 
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LibraryWorkflow.InsertPmtLineCreationArgument(FourthResponse, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);

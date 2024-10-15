@@ -280,27 +280,25 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
     local procedure AddIntrastatJnlLine(var TargetIntrastatJnlLine: Record "Intrastat Jnl. Line"; SourceIntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
-        with TargetIntrastatJnlLine do begin
-            Type := SourceIntrastatJnlLine.Type;
-            "Item Description" := SourceIntrastatJnlLine."Item Description";
-            "Internal Ref. No." := SourceIntrastatJnlLine."Internal Ref. No.";
-            Date := SourceIntrastatJnlLine.Date;
-            "Tariff No." := SourceIntrastatJnlLine."Tariff No.";
-            "Country/Region Code" := SourceIntrastatJnlLine."Country/Region Code";
-            "Transaction Type" := SourceIntrastatJnlLine."Transaction Type";
-            "Transport Method" := SourceIntrastatJnlLine."Transport Method";
-            "Supplementary Units" := SourceIntrastatJnlLine."Supplementary Units";
-            "Country/Region of Origin Code" := SourceIntrastatJnlLine."Country/Region of Origin Code";
-            Area := SourceIntrastatJnlLine.Area;
-            "Transaction Specification" := SourceIntrastatJnlLine."Transaction Specification";
-            "Document No." := SourceIntrastatJnlLine."Document No.";
-            "Partner VAT ID" := SourceIntrastatJnlLine."Partner VAT ID";
+        TargetIntrastatJnlLine.Type := SourceIntrastatJnlLine.Type;
+        TargetIntrastatJnlLine."Item Description" := SourceIntrastatJnlLine."Item Description";
+        TargetIntrastatJnlLine."Internal Ref. No." := SourceIntrastatJnlLine."Internal Ref. No.";
+        TargetIntrastatJnlLine.Date := SourceIntrastatJnlLine.Date;
+        TargetIntrastatJnlLine."Tariff No." := SourceIntrastatJnlLine."Tariff No.";
+        TargetIntrastatJnlLine."Country/Region Code" := SourceIntrastatJnlLine."Country/Region Code";
+        TargetIntrastatJnlLine."Transaction Type" := SourceIntrastatJnlLine."Transaction Type";
+        TargetIntrastatJnlLine."Transport Method" := SourceIntrastatJnlLine."Transport Method";
+        TargetIntrastatJnlLine."Supplementary Units" := SourceIntrastatJnlLine."Supplementary Units";
+        TargetIntrastatJnlLine."Country/Region of Origin Code" := SourceIntrastatJnlLine."Country/Region of Origin Code";
+        TargetIntrastatJnlLine."Area" := SourceIntrastatJnlLine.Area;
+        TargetIntrastatJnlLine."Transaction Specification" := SourceIntrastatJnlLine."Transaction Specification";
+        TargetIntrastatJnlLine."Document No." := SourceIntrastatJnlLine."Document No.";
+        TargetIntrastatJnlLine."Partner VAT ID" := SourceIntrastatJnlLine."Partner VAT ID";
 
-            Amount += SourceIntrastatJnlLine.Amount;
-            Quantity += SourceIntrastatJnlLine.Quantity;
-            "Statistical Value" += SourceIntrastatJnlLine."Statistical Value";
-            "Total Weight" += SourceIntrastatJnlLine."Total Weight";
-        end;
+        TargetIntrastatJnlLine.Amount += SourceIntrastatJnlLine.Amount;
+        TargetIntrastatJnlLine.Quantity += SourceIntrastatJnlLine.Quantity;
+        TargetIntrastatJnlLine."Statistical Value" += SourceIntrastatJnlLine."Statistical Value";
+        TargetIntrastatJnlLine."Total Weight" += SourceIntrastatJnlLine."Total Weight";
     end;
 
     procedure InitializeRequest(var newResultFileOutStream: OutStream)

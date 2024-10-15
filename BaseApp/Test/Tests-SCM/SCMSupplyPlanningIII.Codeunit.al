@@ -46,7 +46,6 @@
         DeleteProductionForecastConfirmMessageQst: Label 'Demand forecast %1 has entries. Do you want to delete it anyway?', Comment = '%1 - Forcast No';
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries";
         QuantityNotCorrectErr: Label 'Quantity is not correct in Planning Worksheet';
-        Direction: Option Outbound,Inbound;
         VersionsWillBeClosedMsg: Label 'All versions attached to the BOM will be closed. Close BOM?';
         CannotPurchaseItemMsg: Label 'You cannot purchase Item %1 because the Purchasing Blocked check box is selected on the Item card.';
 
@@ -1333,8 +1332,8 @@
         // [GIVEN] Item with "Purchase" replenishment system
         Qty := LibraryRandom.RandInt(10);
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
-        // [GIVEN] Blanket sales order with 2 lines: 1 - "Shipment Date" = WORKDATE, 2 - "Shipment Date" = WORKDATE + 1, Quantity = "X" in both lines
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
+        // [GIVEN] Blanket sales order with 2 lines: 1 - "Shipment Date" = WorkDate(), 2 - "Shipment Date" = WorkDate() + 1, Quantity = "X" in both lines
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate(), Qty);
         LibrarySales.CreateSalesLineWithShipmentDate(
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CalcDate('<1D>', WorkDate()), Qty);
@@ -1348,7 +1347,7 @@
         // [WHEN] Claculate regenerative plan from planning worksheet
         CalcRegenPlanForPlanWksh(Item."No.");
 
-        // [THEN] 2 purchase orders are planned: 2 * "X" pcs are planned on WORKDATE, "X" pcs on WORKDATE + 1
+        // [THEN] 2 purchase orders are planned: 2 * "X" pcs are planned on WorkDate(), "X" pcs on WorkDate() + 1
         VerifyRequisitionLineWithDueDate(Item."No.", Qty * 2, WorkDate());
         VerifyRequisitionLineWithDueDate(Item."No.", Qty, CalcDate('<1D>', WorkDate()));
     end;
@@ -1974,7 +1973,7 @@
 
         // [GIVEN] Sales Order "SO" of "I" with Quantity "Q"
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           ParentItem."No.", LibraryRandom.RandInt(5), '', WorkDate());
 
         // [WHEN] Calculate regenerative plan for "I"
@@ -2027,7 +2026,7 @@
         PlanningComponent.Modify(true);
 
         // [WHEN] Calculate net change plan in the planning worksheet for items "A" and "B".
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(ItemToPlan, WorkDate(), WorkDate, false);
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(ItemToPlan, WorkDate(), WorkDate(), false);
 
         // [THEN] No error is raised.
         // [THEN] Requisition line is deleted for item "B", because its demand will be supplied by the planning component in "A".
@@ -2076,7 +2075,7 @@
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // [GIVEN] Create independent Sales Order for BOM Component
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ChildItem."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Create Prod. Order for Sales Order
@@ -2120,7 +2119,7 @@
 
         // [GIVEN] Item "I" with "Lot Accumulation Period" = 2W and "Maximum Order Quantity" = 2000
         // [GIVEN] Sales Orders "S1", "S2", "S3" with shipment dates "D1", "D2", "D3" of "I"
-        // [GIVEN] Each "SX" has quantity = 1500, "S1"."Shipment Date" = WORKDATE, "S1"."Shipment Date" < "S2"."Shipment Date" < "S3"."Shipment Date"
+        // [GIVEN] Each "SX" has quantity = 1500, "S1"."Shipment Date" = WorkDate(), "S1"."Shipment Date" < "S2"."Shipment Date" < "S3"."Shipment Date"
         DemandDate[1] := WorkDate();
         DemandDate[2] := DemandDate[1] + LibraryRandom.RandInt(20);
         DemandDate[3] := DemandDate[2] + LibraryRandom.RandInt(20);
@@ -2143,7 +2142,7 @@
         // [WHEN] Calculate regenerative plan
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), DemandDate[3]);
 
-        // [THEN] 3 "Requisition Line" "R1", "R2", "R3" are created, each "RX"."Due Date" = WORKDATE, "R1".Quantity = "R2".Quantity = 2000, "R3".Quantity = 500
+        // [THEN] 3 "Requisition Line" "R1", "R2", "R3" are created, each "RX"."Due Date" = WorkDate(), "R1".Quantity = "R2".Quantity = 2000, "R3".Quantity = 500
         RecordCount := Round(DemandLineQuantity * 3 / MaximumOrderQuantity, 1, '>');
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.SetRange("Due Date", WorkDate());
@@ -2177,7 +2176,7 @@
         Item.Modify(true);
 
         // [GIVEN] Create a Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [WHEN] Create a Released Prod. Order from the Sales Order; Order Type is 'Item Order'
@@ -2212,7 +2211,7 @@
         Item.Modify(true);
 
         // [GIVEN] Create a Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [WHEN] Create a Relerased Prod. Order from the Sales Order; Order Type is 'Project Order'
@@ -2243,7 +2242,7 @@
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create a Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Production order
@@ -2283,7 +2282,7 @@
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create a Sales Order
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Production order
@@ -2929,16 +2928,16 @@
         CreateOrderItemSetup(ChildItem, Item);
 
         // [GIVEN] Sales order with 4 lines -
-        // [GIVEN] Line 1: Quantity = 50, Shipment Date = WorkDate + 30 days.
-        // [GIVEN] Line 2: Quantity = 100, Shipment Date = WorkDate + 60 days.
-        // [GIVEN] Line 3: Quantity = 150, Shipment Date = WorkDate + 90 days.
-        // [GIVEN] Line 4: Quantity = 200, Shipment Date = WorkDate + 120 days.
+        // [GIVEN] Line 1: Quantity = 50, Shipment Date = WorkDate() + 30 days.
+        // [GIVEN] Line 2: Quantity = 100, Shipment Date = WorkDate() + 60 days.
+        // [GIVEN] Line 3: Quantity = 150, Shipment Date = WorkDate() + 90 days.
+        // [GIVEN] Line 4: Quantity = 200, Shipment Date = WorkDate() + 120 days.
         CreateSalesOrderWithFourLinesOfSingleItemWithSpecifiedShipmentDates(Quantities, Item."No.", ShipmentDates);
 
-        // [GIVEN] Purchase order with Quantity = 10, Expected Receipt Date = WorkDate + 70 days.
+        // [GIVEN] Purchase order with Quantity = 10, Expected Receipt Date = WorkDate() + 70 days.
         CreatePurchaseOrderWithReceiptDate(Item."No.", ReceiptQty, WorkDate() + 70);
 
-        // [WHEN] Calculate BOM tree for Item Availability by BOM level page with Demand Date = WorkDate + 100 days.
+        // [WHEN] Calculate BOM tree for Item Availability by BOM level page with Demand Date = WorkDate() + 100 days.
         Item.SetRecFilter();
         CreateBOMTree(BOMBuffer, Item, WorkDate() + 100);
 
@@ -2961,7 +2960,7 @@
         RequisitionLine.DeleteAll();
         ReservationEntry.DeleteAll();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -2971,9 +2970,9 @@
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
-        OutputJournalSetup;
-        CreateLocationSetup;
+        ItemJournalSetup();
+        OutputJournalSetup();
+        CreateLocationSetup();
 
         isInitialized := true;
         Commit();
@@ -2990,11 +2989,11 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -3002,7 +3001,7 @@
     begin
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         ItemJournalBatch.Init();
@@ -3069,7 +3068,7 @@
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Reordering Policy", ReorderingPolicy);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -3361,7 +3360,7 @@
         Coeff: Integer;
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
         for i := 1 to 3 do begin
             Evaluate(Coeff, SelectStr(i, QtyToShipCoeffs));
             LibrarySales.CreateSalesLineWithShipmentDate(
@@ -3390,7 +3389,7 @@
     begin
         FindFirmPlannedProductionOrderByItemNo(ProductionOrder, ItemNo);
         UpdatedDueDate := ProductionOrder."Due Date" + DateDelta;
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", UpdatedDueDate);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -3815,10 +3814,10 @@
         LibraryVariableStorage.Enqueue(ItemNo);  // Enqueue Item No to be used on page for filtering.
         LibraryVariableStorage.Enqueue(ItemNo2);  // Enqueue Item No to be used on page for filtering.
         Commit();  // Required for Test.
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open Regenerative Planning report. Handler - CalculatePlanPlanWkshRequestPageHandler.
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Open Regenerative Planning report. Handler - CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK().Invoke();
     end;
 
     local procedure CalcRegenPlanForPlanWkshPageWithStartingDate(ItemNo: Code[20]; ItemNo2: Code[20]; StartingDate: Date)
@@ -3849,14 +3848,14 @@
     local procedure UpdateItemSerialNoTracking(var Item: Record Item; ItemTrackingCode: Code[10])
     begin
         Item.Validate("Item Tracking Code", ItemTrackingCode);  // Assign Tracking Code.
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
     local procedure UpdateItemLotNoTracking(var Item: Record Item; ItemTrackingCode: Code[10])
     begin
         Item.Validate("Item Tracking Code", ItemTrackingCode);  // Assign Tracking Code.
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
     end;
 
@@ -4176,7 +4175,7 @@
 
     local procedure CreateFourDatesArrayWhereSecondAndThirdAreInsideMonthAndFirstAndFourthOutside(var Dates: array[4] of Date)
     begin
-        Dates[1] := WorkDate + LibraryRandom.RandIntInRange(3, 6);
+        Dates[1] := WorkDate() + LibraryRandom.RandIntInRange(3, 6);
         Dates[2] := CalcDate('<1M>', Dates[1]) + LibraryRandom.RandIntInRange(3, 6);
         Dates[3] := Dates[2] + LibraryRandom.RandIntInRange(15, 30);
         Dates[4] := CalcDate('<1M>', Dates[3]) + LibraryRandom.RandIntInRange(3, 6);
@@ -4316,7 +4315,7 @@
 
             repeat
                 VerifyRequisitionLineWithDueDate("No.", Quantity, "Shipment Date");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4362,7 +4361,7 @@
     var
         TrackingQuantity: Variant;
     begin
-        ItemTrackingLines.First;
+        ItemTrackingLines.First();
         LibraryVariableStorage.Dequeue(TrackingQuantity);
         ItemTrackingLines."Quantity (Base)".AssertEquals(TrackingQuantity);
     end;
@@ -4443,7 +4442,7 @@
         CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilterTxt, ItemNo, ItemNo2));
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(EndDate);
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4455,20 +4454,20 @@
         StartingDate: Date;
     begin
         // Calculate Regenerative Plan using page. Required where Forecast is used.
-        StartingDate := LibraryVariableStorage.DequeueDate;
+        StartingDate := LibraryVariableStorage.DequeueDate();
         LibraryVariableStorage.Dequeue(ItemNo);
         LibraryVariableStorage.Dequeue(ItemNo2);
         CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilterTxt, ItemNo, ItemNo2));
         CalculatePlanPlanWksh.StartingDate.SetValue(StartingDate);
         CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CM>', StartingDate));
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PlanningErrorLogPageHandler(var PlanningErrorLog: TestPage "Planning Error Log")
     begin
-        PlanningErrorLog.OK.Invoke;
+        PlanningErrorLog.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -4498,9 +4497,9 @@
         LibraryVariableStorage.Dequeue(AssignTracking);
         AssignTracking2 := AssignTracking;  // Required for variant to boolean.
         if AssignTracking2 then begin
-            ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+            ItemTrackingLines."Assign Lot No.".Invoke();  // Assign Lot No.
             LibraryVariableStorage.Enqueue(AvailabilityWarningConfirmationMsg);  // Required inside ConfirmHandler.
-            ItemTrackingLines.OK.Invoke;
+            ItemTrackingLines.OK().Invoke();
         end else
             VerifyItemTrackingLineQty(ItemTrackingLines);  // Verify Quantity(Base) on Tracking Line.
     end;
@@ -4515,9 +4514,9 @@
         LibraryVariableStorage.Dequeue(AssignTracking);
         AssignTracking2 := AssignTracking;  // Required for variant to boolean.
         if AssignTracking2 then begin
-            ItemTrackingLines."Assign Serial No.".Invoke;  // Assign Lot No.
+            ItemTrackingLines."Assign Serial No.".Invoke();  // Assign Lot No.
             LibraryVariableStorage.Enqueue(AvailabilityWarningConfirmationMsg);  // Required inside ConfirmHandler.
-            ItemTrackingLines.OK.Invoke;  // Calls up Enter Quantity to Create page handled by handler - QuantityToCreatePageHandler.
+            ItemTrackingLines.OK().Invoke();  // Calls up Enter Quantity to Create page handled by handler - QuantityToCreatePageHandler.
         end else
             VerifyItemTrackingLineQty(ItemTrackingLines);  // Verify Quantity(Base) on Tracking Line.
     end;
@@ -4526,7 +4525,7 @@
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;  // Assign Serial Tracking on Enter Quantity to Create page.
+        EnterQuantityToCreate.OK().Invoke();  // Assign Serial Tracking on Enter Quantity to Create page.
     end;
 
     [ModalPageHandler]
@@ -4539,18 +4538,18 @@
         ItemTrackingMode := DequeueVariable;
         case ItemTrackingMode of
             ItemTrackingMode::"Assign Lot No.":
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             ItemTrackingMode::"Select Entries":
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -4573,7 +4572,7 @@
         CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CY>', WorkDate()));
         CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CY>', WorkDate()));
 
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 }
 

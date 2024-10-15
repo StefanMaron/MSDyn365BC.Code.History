@@ -33,7 +33,7 @@ codeunit 142072 "UT PAG SWS46"
         // [SCENARIO] Validate OnNewRecord Trigger of Page ID - 255 Cash Receipt Journal.
         // [GIVEN] Gen. Journal Batch "X" with in "Cash Receipts" template
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::"Cash Receipts");
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
 
         // [WHEN] "X" is set in Cash Receipt Journal
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
@@ -106,7 +106,7 @@ codeunit 142072 "UT PAG SWS46"
         // [SCENARIO] Validate OnNewRecord Trigger of Page ID - 256 Payment Journal.
         // [GIVEN] Gen. Journal Batch "X" with in "Payments" template
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         // [WHEN] "X" is set in Payment Journal
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
@@ -452,7 +452,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Cash Receipt Journal FactBox" when Customer as Account, Entry is applied by ID.
         // [GIVEN] Cleared the Gen. Journal Template
-        ResetGenJnlTemplate;
+        ResetGenJnlTemplate();
         // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
         CustomerNo := LibrarySales.CreateCustomerNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(100, 2));
@@ -471,7 +471,7 @@ codeunit 142072 "UT PAG SWS46"
         VerifyPaymentAmountsCashReceiptJournalWithAppliedEntries(GenJournalLine, -GenJournalLine.Amount);
 
         // [THEN] All Variable were used in test.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -488,7 +488,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Payment Journal FactBox" when Vendor as Account, Entry is applied by ID.
         // [GIVEN] Cleared the Gen. Journal Template
-        ResetGenJnlTemplate;
+        ResetGenJnlTemplate();
         // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
         VendorNo := LibraryPurchase.CreateVendorNo();
         InvoiceNo := PostGenJournalInvoice(GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandDec(100, 2));
@@ -507,7 +507,7 @@ codeunit 142072 "UT PAG SWS46"
         VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine, -GenJournalLine.Amount);
 
         // [THEN] All Variable were used in test.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Cash Receipt Journal]
         // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Cash Receipt Journal FactBox" when Customer as Balance Account, Entry is applied by ID.
         // [GIVEN] Cleared the Gen. Journal Template
-        ResetGenJnlTemplate;
+        ResetGenJnlTemplate();
 
         // [GIVEN] Posted Invoice "I" with Amount "X" for Customer "C"
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -544,7 +544,7 @@ codeunit 142072 "UT PAG SWS46"
         VerifyPaymentAmountsCashReceiptJournalWithAppliedEntries(GenJournalLine, GenJournalLine.Amount);
 
         // [THEN] All Variable were used in test.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -561,7 +561,7 @@ codeunit 142072 "UT PAG SWS46"
         // [FEATURE] [Payment Journal]
         // [SCENARIO 331818] Calclulate Payment and Remaining After Payment amounts in "Payment Journal FactBox" when Vendor as Balance Account, Entry is applied by ID.
         // [GIVEN] Cleared the Gen. Journal Template
-        ResetGenJnlTemplate;
+        ResetGenJnlTemplate();
 
         // [GIVEN] Posted Invoice "I" with Amount "X" for Vendor "V"
         VendorNo := LibraryPurchase.CreateVendorNo();
@@ -580,7 +580,7 @@ codeunit 142072 "UT PAG SWS46"
         VerifyPaymentAmountsPaymentJournalWithAppliedEntries(GenJournalLine, GenJournalLine.Amount);
 
         // [THEN] All Variable were used in test.
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -667,7 +667,7 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalTemplate.FindFirst();
 
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
@@ -680,7 +680,7 @@ codeunit 142072 "UT PAG SWS46"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Line No." := 1;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine.Insert();
     end;
@@ -691,9 +691,9 @@ codeunit 142072 "UT PAG SWS46"
     begin
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Payment;
-        CustLedgerEntry."Customer No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Customer No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry."Applies-to Doc. No." := AppliesToDocNo;
         CustLedgerEntry."Applies-to Doc. Type" := CustLedgerEntry."Applies-to Doc. Type"::Payment;
         CustLedgerEntry."Posting Date" := PostingDate;
@@ -710,10 +710,10 @@ codeunit 142072 "UT PAG SWS46"
     begin
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Payment;
         VendorLedgerEntry."Applies-to Doc. No." := AppliesToDocNo;
-        VendorLedgerEntry."Vendor No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Vendor No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Applies-to Doc. Type" := VendorLedgerEntry."Applies-to Doc. Type"::Payment;
         VendorLedgerEntry."Posting Date" := PostingDate;
         VendorLedgerEntry."Pmt. Discount Date" := PmtDiscountDate;
@@ -730,7 +730,7 @@ codeunit 142072 "UT PAG SWS46"
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type", GenJournalLine."Account No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentAmount);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), PaymentAmount);
         GenJournalLine.Validate("Balance (LCY)", BalanceLCYPmt);
         GenJournalLine.Modify(true);
         LibraryJournals.CreateGenJournalLine(
@@ -748,7 +748,7 @@ codeunit 142072 "UT PAG SWS46"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, TemplateType);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account No.", PaymentAmount);
         GenJournalLine.Validate("Balance (LCY)", BalanceLCYPmt);
         GenJournalLine.Modify(true);
@@ -776,13 +776,13 @@ codeunit 142072 "UT PAG SWS46"
 
     local procedure OpenCashReceiptJournal(var CashReceiptJournal: TestPage "Cash Receipt Journal"; JournalBatchName: Code[10])
     begin
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
     end;
 
     local procedure OpenPaymentJournal(var PaymentJournal: TestPage "Payment Journal"; JournalBatchName: Code[10])
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
     end;
 
@@ -803,7 +803,7 @@ codeunit 142072 "UT PAG SWS46"
         OpenCashReceiptJournal(CashReceiptJournal, JournalBatchName);
         CashReceiptJournal."Applies-to Doc. Type".SetValue(CustLedgerEntry."Document Type");
         CashReceiptJournal."Applies-to Doc. No.".SetValue(CustLedgerEntry."Document No.");
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure UpdateAppliesToDocPaymentJournal(VendorLedgerEntry: Record "Vendor Ledger Entry"; JournalBatchName: Code[10])
@@ -814,7 +814,7 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal."Posting Date".SetValue(WorkDate());
         PaymentJournal."Applies-to Doc. Type".SetValue(VendorLedgerEntry."Document Type");
         PaymentJournal.AppliesToDocNo.SetValue(VendorLedgerEntry."Document No.");
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.OK().Invoke();
     end;
 
     local procedure UpdateGenJournalLineAmountAndAccount(var GenJournalLine: Record "Gen. Journal Line"; NewAmount: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -914,7 +914,7 @@ codeunit 142072 "UT PAG SWS46"
         CashReceiptJournal.Control1906888607.PaymentAmt.AssertEquals(PaymentAmount);
         Assert.AreEqual(
           0,
-          CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDEcimal,
+          CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDecimal(),
           CashReceiptJournal.Control1906888607.RemainAfterPaymentText.Caption);
         CashReceiptJournal.Close();
     end;
@@ -928,7 +928,7 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal.Control1906888707.PaymentAmt.AssertEquals(PaymentAmount);
         Assert.AreEqual(
           0,
-          PaymentJournal.Control1906888707.RemainAfterPayment.AsDEcimal,
+          PaymentJournal.Control1906888707.RemainAfterPayment.AsDecimal(),
           PaymentJournal.Control1906888707.RemainAfterPayment.Caption);
         PaymentJournal.Close();
     end;
@@ -939,8 +939,8 @@ codeunit 142072 "UT PAG SWS46"
     begin
         OpenCashReceiptJournal(CashReceiptJournal, JournalBatchName);
         LibraryVariableStorage.Enqueue(CashReceiptJournal."Document No.".Value);
-        CashReceiptJournal."Apply Entries".Invoke;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Apply Entries".Invoke();
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure UpdateAppliesToDocPaymentJournalWithAppliedEntries(JournalBatchName: Code[10])
@@ -949,8 +949,8 @@ codeunit 142072 "UT PAG SWS46"
     begin
         OpenPaymentJournal(PaymentJournal, JournalBatchName);
         LibraryVariableStorage.Enqueue(PaymentJournal."Document No.".Value);
-        PaymentJournal.ApplyEntries.Invoke;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
+        PaymentJournal.OK().Invoke();
     end;
 
     local procedure VerifyPaymentAmountsCashReceiptJournalWithAppliedEntries(GenJournalLine: Record "Gen. Journal Line"; PaymentAmount: Decimal)
@@ -962,7 +962,7 @@ codeunit 142072 "UT PAG SWS46"
         CashReceiptJournal.Control1906888607.PaymentAmt.AssertEquals(PaymentAmount);
         Assert.AreEqual(
           0,
-          CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDEcimal,
+          CashReceiptJournal.Control1906888607.RemainAfterPaymentText.AsDecimal(),
           CashReceiptJournal.Control1906888607.RemainAfterPaymentText.Caption);
         CashReceiptJournal.Close();
     end;
@@ -976,7 +976,7 @@ codeunit 142072 "UT PAG SWS46"
         PaymentJournal.Control1906888707.PaymentAmt.AssertEquals(PaymentAmount);
         Assert.AreEqual(
           0,
-          PaymentJournal.Control1906888707.RemainAfterPayment.AsDEcimal,
+          PaymentJournal.Control1906888707.RemainAfterPayment.AsDecimal(),
           PaymentJournal.Control1906888707.RemainAfterPayment.Caption);
         PaymentJournal.Close();
     end;
@@ -1010,24 +1010,24 @@ codeunit 142072 "UT PAG SWS46"
     [Scope('OnPrem')]
     procedure TemplateSelectHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.OK().Invoke();
     end;
 }
 

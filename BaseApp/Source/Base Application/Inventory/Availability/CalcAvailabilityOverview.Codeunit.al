@@ -74,59 +74,57 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         CopyOfItem.Copy(Item);
         CopyOfAvailabilityCalcOverview.Copy(AvailabilityCalcOverview);
-        with AvailabilityCalcOverview do begin
-            StartDate := 0D;
-            EndDate := DMY2Date(31, 12, 9999);
-            if GetFilter(Date) <> '' then begin
-                StartDate := GetRangeMin(Date);
-                EndDate := GetRangeMax(Date);
-            end;
-
-            Item.Reset();
-            Item.SetFilter("No.", CopyOfAvailabilityCalcOverview.GetFilter("Item No."));
-            Item.SetFilter("Location Filter", GetFilter("Location Code"));
-            Item.SetFilter("Variant Filter", GetFilter("Variant Code"));
-            Item.SetRange("Drop Shipment Filter", false);
-
-            SetRange("Matches Criteria");
-            Item.Get("Item No.");
-            Reset();
-            SetCurrentKey("Item No.");
-            SetRange("Item No.", Item."No.");
-            DeleteAll();
-
-            Reset();
-            if FindLast() then;
-            SetEntryNo("Entry No.");
-
-            InsertEntry(AvailabilityCalcOverview, Type::Item, 0D, '', '', 0, 0, 0, 0, '', Item.Description, 0);
-            CopyOfAvailabilityCalcOverview := AvailabilityCalcOverview;
-
-            FirstEntryNo := "Entry No.";
-            CopyFilters(CopyOfAvailabilityCalcOverview);
-            GetInventoryDates(AvailabilityCalcOverview);
-            GetSupplyDates(AvailabilityCalcOverview);
-            GetDemandDates(AvailabilityCalcOverview);
-
-            Reset();
-            SetCurrentKey("Item No.");
-            SetRange("Item No.", Item."No.");
-            SetFilter(Date, CopyOfAvailabilityCalcOverview.GetFilter(Date));
-            SetFilter("Location Code", CopyOfAvailabilityCalcOverview.GetFilter("Location Code"));
-            SetFilter("Variant Code", CopyOfAvailabilityCalcOverview.GetFilter("Variant Code"));
-            if not FindFirst() then begin
-                SetRange(Date);
-                SetRange("Location Code");
-                SetRange("Variant Code");
-                DeleteAll();
-            end else
-                if DemandType = DemandType::" " then
-                    ModifyAll("Matches Criteria", true);
-            Reset();
-            if Get(FirstEntryNo) then
-                if Next() = 0 then
-                    Delete();
+        StartDate := 0D;
+        EndDate := DMY2Date(31, 12, 9999);
+        if AvailabilityCalcOverview.GetFilter(Date) <> '' then begin
+            StartDate := AvailabilityCalcOverview.GetRangeMin(Date);
+            EndDate := AvailabilityCalcOverview.GetRangeMax(Date);
         end;
+
+        Item.Reset();
+        Item.SetFilter("No.", CopyOfAvailabilityCalcOverview.GetFilter("Item No."));
+        Item.SetFilter("Location Filter", AvailabilityCalcOverview.GetFilter("Location Code"));
+        Item.SetFilter("Variant Filter", AvailabilityCalcOverview.GetFilter("Variant Code"));
+        Item.SetRange("Drop Shipment Filter", false);
+
+        AvailabilityCalcOverview.SetRange("Matches Criteria");
+        Item.Get(AvailabilityCalcOverview."Item No.");
+        AvailabilityCalcOverview.Reset();
+        AvailabilityCalcOverview.SetCurrentKey("Item No.");
+        AvailabilityCalcOverview.SetRange("Item No.", Item."No.");
+        AvailabilityCalcOverview.DeleteAll();
+
+        AvailabilityCalcOverview.Reset();
+        if AvailabilityCalcOverview.FindLast() then;
+        SetEntryNo(AvailabilityCalcOverview."Entry No.");
+
+        InsertEntry(AvailabilityCalcOverview, AvailabilityCalcOverview.Type::Item, 0D, '', '', 0, 0, 0, 0, '', Item.Description, 0);
+        CopyOfAvailabilityCalcOverview := AvailabilityCalcOverview;
+
+        FirstEntryNo := AvailabilityCalcOverview."Entry No.";
+        AvailabilityCalcOverview.CopyFilters(CopyOfAvailabilityCalcOverview);
+        GetInventoryDates(AvailabilityCalcOverview);
+        GetSupplyDates(AvailabilityCalcOverview);
+        GetDemandDates(AvailabilityCalcOverview);
+
+        AvailabilityCalcOverview.Reset();
+        AvailabilityCalcOverview.SetCurrentKey("Item No.");
+        AvailabilityCalcOverview.SetRange("Item No.", Item."No.");
+        AvailabilityCalcOverview.SetFilter(Date, CopyOfAvailabilityCalcOverview.GetFilter(Date));
+        AvailabilityCalcOverview.SetFilter("Location Code", CopyOfAvailabilityCalcOverview.GetFilter("Location Code"));
+        AvailabilityCalcOverview.SetFilter("Variant Code", CopyOfAvailabilityCalcOverview.GetFilter("Variant Code"));
+        if not AvailabilityCalcOverview.FindFirst() then begin
+            AvailabilityCalcOverview.SetRange(Date);
+            AvailabilityCalcOverview.SetRange("Location Code");
+            AvailabilityCalcOverview.SetRange("Variant Code");
+            AvailabilityCalcOverview.DeleteAll();
+        end else
+            if DemandType = DemandType::" " then
+                AvailabilityCalcOverview.ModifyAll(AvailabilityCalcOverview."Matches Criteria", true);
+        AvailabilityCalcOverview.Reset();
+        if AvailabilityCalcOverview.Get(FirstEntryNo) then
+            if AvailabilityCalcOverview.Next() = 0 then
+                AvailabilityCalcOverview.Delete();
         Item.Copy(CopyOfItem);
         AvailabilityCalcOverview.Copy(CopyOfAvailabilityCalcOverview);
     end;
@@ -139,23 +137,21 @@ codeunit 5830 "Calc. Availability Overview"
         CopyOfAvailabilityCalcOverview.Copy(AvailabilityCalcOverview);
         AttachedToEntryNo := AvailabilityCalcOverview."Attached to Entry No.";
 
-        with AvailabilityCalcOverview do begin
-            Item.Get("Item No.");
+        Item.Get(AvailabilityCalcOverview."Item No.");
 
-            Reset();
-            SetRange("Item No.", "Item No.");
-            SetRange("Location Code", "Location Code");
-            SetRange("Variant Code", "Variant Code");
-            SetRange(Date, Date);
-            SetRange(Level, 2, 3);
-            DeleteAll();
+        AvailabilityCalcOverview.Reset();
+        AvailabilityCalcOverview.SetRange("Item No.", AvailabilityCalcOverview."Item No.");
+        AvailabilityCalcOverview.SetRange("Location Code", AvailabilityCalcOverview."Location Code");
+        AvailabilityCalcOverview.SetRange("Variant Code", AvailabilityCalcOverview."Variant Code");
+        AvailabilityCalcOverview.SetRange(Date, AvailabilityCalcOverview.Date);
+        AvailabilityCalcOverview.SetRange(Level, 2, 3);
+        AvailabilityCalcOverview.DeleteAll();
 
-            Reset();
-            if FindLast() then;
-            SetEntryNo("Entry No.");
-            TransferFields(CopyOfAvailabilityCalcOverview, false);
-            FirstEntryNo := "Entry No.";
-        end;
+        AvailabilityCalcOverview.Reset();
+        if AvailabilityCalcOverview.FindLast() then;
+        SetEntryNo(AvailabilityCalcOverview."Entry No.");
+        AvailabilityCalcOverview.TransferFields(CopyOfAvailabilityCalcOverview, false);
+        FirstEntryNo := AvailabilityCalcOverview."Entry No.";
 
         Item.SetRange("Location Filter", AvailabilityCalcOverview."Location Code");
         Item.SetRange("Variant Filter", AvailabilityCalcOverview."Variant Code");
@@ -175,26 +171,24 @@ codeunit 5830 "Calc. Availability Overview"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            FilterLinesWithItemToPlan(Item, false);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    CalcSums("Remaining Quantity");
-                    SetRange(Positive, Positive);
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Inventory, 0D, "Location Code", "Variant Code",
-                      "Remaining Quantity", 0,
-                      0, 0, '', '', 0);
+        ItemLedgEntry.FilterLinesWithItemToPlan(Item, false);
+        if ItemLedgEntry.FindFirst() then
+            repeat
+                ItemLedgEntry.SetRange("Location Code", ItemLedgEntry."Location Code");
+                ItemLedgEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
+                ItemLedgEntry.CalcSums(ItemLedgEntry."Remaining Quantity");
+                ItemLedgEntry.SetRange(Positive, ItemLedgEntry.Positive);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Inventory, 0D, ItemLedgEntry."Location Code", ItemLedgEntry."Variant Code",
+                  ItemLedgEntry."Remaining Quantity", 0,
+                  0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", AvailabilityCalcOverview.GetFilter("Location Code"));
-                    SetFilter("Variant Code", AvailabilityCalcOverview.GetFilter("Variant Code"));
-                    SetRange(Positive);
-                until Next() = 0;
-        end;
+                ItemLedgEntry.FindLast();
+                ItemLedgEntry.SetFilter(ItemLedgEntry."Location Code", AvailabilityCalcOverview.GetFilter("Location Code"));
+                ItemLedgEntry.SetFilter(ItemLedgEntry."Variant Code", AvailabilityCalcOverview.GetFilter("Variant Code"));
+                ItemLedgEntry.SetRange(Positive);
+            until ItemLedgEntry.Next() = 0;
     end;
 
     local procedure GetSupplyDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -303,288 +297,264 @@ codeunit 5830 "Calc. Availability Overview"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            FilterLinesWithItemToPlan(Item, "Document Type"::Order);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Expected Receipt Date", "Expected Receipt Date");
+        PurchLine.FilterLinesWithItemToPlan(Item, PurchLine."Document Type"::Order);
+        if PurchLine.FindFirst() then
+            repeat
+                PurchLine.SetRange("Location Code", PurchLine."Location Code");
+                PurchLine.SetRange("Variant Code", PurchLine."Variant Code");
+                PurchLine.SetRange("Expected Receipt Date", PurchLine."Expected Receipt Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Expected Receipt Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", PurchLine."Expected Receipt Date", PurchLine."Location Code", PurchLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                PurchLine.FindLast();
+                PurchLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                PurchLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                PurchLine.SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
+            until PurchLine.Next() = 0;
     end;
 
     local procedure GetSalesRetOrderSupplyDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            FilterLinesWithItemToPlan(Item, "Document Type"::"Return Order");
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Shipment Date", "Shipment Date");
+        SalesLine.FilterLinesWithItemToPlan(Item, SalesLine."Document Type"::"Return Order");
+        if SalesLine.FindFirst() then
+            repeat
+                SalesLine.SetRange("Location Code", SalesLine."Location Code");
+                SalesLine.SetRange("Variant Code", SalesLine."Variant Code");
+                SalesLine.SetRange("Shipment Date", SalesLine."Shipment Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Shipment Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", SalesLine."Shipment Date", SalesLine."Location Code", SalesLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                SalesLine.FindLast();
+                SalesLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                SalesLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                SalesLine.SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
+            until SalesLine.Next() = 0;
     end;
 
     local procedure GetProdOrderSupplyDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            FilterLinesWithItemToPlan(Item, true);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Due Date", "Due Date");
+        ProdOrderLine.FilterLinesWithItemToPlan(Item, true);
+        if ProdOrderLine.FindFirst() then
+            repeat
+                ProdOrderLine.SetRange("Location Code", ProdOrderLine."Location Code");
+                ProdOrderLine.SetRange("Variant Code", ProdOrderLine."Variant Code");
+                ProdOrderLine.SetRange("Due Date", ProdOrderLine."Due Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", ProdOrderLine."Due Date", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                ProdOrderLine.FindLast();
+                ProdOrderLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                ProdOrderLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                ProdOrderLine.SetFilter("Due Date", Item.GetFilter("Date Filter"));
+            until ProdOrderLine.Next() = 0;
     end;
 
     local procedure GetTransOrderSupplyDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         TransLine: Record "Transfer Line";
     begin
-        with TransLine do begin
-            FilterLinesWithItemToPlan(Item, true, false);
-            if FindFirst() then
-                repeat
-                    SetRange("Transfer-to Code", "Transfer-to Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Receipt Date", "Receipt Date");
+        TransLine.FilterLinesWithItemToPlan(Item, true, false);
+        if TransLine.FindFirst() then
+            repeat
+                TransLine.SetRange("Transfer-to Code", TransLine."Transfer-to Code");
+                TransLine.SetRange("Variant Code", TransLine."Variant Code");
+                TransLine.SetRange("Receipt Date", TransLine."Receipt Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Receipt Date", "Transfer-to Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", TransLine."Receipt Date", TransLine."Transfer-to Code", TransLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Receipt Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                TransLine.FindLast();
+                TransLine.SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
+                TransLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                TransLine.SetFilter("Receipt Date", Item.GetFilter("Date Filter"));
+            until TransLine.Next() = 0;
     end;
 
     local procedure GetSalesOrdersDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            FilterLinesWithItemToPlan(Item, "Document Type"::Order);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Shipment Date", "Shipment Date");
+        SalesLine.FilterLinesWithItemToPlan(Item, SalesLine."Document Type"::Order);
+        if SalesLine.FindFirst() then
+            repeat
+                SalesLine.SetRange("Location Code", SalesLine."Location Code");
+                SalesLine.SetRange("Variant Code", SalesLine."Variant Code");
+                SalesLine.SetRange("Shipment Date", SalesLine."Shipment Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Shipment Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", SalesLine."Shipment Date", SalesLine."Location Code", SalesLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                SalesLine.FindLast();
+                SalesLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                SalesLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                SalesLine.SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
+            until SalesLine.Next() = 0;
     end;
 
     local procedure GetServOrdersDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         ServLine: Record "Service Line";
     begin
-        with ServLine do begin
-            FilterLinesWithItemToPlan(Item);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Needed by Date", "Needed by Date");
+        ServLine.FilterLinesWithItemToPlan(Item);
+        if ServLine.FindFirst() then
+            repeat
+                ServLine.SetRange("Location Code", ServLine."Location Code");
+                ServLine.SetRange("Variant Code", ServLine."Variant Code");
+                ServLine.SetRange("Needed by Date", ServLine."Needed by Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Needed by Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", ServLine."Needed by Date", ServLine."Location Code", ServLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Needed by Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                ServLine.FindLast();
+                ServLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                ServLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                ServLine.SetFilter("Needed by Date", Item.GetFilter("Date Filter"));
+            until ServLine.Next() = 0;
     end;
 
     local procedure GetJobOrdersDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with JobPlanningLine do begin
-            FilterLinesWithItemToPlan(Item);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Planning Date", "Planning Date");
+        JobPlanningLine.FilterLinesWithItemToPlan(Item);
+        if JobPlanningLine.FindFirst() then
+            repeat
+                JobPlanningLine.SetRange("Location Code", JobPlanningLine."Location Code");
+                JobPlanningLine.SetRange("Variant Code", JobPlanningLine."Variant Code");
+                JobPlanningLine.SetRange("Planning Date", JobPlanningLine."Planning Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Planning Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", JobPlanningLine."Planning Date", JobPlanningLine."Location Code", JobPlanningLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Planning Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                JobPlanningLine.FindLast();
+                JobPlanningLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                JobPlanningLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                JobPlanningLine.SetFilter("Planning Date", Item.GetFilter("Date Filter"));
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure GetPurchRetOrderDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            FilterLinesWithItemToPlan(Item, "Document Type"::"Return Order");
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Expected Receipt Date", "Expected Receipt Date");
+        PurchLine.FilterLinesWithItemToPlan(Item, PurchLine."Document Type"::"Return Order");
+        if PurchLine.FindFirst() then
+            repeat
+                PurchLine.SetRange("Location Code", PurchLine."Location Code");
+                PurchLine.SetRange("Variant Code", PurchLine."Variant Code");
+                PurchLine.SetRange("Expected Receipt Date", PurchLine."Expected Receipt Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Expected Receipt Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", PurchLine."Expected Receipt Date", PurchLine."Location Code", PurchLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                PurchLine.FindLast();
+                PurchLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                PurchLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                PurchLine.SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
+            until PurchLine.Next() = 0;
     end;
 
     local procedure GetProdOrderCompDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         ProdOrderComp: Record "Prod. Order Component";
     begin
-        with ProdOrderComp do begin
-            FilterLinesWithItemToPlan(Item, true);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Due Date", "Due Date");
+        ProdOrderComp.FilterLinesWithItemToPlan(Item, true);
+        if ProdOrderComp.FindFirst() then
+            repeat
+                ProdOrderComp.SetRange("Location Code", ProdOrderComp."Location Code");
+                ProdOrderComp.SetRange("Variant Code", ProdOrderComp."Variant Code");
+                ProdOrderComp.SetRange("Due Date", ProdOrderComp."Due Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", ProdOrderComp."Due Date", ProdOrderComp."Location Code", ProdOrderComp."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                ProdOrderComp.FindLast();
+                ProdOrderComp.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                ProdOrderComp.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                ProdOrderComp.SetFilter("Due Date", Item.GetFilter("Date Filter"));
+            until ProdOrderComp.Next() = 0;
     end;
 
     local procedure GetTransOrderDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         TransLine: Record "Transfer Line";
     begin
-        with TransLine do begin
-            FilterLinesWithItemToPlan(Item, false, false);
-            if FindFirst() then
-                repeat
-                    SetRange("Transfer-from Code", "Transfer-from Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Shipment Date", "Shipment Date");
+        TransLine.FilterLinesWithItemToPlan(Item, false, false);
+        if TransLine.FindFirst() then
+            repeat
+                TransLine.SetRange("Transfer-from Code", TransLine."Transfer-from Code");
+                TransLine.SetRange("Variant Code", TransLine."Variant Code");
+                TransLine.SetRange("Shipment Date", TransLine."Shipment Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Shipment Date", "Transfer-from Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", TransLine."Shipment Date", TransLine."Transfer-from Code", TransLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                TransLine.FindLast();
+                TransLine.SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
+                TransLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                TransLine.SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
+            until TransLine.Next() = 0;
     end;
 
     local procedure GetAsmOrderDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         AsmLine: Record "Assembly Line";
     begin
-        with AsmLine do begin
-            SetItemToPlanFilters(Item, "Document Type"::Order);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Due Date", "Due Date");
+        AsmLine.SetItemToPlanFilters(Item, AsmLine."Document Type"::Order);
+        if AsmLine.FindFirst() then
+            repeat
+                AsmLine.SetRange("Location Code", AsmLine."Location Code");
+                AsmLine.SetRange("Variant Code", AsmLine."Variant Code");
+                AsmLine.SetRange("Due Date", AsmLine."Due Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", AsmLine."Due Date", AsmLine."Location Code", AsmLine."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                AsmLine.FindLast();
+                AsmLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                AsmLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                AsmLine.SetFilter("Due Date", Item.GetFilter("Date Filter"));
+            until AsmLine.Next() = 0;
     end;
 
     local procedure GetAsmOrderSupplyDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         AsmHeader: Record "Assembly Header";
     begin
-        with AsmHeader do begin
-            SetItemToPlanFilters(Item, "Document Type"::Order);
-            if FindFirst() then
-                repeat
-                    SetRange("Location Code", "Location Code");
-                    SetRange("Variant Code", "Variant Code");
-                    SetRange("Due Date", "Due Date");
+        AsmHeader.SetItemToPlanFilters(Item, AsmHeader."Document Type"::Order);
+        if AsmHeader.FindFirst() then
+            repeat
+                AsmHeader.SetRange("Location Code", AsmHeader."Location Code");
+                AsmHeader.SetRange("Variant Code", AsmHeader."Variant Code");
+                AsmHeader.SetRange("Due Date", AsmHeader."Due Date");
 
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::"As of Date", "Due Date", "Location Code", "Variant Code", 0, 0, 0, 0, '', '', 0);
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::"As of Date", AsmHeader."Due Date", AsmHeader."Location Code", AsmHeader."Variant Code", 0, 0, 0, 0, '', '', 0);
 
-                    FindLast();
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                    SetFilter("Due Date", Item.GetFilter("Date Filter"));
-                until Next() = 0;
-        end;
+                AsmHeader.FindLast();
+                AsmHeader.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                AsmHeader.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+                AsmHeader.SetFilter("Due Date", Item.GetFilter("Date Filter"));
+            until AsmHeader.Next() = 0;
     end;
 
     local procedure GetPurchOrderSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -592,17 +562,16 @@ codeunit 5830 "Calc. Availability Overview"
         PurchLine: Record "Purchase Line";
         PurchHeader: Record "Purchase Header";
     begin
-        with PurchLine do
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
-                repeat
-                    PurchHeader.Get("Document Type", "Document No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Supply, "Expected Receipt Date", "Location Code", "Variant Code",
-                      "Outstanding Qty. (Base)", "Reserved Qty. (Base)",
-                      Database::"Purchase Line", "Document Type".AsInteger(), "Document No.", PurchHeader."Buy-from Vendor Name", 0);
-                until Next() = 0;
+        if PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::Order) then
+            repeat
+                PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+                PurchLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Supply, PurchLine."Expected Receipt Date", PurchLine."Location Code", PurchLine."Variant Code",
+                  PurchLine."Outstanding Qty. (Base)", PurchLine."Reserved Qty. (Base)",
+                  Database::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchHeader."Buy-from Vendor Name", 0);
+            until PurchLine.Next() = 0;
     end;
 
     local procedure GetSalesRetOrderSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -610,17 +579,16 @@ codeunit 5830 "Calc. Availability Overview"
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
     begin
-        with SalesLine do
-            if FindLinesWithItemToPlan(Item, "Document Type"::"Return Order") then
-                repeat
-                    SalesHeader.Get("Document Type", "Document No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Supply, "Shipment Date", "Location Code", "Variant Code",
-                      "Outstanding Qty. (Base)", "Reserved Qty. (Base)",
-                      Database::"Sales Line", "Document Type".AsInteger(), "Document No.", SalesHeader."Sell-to Customer Name", 0);
-                until Next() = 0;
+        if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::"Return Order") then
+            repeat
+                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+                SalesLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Supply, SalesLine."Shipment Date", SalesLine."Location Code", SalesLine."Variant Code",
+                  SalesLine."Outstanding Qty. (Base)", SalesLine."Reserved Qty. (Base)",
+                  Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesHeader."Sell-to Customer Name", 0);
+            until SalesLine.Next() = 0;
     end;
 
     local procedure GetProdOrderSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -628,17 +596,16 @@ codeunit 5830 "Calc. Availability Overview"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrder: Record "Production Order";
     begin
-        with ProdOrderLine do
-            if FindLinesWithItemToPlan(Item, true) then
-                repeat
-                    ProdOrder.Get(Status, "Prod. Order No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                        AvailabilityCalcOverview,
-                        AvailabilityCalcOverview.Type::Supply, "Due Date", "Location Code", "Variant Code",
-                        "Remaining Qty. (Base)", "Reserved Qty. (Base)",
-                        Database::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", ProdOrder.Description, 0);
-                until Next() = 0;
+        if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
+            repeat
+                ProdOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
+                ProdOrderLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                    AvailabilityCalcOverview,
+                    AvailabilityCalcOverview.Type::Supply, ProdOrderLine."Due Date", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                    ProdOrderLine."Remaining Qty. (Base)", ProdOrderLine."Reserved Qty. (Base)",
+                    Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrder.Description, 0);
+            until ProdOrderLine.Next() = 0;
     end;
 
     local procedure GetTransOrderSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -646,34 +613,32 @@ codeunit 5830 "Calc. Availability Overview"
         TransLine: Record "Transfer Line";
         TransHeader: Record "Transfer Header";
     begin
-        with TransLine do
-            if FindLinesWithItemToPlan(Item, true, false) then
-                repeat
-                    TransHeader.Get("Document No.");
-                    CalcFields("Reserved Qty. Inbnd. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Supply, "Receipt Date", "Transfer-to Code", "Variant Code",
-                      "Outstanding Qty. (Base)", "Reserved Qty. Inbnd. (Base)",
-                      Database::"Transfer Line", Status, "Document No.", TransHeader."Transfer-from Name", 0);
-                until Next() = 0;
+        if TransLine.FindLinesWithItemToPlan(Item, true, false) then
+            repeat
+                TransHeader.Get(TransLine."Document No.");
+                TransLine.CalcFields("Reserved Qty. Inbnd. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Supply, TransLine."Receipt Date", TransLine."Transfer-to Code", TransLine."Variant Code",
+                  TransLine."Outstanding Qty. (Base)", TransLine."Reserved Qty. Inbnd. (Base)",
+                  Database::"Transfer Line", TransLine.Status, TransLine."Document No.", TransHeader."Transfer-from Name", 0);
+            until TransLine.Next() = 0;
     end;
 
     local procedure GetAsmOrderSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
     var
         AsmHeader: Record "Assembly Header";
     begin
-        with AsmHeader do
-            if FindItemToPlanLines(Item, "Document Type"::Order) then
-                repeat
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Supply, "Due Date", "Location Code", "Variant Code",
-                      "Remaining Quantity (Base)", "Reserved Qty. (Base)",
-                      Database::"Assembly Header", "Document Type".AsInteger(),
-                      "No.", Description, 0);
-                until Next() = 0;
+        if AsmHeader.FindItemToPlanLines(Item, AsmHeader."Document Type"::Order) then
+            repeat
+                AsmHeader.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Supply, AsmHeader."Due Date", AsmHeader."Location Code", AsmHeader."Variant Code",
+                  AsmHeader."Remaining Quantity (Base)", AsmHeader."Reserved Qty. (Base)",
+                  Database::"Assembly Header", AsmHeader."Document Type".AsInteger(),
+                  AsmHeader."No.", AsmHeader.Description, 0);
+            until AsmHeader.Next() = 0;
     end;
 
     local procedure GetSalesOrdersDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -681,17 +646,16 @@ codeunit 5830 "Calc. Availability Overview"
         SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
     begin
-        with SalesLine do
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
-                repeat
-                    SalesHeader.Get("Document Type", "Document No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Shipment Date", "Location Code", "Variant Code",
-                      -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
-                      Database::"Sales Line", "Document Type".AsInteger(), "Document No.", SalesHeader."Sell-to Customer Name", DemandType::Sales);
-                until Next() = 0;
+        if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order) then
+            repeat
+                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+                SalesLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Demand, SalesLine."Shipment Date", SalesLine."Location Code", SalesLine."Variant Code",
+                  -SalesLine."Outstanding Qty. (Base)", -SalesLine."Reserved Qty. (Base)",
+                  Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesHeader."Sell-to Customer Name", DemandType::Sales);
+            until SalesLine.Next() = 0;
     end;
 
     local procedure GetServOrdersDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -699,17 +663,16 @@ codeunit 5830 "Calc. Availability Overview"
         ServLine: Record "Service Line";
         ServHeader: Record "Service Header";
     begin
-        with ServLine do
-            if FindLinesWithItemToPlan(Item) then
-                repeat
-                    ServHeader.Get("Document Type", "Document No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Needed by Date", "Location Code", "Variant Code",
-                      -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
-                      Database::"Service Line", "Document Type".AsInteger(), "Document No.", ServHeader."Ship-to Name", DemandType::Service);
-                until Next() = 0;
+        if ServLine.FindLinesWithItemToPlan(Item) then
+            repeat
+                ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
+                ServLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Demand, ServLine."Needed by Date", ServLine."Location Code", ServLine."Variant Code",
+                  -ServLine."Outstanding Qty. (Base)", -ServLine."Reserved Qty. (Base)",
+                  Database::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServHeader."Ship-to Name", DemandType::Service);
+            until ServLine.Next() = 0;
     end;
 
     local procedure GetJobOrdersDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -717,17 +680,16 @@ codeunit 5830 "Calc. Availability Overview"
         JobPlanningLine: Record "Job Planning Line";
         Job: Record Job;
     begin
-        with JobPlanningLine do
-            if FindLinesWithItemToPlan(Item) then
-                repeat
-                    Job.Get("Job No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Planning Date", "Location Code", "Variant Code",
-                      -"Remaining Qty. (Base)", -"Reserved Qty. (Base)",
-                      Database::"Job Planning Line", Status.AsInteger(), "Job No.", Job."Bill-to Name", DemandType::Job);
-                until Next() = 0;
+        if JobPlanningLine.FindLinesWithItemToPlan(Item) then
+            repeat
+                Job.Get(JobPlanningLine."Job No.");
+                JobPlanningLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Demand, JobPlanningLine."Planning Date", JobPlanningLine."Location Code", JobPlanningLine."Variant Code",
+                  -JobPlanningLine."Remaining Qty. (Base)", -JobPlanningLine."Reserved Qty. (Base)",
+                  Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", Job."Bill-to Name", DemandType::Job);
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure GetPurchRetOrderDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -735,17 +697,16 @@ codeunit 5830 "Calc. Availability Overview"
         PurchLine: Record "Purchase Line";
         PurchHeader: Record "Purchase Header";
     begin
-        with PurchLine do
-            if FindLinesWithItemToPlan(Item, "Document Type"::"Return Order") then
-                repeat
-                    PurchHeader.Get("Document Type", "Document No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Expected Receipt Date", "Location Code", "Variant Code",
-                      -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
-                      Database::"Purchase Line", "Document Type".AsInteger(), "Document No.", PurchHeader."Buy-from Vendor Name", 0);
-                until Next() = 0;
+        if PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::"Return Order") then
+            repeat
+                PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+                PurchLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Demand, PurchLine."Expected Receipt Date", PurchLine."Location Code", PurchLine."Variant Code",
+                  -PurchLine."Outstanding Qty. (Base)", -PurchLine."Reserved Qty. (Base)",
+                  Database::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchHeader."Buy-from Vendor Name", 0);
+            until PurchLine.Next() = 0;
     end;
 
     local procedure GetProdOrderCompDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -753,17 +714,16 @@ codeunit 5830 "Calc. Availability Overview"
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrder: Record "Production Order";
     begin
-        with ProdOrderComp do
-            if FindLinesWithItemToPlan(Item, true) then
-                repeat
-                    ProdOrder.Get(Status, "Prod. Order No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                        AvailabilityCalcOverview,
-                        AvailabilityCalcOverview.Type::Demand, "Due Date", "Location Code", "Variant Code",
-                        -"Remaining Qty. (Base)", -"Reserved Qty. (Base)",
-                        Database::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", ProdOrder.Description, DemandType::Production);
-                until Next() = 0;
+        if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
+            repeat
+                ProdOrder.Get(ProdOrderComp.Status, ProdOrderComp."Prod. Order No.");
+                ProdOrderComp.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                    AvailabilityCalcOverview,
+                    AvailabilityCalcOverview.Type::Demand, ProdOrderComp."Due Date", ProdOrderComp."Location Code", ProdOrderComp."Variant Code",
+                    -ProdOrderComp."Remaining Qty. (Base)", -ProdOrderComp."Reserved Qty. (Base)",
+                    Database::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrder.Description, DemandType::Production);
+            until ProdOrderComp.Next() = 0;
     end;
 
     local procedure GetTransOrderDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -771,17 +731,16 @@ codeunit 5830 "Calc. Availability Overview"
         TransLine: Record "Transfer Line";
         TransHeader: Record "Transfer Header";
     begin
-        with TransLine do
-            if FindLinesWithItemToPlan(Item, false, false) then
-                repeat
-                    TransHeader.Get("Document No.");
-                    CalcFields("Reserved Qty. Outbnd. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Shipment Date", "Transfer-from Code", "Variant Code",
-                      -"Outstanding Qty. (Base)", -"Reserved Qty. Outbnd. (Base)",
-                      Database::"Transfer Line", Status, "Document No.", TransHeader."Transfer-to Name", 0);
-                until Next() = 0;
+        if TransLine.FindLinesWithItemToPlan(Item, false, false) then
+            repeat
+                TransHeader.Get(TransLine."Document No.");
+                TransLine.CalcFields("Reserved Qty. Outbnd. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Demand, TransLine."Shipment Date", TransLine."Transfer-from Code", TransLine."Variant Code",
+                  -TransLine."Outstanding Qty. (Base)", -TransLine."Reserved Qty. Outbnd. (Base)",
+                  Database::"Transfer Line", TransLine.Status, TransLine."Document No.", TransHeader."Transfer-to Name", 0);
+            until TransLine.Next() = 0;
     end;
 
     local procedure GetAsmOrderDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview")
@@ -789,18 +748,17 @@ codeunit 5830 "Calc. Availability Overview"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
     begin
-        with AsmLine do
-            if FindItemToPlanLines(Item, "Document Type"::Order) then
-                repeat
-                    AsmHeader.Get("Document Type", "Document No.");
-                    CalcFields("Reserved Qty. (Base)");
-                    InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Due Date", "Location Code", "Variant Code",
-                      -"Remaining Quantity (Base)", -"Reserved Qty. (Base)",
-                      Database::"Assembly Line", "Document Type".AsInteger(),
-                      "Document No.", AsmHeader.Description, DemandType::Assembly);
-                until Next() = 0;
+        if AsmLine.FindItemToPlanLines(Item, AsmLine."Document Type"::Order) then
+            repeat
+                AsmHeader.Get(AsmLine."Document Type", AsmLine."Document No.");
+                AsmLine.CalcFields("Reserved Qty. (Base)");
+                InsertEntry(
+                  AvailabilityCalcOverview,
+                  AvailabilityCalcOverview.Type::Demand, AsmLine."Due Date", AsmLine."Location Code", AsmLine."Variant Code",
+                  -AsmLine."Remaining Quantity (Base)", -AsmLine."Reserved Qty. (Base)",
+                  Database::"Assembly Line", AsmLine."Document Type".AsInteger(),
+                  AsmLine."Document No.", AsmHeader.Description, DemandType::Assembly);
+            until AsmLine.Next() = 0;
     end;
 
     local procedure PurchOrderSupplyExists(var Item: Record Item): Boolean
@@ -891,16 +849,14 @@ codeunit 5830 "Calc. Availability Overview"
     var
         CopyOfAvailabilityCalcOverview: Record "Availability Calc. Overview";
     begin
-        with AvailabilityCalcOverview do begin
-            CopyOfAvailabilityCalcOverview.Copy(AvailabilityCalcOverview);
-            SetRange("Item No.", Item."No.");
-            SetRange("Location Code", LocationCode);
-            SetRange("Variant Code", VariantCode);
-            SetRange(Date, ClosingDate);
-            SetRange(Type, NewType);
-            Found := FindFirst();
-            CopyFilters(CopyOfAvailabilityCalcOverview);
-        end;
+        CopyOfAvailabilityCalcOverview.Copy(AvailabilityCalcOverview);
+        AvailabilityCalcOverview.SetRange("Item No.", Item."No.");
+        AvailabilityCalcOverview.SetRange("Location Code", LocationCode);
+        AvailabilityCalcOverview.SetRange("Variant Code", VariantCode);
+        AvailabilityCalcOverview.SetRange(Date, ClosingDate);
+        AvailabilityCalcOverview.SetRange(Type, NewType);
+        Found := AvailabilityCalcOverview.FindFirst();
+        AvailabilityCalcOverview.CopyFilters(CopyOfAvailabilityCalcOverview);
     end;
 
     local procedure CheckItemInRange(var AvailabilityCalcOverview: Record "Availability Calc. Overview"): Boolean
@@ -922,45 +878,40 @@ codeunit 5830 "Calc. Availability Overview"
             DemandType::" ":
                 Found := DemandExists(Item);
             DemandType::Sales:
-                with SalesLine do
-                    if LinesWithItemToPlanExist(Item, "Document Type"::Order) then
-                        if DemandNo <> '' then begin
-                            SetRange("Document No.", DemandNo);
-                            Found := not IsEmpty();
-                        end else
-                            Found := true;
+                if SalesLine.LinesWithItemToPlanExist(Item, SalesLine."Document Type"::Order) then
+                    if DemandNo <> '' then begin
+                        SalesLine.SetRange("Document No.", DemandNo);
+                        Found := not SalesLine.IsEmpty();
+                    end else
+                        Found := true;
             DemandType::Production:
-                with ProdOrderComp do
-                    if LinesWithItemToPlanExist(Item, true) then
-                        if DemandNo <> '' then begin
-                            SetRange("Prod. Order No.", DemandNo);
-                            Found := not IsEmpty();
-                        end else
-                            Found := true;
+                if ProdOrderComp.LinesWithItemToPlanExist(Item, true) then
+                    if DemandNo <> '' then begin
+                        ProdOrderComp.SetRange("Prod. Order No.", DemandNo);
+                        Found := not ProdOrderComp.IsEmpty();
+                    end else
+                        Found := true;
             DemandType::Service:
-                with ServLine do
-                    if LinesWithItemToPlanExist(Item) then
-                        if DemandNo <> '' then begin
-                            SetRange("Document No.", DemandNo);
-                            Found := not IsEmpty();
-                        end else
-                            Found := true;
+                if ServLine.LinesWithItemToPlanExist(Item) then
+                    if DemandNo <> '' then begin
+                        ServLine.SetRange("Document No.", DemandNo);
+                        Found := not ServLine.IsEmpty();
+                    end else
+                        Found := true;
             DemandType::Job:
-                with JobPlanningLine do
-                    if LinesWithItemToPlanExist(Item) then
-                        if DemandNo <> '' then begin
-                            SetRange("Job No.", DemandNo);
-                            Found := not IsEmpty();
-                        end else
-                            Found := true;
+                if JobPlanningLine.LinesWithItemToPlanExist(Item) then
+                    if DemandNo <> '' then begin
+                        JobPlanningLine.SetRange("Job No.", DemandNo);
+                        Found := not JobPlanningLine.IsEmpty();
+                    end else
+                        Found := true;
             DemandType::Assembly:
-                with AsmLine do
-                    if ItemToPlanLinesExist(Item, "Document Type"::Order) then
-                        if DemandNo <> '' then begin
-                            SetRange("Document No.", DemandNo);
-                            Found := not IsEmpty();
-                        end else
-                            Found := true;
+                if AsmLine.ItemToPlanLinesExist(Item, AsmLine."Document Type"::Order) then
+                    if DemandNo <> '' then begin
+                        AsmLine.SetRange("Document No.", DemandNo);
+                        Found := not AsmLine.IsEmpty();
+                    end else
+                        Found := true;
         end;
 
         exit(Found);
@@ -981,71 +932,69 @@ codeunit 5830 "Calc. Availability Overview"
         if (NewDate <> 0D) and not (NewDate in [StartDate .. EndDate]) then
             exit;
         CopyOfItem.Copy(Item);
-        with AvailabilityCalcOverview do begin
-            if NewType in [Type::"As of Date", Type::Inventory] then
-                if ClosingEntryExists(AvailabilityCalcOverview, NewType, NewLocation, NewVariantCode, NewDate) then begin
-                    if not "Matches Criteria" then begin
-                        "Matches Criteria" := CheckDemandInDate(AvailabilityCalcOverview);
-                        Modify();
-                    end;
-                    exit;
+        if NewType in [AvailabilityCalcOverview.Type::"As of Date", AvailabilityCalcOverview.Type::Inventory] then
+            if ClosingEntryExists(AvailabilityCalcOverview, NewType, NewLocation, NewVariantCode, NewDate) then begin
+                if not AvailabilityCalcOverview."Matches Criteria" then begin
+                    AvailabilityCalcOverview."Matches Criteria" := CheckDemandInDate(AvailabilityCalcOverview);
+                    AvailabilityCalcOverview.Modify();
                 end;
-
-            if not (NewType in [Type::Item, Type::"As of Date"]) then
-                if NewQuantityBase = 0 then
-                    exit;
-            Init();
-            "Entry No." := GetEntryNo();
-            Type := NewType;
-            "Item No." := Item."No.";
-            Date := NewDate;
-            "Location Code" := NewLocation;
-            "Variant Code" := NewVariantCode;
-            Quantity := NewQuantityBase;
-            "Reserved Quantity" := NewReservQtyBase;
-
-            if (DemandType = DemandType::" ") or
-               (Type = Type::"As of Date") or
-               ((DemandType = NewDemandType) and (DemandNo in ['', NewSourceID]))
-            then
-                "Matches Criteria" := NewDate in [StartDate .. EndDate];
-
-            case NewType of
-                Type::Item:
-                    begin
-                        Level := 0;
-                        "Matches Criteria" := true;
-                    end;
-                Type::Inventory:
-                    begin
-                        "Attached to Entry No." := "Entry No.";
-                        Level := 1;
-                        "Inventory Running Total" := Quantity;
-                        "Running Total" := Quantity;
-                    end;
-                Type::"As of Date":
-                    begin
-                        "Attached to Entry No." := "Entry No.";
-                        Level := 1;
-                        CalcRunningTotals(
-                          Item."No.", NewLocation, NewVariantCode, NewDate,
-                          "Running Total", "Inventory Running Total", "Supply Running Total", "Demand Running Total");
-                        AllocateToDemand("Inventory Running Total", "Supply Running Total", "Demand Running Total");
-                        if "Matches Criteria" then
-                            "Matches Criteria" := CheckDemandInDate(AvailabilityCalcOverview);
-                    end;
-                else
-                    "Attached to Entry No." := AttachedToEntryNo;
-                    Level := 2;
+                exit;
             end;
-            "Source Type" := NewSourceType;
-            "Source Order Status" := NewSourceOrderStatus;
-            "Source ID" := NewSourceID;
-            Description := NewDescription;
 
-            OnInsertEntryOnBeforeInsert(AvailabilityCalcOverview);
-            Insert();
+        if not (NewType in [AvailabilityCalcOverview.Type::Item, AvailabilityCalcOverview.Type::"As of Date"]) then
+            if NewQuantityBase = 0 then
+                exit;
+        AvailabilityCalcOverview.Init();
+        AvailabilityCalcOverview."Entry No." := GetEntryNo();
+        AvailabilityCalcOverview.Type := NewType;
+        AvailabilityCalcOverview."Item No." := Item."No.";
+        AvailabilityCalcOverview.Date := NewDate;
+        AvailabilityCalcOverview."Location Code" := NewLocation;
+        AvailabilityCalcOverview."Variant Code" := NewVariantCode;
+        AvailabilityCalcOverview.Quantity := NewQuantityBase;
+        AvailabilityCalcOverview."Reserved Quantity" := NewReservQtyBase;
+
+        if (DemandType = DemandType::" ") or
+           (AvailabilityCalcOverview.Type = AvailabilityCalcOverview.Type::"As of Date") or
+           ((DemandType = NewDemandType) and (DemandNo in ['', NewSourceID]))
+        then
+            AvailabilityCalcOverview."Matches Criteria" := NewDate in [StartDate .. EndDate];
+
+        case NewType of
+            AvailabilityCalcOverview.Type::Item:
+                begin
+                    AvailabilityCalcOverview.Level := 0;
+                    AvailabilityCalcOverview."Matches Criteria" := true;
+                end;
+            AvailabilityCalcOverview.Type::Inventory:
+                begin
+                    AvailabilityCalcOverview."Attached to Entry No." := AvailabilityCalcOverview."Entry No.";
+                    AvailabilityCalcOverview.Level := 1;
+                    AvailabilityCalcOverview."Inventory Running Total" := AvailabilityCalcOverview.Quantity;
+                    AvailabilityCalcOverview."Running Total" := AvailabilityCalcOverview.Quantity;
+                end;
+            AvailabilityCalcOverview.Type::"As of Date":
+                begin
+                    AvailabilityCalcOverview."Attached to Entry No." := AvailabilityCalcOverview."Entry No.";
+                    AvailabilityCalcOverview.Level := 1;
+                    CalcRunningTotals(
+                      Item."No.", NewLocation, NewVariantCode, NewDate,
+                      AvailabilityCalcOverview."Running Total", AvailabilityCalcOverview."Inventory Running Total", AvailabilityCalcOverview."Supply Running Total", AvailabilityCalcOverview."Demand Running Total");
+                    AllocateToDemand(AvailabilityCalcOverview."Inventory Running Total", AvailabilityCalcOverview."Supply Running Total", AvailabilityCalcOverview."Demand Running Total");
+                    if AvailabilityCalcOverview."Matches Criteria" then
+                        AvailabilityCalcOverview."Matches Criteria" := CheckDemandInDate(AvailabilityCalcOverview);
+                end;
+            else
+                AvailabilityCalcOverview."Attached to Entry No." := AttachedToEntryNo;
+                AvailabilityCalcOverview.Level := 2;
         end;
+        AvailabilityCalcOverview."Source Type" := NewSourceType;
+        AvailabilityCalcOverview."Source Order Status" := NewSourceOrderStatus;
+        AvailabilityCalcOverview."Source ID" := NewSourceID;
+        AvailabilityCalcOverview.Description := NewDescription;
+
+        OnInsertEntryOnBeforeInsert(AvailabilityCalcOverview);
+        AvailabilityCalcOverview.Insert();
         Item.Copy(CopyOfItem);
     end;
 
@@ -1053,59 +1002,57 @@ codeunit 5830 "Calc. Availability Overview"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Get(NewItem);
-            SetRange("Location Filter", NewLocation);
-            SetRange("Variant Filter", NewVariant);
-            SetRange("Date Filter", 0D, NewDate);
-            CalcFields(
-              "Reserved Qty. on Purch. Orders",
-              "Reserved Qty. on Prod. Order",
-              "Res. Qty. on Inbound Transfer",
-              "Reserved Qty. on Sales Orders",
-              "Res. Qty. on Service Orders",
-              "Res. Qty. on Job Order",
-              "Res. Qty. on Prod. Order Comp.",
-              "Res. Qty. on Outbound Transfer",
-              "Reserved Qty. on Inventory",
-              "Res. Qty. on Assembly Order",
-              "Res. Qty. on  Asm. Comp.",
-              "Res. Qty. on Sales Returns",
-              "Res. Qty. on Purch. Returns");
-            CalcFields(
-              "Qty. on Purch. Order",
-              "Scheduled Receipt (Qty.)",
-              "Planned Order Receipt (Qty.)",
-              "Trans. Ord. Receipt (Qty.)",
-              "Qty. on Sales Order",
-              "Qty. on Service Order",
-              "Qty. on Job Order",
-              "Qty. on Component Lines",
-              "Trans. Ord. Shipment (Qty.)",
-              Inventory,
-              "Qty. on Assembly Order",
-              "Qty. on Asm. Component",
-              "Qty. on Purch. Return",
-              "Qty. on Sales Return");
+        Item.Get(NewItem);
+        Item.SetRange("Location Filter", NewLocation);
+        Item.SetRange("Variant Filter", NewVariant);
+        Item.SetRange("Date Filter", 0D, NewDate);
+        Item.CalcFields(
+          Item."Reserved Qty. on Purch. Orders",
+          Item."Reserved Qty. on Prod. Order",
+          Item."Res. Qty. on Inbound Transfer",
+          Item."Reserved Qty. on Sales Orders",
+          Item."Res. Qty. on Service Orders",
+          Item."Res. Qty. on Job Order",
+          Item."Res. Qty. on Prod. Order Comp.",
+          Item."Res. Qty. on Outbound Transfer",
+          Item."Reserved Qty. on Inventory",
+          Item."Res. Qty. on Assembly Order",
+          Item."Res. Qty. on  Asm. Comp.",
+          Item."Res. Qty. on Sales Returns",
+          Item."Res. Qty. on Purch. Returns");
+        Item.CalcFields(
+          Item."Qty. on Purch. Order",
+          Item."Scheduled Receipt (Qty.)",
+          Item."Planned Order Receipt (Qty.)",
+          Item."Trans. Ord. Receipt (Qty.)",
+          Item."Qty. on Sales Order",
+          Item."Qty. on Service Order",
+          Item."Qty. on Job Order",
+          Item."Qty. on Component Lines",
+          Item."Trans. Ord. Shipment (Qty.)",
+          Item.Inventory,
+          Item."Qty. on Assembly Order",
+          Item."Qty. on Asm. Component",
+          Item."Qty. on Purch. Return",
+          Item."Qty. on Sales Return");
 
-            SupplyRunningTotal :=
-              "Qty. on Purch. Order" - "Reserved Qty. on Purch. Orders" +
-              "Qty. on Sales Return" - "Res. Qty. on Sales Returns" +
-              "Scheduled Receipt (Qty.)" + "Planned Order Receipt (Qty.)" - "Reserved Qty. on Prod. Order" +
-              "Trans. Ord. Receipt (Qty.)" - "Res. Qty. on Inbound Transfer" +
-              "Qty. on Assembly Order" - "Res. Qty. on Assembly Order";
-            DemandRunningTotal :=
-              -"Qty. on Sales Order" + "Reserved Qty. on Sales Orders" -
-              "Qty. on Purch. Return" + "Res. Qty. on Purch. Returns" -
-              "Qty. on Component Lines" + "Res. Qty. on Prod. Order Comp." -
-              "Qty. on Service Order" + "Res. Qty. on Service Orders" -
-              "Qty. on Job Order" + "Res. Qty. on Job Order" -
-              "Trans. Ord. Shipment (Qty.)" + "Res. Qty. on Outbound Transfer" -
-              "Qty. on Asm. Component" + "Res. Qty. on  Asm. Comp.";
-            InventoryRunningTotal := Inventory - "Reserved Qty. on Inventory";
+        SupplyRunningTotal :=
+          Item."Qty. on Purch. Order" - Item."Reserved Qty. on Purch. Orders" +
+          Item."Qty. on Sales Return" - Item."Res. Qty. on Sales Returns" +
+          Item."Scheduled Receipt (Qty.)" + Item."Planned Order Receipt (Qty.)" - Item."Reserved Qty. on Prod. Order" +
+          Item."Trans. Ord. Receipt (Qty.)" - Item."Res. Qty. on Inbound Transfer" +
+          Item."Qty. on Assembly Order" - Item."Res. Qty. on Assembly Order";
+        DemandRunningTotal :=
+          -Item."Qty. on Sales Order" + Item."Reserved Qty. on Sales Orders" -
+          Item."Qty. on Purch. Return" + Item."Res. Qty. on Purch. Returns" -
+          Item."Qty. on Component Lines" + Item."Res. Qty. on Prod. Order Comp." -
+          Item."Qty. on Service Order" + Item."Res. Qty. on Service Orders" -
+          Item."Qty. on Job Order" + Item."Res. Qty. on Job Order" -
+          Item."Trans. Ord. Shipment (Qty.)" + Item."Res. Qty. on Outbound Transfer" -
+          Item."Qty. on Asm. Component" + Item."Res. Qty. on  Asm. Comp.";
+        InventoryRunningTotal := Item.Inventory - Item."Reserved Qty. on Inventory";
 
-            RunningTotal := InventoryRunningTotal + SupplyRunningTotal + DemandRunningTotal;
-        end;
+        RunningTotal := InventoryRunningTotal + SupplyRunningTotal + DemandRunningTotal;
 
         OnAfterCalcRunningTotals(Item, RunningTotal, InventoryRunningTotal, SupplyRunningTotal, DemandRunningTotal);
     end;
@@ -1120,39 +1067,37 @@ codeunit 5830 "Calc. Availability Overview"
         InventoryRunningTotal: Decimal;
     begin
         CopyOfAvailCalcOverview.Copy(AvailabilityCalcOverview);
-        with AvailabilityCalcOverview do begin
-            FirstEntryNo := "Entry No.";
-            if Date <> 0D then
-                CalcRunningTotals(
-                  "Item No.", "Location Code", "Variant Code", CalcDate('<-1D>', Date),
-                  RunningTotal, InventoryRunningTotal, SupplyRunningTotal, DemandRunningTotal);
+        FirstEntryNo := AvailabilityCalcOverview."Entry No.";
+        if AvailabilityCalcOverview.Date <> 0D then
+            CalcRunningTotals(
+              AvailabilityCalcOverview."Item No.", AvailabilityCalcOverview."Location Code", AvailabilityCalcOverview."Variant Code", CalcDate('<-1D>', AvailabilityCalcOverview.Date),
+              RunningTotal, InventoryRunningTotal, SupplyRunningTotal, DemandRunningTotal);
 
-            repeat
-                RunningTotal += Quantity - "Reserved Quantity";
-                case Type of
-                    Type::Inventory:
-                        InventoryRunningTotal += Quantity - "Reserved Quantity";
-                    Type::Supply,
-                  Type::"Supply Forecast":
-                        SupplyRunningTotal += Quantity - "Reserved Quantity";
-                    Type::Demand:
-                        DemandRunningTotal += Quantity - "Reserved Quantity";
-                end;
+        repeat
+            RunningTotal += AvailabilityCalcOverview.Quantity - AvailabilityCalcOverview."Reserved Quantity";
+            case AvailabilityCalcOverview.Type of
+                AvailabilityCalcOverview.Type::Inventory:
+                    InventoryRunningTotal += AvailabilityCalcOverview.Quantity - AvailabilityCalcOverview."Reserved Quantity";
+                AvailabilityCalcOverview.Type::Supply,
+              AvailabilityCalcOverview.Type::"Supply Forecast":
+                    SupplyRunningTotal += AvailabilityCalcOverview.Quantity - AvailabilityCalcOverview."Reserved Quantity";
+                AvailabilityCalcOverview.Type::Demand:
+                    DemandRunningTotal += AvailabilityCalcOverview.Quantity - AvailabilityCalcOverview."Reserved Quantity";
+            end;
 
-                "Running Total" := RunningTotal;
-                "Inventory Running Total" := InventoryRunningTotal;
-                "Supply Running Total" := SupplyRunningTotal;
-                "Demand Running Total" := DemandRunningTotal;
-                AllocateToDemand("Inventory Running Total", "Supply Running Total", "Demand Running Total");
-                if DemandType = DemandType::" " then
-                    "Matches Criteria" := CopyOfAvailCalcOverview."Matches Criteria";
+            AvailabilityCalcOverview."Running Total" := RunningTotal;
+            AvailabilityCalcOverview."Inventory Running Total" := InventoryRunningTotal;
+            AvailabilityCalcOverview."Supply Running Total" := SupplyRunningTotal;
+            AvailabilityCalcOverview."Demand Running Total" := DemandRunningTotal;
+            AllocateToDemand(AvailabilityCalcOverview."Inventory Running Total", AvailabilityCalcOverview."Supply Running Total", AvailabilityCalcOverview."Demand Running Total");
+            if DemandType = DemandType::" " then
+                AvailabilityCalcOverview."Matches Criteria" := CopyOfAvailCalcOverview."Matches Criteria";
 
-                OnUpdateRunningTotalsOnBeforeModify(AvailabilityCalcOverview);
-                Modify();
-            until Next() = 0;
-            Get(FirstEntryNo);
-            if Next() = 0 then;
-        end;
+            OnUpdateRunningTotalsOnBeforeModify(AvailabilityCalcOverview);
+            AvailabilityCalcOverview.Modify();
+        until AvailabilityCalcOverview.Next() = 0;
+        AvailabilityCalcOverview.Get(FirstEntryNo);
+        if AvailabilityCalcOverview.Next() = 0 then;
     end;
 
     local procedure AllocateToDemand(var InventoryRunningTotal: Decimal; var SupplyRunningTotal: Decimal; var DemandRunningTotal: Decimal)

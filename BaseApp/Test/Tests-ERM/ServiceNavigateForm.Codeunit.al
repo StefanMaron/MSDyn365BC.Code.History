@@ -29,7 +29,7 @@ codeunit 136128 "Service Navigate Form"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Navigate Form");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         LibraryService.SetupServiceMgtNoSeries();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
@@ -53,7 +53,7 @@ codeunit 136128 "Service Navigate Form"
 
         // 1. Setup: Create Service Header, Service Item Line, Service Line, Customer and Item.
         Initialize();
-        InitGlobalVariables;
+        InitGlobalVariables();
         CreateServiceOrder(ServiceHeader);
 
         // 2. Exercise: Post the Service Order as Invoice and open Navigate form.
@@ -65,7 +65,7 @@ codeunit 136128 "Service Navigate Form"
         PostingDate := ServiceInvoiceHeader."Posting Date";
         DocumentNo := ServiceInvoiceHeader."No.";
 
-        ServiceInvoiceHeader.Navigate;
+        ServiceInvoiceHeader.Navigate();
 
         // 3. Verify: Verify No of entries for all related tables.
         VerifyInvoiceAndCrMemo(ServiceInvoiceHeader."No.");
@@ -84,7 +84,7 @@ codeunit 136128 "Service Navigate Form"
 
         // 1. Setup: Create Service Header, Service Item Line, Service Line, Customer and Item.
         Initialize();
-        InitGlobalVariables;
+        InitGlobalVariables();
         CreateServiceOrder(ServiceHeader);
 
         // 2. Exercise: Post the Service Order as Ship and open Navigate form.
@@ -96,7 +96,7 @@ codeunit 136128 "Service Navigate Form"
         PostingDate := ServiceShipmentHeader."Posting Date";
         DocumentNo := ServiceShipmentHeader."No.";
 
-        ServiceShipmentHeader.Navigate;
+        ServiceShipmentHeader.Navigate();
 
         // 3. Verify: Verify No of entries for all related tables.
         VerifyShipment(ServiceShipmentHeader."No.");
@@ -115,11 +115,11 @@ codeunit 136128 "Service Navigate Form"
 
         // 1. Setup: Create Service Header, Service Line, Customer and Item.
         Initialize();
-        InitGlobalVariables;
+        InitGlobalVariables();
         CreateServiceCreditMemo(ServiceHeader);
 
         // 2. Exercise: Post the Service Credit Memo and open Navigate form.
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
         ServiceCrMemoHeader.FindFirst();
@@ -128,7 +128,7 @@ codeunit 136128 "Service Navigate Form"
         PostingDate := ServiceCrMemoHeader."Posting Date";
         DocumentNo := ServiceCrMemoHeader."No.";
 
-        ServiceCrMemoHeader.Navigate;
+        ServiceCrMemoHeader.Navigate();
 
         // 3. Verify: Verify No of entries for all related tables.
         VerifyInvoiceAndCrMemo(ServiceCrMemoHeader."No.");
@@ -194,7 +194,7 @@ codeunit 136128 "Service Navigate Form"
     begin
         Navigate.SetDoc(PostingDate, DocumentNo);
         Navigate.UpdateNavigateForm(false);
-        Navigate.FindRecordsOnOpen;
+        Navigate.FindRecordsOnOpen();
 
         TempDocumentEntry.DeleteAll();
         Navigate.ReturnDocumentEntry(TempDocumentEntry);

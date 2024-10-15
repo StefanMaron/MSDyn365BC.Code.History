@@ -12,6 +12,7 @@ table 7152 "Item Analysis View"
     LookupPageID = "Item Analysis View List";
     Permissions = TableData "Item Analysis View Entry" = rimd,
                   TableData "Item Analysis View Budg. Entry" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {

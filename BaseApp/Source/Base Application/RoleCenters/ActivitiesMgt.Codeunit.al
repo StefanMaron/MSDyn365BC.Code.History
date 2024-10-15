@@ -11,6 +11,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Receivables;
 using System.Environment;
 
@@ -28,28 +29,6 @@ codeunit 1311 "Activities Mgt."
         RefreshFrequencyErr: Label 'Refresh intervals of less than 10 minutes are not supported.';
         NoSubCategoryWithAdditionalReportDefinitionOfCashAccountsTok: Label 'There are no %1 with %2 specified for %3', Comment = '%1 Table Comment G/L Account Category, %2 field Additional Report Definition, %3 value: Cash Accounts';
 
-    [Obsolete('Replaced by OverdueSalesInvoiceAmount(CalledFromWebService, UseCachedValue)', '17.0')]
-    procedure CalcOverdueSalesInvoiceAmount(CalledFromWebService: Boolean) Amount: Decimal
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        SetFilterForCalcOverdueSalesInvoiceAmount(DetailedCustLedgEntry, CalledFromWebService);
-        DetailedCustLedgEntry.CalcSums("Amount (LCY)");
-        Amount := Abs(DetailedCustLedgEntry."Amount (LCY)");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by SetFilterOverdueSalesInvoice(VendorLedgerEntry, CalledFromWebService', '17.0')]
-    procedure SetFilterForCalcOverdueSalesInvoiceAmount(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CalledFromWebService: Boolean)
-    begin
-        DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
-        if CalledFromWebService then
-            DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", '<%1', Today)
-        else
-            DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", '<%1', GetDefaultWorkDate());
-    end;
-
     procedure OverdueSalesInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean): Decimal
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -61,7 +40,7 @@ codeunit 1311 "Activities Mgt."
         if UseCachedValue then
             if ActivitiesCue.Get() then
                 if not IsPassedCueData(ActivitiesCue) then
-                    Exit(ActivitiesCue."Overdue Sales Invoice Amount");
+                    exit(ActivitiesCue."Overdue Sales Invoice Amount");
         SetFilterOverdueSalesInvoice(CustLedgerEntry, CalledFromWebService);
         CustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
         if CustLedgerEntry.FindSet() then
@@ -105,28 +84,6 @@ codeunit 1311 "Activities Mgt."
         CustLedgerEntry.Ascending := false;
 
         PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgerEntry);
-    end;
-
-    [Obsolete('Replaced by OverduePurchaseInvoiceAmount(CalledFromWebService, UseCache', '17.0')]
-    procedure CalcOverduePurchaseInvoiceAmount(CalledFromWebService: Boolean) Amount: Decimal
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-    begin
-        SetFilterForCalcOverduePurchaseInvoiceAmount(DetailedVendorLedgEntry, CalledFromWebService);
-        DetailedVendorLedgEntry.CalcSums("Amount (LCY)");
-        Amount := Abs(DetailedVendorLedgEntry."Amount (LCY)");
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by SetFilterOverduePurchaseInvoice(VendorLedgerEntry, CalledFromWebService', '17.0')]
-    procedure SetFilterForCalcOverduePurchaseInvoiceAmount(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; CalledFromWebService: Boolean)
-    begin
-        DetailedVendorLedgEntry.SetRange("Initial Document Type", DetailedVendorLedgEntry."Initial Document Type"::Invoice);
-        if CalledFromWebService then
-            DetailedVendorLedgEntry.SetFilter("Initial Entry Due Date", '<%1', Today)
-        else
-            DetailedVendorLedgEntry.SetFilter("Initial Entry Due Date", '<%1', GetDefaultWorkDate());
     end;
 
     procedure OverduePurchaseInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean): Decimal
@@ -336,6 +293,42 @@ codeunit 1311 "Activities Mgt."
         PAGE.Run(PAGE::"Chart of Accounts", GLAccount);
     end;
 
+    local procedure SetGLAccountsFilterForARAccounts(var GLAccount: Record "G/L Account"): Boolean
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategory: Record "G/L Account Category";
+    begin
+        if not GeneralLedgerSetup.Get() then
+            exit(false);
+        if not GLAccountCategory.Get(GeneralLedgerSetup."Acc. Receivables Category") then
+            exit(false);
+        GLAccount.SetRange("Account Category", GLAccount."Account Category"::Assets);
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.SetRange("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        exit(true);
+    end;
+
+    internal procedure CalcARAccountsBalances(): Decimal
+    var
+        GLAccount: Record "G/L Account";
+        GLEntries: Record "G/L Entry";
+    begin
+        if not SetGLAccountsFilterForARAccounts(GLAccount) then
+            exit(0);
+        GLEntries.SetFilter("G/L Account No.", CreateFilterForGLAccounts(GLAccount));
+        GLEntries.CalcSums(Amount);
+        exit(GLEntries.Amount);
+    end;
+
+    internal procedure DrillDownCalcARAccountsBalances()
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        if not SetGLAccountsFilterForARAccounts(GLAccount) then
+            Page.Run(Page::"General Ledger Setup");
+        PAGE.Run(PAGE::"Chart of Accounts", GLAccount);
+    end;
+
     local procedure TestifSubCategoryIsSpecifield();
     var
         GLAccCategory: Record "G/L Account Category";
@@ -429,16 +422,14 @@ codeunit 1311 "Activities Mgt."
         FilterTxt: Text;
     begin
         FilterOperand := '|';
-        with GLAccCategory do begin
-            GLAccCategory.SetRange("Additional Report Definition", AddRepDef);
-            if GLAccCategory.FindSet() then
-                repeat
-                    if FilterTxt = '' then
-                        FilterTxt := Format("Entry No.") + FilterOperand
-                    else
-                        FilterTxt := FilterTxt + Format("Entry No.") + FilterOperand;
-                until GLAccCategory.Next() = 0;
-        end;
+        GLAccCategory.SetRange("Additional Report Definition", AddRepDef);
+        if GLAccCategory.FindSet() then
+            repeat
+                if FilterTxt = '' then
+                    FilterTxt := Format(GLAccCategory."Entry No.") + FilterOperand
+                else
+                    FilterTxt := FilterTxt + Format(GLAccCategory."Entry No.") + FilterOperand;
+            until GLAccCategory.Next() = 0;
         // Remove the last |
         exit(DelChr(FilterTxt, '>', FilterOperand));
     end;
@@ -449,14 +440,13 @@ codeunit 1311 "Activities Mgt."
         FilterTxt: Text;
     begin
         FilterOperand := '|';
-        with GLAccount do
-            if GLAccount.FindSet() then
-                repeat
-                    if FilterTxt = '' then
-                        FilterTxt := Format("No.") + FilterOperand
-                    else
-                        FilterTxt := FilterTxt + Format("No.") + FilterOperand;
-                until GLAccount.Next() = 0;
+        if GLAccount.FindSet() then
+            repeat
+                if FilterTxt = '' then
+                    FilterTxt := Format(GLAccount."No.") + FilterOperand
+                else
+                    FilterTxt := FilterTxt + Format(GLAccount."No.") + FilterOperand;
+            until GLAccount.Next() = 0;
         // Remove the last |
         exit(DelChr(FilterTxt, '>', FilterOperand));
     end;

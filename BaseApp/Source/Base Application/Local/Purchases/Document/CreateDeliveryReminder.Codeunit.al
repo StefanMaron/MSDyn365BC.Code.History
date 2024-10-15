@@ -100,7 +100,7 @@ codeunit 5005271 "Create Delivery Reminder"
     var
         DeliveryReminderLine: Record "Delivery Reminder Line";
         NextLineNo: Integer;
-         IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Default Del. Rem. Date Field");
@@ -122,7 +122,7 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderLine."Line No." := NextLineNo;
         DeliveryReminderLine."Order No." := PurchLine."Document No.";
         DeliveryReminderLine."Order Line No." := PurchLine."Line No.";
-        DeliveryReminderLine.Type := PurchLine.Type;
+        DeliveryReminderLine.Type := PurchLine.Type.AsInteger();
         DeliveryReminderLine."No." := PurchLine."No.";
         DeliveryReminderLine.Description := PurchLine.Description;
         DeliveryReminderLine."Description 2" := PurchLine."Description 2";

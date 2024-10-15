@@ -28,48 +28,46 @@ codeunit 7309 "Whse. Jnl.-Register+Print"
 
     local procedure "Code"()
     begin
-        with WhseJnlLine do begin
-            WhseJnlTemplate.Get("Journal Template Name");
-            WhseJnlTemplate.TestField("Registering Report ID");
+        WhseJnlTemplate.Get(WhseJnlLine."Journal Template Name");
+        WhseJnlTemplate.TestField("Registering Report ID");
 
-            if not Confirm(Text001, false) then
-                exit;
+        if not Confirm(Text001, false) then
+            exit;
 
-            IsHandled := false;
-            OnAfterConfirm(WhseJnlLine, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnAfterConfirm(WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
 
-            TempJnlBatchName := "Journal Batch Name";
+        TempJnlBatchName := WhseJnlLine."Journal Batch Name";
 
-            WhseJnlRegisterBatch.Run(WhseJnlLine);
-            OnAfterRegisterBatch(WhseJnlLine);
+        WhseJnlRegisterBatch.Run(WhseJnlLine);
+        OnAfterRegisterBatch(WhseJnlLine);
 
-            if WarehouseReg.Get(WhseJnlRegisterBatch.GetWhseRegNo()) then begin
-                WarehouseReg.SetRecFilter();
-                REPORT.Run(WhseJnlTemplate."Registering Report ID", false, false, WarehouseReg);
-            end;
+        if WarehouseReg.Get(WhseJnlRegisterBatch.GetWhseRegNo()) then begin
+            WarehouseReg.SetRecFilter();
+            REPORT.Run(WhseJnlTemplate."Registering Report ID", false, false, WarehouseReg);
+        end;
 
-            if "Line No." = 0 then
-                Message(Text002)
+        if WhseJnlLine."Line No." = 0 then
+            Message(Text002)
+        else
+            if TempJnlBatchName = WhseJnlLine."Journal Batch Name" then
+                Message(Text003)
             else
-                if TempJnlBatchName = "Journal Batch Name" then
-                    Message(Text003)
-                else
-                    Message(
-                      Text003 +
-                      Text004,
-                      "Journal Batch Name");
+                Message(
+                  Text003 +
+                  Text004,
+                  WhseJnlLine."Journal Batch Name");
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                SetRange("Location Code", "Location Code");
-                FilterGroup(0);
-                "Line No." := 10000;
-            end;
+        if not WhseJnlLine.Find('=><') or (TempJnlBatchName <> WhseJnlLine."Journal Batch Name") then begin
+            WhseJnlLine.Reset();
+            WhseJnlLine.FilterGroup(2);
+            WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+            WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+            WhseJnlLine.SetRange("Location Code", WhseJnlLine."Location Code");
+            WhseJnlLine.FilterGroup(0);
+            WhseJnlLine."Line No." := 10000;
         end;
     end;
 

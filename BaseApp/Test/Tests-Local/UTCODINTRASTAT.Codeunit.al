@@ -88,7 +88,7 @@ codeunit 142036 "UT COD INTRASTAT"
         CreateDACHReportSelections(DACHReportSelections.Usage::"Intrastat Disklabel", 11014, 'Intrastat - Disk Tax Auth DE');  // Report ID of Intrastat - Disk Tax Auth DE
 
         // Exercise & verify: Print Intrastat Disk from Codeunit - DocumentPrint. Verification is done in IntrastatDiskTaxAuthDERequestPageHandler.
-        DocumentPrint.PrintIntrastatDisklabel;  // Invokes IntrastatDiskTaxAuthDERequestPageHandler.
+        DocumentPrint.PrintIntrastatDisklabel();  // Invokes IntrastatDiskTaxAuthDERequestPageHandler.
     end;
 
     local procedure Initialize()
@@ -107,7 +107,7 @@ codeunit 142036 "UT COD INTRASTAT"
     var
         CountryRegionCode: Code[10];
     begin
-        CountryRegionCode := CreateCountryRegion;
+        CountryRegionCode := CreateCountryRegion();
 
         IntrastatJnlLine."Journal Template Name" := JournalTemplateName;
         IntrastatJnlLine."Journal Batch Name" := JournalBatchName;
@@ -117,8 +117,8 @@ codeunit 142036 "UT COD INTRASTAT"
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Receipt;
         IntrastatJnlLine."Tariff No." := Item."Tariff No.";
         IntrastatJnlLine."Country/Region Code" := CountryRegionCode;
-        IntrastatJnlLine."Transaction Type" := GetNewCode;
-        IntrastatJnlLine."Transport Method" := GetNewCode;
+        IntrastatJnlLine."Transaction Type" := GetNewCode();
+        IntrastatJnlLine."Transport Method" := GetNewCode();
         IntrastatJnlLine."Country/Region of Origin Code" := CountryRegionCode;
         IntrastatJnlLine."Item No." := Item."No.";
         IntrastatJnlLine.Modify();
@@ -128,7 +128,7 @@ codeunit 142036 "UT COD INTRASTAT"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := GetNewCode;
+        CountryRegion.Code := GetNewCode();
         CountryRegion.Insert();
         CountryRegion."Intrastat Code" := CountryRegion.Code;
         CountryRegion.Modify();
@@ -137,19 +137,19 @@ codeunit 142036 "UT COD INTRASTAT"
 
     local procedure CreateIntrastatJnlTemplateAndBatch(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template"; var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     begin
-        IntrastatJnlTemplate.Name := GetNewCode;
+        IntrastatJnlTemplate.Name := GetNewCode();
         IntrastatJnlTemplate.Insert();
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
-        IntrastatJnlBatch.Name := GetNewCode;
+        IntrastatJnlBatch.Name := GetNewCode();
         IntrastatJnlBatch.Insert();
     end;
 
     local procedure CreateItemWithTariffNumber(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
-        Item."Tariff No." := GetNewCode;
+        Item."Tariff No." := GetNewCode();
         Item.Modify();
     end;
 
@@ -160,7 +160,7 @@ codeunit 142036 "UT COD INTRASTAT"
         DACHReportSelections.DeleteAll();
 
         DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := GetNewCode;
+        DACHReportSelections.Sequence := GetNewCode();
         DACHReportSelections.Insert();
         DACHReportSelections."Report ID" := ReportID;
         DACHReportSelections."Report Name" := ReportName;
@@ -169,7 +169,7 @@ codeunit 142036 "UT COD INTRASTAT"
 
     local procedure GetNewCode(): Code[10]
     begin
-        exit(CopyStr(LibraryUTUtility.GetNewCode, 11, 20));
+        exit(CopyStr(LibraryUTUtility.GetNewCode(), 11, 20));
     end;
 
     local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean)

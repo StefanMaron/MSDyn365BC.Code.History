@@ -97,7 +97,7 @@ codeunit 134200 "Document Approval - Errors"
 
         // [GIVEN] Purchase Invoice "PI" with "Buy-from Vendor No." = "V1", "Pay-to Vendor No." = "V2"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Vendor "V2" has restriction.
         SetRestrictionToVendor(PurchaseHeader."Pay-to Vendor No.");
@@ -143,12 +143,12 @@ codeunit 134200 "Document Approval - Errors"
         // [FEATURE] [Sales]
         // [SCENARIO 380033] Post Sales Invoice if restriction for Customer record exists
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         // [GIVEN] Sales Invoice "SI" with "Sell-to Customer No." = "C1", "Bill-to Customer No." = "C2"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
 
         // [GIVEN] Customer "C2" has restriction.
-        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         SetRestrictionToCustomer(SalesHeader."Bill-to Customer No.");
 
         // [WHEN] Post Sales Invoice "SI"
@@ -1007,7 +1007,7 @@ codeunit 134200 "Document Approval - Errors"
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Item "I" has restriction.
         SetRestrictionToItem(ItemJournalLine."Item No.");
@@ -1033,7 +1033,7 @@ codeunit 134200 "Document Approval - Errors"
         // [GIVEN] Sales Order with item "I"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Item "I" has restriction.
         SetRestrictionToItem(SalesLine."No.");
@@ -1061,7 +1061,7 @@ codeunit 134200 "Document Approval - Errors"
         // [GIVEN] Sales Order with item "I"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesHeader.Validate(Ship, true);
         SalesHeader.Validate(Invoice, true);
         SalesHeader.Modify(true);
@@ -1091,7 +1091,7 @@ codeunit 134200 "Document Approval - Errors"
         // [GIVEN] Purchase Order with item "I"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Item "I" has restriction.
         SetRestrictionToItem(PurchaseLine."No.");
@@ -1118,7 +1118,7 @@ codeunit 134200 "Document Approval - Errors"
         // [GIVEN] Purchase Order with item "I"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Item "I" has restriction.
         SetRestrictionToItem(PurchaseLine."No.");
@@ -1167,7 +1167,7 @@ codeunit 134200 "Document Approval - Errors"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         isInitialized := true;
         Commit();
         BindSubscription(LibraryJobQueue);
@@ -1503,7 +1503,7 @@ codeunit 134200 "Document Approval - Errors"
         WorkflowSetup: Codeunit "Workflow Setup";
         BlankDateFormula: DateFormula;
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         case TableNo of
             DATABASE::"Purchase Header":
@@ -1598,7 +1598,7 @@ codeunit 134200 "Document Approval - Errors"
     [Scope('OnPrem')]
     procedure GLPostingPreviewHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
     begin
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 }
 

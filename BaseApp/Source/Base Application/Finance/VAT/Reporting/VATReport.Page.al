@@ -191,7 +191,9 @@ page 740 "VAT Report"
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"VAT Report Header"),
                               "No." = field("No."),
+#pragma warning disable AL0603
                               "VAT Report Config. Code" = field("VAT Report Config. Code");
+#pragma warning restore AL0603
             }
         }
     }
@@ -334,4 +336,3 @@ page 740 "VAT Report"
     var
         VATReportMediator: Codeunit "VAT Report Mediator";
 }
-

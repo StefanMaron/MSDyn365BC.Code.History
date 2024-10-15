@@ -9,7 +9,7 @@ using Microsoft.Inventory.Item;
 query 5402 "Top-10 Prod. Orders - by Cost"
 {
     Caption = 'Top-10 Prod. Orders - by Cost';
-    OrderBy = Descending(Cost_of_Open_Production_Orders);
+    OrderBy = descending(Cost_of_Open_Production_Orders);
     TopNumberOfRows = 10;
 
     elements

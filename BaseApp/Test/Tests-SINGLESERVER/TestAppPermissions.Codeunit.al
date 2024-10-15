@@ -26,9 +26,6 @@ codeunit 134614 "Test App Permissions"
     local procedure InitializeData()
     var
         SecurityGroup: Codeunit "Security Group";
-        GroupName: Text;
-        GroupId: Text;
-        GroupCode: Code[20];
         i: Integer;
         Sg1CodeTxt: Label 'SG1';
         Sg2CodeTxt: Label 'SG2';
@@ -161,7 +158,7 @@ codeunit 134614 "Test App Permissions"
         // and the Nav App
 
         // Init
-        InitializeData;
+        InitializeData();
 
         // Execute
 
@@ -179,7 +176,7 @@ codeunit 134614 "Test App Permissions"
         AppPermissionSet.Get(AppGUIDs[2], AppPermissionRoles[2]);
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, AppPermissionSet."App ID", AppPermissionSet."Role ID");
 
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -193,10 +190,10 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that the aggregate permission sets are viewable in the Permission Sets page
         // Init
-        InitializeData;
+        InitializeData();
 
         // Execute
-        PermissionSets.OpenView;
+        PermissionSets.OpenView();
 
         // Find a system permission set
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
@@ -226,7 +223,7 @@ codeunit 134614 "Test App Permissions"
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSets."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSets.PermissionSet.Value, 'Role ID mismatch');
 
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -239,13 +236,13 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that the aggregate permission sets are viewable in the Permission Sets By User page
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
 
         // Execute
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
 
         // Verify
 
@@ -264,7 +261,7 @@ codeunit 134614 "Test App Permissions"
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSetByUser."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSetByUser."Role ID".Value, 'Role ID mismatch');
 
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -277,13 +274,13 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that the aggregate permission sets are viewable in the Permission Sets By Security Group page
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
 
         // Execute
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
 
         // Verify
         // Find the application permission sets
@@ -301,7 +298,7 @@ codeunit 134614 "Test App Permissions"
         Assert.AreEqual(AggregatePermissionSet."App Name", PermissionSetBySecurityGroup."App Name".Value, 'App Name mismatched');
         Assert.AreEqual(AggregatePermissionSet."Role ID", PermissionSetBySecurityGroup."Role ID".Value, 'Role ID mismatch');
 
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -313,17 +310,17 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that a permission set can be added through the Permission Set Page
         // Init
-        InitializeData;
+        InitializeData();
 
         // Execute
-        PermissionSets.OpenEdit;
-        PermissionSets.New;
+        PermissionSets.OpenEdit();
+        PermissionSets.New();
 
         asserterror PermissionSets.PermissionSet.SetValue('MyRole');
         PermissionSets.Close();
 
         // Verify
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -337,7 +334,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that users can be assigned Nav App permissions in the Permission Sets By User page
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -347,7 +344,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.Column1.Value);
         Assert.IsFalse(
@@ -358,7 +355,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetByUser.Close();
 
         // Verify
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.Column1.Value);
         Assert.IsTrue(
@@ -366,7 +363,7 @@ codeunit 134614 "Test App Permissions"
           StrSubstNo('Expected permission set %1 to be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column1.Caption));
 
         PermissionSetByUser.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -380,7 +377,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -390,7 +387,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
         Assert.IsFalse(
@@ -402,7 +399,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetByUser.Close();
 
         // Verify
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
         Assert.IsTrue(
@@ -422,7 +419,7 @@ codeunit 134614 "Test App Permissions"
           StrSubstNo('Expected permission set %1 to be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column2.Caption));
 
         PermissionSetByUser.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -436,7 +433,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that users can be assigned Nav App permissions in the Permission Sets By User page
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -446,7 +443,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.Column1.Value);
         Assert.IsFalse(
@@ -458,7 +455,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetBySecurityGroup.Close();
 
         // Verify
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.Column1.Value);
         Assert.IsTrue(
@@ -467,7 +464,7 @@ codeunit 134614 "Test App Permissions"
             'Expected permission set %1 to be enabled for %2', PermissionSetBySecurityGroup."Role ID", PermissionSetBySecurityGroup.Column1.Caption));
 
         PermissionSetBySecurityGroup.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -482,7 +479,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -492,7 +489,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.AllUsersHavePermission.Value);
         Assert.IsFalse(
@@ -504,7 +501,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetBySecurityGroup.Close();
 
         // Verify
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.AllUsersHavePermission.Value);
         Assert.IsTrue(
@@ -526,7 +523,7 @@ codeunit 134614 "Test App Permissions"
             'Expected permission set %1 to be enabled for %2', PermissionSetBySecurityGroup."Role ID", PermissionSetBySecurityGroup.Column2.Caption));
 
         PermissionSetBySecurityGroup.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -540,7 +537,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test removing a permission for a given user through the UI
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -550,7 +547,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.Column1.Value);
         Assert.IsFalse(
@@ -561,13 +558,13 @@ codeunit 134614 "Test App Permissions"
         PermissionSetByUser.Close();
 
         // Delete the permission
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         PermissionSetByUser.Column1.SetValue(false);
         PermissionSetByUser.Close();
 
         // Verify
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.Column1.Value);
         Assert.IsFalse(
@@ -576,7 +573,7 @@ codeunit 134614 "Test App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column1.Caption));
         PermissionSetByUser.Close();
 
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -590,7 +587,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -600,7 +597,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
         Assert.IsFalse(
@@ -611,7 +608,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetByUser.AllUsersHavePermission.SetValue(true);
         PermissionSetByUser.Close();
 
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
         Assert.IsTrue(
@@ -623,7 +620,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetByUser.Close();
 
         // Verify
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
         Assert.IsFalse(
@@ -643,7 +640,7 @@ codeunit 134614 "Test App Permissions"
             'Expected permission set %1 to not be enabled for %2', PermissionSetByUser."Role ID", PermissionSetByUser.Column2.Caption));
 
         PermissionSetByUser.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -671,7 +668,7 @@ codeunit 134614 "Test App Permissions"
         Assert.IsTrue(SuperPermissionSet.FindFirst(), 'Aggregate Permission Set must have a SUPER entry');
 
         // Execute
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(SuperPermissionSet);
         Evaluate(IsPermissionSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
 
@@ -685,7 +682,7 @@ codeunit 134614 "Test App Permissions"
         // Execute
         PermissionSetByUser.AllUsersHavePermission.SetValue(true);
         PermissionSetByUser.Close();
-        PermissionSetByUser.OpenView;
+        PermissionSetByUser.OpenView();
         PermissionSetByUser.GotoRecord(SuperPermissionSet);
         Evaluate(IsPermissionSetEnabled, PermissionSetByUser.AllUsersHavePermission.Value);
 
@@ -706,7 +703,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetByUser.Close();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -720,7 +717,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that users can be assigned Nav App permissions in the Permission Sets By User page
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -730,7 +727,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.Column1.Value);
         Assert.IsFalse(
@@ -742,7 +739,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetBySecurityGroup.Close();
 
         // Verify
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.Column1.Value);
         Assert.IsTrue(
@@ -752,7 +749,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetBySecurityGroup.Column1.SetValue(false);
         PermissionSetBySecurityGroup.Close();
 
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.Column1.Value);
         Assert.IsFalse(
@@ -762,7 +759,7 @@ codeunit 134614 "Test App Permissions"
             PermissionSetBySecurityGroup.Column1.Caption));
 
         PermissionSetBySecurityGroup.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -777,7 +774,7 @@ codeunit 134614 "Test App Permissions"
     begin
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
-        InitializeData;
+        InitializeData();
 
         // User is SUPER
         AssignSuperToCurrentUser();
@@ -787,7 +784,7 @@ codeunit 134614 "Test App Permissions"
         AggregatePermissionSet.FindFirst();
 
         // Execute
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.AllUsersHavePermission.Value);
         Assert.IsFalse(
@@ -798,7 +795,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetBySecurityGroup.AllUsersHavePermission.SetValue(true);
         PermissionSetBySecurityGroup.Close();
 
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.AllUsersHavePermission.Value);
         Assert.IsTrue(
@@ -810,7 +807,7 @@ codeunit 134614 "Test App Permissions"
         PermissionSetBySecurityGroup.Close();
 
         // Verify
-        PermissionSetBySecurityGroup.OpenView;
+        PermissionSetBySecurityGroup.OpenView();
         PermissionSetBySecurityGroup.GotoRecord(AggregatePermissionSet);
         Evaluate(PermSetEnabled, PermissionSetBySecurityGroup.AllUsersHavePermission.Value);
         Assert.IsFalse(
@@ -832,7 +829,7 @@ codeunit 134614 "Test App Permissions"
             PermissionSetBySecurityGroup.Column2.Caption));
 
         PermissionSetBySecurityGroup.Close();
-        CleanupData;
+        CleanupData();
     end;
 
     [Test]
@@ -857,8 +854,8 @@ codeunit 134614 "Test App Permissions"
 
         LibraryPermissions.GetMyUser(User);
         // Execute
-        PermissionSetBySecurityGroup.OpenEdit;
-        PermissionSetBySecurityGroup.First;
+        PermissionSetBySecurityGroup.OpenEdit();
+        PermissionSetBySecurityGroup.First();
         while PermissionSetBySecurityGroup."Role ID".Value <> 'TEST1' do
             PermissionSetBySecurityGroup.Next();
         // test setup guarantees uniqueness
@@ -876,16 +873,16 @@ codeunit 134614 "Test App Permissions"
 
         FirstUserGroupCode := PermissionSetBySecurityGroup.Column1.Caption;
         LastSecurityGroupCode := FirstUserGroupCode;
-        PermissionSetBySecurityGroup.ColumnRight.Invoke;
+        PermissionSetBySecurityGroup.ColumnRight.Invoke();
         while LastSecurityGroupCode <> PermissionSetBySecurityGroup.Column1.Caption do begin
             PermissionSetBySecurityGroup.Column3.SetValue(true);
             LastSecurityGroupCode := PermissionSetBySecurityGroup.Column1.Caption;
-            PermissionSetBySecurityGroup.ColumnRight.Invoke;
+            PermissionSetBySecurityGroup.ColumnRight.Invoke();
         end;
         LastSecurityGroupCode := PermissionSetBySecurityGroup.Column3.Caption;
-        PermissionSetBySecurityGroup.AllColumnsLeft.Invoke;
-        PermissionSetBySecurityGroup.ColumnLeft.Invoke;
-        PermissionSetBySecurityGroup.AllColumnsRight.Invoke;
+        PermissionSetBySecurityGroup.AllColumnsLeft.Invoke();
+        PermissionSetBySecurityGroup.ColumnLeft.Invoke();
+        PermissionSetBySecurityGroup.AllColumnsRight.Invoke();
 
         // Validate
         SecurityGroup.GetGroups(SecurityGroupBuffer);
@@ -928,8 +925,8 @@ codeunit 134614 "Test App Permissions"
     [Scope('OnPrem')]
     procedure PermissionSetLookupHandler(var LookupPermissionSet: TestPage "Lookup Permission Set")
     begin
-        LookupPermissionSet.Last;
-        LookupPermissionSet.OK.Invoke;
+        LookupPermissionSet.Last();
+        LookupPermissionSet.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -942,7 +939,7 @@ codeunit 134614 "Test App Permissions"
     [Scope('OnPrem')]
     procedure PointPermissionSetPageToRole(var PermissionSetsPage: TestPage "Permission Sets"; TypeText: Text; RoleId: Code[20])
     begin
-        PermissionSetsPage.First;
+        PermissionSetsPage.First();
         if PermissionSetsPage.PermissionSet.Value = RoleId then
             if PermissionSetsPage.Type.Value = TypeText then
                 exit;

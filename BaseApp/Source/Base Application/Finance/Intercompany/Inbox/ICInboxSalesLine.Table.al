@@ -14,6 +14,7 @@ using Microsoft.Utilities;
 table 435 "IC Inbox Sales Line"
 {
     Caption = 'IC Inbox Sales Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -77,7 +78,7 @@ table 435 "IC Inbox Sales Line"
         field(45; "Job No."; Code[20])
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
         }
         field(73; "Drop Shipment"; Boolean)

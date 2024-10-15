@@ -46,7 +46,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseInvoices.Trap;
+        PurchaseInvoices.Trap();
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(
@@ -57,7 +57,7 @@ codeunit 134892 "Purch. Batch Document Posting"
 
         VerifyInvoicePosted(PurchaseHeader[2]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseCreditMemos.Trap;
+        PurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(
@@ -94,7 +94,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader[2]."Buy-from Vendor No.");
         Assert.RecordCount(PurchCrMemoHdr, 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseOrderList.Trap;
+        PurchaseOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(3); // Receive and Invoice menu choice
@@ -133,7 +133,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader[2]."Buy-from Vendor No.");
         Assert.RecordCount(PurchRcptHeader, 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseReturnOrderList.Trap;
+        PurchaseReturnOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(3); // Receive and Invoice menu choice
@@ -169,7 +169,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", PurchaseHeader[2]."Buy-from Vendor No.");
         Assert.RecordCount(ReturnShipmentHeader, 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -200,7 +200,7 @@ codeunit 134892 "Purch. Batch Document Posting"
 
         LibraryVariableStorage.Enqueue(ReadyToPostTwoInvoicesQst);
 
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         PurchaseBatchPostMgt.RunWithUI(PurchaseHeaderToPost, PurchaseHeaderCreated.Count, ReadyToPostInvoicesTemplateTok);
 
         repeat
@@ -210,7 +210,7 @@ codeunit 134892 "Purch. Batch Document Posting"
 
         Assert.AreEqual(PurchaseHeaderToPost.Count, ErrorCount, 'Unexpected error count');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -250,7 +250,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         VerifyInvoicePosted(PurchaseHeader[2]);
         VerifyInvoiceUnposted(PurchaseHeader[3]);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -274,19 +274,19 @@ codeunit 134892 "Purch. Batch Document Posting"
         // [THEN] Invoices "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Invoice, 0);
 
-        PurchaseInvoices.Trap;
+        PurchaseInvoices.Trap();
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(
           StrSubstNo(DoYouWantToPostQst, LowerCase(Format(PurchaseHeader[1]."Document Type"))));
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -310,19 +310,19 @@ codeunit 134892 "Purch. Batch Document Posting"
         // [THEN] Credit memos "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Credit Memo", 0);
 
-        PurchaseCreditMemos.Trap;
+        PurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(
           StrSubstNo(DoYouWantToPostQst, LowerCase(Format(PurchaseHeader[1]."Document Type"))));
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -346,18 +346,18 @@ codeunit 134892 "Purch. Batch Document Posting"
         // [THEN] Orders "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Order, 0);
 
-        PurchaseOrderList.Trap;
+        PurchaseOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
         LibraryVariableStorage.Enqueue(3); // Receive and Invoice menu choice
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -381,17 +381,17 @@ codeunit 134892 "Purch. Batch Document Posting"
         // [THEN] Return orders "X", "Y" and "Z" remain unposted
         CreateThreeDocuments(PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Return Order", 0);
 
-        PurchaseReturnOrderList.Trap;
+        PurchaseReturnOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeaderUI);
 
         LibraryVariableStorage.Enqueue(3); // Receive and Invoice menu choice
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         InvokePostSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[2]);
 
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         ErrorMessagesPage.Context.AssertEquals(Format(PurchaseHeader[2].RecordId));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -413,7 +413,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseOrderList.Trap;
+        PurchaseOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
 
         InvokeReleaseSelectedOrders(PurchaseOrderList, PurchaseHeader[2]);
@@ -443,7 +443,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Order, LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseOrderList.Trap;
+        PurchaseOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Order List", PurchaseHeaderUI);
 
         InvokeReleaseSelectedOrders(PurchaseOrderList, PurchaseHeader[1]);
@@ -476,7 +476,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseInvoices.Trap;
+        PurchaseInvoices.Trap();
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
         InvokeReleaseSelectedInvoices(PurchaseInvoices, PurchaseHeader[2]);
@@ -506,7 +506,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseInvoices.Trap;
+        PurchaseInvoices.Trap();
         PAGE.Run(PAGE::"Purchase Invoices", PurchaseHeaderUI);
 
         InvokeReleaseSelectedInvoices(PurchaseInvoices, PurchaseHeader[1]);
@@ -539,7 +539,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseCreditMemos.Trap;
+        PurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
         InvokeReleaseSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[2]);
@@ -569,7 +569,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseCreditMemos.Trap;
+        PurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memos", PurchaseHeaderUI);
 
         InvokeReleaseSelectedCreditMemos(PurchaseCreditMemos, PurchaseHeader[1]);
@@ -602,7 +602,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseReturnOrderList.Trap;
+        PurchaseReturnOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeaderUI);
 
         InvokeReleaseSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[2]);
@@ -632,7 +632,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
-        PurchaseReturnOrderList.Trap;
+        PurchaseReturnOrderList.Trap();
         PAGE.Run(PAGE::"Purchase Return Order List", PurchaseHeaderUI);
 
         InvokeReleaseSelectedReturnOrders(PurchaseReturnOrderList, PurchaseHeader[1]);
@@ -665,7 +665,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
 
-        BlanketPurchaseOrders.Trap;
+        BlanketPurchaseOrders.Trap();
         PAGE.Run(PAGE::"Blanket Purchase Orders", PurchaseHeaderUI);
 
         InvokeReleaseSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[2]);
@@ -695,7 +695,7 @@ codeunit 134892 "Purch. Batch Document Posting"
         CreateThreeDocuments(
           PurchaseHeader, PurchaseHeaderUI, PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
 
-        BlanketPurchaseOrders.Trap;
+        BlanketPurchaseOrders.Trap();
         PAGE.Run(PAGE::"Blanket Purchase Orders", PurchaseHeaderUI);
 
         InvokeReleaseSelectedBlanketOrders(BlanketPurchaseOrders, PurchaseHeader[1]);
@@ -718,9 +718,9 @@ codeunit 134892 "Purch. Batch Document Posting"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purch. Batch Document Posting");
 
-        LibraryPurchase.SetReturnOrderNoSeriesInSetup;
+        LibraryPurchase.SetReturnOrderNoSeriesInSetup();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Purch. Batch Document Posting");
@@ -733,7 +733,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         for Index := 1 to ArrayLen(PurchaseHeader) do
             LibraryPurchase.CreatePurchaseDocumentWithItem(
-              PurchaseHeader[Index], PurchaseLine, DocumentType, LibraryPurchase.CreateVendorNo, '', Quantity, '', 0D);
+              PurchaseHeader[Index], PurchaseLine, DocumentType, LibraryPurchase.CreateVendorNo(), '', Quantity, '', 0D);
 
         PurchaseHeaderUI.SetFilter("No.", '%1|%2|%3', PurchaseHeader[1]."No.", PurchaseHeader[2]."No.", PurchaseHeader[3]."No.");
         PurchaseHeaderUI.SetRange("Document Type", DocumentType);
@@ -742,85 +742,85 @@ codeunit 134892 "Purch. Batch Document Posting"
     local procedure InvokePostSelectedInvoices(var PurchaseInvoices: TestPage "Purchase Invoices"; PurchaseHeaderToPost: Record "Purchase Header")
     begin
         PurchaseInvoices.GotoRecord(PurchaseHeaderToPost);
-        PurchaseInvoices.PostSelected.Invoke;
+        PurchaseInvoices.PostSelected.Invoke();
     end;
 
     local procedure InvokePostSelectedCreditMemos(var PurchaseCreditMemos: TestPage "Purchase Credit Memos"; PurchaseHeaderToPost: Record "Purchase Header")
     begin
         PurchaseCreditMemos.GotoRecord(PurchaseHeaderToPost);
-        PurchaseCreditMemos.Post.Invoke;
+        PurchaseCreditMemos.Post.Invoke();
     end;
 
     local procedure InvokePostSelectedOrders(var PurchaseOrderList: TestPage "Purchase Order List"; PurchaseHeaderToPost: Record "Purchase Header")
     begin
         PurchaseOrderList.GotoRecord(PurchaseHeaderToPost);
-        PurchaseOrderList.Post.Invoke;
+        PurchaseOrderList.Post.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedOrders(var PurchaseOrderList: TestPage "Purchase Order List"; PurchaseHeaderToRelease: Record "Purchase Header")
     begin
         PurchaseOrderList.GotoRecord(PurchaseHeaderToRelease);
-        PurchaseOrderList.Release.Invoke;
+        PurchaseOrderList.Release.Invoke();
     end;
 
     local procedure InvokeReopenSelectedOrders(var PurchaseOrderList: TestPage "Purchase Order List"; PurchaseHeaderToReopen: Record "Purchase Header")
     begin
         PurchaseOrderList.GotoRecord(PurchaseHeaderToReopen);
-        PurchaseOrderList.Reopen.Invoke;
+        PurchaseOrderList.Reopen.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedInvoices(var PurchaseInvoices: TestPage "Purchase Invoices"; PurchaseHeaderToRelease: Record "Purchase Header")
     begin
         PurchaseInvoices.GotoRecord(PurchaseHeaderToRelease);
-        PurchaseInvoices.Release.Invoke;
+        PurchaseInvoices.Release.Invoke();
     end;
 
     local procedure InvokeReopenSelectedInvoices(var PurchaseInvoices: TestPage "Purchase Invoices"; PurchaseHeaderToReopen: Record "Purchase Header")
     begin
         PurchaseInvoices.GotoRecord(PurchaseHeaderToReopen);
-        PurchaseInvoices."Reopen".Invoke;
+        PurchaseInvoices."Reopen".Invoke();
     end;
 
     local procedure InvokeReleaseSelectedCreditMemos(var PurchaseCreditMemos: TestPage "Purchase Credit Memos"; PurchaseHeaderToRelease: Record "Purchase Header")
     begin
         PurchaseCreditMemos.GotoRecord(PurchaseHeaderToRelease);
-        PurchaseCreditMemos."Release".Invoke;
+        PurchaseCreditMemos."Release".Invoke();
     end;
 
     local procedure InvokeReopenSelectedCreditMemos(var PurchaseCreditMemos: TestPage "Purchase Credit Memos"; PurchaseHeaderToReopen: Record "Purchase Header")
     begin
         PurchaseCreditMemos.GotoRecord(PurchaseHeaderToReopen);
-        PurchaseCreditMemos."Reopen".Invoke;
+        PurchaseCreditMemos."Reopen".Invoke();
     end;
 
     local procedure InvokePostSelectedReturnOrders(var PurchaseReturnOrderList: TestPage "Purchase Return Order List"; PurchaseHeaderToPost: Record "Purchase Header")
     begin
         PurchaseReturnOrderList.GotoRecord(PurchaseHeaderToPost);
-        PurchaseReturnOrderList.Post.Invoke;
+        PurchaseReturnOrderList.Post.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedReturnOrders(var PurchaseReturnOrderList: TestPage "Purchase Return Order List"; PurchaseHeaderToRelease: Record "Purchase Header")
     begin
         PurchaseReturnOrderList.GotoRecord(PurchaseHeaderToRelease);
-        PurchaseReturnOrderList.Release.Invoke;
+        PurchaseReturnOrderList.Release.Invoke();
     end;
 
     local procedure InvokeReopenSelectedReturnOrders(var PurchaseReturnOrderList: TestPage "Purchase Return Order List"; PurchaseHeaderToReopen: Record "Purchase Header")
     begin
         PurchaseReturnOrderList.GotoRecord(PurchaseHeaderToReopen);
-        PurchaseReturnOrderList.Reopen.Invoke;
+        PurchaseReturnOrderList.Reopen.Invoke();
     end;
 
     local procedure InvokeReleaseSelectedBlanketOrders(var BlanketPurchaseOrders: TestPage "Blanket Purchase Orders"; PurchaseHeaderToRelease: Record "Purchase Header")
     begin
         BlanketPurchaseOrders.GotoRecord(PurchaseHeaderToRelease);
-        BlanketPurchaseOrders."Release".Invoke;
+        BlanketPurchaseOrders."Release".Invoke();
     end;
 
     local procedure InvokeReopenSelectedBlanketOrders(var BlanketPurchaseOrders: TestPage "Blanket Purchase Orders"; PurchaseHeaderToReopen: Record "Purchase Header")
     begin
         BlanketPurchaseOrders.GotoRecord(PurchaseHeaderToReopen);
-        BlanketPurchaseOrders."Reopen".Invoke;
+        BlanketPurchaseOrders."Reopen".Invoke();
     end;
 
     local procedure MarkDocumentsToPost(var PurchaseHeaderToPost: Record "Purchase Header"; var PurchaseHeader: array[3] of Record "Purchase Header"; var PurchaseHeaderCreated: Record "Purchase Header")
@@ -839,7 +839,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true; // precal forces to set any value to VAR parameter
     end;
 
@@ -847,14 +847,14 @@ codeunit 134892 "Purch. Batch Document Posting"
     [Scope('OnPrem')]
     procedure MessageHandler(MessageText: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, MessageText);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), MessageText);
     end;
 
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure PostStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     local procedure VerifyTwoOfThreeDocumentsUnposted(var PurchaseHeaderUI: Record "Purchase Header"; var PurchaseHeader: array[3] of Record "Purchase Header")
@@ -872,7 +872,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         Assert.RecordCount(PurchInvHeader, 1);
-        Assert.IsFalse(PurchaseHeader.Find, '');
+        Assert.IsFalse(PurchaseHeader.Find(), '');
     end;
 
     local procedure VerifyInvoiceUnposted(var PurchaseHeader: Record "Purchase Header")
@@ -881,7 +881,7 @@ codeunit 134892 "Purch. Batch Document Posting"
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         Assert.RecordCount(PurchInvHeader, 0);
-        Assert.IsTrue(PurchaseHeader.Find, '');
+        Assert.IsTrue(PurchaseHeader.Find(), '');
     end;
 
     local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; ExpectedStatus: Enum "Purchase Document Status")

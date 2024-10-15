@@ -6,6 +6,7 @@ namespace Microsoft.Finance.Currency;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Payables;
+using Microsoft.HumanResources.Payables;
 using Microsoft.Sales.Receivables;
 #if not CLEAN23
 using System.Environment.Configuration;
@@ -87,6 +88,29 @@ codeunit 599 "Exch. Rate Adjmt. Run Handler"
 #endif
     end;
 
+    procedure RunEmplExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary)
+    var
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEmplExchRateAdjustment(GenJnlLine, TempEmployeeLedgerEntry, IsHandled);
+        if not IsHandled then
+#if not CLEAN23
+            if FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then
+                ExchRateAdjmtProcess.AdjustExchRateEmpl(GenJnlLine, TempEmployeeLedgerEntry)
+#else
+            ExchRateAdjmtProcess.AdjustExchRateEmpl(GenJnlLine, TempEmployeeLedgerEntry);
+#endif
+    end;
+
+#if not CLEAN23
+    internal procedure ShowFeatureManagement(ErrorInfo: ErrorInfo)
+    begin
+        Page.RunModal(Page::"Feature Management");
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunExchangeRateAdjustment(var IsHandled: Boolean)
     begin
@@ -101,4 +125,10 @@ codeunit 599 "Exch. Rate Adjmt. Run Handler"
     local procedure OnBeforeRunVendExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEmplExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
 }
+
