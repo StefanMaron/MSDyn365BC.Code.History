@@ -77,7 +77,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Posted Sales Credit Memo - Payment Discount Date with blank after changing the Posting Date, Create and Post Sales Credit Memo.
 
         // Setup: Create Sales Credit Memo, Update Posting Date.
-        Initialize;
+        Initialize();
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateItem(''), CreateCustomer(''),
           CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Blank - VAT Product Posting Group, VAT Business Posting Group and Posting Date before WorkDate.
@@ -101,7 +101,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Posted Purchase Credit Memo - Payment Discount Date with blank after changing the Posting Date, Create and Post Purchase Credit Memo.
 
         // Setup: Create Purchase Credit Memo, Update Posting Date.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateItem(''), CreateVendor(''),
           CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Blank - VAT Product Posting Group, VAT Business Posting Group and Posting Date before WorkDate.
@@ -123,7 +123,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Weighted Exceeded Amount Open Payments outside the legal limit in the case of the Posted Purchase Invoice with fully payment.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseInvoicePmtVendorOverduePayments(LibraryRandom.RandIntInRange(1, 1));  // Division factor for fully Payment.
     end;
 
@@ -136,7 +136,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Weighted Exceeded Amount Open Payments outside the legal limit in the case of the Posted Purchase Invoice with partial payment.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseInvoicePmtVendorOverduePayments(LibraryRandom.RandIntInRange(2, 10));  // Division factor for partial Payment.
     end;
 
@@ -173,7 +173,7 @@ codeunit 144049 "ERM ES Check PMPE"
     begin
         // [FEATURE] [Report] [Purchase]
         // [SCENARIO 379545] Vendor Overdue Payments report with Payment posted on Due Date if Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice where Amount = 100, Payment Method has 30D, Due Date = 01-02-16
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -214,7 +214,7 @@ codeunit 144049 "ERM ES Check PMPE"
     begin
         // [FEATURE] [Report] [Purchase]
         // [SCENARIO 381011] Vendor Overdue Payments report posted within Due Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice where Amount = 100, "Posting Date" = 01-01-16, "Due Date" = 10-01-16
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -243,7 +243,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Weighted Exceeded Amount Open Payments outside the legal limit in the case of the Posted Sales Invoice with fully payment.
 
         // Setup.
-        Initialize;
+        Initialize();
         SalesInvoicePmtCustOverduePayments(LibraryRandom.RandIntInRange(1, 1));  // Division factor for fully Payment.
     end;
 
@@ -256,7 +256,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Weighted Exceeded Amount Open Payments outside the legal limit in the case of the Posted Sales Invoice with partial payment.
 
         // Setup.
-        Initialize;
+        Initialize();
         SalesInvoicePmtCustOverduePayments(LibraryRandom.RandIntInRange(2, 10));  // Division factor for partial Payment.
     end;
 
@@ -288,7 +288,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Unrealized VAT when apply Payment to Purchase Invoice and have another Purchase Invoice in the same transaction.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJornalWithUnrealizedVAT(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
           GenJournalLine."Bal. Gen. Posting Type"::Purchase, -LibraryRandom.RandDecInRange(10, 50, 2));  // Random - Amount.
@@ -304,7 +304,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Unrealized VAT when apply Payment to Purchase Credit Memo and have another Purchase Credit Memo in the same transaction.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJornalWithUnrealizedVAT(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Vendor,
           GenJournalLine."Bal. Gen. Posting Type"::Purchase, LibraryRandom.RandDecInRange(10, 50, 2));  // Random - Amount.
@@ -320,7 +320,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Unrealized VAT when apply Payment to Sales Invoice and have another Sales Invoice in the same transaction.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJornalWithUnrealizedVAT(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
           GenJournalLine."Bal. Gen. Posting Type"::Sale, LibraryRandom.RandDecInRange(10, 50, 2));  // Random - Amount.
@@ -336,7 +336,7 @@ codeunit 144049 "ERM ES Check PMPE"
         // [SCENARIO] Verify Unrealized VAT when apply Payment to Sales Credit Memo and have another Sales Credit Memo in the same transaction.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJornalWithUnrealizedVAT(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer,
           GenJournalLine."Bal. Gen. Posting Type"::Sale, -LibraryRandom.RandDecInRange(10, 50, 2));  // Random - Amount.
@@ -385,7 +385,7 @@ codeunit 144049 "ERM ES Check PMPE"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         // [SCENARIO 300477] Run 'Customer - Overdue Payments' report when TotalAmount for Customer is zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with applied payment
         CreatePostApplySalesDocument(SalesHeader, GenJournalLine, 1);
@@ -418,7 +418,7 @@ codeunit 144049 "ERM ES Check PMPE"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         // [SCENARIO 300477] Run 'Vendor - Overdue Payments' report when TotalAmount for Vendor is zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with applied payment
         CreatePostApplyPurchaseDocument(PurchaseHeader, GenJournalLine, 1);
@@ -444,7 +444,7 @@ codeunit 144049 "ERM ES Check PMPE"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAccountNumber(AccountType: Enum "Gen. Journal Account Type"; VATBusPostingGroup: Code[20]): Code[20]
@@ -689,7 +689,7 @@ codeunit 144049 "ERM ES Check PMPE"
         Customer.SetRange("No.", No);
         CustomerOverduePayments.SetTableView(Customer);
         CustomerOverduePayments.InitReportParameters(StartingDate, WorkDate, ShowPayments::"Legally Overdue");
-        CustomerOverduePayments.Run;
+        CustomerOverduePayments.Run();
     end;
 
     local procedure RunVendorOverduePaymentsReport(No: Code[20]; StartingDate: Date; ShowPayments: Option)
@@ -700,7 +700,7 @@ codeunit 144049 "ERM ES Check PMPE"
         Vendor.SetRange("No.", No);
         VendorOverduePayments.InitReportParameters(StartingDate, WorkDate, ShowPayments);
         VendorOverduePayments.SetTableView(Vendor);
-        VendorOverduePayments.Run;
+        VendorOverduePayments.Run();
     end;
 
     local procedure UpdateGeneralLedgerSetupUnrealizedVAT(UnrealizedVAT: Boolean) OldUnrealizedVAT: Boolean
@@ -728,7 +728,7 @@ codeunit 144049 "ERM ES Check PMPE"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(Amount - VATEntry.Amount, VATEntry.Base, LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeEqualMsg);
     end;

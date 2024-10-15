@@ -318,6 +318,13 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -329,6 +336,7 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -377,6 +385,12 @@
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -715,6 +729,14 @@
         }
         area(factboxes)
         {
+            part(PurchaseDocCheckFactbox; "Purch. Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = PurchaseDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -926,7 +948,9 @@
                     Image = ShipmentLines;
                     RunObject = Page "Whse. Shipment Lines";
                     RunPageLink = "Source Type" = CONST(39),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
@@ -1197,7 +1221,7 @@
                     begin
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
-                        MoveNegPurchLines.RunModal;
+                        MoveNegPurchLines.RunModal();
                         MoveNegPurchLines.ShowDocument;
                     end;
                 }
@@ -1430,7 +1454,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1454,6 +1478,8 @@
         CalculateCurrentShippingOption;
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1463,10 +1489,8 @@
     end;
 
     trigger OnInit()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        JobQueueUsed := PurchasesPayablesSetup.JobQueueActive;
+        JobQueueUsed := PurchSetup.JobQueueActive();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1490,6 +1514,9 @@
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
 
         ActivateFields();
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1501,6 +1528,8 @@
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        PurchSetup: Record "Purchases & Payables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         DocPrint: Codeunit "Document-Print";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1525,6 +1554,12 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        PurchaseDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
         OperationDescription: Text[500];
 
     protected var
@@ -1535,6 +1570,9 @@
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)
@@ -1546,8 +1584,10 @@
     var
         PurchaseHeader: Record "Purchase Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         IsHandled: Boolean;
     begin
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
         SendToPosting(PostingCodeunitID);
 
         DocumentIsPosted := not PurchaseHeader.Get("Document Type", "No.");
@@ -1614,12 +1654,33 @@
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
 
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+        PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.PurchaseDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
+    end;
+
+    procedure SetPostingGroupEditable()
+    begin
+        PurchSetup.GetRecordOnce();
+        IsPostingGroupEditable := PurchSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -1630,11 +1691,11 @@
     begin
         if not ReturnOrderPurchaseHeader.Get("Document Type", "No.") then begin
             PurchCrMemoHdr.SetRange("No.", "Last Posting No.");
-            if PurchCrMemoHdr.FindFirst then
+            if PurchCrMemoHdr.FindFirst() then
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseReturnOrderQst, PurchCrMemoHdr."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode)
                 then
-                    PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                    InstructionMgt.ShowPostedDocument(PurchCrMemoHdr, Page::"Purchase Return Order");
         end;
     end;
 
@@ -1665,6 +1726,11 @@
             else
                 ShipToOptions := ShipToOptions::"Custom Address";
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

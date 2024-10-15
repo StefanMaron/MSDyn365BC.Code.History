@@ -141,7 +141,7 @@ codeunit 147553 "SII Batch Submission"
         LibrarySII.InitSetup(true, false);
 
         with SIIDocUploadState do begin
-            ExternalDocumentNo := LibraryUtility.GenerateGUID;
+            ExternalDocumentNo := LibraryUtility.GenerateGUID();
             DocumentNo := LibrarySII.MockSalesInvoice(ExternalDocumentNo);
 
             CreateNewRequest(
@@ -149,7 +149,7 @@ codeunit 147553 "SII Batch Submission"
               "Document Type"::Invoice.AsInteger(), DocumentNo, ExternalDocumentNo, WorkDate);
 
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("External Document No.", ExternalDocumentNo);
             TestField("Is Manual", false);
             TestField("Transaction Type", "Transaction Type"::Regular);
@@ -158,7 +158,7 @@ codeunit 147553 "SII Batch Submission"
 
         with SIIHistory do begin
             SetRange("Document State Id", SIIDocUploadState.Id);
-            FindFirst;
+            FindFirst();
             TestField("Is Manual", false);
             TestField(Status, Status::Pending);
             TestField("Upload Type", "Upload Type"::Regular);
@@ -174,7 +174,7 @@ codeunit 147553 "SII Batch Submission"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 232557] PAG 10752 "SII History" has several actions: "Retry", "Retry All", "Retry Accepted"
 
-        Initialize;
+        Initialize();
 
         // All "Retry" actions are disabled in case of SIISetup.Enabled = FALSE
         LibrarySII.InitSetup(false, false);
@@ -210,7 +210,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 232557] There is a confirm question ("Accepted entries have been selected. Do you want to resend them?") when User invokes "Retry Accepted" action
-        Initialize;
+        Initialize();
         LibrarySII.InitSetup(true, false);
 
         SIIHistory.OpenEdit;
@@ -320,7 +320,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 232557] Two sales invoice documents are combined in one XML
-        Initialize;
+        Initialize();
 
         CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
 
@@ -342,7 +342,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232557] Two sales credit memo documents are combined in one XML
-        Initialize;
+        Initialize();
 
         CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::"Credit Memo", false);
 
@@ -364,7 +364,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232557] Two sales credit memo removal documents are combined in one XML
-        Initialize;
+        Initialize();
 
         CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::"Credit Memo", true);
 
@@ -386,7 +386,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 232557] Two purchase invoice documents are combined in one XML
-        Initialize;
+        Initialize();
 
         CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::Invoice, false);
 
@@ -408,7 +408,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232557] Two purchase credit memo documents are combined in one XML
-        Initialize;
+        Initialize();
 
         CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", false);
 
@@ -430,7 +430,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232557] Two purchase credit memo removal documents are combined in one XML
-        Initialize;
+        Initialize();
 
         CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", true);
 
@@ -452,7 +452,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 232557] Two sales invoice documents are splitted when SIIXMLCreator.Reset() is invoked
-        Initialize;
+        Initialize();
 
         CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
 
@@ -486,7 +486,7 @@ codeunit 147553 "SII Batch Submission"
         i: Integer;
     begin
         // [SCENARIO 232557] Upload documents (several per each document type) in case of batch submission
-        Initialize;
+        Initialize();
         LibrarySII.InitSetup(true, true);
 
         // [GIVEN] Several posted documents per each type (Sales\Purchase, Invoice\CreditMemo\CreditMemoRemoval)
@@ -529,7 +529,7 @@ codeunit 147553 "SII Batch Submission"
         SessionId: array[6] of Integer;
     begin
         // [SCENARIO 232557] Upload documents (several per each document type) in case of single mode submission
-        Initialize;
+        Initialize();
         LibrarySII.InitSetup(true, false);
 
         // [GIVEN] Several posted documents sales invoices
@@ -547,7 +547,7 @@ codeunit 147553 "SII Batch Submission"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -569,7 +569,7 @@ codeunit 147553 "SII Batch Submission"
         end;
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
         CustLedgerEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         exit(CustLedgerEntry."Document No.");
     end;
 
@@ -586,7 +586,7 @@ codeunit 147553 "SII Batch Submission"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
         VendorLedgerEntry.SetRange("Document No.", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         exit(VendorLedgerEntry."Document No.");
     end;
 
@@ -596,7 +596,7 @@ codeunit 147553 "SII Batch Submission"
             SetRange("Document Source", DocumentSource);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -607,7 +607,7 @@ codeunit 147553 "SII Batch Submission"
         FindDocUploadState(SIIDocUploadState, DocumentSource, DocumentType, DocumentNo);
         with SIIHistory do begin
             SetRange("Document State Id", SIIDocUploadState.Id);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -623,7 +623,7 @@ codeunit 147553 "SII Batch Submission"
     begin
         Assert.RecordCount(SIIHistory, ExpectedCount);
         with SIIHistory do begin
-            FindLast;
+            FindLast();
             TestField(Status, ExpectedStatus);
         end;
     end;

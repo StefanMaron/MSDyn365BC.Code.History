@@ -37,23 +37,23 @@ codeunit 7000001 "G/L Reg.-Docs."
         if GLEntry."Document Type" = GLEntry."Document Type"::Bill then begin
             PostedDoc.SetCurrentKey("Bill Gr./Pmt. Order No.", Status, "Category Code", Redrawn, "Due Date");
             PostedDoc.SetRange("Bill Gr./Pmt. Order No.", GLEntry."Document No.");
-            if PostedDoc.FindFirst then
+            if PostedDoc.FindFirst() then
                 exit(true);
 
             ClosedDoc.SetCurrentKey(Type, "Bill Gr./Pmt. Order No.", "Global Dimension 1 Code", "Global Dimension 2 Code",
               "Currency Code", Status, Redrawn);
             ClosedDoc.SetRange("Bill Gr./Pmt. Order No.", GLEntry."Document No.");
-            if ClosedDoc.FindFirst then
+            if ClosedDoc.FindFirst() then
                 exit(true);
         end else begin
             PostedDoc.SetCurrentKey(Type, "Document No.");
             PostedDoc.SetRange("Document No.", GLEntry."Document No.");
-            if PostedDoc.FindFirst then
+            if PostedDoc.FindFirst() then
                 exit(true);
 
             ClosedDoc.SetCurrentKey(Type, "Document No.");
             ClosedDoc.SetRange("Document No.", GLEntry."Document No.");
-            if ClosedDoc.FindFirst then
+            if ClosedDoc.FindFirst() then
                 exit(true);
         end;
 

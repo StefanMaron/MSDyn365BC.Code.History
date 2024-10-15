@@ -210,7 +210,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                 if PostedBillGr."Currency Code" <> '' then begin
                     if SumLCYAmt <> 0 then begin
                         Currency.SetFilter(Code, PostedBillGr."Currency Code");
-                        Currency.FindFirst;
+                        Currency.FindFirst();
                         if SumLCYAmt > 0 then begin
                             Currency.TestField("Residual Gains Account");
                             Acct := Currency."Residual Gains Account";
@@ -250,7 +250,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                 Window.Close;
 
                 if ExistVATEntry then begin
-                    GLReg.FindLast;
+                    GLReg.FindLast();
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
                     GLReg.Modify();

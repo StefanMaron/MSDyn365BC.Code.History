@@ -498,7 +498,7 @@ table 7317 "Warehouse Receipt Line"
         "No." := DocNo;
         SetRange("No.", "No.");
         LockTable();
-        if FindLast then;
+        if FindLast() then;
 
         Init;
         SetIgnoreErrors;
@@ -697,7 +697,7 @@ table 7317 "Warehouse Receipt Line"
         SetRange("No.", ReceiptNo);
         SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
         OnGetWhseRcptLineOnAfterSetFilters(Rec, ReceiptNo, SourceType, SourceSubType, SourceNo, SourceLineNo);
-        if FindFirst then
+        if FindFirst() then
             exit(true);
     end;
 

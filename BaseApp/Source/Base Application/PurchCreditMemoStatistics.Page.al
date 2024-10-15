@@ -158,7 +158,7 @@ page 401 "Purch. Credit Memo Statistics"
         VendLedgEntry.SetRange("Document No.", "No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
         VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
-        if VendLedgEntry.FindFirst then
+        if VendLedgEntry.FindFirst() then
             AmountLCY := VendLedgEntry."Purchase (LCY)";
 
         if not Vend.Get("Pay-to Vendor No.") then

@@ -34,7 +34,7 @@ codeunit 134815 "Item Blocked Test"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Invoice]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for sales
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -62,7 +62,7 @@ codeunit 134815 "Item Blocked Test"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Credit Memo]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for sales
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -97,7 +97,7 @@ codeunit 134815 "Item Blocked Test"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for sales
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -132,7 +132,7 @@ codeunit 134815 "Item Blocked Test"
         SalesOrderPage: TestPage "Sales Order";
     begin
         // [FEATURE] [Sales] [Order] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] An item 'X' that is blocked for sales
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -170,7 +170,7 @@ codeunit 134815 "Item Blocked Test"
         SalesReturnOrderPage: TestPage "Sales Return Order";
     begin
         // [FEATURE] [Sales] [Return Order] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] An item 'X' that is blocked for sales
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -208,7 +208,7 @@ codeunit 134815 "Item Blocked Test"
         SalesCreditMemoPage: TestPage "Sales Credit Memo";
     begin
         // [FEATURE] [Sales] [Credit Memo] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] An item 'X' that is blocked for sales
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -245,7 +245,7 @@ codeunit 134815 "Item Blocked Test"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         // [FEATURE] [Sales] [Journal]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for sale
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -275,7 +275,7 @@ codeunit 134815 "Item Blocked Test"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         // [FEATURE] [Sales] [Journal]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for sale
         LibraryInventory.CreateItem(Item);
         Item.Validate("Sales Blocked", true);
@@ -304,7 +304,7 @@ codeunit 134815 "Item Blocked Test"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase] [Invoice]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -332,7 +332,7 @@ codeunit 134815 "Item Blocked Test"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase] [Credit Memo]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -367,7 +367,7 @@ codeunit 134815 "Item Blocked Test"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -402,7 +402,7 @@ codeunit 134815 "Item Blocked Test"
         PurchaseOrderPage: TestPage "Purchase Order";
     begin
         // [FEATURE] [Purchase] [Order] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] An item 'X' that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -440,7 +440,7 @@ codeunit 134815 "Item Blocked Test"
         PurchaseReturnOrderPage: TestPage "Purchase Return Order";
     begin
         // [FEATURE] [Purchase] [Return Order] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] An item 'X' that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -478,7 +478,7 @@ codeunit 134815 "Item Blocked Test"
         PurchaseCreditMemoPage: TestPage "Purchase Credit Memo";
     begin
         // [FEATURE] [Purchase] [Credit Memo] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] An item 'X' that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -515,7 +515,7 @@ codeunit 134815 "Item Blocked Test"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         // [FEATURE] [Purchase] [Journal]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);
@@ -545,7 +545,7 @@ codeunit 134815 "Item Blocked Test"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         // [FEATURE] [Purchase] [Journal]
-        Initialize;
+        Initialize();
         // [GIVEN] An item that is blocked for purchase
         LibraryInventory.CreateItem(Item);
         Item.Validate("Purchasing Blocked", true);

@@ -36,8 +36,8 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [FEATURE] [UI]
         // [SCENARIO 295702] A field "Same Ext. Doc. No. in Diff. FY" is visible and editable on "Purchases & Payables Setup" page
 
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         LibraryLowerPermissions.SetAccountPayables;
 
@@ -58,13 +58,13 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] It is not possible to post document with same "External Document No." in current Fiscal Year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is disabled
 
-        Initialize;
+        Initialize();
 
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is disabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(false);
@@ -92,13 +92,13 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] It is not possible to post document with same "External Document No." in different Fiscal Year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is disabled
 
-        Initialize;
+        Initialize();
 
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is disabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(false);
@@ -126,13 +126,13 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] It is not possible to post document with same "External Document No." in current Fiscal Year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is enabled
 
-        Initialize;
+        Initialize();
 
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is enabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(true);
@@ -160,13 +160,13 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] Stan can post document with same "External Document No." in different Fiscal Year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is enabled
 
-        Initialize;
+        Initialize();
 
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsCreate;
-        LibraryLowerPermissions.AddPurchDocsPost;
+        LibraryLowerPermissions.AddPurchDocsPost();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is enabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(true);
@@ -195,7 +195,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [FEATURE] [UT]
         // [SCENARIO 295702] A document Date of Vendor Ledger Entry considers when calling function SetFilterForExternalDocNoFunction
 
-        Initialize;
+        Initialize();
         SetSameExtDocNoInDiffFY(true);
         VendNo := LibraryPurchase.CreateVendorNo;
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
@@ -204,7 +204,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         VendorMgt.SetFilterForExternalDocNo(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CopyStr(ExtDocNo, 1, 35), VendNo, WorkDate);
         Assert.RecordCount(VendorLedgerEntry, 1);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(EntryNo, VendorLedgerEntry."Entry No.", 'Incorrect entry no.');
     end;
 
@@ -221,7 +221,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "General Journal -Test" report fails if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is disabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(false);
@@ -259,7 +259,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "General Journal -Test" report runs successfully if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is enabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(true);
@@ -296,7 +296,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "Vendor Pre-Payment Journal" report fails if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is disabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(false);
@@ -333,7 +333,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [FEATURE] [Report]
         // [SCENARIO 295702] A "Vendor Pre-Payment Journal" report runs successfully if there is duplicated External Document No. in different fiscal year
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is enabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(true);
@@ -370,7 +370,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "Purchase Document - Test" report fails if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is disabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(false);
@@ -410,7 +410,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "Purchase Document - Test" report runs successfully if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is enabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(true);
@@ -447,7 +447,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "Purchase Prepmt. Doc. - Test" report fails if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is disabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(false);
@@ -488,7 +488,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         // [SCENARIO 295702] A "Purchase Prepmt. Doc. - Test" report runs successfully if there is duplicated External Document No. in different fiscal year
         // [SCENARIO 295702] when option "Same Ext. Doc. No. in Diff. FY" is enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] An option "Same Ext. Doc. No. in Diff. FY" is enabled in "Purchases & Payables Setup"
         SetSameExtDocNoInDiffFY(true);
@@ -516,7 +516,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -622,7 +622,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         GenJournalBatch.SetRange(Name, GenJournalLine."Journal Batch Name");
         VendorPrePaymentJournal.SetTableView(GenJournalBatch);
         VendorPrePaymentJournal.SetTableView(GenJournalLine);
-        VendorPrePaymentJournal.Run;
+        VendorPrePaymentJournal.Run();
     end;
 
     local procedure VerifyTwoVendLedgEntryWithSameExtDocNo(VendNo: Code[20]; ExtDocNo: Text[35])

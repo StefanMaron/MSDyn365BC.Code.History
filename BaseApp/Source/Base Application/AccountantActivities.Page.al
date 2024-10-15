@@ -1,4 +1,4 @@
-page 9037 "Accountant Activities"
+﻿page 9037 "Accountant Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;
@@ -64,13 +64,13 @@ page 9037 "Accountant Activities"
             {
                 CueGroupLayout = Wide;
                 ShowCaption = false;
-                field("Overdue Purchase Documents"; "Overdue Purchase Documents")
+                field("Overdue Purchase Documents"; Rec."Overdue Purchase Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor Ledger Entries";
                     ToolTip = 'Specifies the number of purchase invoices where your payment is late.';
                 }
-                field("Cash Accounts Balance"; "Cash Accounts Balance")
+                field("Cash Accounts Balance"; Rec."Cash Accounts Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Chart of Accounts";
@@ -81,10 +81,10 @@ page 9037 "Accountant Activities"
                     var
                         ActivitiesMgt: Codeunit "Activities Mgt.";
                     begin
-                        ActivitiesMgt.DrillDownCalcCashAccountsBalances;
+                        ActivitiesMgt.DrillDownCalcCashAccountsBalances();
                     end;
                 }
-                field("New Incoming Documents"; "New Incoming Documents")
+                field("New Incoming Documents"; Rec."New Incoming Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Incoming Documents";
@@ -94,18 +94,18 @@ page 9037 "Accountant Activities"
             cuegroup(Payments)
             {
                 Caption = 'Payments';
-                field("Purchase Documents Due Today"; "Purchase Documents Due Today")
+                field("Purchase Documents Due Today"; Rec."Purchase Documents Due Today")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor Ledger Entries";
                     ToolTip = 'Specifies the number of purchase invoices that are due for payment today.';
                 }
-                field("Purch. Invoices Due Next Week"; "Purch. Invoices Due Next Week")
+                field("Purch. Invoices Due Next Week"; Rec."Purch. Invoices Due Next Week")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of payments to vendors that are due next week.';
                 }
-                field("Purchase Discounts Next Week"; "Purchase Discounts Next Week")
+                field("Purchase Discounts Next Week"; Rec."Purchase Discounts Next Week")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of purchase discounts that are available next week, for example, because the discount expires after next week.';
@@ -148,13 +148,13 @@ page 9037 "Accountant Activities"
             cuegroup("Document Approvals")
             {
                 Caption = 'Document Approvals';
-                field("POs Pending Approval"; "POs Pending Approval")
+                field("POs Pending Approval"; Rec."POs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of purchase orders that are pending approval.';
                 }
-                field("SOs Pending Approval"; "SOs Pending Approval")
+                field("SOs Pending Approval"; Rec."SOs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
@@ -182,7 +182,7 @@ page 9037 "Accountant Activities"
             cuegroup(Financials)
             {
                 Caption = 'Financials';
-                field("Non-Applied Payments"; "Non-Applied Payments")
+                field("Non-Applied Payments"; Rec."Non-Applied Payments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unprocessed Payments';
@@ -203,7 +203,7 @@ page 9037 "Accountant Activities"
                         var
                             BankAccReconciliation: Record "Bank Acc. Reconciliation";
                         begin
-                            BankAccReconciliation.OpenNewWorksheet
+                            BankAccReconciliation.OpenNewWorksheet();
                         end;
                     }
                 }
@@ -211,13 +211,13 @@ page 9037 "Accountant Activities"
             cuegroup("Incoming Documents")
             {
                 Caption = 'Incoming Documents';
-                field("Approved Incoming Documents"; "Approved Incoming Documents")
+                field("Approved Incoming Documents"; Rec."Approved Incoming Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Incoming Documents";
                     ToolTip = 'Specifies the number of approved incoming documents in the company. The documents are filtered by today''s date.';
                 }
-                field("OCR Completed"; "OCR Completed")
+                field("OCR Completed"; Rec."OCR Completed")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Incoming Documents";
@@ -235,33 +235,6 @@ page 9037 "Accountant Activities"
                         ToolTip = 'Process new incoming electronic documents that have been created by the OCR service and that you can convert to, for example, purchase invoices in Dynamics 365.';
                         Visible = ShowCheckForOCR;
                     }
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
             cuegroup(MissingSIIEntries)
@@ -323,7 +296,7 @@ page 9037 "Accountant Activities"
 
                         trigger OnAction()
                         begin
-                            if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled then
+                            if UserTours.IsAvailable and O365GettingStartedMgt.AreUserToursEnabled() then
                                 UserTours.StartUserTour(O365GettingStartedMgt.GetChangeCompanyTourID);
                         end;
                     }
@@ -398,14 +371,14 @@ page 9037 "Accountant Activities"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         ReplayGettingStartedVisible := false;
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             ReplayGettingStartedVisible := true;
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
+        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     trigger OnInit()
@@ -413,7 +386,7 @@ page 9037 "Accountant Activities"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         ReplayGettingStartedVisible := false;
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             ReplayGettingStartedVisible := true;
     end;
 
@@ -422,23 +395,22 @@ page 9037 "Accountant Activities"
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Due Date Filter", '<=%1', WorkDate);
-        SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
+        Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
+        Rec.SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', WorkDate()), CalcDate('<1W>', WorkDate()));
 
         ShowProductVideosActivities := ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone;
         ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable();
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
+        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
 
-        RoleCenterNotificationMgt.ShowNotifications;
-        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
+        RoleCenterNotificationMgt.ShowNotifications();
+        ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
         if PageNotifier.IsAvailable then begin
             PageNotifier := PageNotifier.Create;
@@ -451,7 +423,6 @@ page 9037 "Accountant Activities"
         ClientTypeManagement: Codeunit "Client Type Management";
         EnvironmentInfo: Codeunit "Environment Information";
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
-        UserTaskManagement: Codeunit "User Task Management";
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;
@@ -472,12 +443,12 @@ page 9037 "Accountant Activities"
         ActivitiesMgt: Codeunit "Activities Mgt.";
         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
     begin
-        if FieldActive("Cash Accounts Balance") then
-            "Cash Accounts Balance" := ActivitiesMgt.CalcCashAccountsBalances;
-        if FieldActive("Missing SII Entries") then
-            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount;
-        if FieldActive("Days Since Last SII Check") then
-            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck;
+        if Rec.FieldActive("Cash Accounts Balance") then
+            Rec."Cash Accounts Balance" := ActivitiesMgt.CalcCashAccountsBalances();
+        if Rec.FieldActive("Missing SII Entries") then
+            "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount();
+        if Rec.FieldActive("Days Since Last SII Check") then
+            "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck();
     end;
 
     local procedure StartWhatIsNewTour(hasTourCompleted: Boolean): Boolean
@@ -485,7 +456,7 @@ page 9037 "Accountant Activities"
         O365UserTours: Record "User Tours";
         TourID: Integer;
     begin
-        TourID := O365GettingStartedMgt.GetWhatIsNewTourID;
+        TourID := O365GettingStartedMgt.GetWhatIsNewTourID();
 
         if O365UserTours.AlreadyCompleted(TourID) then
             exit(false);

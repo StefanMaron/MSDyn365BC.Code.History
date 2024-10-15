@@ -30,8 +30,8 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Simplify UI Sales Cr.Memo");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
         ConfigTemplateHeader.DeleteAll(true);
@@ -45,9 +45,9 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
@@ -63,7 +63,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         ProductionBOMLine: Record "Production BOM Line";
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Production BOM Line":
                 ProductionBOMLine.DeleteAll();
@@ -85,7 +85,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryVariableStorage.Enqueue(true);
@@ -120,7 +120,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemos: TestPage "Sales Credit Memos";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryVariableStorage.Enqueue(true);
@@ -154,21 +154,21 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         OldValue: Decimal;
     begin
-        Initialize;
+        Initialize();
 
-        CurrExchRate.FindFirst;
+        CurrExchRate.FindFirst();
         LibrarySmallBusiness.CreateCustomer(Cust);
         Cust.Validate("Currency Code", CurrExchRate."Currency Code");
         Cust.Modify(true);
 
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         OldValue := SalesHeader."Currency Factor";
 
         // Exercise
@@ -191,7 +191,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesHeader: Record "Sales Header";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibrarySmallBusiness.CreateItem(Item);
@@ -203,11 +203,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         if not UserSetup.Insert() then
             UserSetup.Modify();
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesHeader.SetRange("Sell-to Customer No.", Cust."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesCreditMemo.Close;
 
         Assert.AreEqual(ResponsibilityCenter.Code, SalesHeader."Responsibility Center", '');
@@ -233,7 +233,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         ExtendedTextLine: Record "Extended Text Line";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomer(Cust);
         LibrarySmallBusiness.CreateItem(Item);
@@ -253,7 +253,7 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         ExtendedTextLine.Validate(Text, HelloWordTxt);
         ExtendedTextLine.Insert(true);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Cust.Name);
 
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
@@ -281,11 +281,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Exercise: Select existing customer.
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Verify.
@@ -302,12 +302,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateCustomer(Customer1);
 
         // Exercise: Select existing customer.
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo.SalesLines.First;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
         // Enqueue for ChangeSellToBillToCustomerConfirmHandler that is called twice
@@ -327,14 +327,14 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         CustomerName: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
 
         // Exercise.
         CustomerName := CopyStr(Format(CreateGuid), 1, 50);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo.SalesLines.First;
 
         // Verify
@@ -349,13 +349,13 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
         LibraryVariableStorage.Enqueue(Customer.Name); // for the customer list page handler
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(CopyStr(Customer.Name, 2, StrLen(Customer.Name) - 1));
 
         // Verify.
@@ -370,13 +370,13 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoCustomersSameName(Customer);
 
         // Exercise: Select existing customer - second one in the page handler
         LibraryVariableStorage.Enqueue(Customer.Name); // for the customer list page handler
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         asserterror SalesCreditMemo."Sell-to Customer Name".SetValue(CopyStr(Customer.Name, 2, StrLen(Customer.Name) - 1));
         Assert.ExpectedError(SelectCustErr);
     end;
@@ -390,12 +390,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateItem(Item);
         CreateCustomer(Customer);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Set item on line - if no errors than is ok
@@ -420,12 +420,12 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateItemAsService(Item);
         CreateCustomer(Customer);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         // Set item as service on line - if no errors than is ok
@@ -448,11 +448,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         Customer: Record Customer;
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         Assert.AreEqual(SalesCreditMemo."Payment Terms Code".Value,
@@ -469,11 +469,11 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         ExpectedDueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         PaymentTerms.Get(Customer."Payment Terms Code");
@@ -489,9 +489,9 @@ codeunit 138016 "O365 Simplify UI Sales Cr.Memo"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         Assert.IsTrue(SalesCreditMemo."Shipment Date".Enabled,
           Format('Shipment Date should be present on Sales Credit Memo'));
 

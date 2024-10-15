@@ -51,7 +51,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10700 - Payment Day for Domestic Customer.
 
         // Setup: Create Domestic Customer.
-        Initialize;
+        Initialize();
         OnInsertPaymentDay(PaymentDay."Table Name"::Customer, CreateCustomer('', ''));  // Blank - Country/Region Code and VAT Registration Number.
     end;
 
@@ -66,7 +66,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10700 - Payment Day for EU Customer.
 
         // Setup: Create EU Customer.
-        Initialize;
+        Initialize();
         OnInsertPaymentDay(PaymentDay."Table Name"::Customer, CreateCustomer(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
     end;
 
@@ -81,7 +81,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10700 - Payment Day for Domestic Vendor.
 
         // Setup: Create Domestic Vendor.
-        Initialize;
+        Initialize();
         OnInsertPaymentDay(PaymentDay."Table Name"::Vendor, CreateVendor('', ''));  // Blank - Country/Region Code and VAT Registration Number.
     end;
 
@@ -96,7 +96,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10700 - Payment Day for EU Vendor.
 
         // Setup: Create EU Vendor.
-        Initialize;
+        Initialize();
         OnInsertPaymentDay(PaymentDay."Table Name"::Vendor, CreateVendor(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
     end;
 
@@ -111,7 +111,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10700 - Payment Day for Company Information.
 
         // Setup: Update Company Information - Payment Days Code.
-        Initialize;
+        Initialize();
         OnInsertPaymentDay(PaymentDay."Table Name"::"Company Information", UpdateCompanyInformation);
     end;
 
@@ -135,7 +135,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10701 - Non - Payment Periods for Domestic Customer.
 
         // Setup: Create Domestic Customer.
-        Initialize;
+        Initialize();
         OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::Customer, CreateCustomer('', ''));  // Blank - Country/Region Code and VAT Registration Number.
     end;
 
@@ -150,7 +150,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10701 - Non - Payment Periods for EU Customer.
 
         // Setup: Create EU Customer.
-        Initialize;
+        Initialize();
         OnInsertNonPaymentPeriod(
           NonPaymentPeriod."Table Name"::Customer, CreateCustomer(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
     end;
@@ -166,7 +166,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10701 - Non - Payment Periods for Domestic Vendor.
 
         // Setup: Create Domestic Vendor.
-        Initialize;
+        Initialize();
         OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::Vendor, CreateVendor('', ''));  // Blank - Country/Region Code and VAT Registration Number.
     end;
 
@@ -181,7 +181,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10701 - Non - Payment Periods for EU Vendor.
 
         // Setup: Create EU Vendor.
-        Initialize;
+        Initialize();
         OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::Vendor, CreateVendor(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
     end;
 
@@ -196,7 +196,7 @@ codeunit 144042 "UT TAB Due Date"
         // Purpose of the test is to validate Payment Day - OnValidate Trigger of Page 10701 - Non - Payment Periods for Company Information.
 
         // Setup: Update Company Information - Non-Paymt. Periods Code.
-        Initialize;
+        Initialize();
         OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::"Company Information", UpdateCompanyInformation);
     end;
 
@@ -211,7 +211,7 @@ codeunit 144042 "UT TAB Due Date"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCountryRegion(): Code[10]

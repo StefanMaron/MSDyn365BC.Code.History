@@ -244,7 +244,7 @@ table 10752 "SII Doc. Upload State"
         SIIDocUploadState.SetRange("Posting Date", PostingDate);
         SIIDocUploadState.SetRange("CV No.", CustomerNo);
         SIIDocUploadState.SetRange("Transaction Type", SIIDocUploadState."Transaction Type"::"Collection In Cash");
-        if SIIDocUploadState.FindFirst then begin
+        if SIIDocUploadState.FindFirst() then begin
             if SIIDocUploadState."Total Amount In Cash" = TotalAmount then
                 exit(false);
             SIIDocUploadState.Validate("Total Amount In Cash", TotalAmount);
@@ -313,7 +313,7 @@ table 10752 "SII Doc. Upload State"
         else
             SIIDocUploadState.SetRange("Entry No", EntryNo);
         SIIDocUploadState.SetRange("Document Source", DocumentSource);
-        if SIIDocUploadState.FindFirst then begin
+        if SIIDocUploadState.FindFirst() then begin
             if IsCVPayment then begin
                 // Create additional request to handle one more partial payment if no such request in state Pending
                 SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
@@ -350,7 +350,7 @@ table 10752 "SII Doc. Upload State"
     begin
         SIIDocUploadState.SetRange(Status, SIIDocUploadState.Status::"Communication Error");
 
-        if SIIDocUploadState.FindSet then begin
+        if SIIDocUploadState.FindSet() then begin
             repeat
                 // We want latest first. Ideally we'd use something like 'by date desc', but since NAV does not allow us to do that,
                 // we rely on PK and that the date does not change in a weird way.
@@ -368,7 +368,7 @@ table 10752 "SII Doc. Upload State"
 
     local procedure CreateCommunicationErrorRetryRequest(var SIIHistory: Record "SII History")
     begin
-        if SIIHistory.FindFirst then
+        if SIIHistory.FindFirst() then
             if SIIHistory.Status = SIIHistory.Status::"Communication Error" then
                 SIIHistory.CreateNewRequest(
                   SIIHistory."Document State Id", SIIHistory."Upload Type",
@@ -474,7 +474,7 @@ table 10752 "SII Doc. Upload State"
                                 // Get Service Header instead of Service Invoice Header because it's not inserted yet
                                 ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
                                 ServiceHeader.SetRange("Posting No.", DocumentNo);
-                                if ServiceHeader.FindFirst then begin
+                                if ServiceHeader.FindFirst() then begin
                                     if not SIIManagement.IsAllowedServInvType(ServiceHeader."Invoice Type".AsInteger()) then
                                         ServiceHeader.FieldError("Invoice Type");
                                     // Increase Invoice Type and Special Scheme Code because in SII Doc. Upload state there is blank option in the beginning
@@ -505,7 +505,7 @@ table 10752 "SII Doc. Upload State"
                         else begin
                             ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
                             ServiceHeader.SetRange("Posting No.", DocumentNo);
-                            if ServiceHeader.FindFirst then
+                            if ServiceHeader.FindFirst() then
                                 TempSIIDocUploadState.UpdateSalesSIIDocUploadStateInfo(
                                   ServiceHeader."Bill-to Customer No.", 0, ServiceHeader."Cr. Memo Type".AsInteger() + 1,
                                   ServiceHeader."Special Scheme Code".AsInteger() + 1,
@@ -602,7 +602,7 @@ table 10752 "SII Doc. Upload State"
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
                 CustLedgerEntry.SetRange("Document No.", "Document No.");
                 CustLedgerEntry.SetRange("Posting Date", PostingDate);
-                if CustLedgerEntry.FindFirst then
+                if CustLedgerEntry.FindFirst() then
                     GetCorrInfoFromCustLedgEntry(CorrectedDocNo, CorrectionDate, CustLedgerEntry."Corrected Invoice No.");
             end;
             exit;
@@ -614,7 +614,7 @@ table 10752 "SII Doc. Upload State"
             VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
             VendorLedgerEntry.SetRange("Document No.", "Document No.");
             VendorLedgerEntry.SetRange("Posting Date", PostingDate);
-            if VendorLedgerEntry.FindFirst then
+            if VendorLedgerEntry.FindFirst() then
                 GetCorrInfoFromVendLedgEntry(CorrectedDocNo, CorrectionDate, VendorLedgerEntry."Corrected Invoice No.");
         end;
     end;
@@ -628,7 +628,7 @@ table 10752 "SII Doc. Upload State"
 
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocNo);
-        if CustLedgerEntry.FindFirst then begin
+        if CustLedgerEntry.FindFirst() then begin
             CorrectedDocNo := CustLedgerEntry."Document No.";
             CorrectionDate := CustLedgerEntry."Posting Date";
         end;
@@ -643,7 +643,7 @@ table 10752 "SII Doc. Upload State"
 
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", DocNo);
-        if VendorLedgerEntry.FindFirst then begin
+        if VendorLedgerEntry.FindFirst() then begin
             if VendorLedgerEntry."External Document No." = '' then
                 CorrectedDocNo := VendorLedgerEntry."Document No."
             else

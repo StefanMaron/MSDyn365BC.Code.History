@@ -103,7 +103,7 @@ report 7000080 "Post Payment Order"
                     GenJnlLine.LockTable();
                     GenJnlLine.SetRange("Journal Template Name", TemplName);
                     GenJnlLine.SetRange("Journal Batch Name", BatchName);
-                    if GenJnlLine.FindLast then begin
+                    if GenJnlLine.FindLast() then begin
                         GenJnlLineNextNo := GenJnlLine."Line No.";
                         TransactionNo := GenJnlLine."Transaction No." + 1;
                     end;
@@ -176,7 +176,7 @@ report 7000080 "Post Payment Order"
 
                     if PmtOrd."Currency Code" <> '' then begin
                         Currency.SetFilter(Code, PmtOrd."Currency Code");
-                        Currency.FindFirst;
+                        Currency.FindFirst();
                         if SumLCYAmt <> 0 then begin
                             if SumLCYAmt > 0 then begin
                                 Currency.TestField("Residual Gains Account");
@@ -387,7 +387,7 @@ report 7000080 "Post Payment Order"
             CarteraJnlForm.SetTableView(GenJnlLine);
             CarteraJnlForm.SetRecord(GenJnlLine);
             CarteraJnlForm.AllowClosing(true);
-            CarteraJnlForm.RunModal;
+            CarteraJnlForm.RunModal();
         end;
     end;
 

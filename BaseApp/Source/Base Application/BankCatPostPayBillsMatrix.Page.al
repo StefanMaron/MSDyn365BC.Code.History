@@ -418,7 +418,7 @@ page 36850 "Bank Cat.Post.Pay.Bills Matrix"
         PostedCarteraDoc.SetFilter("Category Code", CategoryFilter);
         PostedCarteraDoc.SetRange(Status, StatusFilterOption);
         PostedBills.SetTableView(PostedCarteraDoc);
-        PostedBills.RunModal;
+        PostedBills.RunModal();
     end;
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)

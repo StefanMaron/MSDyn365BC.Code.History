@@ -110,7 +110,7 @@ codeunit 7000006 "Document-Post"
                 if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
                     OldCustLedgEntry.SetRange("Document Type", OldCustLedgEntry."Document Type"::Invoice);
             OldCustLedgEntry.SetRange("Bill No.", "Bill No.");
-            if OldCustLedgEntry.FindFirst then
+            if OldCustLedgEntry.FindFirst() then
                 Error(
                   Text1100004,
                   "Document No.", "Bill No.");
@@ -151,7 +151,7 @@ codeunit 7000006 "Document-Post"
                 if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
                     OldVendLedgEntry.SetRange("Document Type", OldVendLedgEntry."Document Type"::Invoice);
             OldVendLedgEntry.SetRange("Bill No.", "Bill No.");
-            if OldVendLedgEntry.FindFirst then
+            if OldVendLedgEntry.FindFirst() then
                 Error(
                   Text1100005,
                   "Document No.", "Bill No.");
@@ -244,9 +244,9 @@ codeunit 7000006 "Document-Post"
                 CarteraDoc.LockTable();
                 PostedCarteraDoc.LockTable();
                 ClosedCarteraDoc.LockTable();
-                if CarteraDoc2.FindLast then;
-                if PostedCarteraDoc2.FindLast then;
-                if ClosedCarteraDoc2.FindLast then;
+                if CarteraDoc2.FindLast() then;
+                if PostedCarteraDoc2.FindLast() then;
+                if ClosedCarteraDoc2.FindLast() then;
             end;
             if "Remaining Amount" = 0 then
                 "Remaining Amt. (LCY)" := 0;
@@ -385,9 +385,9 @@ codeunit 7000006 "Document-Post"
                 DocLock := true;
                 CarteraDoc.LockTable();
                 PostedCarteraDoc.LockTable();
-                if CarteraDoc2.FindLast then;
-                if PostedCarteraDoc2.FindLast then;
-                if ClosedCarteraDoc2.FindLast then;
+                if CarteraDoc2.FindLast() then;
+                if PostedCarteraDoc2.FindLast() then;
+                if ClosedCarteraDoc2.FindLast() then;
                 ClosedCarteraDoc.LockTable();
             end;
             if "Remaining Amount" = 0 then
@@ -708,7 +708,7 @@ codeunit 7000006 "Document-Post"
 
             if Print then begin
                 GLReg.LockTable();
-                if GLReg.FindLast then;
+                if GLReg.FindLast() then;
             end;
 
             GenJnlPostBatch.Run(GenJnlLine);
@@ -757,7 +757,7 @@ codeunit 7000006 "Document-Post"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 GenJournalLineToPost := GenJournalLine;
                 GenJnlPostLine.SetFromSettlement(true);
@@ -773,7 +773,7 @@ codeunit 7000006 "Document-Post"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 GenJournalLineToPost := GenJournalLine;
                 GenJnlPostLine.SetFromSettlement(true);
@@ -791,7 +791,7 @@ codeunit 7000006 "Document-Post"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
-        if GenJournalLine.FindSet then
+        if GenJournalLine.FindSet() then
             repeat
                 GenJournalLineToPost := GenJournalLine;
                 GenJnlPostLine.SetFromSettlement(true);
@@ -809,7 +809,7 @@ codeunit 7000006 "Document-Post"
     begin
         Clear(DtldCVLedgEntryBuf);
         DtldCVLedgEntryBuf.Reset();
-        if DtldCVLedgEntryBuf.FindLast then
+        if DtldCVLedgEntryBuf.FindLast() then
             NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
         else
             NextDtldBufferEntryNo := 1;
@@ -847,7 +847,7 @@ codeunit 7000006 "Document-Post"
     begin
         Clear(DtldCVLedgEntryBuf);
         DtldCVLedgEntryBuf.Reset();
-        if DtldCVLedgEntryBuf.FindLast then
+        if DtldCVLedgEntryBuf.FindLast() then
             NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
         else
             NextDtldBufferEntryNo := 1;
@@ -1011,8 +1011,8 @@ codeunit 7000006 "Document-Post"
                 DocLock := true;
                 CarteraDoc.LockTable();
                 ClosedCarteraDoc.LockTable();
-                if CarteraDoc2.FindLast then;
-                if ClosedCarteraDoc2.FindLast then;
+                if CarteraDoc2.FindLast() then;
+                if ClosedCarteraDoc2.FindLast() then;
             end;
             if "Remaining Amount" = 0 then
                 "Remaining Amt. (LCY)" := 0;
@@ -1105,8 +1105,8 @@ codeunit 7000006 "Document-Post"
             if not DocLock then begin
                 DocLock := true;
                 CarteraDoc.LockTable();
-                if CarteraDoc2.FindLast then;
-                if ClosedCarteraDoc2.FindLast then;
+                if CarteraDoc2.FindLast() then;
+                if ClosedCarteraDoc2.FindLast() then;
                 ClosedCarteraDoc.LockTable();
             end;
             if "Remaining Amount" = 0 then

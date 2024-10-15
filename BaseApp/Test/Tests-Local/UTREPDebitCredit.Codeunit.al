@@ -98,7 +98,7 @@ codeunit 144040 "UT REP Debit Credit"
         AmountLCY: Decimal;
     begin
         // [SCENARIO] Purpose of the test is to validate Cust. Ledger Entry - OnAfterGetRecord Trigger of Report - 104 Customer - Detail Trial Balance with Show Amounts In LCY as True.
-        Initialize;
+        Initialize();
         AmountLCY := LibraryRandom.RandDec(100, 2);
         CustomerDetailTrialBalanceReportWithShowAmtsInLCY(true, LibraryRandom.RandDec(100, 2), AmountLCY, AmountLCY);  // Using TRUE for ShowAmtsInLCY and random value for Amount.
     end;
@@ -112,7 +112,7 @@ codeunit 144040 "UT REP Debit Credit"
         Amount: Decimal;
     begin
         // [SCENARIO] Purpose of the test is to validate Cust. Ledger Entry - OnAfterGetRecord Trigger of Report - 104 Customer - Detail Trial Balance with Show Amounts In LCY as False.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         CustomerDetailTrialBalanceReportWithShowAmtsInLCY(false, Amount, LibraryRandom.RandDec(100, 2), 0); // Using FALSE for ShowAmtsInLCY and random value for AmountLCY.
     end;
@@ -146,7 +146,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate G/L Entry - OnPreDataItem Trigger of Report - 3 G/L Register.
 
         // [GIVEN] G/L Entry
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry, '', '', '', WorkDate);  // Using blank for GLAccountNo,GlobalDimensionOneCode and GlobalDimensionTwoCode and WORKDATE for Posting Date.
         LibraryVariableStorage.Enqueue(GLEntry."Transaction No.");  // Enqueue for GLRegisterRequestPageHandler.
 
@@ -170,7 +170,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate G/L Account - OnAfterGetRecord Trigger of Report - 7 Trial Balance Previous Year.
 
         // [GIVEN] Two GL Entries with different Posting Dates.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount, LibraryUTUtility.GetNewCode, GLAccount."Account Type"::Posting, '');  // Blank used for Totaling.
         CreateGLEntry(GLEntry, GLAccount."No.", GLAccount."Global Dimension 1 Code", GLAccount."Global Dimension 2 Code", WorkDate);  // Using WORKDATE for Posting Date.
         CreateGLEntry(
@@ -196,7 +196,7 @@ codeunit 144040 "UT REP Debit Credit"
         AmountLCY: Decimal;
     begin
         // [SCENARIO] Purpose of the test is to validate Vendor Ledger Entry - OnAfterGetRecord Trigger of Report - 304  Vendor Detail Trial Balance when Show Amts In LCY is TRUE.
-        Initialize;
+        Initialize();
         AmountLCY := LibraryRandom.RandDec(100, 2);
         VendorDetailTrialBalanceReport(true, LibraryRandom.RandDec(100, 2), AmountLCY, AmountLCY);  // Using TRUE for ShowAmtsInLCY and random for Amount.
     end;
@@ -210,7 +210,7 @@ codeunit 144040 "UT REP Debit Credit"
         Amount: Decimal;
     begin
         // [SCENARIO] Purpose of the test is to validate Vendor Ledger Entry - OnAfterGetRecord Trigger of Report - 304  Vendor Detail Trial Balance when Show Amts In LCY is FALSE.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         VendorDetailTrialBalanceReport(false, Amount, LibraryRandom.RandDec(100, 2), Amount);  // Using FALSE for ShowAmtsInLCY and random for AmountLCY.
     end;
@@ -240,7 +240,7 @@ codeunit 144040 "UT REP Debit Credit"
     procedure OnAfterGetRecGenJournaLinePosAmtGeneralJournalTest()
     begin
         // [SCENARIO] Purpose of the test is to validate Gen. Journal Line - OnAfterGetRecord Trigger of Report - 2 General Journal - Test with positive Amount.
-        Initialize;
+        Initialize();
         GeneralJournalTestReport(DebitAmtLCYCap, LibraryRandom.RandDec(100, 2));  // Using random for Amount.
     end;
 
@@ -251,7 +251,7 @@ codeunit 144040 "UT REP Debit Credit"
     procedure OnAfterGetRecGenJournaLineNegAmtGeneralJournalTest()
     begin
         // [SCENARIO] Purpose of the test is to validate Gen. Journal Line - OnAfterGetRecord Trigger of Report - 2 General Journal - Test with negative Amount.
-        Initialize;
+        Initialize();
         GeneralJournalTestReport(CreditAmtLCYCap, -LibraryRandom.RandDec(100, 2));  // Using random for Amount.
     end;
 
@@ -281,7 +281,7 @@ codeunit 144040 "UT REP Debit Credit"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // [SCENARIO] Purpose of the test is to validate Integer - OnPreDataItem Trigger of Report - 10716 Official Acc. Summarized Book with Show Amounts In Add Currency as FALSE.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OfficialAccSummarizedBookReportWithShowAmtsInAddCurr(
           GeneralLedgerSetup."LCY Code", GeneralLedgerSetup."Additional Reporting Currency", false);  // FALSE for Show Amounts In Add Currency.
@@ -296,7 +296,7 @@ codeunit 144040 "UT REP Debit Credit"
         NewAdditionalReportingCurrency: Code[10];
     begin
         // [SCENARIO] Purpose of the test is to validate Integer - OnPreDataItem Trigger of Report - 10716 Official Acc.Summarized Book with Show Amounts In Add Currency as TRUE.
-        Initialize;
+        Initialize();
         NewAdditionalReportingCurrency := LibraryUTUtility.GetNewCode10;
         OfficialAccSummarizedBookReportWithShowAmtsInAddCurr(NewAdditionalReportingCurrency, NewAdditionalReportingCurrency, true);  // TRUE for Show Amounts In Add Currency.
     end;
@@ -330,7 +330,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate Integer - OnPreDataItem Trigger of Report - 10716 Official Acc.Summarized Book for multiple Fiscal Years.
 
         // [GIVEN] Accounting Periods in different years.
-        Initialize;
+        Initialize();
         CreateAccountingPeriod(true, WorkDate);  // TRUE for New Fiscal Year.
         CreateAccountingPeriod(true, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Adding random years to WORKDATE for Starting Date, TRUE for New Fiscal Year.
         EnqueueValuesForOfficialAccSumBookRqstPageHandler(
@@ -354,7 +354,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate Integer - OnPreDataItem Trigger of Report - 10716 Official Acc.Summarized Book for Period Starting Date error.
 
         // [GIVEN] Enqued values for Report 10716
-        Initialize;
+        Initialize();
         EnqueueValuesForOfficialAccSumBookRqstPageHandler(false, GLAccount."Account Type"::Heading, WorkDate);  // FALSE for Show Amounts In Add Currency.
 
         // [WHEN] Running report "Official Acc.Summarized Book"
@@ -375,7 +375,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate Integer - OnPreDataItem Trigger of Report - 10716 Official Acc.Summarized Book for Period Ending Date error.
 
         // [GIVEN] Enqued values for Report 10716
-        Initialize;
+        Initialize();
         CreateAccountingPeriod(false, WorkDate);  // FALSE for New Fiscal Year.
         EnqueueValuesForOfficialAccSumBookRqstPageHandler(
           false, GLAccount."Account Type"::Heading, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));  // Adding random years to WORKDATE for ToDate, FALSE for Show Amounts In Add Currency.
@@ -398,7 +398,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate G/L Account - OnAfterGetRecord Trigger of Report - 10723 Main Accounting Book with G/L Account Type Posting.
 
         // [GIVEN] G/L Entry
-        Initialize;
+        Initialize();
         CreateGLEntryWithGLAccount(GLEntry, false);  // False for ShowAmtsInAddCurrency.
 
         // [WHEN] Running report "Main Accounting Book"
@@ -420,7 +420,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate G/L Account - OnAfterGetRecord Trigger of Report - 10723 Main Accounting Book with G/L Account Type Heading.
 
         // [GIVEN] GLAccount with Account Type Heading with Code length 3.
-        Initialize;
+        Initialize();
         CreateGLEntrySetup(GLEntry);
         CreateGLAccount(GLAccount, CopyStr(LibraryUTUtility.GetNewCode, 1, 3), GLAccount."Account Type"::Heading, GLEntry."G/L Account No.");
         EnqueueValuesForMainAccountingBookRqstPageHandler(
@@ -445,7 +445,7 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate Integer - OnAfterGetRecord Trigger of Report - 10723 Main Accounting Book with Show Amounts in Additional Currency.
 
         // [GIVEN] G/L Entry
-        Initialize;
+        Initialize();
         CreateGLEntryWithGLAccount(GLEntry, true);  // True for ShowAmtsInAddCurrency.
 
         // [WHEN] Running report "Main Accounting Book"
@@ -467,8 +467,8 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate G/L Account - OnAfterGetRecord Trigger of Report - 10723 Main Accounting Book with Initial Date error.
 
         // Setup.
-        Initialize;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        AccountingPeriod.FindFirst();
         OnAfterGetRecordGLAccountMainAccountingBookError(
           Format(CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', AccountingPeriod."Starting Date")));  // Subtracting random years from Starting Date for DateFilter.
     end;
@@ -484,8 +484,8 @@ codeunit 144040 "UT REP Debit Credit"
         // [SCENARIO] Purpose of the test is to validate G/L Account - OnAfterGetRecord Trigger of Report - 10723 Main Accounting Book with End Period Date error.
 
         // Setup.
-        Initialize;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        AccountingPeriod.FindFirst();
         OnAfterGetRecordGLAccountMainAccountingBookError(
           StrSubstNo(DateFilterTxt, Format(AccountingPeriod."Starting Date"),
             Format(CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', NormalDate(AccountingPeriod."Starting Date")))));  // DateRange - Subtracting random years from Starting Date to set Ending Date greater than Starting Date in DateFilter.
@@ -520,14 +520,14 @@ codeunit 144040 "UT REP Debit Credit"
         // [FEATURE] [Trial Balance] [Balance at date]
         // [SCENARIO 374752] The "Accumulated Balance at date" field should be calculated assuming balance before the specified period
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
         PeriodStart := CalcDate('<-CY>', WorkDate);
         PeriodEnd := CalcDate('<CY>', WorkDate);
 
         // [GIVEN] G/L Account
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] G/L Entry before the reporting period (Amount = 100)
         AmountBeforePeriod := CreateGLEntryWithSpecifiedAmount(GLAccountNo, PeriodStart - 1);
@@ -571,14 +571,14 @@ codeunit 144040 "UT REP Debit Credit"
         // [FEATURE] [Trial Balance] [Additional Currency] [ACY] [UT]
         // [SCENARIO 290722] Trial Balance shows correct amounts in Additional Currency
         // [SCENARIO 302418] Trial Balance shows row of totals
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reporting period from 01-01-18 to 31-12-18 (1 year)
         PeriodStart := CalcDate('<-CY>', WorkDate);
         PeriodEnd := CalcDate('<CY>', WorkDate);
 
         // [GIVEN] G/L Account
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] G/L Entry before the reporting period (Amount = 100, Debit = 200, Credit = 300)
         CreateGLEntryWithAdditionalCurrency(GLEntryBefore, GLAccountNo, PeriodStart - 1);
@@ -711,8 +711,8 @@ codeunit 144040 "UT REP Debit Credit"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -743,7 +743,7 @@ codeunit 144040 "UT REP Debit Credit"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CreateCustomer;
         CustLedgerEntry."Posting Date" := WorkDate;
@@ -823,7 +823,7 @@ codeunit 144040 "UT REP Debit Credit"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."Posting Date" := PostingDate;
         GLEntry."G/L Account No." := GLAccountNo;
@@ -891,7 +891,7 @@ codeunit 144040 "UT REP Debit Credit"
         GLRegister: Record "G/L Register";
         GLRegister2: Record "G/L Register";
     begin
-        GLRegister2.FindLast;
+        GLRegister2.FindLast();
         GLRegister."No." := GLRegister2."No." + 1;
         GLRegister."From Entry No." := EntryNo;
         GLRegister."To Entry No." := EntryNo;

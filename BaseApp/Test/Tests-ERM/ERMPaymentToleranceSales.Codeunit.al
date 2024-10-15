@@ -113,7 +113,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Credit Memo and Copy Document.
 
         // Setup: Update General ledger Setup and Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         CreateSalesDocument(SalesHeader, '', SalesHeader."Document Type"::Invoice);
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -124,7 +124,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Exercise: Create and Post Sales Credit Memo after Copy Document with Document Type Posted Invoice.
         LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", SalesInvoiceNo, true, true);
         SalesHeader.SetRange("Applies-to Doc. No.", SalesInvoiceNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Max Payment Tolerance is zero for Credit Memo applied to Invoice.
@@ -146,7 +146,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Credit Memo and Copy Document with Only Line.
 
         // Setup: Update General Ledger Setup and Create and Post Sales invoice and take a Random quantity.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5)); // Use Random value for Payment Discount.
@@ -178,7 +178,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         // Check Customer Ledger Entry for Payment Tolerance after posting Sales Credit Memo and Copy Document with Document Type Invoice.
 
         // Setup: Update General Ledger Setup and Create Sales Invoice and Insert new record with Document Type Credit memo.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         CreateSalesDocument(SalesHeader, '', SalesHeader."Document Type"::Invoice);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5)); // Use Random value for Payment Discount.
@@ -191,7 +191,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::Invoice, SalesHeader."No.", true, true);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("No.", SalesHeader."No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Verify: Verify Max Payment Tolerance field in Customer Ledger Entry.
@@ -204,17 +204,17 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Tolerance Sales");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         ExecuteUIHandler;  // This function required for confirmation message to appear always.
 
         // Setup demo data.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance Sales");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -227,7 +227,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         DocumentNo: Code[20];
     begin
         // Setup: Update General Ledger Setup and Create Sales Document.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         CreateSalesDocument(SalesHeader, CurrencyCode, DocType);
 
@@ -302,7 +302,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
     end;
 

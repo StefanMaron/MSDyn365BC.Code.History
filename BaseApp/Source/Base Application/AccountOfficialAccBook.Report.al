@@ -575,7 +575,7 @@ report 10706 "Account - Official Acc. Book"
         TempDate := FromDate;
 
         GLEntry.SetCurrentKey("Posting Date", "Period Trans. No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         if GLEntry."Posting Date" < ToDate then begin
             AccPeriod.SetRange("New Fiscal Year", true);
             AccPeriod.SetFilter("Starting Date", '>%1', GLEntry."Posting Date");

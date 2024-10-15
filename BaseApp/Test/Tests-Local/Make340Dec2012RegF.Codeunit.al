@@ -72,7 +72,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Amount: Decimal;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         Amount := LibraryRandom.RandDec(5999, 2);
@@ -116,7 +116,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         Amount := LibraryRandom.RandDecInRange(6000, 10000, 2);
@@ -159,7 +159,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         OperationCode: Record "Operation Code";
     begin
         // TFS298166 - http://vstfnav:8080/tfs/web/wi.aspx?id=298166
-        Initialize;
+        Initialize();
         asserterror Library340.CreateOperationCode(OperationCode, OperationCodeC);
     end;
 
@@ -170,7 +170,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         OperationCode: Record "Operation Code";
     begin
         // TFS298166 - http://vstfnav:8080/tfs/web/wi.aspx?id=298166
-        Initialize;
+        Initialize();
         asserterror Library340.CreateOperationCode(OperationCode, OperationCodeD);
     end;
 
@@ -181,7 +181,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         OperationCode: Record "Operation Code";
     begin
         // TFS298166 - http://vstfnav:8080/tfs/web/wi.aspx?id=298166
-        Initialize;
+        Initialize();
         asserterror Library340.CreateOperationCode(OperationCode, OperationCodeI);
     end;
 
@@ -193,7 +193,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         Library340.CreateOperationCode(OperationCode, GetValidCharacter);
@@ -214,7 +214,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         OperationCode: Record "Operation Code";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         Library340.CreateOperationCode(OperationCode, GetValidCharacter);
@@ -240,7 +240,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS300246 - http://vstfnav:8080/tfs/web/wi.aspx?id=300246
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -270,7 +270,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         GenProdPostingGroup: Record "Gen. Product Posting Group";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         asserterror MapOperationCode(GenProdPostingGroup, OperationCodeC);
@@ -283,7 +283,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         GenProdPostingGroup: Record "Gen. Product Posting Group";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         asserterror MapOperationCode(GenProdPostingGroup, OperationCodeD);
@@ -296,7 +296,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         GenProdPostingGroup: Record "Gen. Product Posting Group";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         asserterror MapOperationCode(GenProdPostingGroup, OperationCodeI);
@@ -320,7 +320,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Post multiple payments from customer applied to invoices with bill.
         // TFS301791 - http://vstfnav:8080/tfs/web/wi.aspx?id=301791.
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, ReferenceAmount, FirstPaymentAmount, SecondPaymentAmount, ReferenceDate);
         FiscalYear := Date2DMY(ReferenceDate, 3);
         PostAndApplyPaymentToAnInvoiceWithBill(GLAccount."No.", Customer."No.", FirstPaymentAmount,
@@ -359,7 +359,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Post multiple payments from customer applied to invoices with bill also having an unpaid invoice.
         // TFS301815 - http://vstfnav:8080/tfs/web/wi.aspx?id=301815.
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, ReferenceAmount, FirstPaymentAmount, SecondPaymentAmount, ReferenceDate);
         FiscalYear := Date2DMY(ReferenceDate, 3);
         PostAndApplyPaymentToAnInvoiceWithBill(GLAccount."No.", Customer."No.", FirstPaymentAmount,
@@ -392,7 +392,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     begin
         // TFS298171 - http://vstfnav:8080/tfs/web/wi.aspx?id=298171
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         Library340.CreateOperationCode(OperationCode, GetValidCharacter);
@@ -423,7 +423,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS299480 - http://vstfnav:8080/tfs/web/wi.aspx?id=299480
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -479,7 +479,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS299519 - http://vstfnav:8080/tfs/web/wi.aspx?id=299519
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PostSalesInvAndApplyPaymentsInPreviousYears(ReferenceDate, CustNo, GLAccNo, MinPaymentAmount);
@@ -522,7 +522,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS299513 - http://vstfnav:8080/tfs/web/wi.aspx?id=299513
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PostSalesInvAndApplyPaymentsInPreviousYears(ReferenceDate, CustNo, GLAccNo, MinPaymentAmount);
@@ -563,7 +563,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS300271 - http://vstfnav:8080/tfs/web/wi.aspx?id=300271
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -614,7 +614,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS300268 - http://vstfnav:8080/tfs/web/wi.aspx?id=300268
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount1, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -660,7 +660,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify payments from customer in current year applied to an invoice with bill.
         // TFS301746 - http://vstfnav:8080/tfs/web/wi.aspx?id=301746
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
         FiscalYear := Date2DMY(ReferenceDate, 3);
         PostAndApplyPaymentToAnInvoiceWithBill(GLAccount."No.", Customer."No.", Amount, ReferenceDate, ReferenceDate);
@@ -695,7 +695,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS300257 - http://vstfnav:8080/tfs/web/wi.aspx?id=300257
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -749,7 +749,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS301390 - http://vstfnav:8080/tfs/web/wi.aspx?id=301390
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, MaximumAmount, MinimumAmount, ReferenceDate);
@@ -774,7 +774,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup: Post the above two lines.
         GenJournalLine.SetRange("Document No.", GenJournalLine1."Document No.", GenJournalLine2."Document No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise
@@ -809,7 +809,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS301345 - http://vstfnav:8080/tfs/web/wi.aspx?id=301345
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount1, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -851,7 +851,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS298664 - http://vstfnav:8080/tfs/web/wi.aspx?id=298664.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
@@ -908,7 +908,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS298680 - http://vstfnav:8080/tfs/web/wi.aspx?id=298680.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -979,7 +979,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS298683 - http://vstfnav:8080/tfs/web/wi.aspx?id=298683.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -1024,7 +1024,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS298707 - http://vstfnav:8080/tfs/web/wi.aspx?id=298707.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -1075,7 +1075,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS300237 - http://vstfnav:8080/tfs/web/wi.aspx?id=300237.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -1128,7 +1128,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify two payments received from customer in the reporting year with amount > Min Payment Amount and applied to an invoice posted in the reporting year.
         // TFS298772 - http://vstfnav:8080/tfs/weGLAccount."No."b/wi.aspx?id=298772
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<2M>', ReferenceDate);
         FiscalYear := Date2DMY(ReferenceDate, 3);
@@ -1168,7 +1168,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify two payments received from customer in the reporting year with amount > Min Payment Amount and applied to an invoice posted in the reporting year.
         // TFS298772 - http://vstfnav:8080/tfs/web/wi.aspx?id=298772
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<2M>', ReferenceDate);
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
@@ -1211,7 +1211,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify two payments received from customer for two cash accounts with amount > Min Payment Amount but only one account is selected.
         // TFS298773- http://vstfnav:8080/tfs/web/wi.aspx?id=298773
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount1, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<1M>', ReferenceDate);
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
@@ -1258,7 +1258,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify partial payment received from customer in current year up to specified month and applied payment amount > Min Payment Amount.
         // TFS298761 - http://vstfnav:8080/tfs/web/wi.aspx?id=298761.
         // Setup.
-        Initialize;
+        Initialize();
 
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
 
@@ -1298,7 +1298,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify partial payment received from customer in current year up to specified month and applied payment amount < Min Payment Amount.
         // TFS298763 - http://vstfnav:8080/tfs/web/wi.aspx?id=298763
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<1M>', ReferenceDate);
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
@@ -1337,7 +1337,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify partial payment received from customer in current year up to specified month and applied payment amount = Min Payment Amount.
         // TFS298764 - http://vstfnav:8080/tfs/web/wi.aspx?id=298764
         // Setup.
-        Initialize;
+        Initialize();
 
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<1M>', ReferenceDate);
@@ -1380,7 +1380,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify partial payment received from customer with amount > Min Payment Amount received in current year up to specified month and partially applied to 2 invoices in same year.
         // TFS298765 - http://vstfnav:8080/tfs/web/wi.aspx?id=298765
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<2M>', ReferenceDate);
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
@@ -1420,7 +1420,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify partial payment received from customer with amount < Min Payment Amount received in current year up to specified month and partially applied to 2 invoices in same year.
         // TFS298766 - http://vstfnav:8080/tfs/web/wi.aspx?id=298766
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<2M>', ReferenceDate);
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
@@ -1459,7 +1459,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify partial payment received from customer in current year up to specified month and applied payment amount = Min Payment Amount.
         // TFS298769 - http://vstfnav:8080/tfs/web/wi.aspx?id=298769
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<2M>', ReferenceDate);
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
@@ -1504,7 +1504,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify payments received from customer with amount > Min Payment Amount, received in current year upto the specified month, partially applied to 2 invoices in different year.
         // TFS298770 - http://vstfnav:8080/tfs/web/wi.aspx?id=298770
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         FiscalYear1 := Date2DMY(ReferenceDate, 3);
         InvoiceDocNo1 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.",
@@ -1558,7 +1558,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify payment received from customer ,received in current year upto the specified month, applied to invoice in same year but in different month.
         // TFS298771 - http://vstfnav:8080/tfs/web/wi.aspx?id=298771
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<1M>', ReferenceDate);
         InvoicePostingDate := CalcDate('<2M>', ReferenceDate);
@@ -1599,7 +1599,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify payments from customer in current year applied to an invoice with bill also having an unpiad invoice in same year.
         // TFS301802 - http://vstfnav:8080/tfs/web/wi.aspx?id=301802
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
         FiscalYear := Date2DMY(ReferenceDate, 3);
         PostAndApplyPaymentToAnInvoiceWithBill(GLAccount."No.", Customer."No.", Amount, ReferenceDate, ReferenceDate);
@@ -1637,7 +1637,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Line: Text[1024];
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -1687,7 +1687,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
         FiscalYear: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -1735,7 +1735,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -1787,7 +1787,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS300278 - http://vstfnav:8080/tfs/web/wi.aspx?id=300278
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, Amount, FirstPaymentAmount, SecondPaymentAmount, ReferenceDate);
@@ -1830,7 +1830,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS298549 - http://vstfnav:8080/tfs/web/wi.aspx?id=298549
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
@@ -1875,7 +1875,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
         VATPercentage: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -1925,7 +1925,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS298200 - http://vstfnav:8080/tfs/web/wi.aspx?id=298200
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -1999,7 +1999,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2053,7 +2053,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2107,7 +2107,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2159,7 +2159,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS299463 - http://vstfnav:8080/tfs/web/wi.aspx?id=299463
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2210,7 +2210,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         SecondPaymentAmount: Decimal;
     begin
         // TFS299466 - http://vstfnav:8080/tfs/web/wi.aspx?id=299466
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2262,7 +2262,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2314,7 +2314,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS299463 - http://vstfnav:8080/tfs/web/wi.aspx?id=299463
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
@@ -2372,7 +2372,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Line: Text[1024];
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2479,7 +2479,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ExpectedAmount: Text[15];
         ActualNumericExercise: Text[4];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2537,7 +2537,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2584,7 +2584,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
         Line: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2689,7 +2689,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS300230 - http://vstfnav:8080/tfs/web/wi.aspx?id=300230
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, FirstPaymentAmount, Amount, ReferenceDate);
@@ -2731,7 +2731,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS298682 - http://vstfnav:8080/tfs/web/wi.aspx?id=298682.
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
@@ -2778,7 +2778,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Verify unapplied invoice in current year but in same month.
         // TFS298771 - http://vstfnav:8080/tfs/web/wi.aspx?id=298771
         // Setup.
-        Initialize;
+        Initialize();
         PreSetup(Customer, GLAccount, MaximumAmount, MinimumAmount, SecondPaymentAmount, ReferenceDate);
         PaymentPostingDate := CalcDate('<1M>', ReferenceDate);
         InvoicePostingDate := CalcDate('<2M>', ReferenceDate);
@@ -2816,7 +2816,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS298549 - http://vstfnav:8080/tfs/web/wi.aspx?id=298549
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2864,7 +2864,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
     begin
         // TFS298549 - http://vstfnav:8080/tfs/web/wi.aspx?id=298549
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2915,7 +2915,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS298549 - http://vstfnav:8080/tfs/web/wi.aspx?id=298549
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -2957,7 +2957,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     var
         ReferenceAmount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
         VerifyNoOfRegisters(ReferenceAmount, ReferenceAmount - 1, PadStr('', 8, '0') + Format(1));
@@ -2970,7 +2970,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     var
         ReferenceAmount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
         VerifyNoOfRegisters(ReferenceAmount, ReferenceAmount + 1, PadStr('', 8, '0') + Format(2));
@@ -2995,7 +2995,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear: Integer;
     begin
         // TFS318668 - http://vstfnav:8080/tfs/web/wi.aspx?id=318668
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -3037,7 +3037,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -3101,7 +3101,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange(Open, true);
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 CustLedgerEntry.CalcFields("Remaining Amount");
                 CustLedgerEntry.Validate("Applies-to ID", CustomerNo);
@@ -3152,7 +3152,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         PaymentTerms: Record "Payment Terms";
     begin
         Library340.CreateCustomerVATRegistration(Cust);
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         Cust.Validate("Payment Terms Code", PaymentTerms.Code);
         Cust.Modify(true);
     end;
@@ -3338,7 +3338,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Direct Posting", true);
         GLAccount.SetRange("Reconciliation Account", true);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
     end;
 
     local procedure FindPaymentMethod(CreateBills: Boolean): Code[10]
@@ -3402,7 +3402,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     local procedure FindMaxVATPostingDate(MaxPostingDate: Date; VATEntry: Record "VAT Entry"): Date
     begin
         VATEntry.SetFilter("Posting Date", '>%1', MaxPostingDate);
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             exit(FindMaxVATPostingDate(VATEntry."Posting Date", VATEntry));
 
         exit(MaxPostingDate)
@@ -3413,7 +3413,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         VATEntry: Record "VAT Entry";
         MaxPostingDate: Date;
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         MaxPostingDate := FindMaxVATPostingDate(VATEntry."Posting Date", VATEntry);
 
         // Posting year should be greater than 2011.
@@ -3499,7 +3499,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FirstPaymentAmount: Decimal;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(Customer, GLAccount, ReferenceAmount, Amount, FirstPaymentAmount, ReferenceDate);
@@ -3595,7 +3595,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FirstPaymentAmount: Decimal;
         InvoiceDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -3691,7 +3691,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
         FiscalYear: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -3755,7 +3755,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceAmount: Decimal;
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -3809,7 +3809,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         PropertyTaxAccNo: Text[25];
         ReferenceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -3854,7 +3854,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceDate: Date;
         PropertyTaxAccNo: Text[25];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         ReferenceDate := GetBasisOfCalcForPostingDate;
@@ -3870,7 +3870,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // Post-Setup
-        ServiceInvoiceHeader.FindLast;
+        ServiceInvoiceHeader.FindLast();
         InvoiceDocNo := ServiceInvoiceHeader."No.";
 
         // Pre-Exercise
@@ -3909,7 +3909,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Posting Date", PostingDate);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LibraryERMUnapply.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 

@@ -30,7 +30,7 @@ codeunit 10755 "SII Initial Doc. Upload"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
-        if CustLedgerEntry.FindSet then begin
+        if CustLedgerEntry.FindSet() then begin
             repeat
                 OnHandleExistingCustomerLedgerEntriesOnBeforeCheckDocumentType(CustLedgerEntry);
                 if CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::"Credit Memo",
@@ -50,7 +50,7 @@ codeunit 10755 "SII Initial Doc. Upload"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
-        if VendorLedgerEntry.FindSet then begin
+        if VendorLedgerEntry.FindSet() then begin
             repeat
                 OnHandleExistingVendorLedgerEntriesOnBeforeCheckDocumentType(VendorLedgerEntry);
                 if VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::"Credit Memo",

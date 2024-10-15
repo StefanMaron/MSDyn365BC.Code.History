@@ -1,3 +1,4 @@
+#if not CLEAN20
 permissionset 7227 "General Ledger XBRL - Read"
 {
     Access = Public;
@@ -12,4 +13,9 @@ permissionset 7227 "General Ledger XBRL - Read"
                   tabledata "XBRL Taxonomy" = R,
                   tabledata "XBRL Taxonomy Label" = R,
                   tabledata "XBRL Taxonomy Line" = R;
+
+    ObsoleteTag = '20.0';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'XBRL feature will be discontinued';
 }
+#endif

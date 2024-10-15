@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2852 "Native - Tax Group Entity"
 {
     Caption = 'taxGroups', Locked = true;
@@ -75,4 +76,4 @@ page 2852 "Native - Tax Group Entity"
     var
         NativeAPILanguageHandler: Codeunit "Native API - Language Handler";
 }
-
+#endif

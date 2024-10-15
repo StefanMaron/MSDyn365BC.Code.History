@@ -494,7 +494,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
     end;
 
@@ -520,7 +520,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
     end;
 

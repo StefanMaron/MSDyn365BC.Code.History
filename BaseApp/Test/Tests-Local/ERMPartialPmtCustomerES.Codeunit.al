@@ -34,7 +34,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
         // Test VAT Amount on General Journal Line when VAT % more than Zero.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VerifyVATAmountOnGeneralJournalLine(VATPostingSetup."VAT Prod. Posting Group");
     end;
@@ -48,7 +48,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
         // Test VAT Amount on General Journal Line when VAT % Zero.
 
         // Setup.
-        Initialize;
+        Initialize();
         FindVATPostingSetupWithZeroVAT(VATPostingSetup);
         VerifyVATAmountOnGeneralJournalLine(VATPostingSetup."VAT Prod. Posting Group");
     end;
@@ -80,7 +80,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
         // Verify VAT Amount Zero on G/L Entry when General Journal Posted with VAT % Zero.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLineWithAccountTypeGL(GenJournalLine);
         FindVATPostingSetupWithZeroVAT(VATPostingSetup);
         UpdateGeneralJournalLine(GenJournalLine, VATPostingSetup."VAT Prod. Posting Group");
@@ -103,7 +103,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         isInitialized := true;
         Commit();
     end;
@@ -140,7 +140,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);  // Select VAT Posting Setup with VAT % Zero.
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure UpdateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VATProductPostingGroup: Code[20])
@@ -155,7 +155,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
     begin
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("VAT Amount", VATAmount);
     end;
 }

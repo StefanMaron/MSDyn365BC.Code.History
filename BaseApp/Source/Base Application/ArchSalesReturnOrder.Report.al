@@ -83,10 +83,10 @@ report 418 "Arch. Sales Return Order"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_SalesHeaderArchive; "Sales Header Archive"."Bill-to Customer No.")
@@ -211,7 +211,7 @@ report 418 "Arch. Sales Return Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -411,7 +411,7 @@ report 418 "Arch. Sales Return Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -721,6 +721,9 @@ report 418 "Arch. Sales Return Order"
                 FormatAddressFields("Sales Header Archive");
                 FormatDocumentFields("Sales Header Archive");
 
+                if not CompanyBankAccount.Get("Sales Header Archive"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 if "Shipment Method Code" = '' then
@@ -800,6 +803,7 @@ report 418 "Arch. Sales Return Order"
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";

@@ -124,7 +124,7 @@ codeunit 144071 "UT PAG LocNum"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
     begin
-        GenJournalLine2.FindLast;
+        GenJournalLine2.FindLast();
         GenJournalLine."Line No." := GenJournalLine2."Line No." + LibraryRandom.RandInt(10);
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         GenJournalLine."Account Type" := AccountType;

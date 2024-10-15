@@ -36,7 +36,7 @@ codeunit 147550 "SII AEAT"
         // [FEATURE] [Invoice]
         // [SCENARIO 221621] XML has value "Customer No." in node "NIF" when post Sales Invoice with local customer registered in AEAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(CustLedgerEntry, '', SalesHeader."Document Type"::Invoice, 0, false);
@@ -62,7 +62,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Invoice with local customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(CustLedgerEntry, '', SalesHeader."Document Type"::Invoice, 0, true);
@@ -85,7 +85,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 221621] XML has value "06" in node "IDType" when post Sales Invoice with foreign customer registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::Invoice, 0, false);
@@ -108,7 +108,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Invoice with foreign customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::Invoice, 0, true);
@@ -132,7 +132,7 @@ codeunit 147550 "SII AEAT"
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "Customer No." in node "NIF" when post Sales Credit Memo with type "Removal" with local customer registered in AEAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -160,7 +160,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Credit Memo with type "Removal" with local customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -184,7 +184,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "06" in node "IDType" when post Sales Credit Memo with type "Removal" with foreign customer registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -209,7 +209,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Credit Memo with type "Removal" with foreign customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -235,7 +235,7 @@ codeunit 147550 "SII AEAT"
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "Customer No." in node "NIF" when post Sales Credit Memo with type "Replacement" with local customer registered in AEAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -259,7 +259,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Credit Memo with type "Replacement" with local customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -283,7 +283,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "06" in node "IDType" when post Sales Credit Memo with type "Replacement" with foreign customer registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -308,7 +308,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Credit Memo with type "Replacement" with foreign customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -334,7 +334,7 @@ codeunit 147550 "SII AEAT"
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "Customer No." in node "NIF" when post Sales Credit Memo with type "Difference" with local customer registered in AEAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -361,7 +361,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Credit Memo with type "Difference" with local customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -385,7 +385,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "06" in node "IDType" when post Sales Credit Memo with type "Difference" with foreign customer registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
@@ -410,7 +410,7 @@ codeunit 147550 "SII AEAT"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 221621] XML has value "07" in node "IDType" when post Sales Credit Memo with type "Difference" with foreign customer not registered in AEAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(

@@ -349,7 +349,7 @@ report 10704 "Sales Invoice Book"
                                         Vendor."VAT Registration No." := PurchCrMemoHeader."VAT Registration No.";
                                         VendLedgEntry.SetRange("Document No.", VATEntry6."Document No.");
                                         VendLedgEntry.SetRange("Document Type", "Document Type"::"Credit Memo");
-                                        if VendLedgEntry.FindFirst then
+                                        if VendLedgEntry.FindFirst() then
                                             AutoDocNo := VendLedgEntry."Autodocument No.";
                                         exit;
                                     end;
@@ -359,7 +359,7 @@ report 10704 "Sales Invoice Book"
                                         Vendor."VAT Registration No." := PurchInvHeader."VAT Registration No.";
                                         VendLedgEntry.SetRange("Document Type", "Document Type"::Invoice);
                                         VendLedgEntry.SetRange("Document No.", VATEntry6."Document No.");
-                                        if VendLedgEntry.FindFirst then
+                                        if VendLedgEntry.FindFirst() then
                                             AutoDocNo := VendLedgEntry."Autodocument No.";
                                         exit;
                                     end;
@@ -369,7 +369,7 @@ report 10704 "Sales Invoice Book"
                             VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                             VendLedgEntry.SetRange("Document No.", VATEntry6."Document No.");
                             VendLedgEntry.SetFilter("Document Type", Text1100004);
-                            if VendLedgEntry.FindFirst then;
+                            if VendLedgEntry.FindFirst() then;
                         end;
                     }
                     dataitem("<Integer4>"; "Integer")
@@ -856,7 +856,7 @@ report 10704 "Sales Invoice Book"
                                     Vendor."VAT Registration No." := PurchCrMemoHeader."VAT Registration No.";
                                     VendLedgEntry.SetRange("Document No.", VATEntry4."Document No.");
                                     VendLedgEntry.SetRange("Document Type", "Document Type"::"Credit Memo");
-                                    if VendLedgEntry.FindFirst then
+                                    if VendLedgEntry.FindFirst() then
                                         AutoDocNo := VendLedgEntry."Autodocument No.";
                                     exit;
                                 end;
@@ -866,7 +866,7 @@ report 10704 "Sales Invoice Book"
                                     Vendor."VAT Registration No." := PurchInvHeader."VAT Registration No.";
                                     VendLedgEntry.SetRange("Document No.", VATEntry4."Document No.");
                                     VendLedgEntry.SetRange("Document Type", "Document Type"::Invoice);
-                                    if VendLedgEntry.FindFirst then
+                                    if VendLedgEntry.FindFirst() then
                                         AutoDocNo := VendLedgEntry."Autodocument No.";
                                     exit;
                                 end;
@@ -877,7 +877,7 @@ report 10704 "Sales Invoice Book"
                         VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                         VendLedgEntry.SetRange("Document No.", VATEntry4."Document No.");
                         VendLedgEntry.SetFilter("Document Type", Text1100004);
-                        if VendLedgEntry.FindFirst then;
+                        if VendLedgEntry.FindFirst() then;
                     end;
                 }
                 dataitem("<Integer2>"; "Integer")

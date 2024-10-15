@@ -1,4 +1,5 @@
-﻿report 595 "Adjust Exchange Rates"
+﻿#if not CLEAN20
+report 595 "Adjust Exchange Rates"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Adjust Exchange Rates';
@@ -13,6 +14,9 @@
                   TableData "Closed Cartera Doc." = rimd;
     ProcessingOnly = true;
     UsageCategory = Tasks;
+    ObsoleteReason = 'Replaced by new report 596 "Exch. Rate Adjustment"';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -47,7 +51,8 @@
                                 AdjExchRateBufferUpdate(
                                   "Bank Account"."Currency Code", "Bank Account"."Bank Acc. Posting Group",
                                   TotalAdjBase, TotalAdjBaseLCY, TotalAdjAmount, 0, 0, 0, PostingDate, '', '');
-                                InsertExchRateAdjmtReg(3, "Bank Account"."Bank Acc. Posting Group", "Bank Account"."Currency Code");
+                                InsertExchRateAdjmtReg(
+                                    "Exch. Rate Adjmt. Account Type"::"Bank Account", "Bank Account"."Bank Acc. Posting Group", "Bank Account"."Currency Code");
                                 TotalBankAccountsAdjusted += 1;
                                 ResetTempAdjmtBuffer();
                                 TotalAdjBase := 0;
@@ -387,12 +392,16 @@
                   Text012Txt +
                   Text013Txt);
 
-                if not
-                   VATEntry.SetCurrentKey(
-                     Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
-                then
+                if GLSetup."Journal Templ. Name Mandatory" then
                     VATEntry.SetCurrentKey(
-                      Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+                        "Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date")
+                else
+                    if not
+                        VATEntry.SetCurrentKey(
+                            Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
+                    then
+                        VATEntry.SetCurrentKey(
+                            Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
                 VATEntry.SetRange(Closed, false);
                 VATEntry.SetRange("Posting Date", StartDate, EndDate);
             end;
@@ -513,6 +522,43 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document No.';
                         ToolTip = 'Specifies the document number that will appear on the general ledger entries that are created by the batch job.';
+                        Visible = not IsJournalTemplNameVisible;
+                    }
+                    field(JournalTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JournalBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
                     }
 #if not CLEAN19
                     field(AdjCustVendBank; AdjCustVendBank)
@@ -571,6 +617,8 @@
                 AdjVend := true;
                 AdjBank := true;
             end;
+            GLSetup.Get();
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         end;
     }
 
@@ -609,18 +657,29 @@
             EndDate := DMY2Date(31, 12, 9999)
         else
             EndDate := EndDateReq;
-        if PostingDocNo = '' then
-            Error(Text000Err);
+
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if GenJnlLineReq."Journal Template Name" = '' then
+                Error(Text11300Err);
+            if GenJnlLineReq."Journal Batch Name" = '' then
+                Error(Text11301Err);
+            Clear(NoSeriesMgt);
+            Clear(PostingDocNo);
+            GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            GenJnlBatch.TestField("No. Series");
+            PostingDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+        end else
+            if PostingDocNo = '' then
+                Error(Text000Err);
         if (not AdjCust) and (not AdjVend) and (not AdjBank) and AdjGLAcc then
             if not Confirm(Text001Txt + Text004Txt, false) then
                 Error(Text005Err);
 
         SourceCodeSetup.Get();
 
-        if ExchRateAdjReg.FindLast then
+        if ExchRateAdjReg.FindLast() then
             ExchRateAdjReg.Init();
-
-        GLSetup.Get();
 
         if AdjGLAcc then begin
             GLSetup.TestField("Additional Reporting Currency");
@@ -720,7 +779,10 @@
         TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         CarteraSetup: Record "Cartera Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         DimMgt: Codeunit DimensionManagement;
@@ -764,6 +826,7 @@
         AdjVend: Boolean;
         AdjBank: Boolean;
         AdjGLAcc: Boolean;
+        IsJournalTemplNameVisible: Boolean;
         AddCurrCurrencyFactor: Decimal;
         VATEntryNoTotal: Decimal;
         VATEntryNo: Decimal;
@@ -777,6 +840,8 @@
         TotalCustomersAdjusted: Integer;
         TotalVendorsAdjusted: Integer;
         TotalGLAccountsAdjusted: Integer;
+        Text11300Err: Label 'Please enter a Journal Template Name.';
+        Text11301Err: Label 'Please enter a Journal Batch Name.';
 
     local procedure PostAdjmt(GLAccNo: Code[20]; PostingAmount: Decimal; AdjBase2: Decimal; CurrencyCode2: Code[10]; var DimSetEntry: Record "Dimension Set Entry"; PostingDate2: Date; ICCode: Code[20]) TransactionNo: Integer
     var
@@ -798,6 +863,8 @@
         if CurrencyCode2 = GLSetup."Additional Reporting Currency" then
             GenJnlLine."Source Currency Amount" := 0;
         GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+        GenJnlLine."Journal Template Name" := GenJnlLineReq."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlLineReq."Journal Batch Name";
         GenJnlLine."System-Created Entry" := true;
 
         TransactionNo := PostGenJnlLine(GenJnlLine, DimSetEntry);
@@ -821,6 +888,8 @@
             GenJnlLine."Source Currency Amount" := 0;
         GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
         GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Journal Template Name" := GenJnlLineReq."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlLineReq."Journal Batch Name";
         GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
         CopyDimSetEntryToDimBuf(TempDimSetEntry, TempDimBuf);
         PostGenJnlLine(GenJnlLine, TempDimSetEntry);
@@ -872,7 +941,8 @@
                 AdjExchRateBuffer.AdjBase, AdjExchRateBuffer."Currency Code", TempDimSetEntry,
                 AdjExchRateBuffer."Posting Date", AdjExchRateBuffer."IC Partner Code");
         if TempDtldCVLedgEntryBuf.Insert() then;
-        InsertExchRateAdjmtReg(1, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
+        InsertExchRateAdjmtReg(
+            "Exch. Rate Adjmt. Account Type"::Customer, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
         TotalCustomersAdjusted += 1;
     end;
 
@@ -888,7 +958,8 @@
                 AdjExchRateBuffer.AdjBase, AdjExchRateBuffer."Currency Code", TempDimSetEntry,
                 AdjExchRateBuffer."Posting Date", AdjExchRateBuffer."IC Partner Code");
         if TempDtldCVLedgEntryBuf.Insert() then;
-        InsertExchRateAdjmtReg(2, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
+        InsertExchRateAdjmtReg(
+            "Exch. Rate Adjmt. Account Type"::Vendor, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
         TotalVendorsAdjusted += 1;
     end;
 
@@ -902,7 +973,7 @@
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
     end;
 
-    local procedure InsertExchRateAdjmtReg(AdjustAccType: Integer; PostingGrCode: Code[20]; CurrencyCode: Code[10])
+    local procedure InsertExchRateAdjmtReg(AdjustAccType: Enum "Exch. Rate Adjmt. Account Type"; PostingGrCode: Code[20]; CurrencyCode: Code[10])
     begin
         if TempCurrencyToAdjust.Code <> CurrencyCode then
             TempCurrencyToAdjust.Get(CurrencyCode);
@@ -1001,13 +1072,13 @@
                 TempCurrencyToAdjust.Get(TempAdjExchRateBuffer2."Currency Code");
                 if TempAdjExchRateBuffer2.TotalGainsAmount <> 0 then
                     PostAdjmt(
-                        TempCurrencyToAdjust.GetUnrealizedGainsAccount(),
+                        GetUnrealizedGainsAccount(TempCurrencyToAdjust),
                         -TempAdjExchRateBuffer2.TotalGainsAmount, -TempAdjExchRateBuffer2.AdjBase,
                         TempAdjExchRateBuffer2."Currency Code", TempDimSetEntry,
                         TempAdjExchRateBuffer2."Posting Date", TempAdjExchRateBuffer2."IC Partner Code");
                 if TempAdjExchRateBuffer2.TotalLossesAmount <> 0 then
                     PostAdjmt(
-                        TempCurrencyToAdjust.GetUnrealizedLossesAccount(),
+                        GetUnrealizedLossesAccount(TempCurrencyToAdjust),
                         -TempAdjExchRateBuffer2.TotalLossesAmount, -TempAdjExchRateBuffer2.AdjBase,
                         TempAdjExchRateBuffer2."Currency Code", TempDimSetEntry,
                         TempAdjExchRateBuffer2."Posting Date", TempAdjExchRateBuffer2."IC Partner Code");
@@ -1331,7 +1402,7 @@
         TotalAmount := TotalAmount + AmountToAdd;
     end;
 
-    local procedure PostGLAccAdjmt(GLAccNo: Code[20]; ExchRateAdjmt: Integer; Amount: Decimal; NetChange: Decimal; AddCurrNetChange: Decimal)
+    local procedure PostGLAccAdjmt(GLAccNo: Code[20]; ExchRateAdjmt: Enum "Exch. Rate Adjustment Type"; Amount: Decimal; NetChange: Decimal; AddCurrNetChange: Decimal)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1379,6 +1450,8 @@
             end;
             GenJnlLine."System-Created Entry" := true;
             GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
             PostGenJnlLine(GenJnlLine, TempDimSetEntry);
         end;
@@ -1409,6 +1482,8 @@
             GenJnlLine."Currency Code" := '';
             GenJnlLine.Amount := -GLAmtTotal;
             GenJnlLine."Amount (LCY)" := -GLAmtTotal;
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
             PostGenJnlLine(GenJnlLine, TempDimSetEntry);
         end;
@@ -1425,6 +1500,8 @@
             GenJnlLine."Currency Code" := GLSetup."Additional Reporting Currency";
             GenJnlLine.Amount := -GLAddCurrAmtTotal;
             GenJnlLine."Amount (LCY)" := 0;
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
             PostGenJnlLine(GenJnlLine, TempDimSetEntry);
         end;
@@ -1492,19 +1569,17 @@
     local procedure GetJnlLineDefDim(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry")
     var
         DimSetID: Integer;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         case GenJnlLine."Account Type" of
             GenJnlLine."Account Type"::"G/L Account":
-                TableID[1] := DATABASE::"G/L Account";
+                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GenJnlLine."Account No.");
             GenJnlLine."Account Type"::"Bank Account":
-                TableID[1] := DATABASE::"Bank Account";
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Bank Account", GenJnlLine."Account No.");
         end;
-        No[1] := GenJnlLine."Account No.";
         DimSetID :=
             DimMgt.GetDefaultDimID(
-                TableID, No, GenJnlLine."Source Code",
+                DefaultDimSource, GenJnlLine."Source Code",
                 GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code",
                 GenJnlLine."Dimension Set ID", 0);
         DimMgt.GetDimensionSet(DimSetEntry, DimSetID);
@@ -1671,7 +1746,7 @@
                             NewEntryNo := NewEntryNo + 1;
                             AdjExchRateBufIndex :=
                                 AdjExchRateBufferUpdate(
-                                    CustLedgerEntry."Currency Code", Customer."Customer Posting Group",
+                                    CustLedgerEntry."Currency Code", CustLedgerEntry."Customer Posting Group",
                                     0, 0, -OldAdjAmount, 0, -OldAdjAmount, DimEntryNo, PostingDate2, Customer."IC Partner Code",
                                     GetCustPostingGrAcc(CustLedgerEntry));
                             TempDtldCustLedgEntry."Transaction No." := AdjExchRateBufIndex;
@@ -1709,7 +1784,7 @@
                             NewEntryNo := NewEntryNo + 1;
                             AdjExchRateBufIndex :=
                                 AdjExchRateBufferUpdate(
-                                    CustLedgerEntry."Currency Code", Customer."Customer Posting Group",
+                                    CustLedgerEntry."Currency Code", CustLedgerEntry."Customer Posting Group",
                                     0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Customer."IC Partner Code",
                                     GetCustPostingGrAcc(CustLedgerEntry));
                             TempDtldCustLedgEntry."Transaction No." := AdjExchRateBufIndex;
@@ -1743,7 +1818,7 @@
                 Window.Update(4, TotalAdjAmount);
             AdjExchRateBufIndex :=
                 AdjExchRateBufferUpdate(
-                    CustLedgerEntry."Currency Code", Customer."Customer Posting Group",
+                    CustLedgerEntry."Currency Code", CustLedgerEntry."Customer Posting Group",
                     CustLedgerEntry."Remaining Amount", CustLedgerEntry."Remaining Amt. (LCY)", TempDtldCustLedgEntry."Amount (LCY)",
                     GainsAmount, LossesAmount, DimEntryNo, PostingDate2, Customer."IC Partner Code",
                     GetCustPostingGrAcc(CustLedgerEntry));
@@ -1876,7 +1951,7 @@
                             NewEntryNo := NewEntryNo + 1;
                             AdjExchRateBufIndex :=
                                 AdjExchRateBufferUpdate(
-                                    VendLedgerEntry."Currency Code", Vendor."Vendor Posting Group",
+                                    VendLedgerEntry."Currency Code", VendLedgerEntry."Vendor Posting Group",
                                     0, 0, -OldAdjAmount, 0, -OldAdjAmount, DimEntryNo, PostingDate2, Vendor."IC Partner Code",
                                     GetVendPostingGrAcc(VendLedgerEntry));
                             TempDtldVendLedgEntry."Transaction No." := AdjExchRateBufIndex;
@@ -1914,7 +1989,7 @@
                             NewEntryNo := NewEntryNo + 1;
                             AdjExchRateBufIndex :=
                                 AdjExchRateBufferUpdate(
-                                    VendLedgerEntry."Currency Code", Vendor."Vendor Posting Group",
+                                    VendLedgerEntry."Currency Code", VendLedgerEntry."Vendor Posting Group",
                                     0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Vendor."IC Partner Code",
                                     GetVendPostingGrAcc(VendLedgerEntry));
                             TempDtldVendLedgEntry."Transaction No." := AdjExchRateBufIndex;
@@ -1948,7 +2023,7 @@
                 Window.Update(4, TotalAdjAmount);
             AdjExchRateBufIndex :=
                 AdjExchRateBufferUpdate(
-                    VendLedgerEntry."Currency Code", Vendor."Vendor Posting Group",
+                    VendLedgerEntry."Currency Code", VendLedgerEntry."Vendor Posting Group",
                     VendLedgerEntry."Remaining Amount", VendLedgerEntry."Remaining Amt. (LCY)",
                     TempDtldVendLedgEntry."Amount (LCY)", GainsAmount, LossesAmount, DimEntryNo, PostingDate2, Vendor."IC Partner Code",
                     GetVendPostingGrAcc(VendLedgerEntry));
@@ -2093,11 +2168,13 @@
     begin
         InitializeRequest(
             GenJournalLine."Posting Date", GenJournalLine."Posting Date", Text016Txt, GenJournalLine."Posting Date");
+        GenJnlLineReq."Journal Template Name" := GenJournalLine."Journal Template Name";
+        GenJnlLineReq."Journal Batch Name" := GenJournalLine."Journal Batch Name";
         PostingDocNo := GenJournalLine."Document No.";
         HideUI := true;
         GLSetup.Get();
         SourceCodeSetup.Get();
-        if ExchRateAdjReg.FindLast then
+        if ExchRateAdjReg.FindLast() then
             ExchRateAdjReg.Init();
     end;
 
@@ -2152,6 +2229,30 @@
         DtldVendLedgEntry."Initial Document Type" := VendLedgEntry."Document Type";
 
         OnAfterInitDtldVendLedgerEntry(DtldVendLedgEntry);
+    end;
+
+    local procedure GetUnrealizedGainsAccount(Currency: Record Currency) AccountNo: Code[20]
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUnrealizedGainsAccount(Currency, AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
+        exit(Currency.GetUnrealizedGainsAccount());
+    end;
+
+    local procedure GetUnrealizedLossesAccount(Currency: Record Currency) AccountNo: Code[20]
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetUnrealizedLossesAccount(Currency, AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
+        exit(Currency.GetUnrealizedLossesAccount());
     end;
 
     local procedure SetUnrealizedGainLossFilterCust(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
@@ -2365,6 +2466,16 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUnrealizedGainsAccount(Currency: Record Currency; var AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUnrealizedLossesAccount(Currency: Record Currency; var AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
 #if not CLEAN19
     [Obsolete('To be replaced by new events after refactoring', '19.0')]
     [IntegrationEvent(false, false)]
@@ -2402,4 +2513,4 @@
     begin
     end;
 }
-
+#endif

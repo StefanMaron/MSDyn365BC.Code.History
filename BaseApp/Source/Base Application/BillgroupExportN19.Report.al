@@ -221,7 +221,7 @@ report 7000092 "Bill group - Export N19"
 
                 if BankSuffixBankAcc = '' then begin
                     Suffix.SetRange(Suffix, BankSuffix);
-                    if Suffix.FindFirst then
+                    if Suffix.FindFirst() then
                         BankSuffixBankAcc := Suffix."Bank Acc. Code";
                 end;
 

@@ -26,7 +26,7 @@ codeunit 104100 "UPG SII"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpdateEmployeeNewNamesTag) THEN
             EXIT;
 
-        IF NOT Employee.FINDSET THEN
+        IF NOT Employee.FindSet() then
             EXIT;
 
         REPEAT

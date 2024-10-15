@@ -377,7 +377,7 @@ page 10752 "SII History"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc(SIIDocUploadState."Posting Date", CopyStr(SIIDocUploadState."Document No.", 1, 20));
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action(ShowRequest)
@@ -476,7 +476,7 @@ page 10752 "SII History"
 
     trigger OnOpenPage()
     begin
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     var
@@ -534,7 +534,7 @@ page 10752 "SII History"
             SIIHistory.Ascending(false);
             repeat
                 SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
-                if SIIHistory.FindFirst then
+                if SIIHistory.FindFirst() then
                     if SIIHistory.Status <> SIIHistory.Status::Pending then
                         CreateNewRequest(
                           SIIHistory."Document State Id", SIIHistory."Upload Type", 1, true,

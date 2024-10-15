@@ -1,5 +1,7 @@
 codeunit 60 "Sales-Calc. Discount"
 {
+    Permissions = tabledata "Sales Header" = rm,
+                  tabledata "Sales Line" = rm;
     TableNo = "Sales Line";
 
     trigger OnRun()
@@ -74,7 +76,7 @@ codeunit 60 "Sales-Calc. Discount"
             SalesLine2.SetRange("Document No.", "Document No.");
             SalesLine2.SetFilter(Type, '<>0');
             OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(SalesLine2);
-            if SalesLine2.FindFirst then;
+            if SalesLine2.FindFirst() then;
             SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             InvDiscBase :=
               TempVATAmountLine.GetTotalInvDiscBaseAmount(
@@ -103,7 +105,7 @@ codeunit 60 "Sales-Calc. Discount"
                 if not UpdateHeader then
                     SalesLine2.SetSalesHeader(SalesHeader);
                 if not TempServiceChargeLine.IsEmpty() then begin
-                    TempServiceChargeLine.FindLast;
+                    TempServiceChargeLine.FindLast();
                     SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
                     SalesLine2.Modify();
@@ -111,7 +113,7 @@ codeunit 60 "Sales-Calc. Discount"
                     SalesLine2.Reset();
                     SalesLine2.SetRange("Document Type", "Document Type");
                     SalesLine2.SetRange("Document No.", "Document No.");
-                    SalesLine2.FindLast;
+                    SalesLine2.FindLast();
                     SalesLine2.Init();
                     if not UpdateHeader then
                         SalesLine2.SetSalesHeader(SalesHeader);

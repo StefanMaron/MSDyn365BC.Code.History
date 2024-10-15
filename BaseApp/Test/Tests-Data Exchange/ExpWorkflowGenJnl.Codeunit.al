@@ -44,7 +44,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [THEN] The payment file is created and saved to disk.
 
         // Pre-Setup
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateVendorWithBankAccount(Vendor, PaymentType);
         CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType));
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
@@ -65,11 +65,11 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         BankExportImportSetup.Get(BankAcc."Payment Export Format");
 
         // Verify
@@ -97,7 +97,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [THEN] The payment file is created and saved to disk.
 
         // Pre-Setup
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateEmployeeWithBankAccount(Employee, PaymentType, PaymentMethodCode);
         CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType));
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
@@ -119,11 +119,11 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         BankExportImportSetup.Get(BankAcc."Payment Export Format");
 
         // Verify
@@ -150,7 +150,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [THEN] The payment file is created and saved to disk.
 
         // Pre-Setup
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateVendorWithBankAccount(Vendor, PaymentType);
         CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithFullSetupServer(PaymentType));
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
@@ -171,11 +171,11 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         BankExportImportSetup.Get(BankAcc."Payment Export Format");
 
         // Verify
@@ -203,7 +203,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [THEN] The payment file is created and saved to disk.
 
         // Pre-Setup
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateEmployeeWithBankAccount(Employee, PaymentType, PaymentMethodCode);
         CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithFullSetupServer(PaymentType));
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
@@ -225,11 +225,11 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         BankExportImportSetup.Get(BankAcc."Payment Export Format");
 
         // Verify
@@ -256,7 +256,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [THEN] The payment file is created and saved to disk.
 
         // Pre-Setup
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateVendorWithBankAccount(Vendor, PaymentType);
         CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithMinSetup(PaymentType));
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
@@ -275,11 +275,11 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         BankExportImportSetup.Get(BankAcc."Payment Export Format");
 
         // Verify
@@ -307,7 +307,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [THEN] The payment file is created and saved to disk.
 
         // Pre-Setup
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateEmployeeWithBankAccount(Employee, PaymentType, PaymentMethodCode);
         CreateBankAccountWithExportFormat(BankAcc, CreatePaymentExportFormatWithMinSetup(PaymentType));
         CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
@@ -328,11 +328,11 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // Pre-Verify
         CreditTransferRegister.SetRange("From Bank Account No.", BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         BankExportImportSetup.Get(BankAcc."Payment Export Format");
 
         // Verify
@@ -354,7 +354,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // [GIVEN] Gen. Journal Line with "Bal. Account Type" = "Bank Account", "Bal. Account No." = "B".
         // [GIVEN] "Payment Export Format" of Bank Account "B" is empty.
-        CreateVendorWithBankAccount(Vendor, LibraryUtility.GenerateGUID);
+        CreateVendorWithBankAccount(Vendor, LibraryUtility.GenerateGUID());
         LibraryERM.CreateBankAccount(BankAccount);
         CreateExportGenJournalBatch(GenJournalBatch, BankAccount."No.");
 
@@ -388,8 +388,8 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
 
         // [GIVEN] Gen. Journal Line with "Bal. Account Type" = "Bank Account", "Bal. Account No." = "B".
         // [GIVEN] Bank Account "B" has "Payment Export Format", which has empty "Data Exch. Def. Code" field.
-        CreateVendorWithBankAccount(Vendor, LibraryUtility.GenerateGUID);
-        CreateBankAccountWithExportFormat(BankAccount, CreatePaymentExportFormatWithMinSetup(LibraryUtility.GenerateGUID));
+        CreateVendorWithBankAccount(Vendor, LibraryUtility.GenerateGUID());
+        CreateBankAccountWithExportFormat(BankAccount, CreatePaymentExportFormatWithMinSetup(LibraryUtility.GenerateGUID()));
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         BankExportImportSetup."Data Exch. Def. Code" := '';
         BankExportImportSetup.Modify();
@@ -424,7 +424,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         // [GIVEN] Bank Account "B" has "Payment Export Format" "P".
         // [GIVEN] "P" has "Data Exch. Def. Code" "D".
         // [GIVEN] "D" has Type <> "Payment Export".
-        CreateBankAccountWithExportFormat(BankAccount, CreatePaymentExportFormatWithMinSetup(LibraryUtility.GenerateGUID));
+        CreateBankAccountWithExportFormat(BankAccount, CreatePaymentExportFormatWithMinSetup(LibraryUtility.GenerateGUID()));
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         DataExchDef.Get(BankExportImportSetup."Data Exch. Def. Code");
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
@@ -447,7 +447,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         LibraryPurchase.CreateVendor(Vendor);
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, Vendor."No.");
-        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID();
         VendorBankAcc."Use For Electronic Payments" := true;
         VendorBankAcc.Modify(true);
 
@@ -477,7 +477,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
     local procedure CreateBankAccountWithExportFormat(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20])
     begin
         LibraryERM.CreateBankAccount(BankAcc);
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Validate("Payment Export Format", PaymentExportFormat);
         BankAcc.Modify(true);
     end;

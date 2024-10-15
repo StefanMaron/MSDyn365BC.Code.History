@@ -33,7 +33,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         SIIJobManagement: Codeunit "SII Job Management";
         EntriesMissing: Integer;
     begin
-        SIIMissingEntriesState.Initialize;
+        SIIMissingEntriesState.Initialize();
         EntriesMissing := SIIMissingEntriesState."Entries Missing";
         UploadMissingVendInvoices(TempVendorLedgerEntry, SIIMissingEntriesState."Last VLE No.");
         UploadMissingVendPayments(TempDetailedVendorLedgEntry, SIIMissingEntriesState."Last DVLE No.");
@@ -52,7 +52,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        if TempVendLedgerEntry.FindSet then begin
+        if TempVendLedgerEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CreateRequestMsg, TempVendLedgerEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -71,7 +71,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        if TempDetailedVendorLedgEntry.FindSet then begin
+        if TempDetailedVendorLedgEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CreateRequestMsg, TempDetailedVendorLedgEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -90,7 +90,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        if TempCustLedgerEntry.FindSet then begin
+        if TempCustLedgerEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CreateRequestMsg, TempCustLedgerEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -109,7 +109,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         TotalRecNo: Integer;
         RecNo: Integer;
     begin
-        if TempDetailedCustLedgEntry.FindSet then begin
+        if TempDetailedCustLedgEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CreateRequestMsg, TempDetailedCustLedgEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -163,7 +163,7 @@ codeunit 10757 "SII Recreate Missing Entries"
           "Document Type", '%1|%2', VendLedgerEntry."Document Type"::Invoice, VendLedgerEntry."Document Type"::"Credit Memo");
         VendLedgerEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
-        if VendLedgerEntry.FindSet then begin
+        if VendLedgerEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CollectEntriesMsg, VendLedgerEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -205,7 +205,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         DetailedVendorLedgEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
         DetailedVendorLedgEntry.SetRange(Unapplied, false);
-        if DetailedVendorLedgEntry.FindSet then begin
+        if DetailedVendorLedgEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CollectEntriesMsg, DetailedVendorLedgEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -242,7 +242,7 @@ codeunit 10757 "SII Recreate Missing Entries"
           "Document Type", '%1|%2', CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
         CustLedgerEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
-        if CustLedgerEntry.FindSet then begin
+        if CustLedgerEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CollectEntriesMsg, CustLedgerEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -284,7 +284,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         DetailedCustLedgEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
         DetailedCustLedgEntry.SetRange(Unapplied, false);
-        if DetailedCustLedgEntry.FindSet then begin
+        if DetailedCustLedgEntry.FindSet() then begin
             SetWindowSource(TotalRecNo, CollectEntriesMsg, DetailedCustLedgEntry);
             repeat
                 UpdateWindowProgress(RecNo, TotalRecNo);
@@ -352,7 +352,7 @@ codeunit 10757 "SII Recreate Missing Entries"
         DtldCustLedgEntryNo: Integer;
         DtldVendLedgEntryNo: Integer;
     begin
-        SIIMissingEntriesState.Initialize;
+        SIIMissingEntriesState.Initialize();
         if not AllEntries then begin
             VendLedgEntryNo := SIIMissingEntriesState."Last VLE No.";
             CustLedgEntryNo := SIIMissingEntriesState."Last CLE No.";

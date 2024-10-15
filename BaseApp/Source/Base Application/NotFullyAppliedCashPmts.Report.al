@@ -257,7 +257,7 @@ report 10746 "Not Fully Applied Cash Pmts."
             Reset;
             SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
             SetFilter("G/L Account No.", FilterString);
-            if FindFirst then
+            if FindFirst() then
                 exit(true);
             exit(false);
         end;

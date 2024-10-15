@@ -85,7 +85,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         // Setup.
         CreateDataExchDef(DataExchDef, DataExchDef.Type::"Bank Statement Import");
         CreateDataExchLineDef(DataExchDef, DataExchLineDef);
-        DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID);
+        DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID());
         DataExchLineDef.Modify(true);
         DataExchColDef.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code, 1,
           LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
@@ -115,7 +115,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         // Setup.
         CreateDataExchDef(DataExchDef, DataExchDef.Type::"Bank Statement Import");
         CreateDataExchLineDef(DataExchDef, DataExchLineDef);
-        DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID);
+        DataExchLineDef.Validate("Data Line Tag", LibraryUtility.GenerateGUID());
         DataExchLineDef.Modify(true);
         DataExchColDef.InsertRecForImport(DataExchDef.Code, DataExchLineDef.Code, 1,
           LibraryUtility.GenerateRandomCode(DataExchColDef.FieldNo(Name),
@@ -388,7 +388,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchFieldMapping.SetRange("Table ID", DataExchMapping."Table ID");
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
 
         // Execute
         DataExchFieldMapping.Validate("Use Default Value", true);
@@ -411,7 +411,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchDef.Type := DataExchDef.Type::"Payment Export";
         DataExchDef.Modify();
 
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
         DataExchFieldMapping."Default Value" := 'Default';
         DataExchFieldMapping.Validate("Use Default Value", false);
 
@@ -433,7 +433,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
         DataExchDef.Modify();
 
-        DataExchFieldMapping.FindFirst;
+        DataExchFieldMapping.FindFirst();
         DataExchFieldMapping.TestField(Multiplier, 1);
 
         // Exercise
@@ -537,7 +537,7 @@ codeunit 132546 "Data Exch. Field Mapping UT"
         DataExchField."Line No." := LibraryRandom.RandIntInRange(1, 10);
         DataExchField."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExchField."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
-        DataExchField."Node ID" := LibraryUtility.GenerateGUID;
+        DataExchField."Node ID" := LibraryUtility.GenerateGUID();
         DataExchField."Column No." := ColumnNo;
         DataExchField.Insert(true);
     end;

@@ -1,4 +1,4 @@
-page 140 "Posted Purchase Credit Memo"
+﻿page 140 "Posted Purchase Credit Memo"
 {
     Caption = 'Posted Purchase Credit Memo';
     InsertAllowed = false;
@@ -273,6 +273,13 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code for the location used when you posted the credit memo.';
+                }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    Visible = false;
                 }
                 group("SII Information")
                 {
@@ -651,7 +658,7 @@ page 140 "Posted Purchase Credit Memo"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(SpecialSchemeCodes)
@@ -747,7 +754,7 @@ page 140 "Posted Purchase Credit Memo"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category7;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -863,7 +870,7 @@ page 140 "Posted Purchase Credit Memo"
                 begin
                     PostedPurchCrMemoUpdate.LookupMode := true;
                     PostedPurchCrMemoUpdate.SetRec(Rec);
-                    PostedPurchCrMemoUpdate.RunModal;
+                    PostedPurchCrMemoUpdate.RunModal();
                 end;
             }
         }

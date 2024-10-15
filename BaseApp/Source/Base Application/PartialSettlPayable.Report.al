@@ -191,7 +191,7 @@ report 7000085 "Partial Settl. - Payable"
                 if PostedPmtOrd."Currency Code" <> '' then begin
                     if SumLCYAmt <> 0 then begin
                         Currency.SetFilter(Code, PostedPmtOrd."Currency Code");
-                        Currency.FindFirst;
+                        Currency.FindFirst();
                         if SumLCYAmt > 0 then begin
                             Currency.TestField("Residual Gains Account");
                             Acct := Currency."Residual Gains Account";
@@ -255,7 +255,7 @@ report 7000085 "Partial Settl. - Payable"
                 Window.Close;
 
                 if ExistVATEntry then begin
-                    GLReg.FindLast;
+                    GLReg.FindLast();
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
                     GLReg.Modify();

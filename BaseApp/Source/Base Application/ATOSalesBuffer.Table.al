@@ -158,7 +158,7 @@ table 915 "ATO Sales Buffer"
         PostedATOLink.SetRange("Document Type", PostedATOLink."Document Type"::"Sales Shipment");
         PostedATOLink.SetRange("Document No.", ItemLedgEntry."Document No.");
         PostedATOLink.SetRange("Document Line No.", ItemLedgEntry."Document Line No.");
-        if PostedATOLink.FindFirst then
+        if PostedATOLink.FindFirst() then
             exit(PostedATOLink."Assembly Order No.");
 
         if ItemLedgEntry.Correction then

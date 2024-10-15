@@ -69,7 +69,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify creation and receiving of NonStock Item.
 
         // Setup. Create NonStock Item and Purchase Order.
-        Initialize;
+        Initialize();
         CreateNonStockItem(NonstockItem);
         GlobalItemNo := NonstockItem."Vendor Item No."; // Assign to global variable.
         CreatePurchaseDocument(
@@ -95,7 +95,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify creation and receiving of Item with long Vendor Item No.
 
         // Setup. Create Item and Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
         Item.Modify();
@@ -123,7 +123,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify creation and receiving of Item with long Vendor Item No.
 
         // Setup. Create Item and Purchase Order.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
         Item.Modify();
@@ -167,7 +167,7 @@ codeunit 137280 "SCM Inventory Basic"
         DocumentNo: Code[20];
     begin
         // Setup: Create Item with Item Tracking Code, Create a Purchase Order, Sales Order, Purchase Credit Memo.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateTrackedItem(
           Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode,
           CreateItemTrackingCode(LotSpecific, SerialSpecific));
@@ -223,10 +223,10 @@ codeunit 137280 "SCM Inventory Basic"
         // Test the Item Charge Assignment on Purchase Document and Validate it on Item Statistics Matrix.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         GlobalAmount := LibraryRandom.RandDec(1000, 1);  // Using Random value in global variable to verify Total Amount in ItemStatisticsMatrix Page.
-        ItemCharge.FindFirst;
+        ItemCharge.FindFirst();
 
         // Create 1st Purchase Order for Item and Post as Receive.
         CreatePurchaseDocument(
@@ -263,10 +263,10 @@ codeunit 137280 "SCM Inventory Basic"
         // Test the Item Charge Assignment on Sales Document and Validate it on Item Statistics Matrix.
 
         // Setup.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         GlobalAmount := LibraryRandom.RandDec(1000, 1);  // Using Ranom value in global variable to verify Total Amount in ItemStatisticsMatrix Page.
-        ItemCharge.FindFirst;
+        ItemCharge.FindFirst();
 
         // Create 1st Sales Order for Item and Post as Ship.
         CreateSalesDocument(
@@ -335,7 +335,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify: Verify Charge Item Entry posted.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("No.", ItemChargeNo);
     end;
 
@@ -344,7 +344,7 @@ codeunit 137280 "SCM Inventory Basic"
     procedure ItemByLocationMatrixWithoutInTransit()
     begin
         // Verify Item by Location Matrix.
-        Initialize;
+        Initialize();
         ItemByLocationMatrix(false);  // False for non In-Transit Location.
     end;
 
@@ -353,7 +353,7 @@ codeunit 137280 "SCM Inventory Basic"
     procedure ItemByLocationMatrixWithInTransit()
     begin
         // Verify Item by Location Matrix with Show In Transit filter as True.
-        Initialize;
+        Initialize();
         ItemByLocationMatrix(true);  // True for In-Transit Location.
     end;
 
@@ -398,12 +398,12 @@ codeunit 137280 "SCM Inventory Basic"
         ColumnNumber: Integer;
     begin
         // 1. Setup: Create an increasing number of items in each location, starting from the blank location
-        Initialize;
+        Initialize();
         ItemNo := LibraryInventory.CreateItem(Item);
         ColumnNumber := 1;
         CreateAndPostItemJournalLine(ItemJournalLine, ItemNo, '', ColumnNumber);
         Location.SetRange("Use As In-Transit", false);
-        if Location.FindSet then
+        if Location.FindSet() then
             repeat
                 ColumnNumber += 1;
                 if not InventoryPostingSetupExists(Location.Code, Item."Inventory Posting Group") then
@@ -419,7 +419,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify: Each column caption corresponds to a location code, and each cell contains the correct inventory
         ColumnNumber := 1;
         VerifyMatrixColumn(ItemsByLocation, ColumnNumber, UnspecifiedLocationTxt, ColumnNumber);
-        if Location.FindSet then
+        if Location.FindSet() then
             repeat
                 ColumnNumber += 1;
                 VerifyMatrixColumn(ItemsByLocation, ColumnNumber, Location.Code, ColumnNumber);
@@ -612,7 +612,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Transfer Routes Matrix for In-Transit Code.
 
         // Setup: Create and modify Transfer Route.
-        Initialize;
+        Initialize();
         CreateAndModifyTransferRoute(TransferRoute);
 
         // Exercise
@@ -635,7 +635,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Transfer Routes Matrix for Shipping Agent Code.
 
         // Setup: Create and modify Transfer Route.
-        Initialize;
+        Initialize();
         CreateAndModifyTransferRoute(TransferRoute);
 
         // Exercise
@@ -658,7 +658,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Transfer Routes Matrix for Shipping Agent Service Code.
 
         // Setup: Create and modify Transfer Route.
-        Initialize;
+        Initialize();
         CreateAndModifyTransferRoute(TransferRoute);
 
         // Exercise
@@ -695,7 +695,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemCard: TestPage "Item Card";
     begin
         // Setup: Create and post Item Journal Line, Create and post Transfer Order.
-        Initialize;
+        Initialize();
         GlobalQuantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateAndPostItemJournalLine(ItemJournalLine, CreateItem, Location.Code, GlobalQuantity);
@@ -721,7 +721,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Unit Cost on Item After Adjustment using Sales Order and Item Journal Line with Item Costing Method Average and Item Tracking.
 
         // Setup: Create Item Journal Line with Item Tracking Code, Create and post a Sales Order.
-        Initialize;
+        Initialize();
         ItemNo := CreateAndPostItemJnlLineWithtemTracking;
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
         UpdateSalesLineUnitPrice(SalesLine, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
@@ -745,7 +745,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Unit Cost on Item after Adjustment using Item Journal with Item Costing Method Average and Item Tracking.
 
         // Setup: Create and post Item Journal Line with Item Tracking.
-        Initialize;
+        Initialize();
         ItemNo := CreateAndPostItemJnlLineWithtemTracking;
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -766,7 +766,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify error message while posting Sales Order with Item Tracking.
 
         // Setup: Create and post Item Journal Line and Sales Order with Item Tracking.
-        Initialize;
+        Initialize();
         ItemNo := CreateAndPostItemJnlLineWithtemTracking;
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
         SalesLine.OpenItemTrackingLines();
@@ -792,7 +792,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Cost Amount Actual after partial Negative Adjustment against one Positive Adjustment.
 
         // Setup: Create Item, setup create Item Journal Line and run Adjustment.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         Quantity := LibraryRandom.RandInt(100);  // Taking Random value for Quantity.
         SelectAndClearItemJournalBatch(ItemJournalBatch);
@@ -801,8 +801,8 @@ codeunit 137280 "SCM Inventory Basic"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
 
         // Create a new fisacl year and Close the previous fiscal years.
-        LibraryFiscalYear.CreateFiscalYear;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
+        LibraryFiscalYear.CloseFiscalYear();
         CreateAndModifyItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemNo, Quantity / 2);
@@ -833,7 +833,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify that existing item unit of measure can be used as item's base unit of measure
 
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -859,7 +859,7 @@ codeunit 137280 "SCM Inventory Basic"
         // and this unit of measure is created during the validation
 
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -886,7 +886,7 @@ codeunit 137280 "SCM Inventory Basic"
         SecondUnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -912,7 +912,7 @@ codeunit 137280 "SCM Inventory Basic"
         FirstUnitOfMeasure: Record "Unit of Measure";
         SecondUnitOfMeasure: Record "Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -937,7 +937,7 @@ codeunit 137280 "SCM Inventory Basic"
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -963,7 +963,7 @@ codeunit 137280 "SCM Inventory Basic"
         UnitOfMeasureQtyGreaterThanOne: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -990,7 +990,7 @@ codeunit 137280 "SCM Inventory Basic"
         SecondUnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1014,7 +1014,7 @@ codeunit 137280 "SCM Inventory Basic"
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1042,7 +1042,7 @@ codeunit 137280 "SCM Inventory Basic"
         // because it has ValidateTableRelation=No
 
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1074,7 +1074,7 @@ codeunit 137280 "SCM Inventory Basic"
         QtyRoudingPercisionErr: Label 'Qty. Rounding Precision for Base Unit of Measure %1 should be %2. Current: ';
     begin
         //Change Base UoM should reset Qty. Rounding Percion
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1112,13 +1112,13 @@ codeunit 137280 "SCM Inventory Basic"
         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
 
         ItemTemplate.SetRange(Code, SelectItemTemplateCode);
-        ItemTemplate.FindFirst;
+        ItemTemplate.FindFirst();
 
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
         ItemTemplMgt.UpdateItemFromTemplate(Item);
@@ -1151,7 +1151,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         // Arrange: create four items.
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Validate("No.", '1');
@@ -1170,7 +1170,7 @@ codeunit 137280 "SCM Inventory Basic"
         Item.SetFilter("No.", '1|3');
 
         ItemTemplate.SetRange(Code, SelectItemTemplateCode);
-        ItemTemplate.FindFirst;
+        ItemTemplate.FindFirst();
 
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
         ItemTemplMgt.UpdateItemsFromTemplate(Item);
@@ -1222,7 +1222,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Template] [Unit of Measure]
         // [SCENARIO 203626] Item Unit of Measure should be created for the default Unit of Measure if Item Template has empty Base Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Template with empty Base Unit of Measure
         Item.Init();
@@ -1249,7 +1249,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Verify Non-Invtbl. Costs and Profit in Item Statistics when item charge is posted as Purchase Credit Memo.
 
         // Setup: Create Purchase Return Order with 2 Purchase Lines, one for Item, one for Item Charge. Assign Item Charge to the Item.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentAndAssignItemCharge(PurchaseLine, PurchaseLine2, PurchaseLine."Document Type"::"Return Order");
 
         // Exercise: Post Purchase Document as Receive and Invoice.
@@ -1274,7 +1274,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // Setup: Create Purchase Return Order with one line and post it. Create Purchase Order with one line for Item Charge.
         // Assign Item Charge to Purchase Return Shipment.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Return Order",
           LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));
@@ -1301,7 +1301,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Item with not blank "No."
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         // [GIVEN] "Item Unit of Measure" - "X"
@@ -1328,7 +1328,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Item with not blank "No."
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         // [GIVEN] "Item Unit of Measure" - "X"
@@ -1356,7 +1356,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [GIVEN] Two Unit of Measures: "X" and "Y"
         // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1384,7 +1384,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [GIVEN] Two Unit of Measures: "X" and "Y"
         // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1435,7 +1435,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Item with not blank "No."
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         // [GIVEN] "Item Unit of Measure" - "X"
@@ -1464,7 +1464,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [GIVEN] Two Unit of Measures: "X" and "Y"
         // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
         Item.Init();
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1537,7 +1537,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Sales Order] [Item Charge Assigment]
         // [SCENARIO 128475] Item Charge Assigment (Sales) Page should have Qty. to Assign = 0 if appropriate Sales Line has Qty. to Invoice = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for Charge (Item) With "Qty. to Invoice" = 0
         CreateSalesDocument(
@@ -1564,7 +1564,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [FEATURE] [Nonstock Items] [Item Substitution]
         // [SCENARIO 173306] Unable to save Item Substitutions for Nonstock Items
         // [GIVEN] User has created a nonstock item and an item to assign to it
-        Initialize;
+        Initialize();
         CreateNonStockItem(NonstockItem);
         LibraryInventory.CreateItem(Item);
         LibraryVariableStorage.Enqueue(1);
@@ -1594,7 +1594,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [FEATURE] [Nonstock Items] [Item Substitution]
         // [SCENARIO 173306] Verify Item Substitutions save for Items
         // [GIVEN] User has created an item and a nonstock item to assign to it
-        Initialize;
+        Initialize();
         CreateNonStockItem(NonstockItem);
         LibraryInventory.CreateItem(Item);
         LibraryVariableStorage.Enqueue(0);
@@ -1622,7 +1622,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [UI]
         // [SCENARIO 178097] Button to view Sales Price Worksheet page is not visible when run on phone
-        Initialize;
+        Initialize();
 
         // [GIVEN] Windows Client is used
         // [WHEN] Page Item List is opened
@@ -1757,7 +1757,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [FEATURE] [Item Substitution] [Dimension] [Default Dimension] [Sales]
         // [SCENARIO 231338] Default dimensions from the customer should be set for a sales line when the item is replaced with a substitution
 
-        Initialize;
+        Initialize();
 
         LibrarySales.SetStockoutWarning(false);
 
@@ -1777,7 +1777,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [THEN] Default dimension value is copied from the customer card
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         SalesLine.TestField("Dimension Set ID", DimensionSetEntry."Dimension Set ID");
     end;
 
@@ -1798,7 +1798,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [FEATURE] [Item Substitution] [Dimension] [Default Dimension] [Sales]
         // [SCENARIO 231338] Default dimensions from the substitution item should be set for a sales line when the item is replaced with the substitution
 
-        Initialize;
+        Initialize();
 
         LibrarySales.SetStockoutWarning(false);
 
@@ -1830,7 +1830,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [THEN] Dimension set in the sales line includes dimension "D1" with value "V1" and dimension "D2" with value "V3"
         DimensionSetEntry.SetRange("Dimension Code", DimensionValue[3]."Dimension Code");
         DimensionSetEntry.SetRange("Dimension Value Code", DimensionValue[3].Code);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         SalesLine.TestField("Dimension Set ID", DimensionSetEntry."Dimension Set ID");
     end;
 
@@ -1843,7 +1843,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Card]
         // [SCENARIO 255987] "VAT Bus. Posting Gr. (Price)" must be available on Item Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item
         LibraryInventory.CreateItem(Item);
@@ -1866,7 +1866,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Card]
         // [SCENARIO 255987] "VAT Bus. Posting Gr. (Price)" must be available on Item Card with Advanced Application Area
-        Initialize;
+        Initialize();
 
         // [GIVEN] Advanced Application Area
         LibraryApplicationArea.EnablAdvancedSetupForCurrentCompany;
@@ -1892,7 +1892,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Card] [Application Area]
         // [SCENARIO 255987] "VAT Bus. Posting Gr. (Price)" must not be available on Item Card not Advanced Application Area
-        Initialize;
+        Initialize();
 
         // [GIVEN] Basic Application Area
         LibraryApplicationArea.EnableBasicSetup;
@@ -1919,7 +1919,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Unit of Measure] [Item] [UT]
         // [SCENARIO 273614] You cannot delete item unit of measure that is set as "Put-away Unit of Measure Code" on item.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 5));
@@ -1945,7 +1945,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Nonstock Item] [Item Template] [Item]
         // [SCENARIO 312851] Item Disc. Group is copied from Template to Item, when Item is created from Nonstock Item which has that Template specified
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Template with Item Disc. Group "A"
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
@@ -1978,7 +1978,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Charge] [Sales]
         // [SCENARIO 323155] Cannot post a Sales Order with insufficient ledger entries for negative quantity Item Charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Sales Order with negative quantity Item Charge assigned and two Item lines
         // [GIVEN] Set "Qty. to Ship"=0 on one of them after Charge Assignment
@@ -2002,7 +2002,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Item Charge] [Purchase]
         // [SCENARIO 323155] Cannot post a Purchase Order with insufficient ledger entries for negative quantity Item Charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Purchase Order with negative quantity Item Charge assigned and two Item lines
         // [GIVEN] Set "Qty. to Ship"=0 on one of them after Charge Assignment
@@ -2027,7 +2027,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // [FEATURE] [Sales] [Quote] [Nonstock Item] [Item Template]
         // [SCENARIO 337686] Stan can add two nonstock items to sales quote.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Nonstock items "NI1", "NI2".
         CreateNonStockItem(NonstockItem[1]);
@@ -2149,17 +2149,17 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Basic");
         ClearGlobals;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryTemplates.EnableTemplatesFeature();
 
         isInitialized := true;
@@ -2253,10 +2253,10 @@ codeunit 137280 "SCM Inventory Basic"
 
     local procedure CreateItemAndProductionBOM(var Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
     begin
-        ProductionBOMHeader."No." := LibraryUtility.GenerateGUID;
+        ProductionBOMHeader."No." := LibraryUtility.GenerateGUID();
         ProductionBOMHeader.Insert();
 
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item."Production BOM No." := ProductionBOMHeader."No.";
         Item.Insert();
     end;
@@ -2369,7 +2369,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemChargeNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create Sales Order for Charge Item Line.
         ItemChargeNo := LibraryInventory.CreateItemChargeNo;
@@ -2524,7 +2524,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.Delete(true);
     end;
 
@@ -2534,7 +2534,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry."Entry No.");
     end;
 
@@ -2542,7 +2542,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
         ReturnShipmentLine.SetRange("No.", ItemNo);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure GetFirstLocation(UseAsInTransit: Boolean): Code[10]
@@ -2574,7 +2574,7 @@ codeunit 137280 "SCM Inventory Basic"
         if Location.Get(LocationCode) then
             if Location."Bin Mandatory" then begin
                 Bin.SetRange("Location Code", LocationCode);
-                Bin.FindFirst;
+                Bin.FindFirst();
                 ItemJournalLine.Validate("Bin Code", Bin.Code);
             end;
         ItemJournalLine.Modify(true);
@@ -2675,10 +2675,10 @@ codeunit 137280 "SCM Inventory Basic"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         ItemTemplate.SetRange(Code, ItemTemplateCode);
-        ItemTemplate.FindFirst;
+        ItemTemplate.FindFirst();
         ItemTemplate.Validate("Costing Method", ItemTemplate."Costing Method"::Specific);
         if ItemTemplate."VAT Prod. Posting Group" = '' then begin
-            VATProductPostingGroup.FindFirst;
+            VATProductPostingGroup.FindFirst();
             ItemTemplate.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);  // Updating Default VAT Prod. Posting Group to fix failure in CA.
         end;
         ItemTemplate.Modify(true);
@@ -2691,9 +2691,9 @@ codeunit 137280 "SCM Inventory Basic"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         ItemTemplate.SetRange(Code, ItemTemplateCode);
-        ItemTemplate.FindFirst;
+        ItemTemplate.FindFirst();
         VATProductPostingGroup.SetFilter(Code, '<>%1', ItemTemplate."VAT Prod. Posting Group");
-        VATProductPostingGroup.FindFirst;
+        VATProductPostingGroup.FindFirst();
         ItemTemplate.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         ItemTemplate.Modify();
     end;
@@ -2789,7 +2789,7 @@ codeunit 137280 "SCM Inventory Basic"
         with InventoryPostingSetup do begin
             SetRange("Location Code", LocationCode);
             SetRange("Invt. Posting Group Code", InvPostingGroupCode);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
 
             exit("Inventory Account" <> '');

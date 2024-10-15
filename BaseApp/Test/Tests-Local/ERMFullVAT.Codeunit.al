@@ -604,7 +604,7 @@ codeunit 144051 "ERM Full VAT"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
     end;
 
@@ -613,7 +613,7 @@ codeunit 144051 "ERM Full VAT"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField(Amount, Amount);
         PurchInvLine.TestField("Amount Including VAT", AmountIncludingVAT);
     end;
@@ -623,7 +623,7 @@ codeunit 144051 "ERM Full VAT"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField(Amount, Amount);
         SalesInvoiceLine.TestField("Amount Including VAT", AmountIncludingVAT);
     end;

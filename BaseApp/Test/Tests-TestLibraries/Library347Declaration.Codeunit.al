@@ -32,7 +32,7 @@ codeunit 143304 "Library - 347 Declaration"
         // Find a Cash Receipts journal template
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         // Create new journal batch
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -66,7 +66,7 @@ codeunit 143304 "Library - 347 Declaration"
         // Setup: Find a Cash Receipts journal template
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         // Setup: Create new journal batch
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -486,7 +486,7 @@ codeunit 143304 "Library - 347 Declaration"
         GLRegister: Record "G/L Register";
     begin
         GLRegister.SetCurrentKey("Posting Date");
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         exit(CalcDate('<1Y>', GLRegister."Posting Date"));
     end;
 
@@ -510,7 +510,7 @@ codeunit 143304 "Library - 347 Declaration"
         Vendor: Record Vendor;
     begin
         Customer.SetFilter("VAT Registration No.", '<>%1', '');
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Customer."VAT Registration No.";
@@ -518,7 +518,7 @@ codeunit 143304 "Library - 347 Declaration"
             until Customer.Next = 0;
 
         Vendor.SetFilter("VAT Registration No.", '<>%1', '');
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Vendor."VAT Registration No.";
@@ -640,7 +640,7 @@ codeunit 143304 "Library - 347 Declaration"
             LibraryVariableStorage.Enqueue(DeclarationNumber);
         end;
         Make347Declaration.SetSilentMode(FileName);
-        Make347Declaration.RunModal;
+        Make347Declaration.RunModal();
 
         exit(FileName);
     end;
@@ -768,7 +768,7 @@ codeunit 143304 "Library - 347 Declaration"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
@@ -780,7 +780,7 @@ codeunit 143304 "Library - 347 Declaration"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 

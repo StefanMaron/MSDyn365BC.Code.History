@@ -105,7 +105,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         CustomerNoStartingPosition: Integer;
     begin
         // Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         LibraryMake340Declaration.CreateOperationCode(OperationCode, OperationCodeCode);
         CreateAndPostSalesInvoice(CustomerNo, WorkDate);  // WORKDATE - Posting Date.
@@ -133,7 +133,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO] to verify Operation Code and Document Number on Report 10743 - Make 340 Declaration, Create and Post Sales Credit Memos with multiple lines with VAT Percent - 0.
 
         // [GIVEN] Create and Post Sales Credit Memo with multiple Line.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesCreditMemoWithMultipleLine;
         PostedDocNumberStartingPosition := 218;  // Hardcoded values for Known Post Doc Number - Starting Position in text file.
         OperationCodeStartingPosition := 100;  // Hardcoded values for Known Operation Code - Starting Position in text file.
@@ -154,7 +154,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO] to verify Amount on Report 10743 - Make 340 Declaration, Create and Post multiple Sales Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         RunMake340DeclarationForMultiSalesInvoice(WorkDate);  // WORKDATE - Posting Date.
     end;
 
@@ -166,7 +166,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO]  to verify Amount on Report 10743 - Make 340 Declaration, Create and Post multiple Sales Invoice When Posting Date more than WORKDATE.
 
         // Setup.
-        Initialize;
+        Initialize();
         RunMake340DeclarationForMultiSalesInvoice(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // Random - Posting Date more than WORKDATE.
     end;
 
@@ -210,7 +210,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO] to verify Values on Report 10743 - Make 340 Declaration, after changing the length of Company Name, Address and Address2 and length to 50 characters.
 
         // [GIVEN] Update Company Information - Name, Address and Address2 , Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CompanyNameStartingPosition := 18;  // Hardcoded values for Known Company Name - Starting Position in text file.
         VendorNumberStartingPosition := 36;  // Hardcoded values for Known Vendor Number - Starting Position in text file.
         CompanyName := CopyStr(GenerateRandomCode(50), 1, 50);
@@ -242,7 +242,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO] to verify Values on Report 10743 - Make 340 Declaration, when having two posted Purchase Journal lines with the same Document No and Posting Date in different years.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
         PrevNoSeries := SetupPurchaseJournalNoSeries(CreateNoSeries);
         VendorNo := CreateVendor;
         CreateAndPostPurchaseJournal(VendorNo, CalcDate('<-1Y>', WorkDate));
@@ -280,7 +280,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         ExportFileName: Text[1024];
     begin
         // [SCENARIO] Purchase Invoice posted between Unrealized VAT Invoice with applied Payment should appear in the 340 Declaration
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Create VAT Posting Setup, set up new Vendor
@@ -333,7 +333,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         ExportFileName: Text[1024];
     begin
         // [SCENARIO] Sales Invoice posted between Unrealized VAT Invoice with applied Payment should appear in the 340 Declaration
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Create VAT Posting Setup, set up new Customer
@@ -377,7 +377,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         OperationDateText: Text[8];
     begin
         // [SCENARIO 360969] Report Make 340 Declaration Operation Date field values is earliest shipment date within the document
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
@@ -412,7 +412,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         OperationDateText: Text[8];
     begin
         // [SCENARIO] Report Make 340 Declaration Operation Date field values is earliest receipt date within the document
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order
         CreatePurchDocument(
           PurchHeader, PurchLine, PurchHeader."Document Type"::Order,
@@ -450,7 +450,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 382070] Report Make 340 Declaration when Sales Order is partially shipped and invoiced on different dates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order has "Item1" and "Item2"
         CreateSalesDocument(
@@ -500,7 +500,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [FEATURE] [Sales] [Return Receipt]
         // [SCENARIO 382070] Report Make 340 Declaration when Sales Return Order is partially received on different dates with Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order has "Item1" and "Item2"
         CreateSalesDocument(
@@ -552,7 +552,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 382070] Report Make 340 Declaration when Purchase Order is partially received and invoiced on different dates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order has "Item1" and "Item2"
         CreatePurchDocument(
@@ -605,7 +605,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [FEATURE] [Purchase] [Return Shipment]
         // [SCENARIO 382070] Report Make 340 Declaration when Purchase Order is partially received and invoiced on different dates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order has "Item1" and "Item2"
         CreatePurchDocument(
@@ -663,7 +663,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         ExportFileName: Text[1024];
     begin
         // [SCENARIO 120499] Payment should be exported with Posting Date and No of proper Invoice If One Payment Applied to Unrealized Invoices
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Create VAT Posting Setup, set up new Vendor
@@ -683,7 +683,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Post Payment and apply to both invoices during posting
         CreatePostApplyPurchasePaymentToMultyInv(
-          VendorNo, CalcDate('<-CM+10D>', WorkDate), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID);
+          VendorNo, CalcDate('<-CM+10D>', WorkDate), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID());
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(VendorNo);
@@ -709,7 +709,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         ExportFileName: Text[1024];
     begin
         // [SCENARIO 120499] Payment Declaration Line should be ungrouped If One Payment Applied to Unrealized Invoices with the same VAT
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Create VAT Posting Setup, set up new Vendor
@@ -728,7 +728,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Post Payment and apply to both invoices during posting
         CreatePostApplyPurchasePaymentToMultyInv(
-          VendorNo, CalcDate('<-CM+10D>', WorkDate), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID);
+          VendorNo, CalcDate('<-CM+10D>', WorkDate), InvoiceNoX, InvoiceNoY, LibraryUtility.GenerateGUID());
 
         // [WHEN] Export by report 'Make 340 Declaration'
         LibraryVariableStorage.Enqueue(VendorNo);
@@ -751,7 +751,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [SCENARIO 362777] Run Make 340 Report generates one total line for two Purchase Invoices Lines with different dimensions
         // [FEATURE] [Dimensions]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with two lines with different dimensions and total amount = "X"
         CreateAndPostPurchaseInvoiceWithTwoLinesAndDims(PurchaseHeader, TotalAmount);
@@ -775,7 +775,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [SCENARIO 362777] Run Make 340 Report generates one total line for two Sales Invoices Lines with different dimensions
         // [FEATURE] [Dimensions]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines with different dimensions and total amount = "X"
         CreateAndPostSalesInvoiceWithTwoLinesAndDims(SalesHeader, TotalAmount);
@@ -836,7 +836,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO 372058] Make 340 Declaration Report generates 340 Declaration Line with EC % and EC Amount
 
         // [GIVEN] Posted Purchase Invoice with VAT % = 5, VAT Amount = 10, EC % = 4, EC Amount = 8.
-        Initialize;
+        Initialize();
         LibraryMake340Declaration.CreateVATPostingSetup(VATPostingSetup, 21, 5.2);
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         PostedDocNo := CreateAndPostPurchaseDocOnDate(PurchaseHeader."Document Type"::Invoice, VendorNo, VATPostingSetup, WorkDate);
@@ -871,7 +871,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO 372057] Make 340 Declaration Report Header and Line Rounding for Purchase
 
         // [GIVEN] VAT Posting Setup with VAT % = 21, EC % = 5.2
-        Initialize;
+        Initialize();
         LibraryMake340Declaration.CreateVATPostingSetup(VATPostingSetup, 21, 5.2);
 
         // [GIVEN] Posted Purchase Invoice with 1st Line: Qty = 1, Unit Cost = 86.85
@@ -914,7 +914,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [SCENARIO 372057] Make 340 Declaration Report Header and Line Rounding for Sales
 
         // [GIVEN] VAT Posting Setup with VAT % = 21, EC % = 5.2
-        Initialize;
+        Initialize();
         LibraryMake340Declaration.CreateVATPostingSetup(VATPostingSetup, 21, 5.2);
 
         // [GIVEN] Posted Sales Invoice with 1st Line: Qty = 1, Unit Cost = 86.85
@@ -953,7 +953,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [Make 340 Declaration] Customer's VAT Registration number part of file does not contain extra country code prefix
         // in case VAT Registration number has country prefix
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country with EU Country/Region Code and VAT Registration number of XX########### format
         // [GIVEN] Foreign customer with VAT Registration number of created format
@@ -987,7 +987,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [Make 340 Declaration] Customer's VAT Registration number part of file does not contain extra country code prefix
         // in case VAT Registration number does not have country prefix
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country with EU Country/Region Code and VAT Registration number of ########### format
         // [GIVEN] Foreign customer with VAT Registration number of created format
@@ -1021,7 +1021,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [Make 340 Declaration] Vendor's VAT Registration number part of file does not contain extra country code prefix
         // in case VAT Registration number has country prefix
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country with EU Country/Region Code and VAT Registration number of XX########### format
         // [GIVEN] Foreign vendor with VAT Registration number of created format
@@ -1055,7 +1055,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [Make 340 Declaration] Vendor's VAT Registration number part of file does not contain extra country code prefix
         // in case VAT Registration number does not have country prefix
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country with EU Country/Region Code and VAT Registration number of ########### format
         // [GIVEN] Foreign vendor with VAT Registration number of created format
@@ -1093,7 +1093,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [FEATURE] [Bill] [Unrealized VAT] [Partial Settlement]
         // [SCENARIO 211658] VAT Declaration lines have combined amount after Partial Settlement and Total Settlement of Posted Payment Ortder in case of Unrealized VAT Setup
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
 
         // [GIVEN] Vendor with Unrealized VAT Setup, "Bill-to-Cartera" Payment Method.
@@ -1143,7 +1143,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [No Taxable VAT] [Purchase]
         // [SCENARIO 210613] Purchase Invoice with "VAT Calculation Type" = "No Taxable VAT" should appear in the 340 Declaration
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Country/Code" = "GB"
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1180,7 +1180,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [No Taxable VAT] [Purchase]
         // [SCENARIO 210613] Purchase Credit Memo with "VAT Calculation Type" = "No Taxable VAT" should appear in the 340 Declaration
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with "No Taxable VAT" with Amount = 100 and "Vendor Credit Memo No." = "CR1"
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1215,7 +1215,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [No Taxable VAT] [Sales]
         // [SCENARIO 210613] Sales Invoice with "VAT Calculation Type" = "No Taxable VAT" should appear in the 340 Declaration
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "No Taxable VAT" with Amount = 100 and " No." = "INV1"
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1251,7 +1251,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [FEATURE] [No Taxable VAT] [Sales]
         // [SCENARIO 210613] Sales Credit Memo with "VAT Calculation Type" = "No Taxable VAT" should appear in the 340 Declaration
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "No Taxable VAT" with Amount = 100 and "No." = "CR1"
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -1286,7 +1286,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [SCENARIO 211658] Purchase Invoice posted as Bill with Unrealized VAT and two lines with different dim should appear as one line in the 340 Declaration
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V"
         SetupUnrealizedVAT(UnrealizedVATPostingSetup);
@@ -1326,7 +1326,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [SCENARIO 211658] Sales Invoice posted as Bill with Unrealized VAT and two lines with different dim should appear as one line in the 340 Declaration
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C"
         SetupUnrealizedVAT(UnrealizedVATPostingSetup);
@@ -1364,7 +1364,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [SCENARIO 213537] Run Make 340 Report for two Purchase Invoice's Lines with different dimensions and Operation Code
         // [FEATURE] [Dimensions]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with two lines with different dimensions and total amount = "X"
         // [GIVEN] Operation Code has 'R' value for used Gen. Prod. Posting Group
@@ -1397,7 +1397,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // [FEATURE] [Unrealized VAT]
         // [SCENARIO 268945] Report "Make 340 Declaration" exports summarized VAT Amount in case of multiple Unrealized VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT was activated in General Ledger Setup
         LibraryERM.SetUnrealizedVAT(true);
@@ -1432,10 +1432,10 @@ codeunit 144048 "ERM Make 340 Declaration"
     var
         OperationCode: Record "Operation Code";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorageVerifyValues.Clear;
         OperationCode.DeleteAll();
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1586,7 +1586,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
 
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         TotalAmount := CreatePurchLineWithDim(PurchaseLine, PurchaseHeader, ItemNo);
         TotalAmount += CreatePurchLineWithDim(PurchaseLine, PurchaseHeader, ItemNo);
 
@@ -1893,7 +1893,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
 
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         TotalAmount := CreateSalesLineWithDim(SalesLine, SalesHeader, ItemNo);
         TotalAmount += CreateSalesLineWithDim(SalesLine, SalesHeader, ItemNo);
 
@@ -2073,7 +2073,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
         GenPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusPostGr);
-        GenPostingSetup.FindFirst;
+        GenPostingSetup.FindFirst();
         with GLAccount do begin
             Validate("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
             Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
@@ -2194,7 +2194,7 @@ codeunit 144048 "ERM Make 340 Declaration"
             SetRange("Vendor No.", VendorNo);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
         end;
     end;
@@ -2205,7 +2205,7 @@ codeunit 144048 "ERM Make 340 Declaration"
             SetRange("Customer No.", CustomerNo);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
         end;
     end;
@@ -2215,14 +2215,14 @@ codeunit 144048 "ERM Make 340 Declaration"
         VATEntry.SetRange("Bill-to/Pay-to No.", SourceNo);
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure FindPostedCarteraDoc(var PostedCarteraDoc: Record "Posted Cartera Doc."; PaymentOrderNo: Code[20])
     begin
         PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Payable);
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
     end;
 
     local procedure GetExpectedVATRegNoPart(VATRegNo: Text; CountryRegionCode: Code[10]; VATRegNoHasCountryPrefix: Boolean): Text
@@ -2269,7 +2269,7 @@ codeunit 144048 "ERM Make 340 Declaration"
           GenerateRandomCode(9), GenerateRandomCode(4), GenerateRandomCode(16),
           0, false, '', ExportFileName, '', 0.0);
         Make340Declaration.UseRequestPage(true);
-        Make340Declaration.RunModal;
+        Make340Declaration.RunModal();
     end;
 
     local procedure RunPartialSettlePayable(PaymentOrderNo: Code[20]; SettleAmount: Decimal)
@@ -2282,7 +2282,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         PartialSettlPayable.SetInitValue(SettleAmount, '', PostedCarteraDoc."Entry No.");
         PartialSettlPayable.SetTableView(PostedCarteraDoc);
         PartialSettlPayable.UseRequestPage(false);
-        PartialSettlPayable.RunModal;
+        PartialSettlPayable.RunModal();
     end;
 
     local procedure RunTotalSettlePayable(PaymentOrderNo: Code[20])
@@ -2294,7 +2294,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         Clear(SettleDocsInPostedPO);
         SettleDocsInPostedPO.SetTableView(PostedCarteraDoc);
         SettleDocsInPostedPO.UseRequestPage(false);
-        SettleDocsInPostedPO.RunModal;
+        SettleDocsInPostedPO.RunModal();
     end;
 
     local procedure SetSalesHeaderPostingDate(var SalesHeader: Record "Sales Header"; PostingDate: Date)
@@ -2459,7 +2459,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorage.Dequeue(OperationCode);
         Declaration340Lines."Operation Code".SetValue(OperationCode);
         Declaration340Lines."Property Location".SetValue(Declaration340Line."Property Location"::"Property in Spain");
-        Declaration340Lines."Property Tax Account No.".SetValue(LibraryUtility.GenerateGUID);
+        Declaration340Lines."Property Tax Account No.".SetValue(LibraryUtility.GenerateGUID());
         Declaration340Lines.OK.Invoke;
     end;
 

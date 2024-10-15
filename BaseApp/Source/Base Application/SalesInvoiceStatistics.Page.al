@@ -226,7 +226,7 @@ page 397 "Sales Invoice Statistics"
         CustLedgEntry.SetRange("Document No.", "No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange("Customer No.", "Bill-to Customer No.");
-        if CustLedgEntry.FindFirst then
+        if CustLedgEntry.FindFirst() then
             AmountLCY := CustLedgEntry."Sales (LCY)";
 
         ProfitLCY := AmountLCY - CostLCY;

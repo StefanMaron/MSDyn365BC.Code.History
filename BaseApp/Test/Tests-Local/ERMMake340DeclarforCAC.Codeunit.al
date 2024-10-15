@@ -47,7 +47,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 26] Sales payment in cash reported with empty Collection info
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -101,7 +101,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 09] Invoice's 'Document No.' is reported for payment applied to CAC Service Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Service Invoice 'SERV.INV' is posted and fully paid by Payment 'PMT'
@@ -137,7 +137,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 09] Invoice's 'External Document No.' is reported for payment applied to CAC Purchase Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice 'P.INV' with 'Vendor Invoice No.' = 'EXT.P.INV' is posted
@@ -173,7 +173,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 03] Full payment of CAC Service Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Service Invoice is posted and fully paid by Payment
@@ -210,7 +210,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 19] Payment Method Code for type 'O' is taken from Purchase Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice is posted
@@ -266,7 +266,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 19] Payment Method Code for type 'O' is taken from Sales Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -313,7 +313,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 20] IBAN is reported when 'CCC No.' and 'Bank Account No.' are empty
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice is posted
@@ -363,7 +363,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 20] 'Bank Account No.' is reported when 'CCC No.' is empty
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice is posted
@@ -410,7 +410,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Service]
         // [SCENARIO 03] New Service Invoice under CAC
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Service Invoice is posted
@@ -441,7 +441,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 04] Partial payment for Purchase Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice is posted
@@ -479,7 +479,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 04] Fulll payment for Purchase Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice is posted
@@ -514,7 +514,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 08] New CAC Purchase Credit Memo
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Credit Memo is posted
@@ -543,7 +543,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 04] New Purchase Invoice under CAC
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Purchase Invoice is posted
@@ -576,7 +576,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [SCENARIO 08] Purchase CAC Credit Memo fully paid by Refund, reported as '3'
 
         // [GIVEN] Unrealized VAT is set
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Posted CAC Credit Memo, not applied to Invoice
@@ -609,7 +609,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 21] Unapplied Refund to Purchase CAC Credit Memo is not reported
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Posted CAC Credit Memo, not applied to Invoice
@@ -619,7 +619,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         WorkDate(CalcDate('<+1M>', WorkDate));
         Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::"Credit Memo", CrMemoNo, WorkDate, -Amount);
         // [GIVEN] Refund is unapplied in the same month
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
         Commit();
 
@@ -645,7 +645,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 03] Sales Invoice is partially paid by Cr. Memo
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -678,7 +678,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 03] Partial payment of CAC Sales Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -714,7 +714,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 03] Full payment of Sales Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -749,7 +749,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 17] Payment record for Sales Invoice with 2 VAT groups 'C' has Operation Code '2'
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -788,7 +788,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 21] Unapplied Payment to Sales CAC Invoice is not reported
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -798,7 +798,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         WorkDate(CalcDate('<+1M>', WorkDate));
         Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount);
         // [GIVEN] Payment is unapplied in the same period
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
         Commit();
 
@@ -823,7 +823,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 05] Normal Purchase Invoice (Non-CAC)
-        Initialize;
+        Initialize();
         CreateNormalVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Non-CAC Purchase Invoice is posted
@@ -851,7 +851,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 22] Normal Sales Invoice (Non-CAC)
-        Initialize;
+        Initialize();
         CreateNormalVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Non-CAC Sales Invoice is posted
@@ -886,7 +886,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 08] New CAC Sales Credit Memo
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Credit Memo is posted
@@ -915,7 +915,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 22] CAC Sales Invoice doesn't use Operation Code from GPPG
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Invoice is posted
@@ -951,7 +951,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 08] Refund applied to CAC Sales Credit Memo reported with Operation Code '3'
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] CAC Sales Credit Memo is posted
@@ -989,7 +989,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 11] CAC Invoice paid by CAC Credit Memo and Payment (Purchase/Sales)
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         PostingDate := CalcDate('<-CM>', WorkDate);
@@ -1042,7 +1042,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 23] 'Document Date','Operation Date' is taken from Invoice
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         DocumentDate := CalcDate('<-CM>', WorkDate);
@@ -1087,7 +1087,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 10] Partial Purchase Prepayment Invoice and Final invoice are paid within one period.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Created Purchase Order with partial prepayment %
@@ -1138,7 +1138,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 10] 100% Purchase Prepayment Invoice and Final invoice are paid within one period.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Create Purchase Order with 100% prepayment
@@ -1183,7 +1183,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 10] Partial Sales Prepayment invoice and Final invoice are paid within one period.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Create Sales Order with partial prepayment %
@@ -1234,7 +1234,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Sales]
         // [SCENARIO 10] 100% Sales Prepayment invoice and Final invoice are paid within one period.
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Create Sales Order with 100% prepayment
@@ -1434,7 +1434,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 16] Operation Code is 'Z' for Sales Payment with Reverse Charge VAT
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
         CreateReverseChargeVATPostingSetup(VATPostingSetup);
 
@@ -1469,7 +1469,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 16] Operation Code is 'Z' for Purchase Payment with Reverse Charge VAT
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
         CreateReverseChargeVATPostingSetup(VATPostingSetup);
 
@@ -1498,7 +1498,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 03] Month is reported as period
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Posted CAC Sales Invoice
@@ -1528,7 +1528,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 19] (RHF 357970) Bill Group lines related to different one-VAT Sales Invoices are reported as 'Z'
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] 2 posted one-line Sales Invoices with different VAT%
@@ -1581,7 +1581,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [ToDo]
         // [FEATURE] MODELO340.CAC
         // [SCENARIO 19.3] (RHF 357970) Bill Group lines related to different one-VAT Sales Invoices are reported as 'Z'
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] 2 posted one-line Sales Invoices with different VAT%
@@ -1633,7 +1633,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 19] (RHF 357970) Payment Order line related to multi-VAT Purchase Invoice is reported as '2'
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Posted multi-VAT Purchase Invoice
@@ -1680,7 +1680,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [FEATURE] [MODELO340.CAC]
         // [SCENARIO 19] (RFH 358052) Invoice with 100% Discount is not reported
 
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
@@ -1717,7 +1717,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 371612] Purchase Invoice Line with Unrealized Amount = 0 is not reported
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Purchase Header with 2 lines with different VAT Posting Setup with Unrealized VAT, one line with Amount = 0
@@ -1748,7 +1748,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 375207] Purchase Invoice Line with Amount = 0 is not reported
-        Initialize;
+        Initialize();
         CreateNormalVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Purchase Header with 2 lines with different VAT Posting Setup with Normal VAT, one line with Amount = 0
@@ -1779,7 +1779,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [MODELO340.CAC] [Purchase]
         // [SCENARIO 375207] Purchase Invoice Line with Amount = 0 is not reported
-        Initialize;
+        Initialize();
         CreateNormalVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Purchase Header with 3 lines with different VAT Posting Setup with Normal VAT, one line with Amount = 0
@@ -2033,7 +2033,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [Purchase] [VAT Cash Regime]
         // [SCENARIO 372288] Make 340 Declaration for Posted Payment Order with 2 Purchase Invoice Lines with VAT Cash Regime
-        Initialize;
+        Initialize();
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         // [GIVEN] Vendor with Payment Method with Create Bills = TRUE
@@ -2090,7 +2090,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 376198] Make 340 Declaration does not export entries with empty Document Type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
@@ -2120,8 +2120,8 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         OperationCode: Record "Operation Code";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         OperationCode.DeleteAll();
 
         if IsInitialized then
@@ -2165,7 +2165,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         VATPostingSetup.Reset();
         VATPostingSetup.SetRange("VAT Bus. Posting Group", FindVATBusPostingGroup);
-        VATPostingSetup.FindLast;
+        VATPostingSetup.FindLast();
 
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
@@ -2179,7 +2179,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         GenPostingSetup.SetRange(
           "Gen. Bus. Posting Group", FindGenBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         GenPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', '');
-        GenPostingSetup.FindFirst;
+        GenPostingSetup.FindFirst();
         SetupVATOnGLAccount(GenPostingSetup."Sales Prepayments Account", VATPostingSetup);
         GenPostingSetup.SetFilter("Sales Prepayments Account", '<>%1', GenPostingSetup."Sales Prepayments Account");
         GenPostingSetup.ModifyAll("Sales Prepayments Account", GenPostingSetup."Sales Prepayments Account");
@@ -2188,7 +2188,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         GenPostingSetup.SetRange(
           "Gen. Bus. Posting Group", FindGenBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         GenPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', '');
-        GenPostingSetup.FindFirst;
+        GenPostingSetup.FindFirst();
         SetupVATOnGLAccount(GenPostingSetup."Purch. Prepayments Account", VATPostingSetup);
         GenPostingSetup.SetFilter("Purch. Prepayments Account", '<>%1', GenPostingSetup."Purch. Prepayments Account");
         GenPostingSetup.ModifyAll("Purch. Prepayments Account", GenPostingSetup."Purch. Prepayments Account");
@@ -2200,7 +2200,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure CreateAndPostSalesInvoiceWithDocDate(CustomerNo: Code[20]; PostingDate: Date; DocumentDate: Date; VATProdPostingGroup: Code[20]; var Amount: Decimal): Code[20]
@@ -2256,7 +2256,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
     local procedure CreateBillGroup(var BillGroup: Record "Bill Group")
     begin
-        BillGroup."No." := LibraryUtility.GenerateGUID;
+        BillGroup."No." := LibraryUtility.GenerateGUID();
         BillGroup."Bank Account No." := FindBankAccount;
         BillGroup.Insert(true);
     end;
@@ -2293,9 +2293,9 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         Customer.Validate("Gen. Bus. Posting Group", FindGenBusPostingGroup(VATBusPostingGroup));
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         PmtMethod.SetRange("Bill Type", BillType);
-        PmtMethod.FindFirst;
+        PmtMethod.FindFirst();
         Customer."Payment Method Code" := PmtMethod.Code;
-        PmtTerms.FindFirst;
+        PmtTerms.FindFirst();
         Customer."Payment Terms Code" := PmtTerms.Code;
         Customer.Modify(true);
         LibraryVariableStorage.Enqueue(Customer."No.");
@@ -2327,9 +2327,9 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         Vendor.Validate("Gen. Bus. Posting Group", FindGenBusPostingGroup(VATBusPostingGroup));
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         PmtMethod.SetRange("Bill Type", PmtMethod."Bill Type"::Transfer);
-        PmtMethod.FindFirst;
+        PmtMethod.FindFirst();
         Vendor."Payment Method Code" := PmtMethod.Code;
-        PmtTerms.FindFirst;
+        PmtTerms.FindFirst();
         Vendor."Payment Terms Code" := PmtTerms.Code;
         Vendor.Modify(true);
         LibraryVariableStorage.Enqueue(Vendor."No.");
@@ -2338,7 +2338,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
     local procedure CreatePaymentOrder(var PaymentOrder: Record "Payment Order")
     begin
-        PaymentOrder."No." := LibraryUtility.GenerateGUID;
+        PaymentOrder."No." := LibraryUtility.GenerateGUID();
         PaymentOrder."Bank Account No." := FindBankAccount;
         PaymentOrder.Insert(true);
     end;
@@ -2451,7 +2451,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Document No.", InvoiceNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(
           Library340347Declaration.CreateAndPostPaymentForPI(
@@ -2464,7 +2464,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", InvoiceNo);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry.CalcFields("Remaining Amount");
         exit(
           Library340347Declaration.CreateAndPostPaymentForSI(
@@ -2477,7 +2477,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchHeader);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         exit(VendLedgEntry."Document No.");
     end;
 
@@ -2486,7 +2486,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         exit(CustLedgEntry."Document No.");
     end;
 
@@ -2524,7 +2524,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         TempTest340DeclarationLineBuf."Collection Amount" := VATEntry.Base + VATEntry.Amount;
         TempTest340DeclarationLineBuf.Modify();
     end;
@@ -2554,7 +2554,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Document No.", DocumentNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         Create340DeclarationLineBufPurch(
           VendLedgEntry, Test340DeclarationLineBuf, VATDocumentNo, OperationCode, CollectionPaymentMethod, CollectionBankAcc, NoOfRegisters);
     end;
@@ -2565,7 +2565,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         with CustLedgEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             Test340DeclarationLineBuf.Init();
             Test340DeclarationLineBuf.Type := Test340DeclarationLineBuf.Type::Sale;
             Test340DeclarationLineBuf."Entry No." += 1;
@@ -2633,7 +2633,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::Payment, DocumentNo);
         VendLedgEntry.SetRange(Amount, FindAmount);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
     end;
 
     local procedure UpdateDirectUnitCostOnPurchLine(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; DirectUnitCost: Decimal)
@@ -2643,7 +2643,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         with PurchaseLine do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
-            FindLast;
+            FindLast();
             Validate("Direct Unit Cost", DirectUnitCost);
             Modify(true);
         end;
@@ -2659,7 +2659,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
                 SetRange("Bal. Account Type", "Bal. Account Type"::Customer)
             else
                 SetRange("Bal. Account Type", "Bal. Account Type"::Vendor);
-            if not FindFirst then
+            if not FindFirst() then
                 exit('');
             exit("Bank Account No.");
         end;
@@ -2690,7 +2690,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         GenBusPostingGroup: Record "Gen. Business Posting Group";
     begin
         GenBusPostingGroup.SetRange("Def. VAT Bus. Posting Group", VATBusPostingGroupCode);
-        GenBusPostingGroup.FindFirst;
+        GenBusPostingGroup.FindFirst();
         exit(GenBusPostingGroup.Code);
     end;
 
@@ -2705,7 +2705,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
             SetFilter("Sales VAT Account", '<>%1', '');
             SetFilter("Purchase VAT Account", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit("VAT Bus. Posting Group");
         end;
     end;
@@ -2731,7 +2731,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     Validate("Line Discount %", 100);
                     Modify(true);
@@ -2744,7 +2744,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         GenProdPostingGroup: Record "Gen. Product Posting Group";
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         GenProdPostingGroup.Get(VATEntry."Gen. Prod. Posting Group");
         GenProdPostingGroup."Operation Code" := NewOperationCode;
         GenProdPostingGroup.Modify();
@@ -2821,7 +2821,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
     local procedure VerifyCollectionDataIn340Export(ExportFileName: Text[1024]; var TempTest340DeclarationLineBuf2: Record "Test 340 Declaration Line Buf." temporary)
     begin
-        if TempTest340DeclarationLineBuf2.FindSet then
+        if TempTest340DeclarationLineBuf2.FindSet() then
             repeat
                 VerifyCollectionInfoInFile(ExportFileName, TempTest340DeclarationLineBuf2)
             until TempTest340DeclarationLineBuf2.Next = 0;

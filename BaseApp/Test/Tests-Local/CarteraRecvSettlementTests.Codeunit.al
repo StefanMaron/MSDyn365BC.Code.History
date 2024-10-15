@@ -1,4 +1,4 @@
-codeunit 147536 "Cartera Recv. Settlement Tests"
+﻿codeunit 147536 "Cartera Recv. Settlement Tests"
 {
     // // [FEATURE] [Cartera] [Sales] [Settlement]
 
@@ -51,7 +51,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         PostedBillGroup: Record "Posted Bill Group";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -65,7 +65,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
 
         // Verify
         PostedBillGroup.SetRange("Bank Account No.", BankAccount."No.");
-        PostedBillGroup.FindLast;
+        PostedBillGroup.FindLast();
         Assert.AreEqual(CustLedgerEntry.Amount, PostedBillGroup.Amount, UnexpectedAmountErr);
 
         LibraryVariableStorage.AssertEmpty;
@@ -97,7 +97,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         TotalAmountBill: Decimal;
         TotalAmountInvoice: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Create two customers
         // Customer 1
         PrePostBillGroupSetup(BankAccount, BillToCustomer);
@@ -146,7 +146,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         PostedBillGroupTestPage.OpenView;
 
         PostedBillGroup.SetFilter("No.", BillGroup."No.");
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupTestPage.GotoRecord(PostedBillGroup);
 
@@ -189,7 +189,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         Customer: Record Customer;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -217,7 +217,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         NoOfInstallments: Integer;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -247,7 +247,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         CustomerRating: Record "Customer Rating";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -277,7 +277,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         CustomerRating: Record "Customer Rating";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -307,7 +307,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -336,7 +336,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -368,7 +368,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -401,7 +401,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -436,7 +436,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -470,7 +470,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -514,7 +514,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         TotalAmount: Decimal;
         PaymentDiscountGiven: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryCarteraReceivables.SetupPaymentDiscountType(GLSetup."Payment Discount Type"::"Pmt. Disc. Excl. VAT");
 
@@ -595,7 +595,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         PrePostBillGroupSetup(BankAccount, Customer);
         LibraryCarteraReceivables.CreateDiscountOperationFeesForBankAccount(BankAccount);
@@ -626,7 +626,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         PrePostBillGroupSetup(BankAccount, Customer);
         DocumentNo := CreateAndPostServiceInvoice(Customer);
@@ -656,7 +656,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         InitialAmount: Decimal;
         SettledAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -686,7 +686,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         InitialAmount: Decimal;
         SettledAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -719,7 +719,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -751,7 +751,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -788,7 +788,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         SettledAmount: Decimal;
     begin
         // TFS ID 61619
-        Initialize;
+        Initialize();
 
         // Pre-Setup Unrealized VAT
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -832,7 +832,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         SettledAmount: Decimal;
     begin
         // TFS ID 61621
-        Initialize;
+        Initialize();
 
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
         PrePostBillGroupSetup(BankAccount, Customer);
@@ -870,7 +870,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         InitialAmount: Decimal;
         SettledAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         PrePostBillGroupSetup(BankAccount, Customer);
         LibraryCarteraReceivables.CreateDiscountOperationFeesForBankAccount(BankAccount);
@@ -902,7 +902,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         InitialAmount: Decimal;
         SettledAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         PrePostBillGroupSetup(BankAccount, Customer);
         DocumentNo := CreateAndPostServiceInvoice(Customer);
@@ -921,6 +921,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,PostBillGroupRequestPageHandler,CarteraJournalModalPageHandler,BillGroupDiscountPostedMessageHandler,SettlDocsPostedBillGroupsRequestPageHandler')]
     [Scope('OnPrem')]
@@ -936,7 +937,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
     begin
         // [FEATURE] [Bill Group] [Currency] [Adjust Exchange Rates]
         // [SCENARIO 270953] Total settlement of posted Bill Group with "Risked Factoring Expenses", "Charge Amt. per Operation" and "Bill Groups - Discount" after adjust exchange rates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with "Bill Groups - Discount" = TRUE, exchange rates on dates 01-01-2018, 02-01-2018, 03-01-2018, 04-01-2018
         CurrencyCode := PrepareCurrencyTFS270953(PostingDate);
@@ -951,6 +952,46 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         // [GIVEN] Run adjust exchange rates using "Ending Date" = 03-01-2018
         LibraryVariableStorage.Enqueue('One or more currency exchange rates have been adjusted.');
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
+
+        // [WHEN] Run "Total Settlement" from posted bill group
+        InvokeTotalSettlementOnBillGroup(CustomerNo, DocumentNo, BillGroup."No.", InvoiceAmount, PostingDate[4]);
+
+        // [THEN] The document has been settled
+        ValidateTotalSettlementClosedDocuments(DocumentNo, InvoiceAmount);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,PostBillGroupRequestPageHandler,CarteraJournalModalPageHandler,BillGroupDiscountPostedMessageHandler,SettlDocsPostedBillGroupsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalSettlOnNewDateBillGroupDiscountRiskedAndChargeAfterExchRateAdjust()
+    var
+        BillGroup: Record "Bill Group";
+        CustomerNo: Code[20];
+        BankAccountNo: Code[20];
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        DocumentNo: Code[20];
+        InvoiceAmount: Decimal;
+    begin
+        // [FEATURE] [Bill Group] [Currency] [Adjust Exchange Rates]
+        // [SCENARIO 270953] Total settlement of posted Bill Group with "Risked Factoring Expenses", "Charge Amt. per Operation" and "Bill Groups - Discount" after adjust exchange rates
+        Initialize();
+
+        // [GIVEN] Currency with "Bill Groups - Discount" = TRUE, exchange rates on dates 01-01-2018, 02-01-2018, 03-01-2018, 04-01-2018
+        CurrencyCode := PrepareCurrencyTFS270953(PostingDate);
+
+        // [GIVEN] FCY Bank Account with "Risked Factoring Expenses", "Charge Amt. per Operation", FCY Customer with ratings setup
+        PrepareCustAndBankWithFCYCustRatingsAndFactOperFees(CustomerNo, BankAccountNo, CurrencyCode);
+
+        // [GIVEN] Posted FCY Sales Invoice on 01-01-2018
+        // [GIVEN] Posted Bill Group on 02-01-2018
+        DocumentNo := CreateAndPostFactoringBillGroupsWithDiscountOnDate(CustomerNo, BankAccountNo, BillGroup, PostingDate[2]);
+
+        // [GIVEN] Run adjust exchange rates using "Ending Date" = 03-01-2018
+        LibraryVariableStorage.Enqueue('One or more currency exchange rates have been adjusted.');
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
 
         // [WHEN] Run "Total Settlement" from posted bill group
         InvokeTotalSettlementOnBillGroup(CustomerNo, DocumentNo, BillGroup."No.", InvoiceAmount, PostingDate[4]);
@@ -980,9 +1021,9 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         TotalAmount: Decimal;
     begin
         // [SCENARIO 416820] Stan can settle Payment Order for Invoice containing NO VAT self balancing zero VAT Entries within Cash Regime and Unrealized VAT
-        Initialize;
+        Initialize();
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("VAT Cash Regime", true);
         GeneralLedgerSetup.Modify(true);
 
@@ -1035,14 +1076,14 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
         LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         IsInitialized := true;
     end;
@@ -1095,7 +1136,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
 
         // Exercise
         PostedBillGroup.SetFilter("No.", BillGroupNo);
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupSelect.OpenView;
         PostedBillGroupSelect.GotoRecord(PostedBillGroup);
@@ -1117,7 +1158,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         PostedBillGroupTestPage.OpenView;
 
         PostedBillGroup.SetFilter("No.", BillGroupNo);
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupTestPage.GotoRecord(PostedBillGroup);
 
@@ -1147,7 +1188,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         PostedBillGroupTestPage.OpenView;
 
         PostedBillGroup.SetFilter("No.", BillGroupNo);
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupTestPage.GotoRecord(PostedBillGroup);
 
@@ -1168,7 +1209,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
             CustomerNo, DocumentNo, CustLedgerEntry."Document Type"::Invoice);
 
         PostedCarteraDoc.SetRange("Document No.", DocumentNo);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         // Open View - Posted Bills page
         PostedBillsTestPage.OpenView;
@@ -1187,10 +1228,10 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
     begin
         ClosedBillGroup.SetFilter("No.", BillGroupNo);
-        ClosedBillGroup.FindFirst;
+        ClosedBillGroup.FindFirst();
 
         ClosedCarteraDoc.SetFilter("Bill Gr./Pmt. Order No.", BillGroupNo);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         Assert.AreEqual(NoOfClosedCarteraDoc, ClosedCarteraDoc.Count, UnexpectedNoOfRecordsErr);
     end;
 
@@ -1224,6 +1265,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
 
         // Find Cartera Payment GL Entries
         GLEntry.Reset();
+        GLEntry.SetFilter(Amount, '<>0');
         LibraryCarteraReceivables.FindCarteraGLEntries(GLEntry, BillGroupNo, GLEntry."Document Type"::Payment);
         Assert.AreEqual(SettledAmount, GLEntry."Credit Amount", UnexpectedAmountErr);
         GLEntry.Next;
@@ -1310,7 +1352,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         GLSetup.Get();
 
         PostedCarteraDoc.SetRange("Document No.", DocumentNo);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
         Assert.AreEqual(PostedCarteraDoc.Status::Open, PostedCarteraDoc.Status, UnexpectedCarteraDocStatusErr);
         Assert.AreEqual(InitialAmount, PostedCarteraDoc."Amount for Collection", UnexpectedAmountErr);
         Assert.AreNearlyEqual(InitialAmount - SettledAmount, PostedCarteraDoc."Remaining Amount",
@@ -1322,7 +1364,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
     begin
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         Assert.AreEqual(ClosedCarteraDoc.Status::Honored, ClosedCarteraDoc.Status, UnexpectedCarteraDocStatusErr);
         Assert.AreEqual(TotalAmount, ClosedCarteraDoc."Amount for Collection", UnexpectedAmountErr);
         Assert.AreEqual(0, ClosedCarteraDoc."Remaining Amount", UnexpectedAmountErr);
@@ -1335,7 +1377,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
     begin
         Commit();
         ClosedBillGroup.SetRange("No.", BillGroupNo);
-        ClosedBillGroup.FindFirst;
+        ClosedBillGroup.FindFirst();
         ClosedBillGroups.OpenEdit;
         ClosedBillGroups.GotoRecord(ClosedBillGroup);
 
@@ -1596,7 +1638,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         // Exercise
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
         ServiceInvoiceHeader.SetRange("Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         DocumentNo := ServiceInvoiceHeader."No.";
     end;
 
@@ -1623,7 +1665,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         BillGroupsTestPage: TestPage "Bill Groups";
     begin
         // Open Bill Groups page
-        BillGroupsTestPage.OpenNew;
+        BillGroupsTestPage.OpenNew();
 
         BillGroupsTestPage."No.".AssistEdit;
 
@@ -1638,7 +1680,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
 
         // Bill Group including the Cartera Document
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         BillGroup.Get(CarteraDoc."Bill Gr./Pmt. Order No.");
 
         LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
@@ -1691,7 +1733,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("VAT %", VATPercent);
-        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
         VATPostingSetup.Validate("VAT Cash Regime", true);
         VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
@@ -1706,10 +1748,10 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Cartera);
         GenJnlTemplate.SetRange(Recurring, false);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
 
         GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
-        GenJnlBatch.FindFirst;
+        GenJnlBatch.FindFirst();
 
         TemplateName := GenJnlTemplate.Name;
         BatchName := GenJnlBatch.Name;
@@ -1815,7 +1857,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
         LibraryVariableStorage.Dequeue(DocumentNo);
 
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindLast;
+        CarteraDoc.FindLast();
         CarteraDocuments.SetRecord(CarteraDoc);
 
         Response := ACTION::LookupOK;

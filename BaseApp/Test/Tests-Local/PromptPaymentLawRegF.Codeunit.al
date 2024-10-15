@@ -57,7 +57,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         PaymentTermsPage: TestPage "Payment Terms";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -81,7 +81,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -101,7 +101,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         PaymentTermsPage: TestPage "Payment Terms";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -126,7 +126,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC 277224
         // Test that Due Date is set correctly on Sales Order when Due-DocumentDate < Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -148,7 +148,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Purchase Order when Due-DocumentDate = Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
@@ -173,7 +173,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day before Non-payment period and before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
@@ -201,7 +201,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
@@ -227,7 +227,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
@@ -253,7 +253,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day after Non-payment period and both before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
@@ -279,7 +279,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Non-payment period before Due Date and no Payment Day
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
@@ -305,7 +305,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and Payment Day is before the treshold
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
@@ -331,7 +331,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and Payment Day is after the treshold
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Vendor, WorkDate);
@@ -356,7 +356,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC 277183
         // Test Due Date - Document Date > Max_ No_Of_Days_till_Due_Date and closest available date is inside a Non Payment Period - No Payment Day is defined.
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -383,7 +383,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and the maximum day is inside a non-payment period and Payment Day is before non-payment period
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period and Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -411,7 +411,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and the maximum day is inside a non-payment period and Payment Day is after non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
@@ -438,7 +438,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and max treshold and payment day are inside a non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
@@ -464,7 +464,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and entire date range [Document Date, Document Date + Max. No. of Days till Dues Date] represents a non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Vendor, WorkDate);
@@ -486,7 +486,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Purchase Order when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -512,7 +512,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Sales Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
@@ -535,7 +535,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Prepayment Due Date is set correctly on Purchase Order when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -562,7 +562,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Max No of Days till Due Date < Due Date
         // No Payment Day and Non-Payment Period defined
         // Expected Result: Due Date set according to Max. No. of Days till Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -582,7 +582,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -605,7 +605,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -633,7 +633,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PostedDocumentNo: Code[20];
         NewPaymentTermsCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         SetupPurchOrderWithOneLine(PurchaseHeader, FindPaymentMethodWithCreateBills);
         NewPaymentTermsCode := UpdatePurchHeaderWithNewPaymentTerms(PurchaseHeader);
@@ -653,7 +653,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test that Due Date is set correctly on Sales Order when Due-DocumentDate < Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -675,7 +675,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test that Due Date is set correctly on Sales Order when Due-DocumentDate = Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
@@ -700,7 +700,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test that Due Date is set correctly on Sales Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day before Non-payment period and before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
@@ -726,7 +726,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Sales Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
@@ -752,7 +752,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Sales Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
@@ -778,7 +778,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date on Sales Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day after Non-payment period and both before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
@@ -803,7 +803,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Sales Order when Due Date - DocumentDate < Max No of Days till Due Date and Non-payment period before Due Date and no Payment Day
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
@@ -828,7 +828,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 276944
         // Test that Due Date is set correctly on Sales Order with  Payment Date < Max_ No_Of_Days_till_Due_Date < Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -853,7 +853,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 276941
         // Test Due Date on Sales Order with  Max_ No_Of_Days_till_Due_Date < Payment Date < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -903,7 +903,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277177
         // Test Due Date on Sales Order with  Payment Date < Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Non Payment Period End Date < Due Date
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period and Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -930,7 +930,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277175
         // Test Due Date on Sales Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Non Payment Period End Date < Payment Day < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
@@ -956,7 +956,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277184
         // Test Due Date on Sales Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
@@ -981,7 +981,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 276954
         // Test Due Date on Sales Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Non Payment Period End Date < Payment Day < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
@@ -1003,7 +1003,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Purchase Order when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1029,7 +1029,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Sales Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
@@ -1053,7 +1053,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 276856
         // Test Prepayment Due Date is set correctly on Sales Order when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1080,7 +1080,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Sales Order when Max No of Days till Due Date < Due Date
         // No Payment Day and Non-Payment Period defined
         // Expected Result: Due Date set according to Max. No. of Days till Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -1100,7 +1100,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1123,7 +1123,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1151,7 +1151,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PostedDocumentNo: Code[20];
         NewPaymentTermsCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         SetupSalesOrderWithOneLine(SalesHeader, FindPaymentMethodWithCreateBills);
         NewPaymentTermsCode := UpdateSalesHeaderWithNewPaymentTerms(SalesHeader);
@@ -1170,7 +1170,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test that Due Date is set correctly on Journal Line when Due-DocumentDate < Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1191,7 +1191,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Journal Line when Due-DocumentDate = Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
@@ -1215,7 +1215,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day before Non-payment period and before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
@@ -1243,7 +1243,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day after Non-payment period and both before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
@@ -1269,7 +1269,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate < Max No of Days till Due Date
         // and Non-payment period before Due Date and no Payment Day
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
@@ -1293,7 +1293,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate > Max No of Days till Due Date
         // and Payment Day is before the treshold
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -1317,7 +1317,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate > Max No of Days till Due Date
         // and Payment Day is after the treshold
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -1341,7 +1341,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277393
         // Test Due Date - Document Date > Max_ No_Of_Days_till_Due_Date and closest available date is inside a Non Payment Period - No Payment Day is defined.
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -1366,7 +1366,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate > Max No of Days till Due Date
         // and the maximum day is inside a non-payment period and Payment Day is before non-payment period
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period and Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -1393,7 +1393,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate > Max No of Days till Due Date
         // and the maximum day is inside a non-payment period and Payment Day is after non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
@@ -1419,7 +1419,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate > Max No of Days till Due Date
         // and max treshold and payment day are inside a non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
@@ -1444,7 +1444,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Journal Line when Due Date - DocumentDate > Max No of Days till Due Date
         // and entire date range [Document Date, Document Date + Max. No. of Days till Dues Date] represents a non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
@@ -1465,7 +1465,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Journal Line when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1490,7 +1490,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Sales Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
@@ -1512,7 +1512,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test Due Date on Sales Journal after modifying already set PaymentTerms on that way that Due Date is still before Max. No. of Days till Due Date
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1534,7 +1534,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test Due Date on Sales Journal after modifying already set PaymentTerms on that way that Due Date is after Max. No. of Days till Due Date
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1559,7 +1559,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -1586,7 +1586,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -1603,7 +1603,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -1626,7 +1626,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277400
         // Test Due Date is set correctly on Service Order when Due-DocumentDate < Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -1649,7 +1649,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277400
         // Test Due Date is set correctly on Service Order when Due-DocumentDate = Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
@@ -1675,7 +1675,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date on Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day before Non-payment period and before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
@@ -1701,7 +1701,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
@@ -1727,7 +1727,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
@@ -1753,7 +1753,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date on Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day after Non-payment period and both before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
@@ -1778,7 +1778,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Service Order when Due Date - DocumentDate < Max No of Days till Due Date and Non-payment period before Due Date and no Payment Day
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
@@ -1803,7 +1803,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277372
         // Test Due Date is set correctly on Service Order with  Payment Date < Max_ No_Of_Days_till_Due_Date < Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -1828,7 +1828,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277369
         // Test Due Date on Service Order with  Max_ No_Of_Days_till_Due_Date < Payment Date < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -1878,7 +1878,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277399
         // Test Due Date on Service Order with  Payment Date < Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Non Payment Period End Date < Due Date
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period and Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -1905,7 +1905,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277397
         // Test Due Date on Service Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Non Payment Period End Date < Payment Day < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
@@ -1931,7 +1931,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277405
         // Test Due Date on Service Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
@@ -1956,7 +1956,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277378
         // Test Due Date on Service Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Non Payment Period End Date < Payment Day < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
@@ -1978,7 +1978,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Service Order when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -2004,7 +2004,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Service Order with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
@@ -2028,7 +2028,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Order when Max No of Days till Due Date < Due Date
         // No Payment Day and Non-Payment Period defined
         // Expected Result: Due Date set according to Max. No. of Days till Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -2049,7 +2049,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -2072,7 +2072,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         PaymentTerms: Record "Payment Terms";
         ServiceHeader: Record "Service Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -2102,7 +2102,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // TFS TC ID 277811
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due-DocumentDate < Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -2125,7 +2125,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Service Invoice created from Contract Service when Due-DocumentDate = Max No of Days till Due Date
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxEqualDueDate(PaymentTerms);
@@ -2151,7 +2151,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day before Non-payment period and before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodAfterPaymentDayBeforeDueDate(
@@ -2178,7 +2178,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnStartOfNonPaymentPeriod(
@@ -2204,7 +2204,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Purchase Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day set to the start of Non-payment period and before Due Date
         // Expected Result: Due Date blank
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDatePaymentDayOnEndOfNonPaymentPeriod(
@@ -2231,7 +2231,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Payment Day after Non-payment period and both before Due Date
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforePaymentDayAndBeforeDueDate(
@@ -2258,7 +2258,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate < Max No of Days till Due Date
         // and Non-payment period before Due Date and no Payment Day
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxAfterDueDateNonPaymentPeriodBeforeDueDate(
@@ -2286,7 +2286,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and Payment Day is before the treshold
         // Expected Result: Due Date set to Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateAfterPaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -2313,7 +2313,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and Payment Day is after the treshold
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforeDueDateBeforePaymentDay(PaymentTerms, PaymentDay, PaymentTableNameOption::Customer, WorkDate);
@@ -2340,7 +2340,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and the maximum day is inside a non-payment period and Payment Day is before non-payment period
         // Expected Result: update Due Date to the closest lower date with respect to the Non Payment Period and Payment Day
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayBeforeNonPaymentPeriod(
@@ -2369,7 +2369,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and the maximum day is inside a non-payment period and Payment Day is after non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodWithDueDateAfterAndPaymentDayAfterNonPaymentPeriod(
@@ -2395,7 +2395,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and max treshold and payment day are inside a non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxBeforePaymentDayInNonPaymentPeriodWithDueDateAfter(
@@ -2421,7 +2421,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Invoice created from Contract Service Order when Due Date - DocumentDate > Max No of Days till Due Date
         // and entire date range [Document Date, Document Date + Max. No. of Days till Dues Date] represents a non-payment period
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForMaxInNonPaymentPeriodBeforeDueDate(PaymentTerms, NonPaymentPeriod, PaymentTableNameOption::Customer, WorkDate);
@@ -2444,7 +2444,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date is set correctly on Service Invoice when Max No of Days till Due Date = 0
         // Expected Result: Due Date set according to the Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -2471,7 +2471,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // Test Due Date on Service Invoice with  Non Payment Period Start Date < Max_ No_Of_Days_till_Due_Date < Payment Day < Non Payment Period End Date  < Due Date
         // Expected Result: Due Date is empty
-        Initialize;
+        Initialize();
 
         // Setup:
         CreateSetupForPaymentDayBeforeMaxInNonPaymentPeriodWithDueDateAfter(
@@ -2495,7 +2495,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Test Due Date is set correctly on Service Contract when Max No of Days till Due Date < Due Date
         // No Payment Day and Non-Payment Period defined
         // Expected Result: Due Date set according to Max. No. of Days till Due Date Calculation
-        Initialize;
+        Initialize();
 
         // Setup:
         CreatePaymentTermMaxBeforeDueDate(PaymentTerms);
@@ -2518,7 +2518,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         ServiceContractNo: Code[20];
         OldCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
@@ -2545,7 +2545,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // [FEATURE] [Payment Day] [Due Date] [Purchase]
         // [SCENARIO 319582] When Posting Date is validated in Purchase Header then Due Date doesn't depend on Company Payment Day if Vendor Payment Day is not specified
-        Initialize;
+        Initialize();
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
@@ -2571,7 +2571,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // [FEATURE] [Payment Day] [Due Date] [Sales]
         // [SCENARIO 268487] When Posting Date is validated in Sales Header then Due Date doesn't depend on Company Payment Day if Customer Payment Day is not specified
-        Initialize;
+        Initialize();
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
@@ -2597,7 +2597,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // [FEATURE] [Payment Days Code] [Due Date] [Purchase]
         // [SCENARIO 268487] When Posting Date is validated in Purchase Header then Due Date is adjusted with respect to Company Payment Day if Vendor has blank "Payment Days Code"
-        Initialize;
+        Initialize();
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
@@ -2624,7 +2624,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         // [FEATURE] [Payment Days Code] [Due Date] [Sales]
         // [SCENARIO 268487] When Posting Date is validated in Sales Header then Due Date doesn't depend on Company Payment Day if Customer has blank "Payment Days Code"
-        Initialize;
+        Initialize();
         PaymentDay.DeleteAll();
 
         // [GIVEN] Payment Day with Table Name = "Company Information", Code = Company Information "Payment Days Code" and "Day of the month" = 20
@@ -3131,7 +3131,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     local procedure GetServiceHeaderCreatedFromServiceContract(var ServiceHeader: Record "Service Header"; ServiceContractNo: Code[10])
     begin
         ServiceHeader.SetRange("Contract No.", ServiceContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
     end;
 
     local procedure InitializeContractServiceOrders(StartingDate: Date; EndingDate: Date; "Action": Option; ContractNo: Code[20])
@@ -3235,7 +3235,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader.SetRange("Contract No.", ServiceContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         ServiceHeader.TestField("Due Date", ExpectedDueDate);
     end;
 
@@ -3259,7 +3259,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         ServiceHeader.SetFilter("Document Type", '%1', ServiceHeader."Document Type"::Order);
         ServiceHeader.SetFilter("Contract No.", '%1', ServiceContractNo);
-        ServiceHeader.FindLast;
+        ServiceHeader.FindLast();
         ServiceHeader.TestField("Due Date", ExpectedDueDate);
     end;
 

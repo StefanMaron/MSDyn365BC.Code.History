@@ -41,10 +41,10 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName := CreateJournalLinesJournal();
 
         Amount := LibraryRandom.RandDec(200, 0);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         LineNo[1] := LibraryGraphJournalLines.CreateJournalLineWithAmountAndDocNo(JournalName, Amount, DocumentNo);
         LineNo[2] := LibraryGraphJournalLines.CreateJournalLineWithAmountAndDocNo(JournalName, Amount, DocumentNo);
-        ExternalDocNo := LibraryUtility.GenerateGUID;
+        ExternalDocNo := LibraryUtility.GenerateGUID();
 
         // [WHEN] we initialize a line after the 2 first lines that have a non zero balance
         GraphMgtJournalLines.SetJournalLineFilters(NewGenJournalLine);

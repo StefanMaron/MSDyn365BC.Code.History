@@ -36,7 +36,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Bill-To Customer" of Sales Invoice exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Bill-to/Pay-to No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Bill-to/Pay-to No." in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -69,7 +69,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Sell-To Customer" of Sales Invoice exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Sell-to/Buy-from No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Sell-to/Buy-from No" in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
@@ -102,7 +102,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Bill-To Customer" of Sales Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Bill-to/Pay-to No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Bill-to/Pay-to No." in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -135,7 +135,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Sell-To Customer" of Sales Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Sell-to/Buy-from No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Sell-to/Buy-from No" in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
@@ -168,7 +168,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Bill-To Customer" of Removal Sales Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Bill-to/Pay-to No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Bill-to/Pay-to No." in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -203,7 +203,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Sell-To Customer" of Removal Sales Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Sell-to/Buy-from No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Sell-to/Buy-from No" in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
@@ -237,7 +237,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Bill-To Customer" of Purchase Invoice exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Bill-to/Pay-to No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Bill-to/Pay-to No." in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -270,7 +270,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Sell-To Vendor" of Purchase Invoice exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Sell-to/Buy-from No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Sell-to/Buy-from No" in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
@@ -303,7 +303,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Bill-To Vendor" of Purchase Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Bill-to/Pay-to No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Bill-to/Pay-to No." in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -336,7 +336,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Sell-To Vendor" of Purchase Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Sell-to/Buy-from No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Sell-to/Buy-from No" in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
@@ -369,7 +369,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Bill-To Vendor" of Removal Purchase Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Bill-to/Pay-to No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Bill-to/Pay-to No." in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
@@ -404,7 +404,7 @@ codeunit 147561 "SII Third Party Info"
         // [SCENARIO 327263] The information about "Sell-To Vendor" of Removal Purchase Credit Memo exports to SII XML file
         // [SCENARIO 327263] when "Bill-to/Sell-to VAT Calc." field of General Ledger Setup has value "Sell-to/Buy-from No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." option has value "Sell-to/Buy-from No" in General Ledger Setup
         SetBillToSellToVATCalcInGenLedgSetup(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");

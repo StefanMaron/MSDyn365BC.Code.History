@@ -104,7 +104,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 if (AccSchedLine."Totaling Type" = AccSchedLine."Totaling Type"::"Posting Accounts") and
                    (StrLen(AccSchedLine.Totaling) <= MaxStrLen(GLAcc.Totaling)) and (StrPos(AccSchedLine.Totaling, '*') = 0)
                 then begin
-                    GLAcc."Account Type" := 2;
+                    GLAcc."Account Type" := GLAcc."Account Type"::Total;
                     GLAcc.Totaling := AccSchedLine.Totaling;
                     AddGLAccDimensions(GLAcc, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
                 end else begin

@@ -61,7 +61,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Payment Terms Code in Cust. Ledger Entry after posting Sales Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -77,7 +77,7 @@ codeunit 144079 "ERM Payment Terms"
 
         // Verify.
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Payment Terms Code", SalesHeader."Payment Terms Code");
     end;
 
@@ -96,7 +96,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Payment Terms Code in Vendor Ledger Entry after posting Purchase Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
@@ -112,7 +112,7 @@ codeunit 144079 "ERM Payment Terms"
 
         // Verify.
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.TestField("Payment Terms Code", PurchaseHeader."Payment Terms Code");
     end;
 
@@ -128,7 +128,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Payment Term Code to create General Journal Lines using get Standard Journal.
 
         // Setup: Create General Journal Batch, Create General Journal Line and save them as Standard Journal.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalLine(GenJournalLine, Vendor."No.", '');  // Blank for Bal. Account No.
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalLine."Journal Template Name");
@@ -154,7 +154,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Vendor Ledger Entry after posting Standard Journal.
 
         // Setup: Create General Journal Batch, create a Vendor and create General Journal Lines.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalLine(GenJournalLine, Vendor."No.", GLAccount."No.");
@@ -180,7 +180,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Payment Terms Code on create General Journal Lines and Save them as Standard Journal.
 
         // Setup: Create General Journal Batch, General Journal Lines and Standard Journal Code.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalLine(GenJournalLine, Vendor."No.", '');  // Blank for Bal. Account No.
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalLine."Journal Template Name");
@@ -206,7 +206,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Payment Discount Amount on report Service - Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -249,7 +249,7 @@ codeunit 144079 "ERM Payment Terms"
         // Test to verify Payment Discount Amount on report Service - Credit Memo.
 
         // Setup
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -294,7 +294,7 @@ codeunit 144079 "ERM Payment Terms"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -349,7 +349,7 @@ codeunit 144079 "ERM Payment Terms"
         StandardGeneralJournalLine: Record "Standard General Journal Line";
     begin
         StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
-        StandardGeneralJournalLine.FindFirst;
+        StandardGeneralJournalLine.FindFirst();
         StandardGeneralJournalLine.TestField("Payment Terms Code", PaymentTermsCode);
     end;
 
@@ -358,7 +358,7 @@ codeunit 144079 "ERM Payment Terms"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(GenJournalLine.Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;

@@ -27,7 +27,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraPayables.CreateCarteraVendorUseInvoicesToCarteraPayment(Vendor, LocalCurrencyCode);
@@ -61,7 +61,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         OriginalAmount: Decimal;
         PrepaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraPayables.CreateCarteraVendorUseInvoicesToCarteraPayment(Vendor, LocalCurrencyCode);
@@ -78,7 +78,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         PrepaymentAmount := CalculateTotalPrepaymentAmount(PurchaseHeader);
 
         // Exercise
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify
@@ -86,7 +86,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
         CarteraDoc.SetRange("Account No.", Vendor."No.");
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.TestField("Remaining Amount", OriginalAmount - PrepaymentAmount);
     end;
 
@@ -102,7 +102,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         OriginalAmount: Decimal;
         PrepaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraReceivables.CreateBillToCarteraPaymentMethod(PaymentMethod);
@@ -120,7 +120,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         PrepaymentAmount := CalculateTotalPrepaymentAmount(PurchaseHeader);
 
         // Exercise
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify
@@ -128,7 +128,7 @@ codeunit 147507 "Cartera Payable Prepayment"
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Bill);
         CarteraDoc.SetRange("Account No.", Vendor."No.");
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.TestField("Remaining Amount", OriginalAmount - PrepaymentAmount);
     end;
 

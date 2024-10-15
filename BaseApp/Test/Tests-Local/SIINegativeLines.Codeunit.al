@@ -848,7 +848,7 @@ codeunit 147563 "SII Negative Lines"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGroupCode, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup.Validate("VAT %", VATRate + 1);
         VATPostingSetup.Modify(true);
         LibraryInventory.CreateItem(Item);

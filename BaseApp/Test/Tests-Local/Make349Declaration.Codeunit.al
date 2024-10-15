@@ -46,7 +46,7 @@ codeunit 147304 "Make 349 Declaration"
         FileName := GetTempFilePath + 'make349.txt';
         Make349Declaration.InitializeRequest(FileName);
         Commit();
-        Make349Declaration.Run;
+        Make349Declaration.Run();
 
         // Verify.
         SearchText := Vendor."Country/Region Code";
@@ -60,7 +60,7 @@ codeunit 147304 "Make 349 Declaration"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         VATregNoFormat.SetRange(Format, '###########');
-        VATregNoFormat.FindFirst;
+        VATregNoFormat.FindFirst();
         Vendor.Validate("Country/Region Code", VATregNoFormat."Country/Region Code");
         Vendor.Validate(
           "VAT Registration No.",

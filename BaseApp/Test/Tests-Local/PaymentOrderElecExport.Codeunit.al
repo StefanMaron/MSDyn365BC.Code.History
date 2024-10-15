@@ -24,7 +24,7 @@ codeunit 147508 "Payment Order Elec. Export"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -34,7 +34,7 @@ codeunit 147508 "Payment Order Elec. Export"
         PaymentOrder: Record "Payment Order";
     begin
         // [SCENARIO] Payment Order, where "Export Electronic Payment" set to No, should not be exported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Order, where "Export Electronic Payment" set to "No"
         CreatePaymentOrderWithOneLine(PaymentOrder, false);
@@ -55,7 +55,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         // [FEATURE] [Void PO - Export]
         // [SCENARIO] "Void PO - Export" job should mark an exported Payment Order as not exported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Order with one line is marked as exported
         CreatePaymentOrderWithOneLine(PaymentOrder, true);
@@ -87,7 +87,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         // [FEATURE] [CarteraDoc] [UT]
         // [SCENARIO] CarteraDoc should be marked as exported if linked Payment Order marked as exported
-        Initialize;
+        Initialize();
 
         // [GIVEN] CarteraDoc "A" is posted and added to a Payment Order
         PostedDocNo := CreatePaymentOrderWithOneLine(PaymentOrder, true);
@@ -116,7 +116,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         // [FEATURE] [SEPA] [Credit Transfer] [Payment Export Error]
         // [SCENARIO 375303] Payment Order with two lines should not be exported if there is a payment error in the first line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor 10000 has Vendor Bank Account "ANT" with a blank IBAN
         VendorNo[1] := CreateVendorWithBankAccount(true);
@@ -155,7 +155,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         // [FEATURE] [SEPA] [Credit Transfer] [UT] [Payment Export Data]
         // [SCENARIO 375303] Payment Export Data "Document No." should be Cartera Document "No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Order with one line, where Cartera Document No. is "X"
         CarteraDocNo := CreatePaymentOrderWithOneLine(PaymentOrder, true);
@@ -166,7 +166,7 @@ codeunit 147508 "Payment Order Elec. Export"
 
         // [THEN] Export Buffer contains one line where "Document No." is "X"
         Assert.AreEqual(1, TempPaymentExportData.Count, 'There must be 1 line in the buffer');
-        TempPaymentExportData.FindFirst;
+        TempPaymentExportData.FindFirst();
         TempPaymentExportData.TestField("Document No.", CarteraDocNo);
     end;
 
@@ -192,7 +192,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         PaymentMethod.SetRange("Invoices to Cartera", true);
         PaymentMethod.SetRange("Bill Type", PaymentMethod."Bill Type"::Transfer);
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
 
         LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code); // blank currency code
         LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
@@ -220,7 +220,7 @@ codeunit 147508 "Payment Order Elec. Export"
         Item: Record Item;
         DocumentNo: Code[20];
     begin
-        Item.FindFirst;
+        Item.FindFirst();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.",
           LibraryRandom.RandInt(10));
@@ -265,7 +265,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         with VendorBankAccount do begin
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             IBAN := '';
             Modify(true);
         end;
@@ -276,7 +276,7 @@ codeunit 147508 "Payment Order Elec. Export"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"SEPA CT-Export File");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         exit(BankExportImportSetup.Code);
     end;
 

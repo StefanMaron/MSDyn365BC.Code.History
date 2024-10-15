@@ -173,7 +173,7 @@ codeunit 143021 "Library Bill Group Export N19"
         BillGroup.SetRange("No.", BillGroupNo);
         BillGroupExportN19.SetTableView(BillGroup);
 
-        BillGroupExportN19.RunModal;
+        BillGroupExportN19.RunModal();
     end;
 }
 

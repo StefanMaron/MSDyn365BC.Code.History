@@ -256,7 +256,7 @@ report 7000060 "PO - Export N34.1"
                         VendorBankAccount1.Reset();
                         VendorBankAccount1.SetRange("Vendor No.", "Account No.");
                         VendorBankAccount1.SetRange("Use For Electronic Payments", true);
-                        if VendorBankAccount1.FindFirst then begin
+                        if VendorBankAccount1.FindFirst() then begin
                             TempVendCCCControlDigits := VendorBankAccount1."CCC Control Digits";
                             TempVendCCCAccNo := VendorBankAccount1."CCC Bank Account No.";
                             TempUserText :=

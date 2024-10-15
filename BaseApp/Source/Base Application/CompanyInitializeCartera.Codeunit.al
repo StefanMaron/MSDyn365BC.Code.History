@@ -4,7 +4,7 @@ codeunit 7000010 "Company-Initialize Cartera"
     trigger OnRun()
     begin
         with CarteraSetup do
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Insert;
             end;
@@ -12,7 +12,7 @@ codeunit 7000010 "Company-Initialize Cartera"
         InsertSourceCode(SourceCodeSetup."Cartera Journal", Text1100000, Text1100001);
 
         with CarteraReportSelection do
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 InsertBGPORepSelection(Usage::"Bill Group", '1', REPORT::"Bill Group Listing");
                 InsertBGPORepSelection(Usage::"Posted Bill Group", '1', REPORT::"Posted Bill Group Listing");
                 InsertBGPORepSelection(Usage::"Closed Bill Group", '1', REPORT::"Closed Bill Group Listing");

@@ -333,7 +333,8 @@
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
                     if not CalcLineNoTaxable(VATStmtLine2, false) then
-                        CalcLineFromVATEntry2C(VATStmtLine2);
+                        CalcLineFromVATEntry2C(VATStmtLine2);//r01
+                    OnCalcLineTotal2COnBeforeCalculateTotalAmount(VATStmtLine2, VATEntry, Base, Amount, UseAmtsInAddCurr);
                     CalculateTotalAmount(VATStmtLine2);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -603,7 +604,7 @@
         VATAmount1 := 0;
         VATAmountAC1 := 0;
         with VATEntry1 do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "VAT %" + "EC %" <> 0 then begin
                         if ECAmount then
@@ -791,6 +792,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotal2COnBeforeCalculateTotalAmount(VATStmtLine2: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Base: Decimal; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
     end;
 }

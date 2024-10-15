@@ -121,9 +121,9 @@ codeunit 144046 "ERM Employee Name"
     local procedure CreateEmployee(var Employee: Record Employee)
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        Employee.Validate(Name, LibraryUtility.GenerateGUID);
-        Employee.Validate("First Family Name", LibraryUtility.GenerateGUID);
-        Employee.Validate("Second Family Name", LibraryUtility.GenerateGUID);
+        Employee.Validate(Name, LibraryUtility.GenerateGUID());
+        Employee.Validate("First Family Name", LibraryUtility.GenerateGUID());
+        Employee.Validate("Second Family Name", LibraryUtility.GenerateGUID());
         Employee.Modify(true);
     end;
 }

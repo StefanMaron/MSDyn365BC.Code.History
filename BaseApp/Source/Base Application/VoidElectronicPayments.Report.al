@@ -48,7 +48,7 @@ report 10722 "Void Electronic Payments"
 
             trigger OnPreDataItem()
             begin
-                if not FindFirst then
+                if not FindFirst() then
                     Error(Text1100003);
 
                 FirstTime := true;

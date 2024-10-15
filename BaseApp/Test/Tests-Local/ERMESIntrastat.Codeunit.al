@@ -85,7 +85,7 @@
         // Test to verify Cost Regulations % field is updated from the Item Card on Intrastat Journal and Cost Regulation % and Statistical System are editable on Intrastat Journal.
 
         // Setup: Create Item with Cost Regulation %, create and post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         UpdateItemCostRegulationPct(Item);
         CreateSalesInvoice(SalesLine, Item."No.", LibraryRandom.RandInt(100));  // Random Unit Price.
@@ -130,7 +130,7 @@
         // Test to verify Amount and Statistical Value on Intrastat Journal Line for Posted Sales Invoice.
 
         // Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateSalesInvoice(SalesLine, Item."No.", LibraryRandom.RandInt(100));  // Random Unit Price.
         PostSalesInvoice(SalesLine."Document No.");
@@ -154,7 +154,7 @@
         // Test to verify Amount and Statistical Value with Item Charge consideration on Intrastat Journal Line for Posted Sales Invoice.
 
         // Setup: Create Sales Invoice with Item Charge Assignment and post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateSalesInvoice(SalesLine, Item."No.", LibraryRandom.RandInt(100));  // Random Unit Price.
         CreateSalesItemChargeAssignment(SalesLine."Document No.", SalesLine."Document Type"::Invoice);
@@ -181,7 +181,7 @@
         // Test to verify Amount and Statistical Value for multiline Posted Sales Invoice with Item Charge consideration on Intrastat Journal Line.
 
         // Setup: Create multiple Line Sales Invoice with Item Charge Assignment and post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateSalesInvoice(SalesLine, Item."No.", LibraryRandom.RandInt(100));  // Random Unit Price.
         CreateSalesLine(
@@ -213,7 +213,7 @@
         // Test to verify Amount and Statistical Value for multiline Posted Sales Invoice with Item Charge consideration on Intrastat Journal Line.
 
         // Setup: Create Purchase Invoice with Item Charge Assignment and post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreatePurchaseInvoice(PurchaseLine, Item."No.");
         CreatePurchaseLine(
@@ -243,7 +243,7 @@
         // Test to verify Amount and Statistical Value with Item Charge consideration on Intrastat Journal Line for Posted Purchase Invoice.
 
         // Setup: Create and Post Purchase Invoice
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreatePurchaseInvoice(PurchaseLine, Item."No.");
         PostPurchaseInvoice(PurchaseLine."Document No.");
@@ -267,7 +267,7 @@
         // Test to verify Amount and Statistical Value on Intrastat Journal Line for Posted Purchase Invoice.
 
         // Setup: Create Purchase Invoice with Item Charge Assignment and post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreatePurchaseInvoice(PurchaseLine, Item."No.");
         CreatePurchaseItemChargeAssignment(PurchaseLine."Document No.", PurchaseLine."Document Type"::Invoice);
@@ -293,7 +293,7 @@
         // Test to verify error Amount must have a value in Intrastat Journal Line.
 
         // Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateSalesInvoice(SalesLine, Item."No.", 0);  // Unit Price - 0.
         PostSalesInvoice(SalesLine."Document No.");
@@ -325,7 +325,7 @@
         // Test to verify amount in Intrastat Journal after posting a Purchase Order With Invoice Discount.
 
         // Setup: Create Purchase Order with Line Discount and Vendor Invoice Discount on Vendor with Item Charge Assignment.
-        Initialize;
+        Initialize();
         DocumentNo := CreateMultiplePurchaseLineWithLineDiscount(PurchaseLine, PurchaseLine2, PurchaseLine."Document Type"::Order);
         Amount :=
           CreatePurchItemChargeAssignmentPostPurchDoc(
@@ -363,7 +363,7 @@
         // Test to verify amount in Intrastat Journal after posting a Purchase Return Order With Invoice Discount.
 
         // Setup: Create Purchase Return Order with Line Discount and Vendor Invoice Discount on Vendor with Item Charge Assignment.
-        Initialize;
+        Initialize();
         DocumentNo :=
           CreateMultiplePurchaseLineWithLineDiscount(PurchaseLine, PurchaseLine2, PurchaseLine."Document Type"::"Return Order");
         Amount :=
@@ -418,7 +418,7 @@
         DocumentNo: Code[20];
     begin
         // Setup: Create Sales Order or Return Order with Line Discount and Customer Invoice Discount on Customer with Item Charge Assignment.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateItem(Item2);
         CustomerNo := CreateCustomer;
@@ -454,12 +454,12 @@
         "Count": Integer;
     begin
         // [SCENARIO] It should not to be possible to "Make Declaration" from one Intrastat Journal Batch having "Exported" flag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Batch having lines
         CreateItem(Item);
         IntrastatJnlBatch.SetFilter(Name, CreateIntrastatJournalBatch);
-        IntrastatJnlBatch.FindFirst;
+        IntrastatJnlBatch.FindFirst();
 
         for Count := 1 to 100 do
             MakeIntrastatJnlLine(IntrastatJnlBatch, Item."No.");
@@ -497,12 +497,12 @@
         Filename: Text;
     begin
         // [SCENARIO] "Make Declaration" action of Intrastat Journal should throw an error, while exporting lines having empty "Transaction Type"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Batch having lines with empty "Transaction Type"
         CreateItem(Item);
         IntrastatJnlBatch.SetFilter(Name, CreateIntrastatJournalBatch);
-        IntrastatJnlBatch.FindFirst;
+        IntrastatJnlBatch.FindFirst();
 
         for Count := 1 to 100 do
             MakeIntrastatJnlLine(IntrastatJnlBatch, Item."No.");
@@ -532,7 +532,7 @@
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -559,7 +559,7 @@
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -586,7 +586,7 @@
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -613,7 +613,7 @@
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -645,10 +645,10 @@
         // [SCENARIO 376056] Intrastat Declaration file of 1000 lines should not have empty line in the end (1001)
 
         // [GIVEN] 2100 Intrastat Lines in the same Batch to be exported to 3 files (1000, 1000, 100)
-        Initialize;
+        Initialize();
         CreateItem(Item);
         IntrastatJnlBatch.SetFilter(Name, CreateIntrastatJournalBatch);
-        IntrastatJnlBatch.FindFirst;
+        IntrastatJnlBatch.FindFirst();
 
         for Count := 1 to 2100 do
             MakeIntrastatJnlLine(IntrastatJnlBatch, Item."No.");
@@ -682,7 +682,7 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 210322] The value of "Total Weight" of "Intrastat Jnl. Line" must be rounded down and formatted as decimal with 2 decimal places in table "Intrastat Jnl. Line" and page "Intrastat Journal"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Intrastat Jnl. Line" with "Total Weight" = 1.234
         CreateaIntrastatJnlLineWithTotalWeight(IntrastatJnlLine, 1.234);
@@ -711,7 +711,7 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 210322] The value of "Total Weight" of "Intrastat Jnl. Line" must be rounded up and formatted as decimal with 2 decimal places in table "Intrastat Jnl. Line" and page "Intrastat Journal"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Intrastat Jnl. Line" with "Total Weight" = 1.236
         CreateaIntrastatJnlLineWithTotalWeight(IntrastatJnlLine, 1.236);
@@ -795,7 +795,7 @@
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
         IntrastatJnlTemplate.DeleteAll(true);
         IntrastatSetup.DeleteAll();
@@ -803,8 +803,8 @@
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -816,7 +816,7 @@
         TariffNumber: Record "Tariff Number";
     begin
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion);
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Validate("Country/Region of Origin Code", VATRegistrationNoFormat."Country/Region Code");
@@ -1147,7 +1147,7 @@
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         exit(PurchaseLine."No.");
     end;
 
@@ -1158,7 +1158,7 @@
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         exit(SalesLine."No.");
     end;
 
@@ -1205,10 +1205,10 @@
         TransportMethod: Record "Transport Method";
     begin
         FilterIntrastatJnlLine(IntrastatJnlLine, JournalBatchName, ItemNo);
-        IntrastatJnlLine.FindFirst;
-        TransactionType.FindFirst;
-        TransportMethod.FindFirst;
-        EntryExitPoint.FindFirst;
+        IntrastatJnlLine.FindFirst();
+        TransactionType.FindFirst();
+        TransportMethod.FindFirst();
+        EntryExitPoint.FindFirst();
         IntrastatJnlLine.Validate("Transaction Type", TransactionType.Code);
         IntrastatJnlLine.Validate("Transport Method", TransportMethod.Code);
         IntrastatJnlLine.Validate("Entry/Exit Point", EntryExitPoint.Code);
@@ -1267,7 +1267,7 @@
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatMakeDeclaration.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDeclaration.Run;
+        IntrastatMakeDeclaration.Run();
     end;
 
     local procedure CreateItemWithTariffNo(var Item: Record Item)
@@ -1315,7 +1315,7 @@
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         FilterIntrastatJnlLine(IntrastatJnlLine, JournalBatchName, ItemNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         VerifyIntrastatJnlLine(IntrastatJnlLine, TariffNo, StatisticalValue, Amount);
     end;
 
@@ -1324,7 +1324,7 @@
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         FilterIntrastatJnlLine(IntrastatJnlLine, JournalBatchName, ItemNo);
-        IntrastatJnlLine.FindLast;
+        IntrastatJnlLine.FindLast();
         VerifyIntrastatJnlLine(IntrastatJnlLine, TariffNo, StatisticalValue, Amount);
     end;
 
@@ -1351,7 +1351,7 @@
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetFilter("Item Charge No.", ItemChargeNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
           CostAmountNonInvtbl, ValueEntry."Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
         Assert.AreNearlyEqual(
@@ -1366,7 +1366,7 @@
             SalesAmountActual := -SalesAmountActual;
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
           SalesAmountActual, ValueEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
     end;
@@ -1393,7 +1393,7 @@
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;

@@ -45,7 +45,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
         RedrawAmtToReduce: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraCustumer(Customer);
@@ -83,7 +83,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
         RedrawAmtToReduce: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraCustumer(Customer);
@@ -121,7 +121,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
         RedrawAmtToReduce: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraCustumer(Customer);
@@ -159,7 +159,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
         RedrawAmtToReduce: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraCustumer(Customer);
@@ -197,7 +197,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
         RedrawAmtToReduce: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraCustumer(Customer);
@@ -234,7 +234,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
         RedrawAmtToReduce: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraCustumer(Customer);
@@ -290,7 +290,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         InvoiceNo: Code[20];
     begin
         // [SCENARIO 376737] Redraw an already rejected bill from Closed Receivables Docs
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cartera Doc
         CreateCarteraCustumer(Customer);
@@ -318,7 +318,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     begin
         // [SCENARIO 377552] Template Name, Batch Name fields should be cleared when run request page of Redraw Receivable Bills with saved values
         // [FEATURE] [UT] [UI]
-        Initialize;
+        Initialize();
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry.Insert();
@@ -353,7 +353,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 333888] Report "Bank - Risk" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         CreateCarteraCustumer(Customer);
         PaymentTerms.Get(Customer."Payment Terms Code");
@@ -376,7 +376,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 333888] Report "Notice Assignment Credits" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         // [WHEN] Report "Notice Assignment Credits" is being printed to PDF
         Commit();
@@ -389,7 +389,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         CarteraSetup: Record "Cartera Setup";
     begin
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -440,7 +440,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         POPostAndPrint.ReceivablePostOnly(BillGroup);
 
         PostedBillGroup.SetFilter("No.", BillGroup."No.");
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
     end;
 
     local procedure SettlePostedBillGroup(PostedBillGroup: Record "Posted Bill Group"; var ClosedBillGroup: Record "Closed Bill Group")
@@ -456,7 +456,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         PostedBillGroupsTestPage.Docs."Total Settlement".Invoke;
 
         ClosedBillGroup.SetRange("No.", PostedBillGroup."No.");
-        ClosedBillGroup.FindFirst;
+        ClosedBillGroup.FindFirst();
     end;
 
     local procedure RejectPostedBillGroup(PostedBillGroup: Record "Posted Bill Group"; var ClosedBillGroup: Record "Closed Bill Group")
@@ -470,7 +470,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         PostedBillGroupsTestPage.Docs.Reject.Invoke;
 
         ClosedBillGroup.SetRange("No.", PostedBillGroup."No.");
-        ClosedBillGroup.FindFirst;
+        ClosedBillGroup.FindFirst();
     end;
 
     local procedure RejectPostedCarteraDoc(InvoiceNo: Code[20])
@@ -479,7 +479,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         ReceivablesCarteraDocs: TestPage "Receivables Cartera Docs";
     begin
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         LibraryVariableStorage.Enqueue(StrSubstNo(DocsRejectedMsg, 1));
         ReceivablesCarteraDocs.OpenEdit;
         ReceivablesCarteraDocs.GotoRecord(CarteraDoc);
@@ -506,7 +506,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
     begin
         ClosedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", ClosedBillGroup."No.");
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         RedrawReceivableBills(ClosedCarteraDoc, RedrawAmtToReduce);
     end;
 
@@ -538,7 +538,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         ReversalEntry: Record "Reversal Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
     end;
@@ -573,7 +573,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         // From the Cartera Document page, select the record filtered by 'Document No.'
         CarteraDocuments.SetRecord(CarteraDoc);
@@ -703,10 +703,10 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Cartera);
         GenJnlTemplate.SetRange(Recurring, false);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
 
         GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
-        GenJnlBatch.FindFirst;
+        GenJnlBatch.FindFirst();
 
         TemplateName := GenJnlTemplate.Name;
         BatchName := GenJnlBatch.Name;
@@ -715,7 +715,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     local procedure FindClosedCarteraDocForInvoice(var ClosedCarteraDoc: Record "Closed Cartera Doc."; InvoiceNo: Code[20])
     begin
         ClosedCarteraDoc.SetRange("Document No.", InvoiceNo);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
     end;
 
     local procedure VerifyCarteraDoc(PostedInvDocNo: Code[20]; PaymentTerms: Record "Payment Terms")

@@ -85,7 +85,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] The Approval flow gets started.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
 
         // Exercise - New Item
@@ -113,7 +113,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] The item request is approved.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibraryInventory.CreateItem(Item);
@@ -148,7 +148,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] The item request is cancelled.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibraryInventory.CreateItem(Item);
@@ -183,7 +183,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] The item request is rejected.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
         LibraryInventory.CreateItem(Item);
@@ -219,7 +219,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] The approval entries are renamed to point to the same record.
 
         // Setup
-        Initialize;
+        Initialize();
         CreateAndEnableItemWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -257,7 +257,7 @@ codeunit 134214 "WFWH Item Approval"
         // [THEN] The item approval requests are canceled and then the item is deleted.
 
         // Setup
-        Initialize;
+        Initialize();
         WorkflowCode := CreateAndEnableItemWorkflowDefinition(UserId);
         MakeCurrentUserAnApprover;
 
@@ -290,7 +290,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemCard: TestPage "Item Card";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Item Card page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item record exists, with enabled workflow and a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
@@ -321,7 +321,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemList: TestPage "Item List";
     begin
         // [SCENARIO] Approval actions are correctly enabled/disabled on Item List page while Flow approval is pending.
-        Initialize;
+        Initialize();
 
         // [GIVEN] v record exists, with enabled workflow and a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
@@ -351,7 +351,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemCard: TestPage "Item Card";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Item Card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item record exists, with a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
@@ -364,7 +364,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemCard.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -381,7 +381,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemList: TestPage "Item List";
     begin
         // [SCENARIO] Clicking cancel action to cancel pending Flow approval on Item List page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item record exists, with a Flow approval request already open.
         LibraryInventory.CreateItem(Item);
@@ -394,7 +394,7 @@ codeunit 134214 "WFWH Item Approval"
         ItemList.CancelApprovalRequest.Invoke;
 
         // [THEN] Workflow Webhook Entry record is cancelled
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
@@ -416,8 +416,8 @@ codeunit 134214 "WFWH Item Approval"
         ClearWorkflowWebhookEntry: Record "Workflow Webhook Entry";
         UserSetup: Record "User Setup";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
         ClearWorkflowWebhookEntry.DeleteAll();
@@ -451,7 +451,7 @@ codeunit 134214 "WFWH Item Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         exit(WorkflowWebhookEntry."Workflow Step Instance ID");
     end;
@@ -463,7 +463,7 @@ codeunit 134214 "WFWH Item Approval"
         WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
-        WorkflowWebhookEntry.FindFirst;
+        WorkflowWebhookEntry.FindFirst();
 
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;

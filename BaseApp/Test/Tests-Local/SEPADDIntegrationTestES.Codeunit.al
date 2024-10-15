@@ -35,7 +35,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         BankAccount: Record "Bank Account";
         BillGroup: Record "Bill Group";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"Bill group - Export factoring", 0);
@@ -58,7 +58,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         BankAccount: Record "Bank Account";
         BillGroup: Record "Bill Group";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"Bill group - Export N58", 0);
@@ -80,7 +80,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         BankAccount: Record "Bank Account";
         BillGroup: Record "Bill Group";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"Bill group - Export N19", 0);
@@ -102,7 +102,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         BankAccount: Record "Bank Account";
         BillGroup: Record "Bill Group";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"Bill group - Export N32", 0);
@@ -129,7 +129,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         DirectDebitCollection: Record "Direct Debit Collection";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
@@ -180,7 +180,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         DirectDebitCollection: Record "Direct Debit Collection";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
@@ -228,7 +228,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         CarteraManagement: Codeunit CarteraManagement;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
@@ -248,7 +248,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         PaymentJnlExportErrorText.SetRange("Journal Line No.", CarteraDoc."Entry No.");
         Assert.AreEqual(1, PaymentJnlExportErrorText.Count, 'There are more errors then expected.');
 
-        PaymentJnlExportErrorText.FindFirst;
+        PaymentJnlExportErrorText.FindFirst();
         PaymentJnlExportErrorText.TestField("Error Text", PartnerTypeMissMatchErr);
 
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
@@ -271,7 +271,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         DocumentNo: Code[20];
         BillCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BillCount := LibraryRandom.RandIntInRange(3, 10);
@@ -303,7 +303,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         DirectDebitCollection: Record "Direct Debit Collection";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
@@ -332,7 +332,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     begin
         // [FEATURE] [Cartera] [Redraw]
         // [SCENARIO] Redraw Cartera Posted Bill Group with Direct Debit Mandate using Disc/Coll Expenses = False
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Bill Group for Customer Bank Account with Direct Debit Mandate
         CreatePostSalesInvoiceAndCreateBillGroup(
@@ -374,7 +374,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     begin
         // [FEATURE] [Cartera] [Redraw]
         // [SCENARIO 217406] Redraw Cartera Posted Bill Group with Direct Debit Mandate using Disc/Coll Expenses = True
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Bill Group for Customer Bank Account with Direct Debit Mandate
         CreatePostSalesInvoiceAndCreateBillGroup(
@@ -392,7 +392,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure ExportBillGroupSEPARecurrent(NoDecimals: Boolean)
@@ -405,7 +405,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         DocumentNo: Code[20];
         BillCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BillCount := LibraryRandom.RandIntInRange(3, 10);
@@ -528,9 +528,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     local procedure ModifyBankAccount(var BankAccount: Record "Bank Account")
     begin
         with BankAccount do begin
-            IBAN := LibraryUtility.GenerateGUID;
-            "SWIFT Code" := LibraryUtility.GenerateGUID;
-            "Creditor No." := LibraryUtility.GenerateGUID;
+            IBAN := LibraryUtility.GenerateGUID();
+            "SWIFT Code" := LibraryUtility.GenerateGUID();
+            "Creditor No." := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -540,7 +540,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         with CarteraDoc do begin
             SetRange(Type, Type::Receivable);
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -549,7 +549,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         with PostedCarteraDoc do begin
             SetRange(Type, Type::Receivable);
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -558,7 +558,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         with ClosedCarteraDoc do begin
             SetRange(Type, Type::Receivable);
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -601,7 +601,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     begin
         SettleDocsInPostBillGr.SetTableView(PostedCarteraDoc);
         SettleDocsInPostBillGr.UseRequestPage(false);
-        SettleDocsInPostBillGr.RunModal;
+        SettleDocsInPostBillGr.RunModal();
     end;
 
     local procedure RunRedrawReceivableBills(DocumentNo: Code[20]; DiscCollExpenses: Boolean)
@@ -622,7 +622,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         RedrawReceivableBills.SetTableView(CustLedgEntry);
         RedrawReceivableBills.UseRequestPage(true);
-        RedrawReceivableBills.RunModal;
+        RedrawReceivableBills.RunModal();
     end;
 
     local procedure PostCustomerSalesInvoice(CustomerPartnerType: Enum "Partner Type"; RoundToInt: Boolean): Code[20]
@@ -668,15 +668,15 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         PaymentMethod."Bill Type" := PaymentMethod."Bill Type"::Transfer;
         PaymentMethod.Modify();
         LibrarySales.CreateCustomer(Customer);
-        Customer.Name := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
         if NumberOfPayments > 1 then
             Customer."Payment Terms Code" := CreatePaymentTerms(NumberOfPayments);
         Customer."Payment Method Code" := PaymentMethod.Code;
         Customer."Partner Type" := CustomerPartnerType;
         Customer.Modify();
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID;
-        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
+        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
         LibrarySales.CreateCustomerMandate(
           SEPADirectDebitMandate, Customer."No.", CustomerBankAccount.Code, WorkDate, CalcDate('<1Y>', WorkDate));

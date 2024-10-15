@@ -364,6 +364,7 @@ codeunit 147330 "Edit Posted Documents ES"
         EnqueValuesForEditableFieldsPostedServiceCreditMemo(ServiceCrMemoHeader);
         PostedDocNo := CreateAndPostServiceCreditMemo();
         LibraryLowerPermissions.SetO365ServiceMgtRead();
+        LibraryLowerPermissions.AddSalesDocsPost();
 
         PostedServiceCreditMemo.OpenView();
         PostedServiceCreditMemo.Filter.SetFilter("No.", PostedDocNo);
@@ -774,7 +775,7 @@ codeunit 147330 "Edit Posted Documents ES"
         // [FEATURE] [Sales]
         // [SCENARIO 405655] Stan can lookup posted sales invoices from the "Corrected Invoice No." field of the "Posted Sales Credit Memo - Edit"chec page
 
-        Initialize;
+        Initialize();
         SalesInvoiceHeader.Get(CreateAndPostSalesInvoice);
         SalesCrMemoHeader.Get(CreateAndPostSalesCreditMemoForCustomer(SalesInvoiceHeader."Bill-to Customer No."));
 
@@ -798,7 +799,7 @@ codeunit 147330 "Edit Posted Documents ES"
         // [FEATURE] [Sales]
         // [SCENARIO 405655] Stan can lookup posted purchase invoices from the "Corrected Invoice No." field of the "Posted Purchase Credit Memo - Edit" page
 
-        Initialize;
+        Initialize();
         PurchInvHeader.Get(CreateAndPostPurchaseInvoice);
         PurchCrMemoHdr.Get(CreateAndPostPurchaseCreditMemoForVendor(PurchInvHeader."Pay-to Vendor No."));
 

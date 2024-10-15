@@ -29,7 +29,7 @@ codeunit 104107 "Upg Report Selections"
         TempReportSelections.DeleteAll();
 
         ReportSelections.SetRange(Usage, 58, 59);
-        if ReportSelections.FindSet then
+        if ReportSelections.FindSet() then
             repeat
                 TempReportSelections := ReportSelections;
                 case ReportSelections.Usage.AsInteger() of
@@ -42,7 +42,7 @@ codeunit 104107 "Upg Report Selections"
             until ReportSelections.Next() = 0;
 
         TempReportSelections.Reset();
-        if TempReportSelections.FindSet then begin
+        if TempReportSelections.FindSet() then begin
             repeat
                 ReportSelections := TempReportSelections;
                 ReportSelections.Insert();

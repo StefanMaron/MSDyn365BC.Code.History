@@ -172,7 +172,7 @@ page 35305 "Cartera Payables Statistics FB"
             SetRange("Document Status", "Document Status"::Open);
             VendLedgEntriesForm.SetTableView(VendLedgEntry);
             VendLedgEntriesForm.SetRecord(VendLedgEntry);
-            VendLedgEntriesForm.RunModal;
+            VendLedgEntriesForm.RunModal();
             SetRange("Document Status");
             SetRange("Document Situation");
         end;
@@ -199,7 +199,7 @@ page 35305 "Cartera Payables Statistics FB"
             SetRange("Document Status", "Document Status"::Honored);
             VendLedgEntriesForm.SetTableView(VendLedgEntry);
             VendLedgEntriesForm.SetRecord(VendLedgEntry);
-            VendLedgEntriesForm.RunModal;
+            VendLedgEntriesForm.RunModal();
             SetRange("Document Status");
             SetRange("Document Situation");
         end;

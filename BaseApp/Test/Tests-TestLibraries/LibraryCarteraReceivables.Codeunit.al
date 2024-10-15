@@ -19,7 +19,7 @@ codeunit 143020 "Library - Cartera Receivables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", AccountNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.Validate("Bill Gr./Pmt. Order No.", BillGroupNo);
         CarteraDoc.Modify(true);
     end;
@@ -269,7 +269,7 @@ codeunit 143020 "Library - Cartera Receivables"
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Document Situation", DocumentSituation);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
     end;
 
     procedure FindCarteraDocs(var CarteraDoc: Record "Cartera Doc."; AccountNo: Code[20]; DocumentNo: Code[20])
@@ -283,7 +283,7 @@ codeunit 143020 "Library - Cartera Receivables"
     begin
         GLEntry.SetRange("Document No.", BillGroupNo);
         GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     procedure FindDetailedCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type")
@@ -293,14 +293,14 @@ codeunit 143020 "Library - Cartera Receivables"
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
     end;
 
     procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     procedure FindOpenCarteraDocCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
@@ -351,7 +351,7 @@ codeunit 143020 "Library - Cartera Receivables"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         exit(CustLedgerEntry.Amount);
     end;
@@ -414,7 +414,7 @@ codeunit 143020 "Library - Cartera Receivables"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing Codeunit ID", BillGroupExportCodeunitID);
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         BankAccount.Validate("SEPA Direct Debit Exp. Format", BankExportImportSetup.Code);
         BankAccount.Modify(true);
     end;

@@ -49,7 +49,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Verify system throws message when "Ignore in 347 Report" is updated.
         // Setup.
-        Initialize;
+        Initialize();
         GLAccountNo := Library347Declaration.CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ESTxt);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         GLAccount.Get(GLAccountNo);
@@ -71,7 +71,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     procedure TestWithoutContactName()
     begin
         // Verify whether system throws error message when Contact Name is not filled in.
-        Initialize;
+        Initialize();
         Test347DeclarationParameter.ContactName := '';
         RunMake347DeclarationReportExpectError(MissingContactNameError);
     end;
@@ -82,7 +82,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     procedure TestWithoutDeclarationNumber()
     begin
         // Verify whether system throws error message when Declaration Number is not filled in.
-        Initialize;
+        Initialize();
         Test347DeclarationParameter.DeclarationNumber := '';
         RunMake347DeclarationReportExpectError(MissingDeclarationNumberError);
     end;
@@ -93,7 +93,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     procedure TestWithIncompleteTelephoneNumber()
     begin
         // Verify whether system throws error message when no Telephone Number is filled in.
-        Initialize;
+        Initialize();
         Test347DeclarationParameter.TelephoneNumber := '';
         RunMake347DeclarationReportExpectError(MissingTelephoneNumberError);
     end;
@@ -106,7 +106,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Excercise.
         Library347Declaration.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, ESTxt);
@@ -128,7 +128,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Excercise.
         Library347Declaration.CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ESTxt);
@@ -154,7 +154,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Line: Text[500];
     begin
         // [SCENARIO] Invoice outside EU are picked up in the 347 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] An invoice has been posted for a vendor in the US
         VendorNo := Library347Declaration.CreateVendorWithCountryCode(USTxt);
@@ -190,7 +190,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         FileName: Text[1024];
     begin
         // [SCENARIO] Invoice inside EU are not picked up in the 347 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] An invoice has been posted for a vendor in DE
         VendorNo := Library347Declaration.CreateVendorWithCountryCode(DETxt);
@@ -215,7 +215,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Verify system throws message when purchase credit memo is posted without any payment applied.
         // Setup: Post Purchase Credit Memo without Payment.
-        Initialize;
+        Initialize();
         Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate;
         Library347Declaration.CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", ESTxt);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."Buy-from Vendor No.");
@@ -241,7 +241,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Verify system throws message when sales credit memo is posted without any payment applied.
         // Setup: Post Sales Credit Memo without Payment.
-        Initialize;
+        Initialize();
         Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate;
         Library347Declaration.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", ESTxt);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -265,7 +265,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         // Verify system throws message when service credit memo is posted without any payment applied.
         // Setup: Post Service Credit Memo without Payment.
-        Initialize;
+        Initialize();
         Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate;
         Library347Declaration.CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", ESTxt);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -290,7 +290,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         custNo: Code[20];
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create a Customer
         custNo :=
@@ -316,7 +316,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         custNo: Code[20];
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create a Customer with at VatRegno that needs padding
         custNo := Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.CreateShortVATRegNo(ESTxt));
@@ -347,7 +347,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Line: Text[1024];
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create two Customers with the same Vat Registration No.
         VatRegNo := Library347Declaration.CreateShortVATRegNo(ESTxt);
@@ -394,7 +394,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verifies that Model 347 file does not contain the Amount which marked as 'Ignore in 347 Report' on a G/L account
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Create customer
         custNo :=
@@ -456,7 +456,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // when muti-customers have the same VAT Registration No.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Create two customers with the same vat registration number
         VatRegNo := Library347Declaration.CreateShortVATRegNo(ESTxt);
@@ -506,7 +506,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         vendorNo: Code[20];
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create a Vendor
         vendorNo :=
@@ -532,7 +532,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         vendorNo: Code[20];
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create a Vendor
         vendorNo := Library347Declaration.CreateVendorWithPostCode(Library347Declaration.CreateShortVATRegNo(ESTxt));
@@ -563,7 +563,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Line: Text[1024];
     begin
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create two Vendors with the same Vat Registration No.
         VatRegNo := Library347Declaration.CreateShortVATRegNo(ESTxt);
@@ -610,7 +610,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verifies that Model 347 file does not contain the Amount which marked as 'Ignore in 347 Report' on a G/L account
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Create vendor
         vendorNo :=
@@ -672,7 +672,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // when muti-vendors have the same VAT Registration No.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Create two vendors with the same vat registration number
         VatRegNo := Library347Declaration.CreateShortVATRegNo(ESTxt);
@@ -722,7 +722,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify system throws message "At least one of the GL Accounts selected for payments in cash is setup to be ignored in 347 report."
 
         // Setup: create GL Account which has "Ignore in 347 report = true"
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Ignore in 347 Report", true);
         GLAccount.Modify();
@@ -746,7 +746,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify that if a customer has transactions below the MinAmount, then the customer won't be listed in the report output
 
         // Setup
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         ThresholdAmount := LibraryRandom.RandDec(5000, 2);
@@ -772,7 +772,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify that if a customer has transactions at the MinAmount, then the customer will be listed in the report output
 
         // Setup
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         ThresholdAmount := LibraryRandom.RandDec(5000, 2);
@@ -808,7 +808,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify that sales invoices for different quarters are reported correctly
 
         // Setup
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         Library347Declaration.CreateItemWithZeroVAT(Item, CustNo);
@@ -870,7 +870,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify that purchase orders for different quarters are reported correctly
 
         // Setup
-        Initialize;
+        Initialize();
         VendNo :=
           Library347Declaration.CreateVendorWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         Library347Declaration.CreateItemWithZeroVAT(Item, VendNo);
@@ -930,7 +930,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // correct amounts (invoice and cash) will be shown on the report.
 
         // Setup
-        Initialize;
+        Initialize();
         CashAmount := LibraryRandom.RandDec(5000, 2);
         InvoiceAmount := CashAmount + LibraryRandom.RandDec(2000, 2);
 
@@ -984,7 +984,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // a customer and that it won't be listed in the report
 
         // Setup: create customer without VAT Registration No.
-        Initialize;
+        Initialize();
         VatRegNo := Library347Declaration.GetUniqueVATRegNo(ESTxt);
         CustNo := Library347Declaration.CreateCustomerWithPostCode(VatRegNo);
         Customer.Get(CustNo);
@@ -1022,7 +1022,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // a vendor and that it won't be listed in the report
 
         // Setup: create vendor without VAT Registration No.
-        Initialize;
+        Initialize();
         VATRegNo := Library347Declaration.GetUniqueVATRegNo(ESTxt);
         VendNo := Library347Declaration.CreateVendorWithPostCode(VATRegNo);
         Vendor.Get(VendNo);
@@ -1061,7 +1061,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // VAT entries are created, and the report code has special code for this case.
 
         // Setup: create customer
-        Initialize;
+        Initialize();
         VATRegNo := Library347Declaration.GetUniqueVATRegNo(ESTxt);
         CustNo := Library347Declaration.CreateCustomerWithPostCode(VATRegNo);
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
@@ -1095,7 +1095,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // the report code has special code for this case.
 
         // Setup
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
         VATRegNo := Library347Declaration.GetUniqueVATRegNo(ESTxt);
 
@@ -1127,7 +1127,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // sell to a foreign customer, then it will not be listed on the report.
 
         // Setup: create Portuguese customer
-        Initialize;
+        Initialize();
         CustNo := Library347Declaration.CreateCustomerInPortugalWithPostCode(PTTxt);
 
         // Setup: post sales invoice
@@ -1155,7 +1155,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // VAT entries are created, and the report code has special code for this case.
 
         // Setup: create vendor
-        Initialize;
+        Initialize();
         VendNo :=
           Library347Declaration.CreateVendorWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
@@ -1189,7 +1189,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // code has special code for this case.
 
         // Setup
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
         VATRegNo := Library347Declaration.GetUniqueVATRegNo(ESTxt);
 
@@ -1222,7 +1222,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // buy from a foreign vendor, then it will not be listed on the reort.
 
         // Setup: create vendor
-        Initialize;
+        Initialize();
         VendNo := Library347Declaration.CreateVendorInPortugalWithPostCode(PTTxt);
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
 
@@ -1243,7 +1243,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Line: Text[500];
     begin
         // Setup
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
 
         // Setup: post sales invoice
@@ -1269,7 +1269,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustNo: Code[20];
         ShipToAddressCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
@@ -1285,7 +1285,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustNo: Code[20];
         ShipToAddressCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         ShipToAddressCode := Library347Declaration.CreateShipToAddress(CustNo, PTTxt);
@@ -1302,7 +1302,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustNo: Code[20];
         ShipToAddressCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerInPortugalWithPostCode(Library347Declaration.GetUniqueVATRegNo(PTTxt));
         ShipToAddressCode := Library347Declaration.CreateShipToAddress(CustNo, ESTxt);
@@ -1319,7 +1319,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustNo: Code[20];
         ShipToAddressCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerInPortugalWithPostCode(Library347Declaration.GetUniqueVATRegNo(PTTxt));
         ShipToAddressCode := Library347Declaration.CreateShipToAddress(CustNo, PTTxt);
@@ -1334,7 +1334,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustNo: Code[20];
         ShipToAddressCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerInPortugalWithPostCode(Library347Declaration.GetUniqueVATRegNo(PTTxt));
         ShipToAddressCode := Library347Declaration.CreateShipToAddress(CustNo, DETxt);
@@ -1348,7 +1348,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Line: Text[500];
     begin
         // Setup
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(5000, 2) + 1;
 
         // Setup: post sales invoice
@@ -1451,7 +1451,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verifies that if we post a General Journal Line for a customer, then it shows on the report.
 
         // Setup
-        Initialize;
+        Initialize();
         CustNo :=
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         DebitAmount := LibraryRandom.RandDec(5000, 2) + 1;
@@ -1483,7 +1483,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verifies that if we post a General Journal Line for a customer, then it shows on the report.
 
         // Setup
-        Initialize;
+        Initialize();
         VendNo :=
           Library347Declaration.CreateVendorWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
         CreditAmount := LibraryRandom.RandDec(5000, 2) + 1;
@@ -1518,7 +1518,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verifies that two customers with the same VAT Reg No - except for casing - are still combined in the report.
 
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create two Customers with the same Vat Registration No.
         VatRegNoUpperCased := UpperCase(Library347Declaration.CreateShortVATRegNo(ESTxt));
@@ -1562,7 +1562,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verifies that two vendors with the same VAT Reg No - except for casing - are still combined in the report.
 
         // Setup: Setup Demo Data.
-        Initialize;
+        Initialize();
 
         // Create two Vendors with the same Vat Registration No.
         VatRegNoUpperCased := UpperCase(Library347Declaration.CreateShortVATRegNo(ESTxt));
@@ -1593,7 +1593,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Library347Declaration.Init347DeclarationParameters(Test347DeclarationParameter);
         if IsInitialized then
             exit;

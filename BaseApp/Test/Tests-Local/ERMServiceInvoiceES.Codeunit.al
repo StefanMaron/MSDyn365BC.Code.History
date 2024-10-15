@@ -88,7 +88,7 @@ codeunit 144108 "ERM Service Invoice ES"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         // Setup: Create Service Invoice. Update Calculate Payment Discount on Credit Memos on Payment Terms. Create Service Credit Memo with Corrective Invoice.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetupCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateCustomer(Customer, '');  // Country/Region - Blank.
         CreateServiceDocument(
@@ -120,7 +120,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Program allows to enter Invoice Discount manually on Service Invoice if Type is G/L Account and also update Allow Invoice Disc as TRUE on Service Line.
 
         // Setup: Create Service Invoice, update Allow Invoice Discount - TRUE on Service Line. Open Statistics and update Invoice Discount Amount on it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateServiceDocument(
           ServiceLine, ServiceHeader."Document Type"::Invoice, ServiceLine.Type::"G/L Account", Customer."No.", CreateGLAccount);
@@ -149,7 +149,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Program populates the due date on Posted Service Invoice which value defined on the Service Order while doing posting the Invoice.
 
         // Setup: Create Service Invoice with Payment terms. Change Due Date on Service Header.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, '');  // Country/Region - Blank.
         CreateServiceDocument(
           ServiceLine, ServiceLine."Document Type"::Invoice, ServiceLine.Type::Item, Customer."No.", LibraryInventory.CreateItem(Item));
@@ -178,7 +178,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Service Credit Memo posted successfully with Applies-to ID filled automatically.
 
         // Setup: Create and Post Service Invoice. Create Service Credit Memo and Apply Entries of Posted Invoice.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
         CreateServiceDocument(
@@ -210,7 +210,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Service Credit Memo posted successfully with Applies-to Doc. No. filled manually.
 
         // Setup: Create and Post Service Invoice. Create Service Credit Memo and Applies to Document No. manually.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
         CreateServiceDocument(
@@ -241,7 +241,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Service Credit Memo posted successfully with Applies-to Doc. No. filled automatically.
 
         // Setup: Create and Post Service Invoice. Create Service Credit Memo and Applies to Document No. automatically through Lookup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
         CreateServiceDocument(
@@ -275,7 +275,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify corrective Service Credit Memo of a Posted Service Invoice.
 
         // Setup: Create and Post Service Invoice, create Service Credit Memo, update Posted Service Invoice as Corrective Invoice and Post Service Credit Memo.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
         CreateServiceDocument(
@@ -300,7 +300,7 @@ codeunit 144108 "ERM Service Invoice ES"
     procedure StatisticsForPostedServiceInvoiceWithCurrency()
     begin
         // Test to verify statistics on Posted Service Invoice when posting Service Invoice with FCY.
-        Initialize;
+        Initialize();
         StatisticsForPostedServiceInvoice(CreateCurrencyExchangeRate);  // Customer with Currency.
     end;
 
@@ -309,7 +309,7 @@ codeunit 144108 "ERM Service Invoice ES"
     procedure StatisticsForPostedServiceInvoiceWithoutCurrency()
     begin
         // Test to verify statistics on Posted Service Invoice when posting Service Invoice with LCY.
-        Initialize;
+        Initialize();
         StatisticsForPostedServiceInvoice('');  // Customer with blank Currency.
     end;
 
@@ -323,7 +323,7 @@ codeunit 144108 "ERM Service Invoice ES"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Setup: Create multiline Service Invoice.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, '');  // Country/Region - Blank.
         UpdateCustomer(VATPostingSetup, CurrencyCode, Customer."No.");
         CreateServiceDocument(
@@ -353,7 +353,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Due Date calculation with the creating bills in Service Invoice.
 
         // Setup: Create Multiple Installments for Payment Terms, create Customer with Payment Day and create Service Invoice.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerPaymentDayWithMultipleInstallmentsSetup(PaymentTerms);
         CreateServiceDocument(
           ServiceLine, ServiceHeader."Document Type"::Invoice, ServiceLine.Type::Item, CustomerNo, LibraryInventory.CreateItem(Item));
@@ -378,7 +378,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Due Date calculation with the creating bills in Purchase Invoice.
 
         // Setup: Create Multiple Installments for Payment Terms. Create Vendor with Payment Day.
-        Initialize;
+        Initialize();
         CreateMultipleInstallmentForPaymentTerms(PaymentTerms);
         LibraryESLocalization.CreatePaymentDay(
           PaymentDay, PaymentDay."Table Name"::Vendor, CreateVendor(PaymentTerms.Code), LibraryRandom.RandIntInRange(10, 20));  // Random Payment Day.
@@ -403,7 +403,7 @@ codeunit 144108 "ERM Service Invoice ES"
         // Test to verify Due Date calculation with the creating bills in Sales Invoice.
 
         // Setup: Create Multiple Installments for Payment Terms. Create Customer with Payment Day.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerPaymentDayWithMultipleInstallmentsSetup(PaymentTerms);
 
         // Exercise: Create and Post Sales Invoice.
@@ -427,7 +427,7 @@ codeunit 144108 "ERM Service Invoice ES"
         ShipmentMethodCode: Code[10];
     begin
         // [SCENARIO 212181] Shipment Method Code should be updated on Item Ledger Entry when post Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with Shipment Method Code = "SM"
         UpdateSalesReceivablesSetupCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"No Warning");
@@ -441,15 +441,15 @@ codeunit 144108 "ERM Service Invoice ES"
 
         // [THEN] Item Ledger Entry is posted with Shipment Method Code = "SM"
         ItemLedgerEntry.SetRange("Source No.", Customer."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Shpt. Method Code", ShipmentMethodCode);
     end;
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
         if isInitialized then
             exit;
@@ -609,7 +609,7 @@ codeunit 144108 "ERM Service Invoice ES"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetRange("Create Bills", true);
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
@@ -627,7 +627,7 @@ codeunit 144108 "ERM Service Invoice ES"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -636,7 +636,7 @@ codeunit 144108 "ERM Service Invoice ES"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         exit(ServiceCrMemoHeader."No.");
     end;
 
@@ -758,7 +758,7 @@ codeunit 144108 "ERM Service Invoice ES"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
@@ -768,7 +768,7 @@ codeunit 144108 "ERM Service Invoice ES"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Remaining Amount", 0);
     end;
@@ -778,7 +778,7 @@ codeunit 144108 "ERM Service Invoice ES"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Due Date", DueDate);
     end;
 
@@ -787,7 +787,7 @@ codeunit 144108 "ERM Service Invoice ES"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -817,7 +817,7 @@ codeunit 144108 "ERM Service Invoice ES"
             CarteraDoc.SetRange("Document No.", DocumentNo);
             CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Bill);
             CarteraDoc.SetRange("No.", Format(Counter));
-            CarteraDoc.FindFirst;
+            CarteraDoc.FindFirst();
             CarteraDoc.TestField("Due Date", DueDate);
             DueDate := CalcDate(PaymentTerms."Due Date Calculation", DueDate);
         end;

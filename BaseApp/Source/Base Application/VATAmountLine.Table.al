@@ -367,7 +367,7 @@
         VATPercentage := 0;
         FullCount := Count;
         if Count = 1 then begin
-            FindFirst;
+            FindFirst();
             if "VAT %" <> 0 then
                 VATPercentage := "VAT %";
         end;
@@ -664,7 +664,7 @@
 
     procedure DeductVATAmountLine(var VATAmountLineDeduct: Record "VAT Amount Line")
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 VATAmountLineDeduct := Rec;
                 if VATAmountLineDeduct.Find then begin
@@ -680,6 +680,14 @@
                     Modify;
                 end;
             until Next() = 0;
+    end;
+
+    procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; VATDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
+    var
+        PmtDiscAmount: Decimal;
+        ECDifference: Decimal;
+    begin
+        SumLine(LineAmount, InvDiscAmount, PmtDiscAmount, VATDifference, ECDifference, AllowInvDisc, Prepayment);
     end;
 
     procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; PmtDiscAmount: Decimal; VATDifference: Decimal; ECDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
@@ -701,7 +709,7 @@
         PrevVATAmountLine: Record "VAT Amount Line";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 if (PrevVATAmountLine."VAT Identifier" <> "VAT Identifier") or
                    (PrevVATAmountLine."VAT Calculation Type" <> "VAT Calculation Type") or

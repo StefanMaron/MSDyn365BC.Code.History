@@ -1,4 +1,4 @@
-﻿codeunit 5056 "CustCont-Update"
+codeunit 5056 "CustCont-Update"
 {
 
     trigger OnRun()
@@ -146,7 +146,7 @@
         ContBusRel.SetCurrentKey("Link to Table", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
         ContBusRel.SetRange("No.", Cust."No.");
-        if ContBusRel.FindFirst then
+        if ContBusRel.FindFirst() then
             if ContComp.Get(ContBusRel."Contact No.") then
                 with Cont do begin
                     Init;
@@ -173,7 +173,7 @@
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::Customer);
             SetRange("No.", Customer."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Contact.Get("Contact No.") then
                         Contact.Delete(true);
@@ -190,7 +190,7 @@
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::Customer);
             SetRange("No.", CustomerNo);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             if not Contact.Get("Contact No.") then
                 exit(true);

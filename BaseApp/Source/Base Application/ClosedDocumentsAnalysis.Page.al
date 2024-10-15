@@ -179,7 +179,7 @@ page 7000044 "Closed Documents Analysis"
             SetRange(Redrawn, true);
             RedrawnAmt := 0;
             RedrawnAmtLCY := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     RedrawnAmt += "Original Amount";
                     RedrawnAmtLCY += "Original Amount (LCY)";
@@ -189,7 +189,7 @@ page 7000044 "Closed Documents Analysis"
             SetRange(Redrawn, false);
             HonoredAmt := 0;
             HonoredAmtLCY := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     HonoredAmt += "Original Amount";
                     HonoredAmtLCY += "Original Amount (LCY)";
@@ -200,7 +200,7 @@ page 7000044 "Closed Documents Analysis"
             SetRange(Status, Status::Rejected);
             RejectedAmt := 0;
             RejectedAmtLCY := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     RejectedAmt += "Original Amount";
                     RejectedAmtLCY += "Original Amount (LCY)";

@@ -34,7 +34,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BillGroup: Record "Bill Group";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
         InvokeBillGroupTestReport(BillGroup);
@@ -53,7 +53,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BillGroup: Record "Bill Group";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
         InvokeBillGroupTestReportFromList(BillGroup);
@@ -72,7 +72,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BillGroup: Record "Bill Group";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateBillGroupFactoringTestSetupData(BillGroup, TotalAmount, BillGroup.Factoring::Unrisked);
         InvokeBillGroupTestReport(BillGroup);
@@ -91,7 +91,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BillGroup: Record "Bill Group";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateBillGroupFactoringTestSetupData(BillGroup, TotalAmount, BillGroup.Factoring::Risked);
         InvokeBillGroupTestReport(BillGroup);
@@ -111,7 +111,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BankAccount: Record "Bank Account";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
@@ -141,7 +141,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BillGroup: Record "Bill Group";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
@@ -180,7 +180,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         BankAccount: Record "Bank Account";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBillGroup(BillGroup, BankAccount, Customer);
@@ -210,7 +210,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         Currency: Record Currency;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
@@ -280,7 +280,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         CarteraDoc: Record "Cartera Doc.";
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCarteraDocumentTestSetupData(BillGroup, TotalAmount, CarteraDoc);
@@ -353,7 +353,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 333888] Report "Bill Group Test" can be printed without RDLC rendering errors
-        Initialize;
+        Initialize();
 
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
         // [WHEN] Report "Bill Group Test" is being printed to PDF
@@ -363,7 +363,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
     end;
 

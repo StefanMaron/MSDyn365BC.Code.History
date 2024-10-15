@@ -42,7 +42,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Suffix: Code[3];
         Line: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
@@ -102,7 +102,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Suffix: Code[3];
         Line: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
@@ -165,7 +165,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Suffix: Code[3];
         Line: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
@@ -210,7 +210,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
     end;
 
@@ -224,7 +224,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         LibraryVariableStorage.Dequeue(SuffixCode);
 
         Suffix.SetRange(Suffix, SuffixCode);
-        Suffix.FindFirst;
+        Suffix.FindFirst();
 
         // Select the record with SuffixCode on the page
         SuffixesPage.SetRecord(Suffix);

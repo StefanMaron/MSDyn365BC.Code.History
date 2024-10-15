@@ -34,8 +34,8 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemNoSeries: Text[20];
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Sales Totals Quote/Order");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -47,7 +47,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ClearTable(DATABASE::"Res. Ledger Entry");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
 
@@ -71,7 +71,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     var
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Res. Ledger Entry":
                 ResLedgerEntry.DeleteAll();
@@ -89,7 +89,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -114,7 +114,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
@@ -137,7 +137,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         DiscPct: Decimal;
         NewLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateQuoteWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesQuote);
@@ -169,7 +169,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", SalesQuote."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -186,7 +186,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -211,7 +211,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -237,7 +237,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -267,7 +267,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -297,7 +297,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -328,7 +328,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateCustomer(NewCustomer);
 
@@ -358,7 +358,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -388,7 +388,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -419,7 +419,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -431,7 +431,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckQuoteDiscountTypePercentage(DiscPct, TotalAmount, SalesQuote, true, SalesQuote."Currency Code".Value);
@@ -452,7 +452,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -464,7 +464,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckQuoteDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesQuote, true, SalesQuote."Currency Code".Value);
@@ -485,7 +485,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -516,7 +516,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateQuoteWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -541,14 +541,14 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesQuote: TestPage "Sales Quote";
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         QuoteCheckCurrencyOnTotals(SalesQuote, Customer."Currency Code");
@@ -570,7 +570,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -595,7 +595,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
@@ -618,7 +618,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         DiscPct: Decimal;
         NewLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesOrder);
@@ -650,7 +650,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesOrder."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -667,7 +667,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -692,7 +692,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -718,7 +718,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -748,7 +748,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -778,7 +778,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -809,7 +809,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateCustomer(NewCustomer);
 
@@ -839,7 +839,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -869,7 +869,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -900,7 +900,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -912,7 +912,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckOrderDiscountTypePercentage(DiscPct, TotalAmount, SalesOrder, true, SalesOrder."Currency Code".Value);
@@ -935,7 +935,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         TotalAmount: Decimal;
         CurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateOrderWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -947,14 +947,14 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         Assert.AreEqual(0, SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal, 'Invoice discount not set to 0');
 
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindLast;
+        CurrencyExchangeRate.FindLast();
         InvoiceDiscountAmount := InvoiceDiscountAmount /
           (CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
         SalesOrder.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckOrderDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesOrder, true, SalesOrder."Currency Code".Value);
@@ -969,14 +969,14 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder: TestPage "Sales Order";
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
         OrderCheckCurrencyOnTotals(SalesOrder, Customer."Currency Code");
@@ -1002,7 +1002,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "SO01" with Sales Lines created for Customer "CU01" and no discount
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1013,7 +1013,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
         CreateCustomer(Customer);
-        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [WHEN] Set "Bill-to Name" to "CU02" on Sales Order Page for "SO01"
@@ -1038,7 +1038,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Quote "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote "SQ01" with Sales Lines created for Customer "CU01" and no discount
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1049,7 +1049,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
         CreateCustomer(Customer);
-        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [WHEN] Set "Bill-to Name" to "CU02" on Sales Quote Page for "SQ01"
@@ -1073,7 +1073,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Return Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableReturnOrderSetup;
 
         // [GIVEN] Sales Return Order "SO01" with Sales Lines created for Customer "CU01" and no discount
@@ -1086,7 +1086,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
         CreateCustomer(Customer);
-        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [WHEN] Set "Bill-to Name" to "CU02" on Sales Return Order Page for "SO01"
@@ -1110,7 +1110,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Blanket Sales Order "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order "SO01" with Sales Lines created for Customer "CU01" and no discount
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1122,7 +1122,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
         CreateCustomer(Customer);
-        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [WHEN] Set "Bill-to Name" to "CU02" on Blanket Sales Order Page for "SO01"
@@ -1159,7 +1159,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
-        if not CurrencyExchangeRate.FindFirst then
+        if not CurrencyExchangeRate.FindFirst() then
             LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
     end;
 
@@ -1340,7 +1340,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         Currency.Init();
         Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
-        Currency.FindFirst;
+        Currency.FindFirst();
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
 
         exit(Currency.Code);
@@ -1348,7 +1348,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
     local procedure CreateQuoteWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesQuote: TestPage "Sales Quote")
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesQuote.SalesLines.First;
@@ -1360,7 +1360,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
     local procedure CreateOrderWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesOrder.SalesLines.First;
@@ -1428,7 +1428,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         if CurrencyCode = '' then begin
             Currency.SetFilter(Code, CurrencyCode);
-            Currency.FindFirst;
+            Currency.FindFirst();
             Amount := Round(Amount, Currency."Amount Rounding Precision");
         end else
             Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision);

@@ -35,7 +35,7 @@ codeunit 10751 "SII Job Management"
                 JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"SII Initial Doc. Upload");
         end;
 
-        if JobQueueEntry.FindFirst then begin
+        if JobQueueEntry.FindFirst() then begin
             TempJobQueueEntryFound.Copy(JobQueueEntry);
             exit(true);
         end;

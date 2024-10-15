@@ -38,7 +38,7 @@ report 1130 "Delete Cost Entries"
                 DeleteAll();
                 Reset;
                 SetRange(Source, Source::Allocation);
-                if FindLast then begin
+                if FindLast() then begin
                     CostEntry.Get("To Cost Entry No.");
                     CostAccSetup.Get();
                     CostAccSetup."Last Allocation Doc. No." := CostEntry."Document No.";
@@ -89,8 +89,8 @@ report 1130 "Delete Cost Entries"
 
         trigger OnOpenPage()
         begin
-            CostRegister2.FindLast;
-            CostRegister3.FindLast;
+            CostRegister2.FindLast();
+            CostRegister3.FindLast();
         end;
     }
 
@@ -111,7 +111,7 @@ report 1130 "Delete Cost Entries"
         if not Confirm(Text004) then
             Error('');
 
-        CostRegister.FindLast;
+        CostRegister.FindLast();
         if CostRegister."No." > CostRegister3."No." then
             Error(CostRegisterHasBeenModifiedErr, CostRegister."No.");
 

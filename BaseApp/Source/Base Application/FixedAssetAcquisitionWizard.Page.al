@@ -403,7 +403,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
         GenJournalLine.SetRange("Account No.", "Account No.");
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
         GenJournalLine.SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-        if GenJournalLine.FindFirst then begin
+        if GenJournalLine.FindFirst() then begin
             Step := Step::"Already In Journal";
             OpenFAGLJournal := true;
             Copy(GenJournalLine);

@@ -74,7 +74,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks to Change customer No. on Service Contract.
 
         // 1. Setup: create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -99,7 +99,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks to New Line field is Set to true after Creating New Line in Service Contract Line.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -125,7 +125,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Error on Deletion of Line while change status is locked on Service Contract Header.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -153,7 +153,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Quantity on Service Invoice is same after Creation of Service Contract Invoice.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -180,7 +180,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 224033] Fields "Bill-to Contact No." and "Bill-to Contact" must be copied from Service Contract to Service Credit Memo by function ServContractManagement.CreateServHeader
 
         // 1. Setup: Create and Sign Service Contract and Set Workdate.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -209,7 +209,7 @@ codeunit 136102 "Service Contracts"
         ExpectedUnitPrice: Decimal;
     begin
         // [SCENARIO 230832] When create Service Credit Memo for Service Contract then "Amount" and "Unit Price" in Service Line are the same as ones in Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created and Signed Service Contract.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -241,7 +241,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Customer No. on Service Contract Invoice and the creation of Service Invoice.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -270,7 +270,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case creates invoice for a service header running for a year with a fixed expiry date.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         Evaluate(ServicePeriod, '<1Y>');
         ServiceContractHeader.Validate("Service Period", ServicePeriod);
@@ -309,7 +309,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks "Order Date" matched with Service Contract's "First Invoiced Date" field on Service Contract Order.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -335,7 +335,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks updated Price percentage on Service Contract.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         ServiceContractHeader.Validate("Starting Date", LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 5));
@@ -364,7 +364,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks "Moved from Prepaid Acc." set to TRUE in Service Ledger Entry.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -373,7 +373,7 @@ codeunit 136102 "Service Contracts"
 
         // 3. Verify: Check "Moved from Prepaid Acc." set to TRUE in Service Ledger Entry.
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("Moved from Prepaid Acc.", true);
     end;
 
@@ -391,7 +391,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Removed Contract Line does not exist after deletion.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -420,7 +420,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Account Group is created from ServiceAccGroup function.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Account Group.
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
@@ -442,7 +442,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract Template does not Exist after deletion.
 
         // 1. Setup: Create Service Contract Template.
-        Initialize;
+        Initialize();
         CreatePrepaidServiceContractTemplate(ServiceContractTemplate);
 
         // 2. Exercise: Delete newly created Service Contract Template.
@@ -468,7 +468,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks After creating Service Contract Template all fields TRUE automatic in Service Contract.
 
         // 1. Setup: Create New Service Contract Template.
-        Initialize;
+        Initialize();
         CreatePrepaidServiceContractTemplate(ServiceContractTemplate);
 
         // 2. Exercise: Create and Modify Service Contract Header and Service Contract Line.
@@ -493,7 +493,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract Quote Line is same as Service Contract Quote Header.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Contract Quote Header and Service Contract Quote Line.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
@@ -516,7 +516,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract Quote does not exist after Signing Service Contract Quote.
 
         // 1. Setup: Create Service Contract Quote Header and Service Contract Quote Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -545,7 +545,7 @@ codeunit 136102 "Service Contracts"
         // Contract that is created by Service Contract Quote.
 
         // 1. Setup: Create Service Contract Quote Header and Service Contract Quote Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         ServiceItemNo := ServiceContractLine."Service Item No.";
@@ -575,7 +575,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Status and Change Status field is changed after Sign Contract.
 
         // 1. Setup: Create Service Contract, Service Hours, Service Discount and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         CreateServiceContractLineItem(ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -604,7 +604,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks error raised when Customer No. does not exist in Header.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Contract Header without Customer No.
         ServiceContractHeader2.Init();
@@ -629,7 +629,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks error raised on Copy Document when Customer No. not same.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Contract Header.
         LibraryService.CreateServiceContractHeader(
@@ -655,7 +655,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract Line fields are same after Copy Document.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeaderFrom, ServiceContractHeaderFrom."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeaderFrom);
@@ -690,7 +690,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case Save Service Contract Quote Details report in XML and XLSX format after adding comments Date in Service Contract header and check that some data exist in saved files.
 
         // 1. Setup: Create Service Contract Quote Header and Service Contract Quote Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         LibraryService.CreateCommentLineForServCntrct(ServiceCommentLine, ServiceContractLine, LineType);
@@ -724,7 +724,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case Save Service Contract Details report in XML and XLSX format after adding comments and Date in Service Contract header and check that some data exist in saved files.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         LibraryService.CreateCommentLineForServCntrct(
@@ -759,7 +759,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case Save Service Contract Customer report in XML and XLSX format and check that some data exist in saved files.
 
         // Setup. Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -787,7 +787,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test the Service Item on Service Contract Line.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Creating Service Contract.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -808,7 +808,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test the Service Contract Header details.
 
         // 1. Setup: Find a Customer, create Service Contract Header.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
 
@@ -837,7 +837,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Invoice created on Lock Service Contract after Copy Document.
 
         // 1. Setup: Create two Service Contract and Sign last Service Contract.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceContract(
           ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
         CreateAndModifyServiceContract(
@@ -874,7 +874,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Invoice created after Signing Service Contract with Contract Inv. Period Text Code on Service Mgt. Setup.
 
         // 1. Setup: Update Contract Inv. Period Text Code on Service Mgt. Setup and Create Service Contract.
-        Initialize;
+        Initialize();
         FindStandardText(StandardText);
         UpdateContractPeriodTextCode(StandardText.Code);
         LibraryERM.FindCurrency(Currency);
@@ -889,7 +889,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractHeader.TestField("No. of Unposted Invoices", 1);
 
         ServiceLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceLine.FindLast;
+        ServiceLine.FindLast();
         Assert.AreEqual(StandardText.Description, CopyStr(ServiceLine.Description, 1, StrLen(StandardText.Description)), UnknownErr);
     end;
 
@@ -908,7 +908,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Invoice creation with Price Inv. Increase Code and Print Increase Text True on Service Contract.
 
         // 1. Setup: Create and Sign Service Contract with Price Inv. Increase Code and Print Increase Text True.
-        Initialize;
+        Initialize();
         FindStandardText(StandardText);
         CreateServiceContractHeader(ServiceContractHeader, StandardText.Code);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -922,7 +922,7 @@ codeunit 136102 "Service Contracts"
         VerifyValuesOnContractHeader(ServiceContractHeader);
 
         FindServiceLine(ServiceLine, ServiceContractHeader."Contract No.");
-        ServiceLine.FindLast;
+        ServiceLine.FindLast();
         Assert.AreEqual(StandardText.Description, CopyStr(ServiceLine.Description, 1, StrLen(StandardText.Description)), UnknownErr);
     end;
 
@@ -938,7 +938,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Invoice creation and verify lines have blank Line Discount % values.
 
         // 1. Setup: Create and Sign Service Contract with Service Period: Year and Prepaid = False.
-        Initialize;
+        Initialize();
         CreateServiceContractMultiLines(
           ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         UpdateContractLineBlankServiceItemNo(ServiceContractLine);
@@ -973,7 +973,7 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Update Contract Inv. Line Text Code and Contract Line Inv. Text Code on Service Mgt. Setup, Create and Sign Service
         // Contract.
-        Initialize;
+        Initialize();
         FindStandardText(StandardText);
         FindDifferentStandardText(StandardText2, StandardText.Code);
         UpdateContractInvAndLineText(StandardText.Code, StandardText2.Code);
@@ -1008,7 +1008,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Signed Service Contract with Prepaid False.
 
         // 1. Setup: Create Service Contract Header, create Service Contract Line and modify the Service Contract Header.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
         PrepaidFalseInServiceContract(ServiceContractHeader);
@@ -1034,7 +1034,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks that Default Hours on Service Contract Quote is copied from Default Service Hours Setup.
 
         // 1. Setup: Create Service Contract Quote.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
 
         // 2. Exercise: Copy the Default Hours from Default Service Hours Setup.
@@ -1057,7 +1057,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract creation by Service Contract Quote with Service Comments.
 
         // 1. Setup: Create Service Contract Quote, Comments for Quote, modify Service Contract Header.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         CreateCommentForServiceQuote(ServiceContractHeader."Contract No.");
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1082,7 +1082,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract creation by Service Contract Quote with Service Discount.
 
         // 1. Setup: Create Service Contract Quote, Comments for Quote, modify Service Contract Header.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         CreateServiceDiscountForQuote(ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1107,7 +1107,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] The Test Case checks Service Contract creation by Service Contract Quote with Prepaid False.
 
         // 1. Setup: Create Service Contract Quote,make Prepaid false in Service Contract Quote, modify Service Contract Header.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         PrepaidFalseInServiceContract(ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1132,7 +1132,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Invoice creation from Signing Contract with Different Bill to Customer No.
 
         // 1. Setup: Create Service Contract and update different Bill to Customer No on Service Contract.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceContract(
           ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
         UpdateBillToCostomerNo(ServiceContractHeader);
@@ -1146,7 +1146,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractHeader.TestField("No. of Unposted Invoices", 1);
 
         FindServiceLine(ServiceLine, ServiceContractHeader."Contract No.");
-        ServiceLine.FindLast;
+        ServiceLine.FindLast();
         ServiceLine.TestField("Bill-to Customer No.", ServiceContractHeader."Bill-to Customer No.");
     end;
 
@@ -1163,7 +1163,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Post Service Invoice created from Signing Contract with Different Bill to Customer No.
 
         // 1. Setup: Create Service Contract, update different Bill to Customer No on Service Contract and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceContract(
           ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
         UpdateBillToCostomerNo(ServiceContractHeader);
@@ -1194,7 +1194,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test that Create Contract Invoices batch job creates a new Service Invoice.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1225,7 +1225,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test that Create Contract Invoices batch job creates a new Service Invoice from Service Contract with several lines.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContractMultiLines(
           ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1250,7 +1250,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test for Calculation of correct service ledger entry while creating a Service invoice on Contract card.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         UpdateInvoicePeriod(ServiceContractHeader, ServiceContractHeader."Invoice Period"::Year);
         UpdateContractLineCostAndValue(ServiceContractLine);
@@ -1287,7 +1287,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test for creating a new service invoice for an existing service contract.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
 
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractExpirationDate(ServiceContractHeader, CalcDate('<5Y>', WorkDate));
@@ -1333,7 +1333,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Dimension on Service Contract after updating Service Order Type on Service Contract Header.
 
         // 1. Setup: Create Service Order Type, Default Dimension for Service Order Type and Service Contract.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceOrderType(ServiceOrderType);
         CreateDefaultDimension(DefaultDimension, ServiceOrderType.Code);
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -1363,7 +1363,7 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Create Service Order Type, Default Dimension for Service Order Type, Service Contract, Update Service Order Type on
         // Service Contract Header and Sign the Service Contract.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceOrderType(ServiceOrderType);
         CreateDefaultDimension(DefaultDimension, ServiceOrderType.Code);
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -1399,7 +1399,7 @@ codeunit 136102 "Service Contracts"
 
         // 1. Setup: Create Dimension, Service Contract, Update dimension on
         // Service Contract Header and Sign the Service Contract.
-        Initialize;
+        Initialize();
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
@@ -1433,7 +1433,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test post the Service Invoice from Unposted Invoices On the Service Contract Card of the Signed Service Contract with no error.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateContractHeader(ServiceContractHeader);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1467,7 +1467,7 @@ codeunit 136102 "Service Contracts"
         // the Line value on Contract Line.
 
         // 1. Setup: Create and Sign Service Contract and modify WORKDATE.
-        Initialize;
+        Initialize();
         CurrentWorkDate := WorkDate;
         CreateContractHeader(ServiceContractHeader);
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1501,7 +1501,7 @@ codeunit 136102 "Service Contracts"
         // is blank on the Contract Line Selection page.
 
         // 1. Setup: Create and modify Service Contract Header.
-        Initialize;
+        Initialize();
         CreateContractHeader(ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
 
@@ -1527,7 +1527,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test using Page Testability that Create Contract Invoices batch job creates a new Service Invoice.
 
         // 1. Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1559,7 +1559,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Check that Service Invoice is not created after signing Service Contract and decline the message to create Service Invoice.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line.
-        Initialize;
+        Initialize();
         ServiceInvoiceCount := GetServiceInvoiceCount;  // Store Old Service Invoice Count.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1585,7 +1585,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Check that Service Order created after running Create Contract Service Orders batch job for Contract.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line, sign Contract.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1615,7 +1615,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Check that Service Shipment contains Contract No. when Service Order created through Create Contract Service Orders batch job posted as Ship only.
 
         // 1. Setup: Create Service Contract Header and Service Contract Line, sign Contract, run Create Contract Service Order batch report.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1649,7 +1649,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Check that Service Invoice Creation Message appears for un-successful creation of Invoice after running Create Contract Invoice Batch Job.
 
         // 1. Setup: Create Service Contract, sign Contract, run Create Contract Service Order batch report. Find Service Order and Post it as Ship.
-        Initialize;
+        Initialize();
         ServiceInvoiceCount := GetServiceInvoiceCount;  // Store Old Service Invoice Count.
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -1686,7 +1686,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Check that Service Invoice Creation Message appears for successful creation of Invoice after running Create Contract Invoice Batch Job.
 
         // 1. Setup: Create Service Contract, sign Contract, run Create Contract Service Order batch report. Find Service Order and Post it as Ship and Invoice.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1734,7 +1734,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test GL Entries when post Service Invoice after signing Service Contract.
 
         // 1. Setup: Create Service Contract with Yearly Invoice Period and Line Discount and Sign the Contract.
-        Initialize;
+        Initialize();
         CreateContractWithInvPeriodYear(ServiceContractHeader, ServiceContractLine);
         ServiceContractLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));  // Take Random value for Discount%.
         ServiceContractLine.Modify(true);
@@ -1773,7 +1773,7 @@ codeunit 136102 "Service Contracts"
 
         // 3. Verify: Verify GL Entries after posting Service invoice.
         PostedServiceInvoiceHeader.SetRange("Pre-Assigned No.", InvoiceNo);
-        PostedServiceInvoiceHeader.FindFirst;
+        PostedServiceInvoiceHeader.FindFirst();
 
         VerifyInvoicedGLAmt(PostedServiceInvoiceHeader."No.", CustomerPostingGroup."Receivables Account", TotalAmount);
 
@@ -1799,7 +1799,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test GL Entries after posting Prepaid Contract Entries for a Service Contrct.
 
         // 1. Setup: Create Service Contract with Yearly Invoice Period and Line Discount and Sign the Contract.
-        Initialize;
+        Initialize();
         LibrarySales.SetDiscountPostingSilent(SalesReceivablesSetup."Discount Posting"::"All Discounts");
         CurrentWorkDate := WorkDate;
         CreateContractWithInvPeriodYear(ServiceContractHeader, ServiceContractLine);
@@ -1851,7 +1851,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Analysis View Entries when post Service Invoice after signing Service Contract.
 
         // 1. Setup: Create Analysis View, Create Service Contract and Sign the Contract.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
         CreateAndSignContractOnToday(ServiceContractHeader, ServiceContractLine, ServiceContractAccountGroup);
         CreateAnalysisView(
@@ -1902,7 +1902,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Analysis View Entries after posting Prepaid Contract Entries for a Service Contract.
 
         // 1. Setup: Create Analysis View, Create Service Contract and Sign the Contract, create and post the Service Invoice.
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
         CreateAndSignContractOnToday(ServiceContractHeader, ServiceContractLine, ServiceContractAccountGroup);
@@ -1950,7 +1950,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Amount on GL Entry equal to Customer Balance(LCY) when Service Invoice is Posted with Invoice Period Quarter.
 
         // Setup: Create and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateSignedServiceContractWithInvoicePeriod(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.SetRecFilter;
         CreateServiceContractInvoice(ServiceContractHeader);
@@ -1974,7 +1974,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Lines in the Credit Memo correspond to the Service Lines in the Posted Service Invoice when Invoice is Posted with Invoice Period Quarter.
 
         // Setup: Create and sign Service Contract. Post the Service Invoice.
-        Initialize;
+        Initialize();
         CreateSignedServiceContractWithInvoicePeriod(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.SetRecFilter;
         CreateServiceContractInvoice(ServiceContractHeader);
@@ -2002,7 +2002,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Invoice Created Sucessfully for multiples Service Contracts by batch report Create Contract Service Invoice.
 
         // Setup: Create and sign Service Contract with No Invoice.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceContract(
           ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
         CreateAndModifyServiceContract(
@@ -2033,7 +2033,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Ledger entries Created with Shipment and Invoice after Posting Service Invoice.
 
         // Setup: Create and sign Service Contract. Post the Service Invoice when Invoice Period is Quarter.
-        Initialize;
+        Initialize();
         CreateSignedServiceContractWithInvoicePeriod(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.SetRecFilter;
         CreateServiceContractInvoice(ServiceContractHeader);
@@ -2060,7 +2060,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Service Ledger entries Created with Document Types Shipment and Creditmemo after Posting Service Credit Memo when Invoice is Posted with Invoice Period Quarter.
 
         // Setup: Create Service Contract with signed and Service Credit Memo by inserting Credit Memo Header and running Get Prepaid Contract Entries.
-        Initialize;
+        Initialize();
         CreateSignedServiceContractWithInvoicePeriod(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.SetRecFilter;
         CreateServiceContractInvoice(ServiceContractHeader);
@@ -2087,7 +2087,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test program does not allow to update the Type value on service line and populates error message.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         InitServiceLineWithSignedContract(ServiceLine);
 
         // Exercise: Update Type on Service Line.
@@ -2107,8 +2107,8 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test program does not allow to update the No. field value on service line and populates error message.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
-        GLAccount.FindFirst;
+        Initialize();
+        GLAccount.FindFirst();
         InitServiceLineWithSignedContract(ServiceLine);
 
         // Exercise: Update Type on Service Line.
@@ -2127,9 +2127,9 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test program does not allow to update the unit price on service line and populates error message.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         ServiceLine."Document Type" := ServiceLine."Document Type"::Invoice;
-        ServiceLine."Document No." := LibraryUtility.GenerateGUID;
+        ServiceLine."Document No." := LibraryUtility.GenerateGUID();
         ServiceLine."Line No." := 10000;
         ServiceLine.Insert();
         InitServiceLineWithSignedContract(ServiceLine);
@@ -2150,7 +2150,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test program does not allow to update the Shortcut Dimension 1 Code on Service Header and populates error message.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         InitServiceInvoiceWithContract(ServiceHeader);
 
         // Exercise: Change Shortcut Dimension 1 Code on service header.
@@ -2169,7 +2169,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test program does not allow to update the Shortcut Dimension 2 Code on service Header and populates error message.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         InitServiceInvoiceWithContract(ServiceHeader);
 
         // Exercise: Change Shortcut Dimension 2 Code on service header.
@@ -2189,7 +2189,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Dimension Set Entries page is in non editable mode when we check the line dimension with Contract No.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         CreateAndSignServiceContractWithInvoice(ServiceLine);
 
         // Exercise: Invoke Line Dimension With Contract No.
@@ -2209,7 +2209,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Dimension Set Entries page is in editable mode when we check the line dimension with Contract No and empty 'Appl.-to Service Entry'.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         CreateAndModifyServiceContract(
           ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Contract);
         CreateServiceInvoiceNotApplied(ServiceContractHeader, ServiceLine);
@@ -2230,7 +2230,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Edit Dimension Set Entries page is in editable mode when we check the line dimension with blank Contract No.
 
         // Setup: Create and sign Service Contract with Invoice.
-        Initialize;
+        Initialize();
         CreateAndSignServiceContractWithInvoice(ServiceLine);
 
         // Exercise: Invoke Line Dimension With Blank Contract No.
@@ -2252,7 +2252,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Contract No on the Service Item line should be populated when Service Order is created with Expiration Date of service contract header.
 
         // Setup: Create and sign Service Contract.
-        Initialize;
+        Initialize();
         ServiceItemNo := CreateServiceContractWithExpirationDate(ServiceContractHeader);
 
         // Exercise: Create Service Order with expiration date.
@@ -2277,7 +2277,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Contract No on Service contract List page when Service order Created with Expiration Date of Service Contract Header.
 
         // Setup: Create and sign Service Contract.
-        Initialize;
+        Initialize();
         ServiceItemNo := CreateServiceContractWithExpirationDate(ServiceContractHeader);
         CreateServiceHeaderWithExpirartionDate(ServiceHeader, ServiceContractHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItemNo);
@@ -2303,7 +2303,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test Last Invoice Date on Service Contract Header when Starting Date updated after Locked.
 
         // Setup: Create and modify Starting Date after Opening Service Contract.
-        Initialize;
+        Initialize();
         CreateSignedServiceContractWithServicePeriod(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, ServiceContractHeader."Contract No.");
         LockOpenServContract.OpenServContract(ServiceContractHeader);
@@ -2334,7 +2334,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Verify no Error message appear after create Service Invoice When Service Contractlocked.
 
         // Setup: Create and Lock Service Contract.
-        Initialize;
+        Initialize();
         CreateSignedServiceContractWithServicePeriod(ServiceContractHeader, ServiceContractLine);
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, ServiceContractHeader."Contract No.");
         LockOpenServContract.OpenServContract(ServiceContractHeader);
@@ -2367,10 +2367,10 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO] Service Invoices for one and the same customer cannot be combined if they are created from Service Contracts with different currencies.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two signed Service Contracts with different currencies, both were created for Customer = "C1".
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates, CustomerNo);
         ServiceContractHeader.Validate("Starting Date", LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 5));
         ServiceContractHeader.Modify(true);
@@ -2404,7 +2404,7 @@ codeunit 136102 "Service Contracts"
         CustomerNo: Code[20];
         ShiptoAddressCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO] Create 3 contracts with 2 different customer numbers:
         LibraryVariableStorage.Enqueue(3);
         for i := 1 to 3 do begin
@@ -2431,7 +2431,7 @@ codeunit 136102 "Service Contracts"
         CreateContractInvoices.SetTableView(ServiceContractHeader);
         CreateContractInvoices.SetOptions(WorkDate, WorkDate, 0); // 0 => Create invoices
         CreateContractInvoices.SetHideDialog(true);
-        CreateContractInvoices.Run;
+        CreateContractInvoices.Run();
         Assert.AreEqual(ExpectedCount + 2, ServiceHeader.Count, 'Wrong number of service invoices created.');
     end;
 
@@ -2447,7 +2447,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO] Test No. of Posted Invoices should be updated when creating and posting a service invoice by Get Shipment Lines function
 
         // Setup: Create Service Contract and Sign Service Contract.
-        Initialize;
+        Initialize();
         CreateAndSignServiceContract(ServiceContractHeader);
 
         // Create a Service Order. Create Service Line and update Qty to Invoice. Post Created Service Order
@@ -2499,7 +2499,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 360390] Test verifies that no GL Entries created after posting Prepaid Contract Entries for Service Contract with Invoice and Credit Memo
 
         // [GIVEN] Signed Service Contract with "Invoice Period" = Year
-        Initialize;
+        Initialize();
         CreateContractWithInvPeriodYear(ServiceContractHeader, ServiceContractLine);
         NonPrepaidContrAccCode :=
           GetNonPerpaidContractAccFromCust(ServiceContractHeader."Customer No.", ServiceContractHeader."Serv. Contract Acc. Gr. Code");
@@ -2539,7 +2539,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 360817] Sign Service Contract Quote with Status "Locked"
 
         // [GIVEN] Locked Service Contract Quote
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
         LockOpenServContract.LockServContract(ServiceContractHeader);
@@ -2563,7 +2563,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 360831] Amount Per Period is equal to Service Invoice Amount when partial quarter period ended on Expiration Date
 
         // [GIVEN] Service Contract with Prepaid = False, Invoice Period = Quarter
-        Initialize;
+        Initialize();
         CreateServiceContractWithInvPeriod(ServiceContractHeader, ServiceContractHeader."Invoice Period"::Quarter);
         PrepaidFalseInServiceContract(ServiceContractHeader);
         // [GIVEN] Expiration Date 'D' = end of 2nd quarter
@@ -2591,7 +2591,7 @@ codeunit 136102 "Service Contracts"
         ServicePeriod: DateFormula;
     begin
         // [SCENARIO 363400] Service contract is posted and contract invoices Amount is not deducted from following invoices.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract with Prepaid = False, Invoice Period = Year and "Line Value" = "X"
         CreateServiceContractWithInvPeriod(ServiceContractHeader, ServiceContractHeader."Invoice Period"::Year);
@@ -2622,7 +2622,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 360915.1] Amount Per Period is equal to Service Invoice Amount when partial year period ended on Expiration Date
 
         // [GIVEN] Service Contract with Prepaid = True, Invoice Period = Year
-        Initialize;
+        Initialize();
         CreateServiceContractWithInvPeriod(ServiceContractHeader, ServiceContractHeader."Invoice Period"::Year);
         // [GIVEN] Expiration Date 'D' = Starting Date + 1Year - X days
         ModifyServiceContractExpirationDate(
@@ -2651,7 +2651,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 360915.2] Amount Per Period is equal to Service Invoice Amount for period Year when Expiration Date is equal the end of period
 
         // [GIVEN] Service Contract with Expiration Date 'D' = Starting Date + 1Year - X days
-        Initialize;
+        Initialize();
         Evaluate(ExpirationDateFormula, '<1Y-' + Format(LibraryRandom.RandInt(5)) + 'D>');
         CreateAndSignYearServiceContractWithExpirationDate(ServiceContractHeader, ExpirationDateFormula);
 
@@ -2678,7 +2678,7 @@ codeunit 136102 "Service Contracts"
         // [SCENARIO 360915.3] Amount Per Period is equal to Service Invoice Amount for period Year when Expiration Date is later then then end of period
 
         // [GIVEN] Service Contract with Expiration Date 'D' = End of Starting Date's month + 1Year + X days
-        Initialize;
+        Initialize();
         Evaluate(ExpirationDateFormula, '<CM+1Y+' + Format(LibraryRandom.RandInt(5)) + 'D>');
         CreateAndSignYearServiceContractWithExpirationDate(ServiceContractHeader, ExpirationDateFormula);
 
@@ -2704,7 +2704,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [Record Link]
         // [SCENARIO 122140] Make Contract in Service Contract Quote page copy links to Service Contract/Service Invoice
         // [GIVEN] Service Contract Quote with random Link added
-        Initialize;
+        Initialize();
         CreateAndModifyServiceContract(
           ServiceContractHeader, LibrarySales.CreateCustomerNo, ServiceContractHeader."Contract Type"::Quote);
         ServiceContractHeader.AddLink(LibraryUtility.GenerateRandomText(10));
@@ -2729,7 +2729,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 123942] Credit Memo's "Posting Date", "Document Date" filled with values from Service Contract Line's "Credit Memo Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Signed Service Contract with "Invoice Period" = Year
         CreateSignedServiceContractWithInvoicePeriodYear(ServiceContractHeader, ServiceContractLine);
@@ -2764,7 +2764,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 123942] Credit Memo Service Ledger Entries are applied to correspondent Invoice Service Ledger Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Signed Service Contract with "Invoice Period" = Year
         CreateSignedServiceContractWithInvoicePeriodYear(ServiceContractHeader, ServiceContractLine);
@@ -2795,7 +2795,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [Prepaid Contract] [Post Prepaid Contract Entries] [Dimension]
         // [SCENARIO 363040] Post Prepaid Contract Entries batch job used Dimension Set ID from last Service Ledger Entry
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract with Dimension "X"
         CreateSignServiceContractWithDimension(ServiceContractHeader);
         // [GIVEN] Posted Service Invoice
@@ -2829,7 +2829,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Service Contract]
         // [SCENARIO 363351] Sign Service Contract having Line with Unit Price equals to "Unit-Amount Rounding Precision"/2 + very small decimal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract having one Line
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -2862,7 +2862,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [Prepaid Contract] [Post Prepaid Contract Entries] [Dimension]
         // [SCENARIO 363536] Post Prepaid Contract Entries batch job used Dimension Set ID from certain service contract
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract with Dimension "X"
         CreateSignServiceContractWithDimension(ServiceContractHeader);
         ExpectedDimensionCode[1] := ServiceContractHeader."Shortcut Dimension 1 Code";
@@ -2924,7 +2924,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [UT]
         // [SCENARIO 375942] System allows zero value of "Line Value" of "Service Contract Line".
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract Header with Service Contract Line
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
@@ -2951,7 +2951,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [UT]
         // [SCENARIO 375942] System allows positive value of "Line Value" of "Service Contract Line".
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract Header with Service Contract Line
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
@@ -2976,7 +2976,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [UT]
         // [SCENARIO 375942] System doesn't allow negative value of "Line Value" of "Service Contract Line".
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract Line
         ServiceContractLine.Init();
 
@@ -2999,7 +2999,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [SCENARIO 379111] System doesn't allow create service contact if Ship-to address from service contract doesn't own customer
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract Header with not existing Ship-to Code
         CreateUpdateServiceContract(ContracNo, CustomerNo, ShiptoCode);
         LibraryVariableStorage.Enqueue(ContracNo);
@@ -3026,14 +3026,14 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Credit Limit] [UI]
         // [SCENARIO 379269] Credit limit warning page is shown when validate Customer with overdue balance (reply Yes)
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
 
         // [GIVEN] Customer with overdue balance
         CreateCustomerWithCreditLimit(Customer);
         CreatePostSalesInvoice(Customer."No.", Customer."Credit Limit (LCY)" + LibraryERM.GetAmountRoundingPrecision);
         // [GIVEN] Open new Service Contract
-        ServiceContract.OpenNew;
+        ServiceContract.OpenNew();
         // [GIVEN] Validate "Customer No."
         LibraryVariableStorage.Enqueue(Customer."No.");
         ServiceContract."Customer No.".SetValue(Customer."No.");
@@ -3044,7 +3044,7 @@ codeunit 136102 "Service Contracts"
         // [THEN] "Customer No." has been validated
         ServiceContract."Customer No.".AssertEquals(Customer."No.");
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -3059,14 +3059,14 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Credit Limit] [UI] [Quote]
         // [SCENARIO 379269] Credit limit warning page is shown when validate Customer with overdue balance on Service Contract Quote (reply Yes)
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
 
         // [GIVEN] Customer with overdue balance
         CreateCustomerWithCreditLimit(Customer);
         CreatePostSalesInvoice(Customer."No.", Customer."Credit Limit (LCY)" + LibraryERM.GetAmountRoundingPrecision);
         // [GIVEN] Open new Service Contract Quote
-        ServiceContractQuote.OpenNew;
+        ServiceContractQuote.OpenNew();
         // [GIVEN] Validate "Customer No."
         LibraryVariableStorage.Enqueue(Customer."No.");
         ServiceContractQuote."Customer No.".SetValue(Customer."No.");
@@ -3077,7 +3077,7 @@ codeunit 136102 "Service Contracts"
         // [THEN] "Customer No." has been validated
         ServiceContractQuote."Customer No.".AssertEquals(Customer."No.");
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -3090,7 +3090,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Service Credit Memo]
         // [SCENARIO 379295] Service Credit Memo posted successfully for Contract with several Items and empty Service Item Nos.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Signed Service Contract "SC" with Invoice Period = Half Year
         // [GIVEN] Several Service Contract Lines: "Service Item No." empty, "Item No." not empty
@@ -3120,7 +3120,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [SCENARIO 380005] Sign-off Service Contract Quote when 100% line discount is applied.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Service Contract Quote with "None" Invoice Period
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Quote);
@@ -3145,7 +3145,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [SCENARIO 380005] Sign-off Service Contract when 100% line discount is applied.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Service Contract with "None" Invoice Period
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
@@ -3167,7 +3167,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [UT] [Quote]
         // [SCENARIO 217444] Confirmation message 'Do you want to convert the contract quote into a contract?' appears once when calling SignServContractDoc.SignContractQuote
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract Header
         CreateServiceContractQuoteSimple(ServiceContractHeader);
@@ -3195,14 +3195,14 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 224033] Fields "Bill-to Contact No." and "Bill-to Contact" must be copied from Service Contract to Service Header by function ServContractManagement.CreateServHeader
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract with "Bill-to Contact No." = "ContNo" and "Bill-to Contact" = "John Smith"
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
         ServiceContractHeader."Bill-to Contact No." :=
           LibraryUtility.GenerateRandomCode(ServiceContractHeader.FieldNo("Bill-to Contact No."), DATABASE::"Service Contract Header");
-        ServiceContractHeader."Bill-to Contact" := LibraryUtility.GenerateGUID;
+        ServiceContractHeader."Bill-to Contact" := LibraryUtility.GenerateGUID();
         ServiceContractHeader.Modify();
 
         // [WHEN] Invoke ServContractManagement.CreateServHeader
@@ -3226,7 +3226,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Service Credit Memo]
         // [SCENARIO 230010] Service Credit Memo posted successfully for Contract with several Items with blank ServiceItemNo and ItemNo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Signed Service Contract "SC" with several Service Contract Lines with blank ServiceItemNo and ItemNo
         CreateServiceContractForSeveralItemsWithBlankServiceItemNo(ServiceContractHeader);
@@ -3253,9 +3253,9 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235022] You cannot create Service Contract Account Group with blank Code.
-        Initialize;
+        Initialize();
 
-        ServContractAccountGroups.OpenNew;
+        ServContractAccountGroups.OpenNew();
         asserterror ServContractAccountGroups.Code.SetValue('');
 
         Assert.ExpectedErrorCode('TestValidation');
@@ -3270,7 +3270,7 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Quote]
         // [SCENARIO 260931] Service Contract is not created from Service Contract Quote, when Make Contract is cancelled in dialog 'Do you want to convert the contract quote into a contract?'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract Quote
         CreateServiceContractQuoteSimple(ServiceContractHeader);
@@ -3300,7 +3300,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [Quote]
         // [SCENARIO 260931] Service Contract is not created from Service Contract Quote, when Make Contract is cancelled in dialog:
         // [SCENARIO 260931] 'The "Next Planned Service Date" field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract Quote with <blank> "Next Planned Service Date" in Line
         CreateServiceContractQuote(ServiceContractHeader, ServiceContractLine);
@@ -3335,7 +3335,7 @@ codeunit 136102 "Service Contracts"
         // [FEATURE] [Quote]
         // [SCENARIO 260931] Service Contract is created from Service Contract Quote, when Make Contract is confirmed in dialog:
         // [SCENARIO 260931] 'The "Next Planned Service Date" field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract Quote with <blank> "Next Planned Service Date" in Line
         CreateServiceContractQuote(ServiceContractHeader, ServiceContractLine);
@@ -3375,10 +3375,10 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 263502] Service Invoices for one customer cannot be combined if they are created from Service Contracts with different currencies.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Service Contracts with different currencies, both were created for Customer = "C1".
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateServiceContractWithCurrency(ServiceContractHeader, LibraryERM.CreateCurrencyWithRandomExchRates, CustomerNo);
         ServiceContractHeader.TestField("Combine Invoices", true);
 
@@ -3406,10 +3406,10 @@ codeunit 136102 "Service Contracts"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 263502] Service Invoices for one customer can be combined if they are created from Service Contracts with one and the same currency.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Service Contracts, both were created for Customer = "C1" and both have "Currency Code" = "CUR1".
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
         CreateServiceContractWithCurrency(ServiceContractHeader, CurrencyCode, CustomerNo);
         ServiceContractHeader.TestField("Combine Invoices", true);
@@ -3432,7 +3432,7 @@ codeunit 136102 "Service Contracts"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Contracts");
         LightInit;
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(LibraryService);
         WorkDate := InitialWorkDate;
 
@@ -3441,13 +3441,13 @@ codeunit 136102 "Service Contracts"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Contracts");
 
         // Setup demonstration data
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         InitializeServiceContractTemplates();
 
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
@@ -3461,7 +3461,7 @@ codeunit 136102 "Service Contracts"
 
     local procedure LightInit()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(SignServContractDoc);
     end;
 
@@ -3542,7 +3542,7 @@ codeunit 136102 "Service Contracts"
         SignServContractDoc.SignContract(ServiceContractHeader);
         FindServiceLine(ServiceLine, ServiceContractHeader."Contract No.");
         ServiceLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure CreateAndSignYearServiceContractWithExpirationDate(var ServiceContractHeader: Record "Service Contract Header"; ExpirationDateFormula: DateFormula)
@@ -3723,7 +3723,7 @@ codeunit 136102 "Service Contracts"
         CreateContractServiceOrders.SetTableView(ServiceContractHeader);
         CreateContractServiceOrders.InitializeRequest(WorkDate, WorkDate, CreateServOrders);
         CreateContractServiceOrders.UseRequestPage(false);
-        CreateContractServiceOrders.Run;
+        CreateContractServiceOrders.Run();
     end;
 
     local procedure CreateServiceCreditMemo(ContractNo: Code[20]; CreditMemoDate: Date)
@@ -3733,7 +3733,7 @@ codeunit 136102 "Service Contracts"
     begin
         with ServiceContractLine do begin
             SetRange("Contract No.", ContractNo);
-            FindFirst;
+            FindFirst();
             Validate("Credit Memo Date", CreditMemoDate);
             Modify;
         end;
@@ -3754,7 +3754,7 @@ codeunit 136102 "Service Contracts"
         CreateContractInvoices.SetOptions(NewPostingDate, NewInvoiceDate, CreateInvoice);
         CreateContractInvoices.SetHideDialog(true);
         CreateContractInvoices.UseRequestPage(false);
-        CreateContractInvoices.Run;
+        CreateContractInvoices.Run();
     end;
 
     local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template"; ServicePeriodTxt: Text; InvoicePeriod: Option; CombineInvoices: Boolean; ContractLinesOnInvoice: Boolean; InvoiceAfterService: Boolean; IsPrepaid: Boolean)
@@ -3794,7 +3794,7 @@ codeunit 136102 "Service Contracts"
         // Create Service Item, Service Contract Header, Service Contract Line.
         LibraryService.FindContractAccountGroup(ServiceContractAccountGroup);
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ContractType, CustomerNo);
         ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
@@ -3874,7 +3874,7 @@ codeunit 136102 "Service Contracts"
         LibraryVariableStorage.Enqueue(false);
 
         LibraryService.FindContractAccountGroup(ServiceContractAccountGroup);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, CustomerNo);
         ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
@@ -3956,7 +3956,7 @@ codeunit 136102 "Service Contracts"
         ServiceContractHeader.Modify(true);
         SignServContractDoc.SignContract(ServiceContractHeader);
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         exit(ServiceContractLine."Service Item No.");
     end;
 
@@ -3988,7 +3988,7 @@ codeunit 136102 "Service Contracts"
 
     local procedure InitServiceInvoiceWithContract(var ServiceHeader: Record "Service Header")
     begin
-        ServiceHeader."Contract No." := LibraryUtility.GenerateGUID;
+        ServiceHeader."Contract No." := LibraryUtility.GenerateGUID();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
     end;
 
@@ -4002,9 +4002,9 @@ codeunit 136102 "Service Contracts"
         LibraryResource.FindResource(Resource);
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("Contract No.", ContractNumber);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
 
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, Resource."No.");
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -4074,7 +4074,7 @@ codeunit 136102 "Service Contracts"
     var
         ServiceContractHeader: Record "Service Contract Header";
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ShiptoCode :=
           LibraryUtility.GenerateRandomCode(ServiceContractHeader.FieldNo("Ship-to Code"), DATABASE::"Service Contract Header");
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CustomerNo);
@@ -4087,7 +4087,7 @@ codeunit 136102 "Service Contracts"
 
     local procedure InitServiceLineWithSignedContract(var ServiceLine: Record "Service Line")
     begin
-        ServiceLine."Contract No." := LibraryUtility.GenerateGUID;
+        ServiceLine."Contract No." := LibraryUtility.GenerateGUID();
         ServiceLine.Validate("Appl.-to Service Entry", LibraryRandom.RandIntInRange(2, 5));
         ServiceLine.Type := ServiceLine.Type::"G/L Account";
     end;
@@ -4149,7 +4149,7 @@ codeunit 136102 "Service Contracts"
         // Check Invoice for Quantity 1 which is created from Service Contract.
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
         ServiceLine.SetRange("Contract No.", ContractNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField(Quantity, 1);  // Taking 1 because in every case it generates only 1 quantity.
     end;
 
@@ -4170,7 +4170,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
         ServiceLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField("Customer No.", ServiceContractHeader."Customer No.");
     end;
 
@@ -4188,7 +4188,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type"::Quote);
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         ServiceContractLine.TestField(Profit, ServiceContractLine."Line Value" - ServiceContractLine."Line Cost");
         ServiceContractLine.TestField("Next Planned Service Date", ServiceContractHeader."First Service Date");
     end;
@@ -4199,7 +4199,7 @@ codeunit 136102 "Service Contracts"
     begin
         CopyServDoc.InitializeRequest(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
         CopyServDoc.UseRequestPage(false);
-        CopyServDoc.Run;
+        CopyServDoc.Run();
     end;
 
     local procedure CreateCustomerWithCreditLimit(var Customer: Record Customer)
@@ -4213,7 +4213,7 @@ codeunit 136102 "Service Contracts"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("External Document No.", ExternalDocumentNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     local procedure NoGLEntriesFound(GLAccountNo: Code[20]; ExternalDocumentNo: Code[20]): Boolean
@@ -4240,7 +4240,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceHeader.SetRange("Document Type", DocumentType);
         ServiceHeader.SetRange("Contract No.", ContractNo);
-        ServiceHeader.FindLast;
+        ServiceHeader.FindLast();
     end;
 
     local procedure FindServiceHour(var ServiceHour: Record "Service Hour"; ServiceContractNo: Code[20]; Type: Option)
@@ -4255,7 +4255,7 @@ codeunit 136102 "Service Contracts"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Contract No.", ContractNo2);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -4263,7 +4263,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ContractNo: Code[20])
@@ -4272,7 +4272,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceHeader.SetRange("Contract No.", ContractNo);
-        ServiceHeader.FindLast;
+        ServiceHeader.FindLast();
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindSet();
@@ -4283,7 +4283,7 @@ codeunit 136102 "Service Contracts"
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
         ServiceLedgerEntry.SetRange("Entry Type", EntryType);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractNo);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
     end;
 
     local procedure FindDifferentStandardText(var StandardText: Record "Standard Text"; StandardTextCode: Code[20])
@@ -4345,7 +4345,7 @@ codeunit 136102 "Service Contracts"
         GetPrepaidContractEntries.Initialize(ServiceHeader);
         ServiceLedgerEntry.SetRange("Service Contract No.", ServiceContractNo);
         GetPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
-        GetPrepaidContractEntries.RunModal;
+        GetPrepaidContractEntries.RunModal();
     end;
 
     local procedure GetNonPerpaidContractAccFromCust(CustNo: Code[20]; ServContrAccGrCode: Code[10]): Code[20]
@@ -4417,7 +4417,7 @@ codeunit 136102 "Service Contracts"
         PostPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
         PostPrepaidContractEntries.InitializeRequest(PostTillDate, PostingDate, PostPrepaidContractAction::"Post Prepaid Transactions");
         PostPrepaidContractEntries.UseRequestPage(false);
-        PostPrepaidContractEntries.Run;
+        PostPrepaidContractEntries.Run();
     end;
 
     local procedure PostServiceInvoice(ServiceContractNo: Code[20])
@@ -4429,7 +4429,7 @@ codeunit 136102 "Service Contracts"
         ServiceDocumentRegister.SetRange("Source Document Type", ServiceDocumentRegister."Source Document Type"::Contract);
         ServiceDocumentRegister.SetRange("Source Document No.", ServiceContractNo);
         ServiceDocumentRegister.SetRange("Destination Document Type", ServiceDocumentRegister."Destination Document Type"::Invoice);
-        ServiceDocumentRegister.FindFirst;
+        ServiceDocumentRegister.FindFirst();
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, ServiceDocumentRegister."Destination Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
@@ -4442,7 +4442,7 @@ codeunit 136102 "Service Contracts"
         Amount: Decimal;
     begin
         // Setup: Update Discount Posting in Sales & Receivables Setup
-        Initialize;
+        Initialize();
         LibrarySales.SetDiscountPostingSilent(DiscPostingType);
 
         // Create Service Contract with Yearly Invoice Period and Line Discount. Sign the Contract.
@@ -4469,12 +4469,12 @@ codeunit 136102 "Service Contracts"
         ServiceLine: Record "Service Line";
     begin
         ServiceHeader.SetRange("Contract No.", ServiceContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
 
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ExpectedAmount := ServiceLine.Amount;
         ExpectedUnitPrice := ServiceLine."Unit Price";
 
@@ -4556,7 +4556,7 @@ codeunit 136102 "Service Contracts"
         PricePercentage := 2 * LibraryRandom.RandInt(5);  // To find the Even No.
         UpdateContractPrices.InitializeRequest(WorkDate, PricePercentage, PerformUpdate::"Update Contract Prices");
         UpdateContractPrices.UseRequestPage(false);
-        UpdateContractPrices.Run;
+        UpdateContractPrices.Run();
     end;
 
     local procedure UpdateInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; InvoicePeriod: Enum "Service Contract Header Invoice Period")
@@ -4589,7 +4589,7 @@ codeunit 136102 "Service Contracts"
         with ServiceLine do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Contract No.", ContractNo);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Invoice", "Qty. to Invoice" / LibraryRandom.RandIntInRange(2, 5));
             Modify(true);
         end;
@@ -4643,7 +4643,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         ServiceContractLine.Validate("Line Discount %", LineDiscount);
         ServiceContractLine.UpdateContractAnnualAmount(false);
         ServiceContractLine.Modify(true);
@@ -4730,7 +4730,7 @@ codeunit 136102 "Service Contracts"
         CreateContractInvoices: Report "Create Contract Invoices";
     begin
         Clear(CreateContractInvoices);
-        CreateContractInvoices.Run;
+        CreateContractInvoices.Run();
     end;
 
     local procedure RunCreateContractServiceOrders()
@@ -4738,7 +4738,7 @@ codeunit 136102 "Service Contracts"
         CreateContractServiceOrders: Report "Create Contract Service Orders";
     begin
         Clear(CreateContractServiceOrders);
-        CreateContractServiceOrders.Run;
+        CreateContractServiceOrders.Run();
     end;
 
     local procedure GetSmallestLineAmount(StartingDate: Date): Decimal
@@ -4830,7 +4830,7 @@ codeunit 136102 "Service Contracts"
         with ServiceHeader do begin
             SetRange("Document Type", DocumentType);
             SetRange("Contract No.", ContractNo);
-            FindFirst;
+            FindFirst();
             Assert.IsTrue(
               HasLinks, StrSubstNo(ServiceDocLinkNotFoundErr, TableCaption));
         end;
@@ -4872,7 +4872,7 @@ codeunit 136102 "Service Contracts"
     begin
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceHeader.SetRange("Contract No.", ContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
     end;
 
     local procedure VerifyServiceLineAmount(ContractNo: Code[20])
@@ -4881,9 +4881,9 @@ codeunit 136102 "Service Contracts"
         ServiceLine: Record "Service Line";
     begin
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         FindServiceLine(ServiceLine, ContractNo);
-        ServiceLine.FindLast;
+        ServiceLine.FindLast();
         Assert.AreEqual(ServiceContractLine."Line Value", ServiceLine.Amount, ServiceLineAmountErr);
     end;
 
@@ -4911,7 +4911,7 @@ codeunit 136102 "Service Contracts"
 
         // Check Service Line 4 for Type, No. and Quantity 1 which is created from Service Contract.
         FindServiceLine(ServiceLine, ServiceContractHeader."Contract No.");
-        ServiceLine.FindLast;
+        ServiceLine.FindLast();
         ServiceLine.TestField(Type, ServiceLine.Type::"G/L Account");
         ServiceLine.TestField("No.", No);
         ServiceLine.TestField(Quantity, 1); // Quantity 1 for Type G/L Account.
@@ -4990,7 +4990,7 @@ codeunit 136102 "Service Contracts"
     begin
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, DimensionSetID);
         DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
 
@@ -5021,7 +5021,7 @@ codeunit 136102 "Service Contracts"
             GLEntry.SetFilter(Amount, '>0')
         else
             GLEntry.SetFilter(Amount, '<0');
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 GLAmt += GLEntry.Amount;
             until GLEntry.Next = 0;
@@ -5086,13 +5086,13 @@ codeunit 136102 "Service Contracts"
         ServiceLine: Record "Service Line";
     begin
         FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", ServiceContractNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type"::"Credit Memo");
         ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
-        ServiceLine.FindFirst;
-        ServiceLine.TestField(Amount, ExpectedAmount);
-        ServiceLine.TestField("Unit Price", ExpectedUnitPrice);
+        ServiceLine.FindFirst();
+        Assert.AreNearlyEqual(ExpectedAmount, ServiceLine.Amount, 0.01, '');
+        Assert.AreNearlyEqual(ExpectedUnitPrice, ServiceLine."Unit Price", 0.01, '');
     end;
 
     local procedure ChangeCustomerNo(var ServiceContractHeader: Record "Service Contract Header"): Code[20]
@@ -5257,7 +5257,7 @@ codeunit 136102 "Service Contracts"
 
         LibraryVariableStorage.Dequeue(OrderNo);
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
     end;
 

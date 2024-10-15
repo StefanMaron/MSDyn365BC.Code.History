@@ -32,7 +32,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateLocalCompany;
 
         // Setup
@@ -52,7 +52,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
 
         // Get document to verify
         CarteraDoc.SetFilter("Document No.", DocNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         // Verify
         ActualTransferType := CarteraDoc."Transfer Type";
@@ -71,7 +71,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateLocalCompany;
 
         // Setup
@@ -90,7 +90,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
 
         // Get document to verify
         CarteraDoc.SetFilter("Document No.", DocNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         // Verify
         ActualTransferType := CarteraDoc."Transfer Type";
@@ -109,7 +109,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateLocalCompany;
 
         // Setup
@@ -130,7 +130,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         RunSuggestVendorPayments(BankAccount."No.", Vendor."No.");
 
         GenJnlLine.SetRange("Account No.", Vendor."No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Verify
         ActualTransferType := GenJnlLine."Transfer Type";
@@ -149,7 +149,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateLocalCompany;
 
         // Setup
@@ -170,7 +170,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         RunSuggestVendorPayments(BankAccount."No.", Vendor."No.");
 
         GenJnlLine.SetRange("Account No.", Vendor."No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Verify
         ActualTransferType := GenJnlLine."Transfer Type";
@@ -189,7 +189,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateForeignCompany;
 
         // Setup
@@ -210,7 +210,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         RunSuggestVendorPayments(BankAccount."No.", Vendor."No.");
 
         GenJnlLine.SetRange("Account No.", Vendor."No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Verify
         ActualTransferType := GenJnlLine."Transfer Type";
@@ -229,7 +229,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateForeignCompany;
 
         // Setup
@@ -250,7 +250,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         RunSuggestVendorPayments(BankAccount."No.", Vendor."No.");
 
         GenJnlLine.SetRange("Account No.", Vendor."No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Verify
         ActualTransferType := GenJnlLine."Transfer Type";
@@ -269,7 +269,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateForeignCompany;
 
         // Setup
@@ -289,7 +289,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
 
         // Get document to verify
         CarteraDoc.SetFilter("Document No.", DocNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         // Verify
         ActualTransferType := CarteraDoc."Transfer Type";
@@ -308,7 +308,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateForeignCompany;
 
         // Setup
@@ -328,7 +328,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
 
         // Get document to verify
         CarteraDoc.SetFilter("Document No.", DocNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         // Verify
         ActualTransferType := CarteraDoc."Transfer Type";
@@ -347,7 +347,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateLocalCompany;
 
         // Setup
@@ -367,7 +367,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
 
         // Get document to verify
         CarteraDoc.SetFilter("Document No.", DocNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         // Verify
         ActualTransferType := CarteraDoc."Transfer Type";
@@ -386,7 +386,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         ActualTransferType: Option;
         UnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateLocalCompany;
 
         // Setup
@@ -407,7 +407,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         RunSuggestVendorPayments(BankAccount."No.", Vendor."No.");
 
         GenJnlLine.SetRange("Account No.", Vendor."No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         // Verify
         ActualTransferType := GenJnlLine."Transfer Type";
@@ -418,7 +418,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
     begin
         LocalCountryRegion.Get('ES');
         OutsideCountryRegion.SetFilter(Code, '<>ES');
-        OutsideCountryRegion.FindFirst;
+        OutsideCountryRegion.FindFirst();
         GenBusPostingGroup.Get('EU');
     end;
 
@@ -526,7 +526,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
           GenJnlLine."Bal. Account Type"::"Bank Account", BankAccountNo, GenJnlLine."Bank Payment Type"::"Electronic Payment");
         Commit();
         SuggestVendorPayments.UseRequestPage(false);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     [MessageHandler]

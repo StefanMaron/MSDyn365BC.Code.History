@@ -65,7 +65,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         EmployeeTimeRegBuffId: Guid;
     begin
         // [GIVEN] a JSON text with an Employee Time Reg Buffer
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -104,7 +104,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         EmployeeTimeRegBuffId: Guid;
     begin
         // [GIVEN] a JSON text with an Employee Time Reg Buffer
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -149,7 +149,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         EmployeeTimeRegBuffId: Guid;
     begin
         // [GIVEN] a JSON text with an Employee Time Reg Buffer
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date1 := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -197,7 +197,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         EmployeeTimeRegBuffId: Text;
     begin
         // [SCENARIO] when time registration entries already exist the new one will have the correct line number
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 time sheet details
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
@@ -227,7 +227,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
 
         LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'id', EmployeeTimeRegBuffId);
         TimeSheetDetail.SetRange(SystemId, LowerCase(LibraryGraphMgt.StripBrackets(EmployeeTimeRegBuffId)));
-        TimeSheetDetail.FindFirst;
+        TimeSheetDetail.FindFirst();
         Assert.AreEqual(10000, TimeSheetDetail."Time Sheet Line No.", 'Time Sheet Detail Line Number should be 10000');
     end;
 
@@ -244,7 +244,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         EmployeeTimeRegBuffId: Guid;
     begin
         // [GIVEN] a JSON text with an Employee Time Reg Buffer
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -285,7 +285,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetDetailId: Guid;
     begin
         // [GIVEN] a JSON text with an Employee Time Reg Buffer
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -315,7 +315,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeaderNo);
         TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLineNo);
         TimeSheetDetail.SetRange(Date, Date);
-        TimeSheetDetail.FindFirst;
+        TimeSheetDetail.FindFirst();
         Assert.AreEqual(TimeSheetDetail.Quantity, NewQuantity, 'Time Sheet Detail quantity has not been patched correctly');
     end;
 
@@ -337,7 +337,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
     begin
         // [GIVEN] a Time Registration Entry
 
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -379,7 +379,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetDetailId: array[3] of Guid;
     begin
         // [SCENARIO] User can retrieve a list of the Time Sheet Registration Entries using a Date Filter
-        Initialize;
+        Initialize();
 
         // [GIVEN] 3 Time Sheet Registration Entries
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
@@ -453,7 +453,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
     begin
         // [SCENARIO] User can retrieve a list of the Time Sheet Registration Entries using an Employee Id Filter
 
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
 
@@ -501,7 +501,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
     begin
         // [SCENARIO] User cannot retrieve entries without filters
 
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         // [WHEN] we make requests without filters
@@ -536,7 +536,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetDetailId: Guid;
     begin
         // [GIVEN] a Time Registration Entry
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -581,7 +581,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetDetailId: Guid;
     begin
         // [GIVEN] a JSON text with an Employee Time Reg Buffer
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -632,18 +632,6 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestTemporary()
-    var
-        EmployeeTimeRegBuffer: Record "Employee Time Reg Buffer";
-    begin
-        // [GIVEN] an Employee Time Registration Buffer entry
-        // [WHEN] trying to insert the value in the temporary table
-        // [THEN] throw an error
-        asserterror EmployeeTimeRegBuffer.Insert(true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestEmployeeNoAndIdSync()
     var
         Employee: Record Employee;
@@ -655,7 +643,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         EmployeeTimeRegBuffId: Text;
     begin
         // [SCENARIO] Create a time reg. entry through a POST method and check if the Employee Id and the Employee No Sync correctly
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -701,7 +689,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         AccPeriodStartingDate: Date;
     begin
         // [SCENARIO] Create a time reg. entry through a POST method and check if the Employee Id and the Employee No Sync correctly
-        Initialize;
+        Initialize();
 
         AccPeriodStartingDate := GetAccountingPeriodStartingDate;
         Date := CalcDate('<CW+1D>', AccPeriodStartingDate);
@@ -919,7 +907,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
 
         Employee.Reset();
         Employee.SetRange(SystemId, RespEmployeeId);
-        Employee.FindFirst;
+        Employee.FindFirst();
         Assert.AreEqual(RespEmployeeNumber, Employee."No.", 'Incorrect employee number');
         Resource.Get(ResourceNo);
         UnitOfMeasure.Get(Resource."Base Unit of Measure");
@@ -927,7 +915,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Assert.IsFalse(RespUnitOfMeasureJSON = '', 'Unit of Measure JSON is empty');
         Assert.IsSubstring(RespUnitOfMeasureJSON, Resource."Base Unit of Measure");
         TimeSheetDetail.SetRange(SystemId, TimeSheetDetailId);
-        TimeSheetDetail.FindFirst;
+        TimeSheetDetail.FindFirst();
         Assert.AreEqual(Format(TimeSheetDetail.Status), RespStatus, 'Incorrect Status');
     end;
 
@@ -938,10 +926,10 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         ActualEmployee: Record Employee;
     begin
         TimeSheetDetail.SetRange(SystemId, TimeSheetDetailId);
-        TimeSheetDetail.FindFirst;
+        TimeSheetDetail.FindFirst();
         TimeSheetHeader.Get(TimeSheetDetail."Time Sheet No.");
         ActualEmployee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
-        ActualEmployee.FindFirst;
+        ActualEmployee.FindFirst();
 
         Assert.AreEqual(Employee.SystemId, ActualEmployee.SystemId, 'Incorrect Employee');
     end;
@@ -959,7 +947,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         ConfigTemplateHeader.Insert();
         NextLineNo := 10000;
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindLast then
+        if ConfigTemplateLine.FindLast() then
             NextLineNo := ConfigTemplateLine."Line No." + 10000;
 
         ConfigTemplateLine.Init();
@@ -972,7 +960,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         ConfigTemplateLine.Insert(true);
         NextLineNo := 10000;
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
-        if ConfigTemplateLine.FindLast then
+        if ConfigTemplateLine.FindLast() then
             NextLineNo := ConfigTemplateLine."Line No." + 10000;
 
         ConfigTemplateLine.Init();

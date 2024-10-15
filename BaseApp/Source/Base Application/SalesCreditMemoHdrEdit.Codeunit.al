@@ -13,6 +13,7 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader."Shipping Agent Code" := "Shipping Agent Code";
         SalesCrMemoHeader."Shipping Agent Service Code" := "Shipping Agent Service Code";
         SalesCrMemoHeader."Package Tracking No." := "Package Tracking No.";
+        SalesCrMemoHeader."Company Bank Account Code" := "Company Bank Account Code";
         SalesCrMemoHeader."Operation Description" := "Operation Description";
         SalesCrMemoHeader."Operation Description 2" := "Operation Description 2";
         SalesCrMemoHeader."Special Scheme Code" := "Special Scheme Code";

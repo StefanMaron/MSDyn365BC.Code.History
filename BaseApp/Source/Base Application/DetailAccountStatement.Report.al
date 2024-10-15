@@ -921,7 +921,7 @@ report 10711 "Detail Account Statement"
     begin
         AccPeriod.SetRange("New Fiscal Year", true);
         AccPeriod.SetFilter("Starting Date", '<=%1', InitialDate);
-        if AccPeriod.FindLast then
+        if AccPeriod.FindLast() then
             exit(AccPeriod."Starting Date");
 
         Error(Text1100005);
@@ -949,7 +949,7 @@ report 10711 "Detail Account Statement"
         if GLFilterDim2 <> '' then
             GLEntry.SetFilter("Global Dimension 2 Code", GLFilterDim2);
         GLEntry.SetFilter("G/L Account No.", "G/L Account"."No.");
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             exit(true);
 
         exit(false);
@@ -962,7 +962,7 @@ report 10711 "Detail Account Statement"
     begin
         AccPeriod.SetRange("New Fiscal Year", true);
         AccPeriod.SetFilter("Starting Date", '<=%1', CalcDate('<1D>', NormalDate(EndPeriodDate)));
-        if AccPeriod.FindLast then
+        if AccPeriod.FindLast() then
             exit(AccPeriod."Starting Date");
 
         Error(Text1100005);

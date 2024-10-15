@@ -49,7 +49,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] Save attachment function is called
         // [THEN] No content error happens.
         // Initialize
-        Initialize;
+        Initialize();
         DocumentAttachment.Init();
 
         RecRef.GetTable(Customer);
@@ -74,7 +74,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] Save attachment function is called
         // [THEN] No errors. Verfiy document attachment properties on sucessful save
         // Initialize
-        Initialize;
+        Initialize();
         DocumentAttachment.Init();
 
         RecRef.GetTable(Customer);
@@ -125,7 +125,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] Save attachment function is called twice
         // [THEN] Duplicate file error is shown.
         // Initialize
-        Initialize;
+        Initialize();
         DocumentAttachment.Init();
         CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
 
@@ -154,7 +154,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] Save attachment function is called twice
         // [THEN] Both files are saved.
         // Initialize
-        Initialize;
+        Initialize();
         DocumentAttachment.Init();
 
         RecRef.GetTable(Customer);
@@ -192,7 +192,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] DeleteDocAttachments is called on COD1173
         // [THEN] All the attached documents are deleted for vendor.
         // Initialize
-        Initialize;
+        Initialize();
         localVendor.Init();
         localVendor."No." := '22';
         localVendor.Insert();
@@ -290,14 +290,14 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] A Resource Record.
         // Initialize
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         RecRef.GetTable(Resource);
 
         // [WHEN] The DocumentAttachmentDetails window opens.
         // [THEN] 0 flow fields are visible.
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-        DocumentAttachmentDetails.RunModal;
+        DocumentAttachmentDetails.RunModal();
     end;
 
     [Test]
@@ -314,7 +314,7 @@ codeunit 134776 "Document Attachment Tests"
         // [GIVEN] An Item Record.
 
         // Initialize
-        Initialize;
+        Initialize();
         LocalItem.Init();
         LocalItem."No." := '2';
         LocalItem.Insert();
@@ -324,7 +324,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] The DocumentAttachmentDetails window opens.
         // [THEN] 2 flow fields are visible and editable.
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-        DocumentAttachmentDetails.RunModal;
+        DocumentAttachmentDetails.RunModal();
 
         LocalItem.Delete();
     end;
@@ -342,7 +342,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] A Sales Line record.
         // Initialize
-        Initialize;
+        Initialize();
         LocalSalesLine.Init();
         LocalSalesLine."Document No." := '2';
         LocalSalesLine."Line No." := 1000;
@@ -354,7 +354,7 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] the sales doc flow fields is visible and editable.
 
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-        DocumentAttachmentDetails.RunModal;
+        DocumentAttachmentDetails.RunModal();
 
         LocalSalesLine.Delete();
     end;
@@ -372,7 +372,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] A Purch Line record.
         // Initialize
-        Initialize;
+        Initialize();
         LocalPurchaseLine.Init();
         LocalPurchaseLine."No." := '2';
         LocalPurchaseLine."Line No." := 1000;
@@ -383,7 +383,7 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] The DocumentAttachmentDetails window opens.
         // [THEN] the purch doc flow fields is visible and editable.
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-        DocumentAttachmentDetails.RunModal;
+        DocumentAttachmentDetails.RunModal();
 
         LocalPurchaseLine.Delete();
     end;
@@ -401,7 +401,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensure that documents from the customer/Item flow to the Sales Order.
 
         // Initialize
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Customer with two attachments, one marked to flow
         LibrarySales.CreateCustomer(Customer);
@@ -440,7 +440,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensure that documents from the Vendor/Item flow to the Purchase Order.
 
         // Initialize
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Vendor with two attachments, one marked to flow
         LibraryPurchase.CreateVendor(Vendor);
@@ -483,7 +483,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensuring attached docs for sales quote flow to sales order
 
         // Initialize
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         RecRef.GetTable(Customer);
 
@@ -537,7 +537,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensuring attached docs for Sales Quote flow to Sales Invoice
 
         // Initialize
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         RecRef.GetTable(Customer);
 
@@ -591,7 +591,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensuring attached docs for purch quote flow to purch order
 
         // Initialize
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         RecRef.GetTable(Vendor);
 
@@ -644,7 +644,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensuring attached docs for purch blanket flow to purch order
 
         // Initialize
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         RecRef.GetTable(Vendor);
@@ -669,7 +669,7 @@ codeunit 134776 "Document Attachment Tests"
         // Assert quote is converted to order
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
 
         OrderNo := PurchaseHeader."No.";
 
@@ -693,7 +693,7 @@ codeunit 134776 "Document Attachment Tests"
         // [SCENARIO] Ensuring attached docs for vendor and item flow to purch invoice
 
         // Initialize
-        Initialize;
+        Initialize();
 
         // Create attachment for Vendor record.
         Clear(RecRef);
@@ -742,7 +742,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Customer Ledger Entries enabled if attachment exist for posted Sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
@@ -773,7 +773,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Customer Ledger Entries opens Attached Document page for sales invoice header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
@@ -809,7 +809,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Apply Customer Entries enabled if attachment exist for posted sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
@@ -847,7 +847,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Apply Customer Entries  opens Attached Document page for sales invoice header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
@@ -889,7 +889,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Applied Customer Entries enabled if attachment exist for posted sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
@@ -934,7 +934,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Applied Customer Entries opens Attached Document page for sales invoice header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
@@ -978,7 +978,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Vendor Ledger Entries enabled if attachment exist for posted purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
@@ -1009,7 +1009,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Vendor Ledger Entries opens Attached Document page for purchase invoice header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
@@ -1045,7 +1045,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Apply Vendor Entries enabled if attachment exist for posted purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
@@ -1083,7 +1083,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Apply Vendor Entries  opens Attached Document page for purchase invoice header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
@@ -1125,7 +1125,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Applied Vendor Entries enabled if attachment exist for posted purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
@@ -1170,7 +1170,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [Attachments] [UI]
         // [SCENARIO 271044] Action "Show Posted Document Attachment" on the page Applied Vendor Entries opens Attached Document page for purchase invoice header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
@@ -1212,7 +1212,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a customer are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Customer with an attachment
@@ -1228,11 +1228,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 'cust1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 'cust2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1247,7 +1247,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a Vendor are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Vendor with an attachment
@@ -1263,11 +1263,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 'ven1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 'ven2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1282,7 +1282,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a Item are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Item with an attachment
@@ -1298,11 +1298,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 'item1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 'item2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1317,7 +1317,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a Employee are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
 
         // [GIVEN] Employee with an attachment
@@ -1333,11 +1333,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 'emp1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 'emp2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1352,7 +1352,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a Fixed Asset are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
 
         // [GIVEN] Fixed Asset with an attachment
@@ -1368,11 +1368,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 'fa1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 'fa2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1387,7 +1387,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a Resource are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
 
         // [GIVEN] Resource with an attachment
@@ -1403,11 +1403,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 're1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 're2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1422,7 +1422,7 @@ codeunit 134776 "Document Attachment Tests"
         RecRef: RecordRef;
     begin
         // [SCENARIO] Test to ensure that attachments for a Job are kept after change in [No.] which is a primary key
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
 
         // [GIVEN] Job with an attachment
@@ -1438,11 +1438,11 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
-        DocumentAttachment.FindFirst;
+        DocumentAttachment.FindFirst();
         Assert.AreEqual(DocumentAttachment."File Name", 'job1', 'First file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for first attachment.');
         Assert.IsTrue(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for first attachment.');
-        DocumentAttachment.FindLast;
+        DocumentAttachment.FindLast();
         Assert.AreEqual(DocumentAttachment."File Name", 'job2', 'Second file name not equal to saved attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Purchase", 'Flow purchase value not equal for second attachment.');
         Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Flow sales value not equal for second attachment.');
@@ -1460,7 +1460,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Quote]
         // [SCENARIO 278831] "Print to attachment" action on sales quote page makes new "Document Attachment" record 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales quote with "Document No." = "1001" opened in the Sales Quote Card page
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
@@ -1489,7 +1489,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UT] [Print to Attachment]
         // [SCENARIO 278831] Function FindUniqueFileName returns same FileName if it is already unique for document attachment for the Sales Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] No document attachments
         DocumentAttachment.DeleteAll();
@@ -1509,7 +1509,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UT] [Print to Attachment]
         // [SCENARIO 278831] Function FindUniqueFileName returns proper FileName when requested FileName already exists for document attachment for the Sales Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document Attachment record with "File Name"  = "Quote_1001"
         MockDocumentAttachment(DocumentAttachment, Database::"Sales Header", '1001', SalesHeader."Document Type"::Quote, 'Quote_1001', 'pdf');
@@ -1529,7 +1529,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UT] [Print to Attachment]
         // [SCENARIO 278831] Function FindUniqueFileName returns proper FileName when requested FileName and the next version (Quote_1001 (1)) already exist for document attachment for the Sales Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document Attachment record with "File Name"  = "Quote_1001"
         MockDocumentAttachment(DocumentAttachment, Database::"Sales Header", '1001', SalesHeader."Document Type"::Quote, 'Quote_1001', 'pdf');
@@ -1551,7 +1551,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Purchase Quote]
         // [SCENARIO 278831] "Print to attachment" action on purchase quote page makes new "Document Attachment" record 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase quote with "Document No." = "1001" opened in the Purchase Quote Card page
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -1578,7 +1578,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Purchase Quote]
         // [SCENARIO 278831] "Print to attachment" action on purchase quote page makes an attachment of report which is set up for particular vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase quote for vendor "V" with "Document No." = "1001" opened in the Purchase Quote Card page
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
@@ -1608,7 +1608,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Order]
         // [SCENARIO 278831] "Print to attachment" for sales order makes new "Document Attachment" record with Order Confirmation report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order
         LibrarySales.CreateSalesOrder(SalesHeader);
@@ -1638,7 +1638,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Order]
         // [SCENARIO 278831] "Print to attachment" for sales order makes new "Document Attachment" record with Pick Instruction report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order
         LibrarySales.CreateSalesOrder(SalesHeader);
@@ -1668,7 +1668,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Order]
         // [SCENARIO 278831] "Print to attachment" for sales order makes new "Document Attachment" record with Pro Forma Invoice report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order
         LibrarySales.CreateSalesOrder(SalesHeader);
@@ -1698,7 +1698,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Order]
         // [SCENARIO 278831] "Print to attachment" for sales order makes new "Document Attachment" record with Work Order report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order
         LibrarySales.CreateSalesOrder(SalesHeader);
@@ -1728,7 +1728,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Invoice]
         // [SCENARIO 278831] "Print to attachment" for sales invoice makes new "Document Attachment" record with Drart Invoice report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -1758,7 +1758,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Sales Invoice]
         // [SCENARIO 278831] "Print to attachment" for sales invoice makes new "Document Attachment" record with "Standard Sales - Pro Forma Inv" report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -1788,7 +1788,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Posted Sales Invoice]
         // [SCENARIO 278831] "Print to attachment" action on posted sales invoice page makes new "Document Attachment" record 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "1001" opened in the Posted Sales Invoice Card page
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -1817,7 +1817,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] [Posted Purchase Invoice]
         // [SCENARIO 278831] "Print to attachment" action on posted Purchase invoice page makes new "Document Attachment" record 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Document No." = "1001" opened in the Posted Purchase Invoice Card page
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -1845,7 +1845,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         // [FEATURE] [UI] [Print to Attachment] 
         // [SCENARIO 278831] When report selections have single "Processed Only" report "Attach to PDF" action shows notification "There are no reports which could be saved to PDF"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report selections have single "Processing Only" report for sales invoices
         SetupReportSelection(ReportSelectionUsage::"S.Order", Report::"Sales Processing Only");
@@ -1965,7 +1965,7 @@ codeunit 134776 "Document Attachment Tests"
         SalesDocumentType: Enum "Sales Document Type";
     begin
         // [SCENARIO 395462] Changing customer on a sales document with attachments produces a confirm. Choosing YES deletes attachments.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales order exists with a customer no
         LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType::Order, LibrarySales.CreateCustomerNo());
@@ -1991,7 +1991,7 @@ codeunit 134776 "Document Attachment Tests"
         SalesDocumentType: Enum "Sales Document Type";
     begin
         // [SCENARIO 395462] Changing customer on a sales document with attachments produces a confirm. Choosing NO saves attachments.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A sales order exists with a customer no
         LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType::Order, LibrarySales.CreateCustomerNo());
@@ -2017,7 +2017,7 @@ codeunit 134776 "Document Attachment Tests"
         PurchaseDocumentType: Enum "Purchase Document Type";
     begin
         // [SCENARIO 395462] Changing vendor on a purchase document with attachments produces a confirm. Choosing YES deletes attachments.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A purchase order exists with a vendor no
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
@@ -2043,7 +2043,7 @@ codeunit 134776 "Document Attachment Tests"
         PurchaseDocumentType: Enum "Purchase Document Type";
     begin
         // [SCENARIO 395462] Changing vendor on a purchase document with attachments produces a confirm. Choosing NO saves attachments.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A purchase order exists with a vendor no
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
@@ -2065,16 +2065,16 @@ codeunit 134776 "Document Attachment Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Document Attachment Tests");
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
         // Setup demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.SetupReportSelections();
         SetAllowBlankPaymentInfo();
         isInitialized := true;
@@ -2272,7 +2272,7 @@ codeunit 134776 "Document Attachment Tests"
         with CustLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2281,7 +2281,7 @@ codeunit 134776 "Document Attachment Tests"
         with VendorLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Vendor No.", CustomerNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2291,7 +2291,7 @@ codeunit 134776 "Document Attachment Tests"
             SetRange("Table ID", TableId);
             SetRange("No.", DocumentNo);
             SetRange("Document Type", DocumentType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

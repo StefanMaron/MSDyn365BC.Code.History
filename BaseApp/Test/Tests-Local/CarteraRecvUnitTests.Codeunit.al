@@ -29,7 +29,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         BillGroupNo: Code[20];
         OldBillGroupNoSeries: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
@@ -68,7 +68,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         BGCommentLine: Record "BG/PO Comment Line";
         Comment: Variant;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateBillGroupWithBankAccount(BillGroup);
@@ -102,7 +102,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         BGCommentLine: Record "BG/PO Comment Line";
         BillGroupNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraReceivables.CreateBankAccount(BankAccount, '');
@@ -131,7 +131,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [Bill Group] [UI]
         // [SCENARIO 363721] Action "Bill Groups Maturity" on "Bill Groups List" with multiple lines should open page for selected Bill Group
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Bill Groups in "Bill Groups List" page: "BG1" and "BG2"
         CreateBillGroupWithBankAccount(BillGroup[1]);
@@ -159,7 +159,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Documents Maturity" should open a page for the Receivables type.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Document
         MockReceivableCarteraDoc(CarteraDoc);
@@ -188,7 +188,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Bill Groups Maturity" should open a page for the selected Bill Group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Bill Group documents created "BG1" and "BG2"
         CreateBillGroupWithBankAccount(BillGroup[1]);
@@ -219,7 +219,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Posted Bill Groups Maturity" should open a page for the selected Posted Bill Group from Card Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Bill Group documents created "BG1" and "BG2"
         MockPostedBillGroup(PostedBillGroup[1]);
@@ -250,7 +250,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Posted Bill Groups Maturity" should open a page for the selected Posted Bill Group from List Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Bill Group documents created "BG1" and "BG2"
         MockPostedBillGroup(PostedBillGroup[1]);
@@ -281,7 +281,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Posted Bill Groups Maturity" should open a page for the selected Posted Bill Group from Select Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Bill Group documents created "BG1" and "BG2"
         MockPostedBillGroup(PostedBillGroup[1]);
@@ -313,8 +313,8 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     begin
         // [FEATURE] [Permission] [UI]
         // [SCENARIO 257878] Customer Ledger Entry's "Payment Method Code" can be modified (including linked "Cartera Doc." update) via indirect customer license
-        Initialize;
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         MockReceivableCarteraDoc(CarteraDoc);
         MockCustomerLedgerEntry(CustLedgerEntry, CarteraDoc);
@@ -339,7 +339,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         CustomerLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
         CustomerLedgerEntries.Close;
 
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
+        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
         CarteraDoc.Find;
         CarteraDoc.TestField("Payment Method Code", PaymentMethod.Code);
     end;
@@ -376,7 +376,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBillGroupWithBankAccount(var BillGroup: Record "Bill Group")
@@ -440,9 +440,9 @@ codeunit 147542 "Cartera Recv. Unit Tests"
             Type := Type::Receivable;
             "Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, FieldNo("Entry No."));
             "Document Type" := "Document Type"::Bill;
-            "Document No." := LibraryUtility.GenerateGUID;
-            "Account No." := LibraryUtility.GenerateGUID;
-            "No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
+            "Account No." := LibraryUtility.GenerateGUID();
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -463,7 +463,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     var
         Comment: Text[80];
     begin
-        Comment := LibraryUtility.GenerateGUID;
+        Comment := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(Comment);
 
         BGCommentSheet.New;

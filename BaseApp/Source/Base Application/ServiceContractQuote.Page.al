@@ -693,7 +693,7 @@ page 6053 "Service Contract Quote"
                         CheckRequiredFields;
                         Clear(CopyServDoc);
                         CopyServDoc.SetServContractHeader(Rec);
-                        CopyServDoc.RunModal;
+                        CopyServDoc.RunModal();
                     end;
                 }
                 action("&File Contract Quote")
@@ -921,7 +921,7 @@ page 6053 "Service Contract Quote"
     begin
         Clear(ContractLineSelection);
         ContractLineSelection.SetSelection("Customer No.", "Ship-to Code", "Contract Type", "Contract No.");
-        ContractLineSelection.RunModal;
+        ContractLineSelection.RunModal();
         CurrPage.Update(false);
     end;
 

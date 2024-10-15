@@ -199,6 +199,18 @@ table 379 "Detailed Cust. Ledg. Entry"
             Caption = 'Ledger Entry Amount';
             Editable = false;
         }
+        field(44; "Posting Group"; Code[20])
+        {
+            Caption = 'Customer Posting Group';
+            Editable = false;
+            TableRelation = "Customer Posting Group";
+        }
+        field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
+        {
+            Caption = 'Exch. Rate Adjmt. Reg. No.';
+            Editable = false;
+            TableRelation = "Exch. Rate Adjmt. Reg.";
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -231,7 +243,6 @@ table 379 "Detailed Cust. Ledg. Entry"
         key(Key1; "Entry No.")
         {
             Clustered = true;
-            SumIndexFields = "Amount (LCY)";
         }
         key(Key2; "Cust. Ledger Entry No.", "Posting Date")
         {

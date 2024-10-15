@@ -13,6 +13,9 @@ codeunit 138200 "Normal DemoData"
         EmptyBlobErr: Label 'BLOB field is empty.';
         XOUTGOINGTxt: Label 'OUTGOING';
         XINCOMETxt: Label 'INCOME';
+        XCashCycleAccSchedNameTxt: Label 'I_CACYCLE', Comment = 'Data for Cash Cycle chart abrivated. Starting with I beacuse of sorting. Maximum lenght 10 characters';
+        XBUDGANALYS: Label 'BUDGANALYS';
+        XACTBUD: Label 'Act/Bud';
 
     [Test]
     [Scope('OnPrem')]
@@ -119,7 +122,7 @@ codeunit 138200 "Normal DemoData"
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", No);
         Assert.RecordCount(ContactBusinessRelation, 1);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         CompanyNo := ContactBusinessRelation."Contact No.";
     end;
 
@@ -315,6 +318,42 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Declaration", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+    end;
+
+    [Test]
+    procedure AccountScheduleHideCurrencySymbol()
+    begin
+        // [SCENARIO 425105] Specific account schedule lines marked with "Hide Currency Symbol"
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 50000);
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 60000);
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 70000);
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 80000);
+    end;
+
+    [Test]
+    procedure ColumnLayoutHideCurrencySymbol()
+    begin
+        // [SCENARIO 425105] Specific column layout marked with "Hide Currency Symbol"
+        VerifyColumnLayoutHideCurencySymbol(XBUDGANALYS, 30000);
+
+        VerifyColumnLayoutHideCurencySymbol(XACTBUD, 40000);
+    end;
+
+    local procedure VerifyAccountScheduleLineHideCurencySymbol(ScheduleName: Code[10]; LineNo: Integer)
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        AccScheduleLine.Get(ScheduleName, LineNo);
+        AccScheduleLine.TestField("Hide Currency Symbol", true);
+    end;
+
+
+    local procedure VerifyColumnLayoutHideCurencySymbol(ColumnLayoutName: Code[10]; LineNo: Integer)
+    var
+        ColumnLayout: Record "Column Layout";
+    begin
+        ColumnLayout.Get(ColumnLayoutName, LineNo);
+        ColumnLayout.TestField("Hide Currency Symbol", true);
     end;
 
     local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)

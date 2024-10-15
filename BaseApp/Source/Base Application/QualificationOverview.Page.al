@@ -45,7 +45,7 @@ page 5230 "Qualification Overview"
                     MatrixForm: Page "Qualification Overview Matrix";
                 begin
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

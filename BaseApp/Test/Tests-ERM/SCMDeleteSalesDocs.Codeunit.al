@@ -107,7 +107,7 @@ codeunit 137208 "SCM Delete Sales Docs"
         SalesShipmentHeader.SetFilter("No.", StrSubstNo('%1|%2', PostedShipmentNos[1], PostedShipmentNos[2]));
         LibraryVariableStorage.Enqueue(SalesShipmentHeader.GetFilter("No."));
         SalesShipmentHeader.FindFirst();
-        SalesShipmentHeader.PrintRecords(true);
+        Report.Run(Report::"Sales - Shipment", true, false, SalesShipmentHeader);
 
         LibraryReportDataset.LoadDataSetFile();
         for Index := 1 to ArrayLen(PostedShipmentNos) do
@@ -145,7 +145,7 @@ codeunit 137208 "SCM Delete Sales Docs"
         FilePath := FileManagement.ServerTempFileName('xml');
         LibraryVariableStorage.Enqueue(FilePath);
 
-        SalesShipmentHeader.PrintRecords(false);
+        Report.Run(Report::"Sales - Shipment", false, false, SalesShipmentHeader);
 
         LibraryXPathXMLReader.Initialize(FilePath, '');
         for Index := 1 to ArrayLen(PostedShipmentNos) do
@@ -207,10 +207,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::Order:
                 begin
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
                     NoPrinted := SalesShipmentHeader."No. Printed";
-                    SalesShipmentHeader.PrintRecords(false);
+                    Report.Run(Report::"Sales - Shipment", false, false, SalesShipmentHeader);
                     SalesShipmentHeader.Get(SalesShipmentHeader."No.");
                     NoPrinted := SalesShipmentHeader."No. Printed" - NoPrinted;
                     SalesShipmentHeader.Delete(true);
@@ -218,10 +218,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::Invoice:
                 begin
                     SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-                    SalesInvoiceHeader.FindFirst;
+                    SalesInvoiceHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
                     NoPrinted := SalesInvoiceHeader."No. Printed";
-                    SalesInvoiceHeader.PrintRecords(false);
+                    Report.Run(Report::"Standard Sales - Invoice", false, false, SalesInvoiceHeader);
                     SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
                     NoPrinted := SalesInvoiceHeader."No. Printed" - NoPrinted;
                     SalesInvoiceHeader.Delete(true);
@@ -229,10 +229,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::"Return Order":
                 begin
                     ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
-                    ReturnReceiptHeader.FindFirst;
+                    ReturnReceiptHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
                     NoPrinted := ReturnReceiptHeader."No. Printed";
-                    ReturnReceiptHeader.PrintRecords(false);
+                    Report.Run(Report::"Sales - Return Receipt", false, false, ReturnReceiptHeader);
                     ReturnReceiptHeader.Get(ReturnReceiptHeader."No.");
                     NoPrinted := ReturnReceiptHeader."No. Printed" - NoPrinted;
                     ReturnReceiptHeader.Delete(true);
@@ -240,10 +240,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::"Credit Memo":
                 begin
                     SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-                    SalesCrMemoHeader.FindFirst;
+                    SalesCrMemoHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
                     NoPrinted := SalesCrMemoHeader."No. Printed";
-                    SalesCrMemoHeader.PrintRecords(false);
+                    Report.Run(Report::"Standard Sales - Credit Memo", false, false, SalesCrMemoHeader);
                     SalesCrMemoHeader.Get(SalesCrMemoHeader."No.");
                     NoPrinted := SalesCrMemoHeader."No. Printed" - NoPrinted;
                     SalesCrMemoHeader.Delete(true);

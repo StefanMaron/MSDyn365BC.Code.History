@@ -37,7 +37,7 @@ page 2340 "BC O365 No. Series Card"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -93,7 +93,7 @@ page 2340 "BC O365 No. Series Card"
             NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
             NoSeriesLine.SetRange("Series Code", Code);
             NoSeriesLine.SetRange("Starting Date", 0D, WorkDate);
-            if NoSeriesLine.FindLast then begin
+            if NoSeriesLine.FindLast() then begin
                 NoSeriesLine.Init();
                 NoSeriesLine.Validate("Starting No.", NextNoSeries);
                 NoSeriesLine.Modify(true);
@@ -125,7 +125,7 @@ page 2340 "BC O365 No. Series Card"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine.SetRange("Series Code", SeriesCode);
-        if NoSeriesLine.FindLast then;
+        if NoSeriesLine.FindLast() then;
 
         exit(NoSeriesLine."Line No." + 10000);
     end;

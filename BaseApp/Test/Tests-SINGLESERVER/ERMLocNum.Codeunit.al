@@ -48,7 +48,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Print] [Check] [UI] [Vendor]
         // [SCENARIO] Verify error message while using Print Check on Payment Journal Page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal with vendor and negative amount
         CreatePaymentJournal(PaymentJournal, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
@@ -73,7 +73,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Print] [Check] [UI] [Vendor]
         // [SCENARIO] Verify error message while using Print Check on Payment Journal Page with Vendor Blocked Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal with vendor having Vendor."Blocked" = "Payment"
         CreatePaymentJournal(PaymentJournal, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
@@ -97,7 +97,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Print] [Check] [UI] [Vendor]
         // [SCENARIO] Verify error message while using Print Check on Payment Journal Page with Vendor Blocked All.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal with vendor having Vendor."Blocked" = "All"
         CreatePaymentJournal(PaymentJournal, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
@@ -121,7 +121,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Print] [Check] [UI] [Customer]
         // [SCENARIO] Verify error message while using Print Check on Payment Journal Page with Customer Blocked All.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment journal with customer having Customer."Blocked" = "All"
         CreatePaymentJournal(PaymentJournal, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
@@ -143,7 +143,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Void] [Vendor] [Payment]
         // [SCENARIO 202894] Exported electronic vendor payment can be voided
-        Initialize;
+        Initialize();
 
         // [GIVEN] Exported vendor payment journal line:
         // [GIVEN] "Document Type" = "Payment"
@@ -171,7 +171,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Void] [Customer] [Refund]
         // [SCENARIO 202894] Exported electronic customer refund can be voided
-        Initialize;
+        Initialize();
 
         // [GIVEN] Exported customer payment journal line:
         // [GIVEN] "Document Type" = "Refund"
@@ -200,11 +200,11 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Vendor] [Payment]
         // [SCENARIO 205188] "Bank Payment Type" can be validated with "Electronic Payment" value for the vendor payment journal line in case of vendor bank account having "Use For Electronic Payments" = TRUE
-        Initialize;
+        Initialize();
 
         with GenJournalLine do begin
             // [GIVEN] Vendor with vendor bank account having "Use For Electronic Payments" = TRUE
-            VendorNo := LibraryPurchase.CreateVendorNo;
+            VendorNo := LibraryPurchase.CreateVendorNo();
             CreateVendorBankAccountNo(VendorNo, true);
 
             // [GIVEN] Payment journal line for the vendor payment: "Document Type" = "Payment", "Account Type" = "Vendor", "Bal. Account Type" = "Bank Account"
@@ -233,11 +233,11 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Vendor] [Payment]
         // [SCENARIO 205188] "Bank Payment Type" can not be validated with "Electronic Payment" value for the vendor payment journal line in case of vendor bank account having "Use For Electronic Payments" = FALSE
-        Initialize;
+        Initialize();
 
         with GenJournalLine do begin
             // [GIVEN] Vendor with vendor bank account having "Use For Electronic Payments" = FALSE
-            VendorNo := LibraryPurchase.CreateVendorNo;
+            VendorNo := LibraryPurchase.CreateVendorNo();
             CreateVendorBankAccountNo(VendorNo, false);
 
             // [GIVEN] Payment journal line for the vendor payment: "Document Type" = "Payment", "Account Type" = "Vendor", "Bal. Account Type" = "Bank Account"
@@ -269,7 +269,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Customer] [Refund]
         // [SCENARIO 205188] "Bank Payment Type" can be validated with "Electronic Payment" value for the customer refund journal line
-        Initialize;
+        Initialize();
 
         with GenJournalLine do begin
             // [GIVEN] Customer with customer bank account
@@ -300,11 +300,11 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Vendor] [Payment]
         // [SCENARIO 205188] Payment Journal Line with "Bank Payment Type" = "Electronic Payment" with can be inserted for the vendor payment in case of vendor bank account having "Use For Electronic Payments" = TRUE
-        Initialize;
+        Initialize();
 
         with GenJournalLine do begin
             // [GIVEN] Vendor with vendor bank account having "Use For Electronic Payments" = TRUE
-            VendorNo := LibraryPurchase.CreateVendorNo;
+            VendorNo := LibraryPurchase.CreateVendorNo();
             CreateVendorBankAccountNo(VendorNo, true);
 
             // [GIVEN] A new payment journal line for the vendor payment: "Document Type" = "Payment", "Account Type" = "Vendor", "Bal. Account Type" = "Bank Account", "Bank Payment Type" = "Electronic Payment"
@@ -327,11 +327,11 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Vendor] [Payment]
         // [SCENARIO 205188] Payment Journal Line with "Bank Payment Type" = "Electronic Payment" with can not be inserted for the vendor payment in case of vendor bank account having "Use For Electronic Payments" = FALSE
-        Initialize;
+        Initialize();
 
         with GenJournalLine do begin
             // [GIVEN] Vendor with vendor bank account having "Use For Electronic Payments" = FALSE
-            VendorNo := LibraryPurchase.CreateVendorNo;
+            VendorNo := LibraryPurchase.CreateVendorNo();
             CreateVendorBankAccountNo(VendorNo, false);
 
             // [GIVEN] A new payment journal line for the vendor payment: "Document Type" = "Payment", "Account Type" = "Vendor", "Bal. Account Type" = "Bank Account", "Bank Payment Type" = "Electronic Payment"
@@ -357,7 +357,7 @@ codeunit 144161 "ERM Loc Num"
     begin
         // [FEATURE] [Electronic Payments] [Customer] [Refund]
         // [SCENARIO 205188] Payment Journal Line with "Bank Payment Type" = "Electronic Payment" with can be inserted for the customer refund
-        Initialize;
+        Initialize();
 
         with GenJournalLine do begin
             // [GIVEN] Customer with customer bank account
@@ -377,7 +377,7 @@ codeunit 144161 "ERM Loc Num"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -412,7 +412,7 @@ codeunit 144161 "ERM Loc Num"
         GenJournalLine.DeleteAll();
         Commit();  // COMMIT is required here.
         PaymentJournal.OpenEdit;
-        PaymentJournal."Document No.".SetValue(LibraryUtility.GenerateGUID);
+        PaymentJournal."Document No.".SetValue(LibraryUtility.GenerateGUID());
         PaymentJournal."Account Type".SetValue(AccountType);
         PaymentJournal."Account No.".SetValue(AccountNo);
         PaymentJournal."Credit Amount".SetValue(LibraryRandom.RandDec(100, 2));
@@ -429,7 +429,7 @@ codeunit 144161 "ERM Loc Num"
 
     local procedure CreateVendorWithElectronicPmtSetup() VendorNo: Code[20]
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreateVendorBankAccountNo(VendorNo, true);
     end;
 

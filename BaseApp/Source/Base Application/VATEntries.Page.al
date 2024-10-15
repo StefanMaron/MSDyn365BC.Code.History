@@ -229,6 +229,13 @@ page 315 "VAT Entries"
                 ShowFilter = false;
                 SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -253,7 +260,7 @@ page 315 "VAT Entries"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -266,7 +273,7 @@ page 315 "VAT Entries"
                         exit;
 
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action(SetGLAccountNo)

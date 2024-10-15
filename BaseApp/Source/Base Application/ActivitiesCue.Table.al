@@ -70,16 +70,6 @@ table 1313 "Activities Cue"
             Caption = 'Ongoing Sales Quotes';
             FieldClass = FlowField;
         }
-        field(12; "Requests to Approve"; Integer)
-        {
-            CalcFormula = Count("Approval Entry" WHERE("Approver ID" = FIELD("User ID Filter"),
-                                                        Status = FILTER(Open)));
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with Approvals Activities part';
-            Caption = 'Requests to Approve';
-            FieldClass = FlowField;
-            ObsoleteTag = '17.0';
-        }
         field(13; "Sales Inv. - Pending Doc.Exch."; Integer)
         {
             CalcFormula = Count("Sales Invoice Header" WHERE("Document Exchange Status" = FILTER("Sent to Document Exchange Service" | "Delivery Failed")));
@@ -93,14 +83,6 @@ table 1313 "Activities Cue"
             Caption = 'Sales Credit Memos - Pending Document Exchange';
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(15; "User ID Filter"; Code[50])
-        {
-            Caption = 'User ID Filter';
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced with Approvals Activities part';
-            FieldClass = FlowFilter;
-            ObsoleteTag = '17.0';
         }
         field(17; "Due Next Week Filter"; Date)
         {

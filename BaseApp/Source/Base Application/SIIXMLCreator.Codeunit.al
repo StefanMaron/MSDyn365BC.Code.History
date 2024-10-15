@@ -203,7 +203,7 @@
             PurchaseVendorLedgerEntryRecRef.SetTable(VendorLedgerEntry);
             VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type");
             VendorLedgerEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-            if VendorLedgerEntry.FindSet then
+            if VendorLedgerEntry.FindSet() then
                 repeat
                     if SIIManagement.FindPaymentDetailedVendorLedgerEntries(PaymentDetailedVendorLedgEntry, VendorLedgerEntry) then
                         repeat
@@ -225,7 +225,7 @@
             SalesCustLedgerEntryRecRef.SetTable(CustLedgerEntry);
             CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type");
             CustLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-            if CustLedgerEntry.FindSet then
+            if CustLedgerEntry.FindSet() then
                 repeat
                     if SIIManagement.FindPaymentDetailedCustomerLedgerEntries(PaymentDetailedCustLedgEntry, CustLedgerEntry) then
                         repeat
@@ -264,7 +264,7 @@
         if SplitByEUService then
             TempVATEntryOut.SetRange("EU Service", TempVATEntry."EU Service");
         OnCalculateNonExemptVATEntriesOnAfterTempVATEntryOutSetFilters(TempVATEntryOut, TempVATEntry, SplitByEUService, VATAmount);
-        if TempVATEntryOut.FindFirst then begin
+        if TempVATEntryOut.FindFirst() then begin
             TempVATEntryOut.Amount += VATAmount;
             TempVATEntryOut.Base += TempVATEntry.Base + TempVATEntry."Unrealized Base";
             TempVATEntryOut.Modify();
@@ -766,7 +766,7 @@
     begin
         TempVATEntry.Reset();
         TempVATEntry.SetCurrentKey("VAT %", "EC %");
-        if TempVATEntry.FindSet then
+        if TempVATEntry.FindSet() then
             repeat
                 FillDetalleIVANode(XMLNode, TempVATEntry, true, 1, true, 0, RegimeCodes, 'CuotaSoportada');
             until TempVATEntry.Next() = 0;
@@ -936,7 +936,7 @@
         SIIManagement.FindVatEntriesFromLedger(RecRef, VATEntry);
         if not DomesticCustomer then
             VATEntry.SetRange("EU Service", IsService);
-        if VATEntry.FindSet then begin
+        if VATEntry.FindSet() then begin
             if SIIInitialDocUpload.DateWithinInitialUploadPeriod(CustLedgerEntry."Posting Date") then
                 NonExemptTransactionType := NonExemptTransactionType::S1
             else
@@ -999,7 +999,7 @@
         // Generating XML node for NonExempt part
         TempVATEntryCalculatedNonExempt.Reset();
         TempVATEntryCalculatedNonExempt.SetCurrentKey("VAT %", "EC %");
-        if TempVATEntryCalculatedNonExempt.FindSet then begin
+        if TempVATEntryCalculatedNonExempt.FindSet() then begin
             AddTipoDesgloseDetailHeader(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
               EUXMLNode, VATXMLNode, IsService, DomesticCustomer, false);
@@ -1053,7 +1053,7 @@
                 exit;
 
         TempVATEntryCalculated.Reset();
-        if TempVATEntryCalculated.FindLast then;
+        if TempVATEntryCalculated.FindLast() then;
 
         TempVATEntryCalculated.Init();
         TempVATEntryCalculated."Entry No." += 1;
@@ -1158,7 +1158,7 @@
     begin
         if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice then begin
             GetCorrectionInfoFromDocument(
-              CustLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
+              true, CustLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
               CustLedgerEntry."Correction Type", CustLedgerEntry."Corrected Invoice No.");
             if FindCustLedgerEntryOfRefDocument(CustLedgerEntry, OldCustLedgerEntry, CorrectedInvoiceNo) then
                 if CorrectionType = SalesCrMemoHeader."Correction Type"::Removal then begin
@@ -1316,7 +1316,7 @@
     begin
         if VendorLedgerEntry."Document Type" <> VendorLedgerEntry."Document Type"::Invoice then begin
             GetCorrectionInfoFromDocument(
-              VendorLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
+              false, VendorLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
               VendorLedgerEntry."Correction Type", VendorLedgerEntry."Corrected Invoice No.");
             if FindVendorLedgerEntryOfRefDocument(VendorLedgerEntry, OldVendorLedgerEntry, CorrectedInvoiceNo) then
                 if CorrectionType = PurchCrMemoHdr."Correction Type"::Removal then begin
@@ -1422,7 +1422,7 @@
         // loop over and fill diffs
         TempVATEntryPerPercent.Reset();
         TempVATEntryPerPercent.SetCurrentKey("VAT %", "EC %");
-        if TempVATEntryPerPercent.FindSet then begin
+        if TempVATEntryPerPercent.FindSet() then begin
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DesgloseIVA', '', 'sii', SiiTxt, XMLNode);
             repeat
                 CalcTotalDiffAmounts(
@@ -1864,7 +1864,7 @@
         if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Invoice then
             if PurchInvHeader.Get(VendorLedgerEntry."Document No.") then begin
                 PurchInvLine.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                if PurchInvLine.FindSet then
+                if PurchInvLine.FindSet() then
                     repeat
                         if PurchInvLine."Receipt No." <> '' then
                             if PurchRcptLine.Get(PurchInvLine."Receipt No.", PurchInvLine."Receipt Line No.") then
@@ -1914,32 +1914,37 @@
         end;
     end;
 
-    local procedure GetCorrectionInfoFromDocument(DocumentNo: Code[20]; var CorrectedInvoiceNo: Code[20]; var CorrectionType: Option; EntryCorrType: Option; EntryCorrInvNo: Code[20])
+    local procedure GetCorrectionInfoFromDocument(IsSales: Boolean; DocumentNo: Code[20]; var CorrectedInvoiceNo: Code[20]; var CorrectionType: Option; EntryCorrType: Option; EntryCorrInvNo: Code[20])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        case true of
-            PurchCrMemoHdr.Get(DocumentNo):
-                begin
-                    CorrectedInvoiceNo := PurchCrMemoHdr."Corrected Invoice No.";
-                    CorrectionType := PurchCrMemoHdr."Correction Type";
-                end;
-            SalesCrMemoHeader.Get(DocumentNo):
-                begin
-                    CorrectedInvoiceNo := SalesCrMemoHeader."Corrected Invoice No.";
-                    CorrectionType := SalesCrMemoHeader."Correction Type";
-                end;
-            ServiceCrMemoHeader.Get(DocumentNo):
-                begin
-                    CorrectedInvoiceNo := ServiceCrMemoHeader."Corrected Invoice No.";
-                    CorrectionType := ServiceCrMemoHeader."Correction Type";
-                end
-            else begin
-                    CorrectedInvoiceNo := EntryCorrInvNo;
-                    CorrectionType := EntryCorrType;
-                end;
+        if IsSales then begin
+            case true of
+                SalesCrMemoHeader.Get(DocumentNo):
+                    begin
+                        CorrectedInvoiceNo := SalesCrMemoHeader."Corrected Invoice No.";
+                        CorrectionType := SalesCrMemoHeader."Correction Type";
+                    end;
+                ServiceCrMemoHeader.Get(DocumentNo):
+                    begin
+                        CorrectedInvoiceNo := ServiceCrMemoHeader."Corrected Invoice No.";
+                        CorrectionType := ServiceCrMemoHeader."Correction Type";
+                    end
+                else begin
+                        CorrectedInvoiceNo := EntryCorrInvNo;
+                        CorrectionType := EntryCorrType;
+                    end;
+            end;
+            exit;
+        end;
+        if PurchCrMemoHdr.Get(DocumentNo) then begin
+            CorrectedInvoiceNo := PurchCrMemoHdr."Corrected Invoice No.";
+            CorrectionType := PurchCrMemoHdr."Correction Type";
+        end else begin
+            CorrectedInvoiceNo := EntryCorrInvNo;
+            CorrectionType := EntryCorrType;
         end;
     end;
 
@@ -1950,7 +1955,7 @@
     begin
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
         SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
-        SIIHistory.FindLast;
+        SIIHistory.FindLast();
         exit(DT2Date(SIIHistory."Request Date"));
     end;
 
@@ -2125,7 +2130,7 @@
     begin
         TempOldVATEntryPerPercent.SetRange("VAT %", TempVATEntryPerPercent."VAT %");
         TempOldVATEntryPerPercent.SetRange("EC %", TempVATEntryPerPercent."EC %");
-        if TempOldVATEntryPerPercent.FindFirst then begin
+        if TempOldVATEntryPerPercent.FindFirst() then begin
             BaseAmountDiff := TempVATEntryPerPercent.Base + TempOldVATEntryPerPercent.Base;
             VATAmountDiff := TempVATEntryPerPercent.Amount + TempOldVATEntryPerPercent.Amount;
             ECPercentDiff := TempVATEntryPerPercent."EC %" - TempOldVATEntryPerPercent."EC %";
@@ -2270,7 +2275,7 @@
         ExemptionEntryIndex: Integer;
         EntryNo: Integer;
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         EntryNo := VATEntry."Entry No." + +2000000; // Choose Entry No. to avoid conflict with real VAT Entries
         for ExemptionEntryIndex := 1 to ArrayLen(ExemptionCausePresent) do
             if not StopExemptLoop and ExemptionCausePresent[ExemptionEntryIndex] then begin
@@ -2290,14 +2295,14 @@
         VATEntry: Record "VAT Entry";
         EntryNo: Integer;
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         EntryNo := VATEntry."Entry No." + 3000000;
         if SIIManagement.NoTaxableEntriesExistSales(
              NoTaxableEntry,
              SIIManagement.GetCustFromLedgEntryByGLSetup(CustLedgerEntry), CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
              CustLedgerEntry."Posting Date", IsService, false, false)
         then begin
-            if NoTaxableEntry.FindSet then
+            if NoTaxableEntry.FindSet() then
                 repeat
                     EntryNo += 1;
                     TempVATEntryCalculatedNonExempt.TransferFields(NoTaxableEntry);

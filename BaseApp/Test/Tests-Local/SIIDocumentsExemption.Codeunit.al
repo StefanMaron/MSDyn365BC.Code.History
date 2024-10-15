@@ -38,7 +38,7 @@ codeunit 147525 "SII Documents Exemption"
         // [SCENARIO 230250] BaseImponible node has negative value for Sales Invoice with VAT Clause
         // [SCENARIO 254617] Exenta node exports under Entrega\Sujeta parent nodes
         // [SCENARIO 263060] DetalleExenta node uses for VAT exemption details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with VAT Clause
         LibrarySII.PostSalesDocWithVATClause(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, 0);
@@ -67,7 +67,7 @@ codeunit 147525 "SII Documents Exemption"
         // [SCENARIO 230250] BaseImponible node has negative value for Sales Credit Memo with VAT Clause
         // [SCENARIO 254617] Exenta node exports under Entrega\Sujeta parent nodes
         // [SCENARIO 263060] DetalleExenta node uses for VAT exemption details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with VAT Clause
         LibrarySII.PostSalesDocWithVATClause(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", 0);
@@ -98,7 +98,7 @@ codeunit 147525 "SII Documents Exemption"
         // [SCENARIO 230250] BaseImponible node has negative value for Sales Credit Memo with "Correction Type" = Replacement and VAT Clause
         // [SCENARIO 254617] Exenta node exports under Entrega\Sujeta parent nodes
         // [SCENARIO 263060] DetalleExenta node uses for VAT exemption details
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with VAT Clause
         LibrarySII.PostSalesDocWithVATClause(
@@ -129,7 +129,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Purchase] [Invoice] [Normal VAT]
         // [SCENARIO 222174] XML file has nodes with VAT exemption details for Purchase Invoice with VAT Clause
         // [SCENARIO 228209] "CuotaDeducible" node with zero value for Purchase Invoice with VAT Clause when Normal VAT Calculation Type
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with <zero> VAT Rate, Normal VAT Calculation Type and VAT Clause with SII Exemption Code
         CreateVATPostingSetupWithSIIExemptVATClause(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
@@ -168,7 +168,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 222174] XML file has nodes with VAT exemption details for Purchase Credit Memo with VAT Clause
         // [SCENARIO 228209] "CuotaDeducible" node with zero value and no VAT exempt details for Purchase Credit Memo with VAT Clause
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with <zero> VAT Rate Normal VAT Calculation Type and VAT Clause with SII Exemption Code
         CreateVATPostingSetupWithSIIExemptVATClause(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
@@ -208,7 +208,7 @@ codeunit 147525 "SII Documents Exemption"
         // [SCENARIO 222174] XML file has nodes with VAT exemption details for Purchase Credit Memo with "Correction Type" = Replacement and VAT Clause
         // [SCENARIO 228209] "CuotaDeducible" node with zero value and no VAT exempt details for Purchase Credit Memo with "Correction Type" = Replacement and VAT Clause
         // [SCENARIO 256251] Purchase Credit Memo with type "Replacement" has positive values for VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with <zero> VAT Rate, Normal VAT Calculation Type and VAT Clause with SII Exemption Code
         CreateVATPostingSetupWithSIIExemptVATClause(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
@@ -249,7 +249,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Purchase] [Invoice] [Reverse Charge VAT] [E5]
         // [SCENARIO 278726] XML file has "CuotaDeducible" node with VAT Amount
         // [SCENARIO 278726] when Purchase Invoice was posted with Reverse Charge VAT and VAT Clause having SII Exemption Code E5
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with 10% VAT Rate, Reverse Charge VAT and VAT Clause with SII Exemption Code E5
         CreateVATPostingSetupWithSIIExemptVATClause(
@@ -261,7 +261,7 @@ codeunit 147525 "SII Documents Exemption"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, PurchaseHeader."Document Type", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         VATEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -289,7 +289,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Purchase] [Credit Memo] [Reverse Charge VAT] [E5]
         // [SCENARIO 278726] XML file has "CuotaDeducible" node with VAT Amount
         // [SCENARIO 278726] when Purchase Credit Memo was posted with Reverse Charge VAT and VAT Clause having SII Exemption Code E5
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with 10% VAT Rate, Reverse Charge VAT and VAT Clause with SII Exemption Code E5
         CreateVATPostingSetupWithSIIExemptVATClause(
@@ -301,7 +301,7 @@ codeunit 147525 "SII Documents Exemption"
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, PurchaseHeader."Document Type", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         VATEntry.SetRange("Transaction No.", VendorLedgerEntry."Transaction No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         // [WHEN] Create xml for Posted Purchase Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -329,7 +329,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Purchase] [Invoice] [Reverse Charge VAT] [E5]
         // [SCENARIO 278726] XML file has "CuotaDeducible" node with <zero> value
         // [SCENARIO 278726] when Purchase Invoice was posted with Reverse Charge VAT and VAT Clause having SII Exemption Code E1
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with 10% VAT Rate, Reverse Charge VAT and VAT Clause with SII Exemption Code E1
         CreateVATPostingSetupWithSIIExemptVATClause(
@@ -369,7 +369,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Purchase] [Credit Memo] [Reverse Charge VAT] [E5]
         // [SCENARIO 278726] XML file has "CuotaDeducible" node with <zero> value
         // [SCENARIO 278726] when Purchase Credit Memo was posted with Reverse Charge VAT and VAT Clause having SII Exemption Code E1
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with 10% VAT Rate, Reverse Charge VAT and VAT Clause with SII Exemption Code E1
         CreateVATPostingSetupWithSIIExemptVATClause(
@@ -409,7 +409,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 303472] XML nodes of normal and exempt entries of Sales Invoice both located under correct parent node "Sujeta"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with two lines
         // [GIVEN] First line has VAT Exemption and Amount = 100
@@ -443,7 +443,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 303472] XML nodes of normal and exempt entries of Sales Credit Memo both located under correct parent node "Sujeta"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with two lines
         // [GIVEN] First line has VAT Exemption and Amount = 100
@@ -478,7 +478,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 303472] XML nodes of normal and exempt entries of Replacement Sales Credit Memo both located under correct parent node "Sujeta"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Correction Type" = Replacement and two lines
         // [GIVEN] First line has VAT Exemption and Amount = 100
@@ -513,7 +513,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 331968] XML nodes of normal zero VAT and exempt entries of Sales Invoice both located under correct parent node "Sujeta"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with zero VAT % and VAT Base = 100
         CreateSalesDocZeroVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, 0);
@@ -540,7 +540,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 330227] XML nodes of normal zero VAT and exempt entries of Sales Credit Memo both located under correct parent node "Sujeta"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with zero VAT % and VAT Base = 100
         CreateSalesDocZeroVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", 0);
@@ -568,7 +568,7 @@ codeunit 147525 "SII Documents Exemption"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 330227] XML nodes of normal zero VAT and exempt entries of Replacement Sales Credit Memo both located under correct parent node "Sujeta"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Replacement Credit Memo with zero VAT % and VAT Base = -100
         CreateSalesDocZeroVAT(
@@ -615,7 +615,7 @@ codeunit 147525 "SII Documents Exemption"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(SIIXMLCreator);
         if IsInitialized then
             exit;
@@ -709,14 +709,14 @@ codeunit 147525 "SII Documents Exemption"
     begin
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure FindLastSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
     end;
 
     local procedure AddNormalVATSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATRate: Decimal)

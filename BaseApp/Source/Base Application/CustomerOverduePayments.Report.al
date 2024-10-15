@@ -237,7 +237,7 @@ report 10747 "Customer - Overdue Payments"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not AppldCustLedgEntryTmp.FindSet then
+                            if not AppldCustLedgEntryTmp.FindSet() then
                                 CurrReport.Break();
                         end else
                             if AppldCustLedgEntryTmp.Next() = 0 then
@@ -398,7 +398,7 @@ report 10747 "Customer - Overdue Payments"
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
         DtldCustLedgEntry.SetRange(Unapplied, false);
         DtldCustLedgEntry.SetRange("Posting Date", StartDate, EndDate);
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 if DtldCustLedgEntry."Cust. Ledger Entry No." = DtldCustLedgEntry."Applied Cust. Ledger Entry No." then
                     FindAppPaymToInv(DtldCustLedgEntry."Applied Cust. Ledger Entry No.", InvCustLedgEntry)
@@ -420,7 +420,7 @@ report 10747 "Customer - Overdue Payments"
             SetRange("Entry Type", "Entry Type"::Application);
             SetRange(Unapplied, false);
             SetRange("Posting Date", StartDate, EndDate);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Cust. Ledger Entry No." <> "Applied Cust. Ledger Entry No." then begin
                         if IsPaymentEntry("Cust. Ledger Entry No.", PayCustLedgEntry) and
@@ -523,7 +523,7 @@ report 10747 "Customer - Overdue Payments"
                 DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
                 DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", InvCustLedgEntry."Entry No.");
                 DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::"Initial Entry");
-                if DtldCustLedgEntry.FindFirst then begin
+                if DtldCustLedgEntry.FindFirst() then begin
                     AppldCustLedgEntryTmp := DtldCustLedgEntry;
                     if ShowPayments = ShowPayments::"Legally Overdue" then
                         AppldCustLedgEntryTmp."Initial Entry Due Date" := MaxAllowedDueDate

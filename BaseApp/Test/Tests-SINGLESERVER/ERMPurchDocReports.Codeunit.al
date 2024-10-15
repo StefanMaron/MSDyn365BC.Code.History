@@ -47,7 +47,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Purchase Receipt with No Option Selected.
 
         // Setup: Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
@@ -77,7 +77,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Purchase Receipt with Show Internal Information Option.
 
         // Setup: Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', DefaultDimension."No.", '');
         ExpectedDimensionValue := StrSubstNo('%1 - %2', DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
@@ -105,7 +105,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Purchase Receipt with Log Entry Option.
 
         // Setup: Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
         DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -130,7 +130,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Verify Purchase Receipt Report after undo Receipt with Show Correction Lines.
 
         // Setup: Create Purchase Order, post and undo Purchase Receipt.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order);
         FindReceiptLine(PurchRcptLine, PurchaseLine."No.");
         LibraryVariableStorage.Enqueue(UndoReceiptMsg);  // Enqueue value for ConfirmHandler.
@@ -157,7 +157,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // [GIVEN] Purchase Invoice Payment Discount LCY = "D", Payment Tolerance LCY = "T"
         // [GIVEN] Applied Payment with Amount LCY = "P" > Invoice Amount
-        Initialize;
+        Initialize();
         DocumentNo := SetupAndPostVendorPmtTolerance(GenJournalLine, '');
 
         // [WHEN] Run Vendor Payment Receipt Report
@@ -181,7 +181,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [FEATURE] [Vendor - Payment Receipt]
         // [SCENARIO 371840] Vendor Payment Receipt Report for payment with LCY, invoice in FCY
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice in FCY with Payment Discount LCY = "D", Payment Tolerance LCY = "T"
         // [GIVEN] Applied Payment in LCY with Amount LCY = "P" > Invoice Amount
@@ -210,7 +210,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Summary Aging Report without any option selected.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Try to Save Vendor Summary Aging without any option.
         Clear(VendorSummaryAging);
@@ -231,7 +231,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Summary Aging Report with Posting Date.
 
         // Setup: Post Invoice Entry for Vendor on WORKDATE.
-        Initialize;
+        Initialize();
         CreatePostGeneralJournalLine(GenJournalLine, LibraryPurchase.CreateVendorNo, '', '0D');
 
         // Exercise: Save Vendor Summary Aging Report with Posting Date.
@@ -253,7 +253,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Summary Aging Report with Period Length.
 
         // Setup: Post Invoice Entry for Vendor on WORKDATE.
-        Initialize;
+        Initialize();
         CreatePostGeneralJournalLine(GenJournalLine, LibraryPurchase.CreateVendorNo, '', '0D');
 
         // Save and Verify Vendor Summary Aging Report with Period Length.
@@ -270,7 +270,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Summary Aging Report with Currency.
 
         // Setup: Post Invoice Entry for Vendor on WORKDATE with Currency Attached.
-        Initialize;
+        Initialize();
         CreatePostGeneralJournalLine(GenJournalLine, LibraryPurchase.CreateVendorNo, CreateCurrencyAndExchangeRate, '0D');
 
         // Save and Verify Vendor Summary Aging Report with Currency.
@@ -286,7 +286,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Order Summary Report with out any Option Selected.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Try to Save Vendor Summary Aging without any option.
         Clear(VendorOrderSummary);
@@ -309,7 +309,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Order Summary Report with Posting Date
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', '', '');
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
 
@@ -343,7 +343,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Order Summary Report with Currency.
 
         // Setup: Create Purchase Document with Currency.
-        Initialize;
+        Initialize();
         LibraryERM.FindCurrency(Currency);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Currency.Code, '', '');
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -376,11 +376,11 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Order Detail Report with default option.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         // Exercise: Save Vendor Order Details Report with option Amount LCY FALSE.
         SaveOrderDetailReport(PurchaseHeader."Buy-from Vendor No.", false);
@@ -412,12 +412,12 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Order Detail Report with Amount LCY.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateCurrencyAndExchangeRate, CreateItem, '');
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         // Exercise: Save Vendor Order Details Report with option Amount LCY TRUE.
         SaveOrderDetailReport(PurchaseHeader."Buy-from Vendor No.", true);
@@ -449,7 +449,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Detail Trial Balance Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', CreateItem, '');
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -480,7 +480,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Detail Trial Balance Report for LCY fields.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', CreateItem, '');
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -510,7 +510,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Detail Trial Balance Report for Option Exclude Vendors That Have a Balance Only.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -537,7 +537,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Item Catalog report.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchasePrice(PurchasePrice, Vendor."No.");
         CreateItemVendor(ItemVendor, PurchasePrice."Item No.", Vendor."No.");
@@ -560,7 +560,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     procedure PurchaseListShowAddress()
     begin
         // Create New Vendor and verify Vendor Address showing while Hide Address detail = FALSE on Request page.
-        Initialize;
+        Initialize();
         VendorPurchaseList(false);
     end;
 
@@ -570,7 +570,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     procedure PurchaseListHideAddress()
     begin
         // Create New Vendor and verify whether Vendor Address not showing while Hide Address detail = TRUE on Request page.
-        Initialize;
+        Initialize();
         asserterror VendorPurchaseList(true);
         Assert.ExpectedError('No row found');
     end;
@@ -581,7 +581,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     procedure PurchaseListAmountLCY()
     begin
         // Verify Vendor Purchase List Report include only those entry where Purchase Amount is greater than 0.
-        Initialize;
+        Initialize();
         asserterror VendorPurchaseListAmountLCY(0.1);  // Using 0.1 because Report generate only for greater then O Amount Entry.
         Assert.ExpectedError('No row found');
     end;
@@ -592,7 +592,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     procedure PurchaseListIncludeZeroAmount()
     begin
         // Verify Vendor Purchase List Report include all entries.
-        Initialize;
+        Initialize();
         VendorPurchaseListAmountLCY(0);  // Using 0 because Report generate for all entries including O Amount.
     end;
 
@@ -605,7 +605,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Balance To Date without any option selected.
 
         // Setup.
-        Initialize;
+        Initialize();
         Clear(VendorBalanceToDate);
         VendorBalanceToDate.InitializeRequest(false, false, false);
 
@@ -628,7 +628,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Balance To Date with Vendor No.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
@@ -653,7 +653,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Balance To Date with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateCurrencyAndExchangeRate, CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -675,12 +675,14 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     var
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ElementValue: Variant;
+        ReportOriginalAmt: Decimal;
         DocumentNo: Code[20];
     begin
         // Check Vendor Balance To Date with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateCurrencyAndExchangeRate, CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -690,8 +692,10 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Save and Verify Report Vendor Balance to Date.
         SaveVendorBalanceToDate(PurchaseHeader, true, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
-        with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amt. (LCY)"));
+        LibraryReportDataset.MoveToRow(1);
+        LibraryReportDataset.GetElementValueInCurrentRow('OriginalAmt', ElementValue);
+        Evaluate(ReportOriginalAmt, Format(ElementValue));
+        VendorLedgerEntry.TestField("Original Amt. (LCY)", ReportOriginalAmt);
 
         asserterror LibraryReportDataset.AssertElementWithValueExists('', PurchaseHeader."Currency Code");
     end;
@@ -710,7 +714,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Vendor Balance To Date with Unapplied Entries.
 
         // Setup.
-        Initialize;
+        Initialize();
         LineAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -737,7 +741,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Error Message on Purchase Statistics Report with Blank Period Length and Starting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         Clear(PurchaseStatistics);
         Evaluate(PeriodLength, '');  // Make Period Length Blank.
 
@@ -761,7 +765,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Purchase Statistics Report with Data in all columns.
 
         // Setup: Post Invoice Entry for Vendor on different Posting Dates to populate data in all columns.
-        Initialize;
+        Initialize();
         VendorNo := CreateAndUpdateVendor;
         for Counter := 1 to 5 do begin
             CreatePostGeneralJournalLine(GenJournalLine, VendorNo, '', '<-' + Format(Counter) + 'M>');
@@ -792,7 +796,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Invoice Discount on Purchase Statistics Report.
 
         // Setup: Create and Post Purchase Order after calculating Invoice Discount.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, CreateAndUpdateVendor);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
@@ -822,7 +826,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Payment Discount on Purchase Statistics Report.
 
         // Setup:  Create and Post Purchase order for Vendor and Make a Payment for it.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, CreateAndUpdateVendor);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -852,7 +856,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Payment tolerance on Purchase Statistics Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupAndPostVendorPmtTolerance(GenJournalLine, '');
 
         // Exercise.
@@ -877,7 +881,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Blanket Purchase Order Report.
 
         // Setup:
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', CreateItem, '');
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
 
@@ -903,7 +907,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Dimension Value after saving Blanket Purchase Order Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', DefaultDimension."No.", '');
 
@@ -928,7 +932,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Check Interaction Log Entry after saving Blanket Purchase Order Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', CreateItem, '');
 
         // Exercise: Save Blanket Purchase Order Report with Log Interaction TRUE.
@@ -949,7 +953,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Verify Purchase Return Shipment Report after undo Return Shipment with Show Correction Lines.
 
         // Setup: Create Purchase Return Order, post and undo Purchase Return Shipment.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order");
         FindReturnShipmentLine(ReturnShipmentLine, PurchaseLine."No.");
         LibraryVariableStorage.Enqueue(UndoPurchRetOrderMsg);  // Enqueue value for ConfirmHandler.
@@ -976,7 +980,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Verify that general journal line exists with credit memo after running the suggest vendor payment report.
 
         // Setup: Create and post general journal line with document type invoice and credit memo.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandIntInRange(10, 50);
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
@@ -1005,7 +1009,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Verify that purchase quote report shows line where type is blank.
 
         // Setup: Create purchase quote with type blank.
-        Initialize;
+        Initialize();
         CreatePurchaseQuoteWithMultipleLine(PurchaseHeader);
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
 
@@ -1030,7 +1034,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ExpectedAmount: Decimal;
     begin
         // Setup: Create a Vendor, create one Purchase Order with two Lines.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithTwoLines(VendorNo, ExpectedAmount);
 
         // Exercise: Generate the Vendor Order Summary report.
@@ -1050,7 +1054,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ExpectedAmount: Decimal;
     begin
         // Setup: Create a Vendor, create one Purchase Order with two Lines.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithTwoLines(VendorNo, ExpectedAmount);
 
         // Release Purchase Order.
@@ -1074,7 +1078,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ExpectedAmount: Decimal;
     begin
         // Setup: Create a Vendor, create one Purchase Order with two Lines.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithTwoLines(VendorNo, ExpectedAmount);
 
         // Release Purchase Order.
@@ -1097,7 +1101,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Amount: Decimal;
     begin
         // [SCENARIO 378237] Vendor Balance To Date for Entry where unapplication and then application are out of Ending Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
         MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate);
@@ -1124,7 +1128,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Amount: Decimal;
     begin
         // [SCENARIO 378237] Vendor Balance To Date for closed Entry with zero balance inside period and application after Ending Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
         MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate);
@@ -1154,7 +1158,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Amount: Decimal;
     begin
         // [SCENARIO 378848] Vendor Balance To Date for unapplied entry inside period and application after Ending Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
         MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate);
@@ -1182,7 +1186,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PmtAmount: Decimal;
     begin
         // [SCENARIO 211599] Vendor Balance To Date for closed Entry inside period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
         PmtAmount := -LibraryRandom.RandDec(100, 2);
@@ -1214,7 +1218,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [FEATURE] [Archive] [Prices Incl. VAT] [Order]
         // [SCENARIO 381574] Report 416 "Archived Purchase Order" correctly prints total vat base/amount in case of "Prices Including VAT" = TRUE and two lines with different VAT Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with "Prices Including VAT" = TRUE, two lines with different VAT Setup
         CreatePurchaseOrderWithTwoVATSetupLines(VATPostingSetup, PurchaseHeader, TotalBaseAmount, TotalVATAmount);
@@ -1242,7 +1246,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [FEATURE] [Archive] [Invoice Discount] [Order]
         // [SCENARIO 201417] Report 416 "Archived Purchase Order" correctly prints totals in case of Invoice Discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with "Line Amount" = 1000, "Invoice Discount Amount" = 200, "VAT %" = 25
         CreatePurchaseDocWithItemAndVATSetup(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
@@ -1271,7 +1275,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [FEATURE] [Archive] [Invoice Discount] [Return Order]
         // [SCENARIO 201417] Report 417 "Arch.Purch. Return Order" correctly prints totals in case of Invoice Discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order with "Line Amount" = 1000, "Invoice Discount Amount" = 200, "VAT %" = 25
         CreatePurchaseDocWithItemAndVATSetup(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
@@ -1302,7 +1306,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         // [FEATURE] [Vendor Order Summary]
         // [SCENARIO 286863] Vendor Order Summary splits lines for orders in different currencies
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -1340,7 +1344,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorNo: Code[20];
     begin
         // [SCENARIO 285509] Vendor Balance To Date prints Document No. for not applied entry when Use External Document No. = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor "VEND" with "Document No." = "DOCNO"
         CreateAndPostPurchaseInvoice(PurchInvHeader);
@@ -1363,7 +1367,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorNo: Code[20];
     begin
         // [SCENARIO 285509] Vendor Balance To Date prints Document No. for partly applied entry when Use External Document No. = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor "VEND" with "Document No." = "DOCNO"
         CreateAndPostPurchaseInvoice(PurchInvHeader);
@@ -1388,7 +1392,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorNo: Code[20];
     begin
         // [SCENARIO 285509] Vendor Balance To Date prints External Document No. for not applied entry when Use External Document No. = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor "VEND" with "External Document No." = "EXTDOCNO"
         CreateAndPostPurchaseInvoice(PurchInvHeader);
@@ -1411,7 +1415,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorNo: Code[20];
     begin
         // [SCENARIO 285509] Vendor Balance To Date prints External Document No. for partly applied entry when Use External Document No. = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice for vendor "VEND" with "Document No." = "DOCNO"
         CreateAndPostPurchaseInvoice(PurchInvHeader);
@@ -1644,20 +1648,20 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purch. Doc. Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch. Doc. Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateLocalData();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
@@ -2062,7 +2066,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
@@ -2084,19 +2088,19 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; No: Code[20])
     begin
         PurchRcptLine.SetRange("No.", No);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; No: Code[20])
     begin
         ReturnShipmentLine.SetRange("No.", No);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindPurchaseHeaderArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; PurchaseHeader: Record "Purchase Header")
@@ -2104,7 +2108,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         with PurchaseHeaderArchive do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2130,7 +2134,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         Commit();  // Commit required to avoid test failure.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure MockApplyUnapplyScenario(VendorNo: Code[20]; ApplnDate1: Date; UnapplDate: Date; ApplnDate2: Date) Amount: Decimal
@@ -2218,7 +2222,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchaseHeader.SetRange("No.", No);
         BlanketPurchaseOrder.SetTableView(PurchaseHeader);
         BlanketPurchaseOrder.InitializeRequest(0, ShowInternalInfo, LogInteraction);  // Passing zero for No. of copies.
-        BlanketPurchaseOrder.Run;
+        BlanketPurchaseOrder.Run();
     end;
 
     local procedure SaveOrderDetailReport(No: Code[20]; ShowAmountInLCY: Boolean)
@@ -2231,7 +2235,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("No.", No);
         VendorOrderDetail.SetTableView(Vendor);
         VendorOrderDetail.InitializeRequest(ShowAmountInLCY, false);
-        VendorOrderDetail.Run;
+        VendorOrderDetail.Run();
     end;
 
     local procedure SavePurchaseListReport(No: Code[20]; No2: Code[20]; MinAmtLCY: Decimal; HideAddress: Boolean)
@@ -2246,7 +2250,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Clear(VendorPurchaseList);
         Vendor.SetFilter("No.", '%1|%2', No, No2);
         VendorPurchaseList.SetTableView(Vendor);
-        VendorPurchaseList.Run;
+        VendorPurchaseList.Run();
     end;
 
     local procedure SavePurchaseReceipt(No: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean; ShowCorrectionLine: Boolean)
@@ -2259,7 +2263,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PurchRcptHeader.SetRange("No.", No);
         PurchaseReceipt.SetTableView(PurchRcptHeader);
         PurchaseReceipt.InitializeRequest(0, ShowInternalInfo, LogInteraction, ShowCorrectionLine);
-        PurchaseReceipt.Run;
+        PurchaseReceipt.Run();
     end;
 
     local procedure SavePurchaseRetShipment(No: Code[20])
@@ -2272,7 +2276,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ReturnShipmentHeader.SetRange("No.", No);
         PurchaseReturnShipment.SetTableView(ReturnShipmentHeader);
         PurchaseReturnShipment.InitializeRequest(0, false, true, false);
-        PurchaseReturnShipment.Run;
+        PurchaseReturnShipment.Run();
     end;
 
     local procedure SavePurchaseStatistics(No: Code[20]; PostingDate: Date)
@@ -2287,7 +2291,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("No.", No);
         PurchaseStatistics.SetTableView(Vendor);
         PurchaseStatistics.InitializeRequest(PeriodLength, PostingDate);
-        PurchaseStatistics.Run;
+        PurchaseStatistics.Run();
     end;
 
     local procedure SaveVendorDetailTrialBalReport(No: Code[20]; PrintAmountsInLCY: Boolean; ExcludeBalanceOnly: Boolean; PostingDate: Date)
@@ -2301,7 +2305,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("Date Filter", PostingDate);
         VendorDetailTrialBalance.SetTableView(Vendor);
         VendorDetailTrialBalance.InitializeRequest(PrintAmountsInLCY, false, ExcludeBalanceOnly);  // Set FALSE for Print Only Per Page.
-        VendorDetailTrialBalance.Run;
+        VendorDetailTrialBalance.Run();
     end;
 
     local procedure SaveVendorItemCatalog(VendorNo: Code[20])
@@ -2313,7 +2317,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Clear(VendorItemCatalog);
         Vendor.SetRange("No.", VendorNo);
         VendorItemCatalog.SetTableView(Vendor);
-        VendorItemCatalog.Run;
+        VendorItemCatalog.Run();
     end;
 
     local procedure SaveVendorOrderSummary(No: Code[20]; PostingDate: Date; AmountLCY: Boolean)
@@ -2328,7 +2332,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Clear(VendorOrderSummary);
         Vendor.SetRange("No.", No);
         VendorOrderSummary.SetTableView(Vendor);
-        VendorOrderSummary.Run;
+        VendorOrderSummary.Run();
     end;
 
     local procedure SaveVendorPaymentReceipt(GenJournalLine: Record "Gen. Journal Line")
@@ -2341,7 +2345,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VendorPaymentReceipt.SetTableView(VendorLedgerEntry);
-        VendorPaymentReceipt.Run;
+        VendorPaymentReceipt.Run();
     end;
 
     local procedure SaveVendorSummaryAging(AccountNo: Code[20]; PostingDate: Date; DatePeriod: Text[10]; AmountLCY: Boolean)
@@ -2357,7 +2361,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Clear(VendorSummaryAging);
         Vendor.SetRange("No.", AccountNo);
         VendorSummaryAging.SetTableView(Vendor);
-        VendorSummaryAging.Run;
+        VendorSummaryAging.Run();
     end;
 
     local procedure SaveVendorBalanceToDate(PurchaseHeader: Record "Purchase Header"; AmountLCY: Boolean; Unapplied: Boolean; ShowEntriesWithZeroBalance: Boolean)
@@ -2376,7 +2380,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("Date Filter", PurchaseHeader."Posting Date");
         VendorBalanceToDate.SetTableView(Vendor);
         VendorBalanceToDate.InitializeRequest(AmountLCY, false, Unapplied);
-        VendorBalanceToDate.Run;
+        VendorBalanceToDate.Run();
     end;
 
     local procedure RunVendorBalanceToDateWithVendor(VendorNo: Code[20]; Unapplied: Boolean; EndingDate: Date)
@@ -2390,7 +2394,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("Date Filter", EndingDate);
         VendorBalanceToDate.SetTableView(Vendor);
         VendorBalanceToDate.InitializeRequest(false, false, Unapplied);
-        VendorBalanceToDate.Run;
+        VendorBalanceToDate.Run();
     end;
 
     local procedure RunVendorBalanceToDateWithUseExternalDocNo(VendorNo: Code[20]; UseExternalDocNo: Boolean)
@@ -2404,7 +2408,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("No.", VendorNo);
         Vendor.SetRange("Date Filter", CalcDate('<CM>', WorkDate()));
         VendorBalanceToDate.SetTableView(Vendor);
-        VendorBalanceToDate.Run;
+        VendorBalanceToDate.Run();
     end;
 
     local procedure RunArchivedPurchaseOrderReport(PurchaseHeader: Record "Purchase Header")
@@ -2427,7 +2431,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     var
         Vendor: Record Vendor;
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(false);
@@ -2567,7 +2571,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         InteractionLogEntry.SetRange("Document Type", DocumentType);
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
     end;
 
     local procedure VerifyPurchRtnShipReport(PurchaseLine: Record "Purchase Line")
@@ -2584,7 +2588,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Verify: Verify Saved Report Data.
         VendorLedgerEntry.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntry.SetFilter("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
         with VendorLedgerEntry do begin
@@ -2601,7 +2605,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SuggestVendorGenJnlLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         SuggestVendorGenJnlLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         SuggestVendorGenJnlLine.SetRange("Applies-to Doc. Type", SuggestVendorGenJnlLine."Applies-to Doc. Type"::"Credit Memo");
-        SuggestVendorGenJnlLine.FindFirst;
+        SuggestVendorGenJnlLine.FindFirst();
         SuggestVendorGenJnlLine.TestField(Amount, Amount);
     end;
 

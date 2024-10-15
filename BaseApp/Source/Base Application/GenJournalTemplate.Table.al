@@ -160,7 +160,7 @@
             Caption = 'Force Doc. Balance';
             InitValue = false;
         }
-        field(19; "Bal. Account Type"; enum "Gen. Journal Account Type")
+        field(19; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
 
@@ -294,6 +294,14 @@
                     GenJnlBatch.ModifyAll("Copy to Posted Jnl. Lines", "Copy to Posted Jnl. Lines");
                 end;
             end;
+        }
+        field(32; "Allow Posting Date From"; Date)
+        {
+            Caption = 'Allow Posting From';
+        }
+        field(33; "Allow Posting Date To"; Date)
+        {
+            Caption = 'Allow Posting To';
         }
     }
 

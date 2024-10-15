@@ -38,7 +38,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         // Check VAT Amount on Purchase Invoice Statistics After Changing VAT Amount.
 
         // Setup: Modify GeneralLedger And PurchasesPayables Setup, Create Purchase Order, VAT Amount Modified Using Handler.
-        Initialize;
+        Initialize();
         OldVATDifferenceAllowed := UpdateGeneralLedgerSetup(LibraryRandom.RandDec(0, 1));
         AllowVATDifference := UpdatePurchasesPayablesSetup(true);
         UpdateVendorPostingGroup;
@@ -70,7 +70,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         // Check VAT Amount on Sales Invoice Statistics After Changing VAT Amount.
 
         // Setup: Modify General Ledger Setup And Purchases Payables Setup, Create Sales Order, VAT Amount Modified Using Handler.
-        Initialize;
+        Initialize();
         OldVATDifferenceAllowed := UpdateGeneralLedgerSetup(LibraryRandom.RandDec(0, 1));
         AllowVATDifference := UpdateSalesReceivableSetup(true);
         UpdateCustomerPostingGroup;
@@ -91,7 +91,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -216,7 +216,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         LibraryERM.FindGLAccount(GLAccount);
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
         CustomerPostingGroup.Validate("Bills Account", GLAccount."No.");
         CustomerPostingGroup.Modify(true);
     end;
@@ -258,7 +258,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         LibraryERM.FindGLAccount(GLAccount);
-        VendorPostingGroup.FindFirst;
+        VendorPostingGroup.FindFirst();
         VendorPostingGroup.Validate("Bills Account", GLAccount."No.");
         VendorPostingGroup.Modify(true);
     end;
@@ -272,7 +272,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
     begin
         // Verify VAT Amount on VAT Amount lines in Statistics of Posted Purchase Invoice.
         PurchInvHeader.SetRange("No.", No);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchaseInvoiceStatistics.Trap;
 
         PostedPurchaseInvoice.OpenView;
@@ -294,7 +294,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
     begin
         // Verify VAT Amount on VAT Amount lines in Statistics of Posted Sales Invoice.
         SalesInvoiceHeader.SetRange("No.", No);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceStatistics.Trap;
 
         PostedSalesInvoice.OpenView;

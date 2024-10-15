@@ -85,7 +85,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Sales Document - Test report on Sales Order.
 
         // Setup: Create Customer,Update General Ledger Setup,Create Sales Order and open Sales Order page.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -123,7 +123,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Sales Invoice Statistics Page.
 
         // Setup: Create Customer,Update General Ledger Setup,Create Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -157,7 +157,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Sales Document - Test report on Sales Invoice.
 
         // Setup: Create Customer,Update General Ledger Setup,Create Sales Invoice and open Sales Invoice page.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -188,7 +188,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Item Ledger Entry after posting Purchase Order without Payment Discount.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseAmountActualOnItemLedgerEntry(0, LibraryRandom.RandDec(10, 2), 0);  // 0 for Payment Discount. % and Line Discount %, Random for Invoice Discount %.
     end;
 
@@ -200,7 +200,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Item Ledger Entry after posting Purchase Order without Invoice Discount.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseAmountActualOnItemLedgerEntry(LibraryRandom.RandDec(10, 2), 0, 0);  // Random for Payment Discount %, 0 for Invoice Discount. % and Line Discount %.
     end;
 
@@ -212,7 +212,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Item Ledger Entry after posting Purchase Order with Invoice Discount and Payment Discount.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseAmountActualOnItemLedgerEntry(LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2), 0);  // Random for Payment Discount % and Invoice Discount. %, 0 for Line Discount %.
     end;
 
@@ -226,7 +226,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Item Ledger Entry after posting Purchase Order With Line Discount.
 
         // Setup.
-        Initialize;
+        Initialize();
         DiscountPercentage := LibraryRandom.RandDec(10, 2);
         PurchaseAmountActualOnItemLedgerEntry(DiscountPercentage, DiscountPercentage, DiscountPercentage);
     end;
@@ -277,7 +277,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Value Entry after posting Purchase Order With Payment Discount.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Order and open Purchase Order page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -315,7 +315,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Item Ledger Entry after posting Purchase Return Order.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Return Order and open Purchase Return Order page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -354,7 +354,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Value Entry after posting Purchase Credit Memo.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Credit Memo and open Purchase Credit Memo page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -392,7 +392,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Item Ledger Entry after posting Purchase Order.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Order and open Purchase Order page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -431,7 +431,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Purchase Amount (Actual) on Value Entry after posting Purchase Invoice.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Invoice and open Purchase Invoice page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -466,7 +466,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Purchase Document - Test report on Purchase Invoice.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Invoice and open Purchase Invoice page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -502,7 +502,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Purchase Document - Test report on Purchase Credit Memo.
 
         // Setup: Create Vendor,Update General Ledger Setup,Create Purchase Credit Memo and open Purchase Credit Memo page.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -538,7 +538,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Sales Document - Test report on Sales Credit Memo.
 
         // Setup: Create Customer,Update General Ledger Setup,Create Sales Credit Memo and open Sales Credit Memo page.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -573,7 +573,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Service Statistics Page.
 
         // Setup: Create Customer,Update General Ledger Setup,Create Service Invoice and open Service Invoice page.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -602,7 +602,7 @@ codeunit 144076 "ERM Payment Discount"
         // Test to verify Payment Discount Amount on Service Credit Memo Statistics Page.
 
         // Setup: Create Customer,Update General Ledger Setup,Create Service Credit Memo and open Service Credit Memo page.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -628,7 +628,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         // [FEATURE] [Sales][Invoice Discount]
         // [SCENARIO 376123] Field "Recalculate Invoice Disc." of "Sales Header" should be FALSE after releasing document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with sales line
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -654,7 +654,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         // [FEATURE] [Purchase][Invoice Discount]
         // [SCENARIO 376123] Field "Recalculate Invoice Disc." of "Purchase Header" should be FALSE after releasing document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with purchase line
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -682,7 +682,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 256684] The Payment Discount is taken into account when a Sales Order is created from a Sales Quote.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false, SalesReceivablesSetup."Credit Warnings"::"No Warning");
 
         // [GIVEN] Sales Quote "Q" for Customer with Payment Discount with Sales Line.
@@ -713,7 +713,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         // [FEATURE] [Purchase] [Quote]
         // [SCENARIO 256684] The Payment Discount is taken into account when a Purchase Order is created from a Purchase Quote.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetup;
 
         // [GIVEN] Purchase Quote "Q" for Vendor with Payment Discount with Purchase Line.
@@ -805,9 +805,9 @@ codeunit 144076 "ERM Payment Discount"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialize then
             exit;
 
@@ -826,7 +826,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         CreatePurchaseHeader(
           PurchaseHeader, DocumentType, VendorNo, LibraryRandom.RandDec(10, 2));  // Random for Payment Discount %.
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item));
         CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item));
@@ -1005,10 +1005,10 @@ codeunit 144076 "ERM Payment Discount"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Quote No.", QuoteNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindPurchLineCreatedFromQuote(var PurchaseLine: Record "Purchase Line"; QuoteNo: Code[20])
@@ -1016,10 +1016,10 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetRange("Quote No.", QuoteNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure OpenPurchaseCreditMemoToCalculatePaymentDiscount(No: Code[20])
@@ -1176,7 +1176,7 @@ codeunit 144076 "ERM Payment Discount"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Purchase Amount (Actual)");
         Assert.AreNearlyEqual(
           PurchaseAmountActual, ItemLedgerEntry."Purchase Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
@@ -1187,7 +1187,7 @@ codeunit 144076 "ERM Payment Discount"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchaseAmountActual, ValueEntry."Purchase Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;

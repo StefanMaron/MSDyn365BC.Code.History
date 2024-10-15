@@ -50,7 +50,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RemainingAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -80,7 +80,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RejectionFeeAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -114,7 +114,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -151,7 +151,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -183,7 +183,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RejectionFeeAmount: Decimal;
         RemainingAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -209,7 +209,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RemainingAmount: Decimal;
         RejectionFeeAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -241,7 +241,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -274,7 +274,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -305,7 +305,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RejectionFeeAmount: Decimal;
         RemainingAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -333,7 +333,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RemainingAmount: Decimal;
         BalancingAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -361,7 +361,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         RemainingAmount: Decimal;
         BalancingAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionTestsSetup(BankAccount, Customer);
@@ -391,7 +391,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
     begin
         // [FEATURE] [Document Status] [Cust. Ledger Entry] [Closed Cartera Doc.]
         // [SCENARIO 270642] When Sales Invoice rejected from Bill Group is fully paid, then Document Status is changed from "Rejected" to "Honored" in Cust. Ledger Entry and Closed Cartera Doc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method with "Invoices to Cartera" = TRUE and Collection Agent = Bank
         // [GIVEN] Posted Sales Invoice with Payment Method Code and Amount Including VAT = 1000.0
@@ -452,7 +452,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
     begin
         // [FEATURE] [Document Status] [Cust. Ledger Entry] [Closed Cartera Doc.]
         // [SCENARIO 270642] When rejected Sales Invoice is fully paid, then Document Status is changed from "Rejected" to "Honored" in Cust. Ledger Entry and Closed Cartera Doc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method with "Invoices to Cartera" = TRUE and Collection Agent = Bank
         // [GIVEN] Posted Sales Invoice with Payment Method Code and Amount Including VAT = 1000.0
@@ -507,7 +507,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
     begin
         // [FEATURE] [Document Status] [Cust. Ledger Entry] [Closed Cartera Doc.]
         // [SCENARIO 270642] When rejected Sales Invoice is not fully paid, then Document Status remains "Rejected" in Cust. Ledger Entry and Closed Cartera Doc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method with "Invoices to Cartera" = TRUE and Collection Agent = Bank
         // [GIVEN] Posted Sales Invoice with Payment Method Code and Amount Including VAT = 1000.0
@@ -546,7 +546,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
     local procedure Initialize()
     begin
         LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -627,7 +627,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
 
         PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         PostedBillGroups.Docs.GotoRecord(PostedCarteraDoc);
 
@@ -667,7 +667,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         PostedBillGroupTestPage.OpenView;
 
         PostedBillGroup.SetFilter("No.", BillGroupNo);
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupTestPage.GotoRecord(PostedBillGroup);
 
@@ -691,7 +691,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         GLEntry: Record "G/L Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Transaction No.", GLRegister."No.");
 
         GLEntry.Find('-');
@@ -809,7 +809,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.ModifyAll(SalesLine."Line Discount %", 0, true);
         SalesLine.ModifyAll(SalesLine."Line Discount Amount", 0, true);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
 
@@ -854,7 +854,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.ModifyAll(SalesLine."Line Discount %", 0, true);
         SalesLine.ModifyAll(SalesLine."Line Discount Amount", 0, true);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
 
@@ -886,7 +886,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         exit(GenJournalTemplate.Name);
     end;
 
@@ -898,7 +898,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         FeeRange.SetRange(Code, BillGroup."Bank Account No.");
         FeeRange.SetRange("Currency Code", BillGroup."Currency Code");
         FeeRange.SetRange("Type of Fee", FeeRange."Type of Fee"::"Rejection Expenses");
-        FeeRange.FindFirst;
+        FeeRange.FindFirst();
         RejectionFeeAmount := TotalAmount * FeeRange."Charge % per Doc." / 100 + FeeRange."Charge Amount per Doc.";
         exit(RejectionFeeAmount);
     end;
@@ -935,7 +935,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Transaction No.", GLRegister."No.");
 
         GLEntry.SetRange("G/L Account No.", AccountNo);

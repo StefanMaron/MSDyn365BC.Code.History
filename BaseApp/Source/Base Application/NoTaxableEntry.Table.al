@@ -336,7 +336,7 @@ table 10740 "No Taxable Entry"
         SetRange("Not In 347", NoTaxableEntry."Not In 347");
         SetRange("No Taxable Type", NoTaxableEntry."No Taxable Type");
         SetRange("Delivery Operation Code", NoTaxableEntry."Delivery Operation Code");
-        if FindFirst then begin
+        if FindFirst() then begin
             Base += NoTaxableEntry.Base;
             "Base (LCY)" += NoTaxableEntry."Base (LCY)";
             "Base (ACY)" += NoTaxableEntry."Base (ACY)";
@@ -354,7 +354,7 @@ table 10740 "No Taxable Entry"
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        if not NoTaxableEntry.FindLast then
+        if not NoTaxableEntry.FindLast() then
             exit(0);
 
         exit(NoTaxableEntry."Entry No.");

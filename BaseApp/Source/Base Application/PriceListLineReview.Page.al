@@ -462,6 +462,10 @@ page 7005 "Price List Line Review"
     end;
 
     var
+        DataCaptionSourceAssetTok: Label '%1 %2 - %3 %4 %5', Locked = true, Comment = '%1-%5 - Source Type, Source No., Product Type, Product No, Description';
+        DataCaptionAssetTok: Label '%1 %2 %3', Locked = true, Comment = '%1 %2 %3 - Product Type, Product No, Description';
+
+    protected var
         PriceListHeader: Record "Price List Header";
         PriceUXManagement: Codeunit "Price UX Management";
         AmountEditable: Boolean;
@@ -480,10 +484,6 @@ page 7005 "Price List Line Review"
         AmountTypeIsEditable: Boolean;
         LineExists: Boolean;
         LineToVerify: Boolean;
-        DataCaptionSourceAssetTok: Label '%1 %2 - %3 %4 %5', Locked = true, Comment = '%1-%5 - Source Type, Source No., Product Type, Product No, Description';
-        DataCaptionAssetTok: Label '%1 %2 %3', Locked = true, Comment = '%1 %2 %3 - Product Type, Product No, Description';
-
-    protected var
         DataCaptionExpr: Text;
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
@@ -513,6 +513,7 @@ page 7005 "Price List Line Review"
         exit(false);
     end;
 
+#if not CLEAN20
     local procedure ShowPriceLists()
     begin
         case PriceType of
@@ -532,6 +533,7 @@ page 7005 "Price List Line Review"
                 PAGE.RunModal(PAGE::"Purchase Job Price Lists");
         end;
     end;
+#endif
 
     procedure Set(PriceAssetList: Codeunit "Price Asset List"; NewPriceType: Enum "Price Type"; NewAmountType: Enum "Price Amount Type")
     var

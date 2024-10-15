@@ -95,7 +95,7 @@ codeunit 144080 "ERM PPL"
         DueDays: Integer;
     begin
         // Setup: Create and Post Sales Invoice with Overdue Payments.
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithMultipleInstallmentsSetup);
         FindPaymentTerms(PaymentTerms, SalesHeader."Payment Terms Code");
         Amount :=
@@ -132,7 +132,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Purpose of this test verifies that if the payment is applied partially that the Invoice is still open and reflected in the report 10747.
 
         // Setup: Create and Post Sales Invoice and Payment.
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithMultipleInstallmentsSetup);
         CreateAndPostGenJournalLine(
           GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.",
@@ -176,7 +176,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Purpose of this test verifies that if Posting Date of applied payment is out of the range that the Invoice is still open on report 10747.
 
         // Setup: Create and Post Sales Invoice and Payment.
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithMultipleInstallmentsSetup);
         CreateAndPostGenJournalLine(
           GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.",
@@ -239,7 +239,7 @@ codeunit 144080 "ERM PPL"
         DueDays: Integer;
     begin
         // Setup: Create and Post Purchase Invoice with Overdue Payments.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader, CreateVendorWithMultipleInstallmentsSetup);
         FindPaymentTerms(PaymentTerms, PurchaseHeader."Payment Terms Code");
         Amount :=
@@ -276,7 +276,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Purpose of this test verifies that if the payment is applied partially that the Invoice is still open and reflected in the report 10748.
 
         // Setup: Create and Post Purchase Invoice and Payment.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader, CreateVendorWithMultipleInstallmentsSetup);
         CreateAndPostGenJournalLine(
           GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.",
@@ -320,7 +320,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Purpose of this test verifies that if Posting Date of applied payment is out of the range that the Invoice is still open in report 10748.
 
         // Setup: Create and Post Purchase Invoice and Payment.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(PurchaseHeader, CreateVendorWithMultipleInstallmentsSetup);
         CreateAndPostGenJournalLine(
           GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.",
@@ -361,7 +361,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Purpose of this test verifies the error when Due Date is updated and is outside the limit on General Journal Line.
 
         // Setup: Create General Journal Line.
-        Initialize;
+        Initialize();
         MaxNoOfDaysTillDueDate := LibraryRandom.RandInt(30);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Bill,
@@ -390,7 +390,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Test to Verify Program calculates correct Due Date on Purchase Invoice with Spanish Prompt Law objects when Max. No. of days till Due Date =BLANK.
 
         // Setup: Create Payment Terms. Create Vendor with Payment Day.
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         VendorNo := CreateVendor(PaymentTerms.Code);
         LibraryESLocalization.CreatePaymentDay(
@@ -418,7 +418,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Verify Program Calculate correct amount on Vendor Ledger Entries when used to compress entries using date compression.
 
         // Setup: Create and Post Purchase Invoice, Post Payment Order.
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         DocumentNo := CreateAndPostPurchaseInvoice(PurchaseHeader, CreateVendor(PaymentTerms.Code));
         LibraryVariableStorage.Enqueue(DocumentNo);
@@ -445,7 +445,7 @@ codeunit 144080 "ERM PPL"
         // [SCENARIO] Verify Program Calculate correct amount on Customer Ledger Entries when used to compress entries using date compression.
 
         // Setup: Create and Post Sales Invoice and Post Payment Order.
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         DocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCustomer(PaymentTerms.Code));
         LibraryVariableStorage.Enqueue(DocumentNo);
@@ -468,7 +468,7 @@ codeunit 144080 "ERM PPL"
         // [FEATURE] [Purchase] [Bill]
         // [SCENARIO 380382] Applies-to Doc Due Date field on the Payment Journal must inherit the Due Date of the installment in all the bills.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Purchase Invoice
         CreateAndPostPurchaseInvoice(PurchaseHeader, CreateVendorWithMultipleInstallmentsSetup);
@@ -489,7 +489,7 @@ codeunit 144080 "ERM PPL"
     begin
         // [FEATURE] [Sales] [Bill]
         // [SCENARIO 380382] Applies-to Doc Due Date field on the Payment Journal must inherit the Due Date of the installment in all the bills.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Sales Invoice
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithMultipleInstallmentsSetup);
@@ -503,7 +503,7 @@ codeunit 144080 "ERM PPL"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date)
@@ -669,7 +669,7 @@ codeunit 144080 "ERM PPL"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         exit(CustLedgerEntry."Posting Date");
     end;
 
@@ -697,7 +697,7 @@ codeunit 144080 "ERM PPL"
     begin
         Installment.SetRange("Payment Terms Code", PaymentTermsCode);
         Installment.SetRange("Gap between Installments", GapBetweenInstallments);
-        Installment.FindFirst;
+        Installment.FindFirst();
         exit(Installment."% of Total");
     end;
 
@@ -706,14 +706,14 @@ codeunit 144080 "ERM PPL"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetRange("Create Bills", true);
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
     local procedure FindPaymentTerms(var PaymentTerms: Record "Payment Terms"; PaymentTermsCode: Code[10])
     begin
         PaymentTerms.SetRange(Code, PaymentTermsCode);
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
     end;
 
     local procedure FindVendorLedgerEntryAmount(DocumentNo: Code[20]): Decimal
@@ -731,7 +731,7 @@ codeunit 144080 "ERM PPL"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         exit(VendorLedgerEntry."Posting Date");
     end;
 
@@ -741,7 +741,7 @@ codeunit 144080 "ERM PPL"
         PaymentOrders: TestPage "Payment Orders";
     begin
         LibraryERM.FindBankAccount(BankAccount);
-        PaymentOrders.OpenNew;
+        PaymentOrders.OpenNew();
         PaymentOrders."Bank Account No.".SetValue(BankAccount."No.");
         PaymentOrders.Docs.Insert.Invoke;
         PaymentOrders.Post.Invoke;
@@ -794,7 +794,7 @@ codeunit 144080 "ERM PPL"
     begin
         PostedCarteraDoc.SetRange("Bank Account No.", BankAccountNo);
         SettleDocsInPostedPO.SetTableView(PostedCarteraDoc);
-        SettleDocsInPostedPO.Run;  // Opens handler - SettleDocsInPostedPORequestPageHandler.
+        SettleDocsInPostedPO.Run();  // Opens handler - SettleDocsInPostedPORequestPageHandler.
     end;
 
     local procedure VerifyAmountOnCustomerLedgerEntry(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -804,10 +804,10 @@ codeunit 144080 "ERM PPL"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
           SalesInvoiceLine."Amount Including VAT", CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;
@@ -819,10 +819,10 @@ codeunit 144080 "ERM PPL"
     begin
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Bill);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         Assert.AreNearlyEqual(
           -PurchInvLine."Amount Including VAT", VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;
@@ -834,7 +834,7 @@ codeunit 144080 "ERM PPL"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
         CustLedgerEntry.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
         CustLedgerEntry.SetRange("Document No.", SalesHeader."Last Posting No.");
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
                 GenJournalLine.Validate("Applies-to Doc. No.", SalesHeader."Last Posting No.");
@@ -852,7 +852,7 @@ codeunit 144080 "ERM PPL"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Bill);
         VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         VendorLedgerEntry.SetRange("Document No.", PurchaseHeader."Last Posting No.");
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
                 GenJournalLine.Validate("Applies-to Doc. No.", PurchaseHeader."Last Posting No.");
@@ -872,7 +872,7 @@ codeunit 144080 "ERM PPL"
         RunSettleDocs(BankAccountNo);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         RedrawPayableBills.SetTableView(VendorLedgerEntry);
-        RedrawPayableBills.Run;  // Open handler - RedrawPayableBillsRequestPageHandler.
+        RedrawPayableBills.Run();  // Open handler - RedrawPayableBillsRequestPageHandler.
     end;
 
     local procedure RunSettleDocsAndRedrawReceivableBills(BankAccountNo: Code[20]; CustomerNo: Code[20])
@@ -884,7 +884,7 @@ codeunit 144080 "ERM PPL"
         RunSettleDocs(BankAccountNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         RedrawReceivableBills.SetTableView(CustLedgerEntry);
-        RedrawReceivableBills.Run;  // Open handler - RedrawReceivableBillsRequestPageHandler.
+        RedrawReceivableBills.Run();  // Open handler - RedrawReceivableBillsRequestPageHandler.
     end;
 
     [ModalPageHandler]

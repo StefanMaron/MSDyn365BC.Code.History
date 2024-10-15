@@ -75,9 +75,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeIntrastatJnlLine();
         UpgradeDimensionSetEntry();
         UpgradeUserTaskDescriptionToUTF8();
-#if not CLEAN19
         UpgradeRemoveSmartListGuidedExperience();
-#endif
         UpgradeCRMIntegrationRecord();
 
         UpdateWorkflowTableRelations();
@@ -87,8 +85,11 @@ codeunit 104000 "Upgrade - BaseApp"
         UpdateAllJobsResourcePrices();
         UpgradeCreditTransferIBAN();
         UpgradeDocumentDefaultLineType();
+        UpgradeJobShipToSellToFunctionality();
         UpgradeOnlineMap();
         UpgradeDataExchFieldMapping();
+        UpgradeJobReportSelection();
+        UpgradeICSetup();
     end;
 
     local procedure ClearTemporaryTables()
@@ -188,7 +189,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag()) THEN
             EXIT;
 
-        IF DefaultDimension.FINDSET THEN
+        IF DefaultDimension.FindSet() then
             REPEAT
                 DefaultDimension.UpdateReferencedIds;
             UNTIL DefaultDimension.Next() = 0;
@@ -205,7 +206,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBalAccountNoOnJournalAPIUpgradeTag()) THEN
             EXIT;
 
-        IF GenJournalBatch.FINDSET THEN
+        IF GenJournalBatch.FindSet() then
             REPEAT
                 GenJournalBatch.UpdateBalAccountId;
                 IF GenJournalBatch.MODIFY THEN;
@@ -468,7 +469,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag()) THEN
             EXIT;
 
-        IF IncomingDocument.FINDSET THEN
+        IF IncomingDocument.FindSet() then
             REPEAT
                 IncomingDocument.URL := IncomingDocument.URL1 + IncomingDocument.URL2 + IncomingDocument.URL3 + IncomingDocument.URL4;
                 IncomingDocument.Modify();
@@ -488,7 +489,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         RecordLink.SetFilter("URL2", '<>''''');
 
-        if RecordLink.FINDSET then
+        if RecordLink.FindSet() then
             repeat
                 RecordLink.URL1 := RecordLink.URL1 + RecordLink.URL2 + RecordLink.URL3 + RecordLink.URL4;
                 RecordLink.Modify();
@@ -623,7 +624,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 IF SalesInvoiceEntityAggregate.Posted THEN BEGIN
                     SalesInvoiceHeader.SETRANGE(SystemId, SalesInvoiceEntityAggregate.Id);
-                    IF SalesInvoiceHeader.FINDFIRST THEN BEGIN
+                    IF SalesInvoiceHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(SalesInvoiceHeader);
                         TargetRecordRef.GETTABLE(SalesInvoiceEntityAggregate);
                         UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
@@ -631,7 +632,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 END ELSE BEGIN
                     SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::Invoice);
                     SalesHeader.SETRANGE(SystemId, SalesInvoiceEntityAggregate.Id);
-                    IF SalesHeader.FINDFIRST THEN BEGIN
+                    IF SalesHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(SalesHeader);
                         TargetRecordRef.GETTABLE(SalesInvoiceEntityAggregate);
                         UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
@@ -681,7 +682,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 IF PurchInvEntityAggregate.Posted THEN BEGIN
                     PurchInvHeader.SETRANGE(SystemId, PurchInvEntityAggregate.Id);
-                    IF PurchInvHeader.FINDFIRST THEN BEGIN
+                    IF PurchInvHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(PurchInvHeader);
                         TargetRecordRef.GETTABLE(PurchInvEntityAggregate);
                         UpdatePurchaseDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE);
@@ -689,7 +690,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 END ELSE BEGIN
                     PurchaseHeader.SETRANGE("Document Type", PurchaseHeader."Document Type"::Invoice);
                     PurchaseHeader.SETRANGE(SystemId, PurchInvEntityAggregate.Id);
-                    IF PurchaseHeader.FINDFIRST THEN BEGIN
+                    IF PurchaseHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(PurchaseHeader);
                         TargetRecordRef.GETTABLE(PurchInvEntityAggregate);
                         UpdatePurchaseDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE);
@@ -716,7 +717,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::Order);
                 SalesHeader.SETRANGE(SystemId, SalesOrderEntityBuffer.Id);
-                IF SalesHeader.FINDFIRST THEN BEGIN
+                IF SalesHeader.FindFirst() then BEGIN
                     SourceRecordRef.GETTABLE(SalesHeader);
                     TargetRecordRef.GETTABLE(SalesOrderEntityBuffer);
                     UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
@@ -742,7 +743,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::Quote);
                 SalesHeader.SETRANGE(SystemId, SalesQuoteEntityBuffer.Id);
-                IF SalesHeader.FINDFIRST THEN BEGIN
+                IF SalesHeader.FindFirst() then BEGIN
                     SourceRecordRef.GETTABLE(SalesHeader);
                     TargetRecordRef.GETTABLE(SalesQuoteEntityBuffer);
                     UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
@@ -769,7 +770,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 IF SalesCrMemoEntityBuffer.Posted THEN BEGIN
                     SalesCrMemoHeader.SetRange(SystemId, SalesCrMemoEntityBuffer.Id);
-                    IF SalesCrMemoHeader.FINDFIRST THEN BEGIN
+                    IF SalesCrMemoHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(SalesCrMemoHeader);
                         TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
                         UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, FALSE);
@@ -777,7 +778,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 END ELSE BEGIN
                     SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
                     SalesHeader.SetRange(SystemId, SalesCrMemoEntityBuffer.Id);
-                    IF SalesHeader.FINDFIRST THEN BEGIN
+                    IF SalesHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(SalesHeader);
                         TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
                         UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, FALSE);
@@ -791,6 +792,7 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure UpgradeCRMIntegrationRecord()
     begin
         SetCoupledFlags();
+        SetOptionMappingCoupledFlags();
     end;
 
     local procedure SetCoupledFlags()
@@ -814,6 +816,24 @@ codeunit 104000 "Upgrade - BaseApp"
             until CRMIntegrationRecord.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());
+    end;
+
+    local procedure SetOptionMappingCoupledFlags()
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetOptionMappingCoupledFlagsUpgradeTag()) then
+            exit;
+
+        if CRMOptionMapping.FindSet() then
+            repeat
+                CRMIntegrationManagement.SetCoupledFlag(CRMOptionMapping, true);
+            until CRMOptionMapping.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetOptionMappingCoupledFlagsUpgradeTag());
     end;
 
     local procedure UpdateSalesDocumentFields(var SourceRecordRef: RecordRef; var TargetRecordRef: RecordRef; SellTo: Boolean; BillTo: Boolean; ShipTo: Boolean)
@@ -1176,7 +1196,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetStandardSalesCodeUpgradeTag()) THEN
             EXIT;
 
-        IF StandardSalesCode.FINDSET THEN
+        IF StandardSalesCode.FindSet() then
             REPEAT
                 StandardCustomerSalesCode.SETRANGE(Code, StandardSalesCode.Code);
                 StandardCustomerSalesCode.MODIFYALL("Currency Code", StandardSalesCode."Currency Code");
@@ -1195,7 +1215,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetStandardPurchaseCodeUpgradeTag()) THEN
             EXIT;
 
-        IF StandardPurchaseCode.FINDSET THEN
+        IF StandardPurchaseCode.FindSet() then
             REPEAT
                 StandardVendorPurchaseCode.SETRANGE(Code, StandardPurchaseCode.Code);
                 StandardVendorPurchaseCode.MODIFYALL("Currency Code", StandardPurchaseCode."Currency Code");
@@ -1400,46 +1420,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLAccountAPITypeUpgradeTag());
     end;
 
-    local procedure AddDeviceISVEmbPlan()
-    var
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAddDeviceISVEmbUpgradeTag()) THEN
-            EXIT;
-
-        UpdateUserGroupPlan;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddDeviceISVEmbUpgradeTag());
-    end;
-
-    local procedure UpdateUserGroupPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
-    begin
-        InsertUserGroupPlanFields(PlanIds.GetDeviceISVPlanId(), 'D365 BUS FULL ACCESS');
-    end;
-
-    local procedure InsertUserGroupPlanFields(PlanId: Guid; UserGroupCode: Code[20])
-    var
-        UserGroupPlan: Record "User Group Plan";
-        UserGroup: Record "User Group";
-    begin
-        if UserGroupPlan.Get(PlanId, UserGroupCode) then
-            exit;
-
-        if not UserGroup.Get(UserGroupCode) then
-            exit;
-
-        UserGroupPlan.Init();
-        UserGroupPlan."Plan ID" := PlanId;
-        UserGroupPlan."User Group Code" := UserGroupCode;
-
-        UserGroupPlan.Insert();
-
-        Session.LogMessage('00001PS', STRSUBSTNO('User Group %1 was linked to Plan %2.', UserGroupCode, PlanId), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
-    end;
-
     local procedure UpgradeSalesOrderShipmentMethod()
     var
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
@@ -1456,7 +1436,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::Order);
                 SalesHeader.SETRANGE(SystemId, SalesOrderEntityBuffer.Id);
-                IF SalesHeader.FINDFIRST THEN BEGIN
+                IF SalesHeader.FindFirst() then BEGIN
                     SourceRecordRef.GETTABLE(SalesHeader);
                     TargetRecordRef.GETTABLE(SalesOrderEntityBuffer);
                     UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
@@ -1483,7 +1463,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 IF SalesCrMemoEntityBuffer.Posted THEN BEGIN
                     SalesCrMemoHeader.SETRANGE(SystemId, SalesCrMemoEntityBuffer.Id);
-                    IF SalesCrMemoHeader.FINDFIRST THEN BEGIN
+                    IF SalesCrMemoHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(SalesCrMemoHeader);
                         TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
                         UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
@@ -1491,7 +1471,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 END ELSE BEGIN
                     SalesHeader.SETRANGE("Document Type", SalesHeader."Document Type"::"Credit Memo");
                     SalesHeader.SETRANGE(SystemId, SalesCrMemoEntityBuffer.Id);
-                    IF SalesHeader.FINDFIRST THEN BEGIN
+                    IF SalesHeader.FindFirst() then BEGIN
                         SourceRecordRef.GETTABLE(SalesHeader);
                         TargetRecordRef.GETTABLE(SalesCrMemoEntityBuffer);
                         UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
@@ -2304,77 +2284,51 @@ codeunit 104000 "Upgrade - BaseApp"
 
     procedure UpgradeSalesCreditMemoReasonCode()
     var
-        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesHeader: Record "Sales Header";
-        EnvironmentInformation: Codeunit "Environment Information";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag()) then
-            exit;
-
-        if EnvironmentInformation.IsSaaS() then
-            if SalesCrMemoEntityBuffer.Count() > GetSafeRecordCountForSaaSUpgrade() then
-                exit;
-
-        SalesCrMemoEntityBuffer.SetLoadFields(SalesCrMemoEntityBuffer.Id);
-        if SalesCrMemoEntityBuffer.FindSet(true, false) then
-            repeat
-                if SalesCrMemoEntityBuffer.Posted then begin
-                    SalesCrMemoHeader.SetLoadFields(SalesCrMemoHeader."Reason Code");
-                    if SalesCrMemoHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then
-                        UpdateSalesCreditMemoReasonCodeFields(SalesCrMemoHeader."Reason Code", SalesCrMemoEntityBuffer);
-                end else begin
-                    SalesHeader.SetLoadFields(SalesHeader."Reason Code");
-                    if SalesHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then
-                        UpdateSalesCreditMemoReasonCodeFields(SalesHeader."Reason Code", SalesCrMemoEntityBuffer);
-                end;
-            until SalesCrMemoEntityBuffer.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag());
+        APIDataUpgrade.UpgradeSalesCreditMemoReasonCode(true);
     end;
 
     local procedure UpgradeSalesOrderShortcutDimension()
     var
-        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        APIFixDocumentShortcutDim.UpgradeSalesOrderShortcutDimension();
+        APIDataUpgrade.UpgradeSalesOrderShortcutDimension(true);
     end;
 
     local procedure UpgradeSalesQuoteShortcutDimension()
     var
-        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        APIFixDocumentShortcutDim.UpgradeSalesQuoteShortcutDimension();
+        APIDataUpgrade.UpgradeSalesQuoteShortcutDimension(true);
     end;
 
     local procedure UpgradeSalesInvoiceShortcutDimension()
     var
-        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        APIFixDocumentShortcutDim.UpgradeSalesInvoiceShortcutDimension();
+        APIDataUpgrade.UpgradeSalesInvoiceShortcutDimension(true);
     end;
 
     local procedure UpgradeSalesCrMemoShortcutDimension()
     var
-        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        APIFixDocumentShortcutDim.UpgradeSalesCrMemoShortcutDimension();
+        APIDataUpgrade.UpgradeSalesCrMemoShortcutDimension(true);
     end;
 
     local procedure UpgradePurchaseOrderShortcutDimension()
     var
-        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        APIFixDocumentShortcutDim.UpgradePurchaseOrderShortcutDimension();
+        APIDataUpgrade.UpgradePurchaseOrderShortcutDimension(true);
     end;
 
     local procedure UpgradePurchInvoiceShortcutDimension()
     var
-        APIFixDocumentShortcutDim: Codeunit "API Fix Document Shortcut Dim.";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
     begin
-        APIFixDocumentShortcutDim.UpgradePurchInvoiceShortcutDimension()
+        APIDataUpgrade.UpgradePurchInvoiceShortcutDimension(true)
     end;
 
     local procedure UpgradePowerBIOptin()
@@ -2427,21 +2381,6 @@ codeunit 104000 "Upgrade - BaseApp"
         exit(TargetMediaRepository.Insert());
     end;
 
-    local procedure UpgradeNativeAPIWebService()
-    var
-        NativeSetupAPIs: Codeunit "Native - Setup APIs";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradeNativeAPIWebServiceUpgradeTag()) THEN
-            exit;
-
-        NativeSetupAPIs.InsertNativeInvoicingWebServices(false);
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpgradeNativeAPIWebServiceUpgradeTag());
-    end;
-
-#if not CLEAN19
     local procedure UpgradeRemoveSmartListGuidedExperience()
     var
         GuidedExperience: Codeunit "Guided Experience";
@@ -2451,12 +2390,12 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRemoveSmartListManualSetupEntryUpgradeTag()) THEN
             exit;
 
-        if GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, Page::"SmartList Designer Setup") then
-            GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, Page::"SmartList Designer Setup");
+        // Page 889 is Page::"SmartList Designer Setup"
+        if GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, 889) then
+            GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, 889);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRemoveSmartListManualSetupEntryUpgradeTag());
     end;
-#endif
 
     local procedure UpgradeUserTaskDescriptionToUTF8()
     var
@@ -2475,35 +2414,6 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure GetSafeRecordCountForSaaSUpgrade(): Integer
     begin
         exit(300000);
-    end;
-
-    local procedure UpdateSalesCreditMemoReasonCodeFields(SourceReasonCode: Code[10]; var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer"): Boolean
-    var
-        ReasonCode: Record "Reason Code";
-        NewReasonCodeId: Guid;
-        EmptyGuid: Guid;
-        Changed: Boolean;
-    begin
-        if SalesCrMemoEntityBuffer."Reason Code" <> SourceReasonCode then begin
-            SalesCrMemoEntityBuffer."Reason Code" := SourceReasonCode;
-            Changed := true;
-        end;
-
-        if SalesCrMemoEntityBuffer."Reason Code" <> '' then begin
-            if ReasonCode.Get(SalesCrMemoEntityBuffer."Reason Code") then
-                NewReasonCodeId := ReasonCode.SystemId
-            else
-                NewReasonCodeId := EmptyGuid;
-        end else
-            NewReasonCodeId := EmptyGuid;
-
-        if SalesCrMemoEntityBuffer."Reason Code Id" <> NewReasonCodeId then begin
-            SalesCrMemoEntityBuffer."Reason Code Id" := NewReasonCodeId;
-            Changed := true;
-        end;
-
-        if Changed then
-            exit(SalesCrMemoEntityBuffer.Modify());
     end;
 
     local procedure UpgradeCreditTransferIBAN()
@@ -2553,6 +2463,63 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDocumentDefaultLineTypeUpgradeTag());
     end;
 
+    local procedure UpgradeJobShipToSellToFunctionality()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobShipToSellToFunctionalityUpgradeTag()) then
+            exit;
+
+        Job.SetLoadFields(
+            "Bill-to Customer No.",
+            "Bill-to Name",
+            "Bill-to Name 2",
+            "Bill-to Contact",
+            "Bill-to Contact No.",
+            "Bill-to Address",
+            "Bill-to Address 2",
+            "Bill-to Post Code",
+            "Bill-to Country/Region Code",
+            "Bill-to City",
+            "Bill-to County",
+            "Sell-to Customer Name",
+            "Sell-to Customer Name 2",
+            "Sell-to Address",
+            "Sell-to Address 2",
+            "Sell-to City",
+            "Sell-to County",
+            "Sell-to Post Code",
+            "Sell-to Country/Region Code",
+            "Sell-to Contact"
+        );
+        if Job.FindSet() then
+            repeat
+                Job."Sell-to Customer No." := Job."Bill-to Customer No.";
+                Job."Sell-to Customer Name" := Job."Bill-to Name";
+                Job."Sell-to Customer Name 2" := Job."Bill-to Name 2";
+                Job."Sell-to Contact" := Job."Bill-to Contact";
+                Job."Sell-to Contact No." := Job."Bill-to Contact No.";
+                Job."Sell-to Address" := Job."Bill-to Address";
+                Job."Sell-to Address 2" := Job."Bill-to Address 2";
+                Job."Sell-to Post Code" := Job."Bill-to Post Code";
+                Job."Sell-to Country/Region Code" := Job."Bill-to Country/Region Code";
+                Job."Sell-to City" := Job."Bill-to City";
+                Job."Sell-to County" := Job."Bill-to County";
+                if Customer.Get(Job."Bill-to Customer No.") then begin
+                    Job."Payment Method Code" := Customer."Payment Method Code";
+                    Job."Payment Terms Code" := Customer."Payment Terms Code";
+                end;
+
+                Job.SyncShipToWithSellTo();
+                Job.Modify();
+            until Job.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobShipToSellToFunctionalityUpgradeTag());
+    end;
+
     procedure UpgradeOnlineMap()
     var
         OnlineMapSetup: Record "Online Map Setup";
@@ -2568,6 +2535,45 @@ codeunit 104000 "Upgrade - BaseApp"
             until OnlineMapSetup.next = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEnableOnlineMapUpgradeTag());
+    end;
+
+    local procedure UpgradeJobReportSelection()
+    var
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobReportSelectionUpgradeTag()) then
+            exit;
+        ReportSelectionMgt.InitReportSelectionJob();
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobReportSelectionUpgradeTag());
+    end;
+
+    local procedure UpgradeICSetup()
+    var
+        CompanyInfo: Record "Company Information";
+        ICSetup: Record "IC Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag()) then
+            exit;
+
+        if not CompanyInfo.Get() then
+            exit;
+
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+
+        ICSetup."IC Partner Code" := CompanyInfo."IC Partner Code";
+        ICSetup."IC Inbox Type" := CompanyInfo."IC Inbox Type";
+        ICSetup."IC Inbox Details" := CompanyInfo."IC Inbox Details";
+        ICSetup."Auto. Send Transactions" := CompanyInfo."Auto. Send Transactions";
+        ICSetup.Modify();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag());
     end;
 }
 

@@ -46,7 +46,7 @@ page 5442 "Automation User Group Member"
             UserSecurityIDFilter := GetFilter("User Security ID");
             if UserSecurityIDFilter = '' then
                 Error(UserIDNotSpecifiedForLinesErr);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;

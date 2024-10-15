@@ -46,7 +46,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 221621] XML has node for non taxable amount when multiple lines with Normal VAT and No Taxable VAT exists in Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with multiplines lines, each line has different "VAT %", one has "VAT Calculation Type" ="No Taxable VAT" in VAT Posting Setup
         LibrarySII.PostSalesInvWithMultiplesLinesDiffVAT(CustLedgerEntry, true);
@@ -72,7 +72,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 223695] XML has node "Entrega" for non taxable amount if only line with No Taxable VAT exists in Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with one line where "VAT Calculation Type" = "No Taxable VAT"
         LibrarySII.PostSalesDocWithNoTaxableVAT(
@@ -98,7 +98,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 223695] XML has node for non taxable amount if only line with No Taxable VAT exists in Purchase Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with one line where "VAT Calculation Type" = "No Taxable VAT"
         PostPurchInvWithNoTaxableVAT(VendorLedgerEntry);
@@ -123,7 +123,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [FCY] [Invoice]
         // [SCENARIO 223695] XML node for non taxable amount does not exist in XML file for Posted Sales Invoice with FCY
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with FCY
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
@@ -151,14 +151,14 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [FCY] [Invoice]
         // [SCENARIO 223695] XML node for non taxable amount does not exist in XML file for Posted Service Invoice with FCY
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with FCY
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.",
           LibrarySII.PostServDocWithCurrency(ServiceHeader."Document Type"::Invoice, CurrencyCode));
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         CustLedgerEntry.SetRange("Sell-to Customer No.", ServiceInvoiceHeader."Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, ServiceInvoiceHeader."No.");
@@ -187,7 +187,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Purchase] [Invoice] [Invoice]
         // [SCENARIO 225228] XML has node for both non taxable and normal amount if both No Taxable VAT and Normal VAT lines exist in Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with two lines
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -251,7 +251,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Invoice]
         // [SCENARIO 225228] XML has node for both non taxable and normal amount if both No Taxable VAT and Normal VAT lines exist in Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Cr Memo with two lines
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -310,7 +310,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 225228] XML has node for non taxable amount if two No Taxable VAT lines exist in Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Cr Memo with two lines
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -355,7 +355,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 225228] XML has node with negative non taxable amount if only No Taxable VAT line exists in Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Cr Memo with one line
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -399,7 +399,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 229401] XML has node for both non taxable and normal amount if both No Taxable VAT and Normal VAT lines exist in Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with two lines
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -540,7 +540,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 229401] XML has node for both non taxable and normal amount if both No Taxable VAT and Normal VAT lines exist in Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Cr Memo with two lines
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -677,7 +677,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 229401] XML has node "ImportePorArticulos7_14_Otros" for non taxable amount if two No Taxable VAT lines exist in Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Cr Memo with two lines
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -717,7 +717,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 229401] XML has node "ImportePorArticulos7_14_Otros" for non taxable amount if only No Taxable VAT line exists in Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Cr Memo with one line
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -753,7 +753,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [UI]
         // [SCENARIO 231012] Field "Non Taxable Type" exists on "VAT Posting Setup" page
 
-        Initialize;
+        Initialize();
         VATPostingSetup.OpenEdit;
         Assert.IsTrue(VATPostingSetup."No Taxable Type".Visible, 'Field is not visible');
     end;
@@ -767,7 +767,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [UI]
         // [SCENARIO 231012] Field "Non Taxable Type" exists on "VAT Posting Setup Card" page
 
-        Initialize;
+        Initialize();
         VATPostingSetupCard.OpenEdit;
         Assert.IsTrue(VATPostingSetupCard."No Taxable Type".Visible, 'Field is not visible');
     end;
@@ -781,7 +781,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [UT] [No Taxable Type] [No Taxable VAT]
         // [SCENARIO 231012] Stan can specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "No Taxable VAT"
 
-        Initialize;
+        Initialize();
         VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
         VATPostingSetup.Validate("No Taxable Type", VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others");
@@ -796,7 +796,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] Stan can specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "Normal VAT" and "VAT %" is <zero>
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and "VAT %" = <zero>
         VATPostingSetup.Init();
@@ -818,7 +818,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is "Normal VAT" and "VAT %" is <non-zero>
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and "VAT %" = 10.0%
         VATPostingSetup.Init();
@@ -842,7 +842,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Full VAT]
         // [SCENARIO 278919] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Full VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Full VAT
         VATPostingSetup.Init();
@@ -866,7 +866,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Sales Tax]
         // [SCENARIO 278919] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Sales Tax
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Sales Tax
         VATPostingSetup.Init();
@@ -890,7 +890,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Reverse Charge VAT]
         // [SCENARIO 231012] Stan cannot specify "Non Taxable Type" in VAT Posting Setup if "VAT Calculation Type" is Reverse Charge VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Reverse Charge VAT
         VATPostingSetup.Init();
@@ -914,7 +914,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When change VAT Calculation Type to Normal VAT in VAT Posting Setup with <zero> VAT+EC % then No Taxable Type is not changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -938,7 +938,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When change VAT Calculation Type to Normal VAT in VAT Posting Setup with <non-zero> VAT+EC % and <non-blank> No Taxable Type
         // [SCENARIO 278919] Then error VAT+EC % must be equal to '0'  in VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "No Taxable Type" = "Non Taxable Art 7-14 and others" and VAT+EC % = 10%
         VATPostingSetup.Init();
@@ -961,7 +961,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Reverse Charge VAT]
         // [SCENARIO 278919] When change VAT Calculation Type to Reverse Charge VAT in VAT Posting Setup then No Taxable Type is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -983,7 +983,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Full VAT]
         // [SCENARIO 278919] When change VAT Calculation Type to Full VAT in VAT Posting Setup then No Taxable Type is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -1005,7 +1005,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Sales Tax]
         // [SCENARIO 278919] When change VAT Calculation Type to Sales Tax in VAT Posting Setup then No Taxable Type is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -1027,7 +1027,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable VAT] [VAT+EC %]
         // [SCENARIO 278919] When change VAT Calculation Type to No Taxable VAT in VAT Posting Setup with <non-zero> VAT+EC % then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT+EC % = 10.0
         VATPostingSetup.Init();
@@ -1050,7 +1050,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable VAT] [VAT+EC %]
         // [SCENARIO 278919] When validate <non-zero> VAT+EC % in No Taxable VAT Posting Setup then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT
         VATPostingSetup.Init();
@@ -1073,7 +1073,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable VAT] [VAT %]
         // [SCENARIO 278919] When validate <non-zero> VAT % in No Taxable VAT Posting Setup then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT
         VATPostingSetup.Init();
@@ -1096,7 +1096,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable VAT] [EC %]
         // [SCENARIO 278919] When validate <non-zero> EC % in No Taxable VAT Posting Setup then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with No Taxable VAT
         VATPostingSetup.Init();
@@ -1120,7 +1120,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When validate VAT+EC % = 'X' in VAT Posting Setup with Normal VAT and <zero> No Taxable Type then VAT+EC % = 'X'
-        Initialize;
+        Initialize();
         VatPlusECRate := LibraryRandom.RandDecInRange(10, 20, 2);
 
         // [GIVEN] VAT Posting Setup with Normal VAT and <zero> No Taxable Type
@@ -1143,7 +1143,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When validate VAT+EC % in VAT Posting Setup with Normal VAT and <non-zero> No Taxable Type then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -1166,7 +1166,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When validate VAT % in VAT Posting Setup with Normal VAT and <non-zero> No Taxable Type then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -1190,7 +1190,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When validate VAT % = 'X' in VAT Posting Setup with Normal VAT and <zero> No Taxable Type then VAT % = 'X'
-        Initialize;
+        Initialize();
         VatRate := LibraryRandom.RandDecInRange(10, 20, 2);
 
         // [GIVEN] VAT Posting Setup with Normal VAT and <zero> No Taxable Type
@@ -1213,7 +1213,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When validate EC % in VAT Posting Setup with Normal VAT and <non-zero> No Taxable Type then error
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT and No Taxable Type "Non Taxable Art 7-14 and others"
         VATPostingSetup.Init();
@@ -1237,7 +1237,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [No Taxable Type] [Normal VAT]
         // [SCENARIO 278919] When validate EC % = 'X' in VAT Posting Setup with Normal VAT and <zero> No Taxable Type then EC % = 'X'
-        Initialize;
+        Initialize();
         ECRate := LibraryRandom.RandDecInRange(10, 20, 2);
 
         // [GIVEN] VAT Posting Setup with Normal VAT and <zero> No Taxable Type
@@ -1260,7 +1260,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [VAT %] [EC %] [VAT+EC %] [Reverse Charge VAT]
         // [SCENARIO 278919] When Validate EC % = 'X' in VAT Posting Setup with Reverse Charge VAT with VAT % = 'Y' then VAT+EC % = 'X' + 'Y'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Reverse Charge VAT and VAT % = 10.0
         VATPostingSetup.Init();
@@ -1282,7 +1282,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [VAT %] [EC %] [VAT+EC %] [Full VAT]
         // [SCENARIO 278919] When Validate EC % = 'X' in VAT Posting Setup with Full VAT with VAT % = 'Y' then VAT+EC % = 'X' + 'Y'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Full VAT and VAT % = 10.0
         VATPostingSetup.Init();
@@ -1304,7 +1304,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [UT] [VAT %] [EC %] [VAT+EC %] [Full VAT]
         // [SCENARIO 278919] When Validate EC % = 'X' in VAT Posting Setup with Salex Tax with VAT % = 'Y' then VAT+EC % = 'X' + 'Y'
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Sales Tax and VAT % = 10.0
         VATPostingSetup.Init();
@@ -1330,7 +1330,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 231012] XML has node "ImportePorArticulos7_14_Otros" for non taxable amount when post Sales Invoice with "Non Taxable Type" is "Non Taxable Art 7-14 and others"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Non Taxable Type" = "Non Taxable Art 7-14 and others"
         LibrarySII.PostSalesDocWithNoTaxableVAT(
@@ -1358,7 +1358,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 231012] XML has node "ImportePorArticulos7_14_Otros" for non taxable amount when post Sales Credit Memo with "Non Taxable Type" is "Non Taxable Art 7-14 and others"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Non Taxable Type" = "Non Taxable Art 7-14 and others"
         LibrarySII.PostSalesDocWithNoTaxableVAT(
@@ -1386,7 +1386,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 231012] XML has node "ImportePorArticulos7_14_Otros" for non taxable amount when post Service Invoice with "Non Taxable Type" is "Non Taxable Art 7-14 and others"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "Non Taxable Type" = "Non Taxable Art 7-14 and others"
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -1415,7 +1415,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 231012] XML has node "ImportePorArticulos7_14_Otros" for non taxable amount when post Service Credit Memo with "Non Taxable Type" is "Non Taxable Art 7-14 and others"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "Non Taxable Type" = "Non Taxable Art 7-14 and others"
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
@@ -1444,7 +1444,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 231012] XML has node "ImporteTAIReglasLocalizacion" for non taxable amount when post Sales Invoice with "Non Taxable Type" is "Non Taxable Due To Localization Rules"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Non Taxable Type" = "Non Taxable Due To Localization Rules"
         LibrarySII.PostSalesDocWithNoTaxableVAT(
@@ -1472,7 +1472,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 231012] XML has node "ImporteTAIReglasLocalizacion" for non taxable amount when post Sales Credit Memo with "Non Taxable Type" is "Non Taxable Due To Localization Rules"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Non Taxable Type" = "Non Taxable Due To Localization Rules"
         LibrarySII.PostSalesDocWithNoTaxableVAT(
@@ -1500,7 +1500,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 231012] XML has node "ImporteTAIReglasLocalizacion" for non taxable amount when post Service Invoice with "Non Taxable Type" is "Non Taxable Due To Localization Rules"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "Non Taxable Type" = "Non Taxable Due To Localization Rules"
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -1529,7 +1529,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 231012] XML has node "ImporteTAIReglasLocalizacion" for non taxable amount when post Service Credit Memo with "Non Taxable Type" is "Non Taxable Due To Localization Rules"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "Non Taxable Type" = "Non Taxable Due To Localization Rules"
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
@@ -1559,7 +1559,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [EU Service] [No Tax] [Exemption]
         // [SCENARIO 310154] XML file structure is correct when export sales invoice with mix of EU Service, Non-EU Service, Normal, VAT Exemption and No Taxable VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with multiple lines: Normal VAT and not EU Service, VAT Exemption and EU Service, No Taxable VAT and EU Service
         PostSalesDocWithMixedOfEUNonServiceExemptAndNoTaxEntries(
@@ -1576,13 +1576,13 @@ codeunit 147524 "SII Documents No Taxable"
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
 
         // [THEN] "sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA/sii:BaseImponible" with VAT Exemption
         VATEntry.SetFilter("VAT Prod. Posting Group", '<>%1', NormalVATPostingSetup."VAT Prod. Posting Group");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExemptBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
 
@@ -1605,7 +1605,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [EU Service] [No Tax] [Exemption]
         // [SCENARIO 310154] XML file structure is correct when export sales credit memo with mix of EU Service, Non-EU Service, Normal, VAT Exemption and No Taxable VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with multiple lines: Normal VAT and not EU Service, VAT Exemption and EU Service, No Taxable VAT and EU Service
         PostSalesDocWithMixedOfEUNonServiceExemptAndNoTaxEntries(
@@ -1622,13 +1622,13 @@ codeunit 147524 "SII Documents No Taxable"
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
 
         // [THEN] "sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA/sii:BaseImponible" with VAT Exemption
         VATEntry.SetFilter("VAT Prod. Posting Group", '<>%1', NormalVATPostingSetup."VAT Prod. Posting Group");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExemptBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
 
@@ -1651,7 +1651,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [EU Service] [No Tax] [Exemption]
         // [SCENARIO 310154] XML file structure is correct when export sales invoice with EU Service, Normal and No Taxable VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with multiple lines: Normal VAT and not EU Service, VAT Exemption and EU Service, No Taxable VAT and EU Service
         PostSalesDocWithEUServiceNormalAndNoTaxableVAT(
@@ -1665,7 +1665,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathEUServiceSalesBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
 
@@ -1688,7 +1688,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [EU Service] [No Tax] [Exemption]
         // [SCENARIO 310154] XML file structure is correct when export sales credit memo with EU Service, Normal and No Taxable VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with multiple lines: Normal VAT and not EU Service, VAT Exemption and EU Service, No Taxable VAT and EU Service
         PostSalesDocWithEUServiceNormalAndNoTaxableVAT(
@@ -1702,7 +1702,7 @@ codeunit 147524 "SII Documents No Taxable"
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Normal VAT");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathEUServiceSalesBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
 
@@ -1724,7 +1724,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 234078] Sales Invoice Lines with G/L Accounts where "Ignore in 357 Report" is set ignores in Non Taxable VAT Amount calculation
 
         // [GIVEN] Posted Sales Invoice with G/L Account for Non Taxable VAT and "Ignore in 357 Report"
-        Initialize;
+        Initialize();
         PostSalesDocWithGLAccIgnoredIn347Report(CustLedgerEntry, SalesHeader."Document Type"::Invoice);
 
         // [WHEN] Create xml for Posted Sales Invoice
@@ -1746,7 +1746,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 234078] Sales Credit Memo Lines with G/L Accounts where "Ignore in 357 Report" is set ignores in Non Taxable VAT Amount calculation
 
         // [GIVEN] Posted Sales Credit Memo with G/L Account for Non Taxable VAT and "Ignore in 357 Report"
-        Initialize;
+        Initialize();
         PostSalesDocWithGLAccIgnoredIn347Report(CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -1768,7 +1768,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 234078] Purchase Invoice Lines with G/L Accounts where "Ignore in 357 Report" is set ignores in Non Taxable VAT Amount calculation
 
         // [GIVEN] Posted Purchase Invoice with G/L Account for Non Taxable VAT and "Ignore in 357 Report"
-        Initialize;
+        Initialize();
         PostPurchDocWithGLAccIgnoredIn347Report(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice);
 
         // [WHEN] Create xml for Posted Purchase Invoice
@@ -1790,7 +1790,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 234078] Purchase Credit Memo Lines with G/L Accounts where "Ignore in 357 Report" is set ignores in Non Taxable VAT Amount calculation
 
         // [GIVEN] Posted Purchase Credit Memo with G/L Account for Non Taxable VAT and "Ignore in 357 Report"
-        Initialize;
+        Initialize();
         PostPurchDocWithGLAccIgnoredIn347Report(VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Create xml for Posted Purchase Credit Memo
@@ -1812,7 +1812,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 234078] Service Invoice Lines with G/L Accounts where "Ignore in 357 Report" is set ignores in Non Taxable VAT Amount calculation
 
         // [GIVEN] Posted Service Invoice with G/L Account for Non Taxable VAT and "Ignore in 357 Report"
-        Initialize;
+        Initialize();
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
           CustLedgerEntry,
           PostServDocWithGLAccIgnoredIn347Report(ServiceHeader."Document Type"::Invoice));
@@ -1836,7 +1836,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 234078] Service Credit Memo Lines with G/L Accounts where "Ignore in 357 Report" is set ignores in Non Taxable VAT Amount calculation
 
         // [GIVEN] Posted Service Credit Memo with G/L Account for Non Taxable VAT and "Ignore in 357 Report"
-        Initialize;
+        Initialize();
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
           CustLedgerEntry,
           PostServDocWithGLAccIgnoredIn347Report(ServiceHeader."Document Type"::"Credit Memo"));
@@ -1858,7 +1858,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 263409] XML has node for non taxable amount when No Taxable VAT line with 100% discount exists in Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "VAT Calculation Type" ="No Taxable VAT" and "Line Discount %" = 100
         PostSalesDocWithNoTaxableVATAndHundredPctDisc(CustLedgerEntry, SalesHeader."Document Type"::Invoice);
@@ -1881,7 +1881,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 263409] XML has node for non taxable amount when No Taxable VAT line with 100% discount exists in Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "VAT Calculation Type" ="No Taxable VAT" and "Line Discount %" = 100
         PostSalesDocWithNoTaxableVATAndHundredPctDisc(CustLedgerEntry, SalesHeader."Document Type"::Invoice);
@@ -1904,7 +1904,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 263409] XML has node for non taxable amount when No Taxable VAT line with 100% discount exists in Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "VAT Calculation Type" ="No Taxable VAT" and "Line Discount %" = 100
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -1929,7 +1929,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 263409] XML has node for non taxable amount when No Taxable VAT line with 100% discount exists in Service Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "VAT Calculation Type" ="No Taxable VAT" and "Line Discount %" = 100
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
@@ -1956,7 +1956,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 267012] XML has node "PrestacionServicios" for non taxable amount and EU service when post sales invoice from journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales invoice from journal with "No Taxable VAT" and EU Service
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -1988,7 +1988,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales]
         // [SCENARIO 267012] XML has node "PrestacionServicios" for non taxable amount when post sales invoice from journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales invoice from journal with "No Taxable VAT"
         LibrarySales.CreateCustomer(Customer);
@@ -2020,7 +2020,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 267012] XML has node "PrestacionServicios" for non taxable amount and EU service when post sales credit memo from journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales credit memo from journal with "No Taxable VAT" and EU Service
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -2052,7 +2052,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales]
         // [SCENARIO 267012] XML has node "PrestacionServicios" for non taxable amount when post sales credit memo from journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales credit memo from journal with "No Taxable VAT"
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -2084,7 +2084,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Purchase]
         // [SCENARIO 267012] XML has node "BaseImponible" with non taxable amount when post purchase invoice from journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post purchase invoice from journal with "No Taxable VAT"
         LibraryPurchase.CreateVendor(Vendor);
@@ -2114,7 +2114,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Purchase]
         // [SCENARIO 267012] XML has node "BaseImponible" with non taxable amount when post purchase credit memo from journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post purchase credit memo from journal with "No Taxable VAT"
         LibraryPurchase.CreateVendor(Vendor);
@@ -2145,7 +2145,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Normal VAT] [No Taxable Type]
         // [SCENARIO 278911] XML has node sii:NoSujeta with child node sii:ImporteTAIReglasLocalizacion
         // [SCENARIO 278911] When Sales Invoice was posted with Normal VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
         CreateVATPostingSetupWithNoTaxableType(
@@ -2178,7 +2178,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Normal VAT] [No Taxable Type]
         // [SCENARIO 278911] XML has node sii:NoSujeta with child node sii:ImporteTAIReglasLocalizacion
         // [SCENARIO 278911] When Service Invoice was posted with Normal VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
         CreateVATPostingSetupWithNoTaxableType(
@@ -2210,7 +2210,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Purchase] [Normal VAT] [No Taxable Type]
         // [SCENARIO 278911] XML has node sii:BaseImponible
         // [SCENARIO 278911] When Purchase Invoice was posted with Normal VAT Posting Setup having No Taxable Type = Non Taxable Due To Localization Rules
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Normal VAT, <zero> VAT Rate and No Taxable Type = "Non Taxable Due To Localization Rules"
         CreateVATPostingSetupWithNoTaxableType(
@@ -2241,7 +2241,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Invoice] [FCY]
         // [SCENARIO 298931] No Taxable node has value in local currency when export sales invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with currency code, Amount = 100 and "Amount (LCY)" = 33
         CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -2268,7 +2268,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Credit Memo] [FCY]
         // [SCENARIO 298931] No Taxable node has value in local currency when export sales credit memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with currency code, Amount = 100 and "Amount (LCY)" = 33
         CreateSalesDocumentWithCurrency(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -2295,7 +2295,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Invoice] [FCY]
         // [SCENARIO 298931] No Taxable node has value in local currency when export service invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with currency code, Amount = 100 and "Amount (LCY)" = 33
         CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Invoice);
@@ -2322,7 +2322,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Service] [Credit Memo] [FCY]
         // [SCENARIO 298931] No Taxable node has value in local currency when export service credit memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with currency code, Amount = 100 and "Amount (LCY)" = 33
         CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
@@ -2355,7 +2355,7 @@ codeunit 147524 "SII Documents No Taxable"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 327256] XML has nodes for non taxable amount if No Taxable VAT line exist in Replacement Sales Credit Memo
 
-        Initialize;
+        Initialize();
 
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
         ItemNo :=
@@ -2524,7 +2524,7 @@ codeunit 147524 "SII Documents No Taxable"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(SIIXMLCreator);
         if IsInitialized then
             exit;
@@ -2645,7 +2645,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -2655,7 +2655,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceCrMemoHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         exit(ServiceCrMemoHeader."No.");
     end;
 
@@ -2926,7 +2926,7 @@ codeunit 147524 "SII Documents No Taxable"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("VAT Calculation Type", PurchaseLine."VAT Calculation Type"::"No Taxable VAT");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         NonTaxableAmount := PurchaseLine."Line Amount";
         exit(NonTaxableAmount);
     end;
@@ -2938,7 +2938,7 @@ codeunit 147524 "SII Documents No Taxable"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("VAT Calculation Type", SalesLine."VAT Calculation Type"::"No Taxable VAT");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         NonTaxableAmount := SalesLine."Line Amount";
         exit(NonTaxableAmount);
     end;
@@ -2947,7 +2947,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
     end;
 
     local procedure GetVATEntryTotalAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Decimal

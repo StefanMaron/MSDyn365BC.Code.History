@@ -38,7 +38,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 230255] DescripcionOperacion node does not inherit value from Sales Invoice with "Posting Date" before 30.06.2017
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with VAT Clause
         PostSalesDocWithBlankOperationDescriptionAndInitialPostingDate(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, 0);
@@ -63,7 +63,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 230255] DescripcionOperacion node does not inherit value from Sales Credit Memo with "Posting Date" before 30.06.2017
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with VAT Clause
         PostSalesDocWithBlankOperationDescriptionAndInitialPostingDate(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", 0);
@@ -89,7 +89,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 230255] DescripcionOperacion node does not inherit value from Sales Credit Memo with "Correction Type" = Replacement and "Posting Date" before 30.06.2017
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with VAT Clause
         PostSalesDocWithBlankOperationDescriptionAndInitialPostingDate(
@@ -117,7 +117,7 @@ codeunit 147526 "SII Initial Documents"
         // [SCENARIO 230255] CuotaDeducible node has zero value and DescripcionOperacion node does not inherit value from Purchase Invoice with "Posting Date" before 30.06.2017
         // [SCENARIO 233942] FechaRegContable node has value Work Date for Purchase Invoice with "Posting Date" before 30.06.2017
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Date is 01.12.2017
         // [GIVEN] Posted Purchase Invoice with VAT Clause and Amount = 100
@@ -155,7 +155,7 @@ codeunit 147526 "SII Initial Documents"
         // [SCENARIO 230255] CuotaDeducible node has zero value and DescripcionOperacion node does not inherit value from Purchase Credit Memo with "Posting Date" before 30.06.2017
         // [SCENARIO 233942] FechaRegContable node has value Work Date for normal Purchase Credit Memo with "Posting Date" before 30.06.2017
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Date is 01.12.2017
         // [GIVEN] Posted Purchase Credit Memo with VAT Clause (VAT Exempt)
@@ -194,7 +194,7 @@ codeunit 147526 "SII Initial Documents"
         // [SCENARIO 230255] CuotaDeducible node has zero value and DescripcionOperacion node does not inherit value from Purchase Credit Memo with "Correction Type" = Replacement and "Posting Date" before 30.06.2017
         // [SCENARIO 233942] FechaRegContable node has value Work Date for Purchase Credit Memo with Type = "Replacement" and "Posting Date" before 30.06.2017
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work Date is 01.12.2017
         // [GIVEN] Posted Purchase Credit Memo with VAT Clause
@@ -233,7 +233,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [No Tax] [Invoice]
         // [SCENARIO 253774] Non Taxable Sales Invoice with "Posting Date" before 30.06.2017 has amount under node NoExenta
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Non Taxable VAT, "Posting Date" = 01.01.2017 and Total Amount = 120
         LibrarySII.PostSalesDocWithNoTaxableVATOnDate(
@@ -260,7 +260,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [No Tax] [Credit Memo]
         // [SCENARIO 253774] Non Taxable Sales Credit Memo with "Posting Date" before 30.06.2017 has amount under node NoExenta
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with Non Taxable VAT, "Posting Date" = 01.01.2017 and Total Amount = -120
         LibrarySII.PostSalesDocWithNoTaxableVATOnDate(
@@ -288,7 +288,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [Exemption] [Invoice]
         // [SCENARIO 253774] VAT Exemption Sales Invoice with "Posting Date" before 30.06.2017 has amount under node NoExenta
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with VAT Exemption, "Posting Date" = 01.01.2017 and Total Amount = 120
         LibrarySII.PostSalesDocWithVATClauseOnDate(
@@ -314,7 +314,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Sales] [Exemption] [Credit Memo]
         // [SCENARIO 253774] VAT Exemption Sales Credit Memo with "Posting Date" before 30.06.2017 has amount under node NoExenta
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with VAT Exemption, "Posting Date" = 01.01.2017 and Total Amount = -120
         LibrarySII.PostSalesDocWithVATClauseOnDate(
@@ -342,7 +342,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Purchase] [Reverse Charge VAT] [Invoice]
         // [SCENARIO 253774] Reverse Charge Purchase Invoice with "Posting Date" before 30.06.2017 has amount under node NoExenta
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Reverse Charge VAT, "Posting Date" = 01.01.2017 and Total Amount = 120
         PostPurchDocWithReverseChargeVAT(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice);
@@ -367,7 +367,7 @@ codeunit 147526 "SII Initial Documents"
         // [FEATURE] [Purchase] [Reverse Charge VAT] [Credit Memo]
         // [SCENARIO 253774] Reverse Charge Purchase Credit Memo with "Posting Date" before 30.06.2017 has amount under node NoExenta
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with Reverse Charge VAT, "Posting Date" = 01.01.2017 and Total Amount = 120
         PostPurchDocWithReverseChargeVAT(VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo");
@@ -383,7 +383,7 @@ codeunit 147526 "SII Initial Documents"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(SIIXMLCreator);
         if IsInitialized then
             exit;

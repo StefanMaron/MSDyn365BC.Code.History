@@ -32,7 +32,7 @@ codeunit 147592 "Test VAT Registration No."
         Customer: Record Customer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -54,7 +54,7 @@ codeunit 147592 "Test VAT Registration No."
         Vendor: Record Vendor;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
@@ -78,7 +78,7 @@ codeunit 147592 "Test VAT Registration No."
         Contact: Record Contact;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
@@ -103,7 +103,7 @@ codeunit 147592 "Test VAT Registration No."
         VatNo: Text[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -189,7 +189,7 @@ codeunit 147592 "Test VAT Registration No."
         Customer: Record Customer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -243,7 +243,7 @@ codeunit 147592 "Test VAT Registration No."
         Customer: Record Customer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -277,7 +277,7 @@ codeunit 147592 "Test VAT Registration No."
         Customer: Record Customer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -287,14 +287,14 @@ codeunit 147592 "Test VAT Registration No."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ClearLastError;
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         CompanyInformation.Get();
         SetVATRegNoFormats;

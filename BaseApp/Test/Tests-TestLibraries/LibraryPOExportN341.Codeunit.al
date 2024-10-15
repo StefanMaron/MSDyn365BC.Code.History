@@ -97,7 +97,7 @@ codeunit 143011 "Library - PO - Export N34.1"
 
         PaymentOrder.SetRange("No.", PaymentOrderNo);
         POExportN341.SetTableView(PaymentOrder);
-        POExportN341.RunModal;
+        POExportN341.RunModal();
 
         exit(FileName);
     end;

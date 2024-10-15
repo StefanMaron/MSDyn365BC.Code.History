@@ -1205,7 +1205,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer No.".SetValue(CustomerNo);
 
         SalesInvoice.SalesLines.Last;

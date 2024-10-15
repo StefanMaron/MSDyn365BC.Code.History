@@ -229,7 +229,7 @@ page 317 "VAT Statement"
                     trigger OnAction()
                     begin
                         TeleVATDecl.CurrentAsign(Rec);
-                        TeleVATDecl.RunModal;
+                        TeleVATDecl.RunModal();
                         Clear(TeleVATDecl);
                     end;
                 }
@@ -258,7 +258,7 @@ page 317 "VAT Statement"
                     trigger OnAction()
                     begin
                         TeleVATDeclXML.CurrentAssign(Rec);
-                        TeleVATDeclXML.RunModal;
+                        TeleVATDeclXML.RunModal();
                         Clear(TeleVATDeclXML);
                     end;
                 }

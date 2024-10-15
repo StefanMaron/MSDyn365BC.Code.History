@@ -247,7 +247,7 @@ page 7000012 "Posted Bill Groups"
                     Option: Integer;
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Posted Bill Groups Maturity")

@@ -246,7 +246,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
             if VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Bill then begin
                 VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
                 VendorLedgerEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
-                if not VendorLedgerEntry.FindFirst then
+                if not VendorLedgerEntry.FindFirst() then
                     exit;
             end;
 
@@ -298,7 +298,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
             if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Bill then begin
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                 CustLedgerEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                if not CustLedgerEntry.FindFirst then
+                if not CustLedgerEntry.FindFirst() then
                     exit;
             end;
 

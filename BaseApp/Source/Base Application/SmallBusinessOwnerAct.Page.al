@@ -1,4 +1,4 @@
-page 9073 "Small Business Owner Act."
+﻿page 9073 "Small Business Owner Act."
 {
     Caption = 'Activities';
     PageType = CardPart;
@@ -12,19 +12,19 @@ page 9073 "Small Business Owner Act."
             cuegroup(Sales)
             {
                 Caption = 'Sales';
-                field("Released Sales Quotes"; "Released Sales Quotes")
+                field("Released Sales Quotes"; Rec."Released Sales Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Quotes";
                     ToolTip = 'Specifies the number of released sales quotes that are displayed in the Small Business Owner Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Open Sales Orders"; "Open Sales Orders")
+                field("Open Sales Orders"; Rec."Open Sales Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of open sales orders that are displayed in the Small Business Owner Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Released Sales Orders"; "Released Sales Orders")
+                field("Released Sales Orders"; Rec."Released Sales Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Sales Order List";
@@ -54,7 +54,7 @@ page 9073 "Small Business Owner Act."
             cuegroup(Purchase)
             {
                 Caption = 'Purchase';
-                field("Released Purchase Orders"; "Released Purchase Orders")
+                field("Released Purchase Orders"; Rec."Released Purchase Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
@@ -76,7 +76,7 @@ page 9073 "Small Business Owner Act."
             cuegroup(Receivables)
             {
                 Caption = 'Receivables';
-                field("Overdue Sales Documents"; "Overdue Sales Documents")
+                field("Overdue Sales Documents"; Rec."Overdue Sales Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer Ledger Entries";
@@ -91,10 +91,10 @@ page 9073 "Small Business Owner Act."
 
                     trigger OnDrillDown()
                     begin
-                        ShowSalesOrdersShippedNotInvoiced;
+                        Rec.ShowSalesOrdersShippedNotInvoiced();
                     end;
                 }
-                field("Customers - Blocked"; "Customers - Blocked")
+                field("Customers - Blocked"; Rec."Customers - Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer List";
@@ -115,7 +115,7 @@ page 9073 "Small Business Owner Act."
                         ApplicationArea = Basic, Suite;
                         Caption = 'Find entries...';
                         RunObject = Page Navigate;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+Q';
                         ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                 }
@@ -165,13 +165,13 @@ page 9073 "Small Business Owner Act."
             cuegroup(Payables)
             {
                 Caption = 'Payables';
-                field("Purchase Documents Due Today"; "Purchase Documents Due Today")
+                field("Purchase Documents Due Today"; Rec."Purchase Documents Due Today")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor Ledger Entries";
                     ToolTip = 'Specifies the number of purchase invoices that are displayed in the Order Cue in the Business Manager Role Center. The documents are filtered by today''s date.';
                 }
-                field("Vendors - Payment on Hold"; "Vendors - Payment on Hold")
+                field("Vendors - Payment on Hold"; Rec."Vendors - Payment on Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor List";
@@ -238,33 +238,6 @@ page 9073 "Small Business Owner Act."
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -274,30 +247,29 @@ page 9073 "Small Business Owner Act."
 
     trigger OnAfterGetRecord()
     begin
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
-        SetFilter("Due Date Filter", '<=%1', WorkDate);
-        SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
+        Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
 
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     var
-        UserTaskManagement: Codeunit "User Task Management";
         SOShippedNotInvoicedCount: Integer;
 
     local procedure CalculateCueFieldValues()
     begin
-        SOShippedNotInvoicedCount := CountSalesOrdersShippedNotInvoiced;
+        SOShippedNotInvoicedCount := Rec.CountSalesOrdersShippedNotInvoiced();
     end;
 }
 

@@ -448,7 +448,7 @@ page 7000005 "Docs. in Posted BG Subform"
             PartialSettleReceivable.SetInitValue(PostedDoc."Remaining Amount",
               PostedDoc."Currency Code", PostedDoc."Entry No.");
         PartialSettleReceivable.SetTableView(PostedDoc);
-        PartialSettleReceivable.RunModal;
+        PartialSettleReceivable.RunModal();
 
         CurrPage.Update(false);
     end;

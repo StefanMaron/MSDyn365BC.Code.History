@@ -194,7 +194,7 @@ report 7000097 "Reject Docs."
 
                 PostGenJournal;
                 if ExistVATEntry then begin
-                    GLReg.FindLast;
+                    GLReg.FindLast();
                     GLReg."From VAT Entry No." := FirstVATEntryNo;
                     GLReg."To VAT Entry No." := LastVATEntryNo;
                     GLReg.Modify();
@@ -651,7 +651,7 @@ report 7000097 "Reject Docs."
             GenJnlLine2.LockTable();
             GenJnlLine2.SetRange("Journal Template Name", TemplName);
             GenJnlLine2.SetRange("Journal Batch Name", BatchName);
-            if GenJnlLine2.FindLast then begin
+            if GenJnlLine2.FindLast() then begin
                 LastLineNo := GenJnlLine2."Line No.";
                 TransactionNo := GenJnlLine2."Transaction No." + 1;
             end;
@@ -671,7 +671,7 @@ report 7000097 "Reject Docs."
             CarteraJnlForm.SetTableView(GenJnlLine2);
             CarteraJnlForm.SetRecord(GenJnlLine2);
             CarteraJnlForm.AllowClosing(true);
-            CarteraJnlForm.RunModal;
+            CarteraJnlForm.RunModal();
         end
         else
             repeat

@@ -126,7 +126,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
 
         // Exercise: change Due Date in the line with falling out of the permitted range
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         asserterror CarteraDoc.Validate("Due Date", CalcDate('<+' + Format(MaxNoOfDays + LibraryRandom.RandInt(10)) + 'D>',
               CarteraDoc."Due Date"));
 
@@ -160,7 +160,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
 
         // Exercise: change Due Date in the line in the permitted range
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         DueDate := CarteraDoc."Due Date";
         CarteraDoc."Due Date" := CalcDate('<+' + Format(DueDateCalculationFormula) + 'D>', CarteraDoc."Due Date");
         CarteraDoc.Modify();
@@ -402,7 +402,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         CarteraDoc: Record "Cartera Doc.";
     begin
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        if CarteraDoc.FindSet then
+        if CarteraDoc.FindSet() then
             repeat
                 CarteraDoc."Bill Gr./Pmt. Order No." := BillGroupNo;
                 CarteraDoc.Modify();
@@ -521,7 +521,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         PaymentMethod.SetRange("Bill Type", PaymentMethod."Bill Type"::"Bill of Exchange");
         PaymentMethod.SetRange("Invoices to Cartera", false);
         PaymentMethod.SetRange("Bal. Account No.", '');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
     end;
 
     local procedure SelectVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type")
@@ -529,7 +529,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Posting Date", PostingDate);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure SaveReportAsXML(var Vendor: Record Vendor; ReportStartDate: Date; ReportEndDate: Date; ShowPayments: Option)
@@ -539,7 +539,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         VendorOverduePayments.SetTableView(Vendor);
         VendorOverduePayments.InitReportParameters(ReportStartDate, ReportEndDate, ShowPayments);
         Commit();
-        VendorOverduePayments.Run;
+        VendorOverduePayments.Run();
     end;
 
     local procedure ReportVerification(Vendor: Record Vendor; PostingDate: Date; PostingDelta: Text[30])
@@ -603,7 +603,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         PaymentTermsCode := CreateInstallmentGroup;
 
         Installment.SetRange("Payment Terms Code", PaymentTermsCode);
-        Installment.FindFirst;
+        Installment.FindFirst();
     end;
 
     local procedure CreateAdditionalInstallmentToExistingGroup(var Installment: Record Installment; var InstallmentToInsert: Record Installment)
@@ -611,7 +611,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         TotalPercent: Decimal;
     begin
         Installment.SetRange("Payment Terms Code", Installment."Payment Terms Code");
-        Installment.FindLast;
+        Installment.FindLast();
         TotalPercent := Installment."% of Total";
         Installment."% of Total" := Installment."% of Total" / 2;
         Installment.Modify();

@@ -132,7 +132,7 @@ page 7507 "Filter Items - AssistEdit"
 
         OptionFilter := '';
         SelectItemAttributeValue.GetSelectedValue(SelectedItemAttributeValue);
-        if SelectedItemAttributeValue.FindSet then begin
+        if SelectedItemAttributeValue.FindSet() then begin
             repeat
                 if SelectedItemAttributeValue.Value <> '' then
                     OptionFilter := StrSubstNo('%1|%2', SelectedItemAttributeValue.Value, OptionFilter);

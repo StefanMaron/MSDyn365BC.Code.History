@@ -10,7 +10,7 @@ page 371 "Bank Account List"
     UsageCategory = Lists;
 
     AboutTitle = 'About bank accounts';
-    AboutText = 'A bank account listed here corresponds to an account held in a bank or financial institute. You must periodically import transactions from the bank to reconcile with those posted in Business Central. Importing is done in the Bank Reconciliations Page.';
+    AboutText = 'A bank account listed here corresponds to an account held in a bank or financial institute. You must periodically import transactions from the bank to reconcile with those posted in Business Central. Importing is done in the [Bank Account Reconciliations](?page=388 "Opens the Bank Account Reconciliations") page.';
 
     layout
     {
@@ -240,7 +240,7 @@ page 371 "Bank Account List"
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
                             DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -563,7 +563,6 @@ page 371 "Bank Account List"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -713,9 +712,7 @@ page 371 "Bank Account List"
     trigger OnOpenPage()
     var
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         ShowBankLinkingActions := StatementProvidersExist;
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
@@ -727,7 +724,6 @@ page 371 "Bank Account List"
         Linked: Boolean;
         ShowBankLinkingActions: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure VerifySingleSelection()
     var

@@ -25,12 +25,12 @@ codeunit 143305 "Library - 340 347 Declaration"
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
 
-        if GenJournalLine.FindLast then
+        if GenJournalLine.FindLast() then
             GenJournalLine.Init();
         GenJournalLine."Line No." += 1;
 
@@ -75,12 +75,12 @@ codeunit 143305 "Library - 340 347 Declaration"
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
 
-        if GenJournalLine.FindLast then
+        if GenJournalLine.FindLast() then
             GenJournalLine.Init();
         GenJournalLine."Line No." += 1;
 
@@ -133,11 +133,11 @@ codeunit 143305 "Library - 340 347 Declaration"
         CrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         if ApplyToInvNo <> '' then begin
-            VendLedgEntry.FindLast;
+            VendLedgEntry.FindLast();
             VendLedgEntry.CalcFields("Remaining Amount");
             LibraryERM.SetApplyVendorEntry(VendLedgEntry, VendLedgEntry."Remaining Amount");
             InvVendLedgEntry.SetRange("Document No.", ApplyToInvNo);
-            InvVendLedgEntry.FindLast;
+            InvVendLedgEntry.FindLast();
             LibraryERM.SetAppliestoIdVendor(InvVendLedgEntry);
             LibraryERM.PostVendLedgerApplication(VendLedgEntry);
         end;
@@ -228,11 +228,11 @@ codeunit 143305 "Library - 340 347 Declaration"
         CrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         if ApplyToInvNo <> '' then begin
-            CustLedgEntry.FindLast;
+            CustLedgEntry.FindLast();
             CustLedgEntry.CalcFields("Remaining Amount");
             LibraryERM.SetApplyCustomerEntry(CustLedgEntry, CustLedgEntry."Remaining Amount");
             InvCustLedgEntry.SetRange("Document No.", ApplyToInvNo);
-            InvCustLedgEntry.FindLast;
+            InvCustLedgEntry.FindLast();
             LibraryERM.SetAppliestoIdCustomer(InvCustLedgEntry);
             LibraryERM.PostCustLedgerApplication(CustLedgEntry);
         end;
@@ -461,7 +461,7 @@ codeunit 143305 "Library - 340 347 Declaration"
           ExportFileName,
           NewGLAccount,
           0.0);
-        Make340Declaration.RunModal;
+        Make340Declaration.RunModal();
         Make340Declaration.GetServerFileName(ExportFileName);
     end;
 

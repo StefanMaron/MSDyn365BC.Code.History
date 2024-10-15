@@ -27,7 +27,7 @@ codeunit 138009 "O365 Customer Statistics"
         Customer: Record Customer;
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         ValidateAvgDaysToPay(0, Customer);
@@ -51,7 +51,7 @@ codeunit 138009 "O365 Customer Statistics"
         Customer: Record Customer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -69,7 +69,7 @@ codeunit 138009 "O365 Customer Statistics"
         Day1: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         CreateInvoiceAndPayItPartially(Customer);
@@ -89,7 +89,7 @@ codeunit 138009 "O365 Customer Statistics"
         Day1: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         CreateInvoiceAndPayItPartially(Customer);
@@ -110,7 +110,7 @@ codeunit 138009 "O365 Customer Statistics"
         Day1: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         CreateInvoiceAndPayItPartially(Customer);
@@ -135,7 +135,7 @@ codeunit 138009 "O365 Customer Statistics"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Customer Statistics");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
@@ -143,9 +143,9 @@ codeunit 138009 "O365 Customer Statistics"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Customer Statistics");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
@@ -168,7 +168,7 @@ codeunit 138009 "O365 Customer Statistics"
     begin
         with CustLedgEntry do begin
             Init;
-            if FindLast then
+            if FindLast() then
                 "Entry No." += 1
             else
                 "Entry No." := 1;
@@ -334,7 +334,7 @@ codeunit 138009 "O365 Customer Statistics"
         DateFilterActual: Text[30];
         CustDateName: Text[30];
     begin
-        Initialize;
+        Initialize();
 
         DateFilterCalc.CreateFiscalYearFilter(DateFilterExpected, CustDateName, WorkDate, 0);
         DateFilterActual := CustomerMgt.GetCurrentYearFilter;
@@ -351,7 +351,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedAmount: Decimal;
         ExpectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnPostedInvoices(CustNo, 0, 0);
@@ -375,7 +375,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedAmount: Decimal;
         ExpectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnPostedCrMemos(CustNo, 0, 0);
@@ -400,7 +400,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedAmount: Decimal;
         ExpectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnOrders(CustNo, 0, 0);
@@ -425,7 +425,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedAmount: Decimal;
         ExpectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnQuotes(CustNo, 0, 0);
@@ -450,7 +450,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedAmount: Decimal;
         ExpectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnUnpostedInvoices(CustNo, 0, 0);
@@ -475,7 +475,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedAmount: Decimal;
         ExpectedCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnUnpostedCrMemos(CustNo, 0, 0);
@@ -502,7 +502,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedCount: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnQuotes(CustNo, 0, 0);
@@ -537,7 +537,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedCount: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnOrders(CustNo, 0, 0);
@@ -572,7 +572,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedCount: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnUnpostedInvoices(CustNo, 0, 0);
@@ -607,7 +607,7 @@ codeunit 138009 "O365 Customer Statistics"
         ExpectedCount: Integer;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnOrders(CustNo, 0, 0);
@@ -642,7 +642,7 @@ codeunit 138009 "O365 Customer Statistics"
         InvoiceAmount: Decimal;
         CreditMemoAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CustNo := CreateCustomer(Customer);
         ValidateAmountOnUnpostedInvoices(CustNo, 0, 0);

@@ -7,7 +7,8 @@ entitlement "Dynamics 365 Business Central Premium Partner Sandbox BaseApp"
 {
     Type = PerUserServicePlan;
     Id = '37b1c04b-a429-4139-a15e-067784a80a55';
-    ObjectEntitlements = "BaseApp Objects - Exec",
+    ObjectEntitlements = "BaseApp Login",
+                         "BaseApp Objects - Exec",
                          "D365 BASIC",
                          "D365 BUS PREMIUM",
                          "D365 DIM CORRECTION",

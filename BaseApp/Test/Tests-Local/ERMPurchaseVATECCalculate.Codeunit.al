@@ -85,7 +85,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly without Currency and Reverse charge VAT for posting General Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralJournalReverseChargeVAT('');  // Currency - blank.
     end;
 
@@ -96,7 +96,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly with Currency and Reverse charge VAT for posting General Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralJournalReverseChargeVAT(CreateCurrencyAndExchangeRate);
     end;
 
@@ -136,7 +136,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly without Currency and Normal VAT for posting General Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralJournalNormalVAT('');  // Currency - blank.
     end;
 
@@ -147,7 +147,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly with Currency and Normal VAT for posting General Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralJournalNormalVAT(CreateCurrencyAndExchangeRate);
     end;
 
@@ -190,7 +190,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly with Currency and Normal VAT when Purchase Credit Memo Created.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate, VATPostingSetup."VAT %", VATPostingSetup."EC %");
     end;
@@ -204,7 +204,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly with Currency and Reverse charge VAT when Purchase Credit Memo Created.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Reverse Charge VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         PurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate, 0, 0);  // VAT % and EC % - 0.
     end;
@@ -218,7 +218,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly without Currency and Normal VAT when Purchase Credit Memo Created.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PurchCrMemoVATCalculationType(VATPostingSetup, '', VATPostingSetup."VAT %", VATPostingSetup."EC %");  // Currency - blank.
     end;
@@ -232,7 +232,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly without Currency and Reverse charge VAT when Purchase Credit Memo Created.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Reverse Charge VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         PurchCrMemoVATCalculationType(VATPostingSetup, '', 0, 0);  // Currency - blank, VAT % and EC % - 0.
     end;
@@ -267,7 +267,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly with Currency and Normal VAT when Purchase Credit Memo Posted.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PostedPurchCrMemoVATCalculationType(
           VATPostingSetup, CreateCurrencyAndExchangeRate, VATPostingSetup."VAT %", VATPostingSetup."EC %");
@@ -282,7 +282,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly with Currency and Reverse charge VAT when Purchase Credit Memo Posted.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Reverse Charge VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         PostedPurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate, 0, 0);  // VAT % and EC % - 0.
     end;
@@ -296,7 +296,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly without Currency and Normal VAT when Purchase Credit Memo Posted.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PostedPurchCrMemoVATCalculationType(VATPostingSetup, '', VATPostingSetup."VAT %", VATPostingSetup."EC %");  // Currency - blank.
     end;
@@ -310,7 +310,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount calculated correctly without Currency and Reverse charge VAT when Purchase Credit Memo Posted.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Reverse Charge VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         PostedPurchCrMemoVATCalculationType(VATPostingSetup, '', 0, 0);  // Currency - blank, VAT % and EC % - 0.
     end;
@@ -362,7 +362,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount Line after posting Purchase Order.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // Exercise: Create and post Purchase Order with multiple Purchase Line.
@@ -389,7 +389,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify VAT Amount Line after posting Purchase Credit Memo.
 
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
-        Initialize;
+        Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
         // Exercise: Create and post Purchase Credit Memo with multiple Purchase Line.
@@ -420,7 +420,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify G/L Entry and VAT Entry Amount after posting Purchase Return Order.
 
         // Setup: Update Purchases Payables Setup, VAT Posting Setup VAT Calculation Type - Normal VAT. Create Purchase Return Order with Line Discount.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdatePurchasesPayablesSetupInvRoundingAndDiscount(OldCalcInvDiscount, false, false);  // Calculate Invoice Discount and Invoice Rounding - False.
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseDocument(
@@ -457,7 +457,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Verify G/L Entry and VAT Entry Amount after posting Purchase Order.
 
         // Setup: Update Purchases Payables Setup, VAT Posting Setup VAT Calculation Type - Normal VAT. Create Purchase Order with Line Discount.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdatePurchasesPayablesSetupInvRoundingAndDiscount(OldPostLineDiscount, false, false);  // Calculate Invoice Discount and Invoice Rounding - False.
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseDocument(
@@ -514,7 +514,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchaseStatisticsOption: Option Update,Verify;
     begin
         // Setup: PurchasesPayables Setup - Allow VAT Difference and General Ledger - Max. VAT Difference Allowed, Create Purchase Invoice with multiple lines having different VAT Prod. Posting Group.
-        Initialize;
+        Initialize();
         OldAllowVATDifference := UpdatePurchasesPayablesSetupAllowVATDifference(true);  // TRUE for Allow VAT Difference.
         MaxVATDifferenceAllowed := LibraryRandom.RandDec(0, 1);
         OldVATDifferenceAllowed := UpdateGeneralLedgerSetupMaxVATDifferenceAllowed(MaxVATDifferenceAllowed);  // Using Random value for Max. VAT Difference Allowed.
@@ -553,7 +553,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Test to verify the correct G/L and VAT entries when Purchase Invoice created with Unrealized VAT is true.
 
         // Setup: Update General ledger setup - Unrealized VAT and VAT Posting Setup - Purch. VAT Unreal. Account.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateGeneralLedgerSetupUnrealizedVAT(true);  // Unrealized VAT - True.
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateVATPostingSetupPurchVATUnrealAccount(
@@ -588,7 +588,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Test to verify the correct G/L and VAT entries when payment is applied to created invoice when Unrealized VAT is true.
 
         // Setup: Update General ledger setup - Unrealized VAT and VAT Posting Setup - Purch. VAT Unreal. Account. Create and Post General Journal Line Document Type - Invoice.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateGeneralLedgerSetupUnrealizedVAT(true);  // Unrealized VAT - True.
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateVATPostingSetupPurchVATUnrealAccount(
@@ -625,7 +625,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 123180] Several prepayments from one purchase document gives full document amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document with 50% prepayment
         PrepmtInvoicesCnt := LibraryRandom.RandIntInRange(3, 5);
@@ -665,7 +665,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 123350] "Purchase Prepmt. Doc. - Test" EC Amount = prepayment EC amount for second prepayment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document with Amount = "A", Prepayment % = "P", "EC %" = "E"
         CreatePurchaseDocWithPostingSetup(PurchaseHeader);
@@ -702,7 +702,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchasePrice: Decimal;
     begin
         // [SCENARIO 363582] Purchase Document Posting with EC % and Prices Incl. VAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with EC % = 4 and VAT % = 18 specified
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -751,7 +751,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchasePrice: Decimal;
     begin
         // [SCENARIO 363582] Purchase Statistics with EC % and Prices Incl. VAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with EC % = 4 and VAT % = 18 specified
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -804,7 +804,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 375571] Purchase Document Posting with EC %; Prices Incl. VAT = TRUE and Prepayment
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with EC % = 4 and VAT % = 18 specified
         PrepmtGLAccNo :=
@@ -843,7 +843,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
@@ -1099,7 +1099,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
     local procedure PostPurchasePrepaymentInvoice(PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify();
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
@@ -1124,7 +1124,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure FindVATPostingSetupVATPct(PurchaseLineNumber: Option; VATPct: Decimal; VATPct2: Decimal): Decimal
@@ -1139,7 +1139,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     local procedure FindPurchaseCrMemoHeader(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; VendorNo: Code[20])
     begin
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
@@ -1147,7 +1147,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1239,7 +1239,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
@@ -1249,7 +1249,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(CreditAmount, GLEntry."Credit Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(VATAmount, GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
@@ -1286,7 +1286,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         QtyType: Option General;
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
         VerifyVATAmountLine(VATAmountLine, VATPct, ECPct, Amount);
     end;
@@ -1298,7 +1298,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         VATAmountLine: Record "VAT Amount Line";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvLine.CalcVATAmountLines(PurchInvHeader, VATAmountLine);
         VerifyVATAmountLine(VATAmountLine, VATPct, ECPct, Amount);
     end;
@@ -1309,7 +1309,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
         VATEntry.SetRange("Document Type", DocumentType);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);

@@ -51,9 +51,9 @@ codeunit 137000 "SCM WIP Posting"
         ChildItemNo: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO] Post WIP entry for parent item.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create Parent & Child item.
         ChildItemNo := CreateChildItem;
@@ -76,9 +76,9 @@ codeunit 137000 "SCM WIP Posting"
         ChildItemNo: Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [SCENARIO] Post WIP entry for child item.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create Parent & Child item.
         ChildItemNo := CreateChildItem;
@@ -153,7 +153,7 @@ codeunit 137000 "SCM WIP Posting"
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20])
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     [Scope('OnPrem')]

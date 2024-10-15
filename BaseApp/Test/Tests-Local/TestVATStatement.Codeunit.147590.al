@@ -43,7 +43,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatement: TestPage "VAT Statement";
     begin
         // [FEATURE] [UI]
-        Initialize;
+        Initialize();
 
         CreateVATStatement(VATStatementName);
         CreateVATStatementLineDescription(VATStatementLine, VATStatementName);
@@ -68,7 +68,7 @@ codeunit 147590 "Test VAT Statement"
         TransferenceFormat: TestPage "Transference Format";
     begin
         // [FEATURE] [UI]
-        Initialize;
+        Initialize();
 
         CreateVATStatement(VATStatementName);
         CreateVATStatementLineDescription(VATStatementLine, VATStatementName);
@@ -97,7 +97,7 @@ codeunit 147590 "Test VAT Statement"
         XMLTransferenceFormat: TestPage "XML Transference Format";
     begin
         // [FEATURE] [UI]
-        Initialize;
+        Initialize();
 
         CreateVATStatement(VATStatementName);
         CreateVATStatementLineDescription(VATStatementLine, VATStatementName);
@@ -128,7 +128,7 @@ codeunit 147590 "Test VAT Statement"
         AccountNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         AccountNo := CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
 
@@ -159,7 +159,7 @@ codeunit 147590 "Test VAT Statement"
         AccountNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         AccountNo := CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
 
@@ -197,7 +197,7 @@ codeunit 147590 "Test VAT Statement"
         FieldValue: Code[250];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         RecRef.GetTable(AEATTransferenceFormat);
         FieldRef := RecRef.Field(AEATTransferenceFormat.FieldNo(Value));
@@ -277,7 +277,7 @@ codeunit 147590 "Test VAT Statement"
         PadString: Text[1];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
         Length := 10;
@@ -364,7 +364,7 @@ codeunit 147590 "Test VAT Statement"
         RootNodeName: Text[250];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
         AccountNo := CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
@@ -436,7 +436,7 @@ codeunit 147590 "Test VAT Statement"
         PadString: Text[1];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
         Length := 10;
@@ -502,7 +502,7 @@ codeunit 147590 "Test VAT Statement"
         RootNodeName: Text[250];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
         AccountNo1 := CreateGLAccountWithVATPostingSetup(VATPostingSetupPurch, GLAccount."Gen. Posting Type"::Purchase);
@@ -572,7 +572,7 @@ codeunit 147590 "Test VAT Statement"
         Box: Code[5];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
         Length := 10;
@@ -628,7 +628,7 @@ codeunit 147590 "Test VAT Statement"
         RootNodeName: Text[250];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
 
@@ -689,7 +689,7 @@ codeunit 147590 "Test VAT Statement"
         Box: Code[5];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
         Length := 10;
@@ -745,7 +745,7 @@ codeunit 147590 "Test VAT Statement"
         RootNodeName: Text[250];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         Box := '1';
 
@@ -842,7 +842,7 @@ codeunit 147590 "Test VAT Statement"
         Length: Integer;
     begin
         // [SCENARIO 121853] VAT Statement Transference Format with type Alphanumerical is exported to txt file
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement with new line in Transference Format with type Alphanumerical
         Length := LibraryRandom.RandIntInRange(2, 10);
@@ -882,7 +882,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         // [FEATURE] [VAT Statement] [Export]
         // [SCENARIO 121806] Amount generated in VAT declaration when Full VAT is involved
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Purchase Invoice with Full VAT Amount = "X"
         AccountNo := CreateGLAccountWithFullVATPostingSetupPurch(VATPostingSetup);
@@ -923,7 +923,7 @@ codeunit 147590 "Test VAT Statement"
         ColumnBase: Decimal;
     begin
         // [SCENARIO 378865] Check Columns Amount in VAT Statement when Ful VAT is involved and with Amount type = Base and Type = "VAT Entry Totaling"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT Entry where VAT Calculation Type = "Full VAT", Amount = 100, Base = 0
         CreateVATEntryWithPostingGroups(VATEntry, LibraryRandom.RandDec(100, 2), 0, VATEntry."VAT Calculation Type"::"Full VAT");
@@ -952,7 +952,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382380] Check Columns Amount in VAT Statement when Full VAT is involved, Template Type = Two Columns, Amount type = Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry with Amount = 100, Base = 200, "VAT Calculation Type" = "Full VAT"
         CreateVATEntryWithPostingGroups(
@@ -989,7 +989,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 213195] Check Columns Amount in VAT Statement when Full VAT is involved, Template Type = Two Columns, Amount type = Base
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry with Amount = 100, Base = 200, "VAT Calculation Type" = "Full VAT"
         CreateVATEntryWithPostingGroups(
@@ -1026,7 +1026,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382380] Check Columns Amount in VAT Statement when Full VAT is involved, Template Type = Two Columns, Amount type = Amount + Base
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry with Amount = 100, Base = 200, "VAT Calculation Type" = "Full VAT"
         CreateVATEntryWithPostingGroups(
@@ -1063,7 +1063,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382380] Check Columns Amount in VAT Statement when Full VAT doesn't involved, Template Type = Two Columns, Amount type = Amount + Base
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry with Amount = 100, Base = 200, "VAT Calculation Type" = "Normal VAT"
         CreateVATEntryWithPostingGroups(
@@ -1102,7 +1102,7 @@ codeunit 147590 "Test VAT Statement"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 259535] Telematic VAT Declaration Report generates file for AEAT Transference Format with Length more than 5000.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Statement with Line.
         CreateVATStatement(VATStatementName);
@@ -1345,12 +1345,12 @@ codeunit 147590 "Test VAT Statement"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GLSetup.Get();
 
         IsInitialized := true;
@@ -1372,7 +1372,7 @@ codeunit 147590 "Test VAT Statement"
         NodeOrAttribute2: Text[250];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         AccountNo := CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
         FieldValue := LibraryUtility.GenerateRandomCode(AEATTransferenceFormatXML.FieldNo(Value),
@@ -1746,7 +1746,7 @@ codeunit 147590 "Test VAT Statement"
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Name");
 
         Commit();
-        TelematicVATDeclaration.RunModal;
+        TelematicVATDeclaration.RunModal();
         Clear(TelematicVATDeclaration);
     end;
 
@@ -1767,7 +1767,7 @@ codeunit 147590 "Test VAT Statement"
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Name");
 
         Commit();
-        XMLVATDeclaration.RunModal;
+        XMLVATDeclaration.RunModal();
         Clear(XMLVATDeclaration);
     end;
 

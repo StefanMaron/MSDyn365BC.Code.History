@@ -65,7 +65,7 @@ report 118 "Finance Charge Memo"
                 column(VATNoText; VATNoText)
                 {
                 }
-                column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                 {
                 }
                 column(CompanyInfo1Picture; CompanyInfo1.Picture)
@@ -80,7 +80,7 @@ report 118 "Finance Charge Memo"
                 column(CustNo_IssuedFinChargeMemoHdr; "Issued Fin. Charge Memo Header"."Customer No.")
                 {
                 }
-                column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                column(CompanyInfoBankName; CompanyBankAccount.Name)
                 {
                 }
                 column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
@@ -205,7 +205,7 @@ report 118 "Finance Charge Memo"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -548,7 +548,7 @@ report 118 "Finance Charge Memo"
                         CustEntry.SetRange("Customer No.", "Issued Fin. Charge Memo Header"."Customer No.");
                         CustEntry.SetRange("Document Type", CustEntry."Document Type"::"Finance Charge Memo");
                         CustEntry.SetRange("Document No.", "Issued Fin. Charge Memo Header"."No.");
-                        if CustEntry.FindFirst then begin
+                        if CustEntry.FindFirst() then begin
                             CustEntry.CalcFields("Amount (LCY)", Amount);
                             CurrFactor := 1 / (CustEntry."Amount (LCY)" / CustEntry.Amount);
                             VALExchRate := StrSubstNo(Text009, Round(1 / CurrFactor * 100, 0.00001), CurrExchRate."Exchange Rate Amount");
@@ -565,6 +565,9 @@ report 118 "Finance Charge Memo"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
+
+                if not CompanyBankAccount.Get("Issued Fin. Charge Memo Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 FormatAddr.IssuedFinanceChargeMemo(CustAddr, "Issued Fin. Charge Memo Header");
                 if "Your Reference" = '' then
@@ -682,7 +685,7 @@ report 118 "Finance Charge Memo"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Issued Fin. Charge Memo Header".FindSet then
+            if "Issued Fin. Charge Memo Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       19, "Issued Fin. Charge Memo Header"."No.", 0, 0, DATABASE::Customer,
@@ -704,6 +707,7 @@ report 118 "Finance Charge Memo"
         Customer: Record Customer;
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo3: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -808,7 +812,7 @@ report 118 "Finance Charge Memo"
         CACCaptionLbl := '';
         VATEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Finance Charge Memo");
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 if VATEntry."VAT Cash Regime" then
                     CACCaptionLbl := CACTxt;

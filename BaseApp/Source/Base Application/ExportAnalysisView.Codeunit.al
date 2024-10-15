@@ -203,7 +203,7 @@ codeunit 424 "Export Analysis View"
             if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
                 SetFilter("Cash Flow Forecast No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (AnalysisByDimParameters."Closing Entries" = 0) or ("Posting Date" = NormalDate("Posting Date")) then begin
                         if "Posting Date" >= EndDate then
@@ -289,7 +289,7 @@ codeunit 424 "Export Analysis View"
             SetFilter("Dimension 2 Value Code", AnalysisByDimParameters."Dimension 2 Filter");
             SetFilter("Dimension 3 Value Code", AnalysisByDimParameters."Dimension 3 Filter");
             SetFilter("Dimension 4 Value Code", AnalysisByDimParameters."Dimension 4 Filter");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (AnalysisByDimParameters."Closing Entries" = 1) or ("Posting Date" = NormalDate("Posting Date")) then begin
                         if "Posting Date" >= EndDate then
@@ -393,7 +393,7 @@ codeunit 424 "Export Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast then begin
+                        if AccountingPeriod.FindLast() then begin
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
                         end else
                             PrevCalculatedPostingDate := PostingDate;
@@ -454,7 +454,7 @@ codeunit 424 "Export Analysis View"
             FillCell(RowNoCount, 2, AnalysisView.FieldCaption("Last Date Updated"));
             FillCell(RowNoCount, 3, AnalysisView."Last Date Updated");
             AnalysisViewFilter.SetRange("Analysis View Code", "Analysis View Code");
-            if AnalysisViewFilter.FindSet then
+            if AnalysisViewFilter.FindSet() then
                 repeat
                     RowNoCount := RowNoCount + 1;
                     FillCell(RowNoCount, 2, AnalysisViewFilter."Dimension Code");
@@ -594,7 +594,7 @@ codeunit 424 "Export Analysis View"
             TempGLAcc3.SetCurrentKey("No.");
             TempGLAcc3.SetFilter(Indentation, '<%1', TempGLAcc3.Indentation);
             TempGLAcc3.SetFilter("No.", '<%1', Account);
-            TempGLAcc3.FindLast;
+            TempGLAcc3.FindLast();
             if TempGLAcc3.Indentation = Indent - 1 then
                 Account := TempGLAcc3."No."
             else begin
@@ -676,7 +676,7 @@ codeunit 424 "Export Analysis View"
                     AddParentToBuffer(ParentTempNameValueBuffer, i, TempDimValue2.Code, TempDimValue2.Name);
                 end;
 
-            if ParentTempNameValueBuffer.FindSet then
+            if ParentTempNameValueBuffer.FindSet() then
                 repeat
                     AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
                 until ParentTempNameValueBuffer.Next() = 0;
@@ -717,7 +717,7 @@ codeunit 424 "Export Analysis View"
                 AddParentToBuffer(ParentTempNameValueBuffer, i, TempGLAcc3."No.", TempGLAcc3.Name);
             end;
 
-        if ParentTempNameValueBuffer.FindSet then
+        if ParentTempNameValueBuffer.FindSet() then
             repeat
                 AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
             until ParentTempNameValueBuffer.Next() = 0;
@@ -750,7 +750,7 @@ codeunit 424 "Export Analysis View"
                 AddParentToBuffer(ParentTempNameValueBuffer, i, TempCFAccount3."No.", TempCFAccount3.Name);
             end;
 
-        if ParentTempNameValueBuffer.FindSet then
+        if ParentTempNameValueBuffer.FindSet() then
             repeat
                 AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
             until ParentTempNameValueBuffer.Next() = 0;

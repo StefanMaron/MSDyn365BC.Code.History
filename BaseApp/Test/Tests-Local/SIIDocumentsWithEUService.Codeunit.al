@@ -42,7 +42,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [No tax] [Invoice]
         // [SCENARIO 229401] XML has node "PrestacionServicios" for non taxable amount if only line with No Taxable VAT exists in Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with one line where "VAT Calculation Type" = "No Taxable VAT" and "EU Service"
         LibrarySII.PostSalesDocWithNoTaxableVAT(
@@ -72,7 +72,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [No tax] [Credit Memo]
         // [SCENARIO 229401] XML has node "ImportePorArticulos7_14_Otros" with parent node "PrestacionServicios" for non taxable amount in EU Sales Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Cr Memo withwith one line
         LibrarySII.CreateForeignCustWithVATSetup(Customer);
@@ -111,7 +111,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 225611] XML has node for VAT Amount excluding EC Amount given Sales Invoice with EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 1000, "VAT %" = 21, "EC %" = 5.2
         ExpectedVATAmount := CreateSalesDocWithEC(SalesHeader, SalesHeader."Document Type"::Invoice, 0);
@@ -140,7 +140,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [SCENARIO 225611] XML has node for VAT Amount given Sales invoice with both Normal VAT and EC
         // [SCENARIO 229914] CuotaRecargoEquivalencia node contains EC Amount for Sales Invoice with both Normal VAT and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
@@ -173,7 +173,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Sales Credit Memo with EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with Amount = -1000, "VAT %" = 21, "EC %" = 5.2
         ExpectedVATAmount := CreateSalesDocWithEC(SalesHeader, SalesHeader."Document Type"::"Credit Memo", 0);
@@ -202,7 +202,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Sales Credit Memo with both Normal VAT and EC
         // [SCENARIO 229914] CuotaRecargoEquivalencia node contains EC Amount for Sales Credit Memo with both Normal VAT and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
@@ -235,7 +235,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Sales Credit Memo with "Correction Type" = Replacement and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with with "Correction Type" = Replacement, Amount = 1000, "VAT %" = 21, "EC %" = 5.2
         ExpectedVATAmount :=
@@ -265,7 +265,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Sales Credit Memo with "Correction Type" = Replacement and with both Normal VAT and EC
         // [SCENARIO 229914] CuotaRecargoEquivalencia node contains EC Amount for Sales Credit Memo with "Correction Type" = Replacement with both Normal VAT and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with "Correction Type" = Replacement and two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
@@ -300,7 +300,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 225611] XML has node for VAT Amount excluding EC Amount given Sales Invoice with EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 1000, "VAT %" = 21, "EC %" = 5.2
         ExpectedVATAmount := CreatePurchDocWithEC(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, 0);
@@ -329,7 +329,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [SCENARIO 225611] XML has node for VAT Amount given Purchase invoice with both Normal VAT and EC
         // [SCENARIO 229914] CuotaRecargoEquivalencia node contains EC Amount for Purchase invoice with both Normal VAT and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
@@ -361,7 +361,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase]
         // [SCENARIO 222254] EC VAT Amount of Purchase Credit Memo with "Correction Type" equal Difference exports with negative value
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with "Correction Type" = Difference
         // [GIVEN] Amount = 100, "VAT %" = 30, "EC %" = 10
@@ -389,7 +389,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Purchase Credit Memo with EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with Amount = -1000, "VAT %" = 21, "EC %" = 5.2
         ExpectedVATAmount := CreatePurchDocWithEC(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", 0);
@@ -419,7 +419,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Purchase Credit Memo with both Normal VAT and EC
         // [SCENARIO 229914] CuotaRecargoEquivalencia node contains EC Amount for Purchase Credit Memo with both Normal VAT and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
@@ -453,7 +453,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Purchase Credit Memo with "Correction Type" = Replacement and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with with "Correction Type" = Replacement, Amount = -1000, "VAT %" = 21, "EC %" = 5.2
         ExpectedVATAmount :=
@@ -485,7 +485,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [SCENARIO 225621] XML has node for VAT Amount excluding EC Amount given Purchase Credit Memo with "Correction Type" = Replacement and with both Normal VAT and EC
         // [SCENARIO 229914] CuotaRecargoEquivalencia node contains EC Amount for Purchase Credit Memo with "Correction Type" = Replacement and with both Normal VAT and EC
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with "Correction Type" = Replacement and two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21
@@ -521,12 +521,12 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Service] [No tax] [Invoice]
         // [SCENARIO 229401] XML has node "PrestacionServicios" for non taxable amount if only line with No Taxable VAT exists in Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with one line where "VAT Calculation Type" = "No Taxable VAT" and "EU Service"
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.",
           PostServDocWithVAT(ServiceHeader."Document Type"::Invoice, true));
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         CustLedgerEntry.SetRange("Sell-to Customer No.", ServiceInvoiceHeader."Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, ServiceInvoiceHeader."No.");
@@ -552,12 +552,12 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Service] [No tax] [Credit Memo]
         // [SCENARIO 229401] XML has node "PrestacionServicios" for non taxable amount if only line with No Taxable VAT exists in Service Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with one line where "VAT Calculation Type" = "No Taxable VAT" and "EU Service"
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.",
           PostServDocWithVAT(ServiceHeader."Document Type"::"Credit Memo", true));
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         CustLedgerEntry.SetRange("Sell-to Customer No.", ServiceCrMemoHeader."Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", ServiceCrMemoHeader."No.");
@@ -583,7 +583,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Sales Invoice with multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -611,7 +611,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Sales Credit Memo with Type = "Replacement" and multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Type = Replacement and multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -640,7 +640,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Sales Credit Memo with Type = "Difference" and multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Type = Difference and multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -669,7 +669,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Purchase Invoice with multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -697,7 +697,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Purchase Credit Memo with Type = "Replacement" and multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with Type = Replacement and multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -726,7 +726,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Purchase Credit Memo with Type = "Difference" and multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with Type = Difference and multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -756,7 +756,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Service]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Service Invoice with multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -764,7 +764,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] Third line has "VAT Identifier" = "VAT21EXTRA", "VAT %" = 21
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.",
           PostServDocWithWithMultipleLinesDiffGroupsSameVATPct(ServiceHeader."Document Type"::Invoice));
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         CustLedgerEntry.SetRange("Sell-to Customer No.", ServiceInvoiceHeader."Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, ServiceInvoiceHeader."No.");
@@ -790,7 +790,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Purchase]
         // [SCENARIO 232971] There are two XML nodes for each VAT Entry for Service Credit Memo and multiple lines where lines has different "VAT Identifier" but same "VAT %"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Service Memo with multiple lines with multiple lines
         // [GIVEN] First line has "VAT Identifier" = "VAT10", "VAT %" = 10
@@ -798,7 +798,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] Third line has "VAT Identifier" = "VAT21EXTRA", "VAT %" = 21
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.",
           PostServDocWithWithMultipleLinesDiffGroupsSameVATPct(ServiceHeader."Document Type"::"Credit Memo"));
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         CustLedgerEntry.SetRange("Sell-to Customer No.", ServiceCrMemoHeader."Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", ServiceCrMemoHeader."No.");
@@ -823,7 +823,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294162] XML has node for VAT Amount excluding EC Amount given Sales Invoice with Domestic Customer, both Normal VAT and EU Service and same VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -855,7 +855,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 294162] XML has node for VAT Amount excluding EC Amount given Sales Credit Memo with Domestic Customer, both Normal VAT and EU Service and same VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -886,7 +886,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294162] Multiple XML has nodes for VAT Amount given Sales Invoice with Foreign Customer, both Normal VAT and EC and same VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -918,7 +918,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 294162] Multiple XML has nodes for VAT Amount given Sales Credit Memo with Foreign Customer, both Normal VAT and EC and same VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -950,7 +950,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294162] XML has node for VAT Amount excluding EC Amount given Sales Invoice with Domestic Customer, both Normal VAT and EU Service and different VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -981,7 +981,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 294162] XML has node for VAT Amount excluding EC Amount given Sales Credit Memo with Domestic Customer, both Normal VAT and EU Service and different VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -1012,7 +1012,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294162] Multiple XML has nodes for VAT Amount given Sales Invoice with Foreign Customer, both Normal VAT and EC and different VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -1045,7 +1045,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 294162] Multiple XML has nodes for VAT Amount given Sales Credit Memo with Foreign Customer, both Normal VAT and EC and different VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
@@ -1079,7 +1079,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305640] CuotaRepercutida XML node of Sales Invoice has value of rounded total VAT Amount excluding EC amount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT %" = 10, "EC %" = 1.4
         // [GIVEN] Sales Invoice with three lines, each has different dimension in order to have a separate VAT Entry
@@ -1114,7 +1114,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305640] CuotaRepercutida XML node of Sales Credit Memo has value of rounded total VAT Amount excluding EC amount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT %" = 10, "EC %" = 1.4
         // [GIVEN] Sales Credit Memo with three lines, each has different dimension in order to have a separate VAT Entry
@@ -1218,7 +1218,7 @@ codeunit 147523 "SII Documents With EU Service"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(SIIXMLCreator);
         if IsInitialized then
             exit;
@@ -1633,7 +1633,7 @@ codeunit 147523 "SII Documents With EU Service"
         VATEntry.CalcSums(Base);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, BaseNode, '[1]/' + NodeName, SIIXMLCreator.FormatNumber(Sign * VATEntry.Base));
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         VATEntry.SetRange("VAT %");
         VATEntry.Next;
         VATEntry.SetRange("VAT %", VATEntry."VAT %");

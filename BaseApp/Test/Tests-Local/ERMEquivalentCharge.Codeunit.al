@@ -55,7 +55,7 @@ codeunit 144047 "ERM Equivalent Charge"
         // Verify VAT Amount on Purchase - Credit Memo report.
 
         // Setup: Create and post Purchase Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         InvoiceNo :=
           CreateAndPostPurchaseDocument(
             PurchaseLine, PurchaseHeader."Document Type"::Invoice,
@@ -83,7 +83,7 @@ codeunit 144047 "ERM Equivalent Charge"
         // Verify Customer No. on Reminder - Test Report.
 
         // Setup: Create Reminder Header with Customer No.
-        Initialize;
+        Initialize();
         LibraryERM.CreateReminderHeader(ReminderHeader);
         ReminderHeader.Validate("Customer No.", CreateCustomer(''));  // Using blank for Currency Code.
         ReminderHeader.Modify(true);
@@ -109,7 +109,7 @@ codeunit 144047 "ERM Equivalent Charge"
         // Verify Total EUR Excl. VAT and Total EUR Incl. VAT on Sales Return Order Confirmation Report.
 
         // Setup: Create Sales Return Order with multiple line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer(''));  // Using blank for Currency Code.
         CreateSalesLine(SalesLine, SalesHeader);
         CreateSalesLine(SalesLine2, SalesHeader);
@@ -143,7 +143,7 @@ codeunit 144047 "ERM Equivalent Charge"
         // Verify GL Entry after post vendor application with FCY Vendor.
 
         // Setup: Create and post Purchsae Invoices, post Payment Journal and application.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateVendor(CreateCurrency));
         PostedInvoiceNo :=
           CreateAndPostPurchaseDocument(
@@ -188,7 +188,7 @@ codeunit 144047 "ERM Equivalent Charge"
         // Verify GL Entry after post customer application with FCY Customer.
 
         // Setup: Create and post Sales Invoices, post Payment Journal and application.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomer(CreateCurrency));
         PostedInvoiceNo := CreateAndPostSalesInvoice(SalesLine, Customer."No.");
         PostedInvoiceNo2 := CreateAndPostSalesInvoice(SalesLine2, SalesLine."Sell-to Customer No.");
@@ -212,7 +212,7 @@ codeunit 144047 "ERM Equivalent Charge"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostPaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -313,7 +313,7 @@ codeunit 144047 "ERM Equivalent Charge"
         CustomerLedgerEntry.SetRange("Document Type", CustomerLedgerEntry."Document Type"::Invoice);
         CustomerLedgerEntry.SetRange("Customer No.", ApplyingCustomerLedgerEntry."Customer No.");
         CustomerLedgerEntry.SetRange("Applying Entry", false);
-        CustomerLedgerEntry.FindFirst;
+        CustomerLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdCustomer(CustomerLedgerEntry);
@@ -332,7 +332,7 @@ codeunit 144047 "ERM Equivalent Charge"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Vendor No.", ApplyingVendorLedgerEntry."Vendor No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -347,7 +347,7 @@ codeunit 144047 "ERM Equivalent Charge"
         DebitAmount: Decimal;
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindSet();
         repeat

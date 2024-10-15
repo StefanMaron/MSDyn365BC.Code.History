@@ -39,7 +39,7 @@ codeunit 132542 TestMappingToW1Tables
         LineNo: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -58,7 +58,7 @@ codeunit 132542 TestMappingToW1Tables
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
         GenJnlLineTemplate.ImportBankStatement;
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch.FindLast;
+        DataExch.FindLast();
 
         LibraryERM.CreateGeneralJnlLine(
           GenJnlLineTemplate2, GenJnlLineTemplate."Journal Template Name", GenJnlLineTemplate."Journal Batch Name",
@@ -67,7 +67,7 @@ codeunit 132542 TestMappingToW1Tables
 
         GenJnlLineTemplate2.ImportBankStatement;
         DataExch1.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch1.FindLast;
+        DataExch1.FindLast();
 
         // Verify
         Assert.AreEqual(4, GenJnlLineTemplate.Count, 'Not all lines was created');
@@ -91,7 +91,7 @@ codeunit 132542 TestMappingToW1Tables
         LineNo: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -134,7 +134,7 @@ codeunit 132542 TestMappingToW1Tables
         i: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -157,7 +157,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch.FindFirst;
+        DataExch.FindFirst();
         GenJnlLineTemplate.FindSet();
         for i := 1 to AnyLineCount do begin
             Assert.AreEqual(AnyDate[i], GenJnlLineTemplate."Posting Date", 'Posting Date did not Match');
@@ -168,7 +168,7 @@ codeunit 132542 TestMappingToW1Tables
             GenJnlLineTemplate.Next;
         end;
 
-        GenJnlLineTemplate.FindFirst;
+        GenJnlLineTemplate.FindFirst();
         for i := 1 to AnyLineCount - 1 do
             Assert.AreEqual(1, GenJnlLineTemplate.Next, StrSubstNo('Line %1 is missing', i));
     end;
@@ -191,7 +191,7 @@ codeunit 132542 TestMappingToW1Tables
         i: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -214,7 +214,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch.FindFirst;
+        DataExch.FindFirst();
         GenJnlLineTemplate.FindSet();
         for i := 1 to AnyLineCount do begin
             Assert.AreEqual(AnyDate[i], GenJnlLineTemplate."Posting Date", 'Posting Date did not Match');
@@ -225,7 +225,7 @@ codeunit 132542 TestMappingToW1Tables
             GenJnlLineTemplate.Next;
         end;
 
-        GenJnlLineTemplate.FindFirst;
+        GenJnlLineTemplate.FindFirst();
         for i := 1 to AnyLineCount - 1 do
             Assert.AreEqual(1, GenJnlLineTemplate.Next, StrSubstNo('Line %1 is missing', i));
     end;
@@ -239,7 +239,7 @@ codeunit 132542 TestMappingToW1Tables
         ProcessGenJournalLines: Codeunit "Process Gen. Journal  Lines";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         CreateRecTemplateNoBank(GenJnlLine, '');
         GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
@@ -259,7 +259,7 @@ codeunit 132542 TestMappingToW1Tables
         ProcessGenJournalLines: Codeunit "Process Gen. Journal  Lines";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         CreateRecTemplateNoBank(GenJnlLine, '');
         GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
@@ -279,7 +279,7 @@ codeunit 132542 TestMappingToW1Tables
         ProcessGenJournalLines: Codeunit "Process Gen. Journal  Lines";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         CreateRecTemplateNoBank(GenJnlLine, '');
         GenJournalBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::Vendor;
@@ -308,7 +308,7 @@ codeunit 132542 TestMappingToW1Tables
         i: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Bank Acc. Reconciliation Line",
           CODEUNIT::"Process Bank Acc. Rec Lines", BankAccReconciliationLine.FieldNo("Data Exch. Entry No."),
@@ -331,7 +331,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch.FindFirst;
+        DataExch.FindFirst();
         BankAccReconciliationLine.FindSet();
         for i := 1 to AnyLineCount do begin
             Assert.AreEqual(AnyDate[i], BankAccReconciliationLine."Transaction Date", 'Date did not Match');
@@ -342,7 +342,7 @@ codeunit 132542 TestMappingToW1Tables
             BankAccReconciliationLine.Next;
         end;
 
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         for i := 1 to AnyLineCount - 1 do
             Assert.AreEqual(1, BankAccReconciliationLine.Next, StrSubstNo('Line %1 is missing', i));
     end;
@@ -359,7 +359,7 @@ codeunit 132542 TestMappingToW1Tables
         LineCount: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -404,7 +404,7 @@ codeunit 132542 TestMappingToW1Tables
         LineCount: Integer;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Bank Acc. Reconciliation Line",
           CODEUNIT::"Process Bank Acc. Rec Lines", BankAccReconciliationLine.FieldNo("Data Exch. Entry No."),
@@ -450,7 +450,7 @@ codeunit 132542 TestMappingToW1Tables
         BankStatementLineDetails: TestPage "Bank Statement Line Details";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -495,7 +495,7 @@ codeunit 132542 TestMappingToW1Tables
         BankStatementLineDetails: TestPage "Bank Statement Line Details";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Bank Acc. Reconciliation Line",
           CODEUNIT::"Process Bank Acc. Rec Lines", BankAccReconciliationLine.FieldNo("Data Exch. Entry No."),
@@ -535,7 +535,7 @@ codeunit 132542 TestMappingToW1Tables
         OutStream: OutStream;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLineTemplate.FieldNo("Data Exch. Entry No."), GenJnlLineTemplate.FieldNo("Data Exch. Line No."),
@@ -552,7 +552,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch.FindLast;
+        DataExch.FindLast();
         Assert.IsTrue(DataExch."File Content".HasValue, 'Blob is missing');
     end;
 
@@ -566,7 +566,7 @@ codeunit 132542 TestMappingToW1Tables
         BankStatementLineDetails: TestPage "Bank Statement Line Details";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup Input Table
         CreateRecTemplate(GenJnlLine, '');
@@ -592,7 +592,7 @@ codeunit 132542 TestMappingToW1Tables
         BankStatementLineDetails: TestPage "Bank Statement Line Details";
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
 
         // Setup Input Table
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, '');
@@ -619,7 +619,7 @@ codeunit 132542 TestMappingToW1Tables
         Vendor: Record Vendor;
     begin
         // Pre-Setup
-        Initialize;
+        Initialize();
         SetupFileDefinition(DataExchDef, DataExchLineDef);
         SetupFileMapping(DataExchDef.Code, DataExchLineDef.Code, DATABASE::"Gen. Journal Line", CODEUNIT::"Process Gen. Journal  Lines",
           GenJnlLine.FieldNo("Data Exch. Entry No."), GenJnlLine.FieldNo("Data Exch. Line No."),
@@ -650,7 +650,7 @@ codeunit 132542 TestMappingToW1Tables
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -673,7 +673,7 @@ codeunit 132542 TestMappingToW1Tables
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -696,7 +696,7 @@ codeunit 132542 TestMappingToW1Tables
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -716,7 +716,7 @@ codeunit 132542 TestMappingToW1Tables
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -741,7 +741,7 @@ codeunit 132542 TestMappingToW1Tables
         TempDataExchMapping: Record "Data Exch. Mapping" temporary;
         TempDataExchFieldMapping: Record "Data Exch. Field Mapping" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         DataExchDef.InsertRecForExport(
@@ -790,7 +790,7 @@ codeunit 132542 TestMappingToW1Tables
     begin
         // [FEATURE] [Bank Acc. Reconciliation] [Fixed File Import] [Data Line Tag] [Negative-Sign Identifier]
         // [SCENARIO 375088,375087] Fixed File should may be imported with empty Data Line Tag and Negative Sign before the Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posting Exchange Definition Setup
         DefineDataExchDef(DataExchDef);
@@ -815,7 +815,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // [THEN] Date and Amount are imported correctly
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExch.FindFirst;
+        DataExch.FindFirst();
         BankAccReconciliationLine.FindSet();
         for i := 1 to 3 do begin
             Assert.AreEqual(AnyDecimal[i], BankAccReconciliationLine."Statement Amount", 'Amount did not Match');
@@ -844,7 +844,7 @@ codeunit 132542 TestMappingToW1Tables
         // [FEATURE] [Bank Acc. Reconciliation] [Fixed File Import] [Data Line Tag]
         // [SCENARIO 137139] Fixed File can be imported if "Posting Exchange Definition" has empty "Data Line Tag" and a number of header lines
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Data Exchange Definition Setup with 1 header line and empty data tag
         DefineDataExchDef(DataExchDef);
@@ -856,7 +856,7 @@ codeunit 132542 TestMappingToW1Tables
         TempBlobOEM.CreateOutStream(OutStream);
 
         // [GIVEN] Line 1 (header)
-        WriteLine(OutStream, LibraryUtility.GenerateGUID);
+        WriteLine(OutStream, LibraryUtility.GenerateGUID());
         // [GIVEN] Line 2 (positive amount): +1
         WriteLine(OutStream, StrSubstNo('%1%2', '+', Format(AnyDecimal[1])));
         // [GIVEN] Line 3 (negative amount): -2
@@ -1292,7 +1292,7 @@ codeunit 132542 TestMappingToW1Tables
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -1515,9 +1515,9 @@ codeunit 132542 TestMappingToW1Tables
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDefCode);
         repeat
             DataExchColumnDef.SetRange(Name, BankStatementLineDetails.Name.Value);
-            DataExchColumnDef.FindFirst;
+            DataExchColumnDef.FindFirst();
             DataExchField.SetRange("Column No.", DataExchColumnDef."Column No.");
-            DataExchField.FindFirst;
+            DataExchField.FindFirst();
             Assert.AreEqual(DataExchField.Value, Format(BankStatementLineDetails.Value), 'Wrong shown value.');
         until not BankStatementLineDetails.Next;
     end;
@@ -1536,7 +1536,7 @@ codeunit 132542 TestMappingToW1Tables
         i: Integer;
     begin
         DataExch.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExch.FindFirst;
+        DataExch.FindFirst();
 
         with BankAccReconciliationLine do begin
             Assert.AreEqual(LineCount, Count, WrongNoOfLinesErr);

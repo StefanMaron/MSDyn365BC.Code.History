@@ -1,4 +1,4 @@
-codeunit 5980 "Service-Post"
+﻿codeunit 5980 "Service-Post"
 {
     Permissions = TableData "Service Header" = imd,
                   TableData "Service Item Line" = imd,
@@ -31,6 +31,7 @@ codeunit 5980 "Service-Post"
         TempWarehouseShipmentHeader: Record "Warehouse Shipment Header" temporary;
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary;
+        GLSetup: Record "General Ledger Setup";
         ServDocumentsMgt: Codeunit "Serv-Documents Mgt.";
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
         Window: Dialog;
@@ -143,7 +144,7 @@ codeunit 5980 "Service-Post"
             ServDocumentsMgt.InsertValueEntryRelation;
 
             if WhseShip then begin
-                if TempWarehouseShipmentLine.FindSet then
+                if TempWarehouseShipmentLine.FindSet() then
                     repeat
                         WarehouseShipmentLine.Get(TempWarehouseShipmentLine."No.", TempWarehouseShipmentLine."Line No.");
                         WhsePostShpt.CreatePostedShptLine(WarehouseShipmentLine, PostedWhseShipmentHeader,
@@ -196,14 +197,11 @@ codeunit 5980 "Service-Post"
     end;
 
     local procedure Initialize(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean)
-    var
-        ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
         OnBeforeInitialize(PassedServiceHeader, PassedServiceLine, PassedShip, PassedConsume, PassedInvoice, PreviewMode);
-
+        CheckServiceDocument(PassedServiceHeader, PassedServiceLine);
         SetPostingOptions(PassedShip, PassedConsume, PassedInvoice);
-        TestMandatoryFields(PassedServiceHeader, PassedServiceLine);
-        ReportDistributionManagement.RunDefaultCheckServiceElectronicDocument(PassedServiceHeader);
+
         ServDocumentsMgt.Initialize(PassedServiceHeader, PassedServiceLine);
 
         // Also calls procedure of the same name from ServDocMgt.
@@ -217,6 +215,15 @@ codeunit 5980 "Service-Post"
             ServDocumentsMgt.CheckAdjustedLines;
 
         OnAfterInitialize(PassedServiceHeader, PassedServiceLine);
+    end;
+
+    procedure CheckServiceDocument(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
+    var
+        ReportDistributionManagement: Codeunit "Report Distribution Management";
+    begin
+        TestMandatoryFields(PassedServiceHeader, PassedServiceLine);
+        ReportDistributionManagement.RunDefaultCheckServiceElectronicDocument(PassedServiceHeader);
+        ServDocumentsMgt.CheckServiceDocument(PassedServiceHeader, PassedServiceLine);
     end;
 
     local procedure Finalize(var PassedServiceHeader: Record "Service Header")
@@ -286,21 +293,24 @@ codeunit 5980 "Service-Post"
         OnBeforeTestMandatoryFields(PassedServiceHeader);
 
         with PassedServiceHeader do begin
-            TestField("Document Type");
-            TestField("Customer No.");
-            TestField("Bill-to Customer No.");
-            TestField("Posting Date");
-            TestField("Document Date");
+            TestField("Document Type", ErrorInfo.Create());
+            TestField("Customer No.", ErrorInfo.Create());
+            TestField("Bill-to Customer No.", ErrorInfo.Create());
+            TestField("Posting Date", ErrorInfo.Create());
+            TestField("Document Date", ErrorInfo.Create());
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                TestField("Journal Templ. Name", ErrorInfo.Create());
             if PassedServiceLine.IsEmpty() then
-                TestServLinePostingDate("Document Type", "No.")
+                TestServLinePostingDate("Document Type", "No.", "Journal Templ. Name")
             else
                 if "Posting Date" <> PassedServiceLine."Posting Date" then begin
                     if PassedServiceLine.Type <> PassedServiceLine.Type::" " then
-                        if GenJnlCheckLine.DateNotAllowed(PassedServiceLine."Posting Date") then
-                            PassedServiceLine.FieldError("Posting Date", Text007);
+                        if GenJnlCheckLine.DateNotAllowed(PassedServiceLine."Posting Date", "Journal Templ. Name") then
+                            PassedServiceLine.FieldError("Posting Date", ErrorInfo.Create(Text007, true));
 
-                    if GenJnlCheckLine.DateNotAllowed("Posting Date") then
-                        FieldError("Posting Date", Text007);
+                    if GenJnlCheckLine.DateNotAllowed("Posting Date", "Journal Templ. Name") then
+                        FieldError("Posting Date", ErrorInfo.Create(Text007, true));
                 end;
             TestMandatoryFields(PassedServiceLine);
         end;
@@ -460,7 +470,7 @@ codeunit 5980 "Service-Post"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.SetFilter("Qty. to Ship", '<>%1', 0);
-        if not ServiceLine.FindSet then
+        if not ServiceLine.FindSet() then
             exit;
         WarehouseShipmentLineLocal.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
         WarehouseShipmentLineLocal.SetRange("Source Type", DATABASE::"Service Line");
@@ -468,7 +478,7 @@ codeunit 5980 "Service-Post"
         WarehouseShipmentLineLocal.SetRange("Source No.", ServiceHeader."No.");
         repeat
             WarehouseShipmentLineLocal.SetRange("Source Line No.", ServiceLine."Line No.");
-            if WarehouseShipmentLineLocal.FindSet then
+            if WarehouseShipmentLineLocal.FindSet() then
                 repeat
                     if WarehouseShipmentLineLocal."Qty. to Ship" <> 0 then begin
                         TempWarehouseShipmentLine := WarehouseShipmentLineLocal;
@@ -481,7 +491,7 @@ codeunit 5980 "Service-Post"
         until ServiceLine.Next() = 0;
     end;
 
-    local procedure TestServLinePostingDate(ServHeaderDocType: Enum "Service Document Type"; ServHeaderNo: Code[20])
+    local procedure TestServLinePostingDate(ServHeaderDocType: Enum "Service Document Type"; ServHeaderNo: Code[20]; JnlTemplateName: Code[10])
     var
         ServLine: Record "Service Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
@@ -490,10 +500,10 @@ codeunit 5980 "Service-Post"
             SetRange("Document Type", ServHeaderDocType);
             SetRange("Document No.", ServHeaderNo);
             SetFilter(Type, '<>%1', Type::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
-                    if GenJnlCheckLine.DateNotAllowed("Posting Date") then
-                        FieldError("Posting Date", Text007)
+                    if GenJnlCheckLine.DateNotAllowed("Posting Date", JnlTemplateName) then
+                        FieldError("Posting Date", ErrorInfo.Create(Text007, true));
                 until Next() = 0;
         end;
     end;

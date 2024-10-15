@@ -1,32 +1,46 @@
-﻿codeunit 226 "CustEntry-Apply Posted Entries"
+codeunit 226 "CustEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Cust. Ledger Entry" = rimd;
     TableNo = "Cust. Ledger Entry";
 
     trigger OnRun()
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
         if PreviewMode then
             case RunOptionPreviewContext of
                 RunOptionPreview::Apply:
-                    Apply(Rec, DocumentNoPreviewContext, ApplicationDatePreviewContext);
+                    Apply(Rec, ApplyUnapplyParametersContext);
                 RunOptionPreview::Unapply:
-                    PostUnApplyCustomer(DetailedCustLedgEntryPreviewContext, DocumentNoPreviewContext, ApplicationDatePreviewContext);
+                    PostUnApplyCustomer(DetailedCustLedgEntryPreviewContext, ApplyUnapplyParametersContext);
             end
-        else
-            Apply(Rec, "Document No.", 0D);
+        else begin
+            Clear(ApplyUnapplyParameters);
+            GLSetup.GetRecordOnce();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                GLSetup.TestField("Apply Jnl. Template Name");
+                GLSetup.TestField("Apply Jnl. Batch Name");
+                ApplyUnapplyParameters."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+                ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
+                GenJnlBatch.Get(GLSetup."Apply Jnl. Template Name", GLSetup."Apply Jnl. Batch Name");
+            end;
+            ApplyUnapplyParameters."Document No." := Rec."Document No.";
+
+            Apply(Rec, ApplyUnapplyParameters);
+        end;
     end;
 
     var
         PostingApplicationMsg: Label 'Posting application...';
-        MustNotBeBeforeErr: Label 'The Posting Date entered must not be before the Posting Date on the Cust. Ledger Entry.';
+        MustNotBeBeforeErr: Label 'The posting date entered must not be before the posting date on the Cust. Ledger Entry.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the %1 field for one or more open entries.', Comment = '%1 - Caption of "Applies to ID" field of Gen. Journal Line';
         UnapplyPostedAfterThisEntryErr: Label 'Before you can unapply this entry, you must first unapply all application entries that were posted after this entry.';
         NoApplicationEntryErr: Label 'Cust. Ledger Entry No. %1 does not have an application entry.';
         UnapplyingMsg: Label 'Unapplying and posting...';
         UnapplyAllPostedAfterThisEntryErr: Label 'Before you can unapply this entry, you must first unapply all application entries in Cust. Ledger Entry No. %1 that were posted after this entry.';
         NotAllowedPostingDatesErr: Label 'Posting date is not within the range of allowed posting dates.';
-        LatestEntryMustBeAnApplicationErr: Label 'The latest Transaction No. must be an application in Cust. Ledger Entry No. %1.';
+        LatestEntryMustBeApplicationErr: Label 'The latest Transaction No. must be an application in Cust. Ledger Entry No. %1.';
         CannotUnapplyExchRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.';
         CannotUnapplyInReversalErr: Label 'You cannot unapply Cust. Ledger Entry No. %1 because the entry is part of a reversal.';
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
@@ -34,50 +48,63 @@
         Text1100001: Label 'Application of %1 %2/%3';
         Text1100002: Label 'To apply a set of entries containing bills, rejected invoices or invoices to cartera, the cursor should be positioned on an entry different than bill type, rejected invoice or invoices to cartera.';
         UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
+        GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
         DetailedCustLedgEntryPreviewContext: Record "Detailed Cust. Ledg. Entry";
-        ApplicationDatePreviewContext: Date;
-        DocumentNoPreviewContext: Code[20];
+        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
         RunOptionPreview: Option Apply,Unapply;
         RunOptionPreviewContext: Option Apply,Unapply;
         PreviewMode: Boolean;
 
+#if not CLEAN20
+    [Obsolete('Replaced by W1 implementation of Apply()', '20.0')]
     procedure Apply(CustLedgEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date): Boolean
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        exit(Apply(CustLedgEntry, ApplyUnapplyParameters));
+    end;
+#endif
+
+    procedure Apply(CustLedgEntry: Record "Cust. Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters"): Boolean
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         IsHandled: Boolean;
     begin
-        OnBeforeApply(CustLedgEntry, DocumentNo, ApplicationDate);
-        with CustLedgEntry do begin
-            if ("Document Type" = "Document Type"::Bill) or
-               (("Document Type" = "Document Type"::Invoice) and
-                ("Document Situation" = "Document Situation"::"Closed BG/PO") and
-                ("Document Status" = "Document Status"::Rejected)) or
-               (("Document Type" = "Document Type"::Invoice) and
-                ("Document Situation" = "Document Situation"::Cartera) and
-                ("Document Status" = "Document Status"::Open))
-            then
-                Error(Text1100002);
+        OnBeforeApply(CustLedgEntry, ApplyUnapplyParameters."Document No.", ApplyUnapplyParameters."Posting Date");
 
-            IsHandled := false;
-            OnApplyOnBeforePmtTolCust(CustLedgEntry, PaymentToleranceMgt, PreviewMode, IsHandled);
-            if not IsHandled then
-                if not PreviewMode then
-                    if not PaymentToleranceMgt.PmtTolCust(CustLedgEntry) then
-                        exit(false);
-            Get("Entry No.");
+        if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Bill) or
+           ((CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) and
+            (CustLedgEntry."Document Situation" = CustLedgEntry."Document Situation"::"Closed BG/PO") and
+            (CustLedgEntry."Document Status" = CustLedgEntry."Document Status"::Rejected)) or
+           ((CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) and
+            (CustLedgEntry."Document Situation" = CustLedgEntry."Document Situation"::Cartera) and
+            (CustLedgEntry."Document Status" = CustLedgEntry."Document Status"::Open))
+        then
+            Error(Text1100002);
 
-            if ApplicationDate = 0D then
-                ApplicationDate := GetApplicationDate(CustLedgEntry)
-            else
-                if ApplicationDate < GetApplicationDate(CustLedgEntry) then
-                    Error(MustNotBeBeforeErr);
+        IsHandled := false;
+        OnApplyOnBeforePmtTolCust(CustLedgEntry, PaymentToleranceMgt, PreviewMode, IsHandled);
+        if not IsHandled then
+            if not PreviewMode then
+                if not PaymentToleranceMgt.PmtTolCust(CustLedgEntry) then
+                    exit(false);
 
-            if DocumentNo = '' then
-                DocumentNo := "Document No.";
+        CustLedgEntry.Get(CustLedgEntry."Entry No.");
 
-            CustPostApplyCustLedgEntry(CustLedgEntry, DocumentNo, ApplicationDate);
-            exit(true);
-        end;
+        if ApplyUnapplyParameters."Posting Date" = 0D then
+            ApplyUnapplyParameters."Posting Date" := GetApplicationDate(CustLedgEntry)
+        else
+            if ApplyUnapplyParameters."Posting Date" < GetApplicationDate(CustLedgEntry) then
+                Error(MustNotBeBeforeErr);
+
+        if ApplyUnapplyParameters."Document No." = '' then
+            ApplyUnapplyParameters."Document No." := CustLedgEntry."Document No.";
+
+        CustPostApplyCustLedgEntry(CustLedgEntry, ApplyUnapplyParameters);
+        exit(true);
     end;
 
     procedure GetApplicationDate(CustLedgEntry: Record "Cust. Ledger Entry") ApplicationDate: Date
@@ -90,25 +117,22 @@
         if IsHandled then
             exit(ApplicationDate);
 
-        with CustLedgEntry do begin
-            ApplicationDate := 0D;
-            ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
-            ApplyToCustLedgEntry.SetRange("Customer No.", "Customer No.");
-            ApplyToCustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            OnGetApplicationDateOnAfterSetFilters(ApplyToCustLedgEntry, CustLedgEntry);
-            ApplyToCustLedgEntry.FindSet();
-            repeat
-                if ApplyToCustLedgEntry."Posting Date" > ApplicationDate then
-                    ApplicationDate := ApplyToCustLedgEntry."Posting Date";
-            until ApplyToCustLedgEntry.Next() = 0;
-        end;
+        ApplicationDate := 0D;
+        ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
+        ApplyToCustLedgEntry.SetRange("Customer No.", CustLedgEntry."Customer No.");
+        ApplyToCustLedgEntry.SetRange("Applies-to ID", CustLedgEntry."Applies-to ID");
+        OnGetApplicationDateOnAfterSetFilters(ApplyToCustLedgEntry, CustLedgEntry);
+        ApplyToCustLedgEntry.FindSet();
+        repeat
+            if ApplyToCustLedgEntry."Posting Date" > ApplicationDate then
+                ApplicationDate := ApplyToCustLedgEntry."Posting Date";
+        until ApplyToCustLedgEntry.Next() = 0;
     end;
 
-    local procedure CustPostApplyCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    local procedure CustPostApplyCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
-        UpdateAnalysisView: Codeunit "Update Analysis View";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
@@ -123,52 +147,66 @@
         if IsHandled then
             exit;
 
-        with CustLedgEntry do begin
-            if not HideProgressWindow then
-                Window.Open(PostingApplicationMsg);
+        if not HideProgressWindow then
+            Window.Open(PostingApplicationMsg);
 
-            SourceCodeSetup.Get();
+        SourceCodeSetup.Get();
 
-            GenJnlLine.Init();
-            GenJnlLine."Document No." := DocumentNo;
-            GenJnlLine."Posting Date" := ApplicationDate;
-            GenJnlLine."Document Date" := GenJnlLine."Posting Date";
-            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
-            GenJnlLine."Account No." := "Customer No.";
-            CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
-            GenJnlLine.Correction :=
-              ("Debit Amount" < 0) or ("Credit Amount" < 0) or
-              ("Debit Amount (LCY)" < 0) or ("Credit Amount (LCY)" < 0);
-            GenJnlLine.CopyCustLedgEntry(CustLedgEntry);
-            if "Document Type" <> "Document Type"::Bill then
-                GenJnlLine.Description := StrSubstNo(Text1100000, "Document Type", "Document No.")
-            else
-                GenJnlLine.Description := StrSubstNo(Text1100001, "Document Type", "Document No.", "Bill No.");
-            GenJnlLine."Source Code" := SourceCodeSetup."Sales Entry Application";
-            GenJnlLine."System-Created Entry" := true;
+        GenJnlLine.Init();
+        GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
+        GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine."Account No." := CustLedgEntry."Customer No.";
+        CustLedgEntry.CalcFields("Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
+        GenJnlLine.Correction :=
+            (CustLedgEntry."Debit Amount" < 0) or (CustLedgEntry."Credit Amount" < 0) or
+            (CustLedgEntry."Debit Amount (LCY)" < 0) or (CustLedgEntry."Credit Amount (LCY)" < 0);
+        GenJnlLine.CopyCustLedgEntry(CustLedgEntry);
+        if CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::Bill then
+            GenJnlLine.Description := StrSubstNo(Text1100000, CustLedgEntry."Document Type", CustLedgEntry."Document No.")
+        else
+            GenJnlLine.Description := StrSubstNo(Text1100001, CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."Bill No.");
+        GenJnlLine."Source Code" := SourceCodeSetup."Sales Entry Application";
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Journal Template Name" := ApplyUnapplyParameters."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := ApplyUnapplyParameters."Journal Batch Name";
 
-            EntryNoBeforeApplication := FindLastApplDtldCustLedgEntry;
+        EntryNoBeforeApplication := FindLastApplDtldCustLedgEntry;
 
-            GenJnlPostLine.SetIDBillSettlement(IsToSetIDBillSettlement(CustLedgEntry));
-            OnBeforePostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
-            GenJnlPostLine.CustPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry);
-            OnAfterPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
+        GenJnlPostLine.SetIDBillSettlement(IsToSetIDBillSettlement(CustLedgEntry));
 
-            EntryNoAfterApplication := FindLastApplDtldCustLedgEntry;
-            if EntryNoAfterApplication = EntryNoBeforeApplication then
-                Error(NoEntriesAppliedErr, GenJnlLine.FieldCaption("Applies-to ID"));
+        OnBeforePostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
+        GenJnlPostLine.CustPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry);
+        OnAfterPostApplyCustLedgEntry(GenJnlLine, CustLedgEntry, GenJnlPostLine);
 
-            if PreviewMode then
-                GenJnlPostPreview.ThrowError;
+        EntryNoAfterApplication := FindLastApplDtldCustLedgEntry;
+        if EntryNoAfterApplication = EntryNoBeforeApplication then
+            Error(NoEntriesAppliedErr, GenJnlLine.FieldCaption("Applies-to ID"));
 
-            SuppressCommit := false;
-            OnCustPostApplyCustLedgEntryOnBeforeCommit(CustLedgEntry, SuppressCommit);
-            if not SuppressCommit then
-                Commit();
-            if not HideProgressWindow then
-                Window.Close;
-            UpdateAnalysisView.UpdateAll(0, true);
-        end;
+        if PreviewMode then
+            GenJnlPostPreview.ThrowError();
+
+        SuppressCommit := false;
+        OnCustPostApplyCustLedgEntryOnBeforeCommit(CustLedgEntry, SuppressCommit);
+        if not SuppressCommit then
+            Commit();
+        if not HideProgressWindow then
+            Window.Close();
+        RunUpdateAnalysisView();
+    end;
+
+    local procedure RunUpdateAnalysisView()
+    var
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunUpdateAnalysisView(IsHandled);
+        if IsHandled then
+            exit;
+
+        UpdateAnalysisView.UpdateAll(0, true);
     end;
 
     local procedure FindLastApplDtldCustLedgEntry(): Integer
@@ -184,19 +222,17 @@
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         ApplicationEntryNo: Integer;
     begin
-        with DtldCustLedgEntry do begin
-            SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
-            SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange(Unapplied, false);
-            OnFindLastApplEntryOnAfterSetFilters(DtldCustLedgEntry);
-            ApplicationEntryNo := 0;
-            if Find('-') then
-                repeat
-                    if "Entry No." > ApplicationEntryNo then
-                        ApplicationEntryNo := "Entry No.";
-                until Next() = 0;
-        end;
+        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetRange(Unapplied, false);
+        OnFindLastApplEntryOnAfterSetFilters(DtldCustLedgEntry);
+        ApplicationEntryNo := 0;
+        if DtldCustLedgEntry.Find('-') then
+            repeat
+                if DtldCustLedgEntry."Entry No." > ApplicationEntryNo then
+                    ApplicationEntryNo := DtldCustLedgEntry."Entry No.";
+            until DtldCustLedgEntry.Next() = 0;
         exit(ApplicationEntryNo);
     end;
 
@@ -205,18 +241,18 @@
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         LastTransactionNo: Integer;
     begin
-        with DtldCustLedgEntry do begin
-            SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
-            SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
-            SetRange(Unapplied, false);
-            SetFilter("Entry Type", '<>%1&<>%2', "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
-            LastTransactionNo := 0;
-            if FindSet then
-                repeat
-                    if LastTransactionNo < "Transaction No." then
-                        LastTransactionNo := "Transaction No.";
-                until Next() = 0;
-        end;
+        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
+        DtldCustLedgEntry.SetRange(Unapplied, false);
+        DtldCustLedgEntry.SetFilter(
+            "Entry Type", '<>%1&<>%2',
+            DtldCustLedgEntry."Entry Type"::"Unrealized Loss", DtldCustLedgEntry."Entry Type"::"Unrealized Gain");
+        LastTransactionNo := 0;
+        if DtldCustLedgEntry.FindSet() then
+            repeat
+                if LastTransactionNo < DtldCustLedgEntry."Transaction No." then
+                    LastTransactionNo := DtldCustLedgEntry."Transaction No.";
+            until DtldCustLedgEntry.Next() = 0;
         exit(LastTransactionNo);
     end;
 
@@ -253,29 +289,51 @@
     begin
         OnBeforeUnApplyCustomer(DtldCustLedgEntry);
 
-        with DtldCustLedgEntry do begin
-            TestField("Entry Type", "Entry Type"::Application);
-            TestField(Unapplied, false);
-            UnapplyCustEntries.SetDtldCustLedgEntry("Entry No.");
-            UnapplyCustEntries.LookupMode(true);
-            UnapplyCustEntries.RunModal;
-        end;
+        DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.TestField(Unapplied, false);
+        UnapplyCustEntries.SetDtldCustLedgEntry(DtldCustLedgEntry."Entry No.");
+        UnapplyCustEntries.LookupMode(true);
+        UnapplyCustEntries.RunModal();
 
         OnAfterUnApplyCustomer(DtldCustLedgEntry);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PostUnApplyCustomer(DtldCustLedgEntry2; ApplyUnapplyParameters)', '20.0')]
     procedure PostUnApplyCustomer(DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
-        PostUnApplyCustomerCommit(DtldCustLedgEntry2, DocNo, PostingDate, true);
+        ApplyUnapplyParameters."Document No." := DocNo;
+        ApplyUnapplyParameters."Posting Date" := PostingDate;
+        PostUnApplyCustomerCommit(DtldCustLedgEntry2, ApplyUnapplyParameters, true);
+    end;
+#endif
+
+    procedure PostUnApplyCustomer(DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+        PostUnApplyCustomerCommit(DtldCustLedgEntry2, ApplyUnapplyParameters, true);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PostUnApplyCustomerCommit(DtldCustLedgEntry2; ApplyUnapplyParameters; CommitChanges)', '20.0')]
     procedure PostUnApplyCustomerCommit(DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; CommitChanges: Boolean)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocNo;
+        ApplyUnapplyParameters."Posting Date" := PostingDate;
+        PostUnApplyCustomerCommit(DtldCustLedgEntry2, ApplyUnapplyParameters, CommitChanges);
+    end;
+#endif
+
+    procedure PostUnApplyCustomerCommit(DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters"; CommitChanges: Boolean)
     var
         GLEntry: Record "G/L Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
+        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
-        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DateComprReg: Record "Date Compr. Register";
         TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
@@ -287,7 +345,9 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostUnApplyCustomerCommit(HideProgressWindow, PreviewMode, DtldCustLedgEntry2, DocNo, PostingDate, CommitChanges, IsHandled);
+        OnBeforePostUnApplyCustomerCommit(
+            HideProgressWindow, PreviewMode, DtldCustLedgEntry2, ApplyUnapplyParameters."Document No.", ApplyUnapplyParameters."Posting Date",
+            CommitChanges, IsHandled);
         if IsHandled then
             exit;
 
@@ -297,8 +357,9 @@
         CustLedgEntry.LockTable();
         CustLedgEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
         OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(CustLedgEntry);
-        CheckPostingDate(PostingDate, MaxPostingDate);
-        if PostingDate < DtldCustLedgEntry2."Posting Date" then
+        if GenJnlBatch.Get(CustLedgEntry."Journal Templ. Name", CustLedgEntry."Journal Batch Name") then;
+        CheckPostingDate(ApplyUnapplyParameters, MaxPostingDate);
+        if ApplyUnapplyParameters."Posting Date" < DtldCustLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
         if DtldCustLedgEntry2."Transaction No." = 0 then begin
             DtldCustLedgEntry.SetCurrentKey("Application No.", "Customer No.", "Entry Type");
@@ -314,10 +375,11 @@
         if DtldCustLedgEntry.Find('-') then
             repeat
                 if not AddCurrChecked then begin
-                    CheckAdditionalCurrency(PostingDate, DtldCustLedgEntry."Posting Date");
+                    CheckAdditionalCurrency(ApplyUnapplyParameters."Posting Date", DtldCustLedgEntry."Posting Date");
                     AddCurrChecked := true;
                 end;
-                CheckInitialDocumentType(DtldCustLedgEntry, DocNo, PostingDate, CommitChanges);
+                CheckInitialDocumentType(
+                    DtldCustLedgEntry, ApplyUnapplyParameters."Document No.", ApplyUnapplyParameters."Posting Date", CommitChanges);
                 CheckReversal(DtldCustLedgEntry."Cust. Ledger Entry No.");
                 if DtldCustLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldCustLedgEntry);
@@ -325,41 +387,44 @@
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
 
-        with DtldCustLedgEntry2 do begin
-            SourceCodeSetup.Get();
-            CustLedgEntry.Get("Cust. Ledger Entry No.");
-            GenJnlLine."Document No." := DocNo;
-            GenJnlLine."Posting Date" := PostingDate;
-            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
-            GenJnlLine."Account No." := "Customer No.";
-            GenJnlLine.Correction := true;
-            GenJnlLine.CopyCustLedgEntry(CustLedgEntry);
-            GenJnlLine."Source Code" := SourceCodeSetup."Unapplied Sales Entry Appln.";
-            GenJnlLine."Source Currency Code" := "Currency Code";
-            GenJnlLine."System-Created Entry" := true;
-            if not HideProgressWindow then
-                Window.Open(UnapplyingMsg);
-
-            OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
-            CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
-            GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
-            RunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry);
-            OnAfterPostUnapplyCustLedgEntry(
-                GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine, CommitChanges, TempCustLedgerEntry);
-
-            if PreviewMode then
-                GenJnlPostPreview.ThrowError;
-
-            if CommitChanges then
-                Commit();
-            if not HideProgressWindow then
-                Window.Close;
+        GLSetup.GetRecordOnce();
+        SourceCodeSetup.Get();
+        CustLedgEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
+        GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
+        GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine."Account No." := DtldCustLedgEntry2."Customer No.";
+        GenJnlLine.Correction := true;
+        GenJnlLine.CopyCustLedgEntry(CustLedgEntry);
+        GenJnlLine."Source Code" := SourceCodeSetup."Unapplied Sales Entry Appln.";
+        GenJnlLine."Source Currency Code" := DtldCustLedgEntry2."Currency Code";
+        GenJnlLine."System-Created Entry" := true;
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJnlLine."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+            GenJnlLine."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
         end;
+        if not HideProgressWindow then
+            Window.Open(UnapplyingMsg);
+
+        OnBeforePostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
+        CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
+        GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
+        RunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry);
+        OnAfterPostUnapplyCustLedgEntry(
+            GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine, CommitChanges, TempCustLedgerEntry);
+
+        if PreviewMode then
+            GenJnlPostPreview.ThrowError();
+
+        if CommitChanges then
+            Commit();
+        if not HideProgressWindow then
+            Window.Close();
     end;
 
     local procedure RunCustExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
     var
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
+        ExchRateAdjmtRunHandler: Codeunit "Exch. Rate Adjmt. Run Handler";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -367,9 +432,9 @@
         if IsHandled then
             exit;
 
-        AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
+        ExchRateAdjmtRunHandler.RunCustExchRateAdjustment(GenJnlLine, TempCustLedgerEntry);
     end;
-    
+
     local procedure CheckInitialDocumentType(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var CommitChanges: Boolean)
     var
         IsHandled: Boolean;
@@ -383,25 +448,25 @@
             Error(UnapplyBlankedDocTypeErr);
     end;
 
-    local procedure CheckPostingDate(PostingDate: Date; var MaxPostingDate: Date)
+    local procedure CheckPostingDate(ApplyUnapplyParameters: Record "Apply Unapply Parameters"; var MaxPostingDate: Date)
     var
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
-        if GenJnlCheckLine.DateNotAllowed(PostingDate) then
+        GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
+        if GenJnlCheckLine.DateNotAllowed(ApplyUnapplyParameters."Posting Date") then
             Error(NotAllowedPostingDatesErr);
 
-        if PostingDate > MaxPostingDate then
-            MaxPostingDate := PostingDate;
+        if ApplyUnapplyParameters."Posting Date" > MaxPostingDate then
+            MaxPostingDate := ApplyUnapplyParameters."Posting Date";
     end;
 
     local procedure CheckAdditionalCurrency(OldPostingDate: Date; NewPostingDate: Date)
     var
-        GLSetup: Record "General Ledger Setup";
         CurrExchRate: Record "Currency Exchange Rate";
     begin
         if OldPostingDate = NewPostingDate then
             exit;
-        GLSetup.Get();
+        GLSetup.GetRecordOnce();
         if GLSetup."Additional Reporting Currency" <> '' then
             if CurrExchRate.ExchangeRate(OldPostingDate, GLSetup."Additional Reporting Currency") <>
                CurrExchRate.ExchangeRate(NewPostingDate, GLSetup."Additional Reporting Currency")
@@ -423,11 +488,18 @@
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustEntryApplID: Code[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyCustEntryFormEntry(ApplyingCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ApplyingCustLedgEntry.Open then
             Error(CannotApplyClosedEntriesErr);
 
         OnApplyCustEntryFormEntryOnAfterCheckEntryOpen(ApplyingCustLedgEntry);
+
         CustEntryApplID := UserId;
         if CustEntryApplID = '' then
             CustEntryApplID := '***';
@@ -435,7 +507,8 @@
             ApplyingCustLedgEntry.CalcFields("Remaining Amount");
 
         ApplyingCustLedgEntry."Applying Entry" := true;
-        ApplyingCustLedgEntry."Applies-to ID" := CustEntryApplID;
+        if ApplyingCustLedgEntry."Applies-to ID" = '' then
+            ApplyingCustLedgEntry."Applies-to ID" := CustEntryApplID;
         ApplyingCustLedgEntry."Amount to Apply" := ApplyingCustLedgEntry."Remaining Amount";
         OnApplyCustEntryFormEntryOnBeforeRunCustEntryEdit(ApplyingCustLedgEntry);
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", ApplyingCustLedgEntry);
@@ -444,10 +517,10 @@
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", ApplyingCustLedgEntry."Customer No.");
         CustLedgEntry.SetRange(Open, true);
-        RunApplyCustEntries(CustLedgEntry, ApplyingCustLedgEntry);
+        RunApplyCustEntries(CustLedgEntry, ApplyingCustLedgEntry, CustEntryApplID);
     end;
 
-    local procedure RunApplyCustEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure RunApplyCustEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; CustEntryApplID: Code[50])
     var
         ApplyCustEntries: Page "Apply Customer Entries";
         IsHandled: Boolean;
@@ -457,11 +530,13 @@
         if IsHandled then
             exit;
 
-        if CustLedgEntry.FindFirst then begin
+        if CustLedgEntry.FindFirst() then begin
             ApplyCustEntries.SetCustLedgEntry(ApplyingCustLedgEntry);
             ApplyCustEntries.SetRecord(CustLedgEntry);
             ApplyCustEntries.SetTableView(CustLedgEntry);
-            ApplyCustEntries.RunModal;
+            if ApplyingCustLedgEntry."Applies-to ID" <> CustEntryApplID then
+                ApplyCustEntries.SetAppliesToID(ApplyingCustLedgEntry."Applies-to ID");
+            ApplyCustEntries.RunModal();
             Clear(ApplyCustEntries);
             ApplyingCustLedgEntry."Applying Entry" := false;
             ApplyingCustLedgEntry."Applies-to ID" := '';
@@ -474,24 +549,23 @@
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         TempCustLedgerEntry.DeleteAll();
-        with DetailedCustLedgEntry do begin
-            if DetailedCustLedgEntry2."Transaction No." = 0 then begin
-                SetCurrentKey("Application No.", "Customer No.", "Entry Type");
-                SetRange("Application No.", DetailedCustLedgEntry2."Application No.");
-            end else begin
-                SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
-                SetRange("Transaction No.", DetailedCustLedgEntry2."Transaction No.");
-            end;
-            SetRange("Customer No.", DetailedCustLedgEntry2."Customer No.");
-            SetRange(Unapplied, false);
-            SetFilter("Entry Type", '<>%1', "Entry Type"::"Initial Entry");
-            OnCollectAffectedLedgerEntriesOnAfterSetFilters(DetailedCustLedgEntry, DetailedCustLedgEntry2);
-            if FindSet then
-                repeat
-                    TempCustLedgerEntry."Entry No." := "Cust. Ledger Entry No.";
-                    if TempCustLedgerEntry.Insert() then;
-                until Next() = 0;
+
+        if DetailedCustLedgEntry2."Transaction No." = 0 then begin
+            DetailedCustLedgEntry.SetCurrentKey("Application No.", "Customer No.", "Entry Type");
+            DetailedCustLedgEntry.SetRange("Application No.", DetailedCustLedgEntry2."Application No.");
+        end else begin
+            DetailedCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
+            DetailedCustLedgEntry.SetRange("Transaction No.", DetailedCustLedgEntry2."Transaction No.");
         end;
+        DetailedCustLedgEntry.SetRange("Customer No.", DetailedCustLedgEntry2."Customer No.");
+        DetailedCustLedgEntry.SetFilter("Entry Type", '<>%1', DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.SetRange(Unapplied, false);
+        OnCollectAffectedLedgerEntriesOnAfterSetFilters(DetailedCustLedgEntry, DetailedCustLedgEntry2);
+        if DetailedCustLedgEntry.FindSet() then
+            repeat
+                TempCustLedgerEntry."Entry No." := DetailedCustLedgEntry."Cust. Ledger Entry No.";
+                if TempCustLedgerEntry.Insert() then;
+            until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure FindLastApplTransactionEntry(CustLedgEntryNo: Integer): Integer
@@ -550,7 +624,19 @@
         exit(BeAppliedToInvoiceToCartera(CustLedgEntry2));
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PreviewApply(CustLedgEntry; ApplyUnapplyParameters)', '20.0')]
     procedure PreviewApply(CustLedgEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        PreviewApply(CustLedgEntry, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure PreviewApply(CustLedgEntry: Record "Cust. Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
@@ -560,32 +646,66 @@
             exit;
 
         BindSubscription(CustEntryApplyPostedEntries);
-        CustEntryApplyPostedEntries.SetApplyContext(ApplicationDate, DocumentNo);
+        CustEntryApplyPostedEntries.SetApplyContext(ApplyUnapplyParameters);
         GenJnlPostPreview.Preview(CustEntryApplyPostedEntries, CustLedgEntry);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by PreviewUnapply(DetailedCustLedgEntry; ApplyUnapplyParameters)', '20.0')]
     procedure PreviewUnapply(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+    begin
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        PreviewUnapply(DetailedCustLedgEntry, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure PreviewUnapply(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
     begin
         BindSubscription(CustEntryApplyPostedEntries);
-        CustEntryApplyPostedEntries.SetUnapplyContext(DetailedCustLedgEntry, ApplicationDate, DocumentNo);
+        CustEntryApplyPostedEntries.SetUnapplyContext(DetailedCustLedgEntry, ApplyUnapplyParameters);
         GenJnlPostPreview.Preview(CustEntryApplyPostedEntries, CustLedgEntry);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by SetApplyContext(ApplyUnapplyParameters)', '20.0')]
     procedure SetApplyContext(ApplicationDate: Date; DocumentNo: Code[20])
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
-        ApplicationDatePreviewContext := ApplicationDate;
-        DocumentNoPreviewContext := DocumentNo;
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        SetApplyContext(ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure SetApplyContext(ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+        ApplyUnapplyParametersContext := ApplyUnapplyParameters;
         RunOptionPreviewContext := RunOptionPreview::Apply;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by SetUnapplyContext(DetailedCustLedgEntry, ApplyUnapplyParameters)', '20.0')]
     procedure SetUnapplyContext(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; ApplicationDate: Date; DocumentNo: Code[20])
+    var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
     begin
-        ApplicationDatePreviewContext := ApplicationDate;
-        DocumentNoPreviewContext := DocumentNo;
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        SetUnapplyContext(DetailedCustLedgEntry, ApplyUnapplyParameters);
+    end;
+#endif
+
+    procedure SetUnapplyContext(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")
+    begin
+        ApplyUnapplyParametersContext := ApplyUnapplyParameters;
         DetailedCustLedgEntryPreviewContext := DetailedCustLedgEntry;
         RunOptionPreviewContext := RunOptionPreview::Unapply;
     end;
@@ -628,7 +748,7 @@
             until DtldCustLedgEntry.Next() = 0;
     end;
 
-    local procedure CheckunappliedEntries(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    local procedure CheckUnappliedEntries(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
         LastTransactionNo: Integer;
         IsHandled: Boolean;
@@ -636,18 +756,18 @@
         if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Application then begin
             LastTransactionNo := FindLastApplTransactionEntry(DtldCustLedgEntry."Cust. Ledger Entry No.");
             IsHandled := false;
-            OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldCustLedgEntry, LastTransactionNo, IsHandled);
+            OnCheckUnappliedEntriesOnBeforeUnapplyAllEntriesError(DtldCustLedgEntry, LastTransactionNo, IsHandled);
             if not IsHandled then
                 if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldCustLedgEntry."Transaction No.") then
                     Error(UnapplyAllPostedAfterThisEntryErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
         end;
         LastTransactionNo := FindLastTransactionNo(DtldCustLedgEntry."Cust. Ledger Entry No.");
         if (LastTransactionNo <> 0) and (LastTransactionNo <> DtldCustLedgEntry."Transaction No.") then
-            Error(LatestEntryMustBeAnApplicationErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
+            Error(LatestEntryMustBeApplicationErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
-    local procedure OnPreviewRun(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
+    local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
     begin
@@ -687,7 +807,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeApply(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyCustEntryFormEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -712,22 +842,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetApplicationDateOnAfterSetFilters(var ApplyToCustLedgEntry: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry");
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnFindLastApplEntryOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnPostUnApplyCustomerCommitOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckInitialDocumentType(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var CommitChanges: Boolean; var IsHandled: Boolean);
     begin
     end;
 
@@ -737,7 +852,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean);
+    local procedure OnGetApplicationDateOnAfterSetFilters(var ApplyToCustLedgEntry: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunUpdateAnalysisView(var IsHandled: Boolean)
     begin
     end;
 
@@ -752,7 +872,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckunappliedEntriesOnBeforeUnapplyAllEntriesError(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; LastTransactionNo: Integer; var IsHandled: Boolean);
+    local procedure OnCheckUnappliedEntriesOnBeforeUnapplyAllEntriesError(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; LastTransactionNo: Integer; var IsHandled: Boolean);
     begin
     end;
 
@@ -767,12 +887,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyCustomerCommitOnAfterSetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry");
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyOnBeforePmtTolCust(CustLedgEntry: Record "Cust. Ledger Entry"; var PaymentToleranceMgt: Codeunit "Payment Tolerance Management"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInitialDocumentType(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20]; PostingDate: Date; var CommitChanges: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

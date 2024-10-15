@@ -39,7 +39,7 @@ codeunit 147531 "Cartera Recv. Installments"
         DocumentNo: Code[20];
         NoOfInstallments: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -57,7 +57,7 @@ codeunit 147531 "Cartera Recv. Installments"
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("Sell-to Customer No.", Customer."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         LibraryCarteraReceivables.FindOpenCarteraDocCustomerLedgerEntries(FirstInstallmentCustLedgerEntry,
           Customer."No.", DocumentNo, FirstInstallmentCustLedgerEntry."Document Situation"::Cartera,
           FirstInstallmentCustLedgerEntry."Document Type"::Bill);
@@ -102,7 +102,7 @@ codeunit 147531 "Cartera Recv. Installments"
         CreditMemoVATAmount: Decimal;
         CreditMemoAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -122,7 +122,7 @@ codeunit 147531 "Cartera Recv. Installments"
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("Sell-to Customer No.", Customer."No.");
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         TotalAmount :=
           LibraryCarteraReceivables.GetPostedSalesInvoiceAmount(
@@ -171,7 +171,7 @@ codeunit 147531 "Cartera Recv. Installments"
         NoOfInstallments: Integer;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -211,7 +211,7 @@ codeunit 147531 "Cartera Recv. Installments"
         NoOfInstallments: Integer;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -252,7 +252,7 @@ codeunit 147531 "Cartera Recv. Installments"
         NoOfInstallments: Integer;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 1;
@@ -294,7 +294,7 @@ codeunit 147531 "Cartera Recv. Installments"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 1;
@@ -334,7 +334,7 @@ codeunit 147531 "Cartera Recv. Installments"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -376,7 +376,7 @@ codeunit 147531 "Cartera Recv. Installments"
         DocumentNo: Code[20];
         NoOfInstallments: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -433,7 +433,7 @@ codeunit 147531 "Cartera Recv. Installments"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 307483] Create cartera documents when Sales Document with small amount has Payment Terms of multiple installments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice has Payment Method with Create Bills = Yes and Payment Terms with 5 installments
         NoOfInstallments := LibraryRandom.RandIntInRange(2, 5);
@@ -447,7 +447,7 @@ codeunit 147531 "Cartera Recv. Installments"
         // [GIVEN] Amount of the invoice is 0.01
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate(Quantity, 1);
         SalesLine.Validate("Unit Price", 0.01);
         SalesLine.Modify(true);
@@ -480,7 +480,7 @@ codeunit 147531 "Cartera Recv. Installments"
     begin
         // [FEATURE] [Service]
         // [SCENARIO 307483] Create cartera documents when Service Document with small amount has Payment Terms of multiple installments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice has Payment Method with Create Bills = Yes and Payment Terms with 5 installments
         NoOfInstallments := LibraryRandom.RandIntInRange(2, 5);
@@ -494,7 +494,7 @@ codeunit 147531 "Cartera Recv. Installments"
         // [GIVEN] Amount of the invoice is 0.01
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.Validate(Quantity, 1);
         ServiceLine.Validate("Unit Price", 0.01);
         ServiceLine.Modify(true);
@@ -526,7 +526,7 @@ codeunit 147531 "Cartera Recv. Installments"
         // [FEATURE] [Unrealized VAT]
         // [SCENARIO 403927] Sales invoice unrealized VAT is fully realized after several payment to Bill applications
         // [SCENARIO 403927] in case of several installments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT setup, payment term with 2 installments
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -560,7 +560,7 @@ codeunit 147531 "Cartera Recv. Installments"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
         LocalCurrencyCode := '';
     end;
@@ -596,7 +596,7 @@ codeunit 147531 "Cartera Recv. Installments"
         CustLedgerEntry.SetRange(Open, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Bill, DocumentNo);
         CustLedgerEntry.CalcFields(Amount);
-        CustLedgerEntry.Validate("Applies-to ID", LibraryUtility.GenerateGUID);
+        CustLedgerEntry.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
         CustLedgerEntry.Validate("Amount to Apply", CustLedgerEntry.Amount);
         CustLedgerEntry.Modify(true);
 
@@ -659,7 +659,7 @@ codeunit 147531 "Cartera Recv. Installments"
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("No.", '1');
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         ReceivablesCarteraDocs.OpenView;
         ReceivablesCarteraDocs.GotoRecord(CarteraDoc);
@@ -897,7 +897,7 @@ codeunit 147531 "Cartera Recv. Installments"
         LibraryVariableStorage.Dequeue(DocumentNo);
 
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindLast;
+        CarteraDoc.FindLast();
         CarteraDocumentsPage.SetRecord(CarteraDoc);
 
         Response := ACTION::LookupOK;

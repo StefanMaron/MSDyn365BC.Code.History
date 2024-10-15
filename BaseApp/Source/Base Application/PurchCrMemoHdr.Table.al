@@ -586,7 +586,7 @@ table 124 "Purch. Cr. Memo Hdr."
                 SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
                 SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::"Credit Memo");
                 SIIDocUploadState.SetRange("Document No.", "No.");
-                if SIIDocUploadState.FindFirst then begin
+                if SIIDocUploadState.FindFirst() then begin
                     SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
                     PAGE.Run(PAGE::"SII History", SIIHistory);
                 end;
@@ -748,17 +748,14 @@ table 124 "Purch. Cr. Memo Hdr."
     end;
 
     procedure PrintToDocumentAttachment(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
-    var
-        ShowNotificationAction: Boolean;
     begin
-        ShowNotificationAction := PurchCrMemoHdr.Count() = 1;
         if PurchCrMemoHdr.FindSet() then
             repeat
-                DoPrintToDocumentAttachment(PurchCrMemoHdr, ShowNotificationAction);
+                DoPrintToDocumentAttachment(PurchCrMemoHdr);
             until PurchCrMemoHdr.Next() = 0;
     end;
 
-    local procedure DoPrintToDocumentAttachment(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ShowNotificationAction: Boolean)
+    local procedure DoPrintToDocumentAttachment(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -773,7 +770,7 @@ table 124 "Purch. Cr. Memo Hdr."
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

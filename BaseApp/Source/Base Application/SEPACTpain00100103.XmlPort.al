@@ -304,7 +304,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 RemittanceText := '';
 
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
-                                if not TempPaymentExportRemittanceText.FindSet then
+                                if not TempPaymentExportRemittanceText.FindSet() then
                                     currXMLport.Skip();
                                 RemittanceText := TempPaymentExportRemittanceText.Text;
                                 if TempPaymentExportRemittanceText.Next() = 0 then
@@ -368,7 +368,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           "Sender Bank BIC", "SEPA Instruction Priority Text", "Transfer Date",
           "SEPA Batch Booking", "SEPA Charge Bearer Text");
 
-        if not PaymentExportData.FindSet then
+        if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
 
         InitPmtGroup;
@@ -420,7 +420,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
         VATRegistrationNoAndBankSuffix := CompanyInformation."VAT Registration No.";
 
         Suffix.SetRange("Bank Acc. Code", BankAccountNo);
-        if Suffix.FindFirst then
+        if Suffix.FindFirst() then
             VATRegistrationNoAndBankSuffix += Suffix.Suffix;
     end;
 

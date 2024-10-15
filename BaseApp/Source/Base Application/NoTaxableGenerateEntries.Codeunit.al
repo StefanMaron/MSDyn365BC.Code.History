@@ -30,7 +30,7 @@ codeunit 10840 "No Taxable - Generate Entries"
         with VendorLedgerEntry do begin
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetRange(Reversed, false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     NoTaxableMgt.UpdateNoTaxableEntryFromVendorLedgerEntry(VendorLedgerEntry);
                 until Next() = 0;
@@ -44,7 +44,7 @@ codeunit 10840 "No Taxable - Generate Entries"
         with CustLedgerEntry do begin
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetRange(Reversed, false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     NoTaxableMgt.UpdateNoTaxableEntryFromCustomerLedgerEntry(CustLedgerEntry);
                 until Next() = 0;
@@ -57,7 +57,7 @@ codeunit 10840 "No Taxable - Generate Entries"
         VATEntry: Record "VAT Entry";
     begin
         VATPostingSetup.SetFilter("No Taxable Type", '>%1', VATPostingSetup."No Taxable Type"::" ");
-        if VATPostingSetup.FindSet then
+        if VATPostingSetup.FindSet() then
             repeat
                 VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                 VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");

@@ -95,7 +95,7 @@ codeunit 7000000 CarteraManagement
                         Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
                     end;
             end;
-            Navigate.Run;
+            Navigate.Run();
         end;
     end;
 
@@ -121,7 +121,7 @@ codeunit 7000000 CarteraManagement
                         Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
                     end;
             end;
-            Navigate.Run;
+            Navigate.Run();
         end;
     end;
 
@@ -147,7 +147,7 @@ codeunit 7000000 CarteraManagement
                         Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
                     end;
             end;
-            Navigate.Run;
+            Navigate.Run();
         end;
     end;
 
@@ -601,7 +601,7 @@ codeunit 7000000 CarteraManagement
             CustLedgEntry3.SetRange("Document Type", CustLedgEntry3."Document Type"::Invoice);
             CustLedgEntry3.SetRange("Document No.", CustLedgEntry2."Document No.");
 
-            if CustLedgEntry3.FindFirst then begin
+            if CustLedgEntry3.FindFirst() then begin
                 CustLedgEntry3.Open := true;
                 CustUnrealizedVAT(
                   CustLedgEntry3, -AmountLCY, GenJnlLine, ExistVATEntry, FirstVATEntry, LastVATEntry, NoRealVATBuffer, PostedDocumentNo);
@@ -629,6 +629,7 @@ codeunit 7000000 CarteraManagement
         LastConnectionNo: Integer;
         Test1: Boolean;
         Test2: Boolean;
+        IsLastEntry: Boolean;
         PaymentTermsCode: Code[20];
     begin
         OnBeforeCustUnrealizedVAT(
@@ -661,7 +662,7 @@ codeunit 7000000 CarteraManagement
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
 
                 VATEntry3.Reset();
-                if VATEntry3.FindLast then
+                if VATEntry3.FindLast() then
                     VATEntryNo := VATEntry3."Entry No." + 1;
 
                 if (VATEntry2.Type <> VATEntry2.Type::" ") and
@@ -780,7 +781,9 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until (VATEntry2.Next() = 0) or (VATEntryLast."Entry No." = VATEntry2."Entry No.");
+                IsLastEntry := VATEntryLast."Entry No." = VATEntry2."Entry No.";
+
+            until (VATEntry2.Next() = 0) or IsLastEntry;
         end;
     end;
 
@@ -796,7 +799,7 @@ codeunit 7000000 CarteraManagement
             OnVendUnrealizedVAT2OnAfterSetFilters(
               VendLedgEntry2, VendLedgEntry3, AmountLCY, GenJnlLine, ExistVATEntry, FirstVATEntry, LastVATEntry,
               NoRealVATBuffer, IsFromJournal, PostedDocumentNo);
-            if VendLedgEntry3.FindFirst then begin
+            if VendLedgEntry3.FindFirst() then begin
                 VendLedgEntry3.Open := true;
                 VendUnrealizedVAT(
                   VendLedgEntry3, -AmountLCY, GenJnlLine, ExistVATEntry, FirstVATEntry, LastVATEntry, NoRealVATBuffer, PostedDocumentNo);
@@ -824,6 +827,7 @@ codeunit 7000000 CarteraManagement
         LastConnectionNo: Integer;
         Test1: Boolean;
         Test2: Boolean;
+        IsLastEntry: Boolean;
         PaymentTermsCode: Code[20];
         ReverseChrgVATAcc: Code[20];
         ReverseChrgVATUnrealAcc: Code[20];
@@ -858,7 +862,7 @@ codeunit 7000000 CarteraManagement
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
 
                 VATEntry3.Reset();
-                if VATEntry3.FindLast then
+                if VATEntry3.FindLast() then
                     VATEntryNo := VATEntry3."Entry No." + 1;
 
                 if (VATEntry2.Type <> VATEntry2.Type::" ") and
@@ -995,7 +999,9 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until (VATEntry2.Next() = 0) or (VATEntryLast."Entry No." = VATEntry2."Entry No.");
+                IsLastEntry := VATEntryLast."Entry No." = VATEntry2."Entry No.";
+
+            until (VATEntry2.Next() = 0) or IsLastEntry;
         end;
     end;
 
@@ -1009,7 +1015,7 @@ codeunit 7000000 CarteraManagement
             ExchRateAdjReg.SetRange("Account Type", ExchRateAdjReg."Account Type"::Customer)
         else
             ExchRateAdjReg.SetRange("Account Type", ExchRateAdjReg."Account Type"::Vendor);
-        if ExchRateAdjReg.FindLast then
+        if ExchRateAdjReg.FindLast() then
             if ExchRateAdjReg."Creation Date" > DocPostDate then
                 exit(ExchRateAdjReg."Creation Date")
             else
@@ -1080,14 +1086,14 @@ codeunit 7000000 CarteraManagement
             PostedCarteraDoc.SetRange("Document No.", CustLedgEntry."Document No.");
             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Bill then
                 PostedCarteraDoc.SetRange("No.", CustLedgEntry."Bill No.");
-            PostedCarteraDoc.FindLast;
+            PostedCarteraDoc.FindLast();
             DimSetID := PostedCarteraDoc."Dimension Set ID";
         end else begin
             ClosedCarteraDoc.SetRange(Type, ClosedCarteraDoc.Type::Receivable);
             ClosedCarteraDoc.SetRange("Document No.", CustLedgEntry."Document No.");
             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Bill then
                 ClosedCarteraDoc.SetRange("No.", CustLedgEntry."Bill No.");
-            ClosedCarteraDoc.FindLast;
+            ClosedCarteraDoc.FindLast();
             DimSetID := ClosedCarteraDoc."Dimension Set ID";
         end;
         exit(GetCombinedDimSetID(GenJnlLine, DimSetID));
@@ -1099,7 +1105,7 @@ codeunit 7000000 CarteraManagement
         PostDocBuffer.SetRange("Document No.", CustLedgEntry."Document No.");
         if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Bill then
             PostDocBuffer.SetRange("No.", CustLedgEntry."Bill No.");
-        PostDocBuffer.FindLast;
+        PostDocBuffer.FindLast();
         PostDocBuffer.Reset();
         exit(GetCombinedDimSetID(GenJnlLine, PostDocBuffer."Dimension Set ID"));
     end;

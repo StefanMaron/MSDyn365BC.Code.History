@@ -260,7 +260,7 @@ codeunit 143303 "Library - Make 340 Declaration"
           FileName, GLAcc, MinPaymentAmount);
 
         Make340Declaration.UseRequestPage(false);
-        Make340Declaration.RunModal;
+        Make340Declaration.RunModal();
         Make340Declaration.GetServerFileName(FileName);
     end;
 }

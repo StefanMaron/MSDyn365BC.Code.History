@@ -39,7 +39,7 @@ table 486 "Business Chart Map"
     procedure Add(MapName: Text[249]; Value: Variant)
     begin
         Reset;
-        if FindLast then
+        if FindLast() then
             Index += 1
         else
             Index := 0;
@@ -52,7 +52,7 @@ table 486 "Business Chart Map"
     begin
         Reset;
         SetRange(Name, MapName);
-        if FindFirst then
+        if FindFirst() then
             exit(Index);
         exit(-1);
     end;

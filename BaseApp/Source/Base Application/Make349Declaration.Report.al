@@ -67,7 +67,7 @@ report 10710 "Make 349 Declaration"
 
                 Customer2.Reset();
                 Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
-                if Customer2.FindSet then begin
+                if Customer2.FindSet() then begin
                     repeat
                         VATCredSales.Reset();
                         VATCredSales.SetRange(Type, VATCredSales.Type::Sale);
@@ -75,7 +75,7 @@ report 10710 "Make 349 Declaration"
                         VATCredSales.SetRange("Bill-to/Pay-to No.", Customer2."No.");
                         VATCredSales.SetRange("Posting Date", FromDate, ToDate);
                         VATCredSales.SetFilter("Gen. Prod. Posting Group", FilterString);
-                        if VATCredSales.FindSet then
+                        if VATCredSales.FindSet() then
                             repeat
                                 if IncludeIn349(VATCredSales, AmountToIncludein349, LocationDiffCountryCode) then begin
                                     if (VATCredSales."Country/Region Code" <> CountryCode) or
@@ -116,7 +116,7 @@ report 10710 "Make 349 Declaration"
 
                 Vendor2.Reset();
                 Vendor2.SetRange("VAT Registration No.", "VAT Registration No.");
-                if Vendor2.FindSet then begin
+                if Vendor2.FindSet() then begin
                     repeat
                         VATCredPurch.Reset();
                         VATCredPurch.SetRange(Type, VATCredPurch.Type::Purchase);
@@ -124,7 +124,7 @@ report 10710 "Make 349 Declaration"
                         VATCredPurch.SetRange("Bill-to/Pay-to No.", Vendor2."No.");
                         VATCredPurch.SetRange("Posting Date", FromDate, ToDate);
                         VATCredPurch.SetFilter("Gen. Prod. Posting Group", FilterString);
-                        if VATCredPurch.FindSet then
+                        if VATCredPurch.FindSet() then
                             repeat
                                 if IncludeIn349(VATCredPurch, AmountToIncludein349, LocationDiffCountryCode) then begin
                                     if (VATCredPurch."Country/Region Code" <> CountryCode) or
@@ -147,7 +147,7 @@ report 10710 "Make 349 Declaration"
 
             trigger OnPostDataItem()
             begin
-                if CustVendWarning349.FindFirst then begin
+                if CustVendWarning349.FindFirst() then begin
                     if not Confirm(Text1100008, false) then
                         Message(Text1100009)
                     else begin
@@ -215,11 +215,11 @@ report 10710 "Make 349 Declaration"
                     NoTaxableAmountEUService := 0;
                     Customer2.Reset();
                     Customer2.SetRange("VAT Registration No.", "VAT Registration No.");
-                    if Customer2.FindSet then begin
+                    if Customer2.FindSet() then begin
                         repeat
                             GetVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
                             VATInvSales.SetRange("EU 3-Party Trade", true);
-                            if VATInvSales.FindSet then
+                            if VATInvSales.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
                                         if (VATInvSales."Country/Region Code" <> CountryCode) or
@@ -241,7 +241,7 @@ report 10710 "Make 349 Declaration"
 
                             GetVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, false, FilterString);
                             VATInvSales.SetRange("EU 3-Party Trade", false);
-                            if VATInvSales.FindSet then
+                            if VATInvSales.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
                                         if (VATInvSales."Country/Region Code" <> CountryCode) or
@@ -256,7 +256,7 @@ report 10710 "Make 349 Declaration"
                                 until VATInvSales.Next() = 0;
 
                             GetVATInvSalesEntries(VATInvSales, Customer2."No.", FromDate, ToDate, true, FilterString);
-                            if VATInvSales.FindSet then
+                            if VATInvSales.FindSet() then
                                 repeat
                                     if IncludeIn349(VATInvSales, AmountToIncludein349, LocationDiffCountryCode) then begin
                                         if (VATInvSales."Country/Region Code" <> CountryCode) or
@@ -287,7 +287,7 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.SetRange("Customer/Vendor No.", Customer2."No.");
                             CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
                             CustVendWarning349.SetRange("Include Correction", true);
-                            if CustVendWarning349.FindFirst then
+                            if CustVendWarning349.FindFirst() then
                                 repeat
                                     if ((CustVendWarning349."Original Declaration FY" <> FiscalYear) or
                                         (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText))
@@ -309,7 +309,7 @@ report 10710 "Make 349 Declaration"
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", false);
                                         AlreadyExported := false;
 
-                                        if CustVendWarning349_2.FindFirst then begin
+                                        if CustVendWarning349_2.FindFirst() then begin
                                             InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 repeat
@@ -336,7 +336,7 @@ report 10710 "Make 349 Declaration"
 
                                         CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
-                                        if CustVendWarning349_2.FindSet then
+                                        if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
                                                     AccumPrevDeclAmountEUService :=
@@ -361,7 +361,7 @@ report 10710 "Make 349 Declaration"
                                         CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
-                                        if CustVendWarning349_2.FindSet then
+                                        if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
                                                     AccumPrevDeclAmountTri :=
@@ -630,7 +630,7 @@ report 10710 "Make 349 Declaration"
                             CustVendWarning349.SetRange("Customer/Vendor No.", Vendor2."No.");
                             CustVendWarning349.SetRange("Posting Date", FromDate, ToDate);
                             CustVendWarning349.SetRange("Include Correction", true);
-                            if CustVendWarning349.FindFirst then
+                            if CustVendWarning349.FindFirst() then
                                 repeat
                                     if ((CustVendWarning349."Original Declaration FY" <> FiscalYear) or
                                         (CustVendWarning349."Original Declaration Period" <> GetPeriodAsText))
@@ -649,7 +649,7 @@ report 10710 "Make 349 Declaration"
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", false);
                                         AlreadyExported := false;
 
-                                        if CustVendWarning349_2.FindFirst then begin
+                                        if CustVendWarning349_2.FindFirst() then begin
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
                                                     AccumPrevDeclAmount := AccumPrevDeclAmount + Abs(CustVendWarning349_2."Previous Declared Amount");
@@ -673,7 +673,7 @@ report 10710 "Make 349 Declaration"
 
                                         CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
-                                        if CustVendWarning349_2.FindSet then
+                                        if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
                                                     AccumPrevDeclAmountEUService :=
@@ -697,7 +697,7 @@ report 10710 "Make 349 Declaration"
                                         CustVendWarning349_2.Reset();
                                         GetCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
-                                        if CustVendWarning349_2.FindSet then
+                                        if CustVendWarning349_2.FindSet() then
                                             if CustVendWarning349_2.Count > 1 then begin
                                                 if "VAT Registration No." <> '' then
                                                     AccumPrevDeclAmountTri :=
@@ -1366,11 +1366,11 @@ report 10710 "Make 349 Declaration"
                                         TempSalesInvLines.SetRange("Document No.", DocNo);
                                         TempSalesInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
                                         TempSalesInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                        if not TempSalesInvLines.FindFirst then begin
+                                        if not TempSalesInvLines.FindFirst() then begin
                                             SalesInvLines.SetRange("Document No.", DocNo);
                                             SalesInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
                                             SalesInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                            if SalesInvLines.FindSet then
+                                            if SalesInvLines.FindSet() then
                                                 repeat
                                                     if SalesInvLines."Location Code" <> '' then begin
                                                         if Location.Get(SalesInvLines."Location Code") then
@@ -1411,11 +1411,11 @@ report 10710 "Make 349 Declaration"
                                         TempServiceInvLines.SetRange("Document No.", DocNo);
                                         TempServiceInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
                                         TempServiceInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                        if not TempServiceInvLines.FindFirst then begin
+                                        if not TempServiceInvLines.FindFirst() then begin
                                             ServiceInvLines.SetRange("Document No.", DocNo);
                                             ServiceInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
                                             ServiceInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                            if ServiceInvLines.FindSet then
+                                            if ServiceInvLines.FindSet() then
                                                 repeat
                                                     if ServiceInvLines."Location Code" <> '' then begin
                                                         if Location.Get(ServiceInvLines."Location Code") then
@@ -1526,11 +1526,11 @@ report 10710 "Make 349 Declaration"
                                     TempPurchInvLines.SetRange("Document No.", DocNo);
                                     TempPurchInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
                                     TempPurchInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                    if not TempPurchInvLines.FindFirst then begin
+                                    if not TempPurchInvLines.FindFirst() then begin
                                         PurchInvLines.SetRange("Document No.", DocNo);
                                         PurchInvLines.SetRange("Gen. Prod. Posting Group", VATEntry."Gen. Prod. Posting Group");
                                         PurchInvLines.SetRange("VAT Prod. Posting Group", VATPPG);
-                                        if PurchInvLines.FindSet then
+                                        if PurchInvLines.FindSet() then
                                             repeat
                                                 if PurchInvLines."Location Code" <> '' then begin
                                                     if Location.Get(PurchInvLines."Location Code") then
@@ -1734,7 +1734,7 @@ report 10710 "Make 349 Declaration"
         TotalAmount: array[3] of Decimal;
     begin
         FilterCustVendWarning349(CustVendWarning349, CustVendWarning349.Type::Sale, Customer2."No.");
-        if CustVendWarning349.FindSet then begin
+        if CustVendWarning349.FindSet() then begin
             repeat
                 if Customer2."VAT Registration No." <> '' then begin
                     InitVATEntry(VATEntry, CustVendWarning349."VAT Entry No.");
@@ -1753,7 +1753,7 @@ report 10710 "Make 349 Declaration"
         TotalAmount: Decimal;
     begin
         FilterCustVendWarning349(CustVendWarning349, CustVendWarning349.Type::Purchase, Vendor2."No.");
-        if CustVendWarning349.FindSet then begin
+        if CustVendWarning349.FindSet() then begin
             repeat
                 if Vendor2."VAT Registration No." <> '' then begin
                     TotalAmount += Abs(CustVendWarning349."Original Declared Amount");
@@ -1771,7 +1771,7 @@ report 10710 "Make 349 Declaration"
         VendLedgEntry.SetRange("Document Type", DocType);
         VendLedgEntry.SetRange("Document No.", DocNo);
         VendLedgEntry.SetRange("Vendor No.", VendNo);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
         if (VendLedgEntry."Applies-to Doc. Type" in
             [VendLedgEntry."Applies-to Doc. Type"::Invoice, VendLedgEntry."Applies-to Doc. Type"::Reminder]) and
            (VendLedgEntry."Closed by Entry No." <> 0) and
@@ -1787,7 +1787,7 @@ report 10710 "Make 349 Declaration"
         CustEntries.SetRange("Document Type", DocType);
         CustEntries.SetRange("Document No.", DocNo);
         CustEntries.SetRange("Customer No.", CustNo);
-        CustEntries.FindFirst;
+        CustEntries.FindFirst();
         if (CustEntries."Applies-to Doc. Type" in
             [CustEntries."Applies-to Doc. Type"::Invoice, CustEntries."Applies-to Doc. Type"::Reminder]) and
            (CustEntries."Closed by Entry No." <> 0) and
@@ -1910,7 +1910,7 @@ report 10710 "Make 349 Declaration"
     begin
         CalcVendDeclarationPeriodInfo(DocType, DocNo, No);
 
-        if CustVendWarning349.FindLast then;
+        if CustVendWarning349.FindLast() then;
         CustVendWarning349.Init();
         CustVendWarning349."Entry No." := CustVendWarning349."Entry No." + 1;
         CustVendWarning349.Type := CustVendWarning349.Type::Purchase;
@@ -1936,7 +1936,7 @@ report 10710 "Make 349 Declaration"
     begin
         CalcCustDeclarationPeriodInfo(DocType, DocNo, No);
 
-        if CustVendWarning349.FindLast then;
+        if CustVendWarning349.FindLast() then;
         CustVendWarning349.Init();
         CustVendWarning349."Entry No." := CustVendWarning349."Entry No." + 1;
         CustVendWarning349.Type := CustVendWarning349.Type::Sale;

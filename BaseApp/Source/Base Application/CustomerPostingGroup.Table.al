@@ -589,5 +589,37 @@ table 92 "Customer Posting Group"
     local procedure OnAfterGetReceivablesAccount(var CustomerPostingGroup: Record "Customer Posting Group"; var Result: Code[20])
     begin
     end;
+
+    procedure GetRejectedFactoringAcc(): Code[20]
+    begin
+        if "Rejected Factoring Acc." = '' then
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Rejected Factoring Acc."));
+
+        exit("Rejected Factoring Acc.");
+    end;
+
+    procedure GetFactoringForDiscountAcc(): Code[20]
+    begin
+        if "Factoring for Discount Acc." = '' then
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Factoring for Discount Acc."));
+
+        exit("Factoring for Discount Acc.");
+    end;
+
+    procedure GetFactoringForCollectionAcc(): Code[20]
+    begin
+        if "Factoring for Collection Acc." = '' then
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Factoring for Collection Acc."));
+
+        exit("Factoring for Collection Acc.");
+    end;
+
+    procedure GetDiscountedBillsAcc(): Code[20]
+    begin
+        if "Discted. Bills Acc." = '' then
+            PostingSetupMgt.LogCustPostingGroupFieldError(Rec, FieldNo("Discted. Bills Acc."));
+
+        exit("Discted. Bills Acc.");
+    end;
 }
 

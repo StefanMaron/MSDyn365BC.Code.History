@@ -36,7 +36,7 @@ codeunit 147555 "SII Unrealized VAT"
         // [FEATURE] [Purchase]
         // [SCENARIO 263648] Purchase invoice with G/L Account has one details line in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Include Importe Total" in SII Setup
         SetIncludeImporteTotal();
@@ -76,7 +76,7 @@ codeunit 147555 "SII Unrealized VAT"
         // [FEATURE] [Sales]
         // [SCENARIO 263648] Sales invoice with G/L Account has one details line in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Include Importe Total" in SII Setup
         SetIncludeImporteTotal();

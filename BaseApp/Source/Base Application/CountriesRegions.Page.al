@@ -134,7 +134,7 @@ page 10 "Countries/Regions"
 
                         Clear(CustomAddressFormatPage);
                         CustomAddressFormatPage.SetTableView(CustomAddressFormat);
-                        CustomAddressFormatPage.RunModal;
+                        CustomAddressFormatPage.RunModal();
                     end;
                 }
             }

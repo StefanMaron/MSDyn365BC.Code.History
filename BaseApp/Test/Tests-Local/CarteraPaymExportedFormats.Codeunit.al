@@ -36,7 +36,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         PaymentOrdersTestPage: TestPage "Payment Orders";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -69,7 +69,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         PaymentOrdersListTestPage: TestPage "Payment Orders List";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -106,7 +106,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         DocType: Text;
         ExportedAmountFormat: Text[12];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -122,7 +122,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         DocType := '57';
 
         VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
 
         ExportedAmountFormat := ElectPmtsManagement.EuroAmount(CarteraDoc."Remaining Amount");
 
@@ -143,7 +143,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         DocumentNo: Code[20];
         ExpectedNumberOfPaymentOrders: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -176,7 +176,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         FileName: Text[1024];
         ExpectedDocAmount: Text[12];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -193,7 +193,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         FileName := LibraryPOExportN34.RunPOExportN34Report(PaymentOrder."No.");
 
         VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
 
         ExpectedDocAmount := LibraryPOExportN34.GetEuroAmountN34Report(CarteraDoc."Remaining Amount");
 
@@ -203,7 +203,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
     end;
 

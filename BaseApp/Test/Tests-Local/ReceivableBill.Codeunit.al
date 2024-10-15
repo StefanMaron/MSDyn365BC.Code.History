@@ -19,7 +19,7 @@ codeunit 147538 "Receivable Bill"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
     end;
 
@@ -41,7 +41,7 @@ codeunit 147538 "Receivable Bill"
         Found: Boolean;
         Amount1: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
         LibraryCarteraReceivables.CreateCustomerBankAccount(Customer, CustomerBankAccount);

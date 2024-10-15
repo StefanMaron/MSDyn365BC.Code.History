@@ -230,7 +230,7 @@ report 7000096 "Redraw Receivable Bills"
                 end;
                 if "Currency Code" <> '' then begin
                     Currency.SetFilter(Code, "Currency Code");
-                    Currency.FindFirst;
+                    Currency.FindFirst();
                     if SumLCYAmt <> 0 then begin
                         if SumLCYAmt > 0 then begin
                             Currency.TestField("Residual Gains Account");
@@ -281,7 +281,7 @@ report 7000096 "Redraw Receivable Bills"
                 CarteraJnlForm.SetRecord(GenJnlLine);
                 CarteraJnlForm.SetJnlBatchName(BatchName);
                 CarteraJnlForm.AllowClosing(true);
-                CarteraJnlForm.RunModal;
+                CarteraJnlForm.RunModal();
 
                 SplitDetailedCVEntry;
 
@@ -305,7 +305,7 @@ report 7000096 "Redraw Receivable Bills"
 
                 GenJnlLine.SetFilter("Journal Template Name", TemplName);
                 GenJnlLine.SetFilter("Journal Batch Name", BatchName);
-                if GenJnlLine.FindLast then
+                if GenJnlLine.FindLast() then
                     GenJnlLineNextNo := GenJnlLine."Line No." + 10000
                 else
                     GenJnlLineNextNo := 10000;
@@ -734,7 +734,7 @@ report 7000096 "Redraw Receivable Bills"
                 DtldCustLedgEntry.SetRange("Customer No.", TempCVLedgEntryBuf."CV No.");
                 DtldCustLedgEntry.SetRange("Bill No.", TempCVLedgEntryBuf."Bill No.");
 
-                if DtldCustLedgEntry.FindFirst then begin
+                if DtldCustLedgEntry.FindFirst() then begin
                     ExpAmount := DtldCustLedgEntry.Amount - TempCVLedgEntryBuf.Amount;
                     ExpAmountLCY := DtldCustLedgEntry."Amount (LCY)" - TempCVLedgEntryBuf."Amount (LCY)";
                     if ExpAmount <> 0 then begin
@@ -786,7 +786,7 @@ report 7000096 "Redraw Receivable Bills"
         CustLedgEntry2.SetRange("Document No.", CustLedgEntry."Document No.");
         CustLedgEntry2.SetRange("Document Type", CustLedgEntry."Document Type");
         CustLedgEntry2.SetRange("Customer No.", CustLedgEntry."Customer No.");
-        if CustLedgEntry2.FindFirst then
+        if CustLedgEntry2.FindFirst() then
             ExistVATNOReal := GenJnlPostLine.CustFindVATSetup(VATPostingSetup, CustLedgEntry2, true);
         if ExistVATNOReal then
             Error(Text1100101);

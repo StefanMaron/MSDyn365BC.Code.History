@@ -1,4 +1,4 @@
-﻿codeunit 1223 "SEPA CT-Check Line"
+codeunit 1223 "SEPA CT-Check Line"
 {
     TableNo = "Gen. Journal Line";
 

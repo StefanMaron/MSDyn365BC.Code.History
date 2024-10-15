@@ -24,7 +24,7 @@ table 10710 "AEAT Transference Format XML"
                     AEATTransferenceFormatXML.SetRange("VAT Statement Name", "VAT Statement Name");
                     AEATTransferenceFormatXML.SetFilter("No.", '<%1', "No.");
                     AEATTransferenceFormatXML.SetRange("Indentation Level", "Indentation Level" - 1);
-                    if AEATTransferenceFormatXML.FindLast then
+                    if AEATTransferenceFormatXML.FindLast() then
                         "Parent Line No." := AEATTransferenceFormatXML."No.";
                 end else
                     "Parent Line No." := 0;

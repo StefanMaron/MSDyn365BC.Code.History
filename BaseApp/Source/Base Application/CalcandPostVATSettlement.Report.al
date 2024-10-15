@@ -513,7 +513,7 @@
             trigger OnPreDataItem()
             begin
                 GLEntry.LockTable(); // Avoid deadlock with function 12
-                if GLEntry.FindLast then;
+                if GLEntry.FindLast() then;
                 VATEntry.LockTable();
                 VATEntry.Reset();
                 NextVATEntryNo := VATEntry.GetLastEntryNo();
@@ -734,23 +734,20 @@
     local procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var
         DimMgt: Codeunit DimensionManagement;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        TableID[1] := DATABASE::"G/L Account";
-        TableID[2] := DATABASE::"G/L Account";
-        No[1] := GenJnlLine."Account No.";
-        No[2] := GenJnlLine."Bal. Account No.";
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GenJnlLine."Account No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GenJnlLine."Bal. Account No.");
         GenJnlLine."Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            GenJnlLine, 0, TableID, No, GenJnlLine."Source Code",
+            GenJnlLine, 0, DefaultDimSource, GenJnlLine."Source Code",
             GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code", 0, 0);
         GenJnlPostLine.Run(GenJnlLine);
     end;
 
-    procedure SetInitialized(Initialize: Boolean)
+    procedure SetInitialized(NewInitialized: Boolean)
     begin
-        Initialized := Initialize;
+        Initialized := NewInitialized;
     end;
 
     local procedure CopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry")

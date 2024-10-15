@@ -373,7 +373,7 @@ page 7000067 "Posted Bills"
                         2:
                             begin
                                 Navigate.SetDoc("Posting Date", "Bill Gr./Pmt. Order No.");
-                                Navigate.Run;
+                                Navigate.Run();
                             end;
                     end;
                 end;

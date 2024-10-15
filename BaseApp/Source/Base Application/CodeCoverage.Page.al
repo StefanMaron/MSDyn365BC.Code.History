@@ -252,7 +252,7 @@ page 9990 "Code Coverage"
                 begin
                     CodeCoverage.CopyFilters(Rec);
                     CodeCoverageSummary.SetTableView(CodeCoverage);
-                    CodeCoverageSummary.Run;
+                    CodeCoverageSummary.Run();
                 end;
             }
             action("Backup/Restore")
@@ -269,7 +269,7 @@ page 9990 "Code Coverage"
                 var
                     CodeCoverageDetailed: XMLport "Code Coverage Detailed";
                 begin
-                    CodeCoverageDetailed.Run;
+                    CodeCoverageDetailed.Run();
                 end;
             }
         }

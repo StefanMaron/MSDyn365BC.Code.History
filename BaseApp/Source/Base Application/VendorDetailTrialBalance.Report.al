@@ -1,4 +1,4 @@
-report 304 "Vendor - Detail Trial Balance"
+﻿report 304 "Vendor - Detail Trial Balance"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VendorDetailTrialBalance.rdlc';
@@ -490,21 +490,14 @@ report 304 "Vendor - Detail Trial Balance"
         Text000: Label 'Period: %1';
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendFilter: Text;
-        VendDateFilter: Text;
         VendRemainAmount: Decimal;
-        VendBalanceLCY: Decimal;
         VendEntryDueDate: Date;
         StartBalanceLCY: Decimal;
-        StartBalAdjLCY: Decimal;
-        Correction: Decimal;
         ApplicationRounding: Decimal;
         ExcludeBalanceOnly: Boolean;
-        PrintAmountsInLCY: Boolean;
         PrintOnlyOnePerPage: Boolean;
         VendLedgEntryExists: Boolean;
-        AmountCaption: Text[30];
         RemainingAmtCaption: Text[30];
-        VendCurrencyCode: Code[10];
         PageGroupNo: Integer;
         SumCorrections: Decimal;
         VendDebitAmount: Decimal;
@@ -534,6 +527,15 @@ report 304 "Vendor - Detail Trial Balance"
         TotalLCYCaptionLbl: Label 'Total (LCY)';
         TotalAdjofOpeningBalCaptionLbl: Label 'Total Adj. of Opening Balance';
         TotalLCYBeforePeriodCaptionLbl: Label 'Total (LCY) Before Period';
+
+    protected var
+        AmountCaption: Text[30];
+        Correction: Decimal;
+        PrintAmountsInLCY: Boolean;
+        StartBalAdjLCY: Decimal;
+        VendBalanceLCY: Decimal;
+        VendDateFilter: Text;
+        VendCurrencyCode: Code[10];
 
     procedure InitializeRequest(NewPrintAmountsInLCY: Boolean; NewPrintOnlyOnePerPage: Boolean; NewExcludeBalanceOnly: Boolean)
     begin

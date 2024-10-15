@@ -237,6 +237,13 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Editable = false;
             TableRelation = "Tax Jurisdiction";
         }
+        field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
+        {
+            Caption = 'Exch. Rate Adjmt. Reg. No.';
+            DataClassification = SystemMetadata;
+            Editable = false;
+            TableRelation = "Exch. Rate Adjmt. Reg.";
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -336,7 +343,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
 
         if NextDtldBufferEntryNo = 0 then begin
             DtldCVLedgEntryBuf.Reset();
-            if DtldCVLedgEntryBuf.FindLast then
+            if DtldCVLedgEntryBuf.FindLast() then
                 NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
             else
                 NextDtldBufferEntryNo := 1;
@@ -373,7 +380,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         if IsHandled then
             exit;
 
-        if DtldCVLedgEntryBuf.FindFirst then begin
+        if DtldCVLedgEntryBuf.FindFirst() then begin
             DtldCVLedgEntryBuf.Amount := DtldCVLedgEntryBuf.Amount + NewDtldCVLedgEntryBuf.Amount;
             DtldCVLedgEntryBuf."Amount (LCY)" :=
               DtldCVLedgEntryBuf."Amount (LCY)" + NewDtldCVLedgEntryBuf."Amount (LCY)";
@@ -502,7 +509,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         VATEntry.SetRange("Transaction No.", TransactionNo);
         VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     [IntegrationEvent(false, false)]

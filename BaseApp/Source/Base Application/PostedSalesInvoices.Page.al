@@ -83,7 +83,7 @@ page 143 "Posted Sales Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     AboutTitle = 'What remains to be paid';
-                    AboutText = 'This column shows you what is not yet paid on each invoice. When full payment is registered, an invoice is marked as Closed.';
+                    AboutText = 'This column shows you what is not yet paid on each invoice. When full payment is registered, an invoice is marked as *Closed*.';
                     ToolTip = 'Specifies the amount that remains to be paid for the posted sales invoice.';
                 }
                 field("Sell-to Post Code"; "Sell-to Post Code")
@@ -332,6 +332,13 @@ page 143 "Posted Sales Invoices"
                 ShowFilter = false;
                 Visible = NOT IsOfficeAddin;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -553,7 +560,7 @@ page 143 "Posted Sales Invoices"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -691,7 +698,7 @@ page 143 "Posted Sales Invoices"
                 begin
                     PostedSalesInvoiceUpdate.LookupMode := true;
                     PostedSalesInvoiceUpdate.SetRec(Rec);
-                    PostedSalesInvoiceUpdate.RunModal;
+                    PostedSalesInvoiceUpdate.RunModal();
                 end;
             }
         }
@@ -749,6 +756,7 @@ page 143 "Posted Sales Invoices"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
+        OnOpenPageOnAfterSetFilters(Rec);
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         if HasFilters and not Find() then
             if FindFirst() then;
@@ -780,5 +788,10 @@ page 143 "Posted Sales Invoices"
         StyleText: Text;
         [InDataSet]
         SIIStateVisible: Boolean;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnAfterSetFilters(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
 }
 

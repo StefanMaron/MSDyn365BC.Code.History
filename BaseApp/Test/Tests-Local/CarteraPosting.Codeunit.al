@@ -164,7 +164,7 @@ codeunit 147305 "Cartera Posting"
         // Related to bug TFS 268625
         // Test scenario redrawing and posting a Sales Invoice from Bill Group with two Sales Invoices
         // Expected Result - Sales Invoice has been posted and two more Customer Ledger Entries created
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustomer(Customer);
@@ -244,7 +244,7 @@ codeunit 147305 "Cartera Posting"
         VATPostingSetup: Record "VAT Posting Setup";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -275,7 +275,7 @@ codeunit 147305 "Cartera Posting"
         LineAmtInclVAT: array[2] of Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATBusinessPostingGroup(VATBusPostingGroup);
         CustNo :=
@@ -465,7 +465,7 @@ codeunit 147305 "Cartera Posting"
         LineAmtInclVAT: array[2] of Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATBusinessPostingGroup(VATBusPostingGroup);
         VendNo :=
@@ -649,7 +649,7 @@ codeunit 147305 "Cartera Posting"
         // Related to bug TFS 348140
         // Test posting Cartera Journal Lines, which are applied to several
         // Customer Ledger Entries being one of them a Bill at the same time.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomer(Customer);
@@ -677,7 +677,7 @@ codeunit 147305 "Cartera Posting"
         // Related to bug TFS 348140
         // Test posting Cartera Journal Lines, which are applied to several
         // Vendor Ledger Entries being one of them a Bill at the same time.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -704,7 +704,7 @@ codeunit 147305 "Cartera Posting"
     begin
         // Related to bug TFS 349783 and TFS 298727
         // Test posting Payment Journal Line with non-empty Currency which is applied to Bill
-        Initialize;
+        Initialize();
 
         // Setup
         ClearAddReportingCurrency;
@@ -737,7 +737,7 @@ codeunit 147305 "Cartera Posting"
     begin
         // Related to bug TFS 349783 and TFS 298727
         // Test posting Cash Receipt Journal Line with non-empty Currency which is applied to Bill
-        Initialize;
+        Initialize();
 
         // Setup
         ClearAddReportingCurrency;
@@ -803,7 +803,7 @@ codeunit 147305 "Cartera Posting"
         AppliedDocumentNo: Code[20];
     begin
         // Check VAT entries when Cr. Memo applied to Invoice and Unrealized VAT involved
-        Initialize;
+        Initialize();
 
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -831,7 +831,7 @@ codeunit 147305 "Cartera Posting"
         AppliedDocumentNo: Code[20];
     begin
         // Check VAT entries when Cr. Memo applied to Invoice and Unrealized VAT involved
-        Initialize;
+        Initialize();
 
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -1019,7 +1019,7 @@ codeunit 147305 "Cartera Posting"
     begin
         // [SCENARIO 362553] Open Cartera Journal with Batch selected in Rewraw Receivables Bills job
 
-        Initialize;
+        Initialize();
         // [GIVEN] Default Cartera General Journal Batch
         CreateCarteraGenJnlTemplateWithBatch(GenJournalBatch);
         // [GIVEN] Second Cartera General Journal Batch "X"
@@ -1061,7 +1061,7 @@ codeunit 147305 "Cartera Posting"
         RunSettleDocs(BankAccNo);
 
         // [THEN] "Analysis View"."Last Entry No." = last G/L Entry No.
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AnalysisView.Find;
         Assert.AreEqual(GLEntry."Entry No.", AnalysisView."Last Entry No.", AnalysisView.FieldCaption("Last Entry No."));
     end;
@@ -1092,7 +1092,7 @@ codeunit 147305 "Cartera Posting"
         SettlePurchDocument(BankAccNo);
 
         // [THEN] "Analysis View"."Last Entry No." = last G/L Entry No.
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AnalysisView.Find;
         Assert.AreEqual(GLEntry."Entry No.", AnalysisView."Last Entry No.", AnalysisView.FieldCaption("Last Entry No."));
     end;
@@ -1121,7 +1121,7 @@ codeunit 147305 "Cartera Posting"
         PartiallySettleDocument(BankAccNo);
 
         // [THEN] "Analysis View"."Last Entry No." = last G/L Entry No.
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AnalysisView.Find;
         Assert.AreEqual(GLEntry."Entry No.", AnalysisView."Last Entry No.", AnalysisView.FieldCaption("Last Entry No."));
     end;
@@ -1137,7 +1137,7 @@ codeunit 147305 "Cartera Posting"
         // [FEATURE] [UT] [Customer Ledger Entry] [Rejection]
         // [SCENARIO 364474] The flow-field "Amount" in Customer Ledger Entry should not included Rejection and Redrawal Dtld. Ledger Entries into calculation
 
-        Initialize;
+        Initialize();
         // [GIVEN] Customer Ledger Entry with Detailed Entries ("Initial Entry", Amount = X; "Rejection", Amount = Y; "Redrawal", Amount = Z)
         MockCustLedgEntry(CustLedgEntry);
         ExpectedAmount :=
@@ -1168,7 +1168,7 @@ codeunit 147305 "Cartera Posting"
         InvoiceNo: Code[20];
     begin
         // [SCENARIO 378220] Bill Group with 'Dealing Type' Discount uses selected Journal Batch name when posting
-        Initialize;
+        Initialize();
         UpdateCarteraSetup;
 
         // [GIVEN] Saved Batch Name for Cartera Journal is "A"
@@ -1219,7 +1219,7 @@ codeunit 147305 "Cartera Posting"
         // [FEATURE] [Credit Memo] [Application] [Sales]
         // [SCENARIO 380386] Credit Memo should be automatically applied to Bill which is not included to Payment Order when using "Apply-to Oldest" method of application
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "X" with "Application Method" = "Apply-to Oldest"
         CreateCustomer(Customer);
@@ -1263,7 +1263,7 @@ codeunit 147305 "Cartera Posting"
         // [FEATURE] [Credit Memo] [Application] [Purchase]
         // [SCENARIO 380386] Credit Memo should be automatically applied to Bill which is not included to Payment Order when using "Apply-to Oldest" method of application
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X" with "Application Method" = "Apply-to Oldest"
         CreateVendor(Vendor);
@@ -1303,7 +1303,7 @@ codeunit 147305 "Cartera Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 213095] VAT entry should be created when Run Settle Doc on Payment Order for Purchase Invoice with description line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT in G/L Setup
         UpdateGenLedgVATSetup(true);
@@ -1344,7 +1344,7 @@ codeunit 147305 "Cartera Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 213095] VAT entry should be created when Run Settle Doc on Bill Group for Sales Invoice with description line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT in G/L Setup
         UpdateGenLedgVATSetup(true);
@@ -1403,8 +1403,8 @@ codeunit 147305 "Cartera Posting"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -1452,7 +1452,7 @@ codeunit 147305 "Cartera Posting"
 
     local procedure SetupBillGroupWithBankAccDimension(var BillGroup: Record "Bill Group"; var BankAccNo: Code[20]; DealingType: Option)
     begin
-        Initialize;
+        Initialize();
         UpdateCarteraSetup;
         BankAccNo := CreateBankAccountWithDimension;
         LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccNo, DealingType);
@@ -1481,7 +1481,7 @@ codeunit 147305 "Cartera Posting"
 
     local procedure SetupPaymentOrderWithBankAccDimension(var PaymentOrder: Record "Payment Order"; var BankAccNo: Code[20])
     begin
-        Initialize;
+        Initialize();
         UpdateCarteraSetup;
         BankAccNo := CreateBankAccountWithDimension;
         CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo);
@@ -1636,7 +1636,7 @@ codeunit 147305 "Cartera Posting"
         GetPostedCarteraDocEntry(BankAccountNo, PostedCarteraDoc);
         SettleDocsInPostBillGr.SetHidePrintDialog(true);
         SettleDocsInPostBillGr.SetTableView(PostedCarteraDoc);
-        SettleDocsInPostBillGr.Run;
+        SettleDocsInPostBillGr.Run();
     end;
 
     [HandlerFunctions('RedrawDocumentHandler')]
@@ -1675,14 +1675,14 @@ codeunit 147305 "Cartera Posting"
         PartialSettlReceivable.SetInitValue(
           PostedCarteraDoc."Remaining Amount", PostedCarteraDoc."Currency Code", PostedCarteraDoc."Entry No.");
         PartialSettlReceivable.SetTableView(PostedCarteraDoc);
-        PartialSettlReceivable.Run;
+        PartialSettlReceivable.Run();
     end;
 
     local procedure GetPostedCarteraDocEntry(BankAccountNo: Code[20]; var PostedCarteraDoc: Record "Posted Cartera Doc.")
     begin
         with PostedCarteraDoc do begin
             SetRange("Bank Account No.", BankAccountNo);
-            FindFirst;
+            FindFirst();
             SetRange("Entry No.", "Entry No.");
         end;
     end;
@@ -1696,7 +1696,7 @@ codeunit 147305 "Cartera Posting"
         PartialSettlPayable.SetInitValue(
           PostedCarteraDoc."Remaining Amount", PostedCarteraDoc."Currency Code", PostedCarteraDoc."Entry No.");
         PartialSettlPayable.SetTableView(PostedCarteraDoc);
-        PartialSettlPayable.Run;
+        PartialSettlPayable.Run();
     end;
 
     local procedure CreateAcc(AccType: Enum "Gen. Journal Account Type"; VATBusPostGroupCode: Code[20]): Code[20]
@@ -2042,7 +2042,7 @@ codeunit 147305 "Cartera Posting"
         SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
-        SalesLine.Validate(Description, LibraryUtility.GenerateGUID);
+        SalesLine.Validate(Description, LibraryUtility.GenerateGUID());
         SalesLine.Insert(true);
     end;
 
@@ -2053,7 +2053,7 @@ codeunit 147305 "Cartera Posting"
         PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
-        PurchaseLine.Validate(Description, LibraryUtility.GenerateGUID);
+        PurchaseLine.Validate(Description, LibraryUtility.GenerateGUID());
         PurchaseLine.Insert(true);
     end;
 
@@ -2520,7 +2520,7 @@ codeunit 147305 "Cartera Posting"
     begin
         with PurchaseHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
-            Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+            Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
             Modify(true);
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", PurchaseLine.Quantity);
@@ -2535,7 +2535,7 @@ codeunit 147305 "Cartera Posting"
         CarteraDoc: Record "Cartera Doc.";
     begin
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.Validate("Bill Gr./Pmt. Order No.", BillGroupNo);
         CarteraDoc.Modify(true);
     end;
@@ -2545,7 +2545,7 @@ codeunit 147305 "Cartera Posting"
         CarteraDoc: Record "Cartera Doc.";
     begin
         CarteraDoc.SetRange("Document No.", DocNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         exit(CarteraDoc."Entry No.");
     end;
 
@@ -2555,7 +2555,7 @@ codeunit 147305 "Cartera Posting"
     begin
         with PostedCarteraDoc do begin
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -2566,7 +2566,7 @@ codeunit 147305 "Cartera Posting"
     begin
         with ClosedCarteraDoc do begin
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -2577,7 +2577,7 @@ codeunit 147305 "Cartera Posting"
     begin
         with PostedCarteraDoc do begin
             SetRange("Bank Account No.", BankAccountNo);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -2588,7 +2588,7 @@ codeunit 147305 "Cartera Posting"
     begin
         with ClosedCarteraDoc do begin
             SetRange("Bank Account No.", BankAccountNo);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -2665,7 +2665,7 @@ codeunit 147305 "Cartera Posting"
         InvAmount: Decimal;
         PayAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2697,7 +2697,7 @@ codeunit 147305 "Cartera Posting"
         InvAmount: Decimal;
         PayAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2731,7 +2731,7 @@ codeunit 147305 "Cartera Posting"
         PayAmount: Decimal;
         BillAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2766,7 +2766,7 @@ codeunit 147305 "Cartera Posting"
         PayAmount: Decimal;
         BillAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2801,7 +2801,7 @@ codeunit 147305 "Cartera Posting"
         PayAmount: array[2] of Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2836,7 +2836,7 @@ codeunit 147305 "Cartera Posting"
         PayAmount: array[2] of Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2871,7 +2871,7 @@ codeunit 147305 "Cartera Posting"
         BillAmount: array[2] of Decimal;
         PayAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -2907,7 +2907,7 @@ codeunit 147305 "Cartera Posting"
         BillAmount: array[2] of Decimal;
         PayAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
@@ -3002,7 +3002,7 @@ codeunit 147305 "Cartera Posting"
             SetRange("Document Type", DocumentType);
             SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3014,7 +3014,7 @@ codeunit 147305 "Cartera Posting"
             SetRange("Document Type", DocumentType);
             SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3023,7 +3023,7 @@ codeunit 147305 "Cartera Posting"
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3035,7 +3035,7 @@ codeunit 147305 "Cartera Posting"
         PostedCarteraDoc.SetRange("Bank Account No.", BankAccountNo);
         SettleDocsInPostedBillGroup.SetHidePrintDialog(true);
         SettleDocsInPostedBillGroup.SetTableView(PostedCarteraDoc);
-        SettleDocsInPostedBillGroup.Run;
+        SettleDocsInPostedBillGroup.Run();
     end;
 
     local procedure FindCarteraGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -3234,7 +3234,7 @@ codeunit 147305 "Cartera Posting"
         CustomerLedgerEntry.SetRange("Document Type", DocumentType);
         CustomerLedgerEntry.SetRange("Document Status", DocumentStatus);
 
-        CustomerLedgerEntry.FindFirst;
+        CustomerLedgerEntry.FindFirst();
         Assert.IsTrue(CustomerLedgerEntry.Amount = Amount, Text001);
         Assert.IsTrue(CustomerLedgerEntry."Remaining Amount" = RemainingAmount, Text001);
     end;
@@ -3246,7 +3246,7 @@ codeunit 147305 "Cartera Posting"
         with VATEntry do begin
             SetRange("Posting Date", PostingDate);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Reset;
             SetFilter("Entry No.", '<>%1', "Entry No.");
             SetRange("Transaction No.", "Transaction No.");
@@ -3373,7 +3373,7 @@ codeunit 147305 "Cartera Posting"
         GLEntry.SetRange("G/L Account No.", BankAccPostingGroup."G/L Account No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::"Bank Account");
         GLEntry.SetRange("Source No.", BankAccount."No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         DefDim.SetRange("Table ID", DATABASE::"Bank Account");
         DefDim.SetRange("No.", BankAccount."No.");
@@ -3399,7 +3399,7 @@ codeunit 147305 "Cartera Posting"
             Assert.AreEqual(0, "Remaining Unrealized Amount", FieldErrorMessage(FieldCaption("Remaining Unrealized Amount")));
             Assert.AreEqual(0, "Remaining Unrealized Base", FieldErrorMessage(FieldCaption("Remaining Unrealized Base")));
 
-            FindLast;
+            FindLast();
             Assert.AreEqual(-VATEntry."Unrealized Amount", Amount, FieldErrorMessage(FieldCaption(Amount)));
             Assert.AreEqual(-VATEntry."Unrealized Base", Base, FieldErrorMessage(FieldCaption(Base)));
         end;

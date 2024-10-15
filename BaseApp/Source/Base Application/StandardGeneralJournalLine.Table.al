@@ -1,4 +1,4 @@
-table 751 "Standard General Journal Line"
+﻿table 751 "Standard General Journal Line"
 {
     Caption = 'Standard General Journal Line';
 
@@ -78,12 +78,7 @@ table 751 "Standard General Journal Line"
                 if "Account No." = '' then begin
                     UpdateLineBalance;
                     UpdateSource;
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(FieldNo("Account No."));
                     if xRec."Account No." <> '' then begin
                         "Gen. Posting Type" := "Gen. Posting Type"::" ";
                         "Gen. Bus. Posting Group" := '';
@@ -116,12 +111,7 @@ table 751 "Standard General Journal Line"
                 Validate("VAT Prod. Posting Group");
                 UpdateLineBalance;
                 UpdateSource;
-                CreateDim(
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Account No."));
 
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
             end;
@@ -212,12 +202,7 @@ table 751 "Standard General Journal Line"
                 if "Bal. Account No." = '' then begin
                     UpdateLineBalance;
                     UpdateSource;
-                    CreateDim(
-                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                     if xRec."Bal. Account No." <> '' then begin
                         "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
                         "Bal. Gen. Bus. Posting Group" := '';
@@ -250,12 +235,7 @@ table 751 "Standard General Journal Line"
                 Validate("Bal. VAT Prod. Posting Group");
                 UpdateLineBalance;
                 UpdateSource;
-                CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
 
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
             end;
@@ -452,12 +432,7 @@ table 751 "Standard General Journal Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(29; "Source Code"; Code[10])
@@ -489,12 +464,7 @@ table 751 "Standard General Journal Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Job No."));
             end;
         }
         field(43; Quantity; Decimal)
@@ -1240,12 +1210,7 @@ table 751 "Standard General Journal Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                CreateDimFromDefaultDim(FieldNo("Campaign No."));
             end;
         }
         field(5616; "Index Entry"; Boolean)
@@ -1470,6 +1435,8 @@ table 751 "Standard General Journal Line"
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource:List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -1498,6 +1465,28 @@ table 751 "Standard General Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo);
     end;
@@ -1865,10 +1854,53 @@ table 751 "Standard General Journal Line"
         "IC Partner Code" := "Bal. Account No.";
     end;
 
+    procedure CreateDimFromDefaultDim(FromFieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FromFieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Account Type".AsInteger()), Rec."Account No.", FromFieldNo = Rec.FieldNo("Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), Rec."Bal. Account No.", FromFieldNo = Rec.FieldNo("Bal. Account No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FromFieldNo = Rec.FieldNo("Job No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FromFieldNo = Rec.FieldNo("Salespers./Purch. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FromFieldNo = Rec.FieldNo("Campaign No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Standard General Journal Line") then
+            exit;
+
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Standard General Journal Line", DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Standard General Journal Line", DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var StandardGenJournalLine: Record "Standard General Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var StandardGenJournalLine: Record "Standard General Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetGLAccount(var StandardGenJournalLine: Record "Standard General Journal Line"; GLAcc: Record "G/L Account")

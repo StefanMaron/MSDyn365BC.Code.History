@@ -119,10 +119,10 @@
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_SalesHeaderArchive; "Sales Header Archive"."Bill-to Customer No.")
@@ -232,7 +232,7 @@
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -419,7 +419,7 @@
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -713,6 +713,9 @@
                 FormatAddressFields("Sales Header Archive");
                 FormatDocumentFields("Sales Header Archive");
 
+                if not CompanyBankAccount.Get("Sales Header Archive"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
+
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 CalcFields("No. of Archived Versions");
@@ -792,6 +795,7 @@
         PaymentTerms: Record "Payment Terms";
         PrepmtPaymentTerms: Record "Payment Terms";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo3: Record "Company Information";
         CompanyInfo1: Record "Company Information";

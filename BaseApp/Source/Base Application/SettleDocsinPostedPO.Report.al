@@ -227,7 +227,7 @@ report 7000082 "Settle Docs. in Posted PO"
                 if PostedPmtOrd."Currency Code" <> '' then begin
                     if SumLCYAmt <> 0 then begin
                         Currency.SetFilter(Code, PostedPmtOrd."Currency Code");
-                        Currency.FindFirst;
+                        Currency.FindFirst();
                         if SumLCYAmt > 0 then begin
                             Currency.TestField("Residual Gains Account");
                             Acct := Currency."Residual Gains Account";
@@ -263,15 +263,15 @@ report 7000082 "Settle Docs. in Posted PO"
                 Window.Close;
 
                 if (Counter > 1) and GLSetup."Unrealized VAT" and ExistVATEntry and ExistInvoice then begin
-                    if VATEntry.FindLast then
+                    if VATEntry.FindLast() then
                         ToVATEntryNo := VATEntry."Entry No.";
-                    GLReg.FindLast;
+                    GLReg.FindLast();
                     GLReg."From VAT Entry No." := FromVATEntryNo;
                     GLReg."To VAT Entry No." := ToVATEntryNo;
                     GLReg.Modify();
                 end else begin
                     if ExistVATEntry then begin
-                        GLReg.FindLast;
+                        GLReg.FindLast();
                         GLReg."From VAT Entry No." := FirstVATEntryNo;
                         GLReg."To VAT Entry No." := LastVATEntryNo;
                         GLReg.Modify();
@@ -306,7 +306,7 @@ report 7000082 "Settle Docs. in Posted PO"
                 Counter := Count;
                 if (Counter > 1) and GLSetup."Unrealized VAT" then begin
                     VATEntry.LockTable();
-                    if VATEntry.FindLast then
+                    if VATEntry.FindLast() then
                         FromVATEntryNo := VATEntry."Entry No." + 1;
                 end;
             end;

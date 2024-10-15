@@ -219,8 +219,8 @@ codeunit 147554 "SII Collection In Cash"
 
         // [GIVEN] Changed customer's name to "PSG", "VAT Registration No." to "Z", "Country/Region Code" = "FR"
         Customer.Get(CustNo);
-        Customer.Name := LibraryUtility.GenerateGUID;
-        Customer."VAT Registration No." := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
+        Customer."VAT Registration No." := LibraryUtility.GenerateGUID();
         LibraryERM.CreateCountryRegion(CountryRegion);
         Customer."Country/Region Code" := CountryRegion.Code;
         Customer.Modify();
@@ -326,7 +326,7 @@ codeunit 147554 "SII Collection In Cash"
         SIIDocUploadState.DeleteAll();
         SIIHistory.DeleteAll();
         LibrarySII.InitSetup(EnableSII, false);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -374,7 +374,7 @@ codeunit 147554 "SII Collection In Cash"
     begin
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
         CustNo := Customer."No.";
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         PostPmtAppliedToSalesInvWithAmount(EntryAmount, CustNo, GLAccNo, VATPostingSetup);
     end;
 
@@ -407,7 +407,7 @@ codeunit 147554 "SII Collection In Cash"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", CustomerNo);
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
         exit(SalesInvoiceHeader."No.");
     end;
 
@@ -419,7 +419,7 @@ codeunit 147554 "SII Collection In Cash"
         LibraryVariableStorage.Enqueue(MinAmountCash);
         LibraryVariableStorage.Enqueue(CashGLAccNo);
         Make347Declaration.SetCollectionInCashMode(true);
-        Make347Declaration.RunModal;
+        Make347Declaration.RunModal();
     end;
 
     local procedure GetSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; PostingDate: Date; CustomerNo: Code[20])
@@ -427,14 +427,14 @@ codeunit 147554 "SII Collection In Cash"
         SIIDocUploadState.SetRange("Transaction Type", SIIDocUploadState."Transaction Type"::"Collection In Cash");
         SIIDocUploadState.SetRange("Posting Date", PostingDate);
         SIIDocUploadState.SetRange("CV No.", CustomerNo);
-        SIIDocUploadState.FindFirst;
+        SIIDocUploadState.FindFirst();
     end;
 
     local procedure GetSIIHistory(var SIIHistory: Record "SII History"; DocUploadStateID: Integer)
     begin
         SIIHistory.SetRange("Upload Type", SIIHistory."Upload Type"::"Collection In Cash");
         SIIHistory.SetRange("Document State Id", DocUploadStateID);
-        SIIHistory.FindLast; // there could be multiple entries and "Retry Accepted" will be in the last one
+        SIIHistory.FindLast(); // there could be multiple entries and "Retry Accepted" will be in the last one
     end;
 
     local procedure UpdateStateAcceptedOfSIIDocUploadStateAndHistory(PostingDate: Date; CustomerNo: Code[20])

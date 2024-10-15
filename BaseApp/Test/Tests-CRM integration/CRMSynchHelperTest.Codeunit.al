@@ -787,7 +787,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         LibrarySales.CreateSalesInvoice(SalesHeader);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         SalesInvoiceHeader.CalcFields(Amount);
     end;

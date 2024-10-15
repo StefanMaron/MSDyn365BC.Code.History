@@ -307,7 +307,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         CustomerOverduePayments.SetTableView(Customer);
         CustomerOverduePayments.InitReportParameters(ReportStartDate, ReportEndDate, ShowPayments);
         Commit();
-        CustomerOverduePayments.Run;
+        CustomerOverduePayments.Run();
     end;
 
     local procedure GetAmount(): Integer

@@ -43,7 +43,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrdersAnalysisTestPage: TestPage "Post. Payment Orders Analysis";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -55,7 +55,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostPaymentOrderLCY(PaymentOrder);
 
         PostedPaymentOrder.SetFilter("No.", PaymentOrder."No.");
-        PostedPaymentOrder.FindFirst;
+        PostedPaymentOrder.FindFirst();
 
         PostedPaymentOrdersAnalysisTestPage.OpenEdit;
         PostedPaymentOrdersAnalysisTestPage.GotoRecord(PostedPaymentOrder);
@@ -75,7 +75,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PurchInvHeader: Record "Purch. Inv. Header";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -86,10 +86,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // Verify
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", Vendor."No.");
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         PurchInvHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields("Amount Including VAT");
         PurchInvHeader.TestField("Amount Including VAT", CarteraDoc."Remaining Amount");
     end;
@@ -104,7 +104,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(false, false, true);
@@ -118,11 +118,11 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // Verify
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", Vendor."No.");
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.TestField("Currency Code", CurrencyCode);
 
         PurchInvHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields("Amount Including VAT");
         PurchInvHeader.TestField("Amount Including VAT", CarteraDoc."Remaining Amount");
     end;
@@ -137,7 +137,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         BillNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Invoice to Cartera = Yes
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -164,7 +164,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Invoice to Cartera = Yes
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -192,7 +192,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -222,7 +222,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -255,7 +255,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         InvoiceDocumentNo: Code[20];
         BillDocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(VendorRelatedToBill, LocalCurrencyCode);
@@ -302,7 +302,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         InvoiceDocumentNo: Code[20];
         PaymentOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(false, false, true);
@@ -353,7 +353,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         InvoiceDocumentNo: Code[20];
         BillDocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -388,7 +388,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -422,7 +422,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
         PaymentOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(false, false, true);
@@ -464,7 +464,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         ClosedPaymentOrder: Record "Closed Payment Order";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -507,7 +507,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Vendor: Record Vendor;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -551,7 +551,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         ClosedPaymentOrderTestPage: TestPage "Closed Payment Orders";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -560,12 +560,12 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // Exercise
         LibraryCarteraPayables.CreateCarteraPaymentOrder(BankAccount, PaymentOrder, LocalCurrencyCode);
         AddCarteraDocumentToPaymentOrder(PaymentOrder."No.", DocumentNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         PostPaymentOrderLCY(PaymentOrder);
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrder."No.", DocumentNo);
 
         ClosedPaymentOrder.SetRange("No.", PaymentOrder."No.");
-        ClosedPaymentOrder.FindFirst;
+        ClosedPaymentOrder.FindFirst();
 
         ClosedPaymentOrderTestPage.OpenEdit;
         ClosedPaymentOrderTestPage.GotoRecord(ClosedPaymentOrder);
@@ -576,7 +576,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Verify
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         ClosedCarteraDoc.TestField(Redrawn, true);
 
         VerifyBankLedgerEntriesAmountSumEqualsZero(PaymentOrder."Bank Account No.");
@@ -598,7 +598,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
         PaymentOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(false, false, true);
@@ -611,7 +611,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryCarteraPayables.CreateBankAccount(BankAccount, CurrencyCode);
         PaymentOrderNo := CreatePaymentOrder(CurrencyCode, BankAccount."No.");
         AddCarteraDocumentToPaymentOrder(PaymentOrderNo, DocumentNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderNotPrintedQst, PaymentOrder.TableCaption));
         LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption, PaymentOrderNo));
@@ -619,7 +619,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrderNo, DocumentNo);
 
         ClosedPaymentOrder.SetRange("No.", PaymentOrderNo);
-        ClosedPaymentOrder.FindFirst;
+        ClosedPaymentOrder.FindFirst();
 
         ClosedPaymentOrderTestPage.OpenEdit;
         ClosedPaymentOrderTestPage.GotoRecord(ClosedPaymentOrder);
@@ -630,7 +630,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // Verify
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         ClosedCarteraDoc.TestField(Redrawn, true);
 
         VerifyBankLedgerEntriesAmountSumEqualsZero(BankAccount."No.");
@@ -655,7 +655,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         ExtDocNo: Code[35];
     begin
         // [SCENARIO] Redraw one Bill from Posted Payment Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 Cartera Bills where 1st document has "External Document No." = "ExtNo1"
         PrepareVendorRelatedRecords(Vendor, LocalCurrencyCode);
@@ -669,15 +669,15 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AddCarteraDocumentToPaymentOrder(PaymentOrder."No.", DocumentNo1);
         AddCarteraDocumentToPaymentOrder(PaymentOrder."No.", DocumentNo2);
 
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         PostPaymentOrderLCY(PaymentOrder);
         TotalSettlementOnItemInPostedPaymentOrder(PaymentOrder."No.", DocumentNo1);
 
         PostedCarteraDoc.SetFilter("Document No.", DocumentNo1);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         PostedPaymentOrder.SetFilter("No.", PaymentOrder."No.");
-        PostedPaymentOrder.FindFirst;
+        PostedPaymentOrder.FindFirst();
 
         PostedPaymentOrderTestPage.OpenEdit;
         PostedPaymentOrderTestPage.GotoRecord(PostedPaymentOrder);
@@ -694,7 +694,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         // [THEN] Payable Payable Doc has marked as Redrawn
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo1);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         ClosedCarteraDoc.TestField(Redrawn, true);
 
         // [THEN] 1st Cartera Bill is opened and "External Document No." = "ExtNo1" (TFS 381929)
@@ -716,7 +716,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Payment Order] [Currency]
         // [SCENARIO 374792] Post Payment Order for Purch. Invoice with FCY and modified Currency Factor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for WORKDATE
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(false, false, true));
@@ -752,7 +752,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Payment Order] [Currency]
         // [SCENARIO 374792] Post Payment Order for Purch. Invoice with FCY and different Exch. Rates between Posting Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for Date = "Date1"
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(false, false, true));
@@ -787,7 +787,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Payment Order] [Currency]
         // [SCENARIO 374792] Post Payment Order for Gen. Journal Line of "Bill" Type with FCY and modified Currency Factor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for WORKDATE
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(false, false, true));
@@ -822,7 +822,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Payment Order] [Currency]
         // [SCENARIO 374792] Post Payment Order for Gen. Journal Line of "Bill" Type with FCY and different Exch. Rates between Posting Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for Date = "Date1"
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(false, false, true));
@@ -845,6 +845,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifyPaymentOrderGLEntryExists(PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Amount (LCY)");
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -862,7 +863,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Purchase Invoice, Payment Order, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
         CurrencyCode := CreateCurrencyForPaymentOrder;
@@ -891,7 +892,56 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterPaymentOrderSameRateAndExchRateAdjustment()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        AmtBank: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Purchase Invoice, Payment Order, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
+        CurrencyCode := CreateCurrencyForPaymentOrder;
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
+
+        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
+        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
+        VerifySettleGLEntries(
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -908,7 +958,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Purchase Invoice, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
         CurrencyCode := CreateCurrencyForPaymentOrder;
@@ -937,7 +987,55 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterPaymentOrderSameRateAndTwoExchRateAdjustments()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtBank: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Purchase Invoice, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
+        CurrencyCode := CreateCurrencyForPaymentOrder;
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
+
+        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
+        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
+
+        // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        RunExchRateAdjustment(CurrencyCode, PostingDate[4]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
+        VerifySettleGLEntries(
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -955,7 +1053,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
         CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
@@ -980,7 +1078,52 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterPaymentOrderDiffRateAndExchRateAdjustment()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        AmtBank: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
+        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
+
+        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
+        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
+        VerifySettleGLEntries(
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -997,7 +1140,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
         CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
@@ -1022,7 +1165,51 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterPaymentOrderDiffRateAndTwoExchRateAdjustments()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
+        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
+
+        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
+        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
+
+        // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        RunExchRateAdjustment(CurrencyCode, PostingDate[4]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
+        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4088.31 (-5000/1.223)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1039,7 +1226,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
         CurrencyCode := CreateCurrencyForPaymentOrder;
@@ -1067,7 +1254,54 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifySettleGLEntries(
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterPaymentOrderDiffRateAndExchangeRateAdjustment()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Purchase Invoice, new Exch.Rate, Payment Order, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
+        CurrencyCode := CreateCurrencyForPaymentOrder;
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+
+        // [GIVEN] Payment Order on Date2 < PostingDate < Date3 for posted Purchase Invoice on Date1 with Amount = 5000.00
+        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
+        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4088.31 (-5000/1.223)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1085,7 +1319,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Purchase Invoice, Adjust Exch.Rate, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
         CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
@@ -1102,6 +1336,56 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
         RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
         RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] 'Realized Gain Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterAdjustmentAndPaymentOrderAndTwoExchRateAdjustments()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Purchase Invoice, Adjust Exch.Rate, Payment Order, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
+        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
+
+        // [GIVEN] Posted Purchase Invoice on Date1 with Amount = 5000.00
+        CreateAndPostInvoiceWOutVAT(Vendor, SettleAmount, InvoiceNo, PostingDate[1], CurrencyCode);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date2
+        RunExchRateAdjustment(CurrencyCode, PostingDate[2]);
+
+        // [GIVEN] Create Payment Order on Date2 < PostingDate < Date3
+        CreateAndPostPaymentOrder(PaymentOrder, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+
+        // [GIVEN] Run Adjust Exchange Rates twice: on Date3 and Date4
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        RunExchRateAdjustment(CurrencyCode, PostingDate[4]);
         Commit();
 
         // [WHEN] Run TotalSettlement on Date4
@@ -1136,12 +1420,12 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         // [FEATURE] [Payment Order] [Currency]
         // [SCENARIO 380643] Total Settlement of Posted Payment Order for Purch. Invoice with latest date and different currency factor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exchange Rate defined for 10.01.16, 15.01.16
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(false, false, true));
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         PaymentPostingDate := CurrencyExchangeRate."Starting Date" - LibraryRandom.RandInt(5);
         PaymentExchRate := CurrencyExchangeRate."Exchange Rate Amount" / 2;
         LibraryERM.CreateExchangeRate(
@@ -1174,6 +1458,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.RecordCount(GLEntry, 2);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1184,7 +1469,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostingDate: array[3] of Date;
     begin
         // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dates: D1 = WORKDATE, D2 = WORKDATE + 1, D3 = WORKDATE + 2
         PostingDate[1] := WorkDate;
@@ -1198,6 +1483,43 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [GIVEN] Adjusted PPI on D2
         LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[2], 0.09, 0.09);
         RunAdjustExchangeRates(PaymentOrder."Currency Code", PostingDate[2]);
+        // [GIVEN] New exchange rate on D3
+        LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[3], 0.08, 0.08);
+        // [WHEN] Settle PPO on D3
+        LibraryVariableStorage.Enqueue(PostingDate[3]);
+        Commit();
+        SettlePostedPaymentOrder(PaymentOrder."No.");
+        // [THEN] PPO is settled
+        VerifySettleGLEntries(
+          PaymentOrder."No.", VendorPostingGroupCode, PaymentOrder."Bank Account No.",
+          -Round(1000 / 0.08 - 1000 / 0.08 - 1000 / 0.09), -12500);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettlePostedFCYPaymentOrderExchRateAdjustment()
+    var
+        PaymentOrder: Record "Payment Order";
+        VendorPostingGroupCode: Code[20];
+        PostingDate: array[3] of Date;
+    begin
+        // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
+        Initialize();
+
+        // [GIVEN] Dates: D1 = WORKDATE, D2 = WORKDATE + 1, D3 = WORKDATE + 2
+        PostingDate[1] := WorkDate;
+        PostingDate[2] := WorkDate + 1;
+        PostingDate[3] := WorkDate + 2;
+        // [GIVEN] Currency (CURR) with exchange rate on D1
+        // [GIVEN] Posted Purchase Invoice (PPI) in CURR on D1
+        // [GIVEN] Posted Payment Order (PPO) in CURR on D3
+        CreatePostedPaymentOrderFCY(PaymentOrder, VendorPostingGroupCode, PostingDate);
+        // [GIVEN] New exchange rate on D2
+        // [GIVEN] Adjusted PPI on D2
+        LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[2], 0.09, 0.09);
+        RunExchRateAdjustment(PaymentOrder."Currency Code", PostingDate[2]);
         // [GIVEN] New exchange rate on D3
         LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[3], 0.08, 0.08);
         // [WHEN] Settle PPO on D3
@@ -1236,7 +1558,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [SCENARIO 363341] TAB 25 "Vendor Ledger Entry".CheckBillSituation() throws an error in case of
         // [SCENARIO 363341] existing open cartera document (payment order) related to current ledger entry
         MockVendLedgEntry(VendorLedgerEntry);
-        MockCarteraDoc(CarteraDoc.Type::Payable, VendorLedgerEntry."Entry No.", LibraryUtility.GenerateGUID());
+        MockCarteraDoc("Cartera Document Type"::Payable, VendorLedgerEntry."Entry No.", LibraryUtility.GenerateGUID());
 
         asserterror VendorLedgerEntry.CheckBillSituation();
 
@@ -1397,7 +1719,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -1431,7 +1753,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -1457,7 +1779,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
     end;
 
@@ -1474,7 +1796,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure PostPaymentOrderLCY(var PaymentOrder: Record "Payment Order")
@@ -1501,7 +1823,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrderTestPage.GotoRecord(PostedPaymentOrder);
 
         PostedCarteraDoc.SetFilter("Document No.", ItemNo);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         PostedPaymentOrderTestPage.Docs.GotoRecord(PostedCarteraDoc);
         LibraryVariableStorage.Enqueue(PostedPaymentOrder."Posting Date");
@@ -1544,7 +1866,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
             SetRange("Vendor No.", VendorNo);
             if IsBill then
                 SetFilter("Bill No.", '<>%1', '');
-            FindFirst;
+            FindFirst();
             Validate("Payment Method Code", PaymentMethodCode);
             Modify(true);
             exit("Bill No.");
@@ -1581,7 +1903,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrdersTestPage: TestPage "Payment Orders";
     begin
         PaymentOrder.SetRange("No.", PaymentOrderNo);
-        PaymentOrder.FindFirst;
+        PaymentOrder.FindFirst();
 
         PaymentOrdersTestPage.OpenEdit;
         PaymentOrdersTestPage.GotoRecord(PaymentOrder);
@@ -1613,7 +1935,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
             SetRange("Document No.", DocumentNo);
             SetRange("Account No.", VendorNo);
             SetRange("No.", BillNo);
-            FindFirst;
+            FindFirst();
             TestField("Payment Method Code", PaymentMethodCode);
         end;
     end;
@@ -1626,7 +1948,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
             SetRange("Document No.", DocumentNo);
             SetRange("Account No.", VendorNo);
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             TestField("Payment Method Code", PaymentMethodCode);
         end;
     end;
@@ -1664,14 +1986,14 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VendorNoInReport: Variant;
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Due Date", CarteraDoc."Due Date");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         VendorDuePayments.SetTableView(VendorLedgerEntry);
-        VendorDuePayments.RunModal;
+        VendorDuePayments.RunModal();
         Clear(VendorDuePayments);
 
         LibraryReportDataset.LoadDataSetFile;
@@ -1690,9 +2012,16 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.AreEqual(DueDate, Format(CarteraDoc."Due Date"), '');
     end;
 
+#if not CLEAN20
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
     begin
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate, PostingDate);
+    end;
+#endif
+
+    local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; PostingDate: Date)
+    begin
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate, PostingDate);
     end;
 
     local procedure RunSettleDocInPostedPO(PaymentOrderNo: Code[20]; PostingDate: Date)
@@ -1701,7 +2030,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         LibraryVariableStorage.Enqueue(PostingDate); // for SettleDocsInPostedPOModalPageHandler
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
         PostedCarteraDoc.SetRecFilter;
         REPORT.RunModal(REPORT::"Settle Docs. in Posted PO", true, false, PostedCarteraDoc);
     end;
@@ -1731,7 +2060,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           GenJournalLine."Document Type"::Bill, GenJournalLine."Account Type"::Vendor,
           VendorNo, GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", -LibraryRandom.RandInt(100));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
-        GenJournalLine.Validate("Bill No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Bill No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
     end;
 
@@ -1752,7 +2081,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         PaymentOrders: TestPage "Payment Orders";
     begin
-        PaymentOrders.OpenNew;
+        PaymentOrders.OpenNew();
 
         LibraryVariableStorage.Enqueue(CurrencyCode);
         PaymentOrders."Currency Code".Activate;
@@ -1903,7 +2232,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure MockCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    local procedure MockCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer; BGPONo: Code[20])
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
@@ -1913,7 +2242,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CarteraDoc.Insert();
     end;
 
-    local procedure MockPostedCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    local procedure MockPostedCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer; BGPONo: Code[20])
     var
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
@@ -1929,7 +2258,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.Validate("Due Date", CalcDate('<1M>', WorkDate));
         CarteraDoc.Modify(true);
     end;
@@ -1956,7 +2285,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
 
         Currency.Get(CurrencyCode);
         GLEntry.SetRange("G/L Account No.", Currency."Realized Gains Acc.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, GainLossAmt);
     end;
 
@@ -1991,7 +2320,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrders: TestPage "Posted Payment Orders";
     begin
         PostedPaymentOrder.SetRange("No.", PaymentOrderNo);
-        PostedPaymentOrder.FindFirst;
+        PostedPaymentOrder.FindFirst();
         PostedPaymentOrders.OpenEdit;
         PostedPaymentOrders.GotoRecord(PostedPaymentOrder);
         PostedPaymentOrders.Docs.TotalSettlement.Invoke;
@@ -2032,7 +2361,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CarteraDoc: Record "Cartera Doc.";
     begin
         CarteraDoc.SetRange("Document No.", LibraryVariableStorage.DequeueText);
-        CarteraDoc.FindLast;
+        CarteraDoc.FindLast();
 
         // From the Cartera Document page, select the record filtered by 'Document No.'
         CarteraDocuments.SetRecord(CarteraDoc);

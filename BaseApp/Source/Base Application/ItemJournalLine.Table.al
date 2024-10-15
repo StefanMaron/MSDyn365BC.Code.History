@@ -50,10 +50,7 @@
                 end;
 
                 if "Item No." = '' then begin
-                    CreateDim(
-                      DATABASE::Item, "Item No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::"Work Center", "Work Center No.");
+                    CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
                     OnValidateItemNoOnAfterCreateDimInitial(Rec);
                     exit;
                 end;
@@ -131,7 +128,7 @@
                             Item.TestField("Inventory Value Zero", false);
                             ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
                             ProdOrderLine.SetRange("Item No.", "Item No.");
-                            if ProdOrderLine.FindFirst then begin
+                            if ProdOrderLine.FindFirst() then begin
                                 "Routing No." := ProdOrderLine."Routing No.";
                                 "Source Type" := "Source Type"::Item;
                                 "Source No." := ProdOrderLine."Item No.";
@@ -176,12 +173,8 @@
 
                 CheckItemAvailable(FieldNo("Item No."));
 
-                if ((not ("Order Type" in ["Order Type"::Production, "Order Type"::Assembly])) or ("Order No." = '')) and not "Phys. Inventory"
-                then
-                    CreateDim(
-                      DATABASE::Item, "Item No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::"Work Center", "Work Center No.");
+                if ((not ("Order Type" in ["Order Type"::Production, "Order Type"::Assembly])) or ("Order No." = '')) and not "Phys. Inventory" then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
 
                 OnBeforeVerifyReservedQty(Rec, xRec, FieldNo("Item No."));
                 ItemJnlLineReserve.VerifyChange(Rec, xRec);
@@ -546,10 +539,7 @@
             trigger OnValidate()
             begin
                 if ("Order Type" <> "Order Type"::Production) or ("Order No." = '') then
-                    CreateDim(
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Item, "Item No.",
-                      DATABASE::"Work Center", "Work Center No.");
+                    CreateDimFromDefaultDim(rec.FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(26; "Source Code"; Code[10])
@@ -881,7 +871,9 @@
             CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Journal Template Name"),
                                                                   "Source Ref. No." = FIELD("Line No."),
                                                                   "Source Type" = CONST(83),
+#pragma warning disable
                                                                   "Source Subtype" = FIELD("Entry Type"),
+#pragma warning restore
                                                                   "Source Batch Name" = FIELD("Journal Batch Name"),
                                                                   "Source Prod. Order Line" = CONST(0),
                                                                   "Reservation Status" = CONST(Reservation)));
@@ -984,7 +976,7 @@
                                     begin
                                         ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
                                         if ProdOrderLine.Count = 1 then begin
-                                            ProdOrderLine.FindFirst;
+                                            ProdOrderLine.FindFirst();
                                             Validate("Order Line No.", ProdOrderLine."Line No.");
                                         end;
                                     end;
@@ -1024,7 +1016,7 @@
                                 ProdOrderLine.SetFilterByReleasedOrderNo("Order No.");
                                 ProdOrderLine.SetRange("Line No.", "Order Line No.");
                                 OnValidateOrderLineNoOnAfterProdOrderLineSetFilters(Rec, ProdOrderLine);
-                                if ProdOrderLine.FindFirst then begin
+                                if ProdOrderLine.FindFirst() then begin
                                     "Source Type" := "Source Type"::Item;
                                     "Source No." := ProdOrderLine."Item No.";
                                     "Order Line No." := ProdOrderLine."Line No.";
@@ -1353,7 +1345,9 @@
             CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Journal Template Name"),
                                                                            "Source Ref. No." = FIELD("Line No."),
                                                                            "Source Type" = CONST(83),
+#pragma warning disable
                                                                            "Source Subtype" = FIELD("Entry Type"),
+#pragma warning restore
                                                                            "Source Batch Name" = FIELD("Journal Batch Name"),
                                                                            "Source Prod. Order Line" = CONST(0),
                                                                            "Reservation Status" = CONST(Reservation)));
@@ -1383,10 +1377,11 @@
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
 #if not CLEAN19
             ObsoleteState = Pending;
-#else
-            ObsoleteState = Removed;
-#endif
             ObsoleteTag = '17.0';
+#else
+                ObsoleteState = Removed;
+                ObsoleteTag = '20.0';
+#endif
         }
         field(5701; "Originally Ordered No."; Code[20])
         {
@@ -1645,10 +1640,7 @@
                     if Type in [Type::"Work Center", Type::"Machine Center"] then
                         CreateDimWithProdOrderLine
                     else
-                        CreateDim(
-                          DATABASE::"Work Center", "Work Center No.",
-                          DATABASE::Item, "Item No.",
-                          DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                        CreateDimFromDefaultDim(Rec.FieldNo("Work Center No."));
                     exit;
                 end;
 
@@ -2412,7 +2404,7 @@
         end;
     end;
 
-    local procedure CheckItemAvailable(CalledByFieldNo: Integer)
+    procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
     begin
@@ -2482,7 +2474,7 @@
         ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         ItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if ItemJnlLine.FindFirst then begin
+        if ItemJnlLine.FindFirst() then begin
             OnSetUpNewLineOnAfterFindItemJnlLine(Rec, ItemJnlLine, LastItemJnlLine);
             "Posting Date" := LastItemJnlLine."Posting Date";
             "Document Date" := LastItemJnlLine."Posting Date";
@@ -2672,6 +2664,7 @@
         ItemJnlLineReserve.CallItemTracking(Rec, IsReclass);
     end;
 
+#if not CLEAN20
     local procedure PickDimension(TableArray: array[10] of Integer; CodeArray: array[10] of Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -2719,6 +2712,7 @@
         TableID[3] := Type3;
     end;
 
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         TableID: array[10] of Integer;
@@ -2728,6 +2722,47 @@
         CreateCodeArray(No, No1, No2, No3);
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
         PickDimension(TableID, No, 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        CreateDim(DefaultDimSource, 0, 0);
+    end;
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        SourceCode: Code[10];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DefaultDimSource, InheritFromDimSetID, InheritFromTableNo);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        if RunEventOnAfterCreateDimTableIDs(DefaultDimSource, InheritFromDimSetID, InheritFromTableNo) then
+            exit;
+#endif
+
+        SourceCode := "Source Code";
+        if SourceCode = '' then
+            if ItemJournalTemplate.Get("Journal Template Name") then
+                SourceCode := ItemJournalTemplate."Source Code";
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCode,
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", InheritFromDimSetID, InheritFromTableNo);
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        if "Entry Type" = "Entry Type"::Transfer then begin
+            "New Dimension Set ID" := "Dimension Set ID";
+            "New Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
+            "New Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
+        end;
     end;
 
     procedure CopyDim(DimesionSetID: Integer)
@@ -2744,12 +2779,12 @@
         "Dimension Set ID" := DimesionSetID;
         DimSetEntry.SetRange("Dimension Set ID", DimesionSetID);
         DimSetEntry.SetRange("Dimension Code", GLSetup."Global Dimension 1 Code");
-        if DimSetEntry.FindFirst then
+        if DimSetEntry.FindFirst() then
             "Shortcut Dimension 1 Code" := DimSetEntry."Dimension Value Code"
         else
             "Shortcut Dimension 1 Code" := '';
         DimSetEntry.SetRange("Dimension Code", GLSetup."Global Dimension 2 Code");
-        if DimSetEntry.FindFirst then
+        if DimSetEntry.FindFirst() then
             "Shortcut Dimension 2 Code" := DimSetEntry."Dimension Value Code"
         else
             "Shortcut Dimension 2 Code" := '';
@@ -2825,17 +2860,15 @@
     var
         ProdOrderLine: Record "Prod. Order Line";
         InheritFromDimSetID: Integer;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         if "Order Type" = "Order Type"::Production then
             if ProdOrderLine.Get(ProdOrderLine.Status::Released, "Order No.", "Order Line No.") then
                 InheritFromDimSetID := ProdOrderLine."Dimension Set ID";
 
-        CreateTableArray(TableID, DATABASE::"Work Center", DATABASE::"Salesperson/Purchaser", 0);
-        CreateCodeArray(No, "Work Center No.", "Salespers./Purch. Code", '');
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        PickDimension(TableID, No, InheritFromDimSetID, DATABASE::Item);
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code");
+        CreateDim(DefaultDimSource, InheritFromDimSetID, Database::Item);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -3756,6 +3789,26 @@
           "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "New Shortcut Dimension 1 Code", "New Shortcut Dimension 2 Code");
     end;
 
+    procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+    begin
+        if ShowAllLinesEnabled then begin
+            MarkedOnly(false);
+            ShowAllLinesEnabled := false;
+        end else begin
+            JournalErrorsMgt.GetErrorMessages(TempErrorMessage);
+            if TempErrorMessage.FindSet() then
+                repeat
+                    if Rec.Get(TempErrorMessage."Context Record ID") then
+                        Rec.Mark(true)
+                until TempErrorMessage.Next() = 0;
+            MarkedOnly(true);
+            ShowAllLinesEnabled := true;
+        end;
+    end;
+
     procedure PostingItemJnlFromProduction(Print: Boolean)
     var
         ProductionOrder: Record "Production Order";
@@ -3940,7 +3993,7 @@
             if TemplateFilter <> '' then
                 ItemJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             ItemJournalBatch.SetFilter(Name, BatchFilter);
-            ItemJournalBatch.FindFirst;
+            ItemJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -3964,16 +4017,16 @@
 
     procedure CheckTrackingIsEmpty()
     begin
-        ItemJnlLine.TestField("Serial No.", '');
-        ItemJnlLine.TestField("Lot No.", '');
+        TestField("Serial No.", '');
+        TestField("Lot No.", '');
 
         OnAfterCheckTrackingisEmpty(Rec);
     end;
 
     procedure CheckNewTrackingIsEmpty()
     begin
-        ItemJnlLine.TestField("New Serial No.", '');
-        ItemJnlLine.TestField("New Lot No.", '');
+        TestField("New Serial No.", '');
+        TestField("New Lot No.", '');
 
         OnAfterCheckNewTrackingisEmpty(Rec);
     end;
@@ -4083,6 +4136,64 @@
             exit(ProdOrderComponent.FindFirst());
 
         exit(false);
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Item Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Item Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer) IsHandled: Boolean
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Item Journal Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        OnBeforePickDimension(Rec, IsHandled, CurrFieldNo, TableID, No, InheritFromDimSetID, InheritFromTableNo);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -4240,11 +4351,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ItemJournalLine: Record "Item Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterReadGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
@@ -4616,11 +4729,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePickDimension(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer; TableArray: array[10] of Integer; CodeArray: array[10] of Code[20]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateUnitAmountOnAfterCalcQtyPerUnitOfMeasure(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line")
     begin

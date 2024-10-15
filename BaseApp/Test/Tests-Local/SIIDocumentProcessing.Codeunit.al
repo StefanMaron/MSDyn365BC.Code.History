@@ -49,7 +49,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Invoice] [Purchase]
         // [SCENARIO 220620] Cassie can post purchase invoice with "Invoice Type" = "F5 Imports (DUA)" without sending to web service
         // [SCENARIO 233508] Purchase Invoice with "Invoice Type" = "F5 Imports (DUA)" is supported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase invoice with "Invoice Type" = "F5 Imports (DUA)"
@@ -161,7 +161,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Journal] [Purchae] [Invoice]
         // [SCENARIO] Posting vendor's invoice generates SII Doc. Upload State entry when SII Setup is enabled
         // [SCENARIO 375398] SII Version is 1.1bis in SII Doc. Upload State generated from purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Journal line with type "Invoice" for vendor
@@ -203,7 +203,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Journal] [Sales] [Credit Memo]
         // [SCENARIO] Posting customer's credit memo generates SII Doc. Upload State entry when SII Setup is enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Journal line with type "Credit Memo" for customer
@@ -234,7 +234,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Journal] [Purchase] [Credit Memo]
         // [SCENARIO] Posting vendor's credit memo generates SII Doc. Upload State entry when SII Setup is enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Journal line with type "Credit Memo" for vendor
@@ -268,7 +268,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Journal] [Sales] [Credit Memo]
         // [SCENARIO 221933] Stan can generte SII XML file for Posted Sales Credit Memo created from Journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Posted Credit Memo from Journal
@@ -301,7 +301,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Journal] [Purchase] [Credit Memo]
         // [SCENARIO 221933] Stan can generate SII XML file for Posted Purch Credit Memo created from Journal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Posted Credit Memo from Journal
@@ -333,7 +333,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Intracommunity] [UT] [Sales]
         // [SCENARIO] Only SII History with "Upload Type" equals "Intracommunity" creates when create request for document with Intracommunity customer
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Ledger Entry with Intracommunity Customer
         MockCustLedgEntryWithIntracommunityCust(CustLedgerEntry);
@@ -367,7 +367,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Intracommunity] [UT] [Purchase]
         // [SCENARIO] Only SII History with "Upload Type" equals "Intracommunity" creates when create request for document with Intracommunity vendor
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Ledger Entry with Intracommunity Vendor
         MockVendLedgEntryWithIntracommunityVend(VendorLedgerEntry);
@@ -404,7 +404,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] It must be possible to post Sales Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         // [SCENARIO 233508] Sales Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Sales invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
@@ -435,7 +435,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] It must be possible to post Sales Invoice with "Invoice Type" = "F4 Invoice summary entry"
         // [SCENARIO 233508] Sales Invoice with "Invoice Type" = "F4 Invoice summary entry" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Sales invoice with "Invoice Type" = "F4 Invoice summary entry"
@@ -465,7 +465,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Invoice] [Purchase]
         // [SCENARIO 220620] Cassie can post purchase invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices" without sending to web service
         // [SCENARIO 233508] Purchase Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices" is supported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
@@ -495,7 +495,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Invoice] [Purchase]
         // [SCENARIO 220620] Cassie can post purchase invoice with "Invoice Type" = "F4 Invoice summary entry" without sending to web service
         // [SCENARIO 233508] Purchase Invoice with "Invoice Type" = "F4 Invoice summary entry" is supported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase invoice with "Invoice Type" = "F4 Invoice summary entry"
@@ -526,7 +526,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Invoice] [Purchase]
         // [SCENARIO 220620] Cassie can post purchase invoice with "Invoice Type" = "F6 Accounting support material" without sending to web service
         // [SCENARIO 233508] Purchase Invoice with "Invoice Type" = "F6 Accounting support material" is supported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase invoice with "Invoice Type" = "F6 Accounting support material"
@@ -558,7 +558,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] It must be possible to post Sales Credit Memo with "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [SCENARIO 233508] Sales Credit Memo with "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Sales Credit Memo with "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
@@ -590,7 +590,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] It must be possible to post Sales Credit Memo with "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         // [SCENARIO 233508] Sales Credit Memo with "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Sales Credit Memo with "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
@@ -622,7 +622,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] It must be possible to post Sales Credit Memo with "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         // [SCENARIO 233508] Sales Credit Memo with "Cr. Memo Type" = "R4 Corrected Invoice (Other)" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Sales Credit Memo with "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
@@ -654,7 +654,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] Cassie can post purchase Credit Memo with "Invoice Type" = "R2 Corrected Invoice (Art. 80.3)" without sending to web service
         // [SCENARIO 233508] Purchase Credit Memo with "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase Credit Memo with "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
@@ -684,7 +684,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 220620] Cassie can post purchase Credit Memo with "Invoice Type" = "R3 Corrected Invoice (Art. 80.4)" without sending to web service
         // [SCENARIO 233508] Purchase Credit Memo with "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)" is supported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase Credit Memo with "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
@@ -715,7 +715,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 220620] Cassie can post purchase Credit Memo with "Invoice Type" = "R4 Corrected Invoice (Other)" without sending to web service
         // [SCENARIO 233508] Purchase Credit Memo with "Cr. Memo Type" = "R4 Corrected Invoice (Other)" is supported
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] Purchase Credit Memo with "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
@@ -742,10 +742,10 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Purchase] [Invoice] [UT]
         // [SCENARIO 224053] "SII Status" of Posted Purchase Invoice refers to status of related "SII Doc. Upload State" record
 
-        Initialize;
+        Initialize();
 
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader.Insert();
 
         MockSIIDocUploadStateWithIncorrectStatus(
@@ -769,10 +769,10 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Sales] [Invoice] [UT]
         // [SCENARIO 224053] "SII Status" of Posted Sales Invoice refers to status of related "SII Doc. Upload State" record
 
-        Initialize;
+        Initialize();
 
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Insert();
 
         MockSIIDocUploadStateWithIncorrectStatus(
@@ -796,10 +796,10 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Service] [Invoice] [UT]
         // [SCENARIO 224053] "SII Status" of Posted Service Invoice refers to status of related "SII Doc. Upload State" record
 
-        Initialize;
+        Initialize();
 
         ServiceInvoiceHeader.Init();
-        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader.Insert();
 
         MockSIIDocUploadStateWithIncorrectStatus(
@@ -823,10 +823,10 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Purchase] [Credit Memo] [UT]
         // [SCENARIO 224053] "SII Status" of Posted Purchase Credit Memo refers to status of related "SII Doc. Upload State" record
 
-        Initialize;
+        Initialize();
 
         PurchCrMemoHdr.Init();
-        PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID;
+        PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID();
         PurchCrMemoHdr.Insert();
 
         MockSIIDocUploadStateWithIncorrectStatus(
@@ -850,10 +850,10 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Sales] [Credit Memo] [UT]
         // [SCENARIO 224053] "SII Status" of Posted Sales Credit Memo refers to status of related "SII Doc. Upload State" record
 
-        Initialize;
+        Initialize();
 
         SalesCrMemoHeader.Init();
-        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader.Insert();
 
         MockSIIDocUploadStateWithIncorrectStatus(
@@ -877,10 +877,10 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [Service] [Credit Memo] [UT]
         // [SCENARIO 224053] "SII Status" of Posted Service Credit Memo refers to status of related "SII Doc. Upload State" record
 
-        Initialize;
+        Initialize();
 
         ServiceCrMemoHeader.Init();
-        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         ServiceCrMemoHeader.Insert();
 
         MockSIIDocUploadStateWithIncorrectStatus(
@@ -908,7 +908,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Sales] [Invoice] [EU Service] [Reverse Charge VAT]
         // [SCENARIO 225529] SII XML request does not contain tag 'sii:Entrega' for EU Service intracommunity sales invoice with Reverse Charge VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] EU Service reverse charge VAT Posting Setup "V"
@@ -944,7 +944,7 @@ codeunit 147522 "SII Document Processing"
     begin
         // [FEATURE] [Sales] [Credit Memo] [EU Service] [Reverse Charge VAT]
         // [SCENARIO 225529] SII XML request does not contain tag 'sii:Entrega' for EU Service intracommunity sales invoice with Reverse Charge VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled SII Setup
         // [GIVEN] EU Service reverse charge VAT Posting Setup "V"
@@ -982,11 +982,11 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [UT] [Job Queue]
         // [SCENARIO 251642] Job Queue Entry created via SII Job Management codeunit has disabled "Notify on Success"
 
-        Initialize;
+        Initialize();
 
         JobQueueEntry.DeleteAll();
         SIIJobManagement.RenewJobQueueEntry(JobType::HandlePending);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.TestField("Notify On Success", false);
         JobQueueEntry.TestField("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.TestField("Object ID to Run", CODEUNIT::"SII Job Upload Pending Docs.");
@@ -1188,7 +1188,7 @@ codeunit 147522 "SII Document Processing"
         LibrarySII.InitSetup(true, false);
 
         // [GIVEN] Posted Sales Invoice "X" and "Posting Date" = "Y"
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         PostingDate := LibraryRandom.RandDate(10);
         DocNo := MockSalesInvoiceDocWithEntry(CustNo, PostingDate);
 
@@ -1281,7 +1281,7 @@ codeunit 147522 "SII Document Processing"
         LibrarySII.InitSetup(true, false);
 
         // [GIVEN] Posted Purchase Invoice "X" and "Document Date" = "Y"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         DocDate := LibraryRandom.RandDate(10);
         DocNo := MockPurchInvoiceDocWithEntry(VendNo, DocDate);
 
@@ -1332,7 +1332,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [UT]
         // [SCENARIO 263060] It is possible to set specific version for IDVersionSii node through function SetSIIVersionNo of codeunit SII XML Creator
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted invoice
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -1367,7 +1367,7 @@ codeunit 147522 "SII Document Processing"
         // [FEATURE] [UT]
         // [SCENARIO 341899] Stan cannot submit the document to SII if the SuministroInformacion Schema or SuministroLR Schema is not specified
 
-        Initialize;
+        Initialize();
 
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
@@ -1376,7 +1376,7 @@ codeunit 147522 "SII Document Processing"
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
-        SIISetup.Get;
+        SIISetup.Get();
         SIISetup."SuministroInformacion Schema" := '';
         SIISetup.Modify;
 
@@ -1407,14 +1407,14 @@ codeunit 147522 "SII Document Processing"
     begin
         // [SCENARIO 316847] An isolated certificate not removes if it is used in the SII Setup and user cancels the confirmation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Isolated certificate "A"
         IsolatedCertificate.Init;
         IsolatedCertificate.Insert(true);
 
         // [GIVEN] SII setup with "Certificate Code" = "A"
-        SIISetup.Get;
+        SIISetup.Get();
         SIISetup."Certificate Code" := IsolatedCertificate.Code;
         SIISetup.Modify;
         Commit;
@@ -1448,14 +1448,14 @@ codeunit 147522 "SII Document Processing"
     begin
         // [SCENARIO 316847] An isolated certificate removes if it is used in the SII Setup and user confirms
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Isolated certificate "A"
         IsolatedCertificate.Init;
         IsolatedCertificate.Insert(true);
 
         // [GIVEN] SII setup with "Certificate Code" = "A"
-        SIISetup.Get;
+        SIISetup.Get();
         SIISetup."Certificate Code" := IsolatedCertificate.Code;
         SIISetup.Modify;
         Commit;
@@ -1678,7 +1678,7 @@ codeunit 147522 "SII Document Processing"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -1834,7 +1834,7 @@ codeunit 147522 "SII Document Processing"
         CustLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         CustLedgerEntry."Posting Date" := WorkDate;
         CreateIntraCommunityCustomer(Customer);
         CustLedgerEntry."Sell-to Customer No." := Customer."No.";
@@ -1850,7 +1850,7 @@ codeunit 147522 "SII Document Processing"
         VendorLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
-        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         VendorLedgerEntry."Posting Date" := WorkDate;
         CreateIntraCommunityVendor(Vendor);
         VendorLedgerEntry."Buy-from Vendor No." := Vendor."No.";
@@ -1877,7 +1877,7 @@ codeunit 147522 "SII Document Processing"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Bill-to Customer No." := CustNo;
         SalesInvoiceHeader."Posting Date" := PostingDate;
         SalesInvoiceHeader.Insert();
@@ -1897,7 +1897,7 @@ codeunit 147522 "SII Document Processing"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader."Pay-to Vendor No." := VendNo;
         PurchInvHeader."Document Date" := DocDate;
         PurchInvHeader.Insert();
@@ -1937,7 +1937,7 @@ codeunit 147522 "SII Document Processing"
     local procedure VerifySIIHistoryByStateIdIsSupported(var SIIHistory: Record "SII History"; DocType: Enum "SII Doc. Upload State Document Type"; DocNo: Code[20]; DocSource: Enum "SII Doc. Upload State Document Source")
     begin
         FilterSIIHistory(SIIHistory, DocType, DocNo, DocSource);
-        SIIHistory.FindFirst;
+        SIIHistory.FindFirst();
         Assert.IsFalse(SIIHistory.Status = SIIHistory.Status::"Not Supported", 'Document is not supported');
     end;
 
@@ -1957,7 +1957,7 @@ codeunit 147522 "SII Document Processing"
         with SIIHistory do begin
             SetRange("Document State Id", DocumentStateId);
             Assert.RecordCount(SIIHistory, 1);
-            FindLast;
+            FindLast();
             TestField(Status, ExpectedStatus);
             Assert.ExpectedMessage(ExpectedErrorMessage, "Error Message");
             TestField("Upload Type", ExpectedUploadType);

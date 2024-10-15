@@ -32,7 +32,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Sales] [Document]
         // [SCENARIO 261095] Stan can specify the existing value of Sales Invoice in field "Corrected Invoice No." of Sales Credit Memo
 
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         DocNo := MockSalesInvoice(CustNo);
 
         SalesHeader.Init();
@@ -51,11 +51,11 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Sales] [Document]
         // [SCENARIO 261095] Stan cannot specify the not existed value of Sales Invoice in field "Corrected Invoice No." of Sales Credit Memo
 
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
 
         SalesHeader.Init();
         SalesHeader.Validate("Bill-to Customer No.", CustNo);
-        asserterror SalesHeader.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID);
+        asserterror SalesHeader.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
         Assert.ExpectedError(CorrInvDoesNotExistErr);
     end;
 
@@ -70,7 +70,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Purchase] [Document]
         // [SCENARIO 261095] Stan can specify the existing value of Purchase Invoice in field "Corrected Invoice No." of Purchase Credit Memo
 
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         DocNo := MockPurchInvoice(VendNo);
 
         PurchHeader.Init();
@@ -89,11 +89,11 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Purchase] [Document]
         // [SCENARIO 261095] Stan can specify the not existed value of Purchase Invoice in field "Corrected Invoice No." of Purchase Credit Memo
 
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
 
         PurchHeader.Init();
         PurchHeader.Validate("Pay-to Vendor No.", VendNo);
-        asserterror PurchHeader.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID);
+        asserterror PurchHeader.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
         Assert.ExpectedError(CorrInvDoesNotExistErr);
     end;
 
@@ -121,7 +121,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [SCENARIO 261095] Stan cannot specify "Corrected Invoice No." in General Journal Line with "Document Type" = Invoice
 
         GenJournalLine.Init();
-        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID);
+        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
         Assert.ExpectedError(DocumentTypeMustBeCrMemoErr);
     end;
 
@@ -151,7 +151,7 @@ codeunit 144073 "ERM Corrected Invoice"
 
         GenJournalLine.Init();
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::"Credit Memo");
-        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID);
+        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
         Assert.ExpectedError(IncorrectAccOrBalAccTypeErr);
     end;
 
@@ -166,7 +166,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Sales] [Journal]
         // [SCENARIO 261095] Stan can specify the existing value of Sales Invoice in field "Corrected Invoice No." of General Journal Line
 
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         DocNo := MockSalesInvoice(CustNo);
 
         GenJournalLine.Init();
@@ -187,13 +187,13 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Sales] [Journal]
         // [SCENARIO 261095] Stan cannot specify the not existed value of Sales Invoice in field "Corrected Invoice No." of General Journal Line
 
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
 
         GenJournalLine.Init();
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::"Credit Memo");
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Account Type"::Customer);
         GenJournalLine.Validate("Bal. Account No.", CustNo);
-        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID);
+        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
         Assert.ExpectedError(CorrInvDoesNotExistErr);
     end;
 
@@ -208,7 +208,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Purchase] [Journal]
         // [SCENARIO 261095] Stan can specify the existing value of Purchase Invoice in field "Corrected Invoice No." of General Journal Line
 
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         DocNo := MockPurchInvoice(VendNo);
 
         GenJournalLine.Init();
@@ -229,13 +229,13 @@ codeunit 144073 "ERM Corrected Invoice"
         // [FEATURE] [Purchase] [Journal]
         // [SCENARIO 261095] Stan cannot specify the not existed value of Purchase Invoice in field "Corrected Invoice No." of General Journal Line
 
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
 
         GenJournalLine.Init();
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::"Credit Memo");
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Account Type"::Vendor);
         GenJournalLine.Validate("Bal. Account No.", VendNo);
-        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID);
+        asserterror GenJournalLine.Validate("Corrected Invoice No.", LibraryUtility.GenerateGUID());
         Assert.ExpectedError(CorrInvDoesNotExistErr);
     end;
 
@@ -254,7 +254,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [SCENARIO 267532] then "Corrected Invoice No." = Posted Sales Invoice "No."
 
         // [GIVEN] Posted Sales Invoice "I"
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ExpectedInvoiceNo := MockSalesInvoice(CustNo);
         LibraryVariableStorage.Enqueue(ExpectedInvoiceNo);
 
@@ -286,7 +286,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [SCENARIO 267532] then "Corrected Invoice No." = Posted Purchase Invoice "No."
 
         // [GIVEN] Posted Purchase Invoice "I"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         ExpectedInvoiceNo := MockPurchInvoice(VendorNo);
         LibraryVariableStorage.Enqueue(ExpectedInvoiceNo);
 
@@ -318,7 +318,7 @@ codeunit 144073 "ERM Corrected Invoice"
         // [SCENARIO 267532] then "Corrected Invoice No." = Posted Service Invoice "No."
 
         // [GIVEN] Posted Service Invoice "I"
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         ExpectedInvoiceNo := MockServiceInvoice(CustNo);
         LibraryVariableStorage.Enqueue(ExpectedInvoiceNo);
 
@@ -564,7 +564,7 @@ codeunit 144073 "ERM Corrected Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Bill-to Customer No." := CustNo;
         SalesInvoiceHeader.Insert();
         exit(SalesInvoiceHeader."No.");
@@ -575,7 +575,7 @@ codeunit 144073 "ERM Corrected Invoice"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader."Pay-to Vendor No." := VendNo;
         PurchInvHeader.Insert();
         exit(PurchInvHeader."No.");
@@ -586,7 +586,7 @@ codeunit 144073 "ERM Corrected Invoice"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.Init();
-        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader."Bill-to Customer No." := CustNo;
         ServiceInvoiceHeader.Insert();
         exit(ServiceInvoiceHeader."No.");

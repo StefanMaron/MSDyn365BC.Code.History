@@ -200,7 +200,7 @@ page 35306 "Cartera Fact. Statistics FB"
             SetRange("Document Status", "Document Status"::Open);
             CustLedgEntriesForm.SetTableView(CustLedgEntry);
             CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal;
+            CustLedgEntriesForm.RunModal();
             SetRange("Document Status");
             SetRange("Document Situation");
         end;
@@ -238,7 +238,7 @@ page 35306 "Cartera Fact. Statistics FB"
             SetRange("Document Status", "Document Status"::Honored);
             CustLedgEntriesForm.SetTableView(CustLedgEntry);
             CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal;
+            CustLedgEntriesForm.RunModal();
             SetRange("Document Status");
             SetRange("Document Situation");
         end;
@@ -276,7 +276,7 @@ page 35306 "Cartera Fact. Statistics FB"
             SetRange("Document Status", "Document Status"::Rejected);
             CustLedgEntriesForm.SetTableView(CustLedgEntry);
             CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal;
+            CustLedgEntriesForm.RunModal();
             SetRange("Document Status");
             SetRange("Document Situation");
         end;

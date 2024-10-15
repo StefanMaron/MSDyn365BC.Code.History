@@ -1,4 +1,4 @@
-page 9030 "Account Manager Activities"
+﻿page 9030 "Account Manager Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;
@@ -12,13 +12,13 @@ page 9030 "Account Manager Activities"
             cuegroup(Payments)
             {
                 Caption = 'Payments';
-                field("Overdue Sales Documents"; "Overdue Sales Documents")
+                field("Overdue Sales Documents"; Rec."Overdue Sales Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Customer Ledger Entries";
                     ToolTip = 'Specifies the number of invoices where the customer is late with payment.';
                 }
-                field("Purchase Documents Due Today"; "Purchase Documents Due Today")
+                field("Purchase Documents Due Today"; Rec."Purchase Documents Due Today")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor Ledger Entries";
@@ -62,13 +62,13 @@ page 9030 "Account Manager Activities"
             cuegroup("Document Approvals")
             {
                 Caption = 'Document Approvals';
-                field("POs Pending Approval"; "POs Pending Approval")
+                field("POs Pending Approval"; Rec."POs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of purchase orders that are pending approval.';
                 }
-                field("SOs Pending Approval"; "SOs Pending Approval")
+                field("SOs Pending Approval"; Rec."SOs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Sales Order List";
@@ -132,7 +132,7 @@ page 9030 "Account Manager Activities"
             cuegroup("Cash Management")
             {
                 Caption = 'Cash Management';
-                field("Non-Applied Payments"; "Non-Applied Payments")
+                field("Non-Applied Payments"; Rec."Non-Applied Payments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Reconciliation Journals';
@@ -161,19 +161,19 @@ page 9030 "Account Manager Activities"
             cuegroup("Incoming Documents")
             {
                 Caption = 'Incoming Documents';
-                field("New Incoming Documents"; "New Incoming Documents")
+                field("New Incoming Documents"; Rec."New Incoming Documents")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Incoming Documents";
                     ToolTip = 'Specifies the number of new incoming documents in the company. The documents are filtered by today''s date.';
                 }
-                field("Approved Incoming Documents"; "Approved Incoming Documents")
+                field("Approved Incoming Documents"; Rec."Approved Incoming Documents")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Incoming Documents";
                     ToolTip = 'Specifies the number of approved incoming documents in the company. The documents are filtered by today''s date.';
                 }
-                field("OCR Completed"; "OCR Completed")
+                field("OCR Completed"; Rec."OCR Completed")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Incoming Documents";
@@ -191,33 +191,6 @@ page 9030 "Account Manager Activities"
                         ToolTip = 'Process new incoming electronic documents that have been created by the OCR service and that you can convert to, for example, purchase invoices.';
                         Visible = ShowCheckForOCR;
                     }
-                }
-            }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
                 }
             }
             cuegroup(MissingSIIEntries)
@@ -254,35 +227,33 @@ page 9030 "Account Manager Activities"
 
     trigger OnAfterGetRecord()
     begin
-        CalculateCueFieldValues;
+        CalculateCueFieldValues();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Due Date Filter", '<=%1', WorkDate);
-        SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
+        Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
         ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable;
     end;
 
     var
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
-        UserTaskManagement: Codeunit "User Task Management";
         ShowCheckForOCR: Boolean;
 
     local procedure CalculateCueFieldValues()
     var
         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
     begin
-        if FieldActive("Missing SII Entries") then
+        if Rec.FieldActive("Missing SII Entries") then
             "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount;
-        if FieldActive("Days Since Last SII Check") then
+        if Rec.FieldActive("Days Since Last SII Check") then
             "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck;
     end;
 }

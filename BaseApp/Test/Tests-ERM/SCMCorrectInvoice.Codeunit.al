@@ -43,14 +43,14 @@ codeunit 137019 "SCM Correct Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
 
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(-1, LastItemLedgEntry."Shipped Qty. Not Returned", '');
 
         // EXERCISE
@@ -86,7 +86,7 @@ codeunit 137019 "SCM Correct Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         LibrarySales: Codeunit "Library - Sales";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
 
@@ -103,7 +103,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
@@ -125,7 +125,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithPrice(Item, 0);
 
@@ -143,7 +143,7 @@ codeunit 137019 "SCM Correct Invoice"
         InvtPeriod.Insert();
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -168,7 +168,7 @@ codeunit 137019 "SCM Correct Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         SalesGetShpt: Codeunit "Sales-Get Shipment";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithPrice(Item, 1);
         LibrarySales.CreateCustomer(Cust);
@@ -179,7 +179,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
         SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
-        SalesShptLine.FindFirst;
+        SalesShptLine.FindFirst();
 
         Clear(SalesHeader);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
@@ -188,7 +188,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE (TFS ID: 306797)
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -213,7 +213,7 @@ codeunit 137019 "SCM Correct Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         InvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithPrice(Item, 0);
 
@@ -221,7 +221,7 @@ codeunit 137019 "SCM Correct Invoice"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, Item."No.", 1, '', 0D);
         LibraryItemTracking.CreatePurchOrderItemTracking(ReservEntry, PurchaseLine, '', 'LOT1', 1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, Item."No.", 1, '', 0D);
@@ -250,7 +250,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
 
@@ -260,7 +260,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // CHECK IT NOT BE POSSIBLE TO REVERT A JOBS RELATED INVOICE
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY
@@ -281,14 +281,14 @@ codeunit 137019 "SCM Correct Invoice"
     begin
         // [SCENARIO 168492] Corrective Credit Memo is generated when there are other credit memos applied and unapplied to invoice before cancellation
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
         // [GIVEN] Unapplied Credit Memo "B"
         PostApplyUnapplyCreditMemoToInvoice(SalesInvHeader);
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesInvHeader."Bill-to Customer No.");
-        SalesCrMemoHeader.FindLast;
+        SalesCrMemoHeader.FindLast();
         Commit();
 
         // [WHEN] Cancel Posted Invoice "A"
@@ -296,7 +296,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         // [THEN] Corrective Credit Memo "C" is generated
         NewSalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesInvHeader."Bill-to Customer No.");
-        NewSalesCrMemoHeader.FindLast;
+        NewSalesCrMemoHeader.FindLast();
 
         // [THEN] Cancelled Document is generated (Invoice = "A", "Credit Memo" = "C")
         CancelledDocument.Get(DATABASE::"Sales Invoice Header", SalesInvHeader."No.");
@@ -321,7 +321,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] No invoice rounding is assigned to new Invoice when correct original invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup" and On in Sales & Receivables Setup
         SetInvoiceRounding;
 
@@ -357,7 +357,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] Corrective Credit Memo is rounded according to "Inv. Rounding Precision" when cancel Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup" and On in Sales & Receivables Setup
         SetInvoiceRounding;
 
@@ -398,7 +398,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] It is possible to correct Invoice with manually inserted "Invoice Rounding Account"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] No automtic invoice rounding, and an invoice with a manually added invoice rounding account
         LibrarySales.SetInvoiceRounding(false);
@@ -444,7 +444,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Sales Invoice" open Corrective Credit Memo when called from canceled Sales Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
@@ -479,7 +479,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Sales Invoices" open Corrective Credit Memo when called from canceled Sales Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
@@ -514,7 +514,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Sales Credit Credit Memo" open canceled Invoice when called from corrective Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
@@ -549,7 +549,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Sales Credit Memos" open canceled Invoice when called from corrective Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Invoice "A"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
@@ -581,7 +581,7 @@ codeunit 137019 "SCM Correct Invoice"
     begin
         // [SCENARIO 171281] There is no blank line with description about copied-from document when correct Sales Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Sales Invoice "A"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
@@ -610,7 +610,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983] Stan can select no. series for Corrective Credit Memo if no. series from "Credit Memo Nos." in Sales Setup is not "Default Nos" and has relations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
@@ -651,7 +651,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983]  Corrective Credit Memo posts with default no. series from "Credit Memo Nos." in Sales Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
@@ -681,7 +681,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983] Error message is thrown when create Corrective Credit Memo if no. series from "Credit Memo Nos." in Sales Setup is not "Default Nos" and has no relations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
@@ -713,7 +713,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [No. Series]
         // [SCENARIO 210983] Error message is thrown when create Corrective Credit Memo if no. series from "Credit Memo Nos." in Sales Setup is not "Default Nos" and has relations but No. Series is not selected from the list of series.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
@@ -748,7 +748,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Corrective Credit Memo] [Item Tracking] [Exact Cost Reversing Mandatory]
         // [SCENARIO 210894] Negative Line of Posted Sales Invoice with Lot Tracking copies to Corrective Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot Tracking
         ItemNo := CreateTrackedItem;
@@ -777,7 +777,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [FEATURE] [Item Tracking] [Exact Cost Reversing Mandatory]
         // [SCENARIO 210894] Negative Line of Posted Sales Invoice with Lot Tracking copies to Credit Memo when "Exact Cost Reversing Mandatory" is set
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot Tracking
         ItemNo := CreateTrackedItem;
@@ -956,17 +956,17 @@ codeunit 137019 "SCM Correct Invoice"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Correct Invoice");
         // Initialize setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Correct Invoice");
 
         LibrarySmallBusiness.SetNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
 
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1107,7 +1107,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         exit(SalesInvoiceLine."Amount Including VAT");
     end;
 
@@ -1232,7 +1232,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField(Quantity, ExpectedQty);
         LibraryInventory.VerifyReservationEntryWithLotExists(
           DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(),

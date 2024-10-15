@@ -39,12 +39,12 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales]
         // [SCENARIO 232565] Function GetSIIDocUploadStateByCustLedgEntry return associated SII Doc. Upload State record by Customer Ledger Entry with Invoice
 
-        Initialize;
+        Initialize();
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
-        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
         CustLedgerEntry.Insert();
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         SIIDocUploadState.TestField("Document No.", CustLedgerEntry."Document No.");
@@ -60,12 +60,12 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales]
         // [SCENARIO 232565] Function GetSIIDocUploadStateByCustLedgEntry return associated SII Doc. Upload State record by Customer Ledger Entry with Credit Memo
 
-        Initialize;
+        Initialize();
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::"Credit Memo";
-        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
-        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
         CustLedgerEntry.Insert();
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         SIIDocUploadState.TestField("Document No.", CustLedgerEntry."Document No.");
@@ -81,12 +81,12 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase]
         // [SCENARIO 232565] Function GetSIIDocUploadStateByVendLedgEntry return associated SII Doc. Upload State record by Vendor Ledger Entry with Invoice
 
-        Initialize;
+        Initialize();
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
-        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
-        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
         VendorLedgerEntry.Insert();
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
         SIIDocUploadState.TestField("Document No.", VendorLedgerEntry."Document No.");
@@ -102,12 +102,12 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase]
         // [SCENARIO 232565] Function GetSIIDocUploadStateByVendLedgEntry return associated SII Doc. Upload State record by Vendor Ledger Entry with Credit Memo
 
-        Initialize;
+        Initialize();
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::"Credit Memo";
-        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
-        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
         VendorLedgerEntry.Insert();
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
         SIIDocUploadState.TestField("Document No.", VendorLedgerEntry."Document No.");
@@ -121,7 +121,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [SCENARIO 232565] Stan cannot change "Sales Invoice Type" in SII. Doc. Upload State with status "Accepted"
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -142,7 +142,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [SCENARIO 232565] Stan can change "Sales Invoice Type" in SII. Doc. Upload State with status "Incorrect"
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -164,7 +164,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [SCENARIO 261095] Stan can change "Sales Invoice Type" in SII. Doc. Upload State with status "Pending"
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -186,7 +186,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 232565] Stan cannot change "Sales Cr. Memo Type" in SII. Doc. Upload State of Sales Invoice
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -206,7 +206,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232565] Stan cannot change "Sales Invoice Type" in SII. Doc. Upload State of Sales Credit Memo
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::"Credit Memo");
@@ -226,7 +226,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232565] Stan cannot change "Sales Cr. Memo Type" in SII. Doc. Upload State of Purchase Credit Memo
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::"Credit Memo");
@@ -246,7 +246,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232565] Stan cannot change "Sales Invoice Type" in SII. Doc. Upload State of Purchase Invoice
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -265,7 +265,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 232565] Stan cannot change "Purch. Cr. Memo Type" in SII. Doc. Upload State of Purchase Invoice
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -285,7 +285,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232565] Stan cannot change "Purch. Invoice Type" in SII. Doc. Upload State of Purchase Credit Memo
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::"Credit Memo");
@@ -305,7 +305,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232565] Stan cannot change "Purch. Cr. Memo Type" in SII. Doc. Upload State of Sales Credit Memo
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::"Credit Memo");
@@ -325,7 +325,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232565] Stan cannot change "Purch. Invoice Type" in SII. Doc. Upload State of Sales Invoice
 
-        Initialize;
+        Initialize();
         SIIDocUploadState.Init();
         SIIDocUploadState.Validate("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
         SIIDocUploadState.Validate("Document Type", SIIDocUploadState."Document Type"::Invoice);
@@ -348,7 +348,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with regular "Invoice Type" and "Special Scheme Code"
         PostSalesDocWithInvOrCrMemoType(CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0);
@@ -382,7 +382,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Sales Credit Memo with Type "Difference"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Difference"
         PostSalesDocWithInvOrCrMemoType(
@@ -417,7 +417,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Sales Credit Memo with Type "Replacement"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Replacement"
         PostSalesDocWithInvOrCrMemoType(
@@ -451,7 +451,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PostPurchDocWithInvOrCrMemoType(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0);
@@ -486,7 +486,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Purchase Credit Memo with Type "Difference"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Difference"
         PostPurchDocWithInvOrCrMemoType(
@@ -522,7 +522,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Purchase Credit Memo with Type "Replacement"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Replacement"
         PostPurchDocWithInvOrCrMemoType(
@@ -558,7 +558,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "Non Taxable Type" = "Non Taxable Art 7-14 and others"
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -593,7 +593,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 232565] XML has nodes with updated information from SII Doc. Upload State for Service Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
@@ -628,7 +628,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 288410] XML has nodes with updated ID Type from SII Doc. Upload State for Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with regular "ID Type"
         PostSalesInvIntracommunitary(CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0);
@@ -657,7 +657,7 @@ codeunit 147552 "SII Update Doc. Info"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 232565] XML has nodes with updated ID Type from SII Doc. Upload State for Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice
         PostPurchInvIntracommunitary(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0);
@@ -687,7 +687,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 232565] XML has nodes with updated ID Type from SII Doc. Upload State for Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "Non Taxable Type" = "Non Taxable Art 7-14 and others"
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -717,7 +717,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 311013] Exported XML file has no ID Type xml node for Sales Credit Memo with "Correction Type" = Removal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Removal Sales Credit Memo with regular "ID Type"
         PostSalesInvIntracommunitary(
@@ -743,7 +743,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 311013] XML has nodes with updated ID Type from SII Doc. Upload State for Purchase Credit Memo with "Correction Type" = Removal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Removal Purchase Credit Memo with regular "ID Type"
         PostPurchInvIntracommunitary(
@@ -774,7 +774,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 311013] Exported XML file has no ID Type xml node for Service Credit Memo with "Correction Type" = Removal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Removal Service Credit Memo with regular "ID Type"
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
@@ -801,7 +801,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEAUTURE] [Sales] [Invoice]
         // [SCENARIO 333224] Changes introduced in posted Sales Invoice reflects on the related SII Document Upload State record
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with default values for Invoice Type, Special Scheme Code, IDType
         PostSalesDocument(CustLedgerEntry, "Sales Document Type"::Invoice, LibrarySales.CreateCustomerNo, 0);
@@ -811,9 +811,9 @@ codeunit 147552 "SII Update Doc. Info"
         SalesInvoiceHeader."Invoice Type" := SalesInvoiceHeader."Invoice Type"::"F2 Simplified Invoice";
         SalesInvoiceHeader."Special Scheme Code" := SalesInvoiceHeader."Special Scheme Code"::"02 Export";
         SalesInvoiceHeader."ID Type" := SalesInvoiceHeader."ID Type"::"02-VAT Registration No.";
-        CompanyName := LibraryUtility.GenerateGUID;
+        CompanyName := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Succeeded Company Name" := CompanyName;
-        VATRegistrationNo := LibraryUtility.GenerateGUID;
+        VATRegistrationNo := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Succeeded VAT Registration No." := VATRegistrationNo;
 
         // [WHEN] Run codeunit "Sales Invoice Header - Edit" against posted document
@@ -841,7 +841,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEAUTURE] [Sales] [Credit Memo]
         // [SCENARIO 333224] Changes introduced in posted Sales Credit Memo reflects on the related SII Document Upload State record
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales credit memo with default values for Invoice Type and Special Scheme Code
         PostSalesDocument(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo, 0);
@@ -874,7 +874,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEAUTURE] [Purchase] [Invoice]
         // [SCENARIO 333224] Changes introduced in posted Purchase Invoice reflects on the related SII Document Upload State record
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice with default values for Invoice Type, Special Scheme Code, IDType
         PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, 0);
@@ -884,9 +884,9 @@ codeunit 147552 "SII Update Doc. Info"
         PurchInvHeader."Invoice Type" := PurchInvHeader."Invoice Type"::"F2 Simplified Invoice";
         PurchInvHeader."Special Scheme Code" := PurchInvHeader."Special Scheme Code"::"02 Special System Activities";
         PurchInvHeader."ID Type" := PurchInvHeader."ID Type"::"02-VAT Registration No.";
-        CompanyName := LibraryUtility.GenerateGUID;
+        CompanyName := LibraryUtility.GenerateGUID();
         PurchInvHeader."Succeeded Company Name" := CompanyName;
-        VATRegistrationNo := LibraryUtility.GenerateGUID;
+        VATRegistrationNo := LibraryUtility.GenerateGUID();
         PurchInvHeader."Succeeded VAT Registration No." := VATRegistrationNo;
 
         // [WHEN] Run codeunit "Purch. Inv. Header - Edit" against posted document
@@ -913,7 +913,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEAUTURE] [Purchase] [Credit Memo]
         // [SCENARIO 333224] Changes introduced in posted Purchase Credit Memo reflects on the related SII Document Upload State record
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase purchase memo with default values for Invoice Type and Special Scheme Code
         PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, 0);
@@ -962,7 +962,7 @@ codeunit 147552 "SII Update Doc. Info"
         // [FEATURE] [Special Scheme Code] [UT]
         // [SCENARIO 352810] "Special Scheme Code" changes when different "Bill-To Customer No." selects in the service document
 
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryVariableStorage.Enqueue(ChangeQst);
         ServiceHeader.Validate("Bill-to Customer No.", CreateForeignCustomer());

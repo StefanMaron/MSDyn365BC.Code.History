@@ -32,7 +32,9 @@ permissionset 4103 "General Ledger Journals - Edit"
                   tabledata "Gen. Product Posting Group" = R,
                   tabledata "General Posting Setup" = R,
                   tabledata "Intermediate Data Import" = Rimd,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Payment Order" = R,
                   tabledata "Posted Bill Group" = R,
                   tabledata "Posted Cartera Doc." = R,

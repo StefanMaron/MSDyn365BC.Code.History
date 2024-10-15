@@ -108,7 +108,7 @@
                     ICOutboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     ICOutboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
                     ICOutboxJnlLine.SetRange("Transaction Source", "Transaction Source");
-                    if ICOutboxJnlLine.FindFirst then
+                    if ICOutboxJnlLine.FindFirst() then
                         ICOutboxJnlLine.DeleteAll(true);
                 end;
             "Source Type"::"Sales Document":
@@ -116,7 +116,7 @@
                     ICOutboxSalesHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICOutboxSalesHdr.SetRange("IC Partner Code", "IC Partner Code");
                     ICOutboxSalesHdr.SetRange("Transaction Source", "Transaction Source");
-                    if ICOutboxSalesHdr.FindFirst then
+                    if ICOutboxSalesHdr.FindFirst() then
                         ICOutboxSalesHdr.Delete(true);
                 end;
             "Source Type"::"Purchase Document":
@@ -124,7 +124,7 @@
                     ICOutboxPurchHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICOutboxPurchHdr.SetRange("IC Partner Code", "IC Partner Code");
                     ICOutboxPurchHdr.SetRange("Transaction Source", "Transaction Source");
-                    if ICOutboxPurchHdr.FindFirst then
+                    if ICOutboxPurchHdr.FindFirst() then
                         ICOutboxPurchHdr.Delete(true);
                 end;
             else
@@ -158,7 +158,7 @@
                     ICOutboxJnlLine.SetRange("Transaction Source", "Transaction Source");
                     Clear(ICOutboxJnlLines);
                     ICOutboxJnlLines.SetTableView(ICOutboxJnlLine);
-                    ICOutboxJnlLines.RunModal;
+                    ICOutboxJnlLines.RunModal();
                 end;
             "Source Type"::"Sales Document":
                 begin
@@ -167,7 +167,7 @@
                     ICOutboxSalesHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(ICOutboxSalesDoc);
                     ICOutboxSalesDoc.SetTableView(ICOutboxSalesHeader);
-                    ICOutboxSalesDoc.RunModal;
+                    ICOutboxSalesDoc.RunModal();
                 end;
             "Source Type"::"Purchase Document":
                 begin
@@ -176,7 +176,7 @@
                     ICOutboxPurchHeader.SetRange("Transaction Source", "Transaction Source");
                     Clear(ICOutboxPurchDoc);
                     ICOutboxPurchDoc.SetTableView(ICOutboxPurchHeader);
-                    ICOutboxPurchDoc.RunModal;
+                    ICOutboxPurchDoc.RunModal();
                 end;
         end;
 
@@ -200,7 +200,7 @@
         HandledICOutboxTrans.SetRange("Source Type", "Source Type");
         HandledICOutboxTrans.SetRange("Document Type", "Document Type");
         HandledICOutboxTrans.SetRange("Document No.", "Document No.");
-        if HandledICOutboxTrans.FindFirst then
+        if HandledICOutboxTrans.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(
                     TransactionAlreadyExistsInOutboxHandledQst, HandledICOutboxTrans."Document Type",
@@ -216,7 +216,7 @@
         ICOutboxTransaction2.SetRange("IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.");
         ICOutboxTransaction2.SetRange("Source Line No.", "Source Line No.");
         ICOutboxTransaction2.SetRange("Line Action", "Line Action"::"Send to IC Partner");
-        if ICOutboxTransaction2.FindFirst then
+        if ICOutboxTransaction2.FindFirst() then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text001, ICOutboxTransaction2."Transaction No.", "Transaction No."), true)
             then

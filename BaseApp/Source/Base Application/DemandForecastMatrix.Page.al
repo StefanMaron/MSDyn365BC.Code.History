@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 9245 "Demand Forecast Matrix"
 {
     Caption = 'Demand Forecast Matrix';
@@ -7,6 +8,9 @@ page 9245 "Demand Forecast Matrix"
     LinksAllowed = false;
     PageType = ListPart;
     SourceTable = Item;
+    ObsoleteReason = 'This page will be replaced by Page 2900 "Demand Forecast Variant Matrix"';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -757,14 +761,12 @@ page 9245 "Demand Forecast Matrix"
             Rec.SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
     end;
 
-#if not CLEAN19
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; ProductionForecastName1: Code[10]; DateFilter1: Text; LocationFilter1: Text; ForecastType1: Option "Sales Item",Component,Both; QtyType1: Option "Net Change","Balance at Date"; NoOfMatrixColumns1: Integer)
     begin
         LoadMatrix(
             MatrixColumns1, MatrixRecords1, ProductionForecastName1, DateFilter1, LocationFilter1,
             "Demand Forecast Type".FromInteger(ForecastType1), "Analysis Amount Type".FromInteger(QtyType1), NoOfMatrixColumns1);
     end;
-#endif
 
     procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date; NewProductionForecastName: Code[10]; NewDateFilter: Text; NewLocationFilter: Text; NewForecastType: Enum "Demand Forecast Type"; NewQtyType: Enum "Analysis Amount Type"; NewNoOfMatrixColumns: Integer)
     begin
@@ -958,7 +960,7 @@ page 9245 "Demand Forecast Matrix"
         if GetFilter("Location Filter") = '' then begin
             ProdForecastEntry2.CopyFilters(ProdForecastEntry);
             ProdForecastEntry2.SetFilter("Location Code", '>%1', '');
-            if ProdForecastEntry2.FindSet then
+            if ProdForecastEntry2.FindSet() then
                 repeat
                     if ProdForecastByLocationQtyBase(ProdForecastEntry2) <> 0 then
                         Error(Text003);
@@ -1014,4 +1016,4 @@ page 9245 "Demand Forecast Matrix"
     begin
     end;
 }
-
+#endif

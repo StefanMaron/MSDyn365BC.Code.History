@@ -121,7 +121,7 @@ page 99000787 "Production BOM List"
                     begin
                         BOMMatrixForm.Set(Rec);
 
-                        BOMMatrixForm.Run;
+                        BOMMatrixForm.Run();
                     end;
                 }
                 action("Where-used")
@@ -135,7 +135,7 @@ page 99000787 "Production BOM List"
                     begin
                         ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate);
 
-                        ProdBOMWhereUsed.Run;
+                        ProdBOMWhereUsed.Run();
                     end;
                 }
             }

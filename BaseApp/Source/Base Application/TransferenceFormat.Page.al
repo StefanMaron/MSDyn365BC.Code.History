@@ -88,7 +88,7 @@ page 10704 "Transference Format"
         if "VAT Statement Name" <> '' then
             VATStmtCode := "VAT Statement Name"
         else begin
-            VATSmtName.FindFirst;
+            VATSmtName.FindFirst();
             VATStmtCode := VATSmtName.Name;
         end;
     end;

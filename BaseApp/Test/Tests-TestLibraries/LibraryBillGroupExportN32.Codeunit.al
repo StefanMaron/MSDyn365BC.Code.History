@@ -208,7 +208,7 @@ codeunit 143023 "Library Bill Group Export N32"
         BillGroup.SetRange("No.", BillGroupNo);
         BillGroupExportN32.SetTableView(BillGroup);
 
-        BillGroupExportN32.RunModal;
+        BillGroupExportN32.RunModal();
     end;
 }
 

@@ -259,7 +259,7 @@ table 288 "Vendor Bank Account"
             begin
                 VendBankAcc.SetRange(VendBankAcc."Vendor No.", "Vendor No.");
                 VendBankAcc.SetRange(VendBankAcc."Use For Electronic Payments", true);
-                if VendBankAcc.FindFirst then
+                if VendBankAcc.FindFirst() then
                     if (VendBankAcc.Count = 1) and "Use For Electronic Payments" then
                         if xRec."Use For Electronic Payments" <> "Use For Electronic Payments" then
                             Error(Text1100000);

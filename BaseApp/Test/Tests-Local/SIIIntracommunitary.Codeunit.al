@@ -34,7 +34,7 @@ codeunit 147527 "SII Intracommunitary"
     begin
         // [FEATURE] [Special Scheme Code]
         // [SCENARIO 220567] Purchase Order has "Special Scheme Code" = "09 Intra-Community Acquisition" after updating "Buy-from Vendor No." with intracommunitary vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice without "Buy-from Vendor No."
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -57,7 +57,7 @@ codeunit 147527 "SII Intracommunitary"
     begin
         // [FEATURE] [Special Scheme Code]
         // [SCENARIO 232827] Sales Order has "Special Scheme Code" = "01 General" after updating "Sell-to Customer No." with export intracommunitary customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice without "Sell-to Customer No."
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
@@ -84,7 +84,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Purchase] [Invoice] [XML] [Reverse Charge] [VAT]
         // [SCENARIO 221521] Reverse Charge VAT entries of intracommunitary invoices exports with node DesgloseIVA
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Intracommunitary Vendor, Reverse Charge VAT and Amount = 21
         LibrarySII.CreatePurchDocWithReverseChargeVAT(
@@ -114,7 +114,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Purchase] [Credit Memo] [XML] [Reverse Charge] [VAT]
         // [SCENARIO 226465] Reverse Charge VAT entries of intracommunitary credit memos exports with node DesgloseIVA
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with Intracommunitary Vendor, Reverse Charge VAT and Amount = 21
         LibrarySII.CreatePurchDocWithReverseChargeVAT(
@@ -143,7 +143,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 230978] "ID Type" is "02" in SII xml file for Sales Invoice with Intracommunitary customer
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Intracommunitary Customer
         PostSalesDocWithIntracommunityCustomer(CustLedgerEntry, SalesHeader."Document Type"::Invoice);
@@ -168,7 +168,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 230978] "ID Type" is "02" in SII xml file for Sales Credit Memo with Intracommunitary customer
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Intracommunitary Customer
         PostSalesDocWithIntracommunityCustomer(CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo");
@@ -193,7 +193,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 230978] "ID Type" is "02" in SII xml file for Purchase Invoice with Intracommunitary vendor
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Intracommunitary Vendor
         PostPurchDocWithIntracommunityVendor(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice);
@@ -219,7 +219,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 230978] "ID Type" is "02" in SII xml file for Purchase Credit Memo with Intracommunitary vendor
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with Intracommunitary vendor
         PostPurchDocWithIntracommunityVendor(VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo");
@@ -245,7 +245,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 230978] "ID Type" is "02" in SII xml file for Service Invoice with Intracommunitary customer
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with Intracommunitary customer
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -271,7 +271,7 @@ codeunit 147527 "SII Intracommunitary"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 230978] "ID Type" is "02" in SII xml file for Service Credit Memo with Intracommunitary customer
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with Intracommunitary customer
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(

@@ -1,5 +1,7 @@
-﻿codeunit 70 "Purch.-Calc.Discount"
+codeunit 70 "Purch.-Calc.Discount"
 {
+    Permissions = tabledata "Purchase Header" = rm,
+                  tabledata "Purchase Line" = rm;
     TableNo = "Purchase Line";
 
     trigger OnRun()
@@ -99,7 +101,7 @@
                 if not UpdateHeader then
                     PurchLine2.SetPurchHeader(PurchHeader);
                 if not TempServiceChargeLine.IsEmpty() then begin
-                    TempServiceChargeLine.FindLast;
+                    TempServiceChargeLine.FindLast();
                     PurchLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     if PurchHeader."Prices Including VAT" then
                         PurchLine2.Validate(

@@ -166,7 +166,7 @@
                     if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         Validate("Entry No.", CustLedgEntry."Entry No.")
                     else
                         Error(NoOpenEntriesErr, Format(Type), FieldCaption("Document No."), "Document No.");
@@ -402,7 +402,7 @@
                     CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                 if "Applies-to Document No." <> '' then
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
-                if CustLedgEntry.FindFirst then;
+                if CustLedgEntry.FindFirst() then;
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
                 LookupCustLedgEntry;
@@ -419,7 +419,7 @@
                     if "Applies-to Document Type" <> "Applies-to Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
-                    if not CustLedgEntry.FindFirst then
+                    if not CustLedgEntry.FindFirst() then
                         Error(NoOpenEntriesErr, CustLedgEntry.TableName, FieldCaption("Document No."), "Applies-to Document No.");
                     "Applies-to Document Type" := CustLedgEntry."Document Type";
 
@@ -602,7 +602,7 @@
             ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level")
         else
             ReminderLevel.SetRange("No.", 1, "No. of Reminders");
-        if not ReminderLevel.FindLast then
+        if not ReminderLevel.FindLast() then
             ReminderLevel.Init();
         if (not ReminderLevel."Calculate Interest") or (ReminderHeader."Fin. Charge Terms Code" = '') then
             exit;
@@ -623,11 +623,11 @@
                     ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
                     ReminderEntry.SetRange("Interest Posted", true);
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         InterestCalcDate := ReminderEntry."Document Date";
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::"Finance Charge Memo");
                     ReminderEntry.SetRange("Interest Posted");
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         if ReminderEntry."Document Date" > InterestCalcDate then
                             InterestCalcDate := ReminderEntry."Document Date";
                     if InterestCalcDate < ReminderHeader."Document Date" then begin
@@ -789,7 +789,7 @@
         ReminderEntry.SetRange("Customer Entry No.", EntryNo);
         ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
         OnGetNoOfReminderForCustLedgEntryOnAfterReminderEntrySetFilters(ReminderEntry);
-        if ReminderEntry.FindLast then
+        if ReminderEntry.FindLast() then
             NoOfReminders := ReminderEntry."Reminder Level";
         if (CustLedgerEntry."On Hold" = '') and (CustLedgerEntry."Due Date" < ReminderHeader."Document Date") then
             NoOfReminders := NoOfReminders + 1;
@@ -816,7 +816,7 @@
             ReminderLevel.SetRange("No.", LevelStart, ReminderHeader."Reminder Level")
         else
             ReminderLevel.SetRange("No.", LevelStart, LevelEnd);
-        if not ReminderLevel.FindLast then
+        if not ReminderLevel.FindLast() then
             ReminderLevel.Init();
     end;
 
@@ -882,7 +882,7 @@
             CustLedgEntry.SetRange("Document Type", "Document Type");
         if "Document No." <> '' then
             CustLedgEntry.SetRange("Document No.", "Document No.");
-        if CustLedgEntry.FindFirst then;
+        if CustLedgEntry.FindFirst() then;
         CustLedgEntry.SetRange("Document Type");
         CustLedgEntry.SetRange("Document No.");
         LookupCustLedgEntry();

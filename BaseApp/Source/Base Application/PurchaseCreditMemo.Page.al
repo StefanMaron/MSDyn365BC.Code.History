@@ -1,4 +1,4 @@
-page 52 "Purchase Credit Memo"
+﻿page 52 "Purchase Credit Memo"
 {
     Caption = 'Purchase Credit Memo';
     PageType = Document;
@@ -367,6 +367,13 @@ page 52 "Purchase Credit Memo"
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -378,6 +385,7 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Reason Code"; "Reason Code")
                 {
@@ -416,6 +424,12 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -803,6 +817,14 @@ page 52 "Purchase Credit Memo"
         }
         area(factboxes)
         {
+            part(PurchaseDocCheckFactbox; "Purch. Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = PurchaseDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -995,7 +1017,7 @@ page 52 "Purchase Credit Memo"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(SpecialSchemeCodes)
@@ -1212,6 +1234,19 @@ page 52 "Purchase Credit Memo"
                         GetPstdDocLinesToReverse();
                     end;
                 }
+                action("Get Return &Shipment Lines")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Get Return &Shipment Lines';
+                    Ellipsis = true;
+                    Image = CalculateShipment;
+                    ToolTip = 'Select a posted return shipment for the item that you want to assign the item charge to, for example, if you received an invoice for the item charge after you posted the original return shipment.';
+
+                    trigger OnAction()
+                    begin
+                        CurrPage.PurchLines.PAGE.GetReturnShipment;
+                    end;
+                }
                 action("Copy Document")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1244,7 +1279,7 @@ page 52 "Purchase Credit Memo"
                     begin
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
-                        MoveNegPurchLines.RunModal;
+                        MoveNegPurchLines.RunModal();
                         MoveNegPurchLines.ShowDocument;
                     end;
                 }
@@ -1387,7 +1422,7 @@ page 52 "Purchase Credit Memo"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetPurchasingTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -1522,6 +1557,8 @@ page 52 "Purchase Credit Memo"
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
         UpdateDocHasRegimeCode();
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1531,11 +1568,9 @@ page 52 "Purchase Credit Memo"
     end;
 
     trigger OnInit()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        JobQueueUsed := PurchasesPayablesSetup.JobQueueActive;
-        SetExtDocNoMandatoryCondition;
+        JobQueueUsed := PurchSetup.JobQueueActive();
+        SetExtDocNoMandatoryCondition();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1552,9 +1587,9 @@ page 52 "Purchase Credit Memo"
         EnvironmentInfo: Codeunit "Environment Information";
         SIIManagement: Codeunit "SII Management";
     begin
-        SetDocNoVisible;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        SetDocNoVisible();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
+        IsSaaS := EnvironmentInfo.IsSaaS();
 
         Rec.SetSecurityFilterOnRespCenter();
 
@@ -1565,7 +1600,10 @@ page 52 "Purchase Credit Memo"
         UpdateDocHasRegimeCode();
         SetRange("Date Filter", 0D, WorkDate());
 
-        ActivateFields;
+        ActivateFields();
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1577,6 +1615,8 @@ page 52 "Purchase Credit Memo"
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        PurchSetup: Record "Purchases & Payables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
@@ -1607,6 +1647,12 @@ page 52 "Purchase Credit Memo"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        PurchaseDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
         DocHasMultipleRegimeCode: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
@@ -1618,6 +1664,9 @@ page 52 "Purchase Credit Memo"
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -1629,13 +1678,11 @@ page 52 "Purchase Credit Memo"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -1659,7 +1706,7 @@ page 52 "Purchase Credit Memo"
                 begin
                     if IsOfficeAddin then begin
                         PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-                        if PurchCrMemoHdr.FindFirst then
+                        if PurchCrMemoHdr.FindFirst() then
                             PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
                     end else
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
@@ -1721,16 +1768,15 @@ page 52 "Purchase Credit Memo"
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get();
-        VendorCreditMemoNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
+        PurchSetup.GetRecordOnce();
+        VendorCreditMemoNoMandatory := PurchSetup."Ext. Doc. No. Mandatory";
     end;
 
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
@@ -1743,6 +1789,26 @@ page 52 "Purchase Credit Memo"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+        PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.PurchaseDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
+    end;
+
+    procedure SetPostingGroupEditable()
+    begin
+        PurchSetup.GetRecordOnce();
+        IsPostingGroupEditable := PurchSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -1751,11 +1817,11 @@ page 52 "Purchase Credit Memo"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-        if PurchCrMemoHdr.FindFirst then
+        if PurchCrMemoHdr.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchCrMemoQst, PurchCrMemoHdr."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                InstructionMgt.ShowPostedDocument(PurchCrMemoHdr, Page::"Purchase Credit Memo");
     end;
 
     local procedure ValidateShippingOption()
@@ -1794,6 +1860,11 @@ page 52 "Purchase Credit Memo"
         DocHasMultipleRegimeCode := SIISchemeCodeMgt.PurchDocHasRegimeCodes(Rec);
     end;
     
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
     begin

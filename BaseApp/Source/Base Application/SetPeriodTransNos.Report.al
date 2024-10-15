@@ -45,7 +45,7 @@ report 10700 "Set Period Trans. Nos."
                 begin
                     Period.SetFilter("Starting Date", '> %1', FromDate);
                     Period.SetRange("New Fiscal Year", true);
-                    if not Period.FindFirst then
+                    if not Period.FindFirst() then
                         CurPeriodLastDate := ToDate
                     else
                         CurPeriodLastDate := ClosingDate(CalcDate('<-1D>', Period."Starting Date"));
@@ -70,28 +70,28 @@ report 10700 "Set Period Trans. Nos."
             begin
                 Period.Reset();
                 Period.SetRange("New Fiscal Year", true);
-                Period.FindFirst;
+                Period.FindFirst();
                 if Period."Starting Date" > FromDate then
                     FromDate := Period."Starting Date";
-                Period.FindLast;
+                Period.FindLast();
                 if Period."Starting Date" < FromDate then
                     FromDate := Period."Starting Date";
 
                 "G/L Entry".SetCurrentKey("Posting Date", "Transaction No.");
                 "G/L Entry".SetRange("Posting Date", FromDate, ToDate);
-                if not "G/L Entry".FindFirst then
+                if not "G/L Entry".FindFirst() then
                     CurrReport.Break();
                 GLEntry2.SetCurrentKey("Posting Date", "Transaction No.");
-                GLEntry2.FindFirst;
+                GLEntry2.FindFirst();
                 if "G/L Entry"."Entry No." = GLEntry2."Entry No." then
                     CurrPeriodTransNo := 1
                 else begin
                     Period.SetRange("Starting Date", FromDate);
-                    if Period.FindFirst then begin
+                    if Period.FindFirst() then begin
                         CurrPeriodTransNo := 2;
                     end else begin
                         GLEntry2.SetFilter("Posting Date", '< %1', FromDate);
-                        GLEntry2.FindLast;
+                        GLEntry2.FindLast();
                         CurrPeriodTransNo := GLEntry2."Period Trans. No." + 1;
                     end;
                 end;

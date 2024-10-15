@@ -57,7 +57,7 @@ page 10753 "Recreate Missing SII Entries"
                     begin
                         VendLedgEntriesPreview.LookupMode(true);
                         VendLedgEntriesPreview.Set(TempVendorLedgerEntry, TempDtldVendorLedgEntry);
-                        VendLedgEntriesPreview.Run;
+                        VendLedgEntriesPreview.Run();
                     end;
                 }
                 field(CustdLedgEntryCount; TempCustLedgEntry.Count)
@@ -73,7 +73,7 @@ page 10753 "Recreate Missing SII Entries"
                     begin
                         CustLedgEntriesPreview.LookupMode(true);
                         CustLedgEntriesPreview.Set(TempCustLedgEntry, TempDtldCustLedgEntry);
-                        CustLedgEntriesPreview.Run;
+                        CustLedgEntriesPreview.Run();
                     end;
                 }
                 field(DtldVendLedgEntryCount; TempDetailedVendorLedgEntry.Count)
@@ -88,7 +88,7 @@ page 10753 "Recreate Missing SII Entries"
                     begin
                         DetailedVendEntriesPreview.LookupMode(true);
                         DetailedVendEntriesPreview.Set(TempDetailedVendorLedgEntry);
-                        DetailedVendEntriesPreview.Run;
+                        DetailedVendEntriesPreview.Run();
                     end;
                 }
                 field(DtldCustLedgEntryCount; TempDetailedCustLedgEntry.Count)
@@ -103,7 +103,7 @@ page 10753 "Recreate Missing SII Entries"
                     begin
                         DetCustLedgEntrPreview.LookupMode(true);
                         DetCustLedgEntrPreview.Set(TempDetailedCustLedgEntry);
-                        DetCustLedgEntrPreview.Run;
+                        DetCustLedgEntrPreview.Run();
                     end;
                 }
             }

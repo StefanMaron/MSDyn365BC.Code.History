@@ -126,7 +126,7 @@ table 10730 "Gen. Prod. Post. Group Buffer"
         NonDeductGPPG340.DeleteAll();
         SelectedGPPGText := '';
         GPPGSelectionBuf.SetRange("Non Deduct. Prod. Post. Group", true);
-        if GPPGSelectionBuf.FindFirst then
+        if GPPGSelectionBuf.FindFirst() then
             repeat
                 NonDeductGPPG340.Code := GPPGSelectionBuf.Code;
                 NonDeductGPPG340.Description := GPPGSelectionBuf.Description;

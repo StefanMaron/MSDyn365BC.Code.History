@@ -609,7 +609,7 @@ table 122 "Purch. Inv. Header"
                 SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Vendor Ledger");
                 SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::Invoice);
                 SIIDocUploadState.SetRange("Document No.", "No.");
-                if SIIDocUploadState.FindFirst then begin
+                if SIIDocUploadState.FindFirst() then begin
                     SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
                     PAGE.Run(PAGE::"SII History", SIIHistory);
                 end;
@@ -778,17 +778,14 @@ table 122 "Purch. Inv. Header"
     end;
 
     procedure PrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header")
-    var
-        ShowNotificationAction: Boolean;
     begin
-        ShowNotificationAction := PurchInvHeaderLocal.Count() = 1;
         if PurchInvHeaderLocal.FindSet() then
             repeat
-                DoPrintToDocumentAttachment(PurchInvHeaderLocal, ShowNotificationAction);
+                DoPrintToDocumentAttachment(PurchInvHeaderLocal);
             until PurchInvHeaderLocal.Next() = 0;
     end;
 
-    local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header"; ShowNotificationAction: Boolean)
+    local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header")
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -803,7 +800,7 @@ table 122 "Purch. Inv. Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()
@@ -906,7 +903,7 @@ table 122 "Purch. Inv. Header"
 
         SetRange("Pay-to Vendor No.", VendNo);
         SetRange("No.", CorrInvNo);
-        if not FindFirst then
+        if not FindFirst() then
             Error(CorrInvDoesNotExistErr, CorrInvNo);
     end;
 

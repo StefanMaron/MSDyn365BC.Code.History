@@ -20,6 +20,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        CarteraRecvBasicScenarios: Codeunit "Cartera Recv. Basic Scenarios";
         RecordNotFoundErr: Label '%1 was not found.', Comment = '%1=TableCaption';
         BillGroupNotPrintedMsg: Label 'This %1 has not been printed. Do you want to continue?';
         SettlementCompletedSuccessfullyMsg: Label '%1 receivable documents totaling %2 have been settled.';
@@ -41,7 +42,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
@@ -65,7 +66,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
@@ -88,7 +89,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         // Verify
         PostedBillGroup.SetRange("Bank Account No.", BankAccount."No.");
-        PostedBillGroup.FindLast;
+        PostedBillGroup.FindLast();
         Assert.AreEqual(CustLedgerEntry.Amount, PostedBillGroup.Amount, '')
     end;
 
@@ -107,7 +108,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(true, false, false);
@@ -130,7 +131,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         // Verify
         PostedBillGroup.SetRange("Bank Account No.", BankAccount."No.");
-        PostedBillGroup.FindLast;
+        PostedBillGroup.FindLast();
         Assert.AreEqual(CurrencyCode, PostedBillGroup."Currency Code", '');
         Assert.AreEqual(CustLedgerEntry.Amount, PostedBillGroup.Amount, '');
     end;
@@ -146,7 +147,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         BillNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Cartera Payment Method "P1" where Invoice to Cartera = Yes
         LibraryCarteraReceivables.CreateSalesInvoiceWithCustBankAcc(SalesHeader, Customer, '');
@@ -174,7 +175,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Cartera Payment Method "P1" where Invoice to Cartera = Yes
         LibraryCarteraReceivables.CreateSalesInvoiceWithCustBankAcc(SalesHeader, Customer, '');
@@ -202,7 +203,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -232,7 +233,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Cartera Payment Method "P1" where Create Bills = No
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -262,7 +263,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PostedBillGroup: Record "Posted Bill Group";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
         CreateBillGroupLCY(BillGroup);
 
@@ -274,7 +275,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
-        asserterror PostedBillGroup.FindFirst;
+        asserterror PostedBillGroup.FindFirst();
         Assert.AssertNothingInsideFilter;
     end;
 
@@ -290,7 +291,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(true, false, false);
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, CurrencyCode);
@@ -304,7 +305,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroupNo);
 
-        asserterror PostedBillGroup.FindFirst;
+        asserterror PostedBillGroup.FindFirst();
         Assert.AssertNothingInsideFilter;
     end;
 
@@ -318,7 +319,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PostedBillGroup: Record "Posted Bill Group";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
         CreateBillGroupLCY(BillGroup);
 
@@ -330,7 +331,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
-        asserterror PostedBillGroup.FindFirst;
+        asserterror PostedBillGroup.FindFirst();
         Assert.AssertNothingInsideFilter;
     end;
 
@@ -347,12 +348,12 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, '');
 
         PaymentMethod.SetRange(Code, Customer."Payment Method Code");
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
 
         LibraryCarteraReceivables.CreateCustomerBankAccount(Customer, CustomerBankAccount);
         LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
@@ -371,7 +372,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         RejectDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
-        asserterror PostedBillGroup.FindFirst;
+        asserterror PostedBillGroup.FindFirst();
         Assert.AssertNothingInsideFilter;
 
         VerifyClosedCarteraDocStatus(BillGroup."No.", DocumentNo);
@@ -392,13 +393,13 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(true, false, false);
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, CurrencyCode);
 
         PaymentMethod.SetRange(Code, Customer."Payment Method Code");
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
 
         LibraryCarteraReceivables.CreateCustomerBankAccount(Customer, CustomerBankAccount);
         LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
@@ -418,7 +419,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         RejectDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
-        asserterror PostedBillGroup.FindFirst;
+        asserterror PostedBillGroup.FindFirst();
         Assert.AssertNothingInsideFilter;
 
         VerifyClosedCarteraDocStatus(BillGroup."No.", DocumentNo);
@@ -434,7 +435,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PostedBillGroup: Record "Posted Bill Group";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
         CreateBillGroupLCY(BillGroup);
 
@@ -455,7 +456,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
-        asserterror PostedBillGroup.FindFirst;
+        asserterror PostedBillGroup.FindFirst();
         Assert.AssertNothingInsideFilter;
     end;
 
@@ -469,7 +470,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, Customer."No.");
@@ -496,7 +497,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         DocumentNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
 
         CreateBillGroupLCY(BillGroup);
@@ -528,7 +529,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Bill Group] [Payment Registration]
         // [SCENARIO 364423] Customer Bill's Ledger Entry "Remaining Amount" is deducted after post payment from "Payment Registration" page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Sales Invoice with "X" amount. Create Bill.
         DocumentNo := PostCarteraSalesInvoice(SalesHeader, '');
@@ -566,7 +567,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Bill Group] [Currency]
         // [SCENARIO 374792] Post Bill Group for Sales Invoice with FCY and modified Currency Factor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for WORKDATE
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(true, false, false));
@@ -604,7 +605,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Bill Group] [Currency]
         // [SCENARIO 374792] Post Bill Group for Sales Invoice with FCY and different Exch. Rates between Posting Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for WORKDATE
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(true, false, false));
@@ -641,7 +642,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Bill Group] [Currency]
         // [SCENARIO 374792] Post Bill Group for Gen. Journal Line with FCY and modified Currency Factor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for WORKDATE
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(true, false, false));
@@ -679,7 +680,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Bill Group] [Currency]
         // [SCENARIO 374792] Post Bill Group for Gen. Journal Line with FCY and different Exch. Rates between Posting Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" defined for WORKDATE
         Currency.Get(LibraryCarteraCommon.CreateCarteraCurrency(true, false, false));
@@ -704,6 +705,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifyBillGroupGLEntryExists(BillGroup."No.", Customer."Customer Posting Group", BillGroup."Amount (LCY)");
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -721,7 +723,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Sales Invoice, Bill Group, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
         CurrencyCode := CreateCurrencyForBillGroup;
@@ -756,7 +758,62 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterBillGroupSameRateAndExchRateAdjustment()
+    var
+        Customer: Record Customer;
+        BillGroup: Record "Bill Group";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        SettleAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Sales Invoice, Bill Group, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
+        CurrencyCode := CreateCurrencyForBillGroup;
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
+
+        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
+
+        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
+        LibraryVariableStorage.Enqueue(PostingDate[4]);
+        SettleDocsInPostBillGr(BillGroup."No.");
+
+        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
+        // [THEN] 'Receivables Account' in Payment G/L Entry = -4088.31 (-5000/1.223)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -774,7 +831,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Sales Invoice, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
         CurrencyCode := CreateCurrencyForBillGroup;
@@ -810,7 +867,63 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterBillGroupSameRateAndTwoExchRateAdjustments()
+    var
+        Customer: Record Customer;
+        BillGroup: Record "Bill Group";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        SettleAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Sales Invoice, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
+        CurrencyCode := CreateCurrencyForBillGroup;
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
+
+        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
+
+        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        RunExchRateAdjustment(CurrencyCode, PostingDate[4]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
+        LibraryVariableStorage.Enqueue(PostingDate[4]);
+        SettleDocsInPostBillGr(BillGroup."No.");
+
+        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Receivables Account' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -828,7 +941,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
         CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
@@ -859,7 +972,58 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterBillGroupDiffRateAndExchRateAdjustment()
+    var
+        Customer: Record Customer;
+        BillGroup: Record "Bill Group";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        SettleAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, new Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
+        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
+
+        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
+
+        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
+        LibraryVariableStorage.Enqueue(PostingDate[4]);
+        SettleDocsInPostBillGr(BillGroup."No.");
+
+        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
+        // [THEN] 'Receivables Account' in Payment G/L Entry = -4088.31 (-5000/1.223)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -877,7 +1041,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
         CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
@@ -909,7 +1073,59 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterBillGroupDiffRateAndTwoExchRateAdjustments()
+    var
+        Customer: Record Customer;
+        BillGroup: Record "Bill Group";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        SettleAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
+        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
+
+        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
+
+        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        RunExchRateAdjustment(CurrencyCode, PostingDate[4]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
+        LibraryVariableStorage.Enqueue(PostingDate[4]);
+        SettleDocsInPostBillGr(BillGroup."No.");
+
+        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Receivables Account' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -927,7 +1143,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
         CurrencyCode := CreateCurrencyForBillGroup;
@@ -962,7 +1178,62 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VerifySettleGLEntries(
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterBillGroupDiffRateAndExchangeRateAdjustment()
+    var
+        Customer: Record Customer;
+        BillGroup: Record "Bill Group";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        SettleAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Sales Invoice, new Exch.Rate, Bill Group, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
+        CurrencyCode := CreateCurrencyForBillGroup;
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+
+        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
+
+        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
+        LibraryVariableStorage.Enqueue(PostingDate[4]);
+        SettleDocsInPostBillGr(BillGroup."No.");
+
+        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -679.50 (5000/1.223 - 5000/1.0487)
+        // [THEN] 'Receivables Account' in Payment G/L Entry = -4088.31 (-5000/1.223)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
+    end;
+
+#if not CLEAN20
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -980,7 +1251,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         // [FEATURE] [Adjust Exchange Rates]
         // [SCENARIO 375918] Sales Invoice, Adjust Exch.Rate, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
         CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
@@ -999,6 +1270,60 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
         RunAdjustExchangeRates(CurrencyCode, PostingDate[3]);
         RunAdjustExchangeRates(CurrencyCode, PostingDate[4]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
+        LibraryVariableStorage.Enqueue(PostingDate[4]);
+        SettleDocsInPostBillGr(BillGroup."No.");
+
+        // [THEN] 'Unrealized Losses Acc.' in Payment G/L Entry = -133.03 (5000/1.0788 - 5000/1.0487)
+        // [THEN] 'Receivables Account' in Payment G/L Entry = -4634.78 (-5000/1.0788)
+        // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = 4767.81 (5000/1.0478)
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
+        VerifyPostedUnrealizedLossOnPayment(BillGroup."No.", CurrencyCode, AmtPay - AmtInv);
+        VerifySettleGLEntries(
+          BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterAdjustmentAndBillGroupAndTwoExchRateAdjustments()
+    var
+        Customer: Record Customer;
+        BillGroup: Record "Bill Group";
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        SettleAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Exchange Rates]
+        // [SCENARIO 375918] Sales Invoice, Adjust Exch.Rate, Bill Group, Adjust Exch.Rate, Adjust Exch.Rate, Settle Invoice
+        Initialize();
+
+        // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223), Date4 (1.0788)
+        CreateCurrencyWithExchRates(CurrencyCode, PostingDate, CurrencyExchRate);
+
+        // [GIVEN] Posted Sales Invoice on Date1 with Amount = 5000.00
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, CurrencyCode);
+        CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, PostingDate[1]);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date2
+        RunExchRateAdjustment(CurrencyCode, PostingDate[2]);
+
+        // [GIVEN] Create Bill Group on Date2 < PostingDate < Date3
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, PostingDate[2] + 1, InvoiceNo);
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3, Date4
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        RunExchRateAdjustment(CurrencyCode, PostingDate[4]);
         Commit();
 
         // [WHEN] Run TotalSettlement on Date4
@@ -1034,7 +1359,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         // [FEATURE] [Currency]
         // [SCENARIO 375918] G/L Account "Bolls on Collection Acc." is used to post settlemed for Posted Bill Group which contains Invoice with different currency exchange rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with different exchange rates on "Posting Date" = 01.01 and "Posting Date" = 02.01
         CurrencyCode := CreateCurrencyForBillGroup;
@@ -1231,7 +1556,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Cartera Payment Method "P1"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -1265,7 +1590,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 384336] Payment Method is not updated for Invoice Cartera Document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Cartera Payment Method "P1"
         LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, false, true);
@@ -1290,7 +1615,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
     end;
 
@@ -1346,7 +1671,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
           GenJournalLine."Document Type"::Bill, GenJournalLine."Account Type"::Customer,
           CustomerNo, GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", LibraryRandom.RandInt(100));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
-        GenJournalLine.Validate("Bill No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Bill No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
     end;
 
@@ -1397,7 +1722,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CustLedgEntry.Insert();
     end;
 
-    local procedure MockCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    local procedure MockCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer; BGPONo: Code[20])
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
@@ -1407,7 +1732,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CarteraDoc.Insert();
     end;
 
-    local procedure MockPostedCarteraDoc(Type: Option; EntryNo: Integer; BGPONo: Code[20])
+    local procedure MockPostedCarteraDoc(Type: Enum "Cartera Document Type"; EntryNo: Integer; BGPONo: Code[20])
     var
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
@@ -1421,7 +1746,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure AddCarteraDocumentToBillGroup(BillGroupNo: Code[20])
@@ -1430,7 +1755,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         BillGroupsTestPage: TestPage "Bill Groups";
     begin
         BillGroup.SetRange("No.", BillGroupNo);
-        BillGroup.FindFirst;
+        BillGroup.FindFirst();
 
         BillGroupsTestPage.OpenEdit;
         BillGroupsTestPage.GotoRecord(BillGroup);
@@ -1452,7 +1777,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         BillGroupsTestPage: TestPage "Bill Groups";
     begin
         BillGroup.SetRange("No.", BillGroupNo);
-        BillGroup.FindFirst;
+        BillGroup.FindFirst();
 
         BillGroupsTestPage.OpenEdit;
         BillGroupsTestPage.GotoRecord(BillGroup);
@@ -1471,10 +1796,18 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PaymentRegistration.PostPayments.Invoke;
     end;
 
+#if not CLEAN20
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
     begin
         LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate, PostingDate);
+    end;
+#endif
+
+    local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; PostingDate: Date)
+    begin
+        LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate, PostingDate);
     end;
 
     local procedure SettleDocsInPostBillGr(BillGroupNo: Code[20])
@@ -1482,7 +1815,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroupNo);
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
         PostedCarteraDoc.SetRecFilter;
         REPORT.RunModal(REPORT::"Settle Docs. in Post. Bill Gr.", true, false, PostedCarteraDoc);
     end;
@@ -1493,7 +1826,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         RemainingAmount: Decimal;
     begin
         PostedBillGroup.SetFilter("No.", BillGroupNo);
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupsPage.OpenEdit;
         PostedBillGroupsPage.GotoRecord(PostedBillGroup);
@@ -1509,7 +1842,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PostedBillGroupsPage: TestPage "Posted Bill Groups";
     begin
         PostedBillGroup.SetFilter("No.", BillGroupNo);
-        PostedBillGroup.FindFirst;
+        PostedBillGroup.FindFirst();
 
         PostedBillGroupsPage.OpenEdit;
         PostedBillGroupsPage.GotoRecord(PostedBillGroup);
@@ -1562,7 +1895,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
             SetRange("Document No.", DocumentNo);
             SetRange("Account No.", CustomerNo);
             SetRange("No.", BillNo);
-            FindFirst;
+            FindFirst();
             TestField("Payment Method Code", PaymentMethodCode);
         end;
     end;
@@ -1575,7 +1908,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
             SetRange("Document No.", DocumentNo);
             SetRange("Account No.", VendorNo);
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             TestField("Payment Method Code", PaymentMethodCode);
         end;
     end;
@@ -1584,7 +1917,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenNew;
+        BillGroups.OpenNew();
 
         BillGroups."Dealing Type".SetValue(DealingType);
 
@@ -1645,7 +1978,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
             SetRange("Customer No.", CustomerNo);
             if IsBill then
                 SetFilter("Bill No.", '<>%1', '');
-            FindFirst;
+            FindFirst();
             Validate("Payment Method Code", PaymentMethodCode);
             Modify(true);
             exit("Bill No.");
@@ -1686,7 +2019,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry.CalcFields("Remaining Amount");
 
         LibraryReportDataset.LoadDataSetFile;
@@ -1706,7 +2039,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         Assert.RecordIsNotEmpty(DummyClosedBillGroup);
 
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         Assert.AreEqual(ClosedCarteraDoc.Status::Rejected, ClosedCarteraDoc.Status, '');
     end;
 
@@ -1720,7 +2053,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         Currency.Get(CurrencyCode);
         GLEntry.SetRange("G/L Account No.", Currency."Unrealized Losses Acc.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, GainLossAmt);
     end;
 
@@ -1796,7 +2129,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         CarteraDoc.SetRange("Document No.", DocumentNo);
-        CarteraDoc.FindLast;
+        CarteraDoc.FindLast();
 
         CarteraDocumentsPage.SetRecord(CarteraDoc);
 

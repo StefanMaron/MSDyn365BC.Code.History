@@ -98,10 +98,11 @@ codeunit 10756 "SII Management"
         exit('C36C1441-6711-4878-9EB4-B8C8EAECD925');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Manual Setup", 'OnRegisterManualSetup', '', false, false)]
-    local procedure HandleRegisterBusinessSetup(var Sender: Codeunit "Manual Setup")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterManualSetup', '', false, false)]
+    local procedure HandleRegisterBusinessSetup()
     var
         SIISetup: Record "SII Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Info: ModuleInfo;
         ManualSetupCategory: Enum "Manual Setup Category";
     begin
@@ -111,9 +112,9 @@ codeunit 10756 "SII Management"
             SIISetup.Insert(true);
         end;
 
-        Sender.Insert(
-          SIIServiceNameTxt, SIIBusinessSetupDescriptionTxt, SIIBusinessSetupKeywordsTxt,
-          PAGE::"SII Setup", Info.Id(), ManualSetupCategory::Service);
+        GuidedExperience.InsertManualSetup(
+          SIIServiceNameTxt, CopyStr(SIIServiceNameTxt, 1, 50), SIIBusinessSetupDescriptionTxt, 5,
+          ObjectType::Page, PAGE::"SII Setup", ManualSetupCategory::Service, SIIBusinessSetupKeywordsTxt);
     end;
 
     [Scope('OnPrem')]
@@ -262,10 +263,10 @@ codeunit 10756 "SII Management"
     var
         SIIHistory: Record "SII History";
     begin
-        if not SIIDocUploadState.FindFirst then
+        if not SIIDocUploadState.FindFirst() then
             Error(NoSIIStateErr);
         SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
-        SIIHistory.FindFirst;
+        SIIHistory.FindFirst();
         PAGE.Run(PAGE::"SII History", SIIHistory);
     end;
 
@@ -606,7 +607,7 @@ codeunit 10756 "SII Management"
 
         TransNoFieldRef := InvoiceDocLedgerEntryRecRefOut.Field(DummyCustLedgerEntry.FieldNo("Transaction No."));
         TransNoFieldRef.SetRange(InvoiceDocVATEntry."Transaction No.");
-        InvoiceDocLedgerEntryRecRefOut.FindFirst;
+        InvoiceDocLedgerEntryRecRefOut.FindFirst();
     end;
 
     local procedure FindInvoiceDocLedgerFromBillLedger(var InvoiceDocLedgerEntryRecRef: RecordRef; BillLedgerEntryRecRef: RecordRef): Boolean
@@ -686,7 +687,7 @@ codeunit 10756 "SII Management"
             LedgerEntryRecRef.Open(DATABASE::"Vendor Ledger Entry", false);
         EntryNoFieldRef := LedgerEntryRecRef.Field(DummyCustLedgerEntry.FieldNo("Entry No."));
         EntryNoFieldRef.SetRange(SourceEntryNoFieldRef.Value);
-        LedgerEntryRecRef.FindFirst;
+        LedgerEntryRecRef.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -824,7 +825,7 @@ codeunit 10756 "SII Management"
         Make347Declaration: Report "Make 347 Declaration";
     begin
         Make347Declaration.SetCollectionInCashMode(true);
-        Make347Declaration.RunModal;
+        Make347Declaration.RunModal();
     end;
 
     procedure UpdateSIIInfoInSalesDoc(var SalesHeader: Record "Sales Header")

@@ -242,7 +242,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Customer No.", ApplyingCustomerLedgerEntry."Customer No.");
         CustLedgerEntry.SetRange("Applying Entry", false);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
@@ -261,7 +261,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Vendor No.", ApplyingVendorLedgerEntry."Vendor No.");
         VendorLedgerEntry.SetRange("Applying Entry", false);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
@@ -324,12 +324,12 @@ codeunit 144013 "ERM Cartera Journal Posting"
             CreateGeneralJournalLine(
               GenJournalLine, GenJournalBatch, "Document Type"::Bill, AccountType,
               "Applies-to Doc. Type"::" ", AccountNo, '', FindPaymentMethod(true, false), Amount1);  // False - Create Bills, TRUE - Invoices to Cartera.
-            Validate("Bill No.", LibraryUtility.GenerateGUID);
+            Validate("Bill No.", LibraryUtility.GenerateGUID());
             Modify(true);
             CreateGeneralJournalLine(
               GenJournalLine, GenJournalBatch, "Document Type"::Bill, AccountType,
               "Applies-to Doc. Type"::" ", AccountNo, '', FindPaymentMethod(true, false), Amount2);  // Blank as Apply - to Doc. No, TRUE - Create Bills, FALSE - Invoices to Cartera.
-            Validate("Bill No.", LibraryUtility.GenerateGUID);
+            Validate("Bill No.", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -423,7 +423,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount");
     end;
 
@@ -433,7 +433,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
     begin
         with CurrencyExchangeRate do begin
             SetRange("Currency Code", CurrencyCode);
-            FindLast;
+            FindLast();
             Validate("Exchange Rate Amount", NewRate);
             Validate("Relational Exch. Rate Amount", 1);
             Modify;
@@ -446,7 +446,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
     begin
         PaymentMethod.SetRange("Create Bills", CreateBills);
         PaymentMethod.SetRange("Invoices to Cartera", InvoicesToCartera);
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
@@ -465,7 +465,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(-Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(-Base * VATPct / 100, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
@@ -480,7 +480,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);

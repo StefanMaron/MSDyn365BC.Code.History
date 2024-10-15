@@ -113,7 +113,7 @@ codeunit 144036 "ERM REP CNAE"
         AccScheduleName.SetRange(Name, Name);
         Commit();  // Commit is required to run report - Normalized Account Schedule.
         NormalizedAccountSchedule.SetTableView(AccScheduleName);
-        NormalizedAccountSchedule.Run;  // Opens handler - NormalizedAccountScheduleRequestPageHandler.
+        NormalizedAccountSchedule.Run();  // Opens handler - NormalizedAccountScheduleRequestPageHandler.
     end;
 
     local procedure UpdateCompanyInformationCNAEDescription(CNAEDescription: Text) OldCompanyInformationCNAEDescription: Text

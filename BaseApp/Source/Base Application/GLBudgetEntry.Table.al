@@ -48,7 +48,7 @@ table 96 "G/L Budget Entry"
             begin
                 if "Global Dimension 1 Code" = xRec."Global Dimension 1 Code" then
                     exit;
-                GetGLSetup;
+                GetGLSetup();
                 ValidateDimValue(GLSetup."Global Dimension 1 Code", "Global Dimension 1 Code");
                 UpdateDimensionSetId(GLSetup."Global Dimension 1 Code", "Global Dimension 1 Code");
             end;
@@ -63,7 +63,7 @@ table 96 "G/L Budget Entry"
             begin
                 if "Global Dimension 2 Code" = xRec."Global Dimension 2 Code" then
                     exit;
-                GetGLSetup;
+                GetGLSetup();
                 ValidateDimValue(GLSetup."Global Dimension 2 Code", "Global Dimension 2 Code");
                 UpdateDimensionSetId(GLSetup."Global Dimension 2 Code", "Global Dimension 2 Code");
             end;
@@ -280,7 +280,7 @@ table 96 "G/L Budget Entry"
         if "Entry No." = 0 then
             "Entry No." := GetLastEntryNo() + 1;
 
-        GetGLSetup;
+        GetGLSetup();
         DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
         UpdateDimSet(TempDimSetEntry, GLSetup."Global Dimension 1 Code", "Global Dimension 1 Code");
         UpdateDimSet(TempDimSetEntry, GLSetup."Global Dimension 2 Code", "Global Dimension 2 Code");
@@ -381,7 +381,7 @@ table 96 "G/L Budget Entry"
     begin
         if GetFilter("Budget Name") <> '' then begin
             GLBudgetName.SetFilter(Name, GetFilter("Budget Name"));
-            if not GLBudgetName.FindFirst then
+            if not GLBudgetName.FindFirst() then
                 Clear(GLBudgetName);
         end;
         case BudgetDimType of
@@ -429,7 +429,7 @@ table 96 "G/L Budget Entry"
         if OldDimSetID = "Dimension Set ID" then
             exit;
 
-        GetGLSetup;
+        GetGLSetup();
         GLBudgetName.Get("Budget Name");
 
         "Global Dimension 1 Code" := '';

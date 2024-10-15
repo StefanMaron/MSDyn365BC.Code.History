@@ -261,7 +261,7 @@ page 9401 "VAT Amount Lines"
         VATAmountLine2 := TempVATAmountLine;
         TotalVATDifference := Abs("VAT Difference") - Abs(xRec."VAT Difference");
         TotalECDifference := Abs("EC Difference") - Abs(xRec."EC Difference");
-        if TempVATAmountLine.FindSet then
+        if TempVATAmountLine.FindSet() then
             repeat
                 TotalVATDifference := TotalVATDifference + Abs(TempVATAmountLine."VAT Difference");
                 TotalECDifference := TotalECDifference + Abs(TempVATAmountLine."EC Difference");

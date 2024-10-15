@@ -70,7 +70,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
 
         // Exercise: change Due Date in the line with falling out of the permitted range
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         asserterror CarteraDoc.Validate("Due Date", CalcDate('<+' + Format(MaxNoOfDays + LibraryRandom.RandInt(10)) + 'D>',
               CarteraDoc."Due Date"));
 
@@ -104,7 +104,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
 
         // Exercise: change Due Date in the line in the permitted range
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         DueDate := CarteraDoc."Due Date";
         CarteraDoc."Due Date" := CalcDate('<+' + Format(DueDateCalculationFormula) + 'D>', CarteraDoc."Due Date");
         CarteraDoc.Modify();
@@ -350,7 +350,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         CarteraDoc: Record "Cartera Doc.";
     begin
         CarteraDoc.SetRange("Document No.", InvoiceNo);
-        if CarteraDoc.FindSet then
+        if CarteraDoc.FindSet() then
             repeat
                 CarteraDoc."Bill Gr./Pmt. Order No." := BillGroupNo;
                 CarteraDoc.Modify();
@@ -471,7 +471,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         PaymentMethod.SetRange("Bill Type", PaymentMethod."Bill Type"::"Bill of Exchange");
         PaymentMethod.SetRange("Invoices to Cartera", false);
         PaymentMethod.SetRange("Bal. Account No.", '');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
     end;
 
     local procedure SelectCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type")
@@ -479,7 +479,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Posting Date", PostingDate);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure SaveReportAsXML(var Customer: Record Customer; ReportStartDate: Date; ReportEndDate: Date; ShowPayments: Option)
@@ -489,7 +489,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         CustomerOverduePayments.SetTableView(Customer);
         CustomerOverduePayments.InitReportParameters(ReportStartDate, ReportEndDate, ShowPayments);
         Commit();
-        CustomerOverduePayments.Run;
+        CustomerOverduePayments.Run();
     end;
 
     local procedure ReportVerification(Customer: Record Customer; PostingDate: Date; PostingDelta: Text[30])

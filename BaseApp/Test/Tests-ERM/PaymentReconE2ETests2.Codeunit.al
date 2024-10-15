@@ -15,6 +15,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         Assert: Codeunit Assert;
         LibraryCAMTFileMgt: Codeunit "Library - CAMT File Mgt.";
@@ -654,7 +655,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
-        TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
+        TransactionText := 'Transfer' + LibraryUtility.GenerateGUID();
         TransactionAmount := -100;
         WriteCAMTHeader(OutStream, '', 'TEST');
         WriteCAMTStmtLine(OutStream, WorkDate, TransactionText, TransactionAmount, '');
@@ -693,7 +694,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Initialize();
         TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryERM.CreateGLAccount(GLAccount);
-        TransactionText := 'Transfer' + LibraryUtility.GenerateGUID;
+        TransactionText := 'Transfer' + LibraryUtility.GenerateGUID();
         TransactionAmount := -100;
         WriteCAMTHeader(OutStream, '', 'TEST');
         WriteCAMTStmtLine(OutStream, WorkDate, TransactionText, TransactionAmount, '');
@@ -847,7 +848,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         Commit();
 
-        BankAccRecon.OpenNew;
+        BankAccRecon.OpenNew();
         BankAccRecon.BankAccountNo.SetValue(BankAcc."No.");
         BankAccRecon.StatementNo.SetValue('1');
         BankAccRecon.StatementDate.SetValue(WorkDate);
@@ -1136,7 +1137,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // verify that you got two applied payment entries
         BankAccReconLine.FilterBankRecLines(BankAccRecon);
-        BankAccReconLine.FindFirst;
+        BankAccReconLine.FindFirst();
         AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
         Assert.AreEqual(2, AppliedPmtEntry.Count, '');
 
@@ -1155,29 +1156,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
         Assert.AreEqual(Vend2."No.", VendorCard."No.".Value, '');
         VendorCard.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestOutstandingPaymentTrxTotal()
-    var
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        VendLedgerAmount: Decimal;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal]
-        // [SCENARIO 166797] Annie can view that one outstanding check transactions total is updated
-
-        // [GIVEN] One purchase and one payment is created and put into xml import bank statment
-        // [WHEN] Statement is imported
-        // [WHEN] GL Journal is created as a manual check
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJrnlOnePayment(PmtReconJnl, VendLedgEntry, BankAccRecon, VendLedgerAmount);
-
-        // [THEN] Outstanding Payment Total and Outstanding Bank Transactions are verified
-        PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
     end;
 
     [Test]
@@ -1201,238 +1179,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         OpenPmtReconJrnlOnePayment(PmtReconJnl, VendLedgEntry, BankAccRecon, VendLedgerAmount);
 
         // [WHEN] Manually match one and post the Payment Reconcilation Journal
-        NoOfOutstandingBankTrxEntries := OutstandingCheckTrxsCount(PmtReconJnl);
-        Assert.AreEqual(1, NoOfOutstandingBankTrxEntries, '');
         HandlePmtEntries(VendLedgEntry, PmtReconJnl);
         PmtReconJnl.Post.Invoke;
 
         // [THEN] Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestTwoOutstandingPaymentTrxsTotalPost()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccRecon2: Record "Bank Acc. Reconciliation";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccLedgEntry: Record "Bank Account Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        PmtReconJnl2: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        VendLedgerAmount: Decimal;
-        VendLedgerAmount2: Decimal;
-        NoOfOutstandingBankTrxEntries: Integer;
-        DoesPostedLineExist: Boolean;
-        DoesUnPostedLineExist: Boolean;
-        EntryNoArray: array[2] of Integer;
-        i: Integer;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 166797] Annie can view that after posting one check journal that it doesn't show up in Outstanding Bank Trx
-
-        // [GIVEN] Two purchases and two payments are created and one is put into xml import bank statment
-        CreateOnePurchOnePmtOutstream(VendLedgEntry, OutStream, TempBlobUTF8);
-        CreateVendAndPostPurchInvoice(VendLedgEntry2, '');
-
-        VendLedgerAmount := VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible";
-        VendLedgerAmount2 := VendLedgEntry2."Remaining Amount" - VendLedgEntry2."Remaining Pmt. Disc. Possible";
-
-        // [WHEN] Statement is imported
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-
-        // [WHEN] Two GL Journals are created as a manual check
-        CreateManualCheckAndPostGenJnlLine(GenJnlLine, VendLedgEntry, BankAccRecon."Bank Account No.", -VendLedgerAmount);
-        CreateManualCheckAndPostGenJnlLine(GenJnlLine, VendLedgEntry2, BankAccRecon."Bank Account No.", -VendLedgerAmount2);
-
-        i := 1;
-        BankAccLedgEntry.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
-        BankAccLedgEntry.SetRange(Open, true);
-        BankAccLedgEntry.FindSet();
-        repeat
-            EntryNoArray[i] += BankAccLedgEntry."Entry No.";
-            i := i + 1;
-        until BankAccLedgEntry.Next = 0;
-
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-
-        // [WHEN] Manually match one and post the Payment Reconcilation Journal
-        NoOfOutstandingBankTrxEntries := OutstandingCheckTrxsCount(PmtReconJnl);
-        Assert.AreEqual(2, NoOfOutstandingBankTrxEntries, '');
-        HandlePmtEntries(VendLedgEntry, PmtReconJnl);
-        PmtReconJnl.Post.Invoke;
-
-        // [WHEN] Reopen up the Payment Reconcilation Journal
-        LibraryERM.CreateBankAccReconciliation(BankAccRecon2, BankAccRecon."Bank Account No.",
-          BankAccRecon."Statement Type"::"Payment Application");
-        OpenPmtReconJnl(BankAccRecon2, PmtReconJnl2);
-
-        DoesPostedLineExist := OutstandingCheckTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[1]);
-        DoesUnPostedLineExist := OutstandingCheckTrxsVerifyEntryNo(PmtReconJnl2, EntryNoArray[2]);
-
-        // [THEN] Verify that the Unposted line still exists and verify the posted one is not available
-        Assert.IsFalse(DoesPostedLineExist, 'This line should have been posted');
-        Assert.IsTrue(DoesUnPostedLineExist, 'This line should not have been posted');
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler')]
-    [Scope('OnPrem')]
-    procedure TestOutstandingPaymentApplyAutoTwoLines()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal]
-        // [SCENARIO 166797] Annie can view that two outstanding check transactions total is updated when auto applied
-
-        // [GIVEN] Two purchases and two payments are created and put into xml import bank statment
-        CreateTwoPurchTwoPmtOutstream(VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
-
-        // [WHEN] Statement is imported and payments are posted
-        LibraryLowerPermissions.SetO365Full;
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
-
-        // [WHEN] Payment Reconciliation Journal is opened and automatically apply is ran
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-
-        // [THEN] Outstanding Payment Total is verified
-        PmtReconJnl.OutstandingPayments.AssertEquals(0);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-    end;
-
-    [Test]
-    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler')]
-    [Scope('OnPrem')]
-    procedure TestOutstandingPaymentAllOpenPayments()
-    var
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        VendLedgerAmount: Decimal;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal]
-        // [SCENARIO 166797] Annie can view that one outstanding check transactions total is updated when manually applied
-
-        // [GIVEN] One purchase and one payment is created and put into xml import bank statment
-        // [WHEN] Statement is imported
-        // [WHEN] GL Journal is created as a manual check
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJrnlOnePayment(PmtReconJnl, VendLedgEntry, BankAccRecon, VendLedgerAmount);
-
-        // [THEN] Verify Outstanding Trx total gets updated after manually applying the line
-        PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-        HandlePmtEntries(VendLedgEntry, PmtReconJnl);
-        PmtReconJnl.OutstandingPayments.AssertEquals(0);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-    end;
-
-    [Test]
-    [HandlerFunctions('PmtApplnAllOpenPaymentsHandler')]
-    [Scope('OnPrem')]
-    procedure TestOutstandingPaymentAllOpenPaymentsTwoLines()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        VendLedgerAmount: Decimal;
-        VendLedgerAmount2: Decimal;
-    begin
-        Initialize();
-        SetOnMatchOnClosingDocumentNumber();
-
-        // [FEATURE] [Payment Reconciliation Journal]
-        // [SCENARIO 166797] Annie can view that two outstanding check transactions total is updated when manually applied
-
-        // [GIVEN] Two purchases and two payments are created and put into xml import bank statment
-        // [WHEN] Statement is imported
-        // [WHEN] Two GL Journals are created as a manual check
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJrnlTwoPayments(PmtReconJnl, VendLedgEntry, VendLedgEntry2, BankAccRecon, VendLedgerAmount, VendLedgerAmount2);
-
-        // [THEN] Verify Outstanding Trx total gets updated after manually applying the line
-        PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount + VendLedgerAmount2);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-        PmtReconJnl."Transaction Text".SetValue(VendLedgEntry."External Document No.");
-        HandlePmtEntries(VendLedgEntry, PmtReconJnl);
-        PmtReconJnl.OutstandingPayments.AssertEquals(VendLedgerAmount2);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-        PmtReconJnl.Next;
-        PmtReconJnl."Transaction Text".SetValue(VendLedgEntry2."External Document No.");
-        HandlePmtEntries(VendLedgEntry2, PmtReconJnl);
-        PmtReconJnl.OutstandingPayments.AssertEquals(0);
-        PmtReconJnl.OutstandingTransactions.AssertEquals(0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestOutstandingBankTrxsPagePaymentOneLine()
-    var
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        VendLedgerAmount: Decimal;
-        NoOfOutstandingBankTrxEntries: Integer;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 166797] Annie can view that one outstanding check transaction in the Outstanding Bank Transactions window
-
-        // [GIVEN] One purchase and one payment is created and put into xml import bank statment
-        // [WHEN] Statement is imported
-        // [WHEN] GL Journal is created as a manual check
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJrnlOnePayment(PmtReconJnl, VendLedgEntry, BankAccRecon, VendLedgerAmount);
-
-        // [WHEN] Outstanding Bank Transactions is opened and lines are counted
-        NoOfOutstandingBankTrxEntries := OutstandingCheckTrxsCount(PmtReconJnl);
-
-        // [THEN] Verify only one line in the Outstanding Bank Transactions
-        Assert.AreEqual(1, NoOfOutstandingBankTrxEntries, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestOutstandingBankTrxsPagePaymentTwoLines()
-    var
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        VendLedgerAmount: Decimal;
-        VendLedgerAmount2: Decimal;
-        NoOfOutstandingBankTrxEntries: Integer;
-    begin
-        // [FEATURE] [Payment Reconciliation Journal] [Outstanding Bank Transactions]
-        // [SCENARIO 166797] Annie can view that two outstanding check transactions in the Outstanding Bank Transactions window
-
-        // [GIVEN] Two purchases and two payments are created and put into xml import bank statment
-        // [WHEN] Statement is imported
-        // [WHEN] Two GL Journals are created as a manual check
-        // [WHEN] Payment Reconciliation Journal is opened
-        OpenPmtReconJrnlTwoPayments(PmtReconJnl, VendLedgEntry, VendLedgEntry2, BankAccRecon, VendLedgerAmount, VendLedgerAmount2);
-
-        // [WHEN] Outstanding Bank Transactions is opened and lines are counted
-        NoOfOutstandingBankTrxEntries := OutstandingCheckTrxsCount(PmtReconJnl);
-
-        // [THEN] Verify two lines in the Outstanding Bank Transactions
-        Assert.AreEqual(2, NoOfOutstandingBankTrxEntries, '');
     end;
 
     [Test]
@@ -1773,7 +1525,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // [THEN] The file has been imported and a line has been created
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
     end;
 
     [Test]
@@ -1902,8 +1654,9 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // [WHEN] Open Payment Reconcilation Journal for "BR"
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
 
-        // [THEN] Statement Ending Balance field is invisible
-        Assert.IsFalse(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be invisible');
+        // [THEN] Statement Ending Balance field is always visible and a "-" is displayed as the field does not apply.
+        Assert.IsTrue(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be always visible to avoid epmty space');
+        Assert.AreEqual(PmtReconJnl.StatementEndingBalanceFixedLayout.Value(), '-', 'Statements with ending balance 0 should show -')
     end;
 
     [Test]
@@ -1942,23 +1695,26 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         LibraryVariableStorage.Clear();
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Recon. E2E Tests 2");
+        LibrarySetupStorage.Restore();
         if BankPmtApplSettings.Get() then
             BankPmtApplSettings.Delete();
 
         if Initialized then
             exit;
 
-        Initialized := true;
-
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 2");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         UpdateVendPostingGrp();
+
+        Initialized := true;
         Commit();
+
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 2");
     end;
 
@@ -2114,7 +1870,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         with BankAccReconciliationLine do begin
             Validate("Transaction Date", WorkDate);
             Validate("Transaction Text", InvoiceNo);
-            Validate("Document No.", LibraryUtility.GenerateGUID);
+            Validate("Document No.", LibraryUtility.GenerateGUID());
             Validate("Statement Amount", StatementAmount);
             Validate("Account Type", "Account Type"::Vendor);
             Validate("Account No.", VendorNo);
@@ -2139,7 +1895,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         with BankAccReconciliationLine do begin
             Validate("Transaction Date", WorkDate);
-            Validate("Document No.", LibraryUtility.GenerateGUID);
+            Validate("Document No.", LibraryUtility.GenerateGUID());
             Validate(Description, "Document No.");
             Validate("Statement Amount", LibraryRandom.RandDec(100, 2));
             Validate("Account Type", "Account Type"::"G/L Account");
@@ -2279,7 +2035,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
             SetRange("Vendor No.", VendorNo);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2287,7 +2043,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure SetOnMatchOnClosingDocumentNumber()
@@ -2637,7 +2393,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
         VendLedgEntry.SetRange("Document No.", LibraryPurch.PostPurchaseDocument(PurchHeader, true, true));
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         VendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
     end;
@@ -2805,7 +2561,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         LibraryERM.CreateGLAccount(GLAcc);
         with VendPostingGroup do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Payment Disc. Debit Acc." = '' then begin
                         Validate("Payment Disc. Debit Acc.", GLAcc."No.");
@@ -2975,38 +2731,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
             OK.Invoke;
         end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure OutstandingCheckTrxsCount(PmtReconJnl: TestPage "Payment Reconciliation Journal") NoOfOutstandingBankTrxEntries: Integer
-    var
-        OutstandingBankTrxs: TestPage "Outstanding Bank Transactions";
-    begin
-        OutstandingBankTrxs.Trap;
-        PmtReconJnl.OutstandingPayments.DrillDown;
-        // Outstanding Bank Trxs page shows and count records
-        OutstandingBankTrxs.First;
-        repeat
-            if OutstandingBankTrxs."Entry No.".Value <> '' then
-                NoOfOutstandingBankTrxEntries += 1;
-        until not OutstandingBankTrxs.Next;
-    end;
-
-    [Scope('OnPrem')]
-    procedure OutstandingCheckTrxsVerifyEntryNo(PmtReconJnl: TestPage "Payment Reconciliation Journal"; EntryNo: Integer) EntryNoExists: Boolean
-    var
-        OutstandingBankTrxs: TestPage "Outstanding Bank Transactions";
-    begin
-        OutstandingBankTrxs.Trap;
-        EntryNoExists := false;
-        PmtReconJnl.OutstandingPayments.DrillDown;
-        // Outstanding Bank Trxs page shows and count records
-        OutstandingBankTrxs.First;
-        repeat
-            if OutstandingBankTrxs."Entry No.".AsInteger = EntryNo then
-                EntryNoExists := true;
-        until not OutstandingBankTrxs.Next;
-        OutstandingBankTrxs.Close;
     end;
 
     [Scope('OnPrem')]

@@ -118,7 +118,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Fiscal Year in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
         ReferenceDate := GetBasisOfCalcForPostingDate;
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
@@ -143,7 +143,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify VAT Registration Number in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -194,7 +194,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify whether system throws error message when Company VAT Registration No is not filled in.
         // Setup: Update Country/Region in Company Information.
-        Initialize;  // Setup Demo Data.
+        Initialize();  // Setup Demo Data.
         VATRegistrationNo := UpdateCompanyVATRegistrationNo('');
 
         // Exercise: Run Report Make 340 Declaration.
@@ -208,7 +208,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
           0, false, '',
           TemporaryPath + 'ES340.txt'
           , '', 0.0);
-        asserterror Make340Declaration.RunModal;
+        asserterror Make340Declaration.RunModal();
 
         // Verify: Verify the error message.
         Assert.ExpectedError(MissingVATRegistrationNoError);
@@ -236,7 +236,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Telematic code in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -259,7 +259,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify CD-R Code in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 1, FindCountryRegionCode,
@@ -281,11 +281,11 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify whether system throws error message when incomplete Electronic Code is filled in.
         // Setup: Update Country/Region in Company Information.
-        Initialize;  // Setup Demo Data.
+        Initialize();  // Setup Demo Data.
 
         // Exercise: Run Report Make 340 Declaration.
         Make340Declaration.UseRequestPage(true);
-        asserterror Make340Declaration.RunModal;
+        asserterror Make340Declaration.RunModal();
 
         // Verify: Verify the error message.
         Assert.ExpectedError(IncompleteElectronicCodeError);
@@ -311,7 +311,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Record Type 2 in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -336,7 +336,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Electronic Code in Make 340 Declaration text file.
         // Setup: Generate 16 digit Electronic Code.
-        Initialize;
+        Initialize();
         ElectronicCode := CopyStr(GenerateIntegerCode(16), 1, 16);
 
         // Exercise: Run Report Make 340 Declaration and export text file.
@@ -362,7 +362,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify VAT Registration No. for Foreign Customer in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindForeignCountryRegionCode,
@@ -390,7 +390,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify VAT Registration No. for Domestic Customer in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
             GenerateIntegerCode(16), GetBasisOfCalcForPostingDate);
 
@@ -417,7 +417,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Resident Country Code for Domestic Customer in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -442,7 +442,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Resident Country Code for Domestic Vendor in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportForPurchaseWithFilters(DocumentNo,
@@ -467,7 +467,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Resident Country Code for EU Vendor in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportForPurchaseWithFilters(DocumentNo,
@@ -493,7 +493,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Resident Country Code for Non-EU Vendor in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         NonEUCountryCode := FindNonEUCountryRegionCode;
@@ -519,7 +519,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Book Type Code for Vendor in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportForPurchaseWithFilters(DocumentNo,
@@ -544,7 +544,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Book Type Code for Customer in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -569,7 +569,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Operation Code for Sales Credit Memo in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportSalesCrMemoWithFilters(DocumentNo, false);
@@ -594,7 +594,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Equivalence Charge Amount for Customer in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -622,7 +622,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Operation Date for multiple Purchase Receipt in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
         ReferenceDate := GetBasisOfCalcForPostingDate;
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
@@ -648,7 +648,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Base Amount for Purchase in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportForPurchaseWithFilters(DocumentNo,
@@ -673,7 +673,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Special Characters in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
         PreviousCompanyName := UpdateCompanyName(UpdatedCountryName);
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0, FindCountryRegionCode,
@@ -703,7 +703,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Corrected Invoice Identification for Sales Credit Memo in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportSalesCrMemoWithFilters(DocumentNo, true);
@@ -728,7 +728,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Operation Code for Purchase Credit Memo in Make 340 Declaration text file.
         // Exercise: Run Report Make 340 Declaration and export text file.
-        Initialize;
+        Initialize();
 
         // Required different value for every test case to get different VAT Registration Code in the export file.
         ExportFileName := RunMake340DeclarationReportPurchaseCrMemoWithFilters(DocumentNo);
@@ -757,7 +757,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Customer VAT Number field in the 340 Declaration file, when 340 Declaration Report is run with Customer Country Code = ES.
         // Setup & Exercise: Post a Sales Invoice with Customer Country Code = ES and run report Make 340 Declaration.
-        Initialize;
+        Initialize();
         ReferenceDate := GetBasisOfCalcForPostingDate;
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0,
             FindCountryRegionCode, GenerateIntegerCode(16), ReferenceDate);
@@ -790,7 +790,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify Vendor VAT Number field in the 340 Declaration file, when 340 Declaration Report is run with Vendor Country Code = ES.
         // Setup & Exercise: Post a Purchase Invoice with Vendor Country Code = ES and run report Make 340 Declaration.
-        Initialize;
+        Initialize();
         ReferenceDate := GetBasisOfCalcForPostingDate;
         ExportFileName := RunMake340DeclarationReportForPurchaseWithFilters(DocumentNo, FindCountryRegionCode, ReferenceDate);
         VendorNo := GetVendorFromPurchaseInvHeader(DocumentNo);
@@ -820,7 +820,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
     begin
         // Verify VAT Number in the Permanenet Residence Country field in the 340 Declaration file, when report is run with Customer Country Code = ES.
         // Setup & Exercise: Post a Sales Invoice with Customer Country Code = ES and run report Make 340 Declaration.
-        Initialize;
+        Initialize();
         ReferenceDate := GetBasisOfCalcForPostingDate;
         ExportFileName := RunMake340DeclarationReportWithFilters(DocumentNo, 0,
             FindCountryRegionCode, GenerateIntegerCode(16), ReferenceDate);
@@ -852,7 +852,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         EquivalenceChargeAmt: Text[1024];
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         CalculatedAmt := 100 * Abs(Round(VATEntry.Base * VATEntry."EC %" / 100, 0.01));  // Value in text file is always considered with 2 decimal places.
         EquivalenceChargeAmt := Format(CalculatedAmt);
         // Add '0' to the left of Equivalence Charge Amount to make the field to 13 digit.
@@ -932,7 +932,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         GLRegister: Record "G/L Register";
     begin
         GLRegister.SetCurrentKey("Posting Date");
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         exit(DMY2Date(Date2DMY(WorkDate, 1), Date2DMY(WorkDate, 2), 1 + Date2DMY(GLRegister."Posting Date", 3)));
     end;
 
@@ -1006,7 +1006,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         CalculatedVATBase: Integer;
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         CalculatedVATBase := 100 * Abs(VATEntry.Base);  // Value in text file is always considered with 2 decimal places.
         VATBaseAmt := Format(CalculatedVATBase);  // Add '0' to the left of Equivalence Charge Amount
         // to make the field to 13 digit.
@@ -1089,7 +1089,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         FiscalYear: Text[4];
     begin
         // Setup: Update Country/Region in Company Information.
-        Initialize;  // Setup Demo Data.
+        Initialize();  // Setup Demo Data.
 
         // Exercise: Run Report Make 340 Declaration.
         FiscalYear := Format(Date2DMY(WorkDate, 3));
@@ -1100,7 +1100,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
           TelephoneNumber, DeclarationNo, ElectronicCode,
           0, ReplacementDeclaration, '',
           TemporaryPath + 'ES340.txt', '', 0.0);
-        asserterror Make340Declaration.RunModal;
+        asserterror Make340Declaration.RunModal();
 
         // Verify: Verify the error message.
         Assert.ExpectedError(ExpectedErrorMessage);
@@ -1197,7 +1197,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
           ElectronicCode,
           DeclarationMedia, false, '',
           ExportedFileName, '', 0.0);
-        Make340Declaration.RunModal;
+        Make340Declaration.RunModal();
     end;
 
     local procedure UpdateCompanyInformation(CountryRegionCode: Code[10])

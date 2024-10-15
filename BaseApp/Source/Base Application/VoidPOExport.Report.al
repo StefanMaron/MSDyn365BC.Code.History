@@ -36,7 +36,7 @@ report 7000061 "Void PO - Export"
                     BankAccount.Get("Bank Account No.");
                     "Cartera Doc.".SetRange(Type, "Cartera Doc.".Type::Payable);
                     "Cartera Doc.".SetRange("Bill Gr./Pmt. Order No.", "No.");
-                    if "Cartera Doc.".FindFirst then
+                    if "Cartera Doc.".FindFirst() then
                         FileName := "Cartera Doc."."Export File Name";
                     if Exists(FileName) then
                         Erase(FileName);
@@ -52,7 +52,7 @@ report 7000061 "Void PO - Export"
             begin
                 SetRange("No.", "No.");
 
-                if not FindFirst then
+                if not FindFirst() then
                     Error(Text1100002);
 
                 FirstTime := true;

@@ -29,11 +29,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Bill);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         PaymentTerms.Get(CustLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date") + 'D>');
@@ -49,11 +49,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Bill);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         PaymentTerms.Get(CustLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -72,11 +72,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Bill);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         PaymentTerms.Get(CustLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" - 1) + 'D>');
@@ -92,11 +92,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetFilter("Document Type", '=%1', CustLedgerEntry."Document Type"::Bill);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         PaymentTerms.Get(CustLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -112,11 +112,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetFilter("Document Type", '<>%1', VendorLedgerEntry."Document Type"::Bill);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         PaymentTerms.Get(VendorLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date") + 'D>');
@@ -132,11 +132,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetFilter("Document Type", '<>%1', VendorLedgerEntry."Document Type"::Bill);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         PaymentTerms.Get(VendorLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -155,11 +155,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetFilter("Document Type", '<>%1', VendorLedgerEntry."Document Type"::Bill);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         PaymentTerms.Get(VendorLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" - 1) + 'D>');
@@ -175,11 +175,11 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PaymentTerms: Record "Payment Terms";
         DateFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetFilter("Document Type", '=%1', VendorLedgerEntry."Document Type"::Bill);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         PaymentTerms.Get(VendorLedgerEntry."Payment Terms Code");
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -196,7 +196,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales and Purchase Journal since they are actually General Journal
-        Initialize;
+        Initialize();
 
         CreatePaymentTerms(PaymentTerms);
         CreateGeneralJournalLine(GenJnlLine);
@@ -218,7 +218,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales and Purchase Journal since they are actually General Journal
-        Initialize;
+        Initialize();
 
         CreatePaymentTerms(PaymentTerms);
         CreateGeneralJournalLine(GenJnlLine);
@@ -243,7 +243,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales and Purchase Journal since they are actually General Journal
-        Initialize;
+        Initialize();
 
         CreatePaymentTerms(PaymentTerms);
         CreateGeneralJournalLine(GenJnlLine);
@@ -266,7 +266,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales Order and Invoice since they are actually same sales header
-        Initialize;
+        Initialize();
         SetupSales(SalesHeader, Customer, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date") + 'D>');
@@ -284,7 +284,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales Order and Invoice since they are actually same sales header
-        Initialize;
+        Initialize();
         SetupSales(SalesHeader, Customer, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -305,7 +305,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales Order and Invoice since they are actually same sales header
-        Initialize;
+        Initialize();
         SetupSales(SalesHeader, Customer, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" - 1) + 'D>');
@@ -323,7 +323,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Purchase Order and Invoice since they are actually same Purchase header
-        Initialize;
+        Initialize();
         SetupPurchase(PurchaseHeader, Vendor, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date") + 'D>');
@@ -341,7 +341,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Purchase Order and Invoice since they are actually same Purchase header
-        Initialize;
+        Initialize();
         SetupPurchase(PurchaseHeader, Vendor, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -362,7 +362,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Purchase Order and Invoice since they are actually same Purchase header
-        Initialize;
+        Initialize();
         SetupPurchase(PurchaseHeader, Vendor, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" - 1) + 'D>');
@@ -380,7 +380,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales Order and Invoice since they are actually same sales header
-        Initialize;
+        Initialize();
         SetupSales(SalesHeader, Customer, PaymentTerms);
         SalesHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         SalesHeader.Modify();
@@ -400,7 +400,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales Order and Invoice since they are actually same sales header
-        Initialize;
+        Initialize();
         SetupSales(SalesHeader, Customer, PaymentTerms);
         SalesHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         SalesHeader.Modify();
@@ -423,7 +423,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Sales Order and Invoice since they are actually same sales header
-        Initialize;
+        Initialize();
         SetupSales(SalesHeader, Customer, PaymentTerms);
         SalesHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         SalesHeader.Modify();
@@ -443,7 +443,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Purchase Order and Invoice since they are actually same Purchase header
-        Initialize;
+        Initialize();
         SetupPurchase(PurchaseHeader, Vendor, PaymentTerms);
         PurchaseHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         PurchaseHeader.Modify();
@@ -463,7 +463,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Purchase Order and Invoice since they are actually same Purchase header
-        Initialize;
+        Initialize();
         SetupPurchase(PurchaseHeader, Vendor, PaymentTerms);
         PurchaseHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         PurchaseHeader.Modify();
@@ -486,7 +486,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Purchase Order and Invoice since they are actually same Purchase header
-        Initialize;
+        Initialize();
         SetupPurchase(PurchaseHeader, Vendor, PaymentTerms);
         PurchaseHeader."Prepmt. Payment Terms Code" := PaymentTerms.Code;
         PurchaseHeader.Modify();
@@ -506,7 +506,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Service Order and Invoice since they are actually same Service header
-        Initialize;
+        Initialize();
         SetupService(ServiceHeader, Customer, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date") + 'D>');
@@ -524,7 +524,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Service Order and Invoice since they are actually same Service header
-        Initialize;
+        Initialize();
         SetupService(ServiceHeader, Customer, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" + 1) + 'D>');
@@ -545,7 +545,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DateFormula: DateFormula;
     begin
         // This covers both Service Order and Invoice since they are actually same Service header
-        Initialize;
+        Initialize();
         SetupService(ServiceHeader, Customer, PaymentTerms);
 
         Evaluate(DateFormula, '<' + Format(PaymentTerms."Max. No. of Days till Due Date" - 1) + 'D>');
@@ -562,7 +562,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -579,7 +579,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -596,7 +596,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -613,7 +613,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -630,7 +630,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: array[2] of Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -649,7 +649,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: array[2] of Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -668,7 +668,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: array[2] of Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -687,7 +687,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         ToDate: array[2] of Date;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -707,7 +707,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -726,7 +726,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -745,7 +745,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -764,7 +764,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate, ToDate, 'CM+1M');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate, ToDate);
@@ -783,7 +783,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], '<CM+1M>');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -804,7 +804,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], '<CM+1M>');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -825,7 +825,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], '<CM+1M>');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -846,7 +846,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], '<CM+1M>');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -867,7 +867,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         MaxDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Create1RandomPeriod(FromDate[1], ToDate[1], '<CM+1M>');
         CreateCustomerWithNonPaymentPeriod(CustomerNo, FromDate[1], ToDate[1]);
@@ -886,7 +886,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(2, 31);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -903,7 +903,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate), 1));
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -919,7 +919,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -936,7 +936,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -953,7 +953,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: array[2] of Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay[1] := LibraryRandom.RandIntInRange(2, 15);
         PayDay[2] := LibraryRandom.RandIntInRange(16, 31);
@@ -973,7 +973,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: array[2] of Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay[1] := LibraryRandom.RandInt(14);
         PayDay[2] := LibraryRandom.RandIntInRange(16, 31);
@@ -993,7 +993,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: array[2] of Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay[1] := LibraryRandom.RandIntInRange(2, 15);
         PayDay[2] := LibraryRandom.RandIntInRange(16, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
@@ -1016,7 +1016,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         i: Integer;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := 31;
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1050,7 +1050,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         i: Integer;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := 31;
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1081,7 +1081,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(2, 31);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1098,7 +1098,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(2, 31);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1116,7 +1116,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate), 1));
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1132,7 +1132,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandInt(Date2DMY(CalcDate('<CM>', WorkDate), 1));
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1148,7 +1148,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1165,7 +1165,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1183,7 +1183,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1202,7 +1202,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1220,7 +1220,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := LibraryRandom.RandIntInRange(1, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1238,7 +1238,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: array[2] of Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay[1] := LibraryRandom.RandIntInRange(2, 15);
         PayDay[2] := LibraryRandom.RandIntInRange(16, 31);
@@ -1258,7 +1258,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     var
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerWithPaymentDay(CustomerNo, 2);
         CreatePaymentDay(CustomerNo, PaymentTableNameOption::Customer, 31);
@@ -1273,7 +1273,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: array[2] of Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay[1] := LibraryRandom.RandInt(14);
         PayDay[2] := LibraryRandom.RandIntInRange(16, 31);
@@ -1295,7 +1295,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         PayDay: array[2] of Integer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         PayDay[1] := LibraryRandom.RandIntInRange(2, 15);
         PayDay[2] := LibraryRandom.RandIntInRange(16, Date2DMY(CalcDate('<CM>', WorkDate), 1) - 1);
@@ -1320,7 +1320,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         i: Integer;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := 31;
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1355,7 +1355,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         i: Integer;
         j: Integer;
     begin
-        Initialize;
+        Initialize();
 
         PayDay := 31;
         CreateCustomerWithPaymentDay(CustomerNo, PayDay);
@@ -1385,7 +1385,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
     var
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerWithNonPaymentPeriod(CustomerNo, CreateDateWithDayAndWorkDate(15, ''), CreateDateWithDayAndWorkDate(16, ''));
         CreateNonPaymentPeriod(
@@ -1401,7 +1401,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Customer: Record Customer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Insert();
@@ -1416,7 +1416,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Customer: Record Customer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Insert();
@@ -1431,7 +1431,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Customer: Record Customer;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Insert();
@@ -1448,7 +1448,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         VendorPayDay: Integer;
         CompanyPayDay: Integer;
     begin
-        Initialize;
+        Initialize();
 
         VendorPayDay := LibraryRandom.RandIntInRange(2, 20);
         CompanyPayDay := LibraryRandom.RandIntInRange(VendorPayDay, 31);
@@ -1468,7 +1468,7 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         DueDate: Date;
         CompanyPayDay: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CompanyPayDay := LibraryRandom.RandIntInRange(2, 31);
         Vendor."No." := LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor);

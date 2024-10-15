@@ -91,7 +91,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     begin
         // [SCENARIO] validate ShowPhysInvtRecordLines function of Table ID - 5005351  Phys. Inventory Order Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode);
         PhysInvtOrderLine."On Recording Lines" := true;
         PhysInvtOrderLine.Modify();
@@ -116,7 +116,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     begin
         // [SCENARIO] validate ShowExpPhysInvtTrackings function of Table ID - 5005351  Phys. Inventory Order Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode);
         PhysInvtOrderLine."Qty. Exp. Calculated" := true;
         PhysInvtOrderLine.Modify();
@@ -142,7 +142,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     begin
         // [SCENARIO] validate ShowPhysInvtLedgerEntries function of Table ID - 5005351  Phys. Inventory Order Line.
         // Setup.
-        Initialize;
+        Initialize();
         PhysInvtOrderHeaderNo := CreatePhysInventoryOrderHeader;
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeaderNo);
 
@@ -231,7 +231,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     begin
         // [SCENARIO] validate function ShowBinContentItem for Table 5005351 - Phys. Inventory Order Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode);
 
         BinContent."Item No." := PhysInvtOrderLine."Item No.";
@@ -254,7 +254,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     begin
         // [SCENARIO] validate function ShowBinContentBin for Table 5005351 - Phys. Inventory Order Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, LibraryUTUtility.GetNewCode);
         Location.Init();
         Location.Code := LibraryUTUtility.GetNewCode10;
@@ -317,7 +317,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(): Code[20]
@@ -347,7 +347,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     var
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
     begin
-        PhysInventoryLedgerEntry.FindLast;
+        PhysInventoryLedgerEntry.FindLast();
         PhysInventoryLedgerEntry2."Entry No." := PhysInventoryLedgerEntry."Entry No." + 1;
         PhysInventoryLedgerEntry2."Document No." := DocumentNo;
         PhysInventoryLedgerEntry2."Posting Date" := WorkDate;
@@ -360,7 +360,7 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
     begin
         DimensionValue.SetRange("Global Dimension No.", GlobalDimensionNo);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         exit(DimensionValue.Code);
     end;
 

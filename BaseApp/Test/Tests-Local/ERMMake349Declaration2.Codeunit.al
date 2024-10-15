@@ -42,7 +42,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 268944] Report Make 349 Declaration doesn't include Customer entries when full correction was applied and EU Service is FALSE
-        Initialize;
+        Initialize();
 
         // setup new year to avoid noise in "Customer / Vendor Warnings 349" page
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -81,7 +81,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 268944] Report Make 349 Declaration doesn't include Vendor entries when full correction was applied and EU Service is FALSE
-        Initialize;
+        Initialize();
 
         // setup new year to avoid noise in "Customer / Vendor Warnings 349" page
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -120,7 +120,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 273362] Report Make 349 Declaration doesn't include Customer entries when full correction was applied and EU Service is TRUE
-        Initialize;
+        Initialize();
 
         // setup new year to avoid noise in "Customer / Vendor Warnings 349" page
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -159,7 +159,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 273362] Report Make 349 Declaration doesn't include Vendor entries when full correction was applied and EU Service is TRUE
-        Initialize;
+        Initialize();
 
         // setup new year to avoid noise in "Customer / Vendor Warnings 349" page
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -193,8 +193,8 @@ codeunit 144118 "ERM Make 349 Declaration 2"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Make 349 Declaration 2");
 
-        LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
 
         IsInitialized := true;
 
@@ -389,7 +389,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     begin
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDate, 0));
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryERM.CreateCountryRegionWithIntrastatCode);
     end;
 
@@ -401,7 +401,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
         FileName := FileManagement.ServerTempFileName('.txt');
         Commit();
         Make349Declaration.InitializeRequest(FileName);
-        Make349Declaration.Run;
+        Make349Declaration.Run();
     end;
 
     local procedure AssignIncludeCorrectionToDocument(var CustomerVendorWarning349: Record "Customer/Vendor Warning 349"; IncludeCorrection: Boolean)

@@ -246,7 +246,7 @@ table 7000020 "Payment Order"
         Doc.SetCurrentKey(Type, "Bill Gr./Pmt. Order No.");
         Doc.SetRange(Type, Doc.Type::Payable);
         Doc.SetRange("Bill Gr./Pmt. Order No.", "No.");
-        if Doc.FindFirst then
+        if Doc.FindFirst() then
             Error(Text1100000);
 
         BGPOCommentLine.SetRange("BG/PO No.", "No.");

@@ -26,7 +26,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
         PaymentMethod: Record "Payment Method";
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraPayables.CreateInvoiceToCarteraPaymentMethod(PaymentMethod);
@@ -62,7 +62,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
         OriginalAmount: Decimal;
         PrepaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraPayables.CreateInvoiceToCarteraPaymentMethod(PaymentMethod);
@@ -87,7 +87,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
         CarteraDoc.SetRange("Account No.", Customer."No.");
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.TestField("Remaining Amount", OriginalAmount - PrepaymentAmount);
     end;
 
@@ -102,7 +102,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
         OriginalAmount: Decimal;
         PrepaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
@@ -126,7 +126,7 @@ codeunit 147544 "Cartera Receivable Prepayment"
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Bill);
         CarteraDoc.SetRange("Account No.", Customer."No.");
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.TestField("Remaining Amount", OriginalAmount - PrepaymentAmount);
     end;
 

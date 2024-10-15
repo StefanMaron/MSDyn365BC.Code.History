@@ -208,7 +208,7 @@ table 10750 "SII History"
             SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
             SIIHistory.SetRange("Upload Type", RequestToFindType);
 
-            SIIHistory.FindFirst;
+            SIIHistory.FindFirst();
             if Status = SIIHistory.Status::Accepted then begin
                 if SIIHistory.Status = SIIHistory.Status::Accepted then
                     SIIDocUploadState.Status := SIIDocUploadState.Status::Accepted;

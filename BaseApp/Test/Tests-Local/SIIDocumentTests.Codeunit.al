@@ -40,11 +40,11 @@ codeunit 147520 SIIDocumentTests
         CustLedgerEntry: Record "Cust. Ledger Entry";
         XMLDoc: DotNet XmlDocument;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Creation of a Sales Invoice for a local customer
         SalesInvoiceHeader.Get(CreateSalesDocument(true, false, '', GlobalCreditMemoType::" ", true));
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -69,7 +69,7 @@ codeunit 147520 SIIDocumentTests
         XMLDoc: DotNet XmlDocument;
     begin
         // [SCENARIO 221468] XML has customer related fields from "Bill-to Customer No." in sales order
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Invoice for a local customer and different Bill-to and Sell-to customers
         LibrarySII.CreateCustWithCountryAndVATReg(SellToCustomer, '', 'B78603495');
         LibrarySII.CreateCustWithCountryAndVATReg(BillToCustomer, '', 'B80833593');
@@ -100,7 +100,7 @@ codeunit 147520 SIIDocumentTests
         DocumentNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
@@ -114,7 +114,7 @@ codeunit 147520 SIIDocumentTests
         // [WHEN] We create the xml to be transmitted for that transaction
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
         // [THEN] Assert that the values in the xml are valid
@@ -128,7 +128,7 @@ codeunit 147520 SIIDocumentTests
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         SIIXMLCreator.Reset();
         Assert.IsTrue(SIIXMLCreator.GenerateXml(DetailedCustLedgEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
@@ -146,12 +146,12 @@ codeunit 147520 SIIDocumentTests
         CustLedgerEntry: Record "Cust. Ledger Entry";
         XMLDoc: DotNet XmlDocument;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an exempt Sales Invoice for a local customer
         SalesInvoiceHeader.Get(CreateSalesDocument(true, true, '', GlobalCreditMemoType::" ", true));
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -170,12 +170,12 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 255493] FechaRegContable node of XML file has value of "Requested Date" of SII History for Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Purchase Invoice for a local vendor
         PurchInvHeader.Get(CreatePurchDocument(true, 'ES', GlobalCreditMemoType::" ", true));
         VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction on 09.01.2017
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -207,7 +207,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 221468] XML has vendor related fields from "Pay-to Vendor No." in purchase order
         // [SCENARIO 233980]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice for a local vendor and different Pay-to and Buy-from vendors
         LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B78603495');
@@ -241,7 +241,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 233980] XML has vendor related fields from "Pay-to Vendor No." in purchase Credit Memo
         // [SCENARIO 267017] "VAT Registration No." is taken from "Pay-To Vendor No." in purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo for a local vendor and different Pay-to and Buy-from vendors
         LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B78603495');
@@ -274,7 +274,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 233980] XML has vendor related fields from "Pay-to Vendor No." in purchase Credit Memo (Replacement)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo (Replacement) for a local vendor and different Pay-to and Buy-from vendors
         LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B78603495');
@@ -311,7 +311,7 @@ codeunit 147520 SIIDocumentTests
         Amount: Decimal;
         ExtDocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
@@ -325,7 +325,7 @@ codeunit 147520 SIIDocumentTests
         // [WHEN] We create the xml to be transmitted for that transaction
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetFilter("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
         // [THEN] Assert that the values in the xml are valid
@@ -340,7 +340,7 @@ codeunit 147520 SIIDocumentTests
         DetailedVendorLedgEntry.Reset();
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         SIIXMLCreator.Reset();
         Assert.IsTrue(SIIXMLCreator.GenerateXml(DetailedVendorLedgEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
 
@@ -368,11 +368,11 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO 231749] FacturasRectificadas node exports in XML file with information about corrected document for Sales Credit Memo with "Correction Type" = Difference
         // [SCENARIO 269110] SII Doc. Upload State has "Corrected Doc. No." and "Corr. Posting Date" of corrected sales invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Sales Cr Memo for a local customer with Amount = 100, "Operation Description" = "X", "Document Date" = "Y" and set to difference correction type
         CustLedgerEntry.SetRange("Document No.", CreateSalesDocument(false, false, 'ES', GlobalCreditMemoType::Difference, true));
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
         SalesCrMemoHeader.Validate("Correction Type", SalesCrMemoHeader."Correction Type"::Difference);
         SalesCrMemoHeader.Modify();
@@ -425,11 +425,11 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO 228335] DescripcionOperacion node contains value of "Operation Description" of Sales Credit Memo with Type = Replacement
         // [SCENARIO 231749] FacturasRectificadas node exports in XML file with information about corrected document for Sales Credit Memo with "Correction Type" = Replacement
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Sales Cr Memo for a local customer with Amount = 100, corrective invoice has amount 150, "Operation Description" = "X" and set to replacement correction type
         CustLedgerEntry.SetRange("Document No.", CreateSalesDocument(false, false, 'ES', GlobalCreditMemoType::Replacement, true));
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
         SalesCrMemoHeader.Validate("Correction Type", SalesCrMemoHeader."Correction Type"::Replacement);
         SalesCrMemoHeader.Modify();
@@ -471,11 +471,11 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO] Generate sii XML file for Sales Credit Memo with "Correction Type" = Removal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Sales Cr Memo for a local customer, set to removal correction type
         CustLedgerEntry.SetRange("Document No.", CreateSalesDocument(false, false, 'ES', GlobalCreditMemoType::Removal, true));
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
         SalesCrMemoHeader.Validate("Correction Type", SalesCrMemoHeader."Correction Type"::Removal);
         SalesCrMemoHeader.Modify();
@@ -507,11 +507,11 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO 259155] NumSerieFacturaEmisor node of FacturasRectificadas parent node has value of "External Document No." of Vendor Ledger Entry
         // [SCENARIO 269110] SII Doc. Upload State has "Corrected Doc. No." and "Corr. Posting Date" of corrected sales invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Purchase Cr Memo for a local vendor with Amount = 100, "Operation Description" = "X" and "Document Date" = "Y"
         VendorLedgerEntry.SetRange("Document No.", CreatePurchDocument(false, 'ES', PurchCrMemoHdr."Correction Type"::Difference, true));
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.");
         PurchCrMemoHdr.Validate("Correction Type", PurchCrMemoHdr."Correction Type"::Difference);
         PurchCrMemoHdr.Modify();
@@ -564,11 +564,11 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO 231749] FacturasRectificadas node exports in XML file with information about corrected document for Purchase Credit Memo with "Correction Type" = Replacement
         // [SCENARIO 255493] FechaRegContable node of XML file has value of "Requested Date" of SII History for Purchase Credit Memo with "Correction Type" = Replacement
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Purchase Cr Memo for a local vendor with Amount = 100, corrective invoice has amount 150 and "Operation Description" = "X"
         VendorLedgerEntry.SetRange("Document No.", CreatePurchDocument(false, 'ES', PurchCrMemoHdr."Correction Type"::Replacement, true));
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.");
         PurchCrMemoHdr.Validate("Correction Type", PurchCrMemoHdr."Correction Type"::Replacement);
         PurchCrMemoHdr.Modify();
@@ -611,11 +611,11 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO] Generate sii XML file for Purchase Credit Memo with "Correction Type" = Removal
         // [SCENARIO 227852] "Exernal Document No." uses for "NumSerieFacturaEmisor" xml node for Purchase Credit Memo with "Correction Type" = Removal
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Purchase Cr Memo for a local vendor
         VendorLedgerEntry.SetRange("Document No.", CreatePurchDocument(false, 'ES', PurchCrMemoHdr."Correction Type"::Removal, true));
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.");
         PurchCrMemoHdr.Validate("Correction Type", PurchCrMemoHdr."Correction Type"::Removal);
         PurchCrMemoHdr.Modify();
@@ -635,12 +635,12 @@ codeunit 147520 SIIDocumentTests
         CustLedgerEntry: Record "Cust. Ledger Entry";
         XMLDoc: DotNet XmlDocument;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of a Sales Invoice for a foreign customer
         SalesInvoiceHeader.Get(CreateSalesDocument(true, false, 'US', GlobalCreditMemoType::" ", true));
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -657,12 +657,12 @@ codeunit 147520 SIIDocumentTests
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         XMLDoc: DotNet XmlDocument;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Creation of an Purchase Invoice for a foreign Vendor
         PurchInvHeader.Get(CreatePurchDocument(true, 'US', GlobalCreditMemoType::" ", true));
         VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -681,7 +681,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 221490] Sales credit memo without corrective invoice No must be reported with Tipo Rectificativa "I"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Cr Memo without corrective invoice No.
         LibraryERM.FindCustomerLedgerEntry(
@@ -705,7 +705,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 228997] Purchase credit memo without corrective invoice No must be reported with Tipo Rectificativa "I" and negative amounts
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Cr Memo without corrective invoice No. and VAT Amount = 100
         LibraryERM.FindVendorLedgerEntry(
@@ -729,7 +729,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Special Scheme Code]
         // [SCENARIO 220567] Purchase Order has "Special Scheme Code" = "01 General" after updating "Buy-from Vendor No." with non-intracommunitary vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice without "Buy-from Vendor No."
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -752,7 +752,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Special Scheme Code]
         // [SCENARIO 220567] Salles Order has "Special Scheme Code" = "01 General" after updating "Sell-to Customer No." with domestic customer
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice without "Sell-to Customer No."
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
@@ -775,7 +775,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 221594] XML file has nodes with correct VAT Base and Amount according to each VAT Entry posted from Sales Invoice with multiple lines with different VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with multiplines lines, each line have different "VAT %"
         LibrarySII.PostSalesInvWithMultiplesLinesDiffVAT(CustLedgerEntry, false);
@@ -800,7 +800,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase]
         // [SCENARIO 221594] XML file has nodes with correct VAT Base and Amount according to each VAT Entry posted from Purchase Invoice with multiple lines with different VAT rate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with multiplines lines, each line have different "VAT %"
         PostPurchDocWithMultiplesLinesDiffVAT(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0);
@@ -829,7 +829,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Invoice] [XML] [Reverse Charge] [VAT]
         // [SCENARIO 221521] When purchase invoice is posted Reverse Charge VAT entries are split from Normal VAT entries in XML
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with two Purchase Lines where
         // [GIVEN] 1st line is calculated as Reverse Charge VAT with Base = 100, Amount = 12
@@ -869,7 +869,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Credit Memo] [XML] [Reverse Charge] [VAT]
         // [SCENARIO 220690] XML file for purchase credit memo with Reverse Charge VAT generates with both DesgloseIVA and InversionSujetoPasivo nodes
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with lines
         // [GIVEN] 1st line is calculated as Reverse Charge VAT with Amount = "AmntRC"
@@ -909,7 +909,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Invoice] [XML] [Reverse Charge] [VAT]
         // [SCENARIO 221521] When purchase invoice is posted Reverse Charge VAT entries get other tag than normal VAT entries in XML
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with one Purchase Line where
         // [GIVEN] line is calculated as Reverse Charge VAT with Amount = "AmntRC"
@@ -940,7 +940,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Invoice] [XML] [Reverse Charge] [VAT]
         // [SCENARIO 221521] When purchase invoice is posted Normal VAT entries get other tag than reverse charge VAT entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with one Purchase Line where
         // [GIVEN] line is calculated as Normal VAT with Amount = "Amnt"
@@ -967,14 +967,14 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 220556] It must be possible to get SII XML files for customers from the Netherlands
-        Initialize;
+        Initialize();
         // [GIVEN] Creation of a Sales Invoice for a NL customer
         SalesInvoiceHeader.Get(CreateSalesDocument(true, false, 'NL', GlobalCreditMemoType::" ", true));
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
         Customer.Validate("VAT Registration No.", 'NL123456789B12');
         Customer.Modify(true);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -994,14 +994,14 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 220556] It must be possible to get SII XML files for local customers having "VAT Registration No." starting with "N"
-        Initialize;
+        Initialize();
         // [GIVEN] Creation of a Sales Invoice for a local customer having "VAT Registration No." starting with "N"
         SalesInvoiceHeader.Get(CreateSalesDocument(true, false, '', GlobalCreditMemoType::" ", true));
         Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
         Customer.Validate("VAT Registration No.", 'N12345678');
         Customer.Modify(true);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -1026,10 +1026,10 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 220565] If the latest "Shipment Date" of line is not equeal to "Posting Date" of Sales Invoice, then the latest "Shipment Date" must be included in XML file within FechaOperacion tag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Shipment on 01.07.2017
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         OldWorkDate := WorkDate();
         CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, WorkDate());
 
@@ -1049,7 +1049,7 @@ codeunit 147520 SIIDocumentTests
 
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -1076,10 +1076,10 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 220565] If the latest "Shipment Date" of line is equeal to "Posting Date" of Sales Invoice, then FechaOperacion tag must not be included in XML file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Shipment on 01.07.2017
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         OldWorkDate := WorkDate();
         CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, WorkDate());
 
@@ -1097,7 +1097,7 @@ codeunit 147520 SIIDocumentTests
 
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -1124,10 +1124,10 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 220565] If the latest "Posting Date" of purchase receipt line is not equeal to "Posting Date" of Purchase Invoice, then the latest receipt date must be included in XML file within FechaOperacion tag
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Receipt on 01.07.2017
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         RcptDate := CalcDate('<-2D>', WorkDate);
         CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt1, VendorNo, RcptDate);
 
@@ -1144,7 +1144,7 @@ codeunit 147520 SIIDocumentTests
 
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", PurchInvoiceHeaderNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -1169,10 +1169,10 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 220565] If the latest "Shipment Date" of line is equeal to "Posting Date" of Sales Invoice, then FechaOperacion tag must not be included in XML file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Shipment on 01.07.2017
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ShipmentDate := CalcDate('<-2D>', WorkDate);
         CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, ShipmentDate);
 
@@ -1189,7 +1189,7 @@ codeunit 147520 SIIDocumentTests
 
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         // [WHEN] We create the xml to be transmitted for that transaction
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -1212,7 +1212,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 223812] Posting Date of corrective Sales Credit Memo to Invoice in different period exports to XML file
 
-        Initialize;
+        Initialize();
         LibrarySII.CreateCustWithCountryAndVATReg(Customer, 'ES', 'B80833593');
 
         // [GIVEN] Posted Sales Invoice with "Posting Date" = 05.01.2017
@@ -1246,7 +1246,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase]
         // [SCENARIO 223812] Posting Date of corrective Purchase Credit Memo to Invoice in different period exports to XML file
 
-        Initialize;
+        Initialize();
         LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B80833593');
 
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = 05.01.2017
@@ -1276,7 +1276,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 221594] XML file has nodes with correct VAT Base and Amount according to each VAT Entry posted from Sales Invoice with multiple lines with different VAT group but same VAT %
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with multiplines lines, each line have different "VAT %"
         PostSalesInvWithMultiplesLinesDiffVATGroupSameRate(CustLedgerEntry);
@@ -1300,7 +1300,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase]
         // [SCENARIO 221594] XML file has nodes with correct VAT Base and Amount according to each VAT Entry posted from Purchase Invoice with multiple lines with different VAT group but same VAT %
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with multiplines lines, each line have different "VAT %"
         PostPurchInvWithMultiplesLinesDiffVATGroupSameRate(VendorLedgerEntry);
@@ -1326,7 +1326,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 227852] "Special Scheme Code" of Sales Credit Memo uses for "ClaveRegimenEspecialOTrascendencia" node when export to SII xml file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with "Special Scheme Code" = "02 Export"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
@@ -1358,7 +1358,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 227852] "Special Scheme Code" of Purchase Credit Memo uses for "ClaveRegimenEspecialOTrascendencia" node when export to SII xml file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with "Special Scheme Code" = "02 Special System Activities"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);
@@ -1391,7 +1391,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 227875] "Shipment Date" of only posted lines of partial shipment must be considers for FechaOperacion tag in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with "Posting Date" = 01.01.2017 and two lines posted as partial shipment
         // [GIVEN] First line with "Shipment Date" = 03.01.2017 and "Qty. To Ship" = 10
@@ -1426,7 +1426,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 227852] "Document No." uses for "NumSerieFacturaEmisor" xml node for Purchase Credit Memo with "Correction Type" = Removal when "External Document No." is not specified
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Ext. Doc. No. Mandatory" is turned off in "Purchases & Payables Setup"
         LibraryPurchase.SetExtDocNo(false);
@@ -1477,7 +1477,7 @@ codeunit 147520 SIIDocumentTests
         // [SCENARIO 228197] Generate sii XML file for Purchase Credit Memo with "Correction Type" = Replacement and multiple lines
         // [SCENARIO 256251] Sales Credit Memo with type "Replacement" and related corrective invoice has positive values for VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with "X" lines, Total VAT Amount = "Y", and "Correction Type" = Replacement
         PostPurchDocWithMultiplesLinesDiffVAT(
@@ -1513,12 +1513,12 @@ codeunit 147520 SIIDocumentTests
     begin
         // [SCENARIO 228335] DescripcionOperacion node exists in XML file of Service Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Credit Memo with "Operation Description" = "X"
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.",
           LibrarySII.PostServDocWithCurrency(ServiceHeader."Document Type"::"Credit Memo", ''));
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         CustLedgerEntry.SetRange("Sell-to Customer No.", ServiceCrMemoHeader."Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", ServiceCrMemoHeader."No.");
@@ -1545,11 +1545,11 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 257315] If the latest "Shipment Date" of Sales Invoice is after today, then the "Posting Date" must be included in XML file within FechaOperacion tag
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Today is January 29
         // [GIVEN] Posted Sales Invoice with "Posting Date" = January 25, "Shipment Date" = January 30
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ShipmentDate := LibraryRandom.RandDateFrom(WorkDate, 10);
         CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, ShipmentDate);
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -1577,11 +1577,11 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 257315] If the latest "Receipt Date" of Sales Invoice is after today, then the "Posting Date" must be included in XML file within FechaOperacion tag
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Today is January 29
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = January 25, "Receipt Date" = January 30
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         RcptDate := LibraryRandom.RandDateFrom(WorkDate, 10);
         CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt, VendorNo, RcptDate);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
@@ -1609,7 +1609,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 257338] Negative values exports in SII XML file for Sales Invoice with negative line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with two lines: first with Amount = 100, second with amount = -150
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
@@ -1643,7 +1643,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 257338] Negative values exports in SII XML file for Purchase Invoice with negative line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with two lines: first with Amount = 100, second with amount = -150
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -1673,7 +1673,7 @@ codeunit 147520 SIIDocumentTests
         // [UT] [SII Setup]
         // [SCENARIO 264306] Default payment endpoints are correct in SII Setup
 
-        Initialize;
+        Initialize();
         SIISetup.Delete();
         SIISetup.Init();
         SIISetup.Insert();
@@ -1687,7 +1687,7 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [UT]
         // [SCENARIO 277358] SIIMgt.IsDomesticCustomer() returns TRUE only in case of Customer with Country/Region = ""/"ES" AND "VAT Registration No." <> "N..."
-        Initialize;
+        Initialize();
 
         // "VAT Registration No." = ""
         VerifySIIMgtIsDomesticCustomer('', '', true);
@@ -1715,7 +1715,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseFactura/Sujeta" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "", VAT Reg. No. = "B80833593"), non EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for domestic customer (Country = "", VAT Reg. No. = "B80833593")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1740,7 +1740,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseFactura/Sujeta" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "", VAT Reg. No. = "B80833593"), EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted EU Sales Invoice for domestic customer (Country = "", VAT Reg. No. = "B80833593")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1767,7 +1767,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseTipoOperacion/Entrega" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "", VAT Reg. No. = "N1234567890"), non EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for domestic customer (Country = "", VAT Reg. No. = "N1234567890")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1792,7 +1792,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseTipoOperacion/PrestacionServicios" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "", VAT Reg. No. = "N1234567890"), EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted EU Sales Invoice for domestic customer (Country = "", VAT Reg. No. = "N1234567890")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1819,7 +1819,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseFactura/Sujeta" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "ES", VAT Reg. No. = "B80833593"), non EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for domestic customer (Country = "ES", VAT Reg. No. = "B80833593")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1844,7 +1844,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseFactura/Sujeta" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "ES", VAT Reg. No. = "B80833593"), EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted EU Sales Invoice for domestic customer (Country = "ES", VAT Reg. No. = "B80833593")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1871,7 +1871,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseTipoOperacion/Entrega" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "ES", VAT Reg. No. = "N1234567890"), non EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for domestic customer (Country = "ES", VAT Reg. No. = "N1234567890")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1896,7 +1896,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseTipoOperacion/PrestacionServicios" node in case of sales invoice for
         // [SCENARIO 277358] domestic customer (Country = "ES", VAT Reg. No. = "N1234567890"), EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted EU Sales Invoice for domestic customer (Country = "ES", VAT Reg. No. = "N1234567890")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1923,7 +1923,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseTipoOperacion/Entrega" node in case of sales invoice for
         // [SCENARIO 277358] foreign customer (Country = "FR", VAT Reg. No. = "FR1234567890"), non EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for foreign customer (Country = "FR", VAT Reg. No. = "FR1234567890")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1948,7 +1948,7 @@ codeunit 147520 SIIDocumentTests
         // [FEATURE] [Sales] [EU Service]
         // [SCENARIO 277358] XML "TipoDesglose/DesgloseTipoOperacion/PrestacionServicios" node in case of sales invoice for
         // [SCENARIO 277358] foreign customer (Country = "FR", VAT Reg. No. = "FR1234567890"), EU Service
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted EU Sales Invoice for foreign customer (Country = "FR", VAT Reg. No. = "FR1234567890")
         LibraryERM.FindCustomerLedgerEntry(
@@ -1975,8 +1975,8 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Sales] [Credit Memo] [Invoice] [No Series]
         // [SCENARIO 278070] Tag <ImporteTotal> has Total Amount from Posted Sales Credit Memo even if both Invoice and Corrective Credit Memo are posted with same No
-        Initialize;
-        StartingNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        StartingNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] No Series for Posted Invoice and Posted Credit Memo had same Starting No = 100000
         ModifyNoSeriesOnSalesSetupForPostedCrMemoAndInv(
@@ -1986,7 +1986,7 @@ codeunit 147520 SIIDocumentTests
         // [GIVEN] Posted Sales Credit Memo for the same Customer with No 100000 and Amount 200.0
         CustLedgerEntry.SetRange("Document No.", CreateSalesDocument(false, false, CreateCountryRegionCode, GlobalCreditMemoType::" ", true));
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Amount (LCY)");
 
         // [WHEN] Generate SII XML for the Posted Sales Credit Memo
@@ -2007,8 +2007,8 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Invoice] [No Series]
         // [SCENARIO 278070] Tag <ImporteTotal> has Total Amount from Posted Purchase Credit Memo even if both Invoice and Corrective Credit Memo are posted with same No
-        Initialize;
-        StartingNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        StartingNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] No Series for Posted Invoice and Posted Credit Memo had same Starting No = 100000
         ModifyNoSeriesOnSalesSetupForPostedCrMemoAndInv(
@@ -2018,7 +2018,7 @@ codeunit 147520 SIIDocumentTests
         // [GIVEN] Posted Purchase Credit Memo for the same Vendor with No 100000 and Amount 200.0
         VendorLedgerEntry.SetRange("Document No.", CreatePurchDocument(false, CreateCountryRegionCode, GlobalCreditMemoType::" ", true));
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)");
 
         // [WHEN] Generate SII XML for the Posted Sales Credit Memo
@@ -2040,8 +2040,8 @@ codeunit 147520 SIIDocumentTests
     begin
         // [FEATURE] [Service] [Credit Memo] [Invoice] [No Series]
         // [SCENARIO 278070] Tag <ImporteTotal> has Total Amount from Posted Service Credit Memo even if both Invoice and Corrective Credit Memo are posted with same No
-        Initialize;
-        StartingNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        StartingNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] No Series for Posted Service Invoice and Posted Service Credit Memo had same Starting No = 100000
         ModifyNoSeriesOnServSetupForPostedCrMemoAndInv(
@@ -2573,7 +2573,7 @@ codeunit 147520 SIIDocumentTests
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         Clear(SIIXMLCreator);
         if IsInitialized then
             exit;
@@ -2620,7 +2620,7 @@ codeunit 147520 SIIDocumentTests
     begin
         CustLedgerEntry.SetRange("Document Type", DocType);
         CustLedgerEntry.SetRange("Customer No.", CustNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure GetVATTotalAmountExceptRevChargeAmount(VendorLedgerEntry: Record "Vendor Ledger Entry") TotalAmount: Decimal
@@ -2881,7 +2881,7 @@ codeunit 147520 SIIDocumentTests
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
     begin
         PurchRcptHeader.SetRange("Order No.", PurchaseHeaderFrom."No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchGetReceipt.SetPurchHeader(PurchaseHeaderTo);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
@@ -2894,7 +2894,7 @@ codeunit 147520 SIIDocumentTests
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
         SalesShipmentHeader.SetRange("Order No.", SalesHeaderFrom."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesGetShipment.SetSalesHeader(SalesHeaderTo);
         SalesGetShipment.CreateInvLines(SalesShipmentLine);
@@ -3057,7 +3057,7 @@ codeunit 147520 SIIDocumentTests
     begin
         SIIDocUploadState.GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry);
         SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
-        SIIHistory.FindFirst;
+        SIIHistory.FindFirst();
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:FechaRegContable', SIIXMLCreator.FormatDate(DT2Date(SIIHistory."Request Date")));
     end;

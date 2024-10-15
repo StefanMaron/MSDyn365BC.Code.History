@@ -200,7 +200,7 @@ page 7000054 "Posted Payment Orders"
                     Option: Integer;
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Page Posted Payment Orders Maturity Process")

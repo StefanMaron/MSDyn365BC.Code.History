@@ -26,7 +26,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [Job Queue]
         // [SCENARIO 263060] Job Queue Entry creates when "Automatic Entries Check" is switched to "Daily"
 
-        Initialize;
+        Initialize();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] SII Setup with "Automatic Entries Check" = "Never"
@@ -50,7 +50,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [Job Queue]
         // [SCENARIO 263060] Job Queue Entry creates when "Automatic Entries Check" is switched to "Weekly"
 
-        Initialize;
+        Initialize();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] SII Setup with "Automatic Entries Check" = "Never"
@@ -75,7 +75,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [Job Queue]
         // [SCENARIO 263060] Job Queue Entry removes when "Automatic Entries Check" is switched to "Never"
 
-        Initialize;
+        Initialize();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] Job Queue Entry created when "Automatic List Entries Check" switched from "Never" to "Daily"
@@ -102,7 +102,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [Job Queue] [UI]
         // [SCENARIO 263060] Job Queue Entry creates when Stan opens "SII History" page
 
-        Initialize;
+        Initialize();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] SII Setup with "Automatic Entries Check" = "Never"
@@ -131,7 +131,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [UI]
         // [SCENARIO 263060] Stan can open "Recreate Missing Entries" page from "SII History" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened "SII History" page
         SIIHistory.OpenView;
@@ -164,7 +164,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [UT]
         // [SCENARIO 263060] Only entries with "Posting Date" from "Starting Date" of SII Setup considers for missing entries detection when running codeunit "SII Recreate Missing Entries"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Starting Date" is 15.01.2017 in disabled SII Setup
         EnableSIISetup(SIISetup, false);
@@ -234,7 +234,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [UT]
         // [SCENARIO 263060] No missing entries detects from documents posted during enabled SII Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Starting Date" is 15.01.2017 in enabled SII Setup
         SIISetup.Get();
@@ -270,7 +270,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 263060] Only entries with "Entry No." after "Last Ledger Entry No." from "SII Missing Entries Tracking" table considers for missing entries detections
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Starting Date" is 15.01.2017 in disabled SII Setup
         EnableSIISetup(SIISetup, false);
@@ -330,7 +330,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 263060] Stan can consider all entries for missing entry detection if he select "Scan All" option on "Recreate Missing SII Entries Page"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Starting Date" is 15.01.2017 in disabled SII Setup
         EnableSIISetup(SIISetup, false);
@@ -395,7 +395,7 @@ codeunit 147558 "SII Recreate Entries Test"
         SIISetup.Get();
         SIISetup.Validate("Show Advanced Actions", true);
         GLRegister.SetCurrentKey("Posting Date");
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         SIISetup.Validate("Starting Date", LogInManagement.GetDefaultWorkDate + 1);
         SIISetup.Modify(true);
     end;
@@ -434,7 +434,7 @@ codeunit 147558 "SII Recreate Entries Test"
         DetailedCustLedgEntry."Posting Date" := PostingDate;
         DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::Application;
         DetailedCustLedgEntry."Document Type" := DocType;
-        DetailedCustLedgEntry."Document No." := LibraryUtility.GenerateGUID;
+        DetailedCustLedgEntry."Document No." := LibraryUtility.GenerateGUID();
         DetailedCustLedgEntry."Transaction No." := LibraryRandom.RandInt(100);
         DetailedCustLedgEntry."Initial Document Type" := DetailedCustLedgEntry."Initial Document Type"::Invoice;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := MockCustLedgEntry(PostingDate);
@@ -454,7 +454,7 @@ codeunit 147558 "SII Recreate Entries Test"
         DetailedVendorLedgEntry."Posting Date" := PostingDate;
         DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::Application;
         DetailedVendorLedgEntry."Document Type" := DocType;
-        DetailedVendorLedgEntry."Document No." := LibraryUtility.GenerateGUID;
+        DetailedVendorLedgEntry."Document No." := LibraryUtility.GenerateGUID();
         DetailedVendorLedgEntry."Transaction No." := LibraryRandom.RandInt(100);
         DetailedVendorLedgEntry."Initial Document Type" := DetailedVendorLedgEntry."Initial Document Type"::Invoice;
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := MockVendLedgEntry(PostingDate);
@@ -481,7 +481,7 @@ codeunit 147558 "SII Recreate Entries Test"
     var
         SIIMissingEntriesState: Record "SII Missing Entries State";
     begin
-        SIIMissingEntriesState.Initialize;
+        SIIMissingEntriesState.Initialize();
         SIIMissingEntriesState.Validate("Last CLE No.", CustLedgEntryNo);
         SIIMissingEntriesState.Validate("Last VLE No.", VendLedgEntryNo);
         SIIMissingEntriesState.Validate("Last DCLE No.", DtldCustLedgEntryNo);
@@ -507,7 +507,7 @@ codeunit 147558 "SII Recreate Entries Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         FilterSIIJobQueueEntry(JobQueueEntry);
-        JobQueueEntry.FindFirst;
+        JobQueueEntry.FindFirst();
         JobQueueEntry.TestField("System Task ID");
     end;
 }

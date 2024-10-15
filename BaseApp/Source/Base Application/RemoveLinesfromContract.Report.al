@@ -39,7 +39,7 @@ report 6034 "Remove Lines from Contract"
                     Clear(ExpiredContractLinesTest);
                     ExpiredContractLinesTest.InitVariables(DelToDate, ReasonCode);
                     ExpiredContractLinesTest.SetTableView("Service Contract Line");
-                    ExpiredContractLinesTest.RunModal;
+                    ExpiredContractLinesTest.RunModal();
                     CurrReport.Break();
                 end;
 

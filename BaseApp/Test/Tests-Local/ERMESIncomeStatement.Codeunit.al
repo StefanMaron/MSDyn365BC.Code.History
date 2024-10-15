@@ -49,7 +49,7 @@ codeunit 144054 "ERM ES Income Statement"
         // Verify G/L Account number with - 1290001 after filter - Income/Balance - Income Statement and Account Type - Posting.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: G/L Account with filter - Income/Balance - Income Statement and Account Type - Posting.
         FilterGLAccount(GLAccount);
@@ -69,7 +69,7 @@ codeunit 144054 "ERM ES Income Statement"
         // Verify Income Statement Batch Report automatically posted all closing entries in case entries are only in local currency.
 
         // Setup: Create and Post Sales Invoice to make close entry.
-        Initialize;
+        Initialize();
         RunCloseIncomeStatementReport;  // To verify new created entry so post all previous closed entries.
         Amount := CreateAndPostSalesInvoice;
 
@@ -92,9 +92,9 @@ codeunit 144054 "ERM ES Income Statement"
         // Verify error when indenting Chart of Accounts any commercial G/L Account does have Income Statement Balance Account.
 
         // Setup: Create Commercial G/L Account with filter - Income/Balance - Income Statement and Account Type - Posting.
-        Initialize;
+        Initialize();
         FilterGLAccount(GLAccount);
-        GLAccount.FindLast;
+        GLAccount.FindLast();
         GLAccountNo := CreateCommercialGLAccount(GLAccount."No.");
         ChartOfAccounts.OpenEdit;
 
@@ -117,7 +117,7 @@ codeunit 144054 "ERM ES Income Statement"
         GLAccountNo: Code[20];
     begin
         // SETUP
-        Initialize;
+        Initialize();
 
         // EXERCISE: Create and post Gen. Journal Line, close FY, execute Close Income Statement
         PostGenJnlLineWithDimAndCloseIncomeStatement(ShortcutDimension1Before, ShortcutDimension2Before, GLAccountNo);
@@ -133,7 +133,7 @@ codeunit 144054 "ERM ES Income Statement"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostSalesInvoice(): Decimal
@@ -186,7 +186,7 @@ codeunit 144054 "ERM ES Income Statement"
         Clear(CloseIncomeStatement);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
-        CloseIncomeStatement.Run;
+        CloseIncomeStatement.Run();
         exit(GenJournalBatch.Name);
     end;
 
@@ -195,7 +195,7 @@ codeunit 144054 "ERM ES Income Statement"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLRegister.TestField("Journal Batch Name", GenJournalBatchName);
         GLEntry.Get(GLRegister."From Entry No.");
         GLEntry.TestField("Document No.", GenJournalBatchName);
@@ -246,7 +246,7 @@ codeunit 144054 "ERM ES Income Statement"
         ShortcutDimension2Before := GenJournalLine."Shortcut Dimension 2 Code";
         // Post Gen. Journal Line, close FY and run Close Income Statement
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         ExecuteUIHandler;
         CloseIncomeStatement(GenJournalLine);
     end;
@@ -294,14 +294,14 @@ codeunit 144054 "ERM ES Income Statement"
         // Run the Close Income Statement Batch Job.
         Date.SetRange("Period Type", Date."Period Type"::Month);
         Date.SetRange("Period Start", LibraryFiscalYear.GetLastPostingDate(true));
-        Date.FindFirst;
+        Date.FindFirst();
         LibraryERM.FindDirectPostingGLAccount(GLAccount);
 
         // Run Close Income Statement Batch Report.
         CloseIncomeStatement.InitializeRequestTest(NormalDate(Date."Period End"), GenJournalLine, GLAccount, true);
         Commit();  // Required to handle Modal Form.
         CloseIncomeStatement.UseRequestPage(false);
-        CloseIncomeStatement.RunModal;
+        CloseIncomeStatement.RunModal();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
@@ -320,7 +320,7 @@ codeunit 144054 "ERM ES Income Statement"
     local procedure FindGLEntryForGLAccount(GLAccountNo: Code[20]; var GLEntry: Record "G/L Entry")
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     [MessageHandler]

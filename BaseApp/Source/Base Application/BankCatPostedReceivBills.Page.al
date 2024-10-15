@@ -76,7 +76,7 @@ page 7000066 "Bank Cat. Posted Receiv. Bills"
                 begin
                     StatusFilter := Format(StatusFilterOption, 0, '<Text>');
                     MatrixForm.Load(MatrixColumnCaptions, MatrixRecords, CategoryFilter, StatusFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Next Set")

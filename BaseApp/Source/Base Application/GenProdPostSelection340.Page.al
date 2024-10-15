@@ -41,7 +41,7 @@ page 10737 "Gen. Prod. Post. Selection 340"
     procedure GetGPPGSelBuf(var TheGPPGSelectionBuf: Record "Gen. Prod. Post. Group Buffer")
     begin
         TheGPPGSelectionBuf.DeleteAll();
-        if FindFirst then
+        if FindFirst() then
             repeat
                 TheGPPGSelectionBuf := Rec;
                 TheGPPGSelectionBuf.Insert();

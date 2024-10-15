@@ -37,6 +37,16 @@ page 6701 "Contact Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Enable Background Synchronization';
                     ToolTip = 'Specifies that data synchronization can occur while users perform related tasks.';
+
+                    trigger OnValidate()
+                    var
+                        PrivacyNotice: Codeunit "Privacy Notice";
+                        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+                    begin
+                        if Enabled then
+                            if not PrivacyNotice.ConfirmPrivacyNoticeApproval(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId()) then
+                                Enabled := false; // Privacy notice was not approved
+                    end;
                 }
             }
         }

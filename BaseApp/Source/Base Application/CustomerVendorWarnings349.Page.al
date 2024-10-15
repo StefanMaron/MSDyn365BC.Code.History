@@ -133,7 +133,7 @@ page 10736 "Customer/Vendor Warnings 349"
                 begin
                     PreviousFYorPeriod := false;
                     SetRange("Include Correction", true);
-                    if FindFirst then begin
+                    if FindFirst() then begin
                         repeat
                             if ("Original Declaration FY" > PrevFiscalYear) or
                                (("Original Declaration FY" = PrevFiscalYear) and ("Original Declaration Period" > PrevPeriod))
@@ -166,7 +166,7 @@ page 10736 "Customer/Vendor Warnings 349"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -260,7 +260,7 @@ page 10736 "Customer/Vendor Warnings 349"
             TempSalesCrMemoHeader.DeleteAll();
             Cust.Get("Customer/Vendor No.");
             Cust2.SetRange("VAT Registration No.", Cust."VAT Registration No.");
-            if Cust2.FindSet then
+            if Cust2.FindSet() then
                 repeat
                     CalcAmountsFromVATEntries(
                       NormalAmount, AmountOpTri, AmountEUService, VATEntry.Type::Sale, Cust2."No.", FromDate, ToDate,
@@ -271,7 +271,7 @@ page 10736 "Customer/Vendor Warnings 349"
             TempPurchCrMemoHdr.DeleteAll();
             Vendor.Get("Customer/Vendor No.");
             Vendor2.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
-            if Vendor2.FindSet then
+            if Vendor2.FindSet() then
                 repeat
                     CalcAmountsFromVATEntries(
                       NormalAmount, AmountOpTri, AmountEUService, VATEntry.Type::Purchase, Vendor2."No.", FromDate, ToDate,
@@ -299,7 +299,7 @@ page 10736 "Customer/Vendor Warnings 349"
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetRange("Bill-to/Pay-to No.", CustVendNo);
             SetRange("Posting Date", FromDate, ToDate);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not IsCorrectiveCrMemoDiffPeriod(StartDateFormula, EndDateFormula) then
                         case true of

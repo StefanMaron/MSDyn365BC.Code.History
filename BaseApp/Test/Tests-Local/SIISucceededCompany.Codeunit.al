@@ -34,7 +34,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Purchase]
         // [SCENARIO 263060] Vendor Ledger Entry has data about Succceded Company after posting purchase invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         CreatePurchDoc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -57,7 +57,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Sales]
         // [SCENARIO 263060] Customer Ledger Entry has data about Succceded Company after posting sales invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -82,7 +82,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Purchase] [XML]
         // [SCENARIO 263648] Purchase invoice with Succeeded Company has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         CreatePostPurchDoc(VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice);
@@ -111,7 +111,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Sales] [XML]
         // [SCENARIO 263648] Sales invoice with Succeeded Company has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         CreatePostSalesDoc(CustLedgerEntry, SalesHeader."Document Type"::Invoice);
@@ -140,7 +140,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Purchase] [XML]
         // [SCENARIO 263648] Purchase invoice with Succeeded Company posted from journal has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
@@ -172,7 +172,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Sales] [XML]
         // [SCENARIO 263648] Sales invoice with Succeeded Company posted from journal has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
@@ -204,7 +204,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Purchase] [XML]
         // [SCENARIO 263648] Purchase credit memo with Succeeded Company has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase credit memo with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         CreatePostPurchDoc(VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo");
@@ -233,7 +233,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Sales] [XML]
         // [SCENARIO 263648] Sales credit memo with Succeeded Company has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales credit memo with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         CreatePostSalesDoc(CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo");
@@ -262,7 +262,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Purchase] [XML]
         // [SCENARIO 263648] Purchase credit memo with Succeeded Company posted from journal has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase credit memo posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
@@ -295,7 +295,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Sales] [XML]
         // [SCENARIO 263648] Sales credit memo with Succeeded Company posted from journal has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales credit memo posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
@@ -327,7 +327,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Service] [XML]
         // [SCENARIO 263648] Service invoice with Succeeded Company has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted service invoice with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         LibrarySII.FindCustLedgEntryForPostedServInvoice(
@@ -357,7 +357,7 @@ codeunit 147556 "SII Succeeded Company"
         // [FEATURE] [Sales] [XML]
         // [SCENARIO 263648] Sales invoice with Succeeded Company has nodes in XML file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         LibrarySII.FindCustLedgEntryForPostedServCrMemo(
@@ -390,8 +390,8 @@ codeunit 147556 "SII Succeeded Company"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
@@ -420,8 +420,8 @@ codeunit 147556 "SII Succeeded Company"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID);
-        SalesHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID);
+        SalesHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
+        SalesHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
@@ -445,8 +445,8 @@ codeunit 147556 "SII Succeeded Company"
         ServiceLine: Record "Service Line";
     begin
         LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo, '');
-        ServiceHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID);
-        ServiceHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID);
+        ServiceHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
+        ServiceHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -470,8 +470,8 @@ codeunit 147556 "SII Succeeded Company"
     local procedure PostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; DocType: Enum "Gen. Journal Document Type"; AccNo: Code[20]; Amount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocType, AccType, AccNo, Amount);
-        GenJournalLine.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID);
-        GenJournalLine.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
+        GenJournalLine.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;

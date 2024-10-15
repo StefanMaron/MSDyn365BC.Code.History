@@ -208,7 +208,7 @@ report 417 "Arch.Purch. Return Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -398,7 +398,7 @@ report 417 "Arch.Purch. Return Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -760,7 +760,7 @@ report 417 "Arch.Purch. Return Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not PrepmtDimSetEntry.FindSet then
+                                    if not PrepmtDimSetEntry.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -865,7 +865,7 @@ report 417 "Arch.Purch. Return Order"
                     PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
-                    if PurchLineArchive.FindSet then
+                    if PurchLineArchive.FindSet() then
                         repeat
                             PurchLineArch := PurchLineArchive;
                             PurchLineArch.Insert();

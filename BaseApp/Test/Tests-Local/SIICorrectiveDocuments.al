@@ -38,7 +38,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Sales]
         // [SCENARIO 231007] Negative Sales Invoice with type "F1 Invoice" have negative amounts and does not have XML nodes of Credit Memo in SII File
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with "Cr. Memo Type" = "F1 Invoice" (negative invoice)
         PostSalesCrMemoWithFType(CustLedgerEntry, SalesLine, SalesHeader."Cr. Memo Type"::"F1 Invoice");
@@ -76,7 +76,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Purchase]
         // [SCENARIO 231007] Negative Purchase Invoice with type "F1 Invoice" have negative amounts and does not have XML nodes of Credit Memo in SII File
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with "Cr. Memo Type" = "F1 Invoice" (negative invoice)
         PostPurchCrMemoWithFType(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Cr. Memo Type"::"F1 Invoice");
@@ -114,7 +114,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Service]
         // [SCENARIO 231007] Negative Service Invoice with type "F1 Invoice" have negative amounts and does not have XML nodes of Credit Memo in SII File
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Credit Memo with "Cr. Memo Type" = "F1 Invoice" (negative invoice)
         PostServiceCrMemoWithFType(CustLedgerEntry, ServiceLine, ServiceHeader."Cr. Memo Type"::"F1 Invoice");
@@ -152,7 +152,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Sales]
         // [SCENARIO 231007] Negative Sales Invoice with type "F2 Simplified Invoice" have negative amounts and does not have XML nodes of Credit Memo in SII File
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with "Cr. Memo Type" = "F2 Simplified Invoice" (negative invoice)
         PostSalesCrMemoWithFType(CustLedgerEntry, SalesLine, SalesHeader."Cr. Memo Type"::"F2 Simplified Invoice");
@@ -192,7 +192,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Purchase]
         // [SCENARIO 231007] Negative Purchase Invoice with type "F2 Simplified Invoice" have negative amounts and does not have XML nodes of Credit Memo in SII File
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo with "Cr. Memo Type" = "F2 Simplified Invoice" (negative invoice)
         PostPurchCrMemoWithFType(VendorLedgerEntry, PurchaseLine, PurchaseHeader."Cr. Memo Type"::"F2 Simplified Invoice");
@@ -232,7 +232,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Service]
         // [SCENARIO 231007] Negative Service Invoice with type "F2 Simplified Invoice" have negative amounts and does not have XML nodes of Credit Memo in SII File
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Credit Memo with "Cr. Memo Type" = "F2 Simplified Invoice" (negative invoice)
         PostServiceCrMemoWithFType(CustLedgerEntry, ServiceLine, ServiceHeader."Cr. Memo Type"::"F2 Simplified Invoice");
@@ -271,7 +271,7 @@ codeunit 147528 "SII Corrective Documents"
         // [FEATURE] [Purchase]
         // [SCENARIO 251317] CuotaDeducible node has value deducting negative line in Purchase Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with two lines. First line has "VAT Amount" = 100, second line is negative and has "VAT Amount" = -40
         PostPurchInvWithMultipleLinesOneNegative(TotalVATAmount, VendorLedgerEntry);

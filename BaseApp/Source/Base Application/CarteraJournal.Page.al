@@ -420,7 +420,7 @@ page 7000036 "Cartera Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action(TestReport)
@@ -549,7 +549,7 @@ page 7000036 "Cartera Journal"
             CarteraJnlForm.SetTableView(Rec);
             CarteraJnlForm.SetRecord(Rec);
             CarteraJnlForm.AllowClosing(true);
-            CarteraJnlForm.RunModal;
+            CarteraJnlForm.RunModal();
         end;
     end;
 

@@ -18,7 +18,7 @@ codeunit 143010 "Library - Cartera Payables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", AccountNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.Validate("Bill Gr./Pmt. Order No.", BillGroupNo);
         CarteraDoc.Modify(true);
     end;
@@ -27,7 +27,7 @@ codeunit 143010 "Library - Cartera Payables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Account No.", AccountNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
         CarteraDoc.Validate("Bill Gr./Pmt. Order No.", PaymentOrderNo);
         CarteraDoc.Modify(true);
     end;
@@ -38,7 +38,7 @@ codeunit 143010 "Library - Cartera Payables"
     begin
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrderNo);
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
     end;
 
     procedure CheckIfCarteraDocIsClosed(PaymentOrderNo: Code[20])
@@ -246,8 +246,8 @@ codeunit 143010 "Library - Cartera Payables"
         VendorBankAccount.Validate("Country/Region Code", GetCountryCode);
         VendorBankAccount.Modify(true);
 
-        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID;
-        VendorBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
+        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        VendorBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         VendorBankAccount.Modify();
 
         Vendor."Preferred Bank Account Code" := VendorBankAccount.Code;
@@ -260,7 +260,7 @@ codeunit 143010 "Library - Cartera Payables"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Document Situation", DocumentSituation);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
     end;
 
     procedure FindCarteraDocs(var CarteraDoc: Record "Cartera Doc."; AccountNo: Code[20]; DocumentNo: Code[20])
@@ -274,7 +274,7 @@ codeunit 143010 "Library - Cartera Payables"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     procedure FindOpenCarteraDocVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
@@ -302,7 +302,7 @@ codeunit 143010 "Library - Cartera Payables"
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
         exit(VendorLedgerEntry.Amount);
     end;
@@ -337,7 +337,7 @@ codeunit 143010 "Library - Cartera Payables"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"PO - Export N34.1");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
         BankAccount.Modify(true);
     end;
@@ -347,7 +347,7 @@ codeunit 143010 "Library - Cartera Payables"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"Payment order - Export N34");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
         BankAccount.Modify(true);
     end;

@@ -68,7 +68,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Customer, Payment Days And Non - Payment Period.
         DueDate := CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // Exercise.
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);
@@ -103,7 +103,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Customer, Payment Days And Non - Payment Period.
         DueDate := CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
 
         // Exercise.
         Customer.Get(CustomerNo);
@@ -129,7 +129,7 @@ codeunit 144041 "UT PAG Due Date"
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion, LibraryUTUtility.GetNewCode,
             0, CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         // Exercise.
         SalesCreditMemo."Sell-to Customer Name".SetValue(CustomerNo);
@@ -154,7 +154,7 @@ codeunit 144041 "UT PAG Due Date"
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
             CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
 
         // Exercise.
         BlanketSalesOrder."Sell-to Customer Name".SetValue(CustomerNo);
@@ -179,7 +179,7 @@ codeunit 144041 "UT PAG Due Date"
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
             CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        BlanketPurchaseOrder.OpenNew;
+        BlanketPurchaseOrder.OpenNew();
 
         // Exercise.
         BlanketPurchaseOrder."Buy-from Vendor Name".SetValue(VendorNo);
@@ -205,7 +205,7 @@ codeunit 144041 "UT PAG Due Date"
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
             CalcDate('<CY>', WorkDate));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
 
         // Exercise.
         Vendor.Get(VendorNo);
@@ -230,7 +230,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
         DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // Exercise
         Vendor.Get(VendorNo);
@@ -254,7 +254,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
         DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', 0, CalcDate('<CY>', WorkDate));  // Blank - Country/Region Code, VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
 
         // Exercise.
         PurchaseQuote."Buy-from Vendor Name".SetValue(VendorNo);
@@ -318,7 +318,7 @@ codeunit 144041 "UT PAG Due Date"
         // Create Vendor, Payment Days And Non - Payment Period.
         DueDate := CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, '', '', MaxNoOfDaysTillDueDate, ToDate);  // Blank - Country/Region Code, VAT Registration Number.
         UpdatePrepaymentPctOnVendor(VendorNo, PrepaymentPct);
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
 
         // Exercise.
         PurchaseOrder."Buy-from Vendor Name".SetValue(VendorNo);
@@ -373,7 +373,7 @@ codeunit 144041 "UT PAG Due Date"
         DueDate :=
           CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, '', '', MaxNoOfDaysTillDueDate, ToDate);  // Blank - Country/Region Code, VAT Registration Number.
         UpdatePrepaymentPctOnCustomer(CustomerNo, PrepaymentPct);
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
 
         // Exercise.
         SalesOrder."Sell-to Customer Name".SetValue(CustomerNo);

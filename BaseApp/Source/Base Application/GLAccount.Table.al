@@ -583,12 +583,10 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(63; "Exchange Rate Adjustment"; Option)
+        field(63; "Exchange Rate Adjustment"; Enum "Exch. Rate Adjustment Type")
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Exchange Rate Adjustment';
-            OptionCaption = 'No Adjustment,Adjust Amount,Adjust Additional-Currency Amount';
-            OptionMembers = "No Adjustment","Adjust Amount","Adjust Additional-Currency Amount";
         }
         field(64; "Add.-Currency Debit Amount"; Decimal)
         {
@@ -909,9 +907,9 @@ table 15 "G/L Account"
         else begin
             GLAccountCategory.SetRange("Account Category", "Account Category");
             GLAccountCategory.SetRange(Description, NewValue);
-            if not GLAccountCategory.FindFirst then begin
+            if not GLAccountCategory.FindFirst() then begin
                 GLAccountCategory.SetFilter(Description, '''@*' + NewValue + '*''');
-                if not GLAccountCategory.FindFirst then
+                if not GLAccountCategory.FindFirst() then
                     Error(NoAccountCategoryMatchErr, "Account Category", NewValue);
             end;
             Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");

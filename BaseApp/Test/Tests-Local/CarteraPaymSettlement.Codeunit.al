@@ -47,7 +47,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Exercise
         PreparePaymentOrder(Vendor, BankAccount, CarteraDoc, PaymentOrder, LocalCurrencyCode);
@@ -59,7 +59,7 @@ codeunit 147501 "Cartera Paym. Settlement"
 
         // Verify
         PostedPaymentOrder.SetRange("Bank Account No.", BankAccount."No.");
-        PostedPaymentOrder.FindLast;
+        PostedPaymentOrder.FindLast();
         VendorLedgerEntry.TestField(Amount, PostedPaymentOrder.Amount);
 
         // Teardown
@@ -79,7 +79,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         InitialAmount: Decimal;
         SettledAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PreparePaymentOrder(Vendor, BankAccount, CarteraDoc, PaymentOrder, LocalCurrencyCode);
@@ -109,7 +109,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         InitialAmount: Decimal;
         SettledAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(false, false, true);
@@ -140,7 +140,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostedPaymentOrder: Record "Posted Payment Order";
         PostedPaymentOrdersTestPage: TestPage "Posted Payment Orders Select.";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreparePaymentOrder(Vendor, BankAccount, CarteraDoc, PaymentOrder, LocalCurrencyCode);
@@ -174,7 +174,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostedPaymentOrdersTestPage: TestPage "Posted Payment Orders Select.";
         CurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(false, false, true);
@@ -212,7 +212,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PurchUnrVATAccount: Code[20];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -251,7 +251,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         ExpectedVATAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
@@ -294,10 +294,10 @@ codeunit 147501 "Cartera Paym. Settlement"
         InvoiceAmount: Decimal;
         RemainingAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
 
         // Setup
         PreparePaymentOrderWithPaymentTermsDiscountLCY(Vendor, BankAccount, CarteraDoc, PaymentOrder, DiscountAmount, InitialAmount);
@@ -345,11 +345,11 @@ codeunit 147501 "Cartera Paym. Settlement"
         ExpectedVATAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
 
         // Setup
         PostPaymentOrderWithUnrealizedVATAndDiscountLCY(
@@ -390,11 +390,11 @@ codeunit 147501 "Cartera Paym. Settlement"
         TotalAmount: Decimal;
         DiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         PreparePaymentOrderWithPaymentTermsDiscountLCY(Vendor, BankAccount, CarteraDoc, PaymentOrder, DiscountAmount, TotalAmount);
         PostPaymentOrderLCY(PaymentOrder);
 
@@ -425,11 +425,11 @@ codeunit 147501 "Cartera Paym. Settlement"
         DiscountAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesUnrVATAccount, PurchUnrVATAccount);
 
         PostPaymentOrderWithUnrealizedVATAndDiscountLCY(
@@ -510,6 +510,83 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,SettleDocsinPostedPORequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalSettlementBillGroupWithUnrealizedVATRealizesAllVATEntries()
+    var
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CarteraDoc: Record "Cartera Doc.";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentOrder: Record "Payment Order";
+        VATEntry: Record "VAT Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 427600] System settles all VAT entries associated with a Cartera document.
+        Initialize();
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Cash Regime", true);
+        GeneralLedgerSetup.Modify(true);
+
+        LibraryERM.SetUnrealizedVAT(true);
+
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, '');
+
+        LibraryCarteraPayables.SetPaymentTermsVatDistribution(
+            Vendor."Payment Terms Code", PaymentTerms."VAT distribution"::Proportional);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Vendor."VAT Bus. Posting Group", 10);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 100);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        CreateVATPostingSetupVATCashRegime(VATPostingSetup, Vendor."VAT Bus. Posting Group", 21);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        PurchaseHeader.TestField("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"07 Special Cash");
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter("Unrealized Base", '>0');
+        Assert.RecordCount(VATEntry, 2);
+
+        CreatePaymentOrder(BankAccount, PaymentOrder, CarteraDoc, DocumentNo, Vendor, '');
+
+        PostPaymentOrderLCY(PaymentOrder);
+
+        InvokeTotalSettlementOnPaymentOrder(PaymentOrder."No.");
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindLast();
+        VendorLedgerEntry.TestField(Open, false);
+
+        VATEntry.Reset();
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        Assert.RecordCount(VATEntry, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -547,7 +624,6 @@ codeunit 147501 "Cartera Paym. Settlement"
         PaymentOrders.Post.Invoke;
     end;
 
-    [Normal]
     local procedure PostPaymentOrderWithUnrealizedVAT(var Vendor: Record Vendor; var BankAccount: Record "Bank Account"; var CarteraDoc: Record "Cartera Doc."; var PaymentOrder: Record "Payment Order"; var TotalAmount: Decimal; var ExpectedVATAmount: Decimal; var DocumentNo: Code[20]; CurrencyCode: Code[10])
     var
         PaymentTerms: Record "Payment Terms";
@@ -568,7 +644,6 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostPaymentOrderLCY(PaymentOrder);
     end;
 
-    [Normal]
     local procedure PostPaymentOrderWithUnrealizedVATAndDiscountLCY(var Vendor: Record Vendor; var BankAccount: Record "Bank Account"; var CarteraDoc: Record "Cartera Doc."; var PaymentOrder: Record "Payment Order"; var TotalAmount: Decimal; var ExpectedVATAmount: Decimal; var DocumentNo: Code[20]; var DiscountAmount: Decimal)
     var
         PaymentTerms: Record "Payment Terms";
@@ -595,7 +670,6 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostPaymentOrderLCY(PaymentOrder);
     end;
 
-    [Normal]
     local procedure PreparePaymentOrderWithPaymentTermsDiscountLCY(var Vendor: Record Vendor; var BankAccount: Record "Bank Account"; var CarteraDoc: Record "Cartera Doc."; var PaymentOrder: Record "Payment Order"; var DiscountAmount: Decimal; var TotalAmount: Decimal)
     var
         PaymentTerms: Record "Payment Terms";
@@ -615,7 +689,6 @@ codeunit 147501 "Cartera Paym. Settlement"
         DiscountAmount := Round(TotalAmount * DiscountPct / 100, LibraryERM.GetAmountRoundingPrecision);
     end;
 
-    [Normal]
     local procedure PreparePaymentOrder(var Vendor: Record Vendor; var BankAccount: Record "Bank Account"; var CarteraDoc: Record "Cartera Doc."; var PaymentOrder: Record "Payment Order"; CurrencyCode: Code[10])
     var
         DocumentNo: Code[20];
@@ -648,7 +721,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PaymentOrders: TestPage "Payment Orders";
         PaymentOrderNo: Text;
     begin
-        PaymentOrders.OpenNew;
+        PaymentOrders.OpenNew();
 
         LibraryVariableStorage.Enqueue(CurrencyCode);
         PaymentOrders."Currency Code".Activate;
@@ -687,7 +760,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
         ExpectedVATAmount :=
@@ -742,7 +815,7 @@ codeunit 147501 "Cartera Paym. Settlement"
     begin
         PostedCarteraDoc.SetFilter("Document No.", CarteraDoc."Document No.");
         PostedCarteraDoc.SetFilter(Type, Format(CarteraDoc.Type));
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         Assert.AreNearlyEqual(InitialAmount - SettledAmount, PostedCarteraDoc."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
           UnexpectedPartSettledCartDocRemAmountErr);
@@ -758,7 +831,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         ClosedCarteraDoc.SetRange("Document No.", CarteraDoc."Document No.");
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
         Assert.AreEqual(ClosedCarteraDoc.Status::Honored, ClosedCarteraDoc.Status, UnexpectedCartDocStatusErr);
         Assert.AreEqual(0, ClosedCarteraDoc."Remaining Amt. (LCY)", UnexpectedCartDocRemAmountErr);
 

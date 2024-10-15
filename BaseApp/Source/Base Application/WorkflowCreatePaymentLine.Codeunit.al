@@ -9,7 +9,7 @@ codeunit 1512 "Workflow Create Payment Line"
     begin
         if not WorkflowStepArgument.Get("Record ID to Process") then begin
             WorkflowStepArgumentArchive.SetRange("Original Record ID", "Record ID to Process");
-            if not WorkflowStepArgumentArchive.FindFirst then
+            if not WorkflowStepArgumentArchive.FindFirst() then
                 exit;
 
             WorkflowStepArgument.TransferFields(WorkflowStepArgumentArchive);
@@ -40,12 +40,12 @@ codeunit 1512 "Workflow Create Payment Line"
 
         WorkflowStepInstance.SetLoadFields("Record ID");
         WorkflowStepInstance.SetRange(Argument, WorkflowStepArgument.ID);
-        if WorkflowStepInstance.FindFirst then
+        if WorkflowStepInstance.FindFirst() then
             RecRef.Get(WorkflowStepInstance."Record ID")
         else begin
             WorkflowStepInstanceArchive.SetLoadFields("Record ID");
             WorkflowStepInstanceArchive.SetRange(Argument, WorkflowStepArgument.ID);
-            if not WorkflowStepInstanceArchive.FindFirst then
+            if not WorkflowStepInstanceArchive.FindFirst() then
                 exit;
 
             RecRef.Get(WorkflowStepInstanceArchive."Record ID")
@@ -58,7 +58,7 @@ codeunit 1512 "Workflow Create Payment Line"
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        if GenJournalLine.FindLast then begin
+        if GenJournalLine.FindLast() then begin
             LastLineNo := GenJournalLine."Line No.";
             LastDocNo := GenJournalLine."Document No.";
         end;

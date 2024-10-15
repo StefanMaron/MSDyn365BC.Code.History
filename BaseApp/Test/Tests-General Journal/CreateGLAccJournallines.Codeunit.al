@@ -31,7 +31,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         RunCreateGLAccJnl(GenJnlLine, WorkDate, JnlTemplate, JnlBatch, StandJnlCode, GLAcc);
 
         // Validate generated general journal line against standard journal line
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         StandardGenJnlLine.SetRange("Standard Journal Code", StandJnlCode);
         StandardGenJnlLine.FindSet();
         repeat
@@ -85,7 +85,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         StandardGenJnl: Record "Standard General Journal";
     begin
         GLAcc := FindGLAcc;
-        StandardGenJnl.FindFirst;
+        StandardGenJnl.FindFirst();
         StandJnlCode := StandardGenJnl.Code;
         JnlTemplate := StandardGenJnl."Journal Template Name";
         JnlBatch := FindGenJnlBatch(JnlTemplate);
@@ -127,7 +127,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         CreateGLAccJnlLines.InitializeRequest(
           GenJnlLine."Document Type"::Invoice.AsInteger(), PostingDate, JournalTemplate, BatchName, StandardTemplate);
         CreateGLAccJnlLines.UseRequestPage(false);
-        CreateGLAccJnlLines.Run;
+        CreateGLAccJnlLines.Run();
     end;
 
     [MessageHandler]

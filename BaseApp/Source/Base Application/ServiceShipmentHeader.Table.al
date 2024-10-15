@@ -418,6 +418,11 @@ table 5990 "Service Shipment Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(129; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -803,7 +808,7 @@ table 5990 "Service Shipment Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

@@ -17,7 +17,7 @@ report 10718 "XML VAT Declaration"
                 trigger OnAfterGetRecord()
                 begin
                     VATStatementName.SetRange(Name, "Statement Name");
-                    if not VATStatementName.FindFirst then
+                    if not VATStatementName.FindFirst() then
                         Error(Text1100001);
 
                     CalcTotalLine("VAT Statement Line", TotalAmount, 0);
@@ -28,7 +28,7 @@ report 10718 "XML VAT Declaration"
 
                     if Box <> '' then begin
                         TempAEATTransFormatXML.SetRange(Box, Box);
-                        if TempAEATTransFormatXML.FindSet then
+                        if TempAEATTransFormatXML.FindSet() then
                             repeat
                                 if Type = Type::Description then
                                     Evaluate(TotalAmount, Description);
@@ -42,7 +42,7 @@ report 10718 "XML VAT Declaration"
                 begin
                     TempAEATTransFormatXML.DeleteAll();
                     AEATTransFormatXML.SetRange("VAT Statement Name", "VAT Statement Name".Name);
-                    if AEATTransFormatXML.FindSet then
+                    if AEATTransFormatXML.FindSet() then
                         repeat
                             TempAEATTransFormatXML := AEATTransFormatXML;
                             TempAEATTransFormatXML.Insert();
@@ -121,7 +121,7 @@ report 10718 "XML VAT Declaration"
         TempAEATTransFormatXML.Reset();
         TempAEATTransFormatXML.SetRange("VAT Statement Name", VATStatementName.Name);
         TempAEATTransFormatXML.SetRange(Ask, true);
-        if TempAEATTransFormatXML.FindFirst then begin
+        if TempAEATTransFormatXML.FindFirst() then begin
             PAGE.RunModal(PAGE::"XML Transference Format", TempAEATTransFormatXML);
             TempAEATTransFormatXML.Modify();
             TempAEATTransFormatXML.SetRange(Ask);
@@ -228,7 +228,7 @@ report 10718 "XML VAT Declaration"
                         else
                             VATEntry.SetRange(Closed);
                     end;
-                    if VATEntry.FindFirst then;
+                    if VATEntry.FindFirst() then;
                     case VATStatementLine2."Amount Type" of
                         VATStatementLine2."Amount Type"::Amount:
                             begin
@@ -319,7 +319,7 @@ report 10718 "XML VAT Declaration"
                         else
                             VATEntry.SetRange(Closed);
                     end;
-                    if VATEntry.FindFirst then;
+                    if VATEntry.FindFirst() then;
                     case VATStatementLine2."Amount Type" of
                         VATStatementLine2."Amount Type"::Amount:
                             begin
@@ -421,7 +421,7 @@ report 10718 "XML VAT Declaration"
     var
         XMLNode: DotNet XmlNode;
     begin
-        AEATTransFormatXML.FindFirst;
+        AEATTransFormatXML.FindFirst();
         AEATTransFormatXML.TestField("Line Type", AEATTransFormatXML."Line Type"::Element);
         XMLNode := XMLDoc.CreateElement(AEATTransFormatXML.Description);
         AppendVATStatementLine(XMLNode, AEATTransFormatXML, true);
@@ -457,7 +457,7 @@ report 10718 "XML VAT Declaration"
                         AEATTransFormatXML.SetCurrentKey("VAT Statement Name", "Parent Line No.");
                         AEATTransFormatXML.SetRange("VAT Statement Name", AEATTransFormatXML."VAT Statement Name");
                         AEATTransFormatXML.SetRange("Parent Line No.", AEATTransFormatXML."No.");
-                        if AEATTransFormatXML.FindSet then
+                        if AEATTransFormatXML.FindSet() then
                             repeat
                                 AppendVATStatementLine(NewXMLNode, AEATTransFormatXML, false);
                             until AEATTransFormatXML.Next() = 0;

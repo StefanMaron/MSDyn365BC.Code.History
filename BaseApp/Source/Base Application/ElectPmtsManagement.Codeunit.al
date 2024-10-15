@@ -130,7 +130,7 @@ codeunit 10701 "Elect. Pmts Management"
             Error(Text1100001,
               VendorBankAccount.TableCaption, VendorBankAccount.FieldCaption("Use For Electronic Payments"),
               Vendor.TableCaption, Vendor."No.");
-        VendorBankAccount.FindFirst;
+        VendorBankAccount.FindFirst();
         if TransferType = TransferType::National then begin
             VendorBankAccount.TestField("CCC Bank No.");
             VendorBankAccount.TestField("CCC Bank Branch No.");
@@ -179,7 +179,7 @@ codeunit 10701 "Elect. Pmts Management"
         Vendor.Get(AccNo);
         VendorBankAccount.SetRange("Vendor No.", Vendor."No.");
         VendorBankAccount.SetRange("Use For Electronic Payments", true);
-        if not VendorBankAccount.FindFirst then begin
+        if not VendorBankAccount.FindFirst() then begin
             if not UpdateFromPosting then
                 Error(Text1100000, VendorBankAccount.FieldCaption("Use For Electronic Payments"));
         end else begin

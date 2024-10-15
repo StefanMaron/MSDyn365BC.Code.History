@@ -145,19 +145,19 @@ report 7000006 "Customer - Due Payments"
                                 Doc.SetCurrentKey(Type, "Document No.");
                                 Doc.SetRange(Type, Doc.Type::Receivable);
                                 Doc.SetRange("Document No.", "Document No.");
-                                if Doc.FindFirst then
+                                if Doc.FindFirst() then
                                     PaymentMethod := Doc."Payment Method Code"
                                 else begin
                                     PostedDoc.SetCurrentKey(Type, "Document No.");
                                     PostedDoc.SetRange(Type, PostedDoc.Type::Receivable);
                                     PostedDoc.SetRange("Document No.", "Document No.");
-                                    if PostedDoc.FindFirst then
+                                    if PostedDoc.FindFirst() then
                                         PaymentMethod := PostedDoc."Payment Method Code"
                                     else begin
                                         ClosedDoc.SetCurrentKey(Type, "Document No.");
                                         ClosedDoc.SetRange(Type, ClosedDoc.Type::Receivable);
                                         ClosedDoc.SetRange("Document No.", "Document No.");
-                                        if ClosedDoc.FindFirst then
+                                        if ClosedDoc.FindFirst() then
                                             PaymentMethod := ClosedDoc."Payment Method Code"
                                     end;
                                 end;

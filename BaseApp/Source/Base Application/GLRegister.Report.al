@@ -189,7 +189,7 @@ report 3 "G/L Register"
                     PurchInvLine.SetRange("Document No.", "Document No.");
                     PurchInvLine.SetRange("No.", "G/L Account No.");
                     PurchInvLine.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if PurchInvLine.FindSet then begin
+                    if PurchInvLine.FindSet() then begin
                         if not PurchInvHeader.Get("Document No.") then
                             exit;
                         CurrancyFactor := SetCurrancyFactor(PurchInvHeader."Currency Factor");
@@ -203,7 +203,7 @@ report 3 "G/L Register"
                     PurchCrMemoLine.SetRange("Document No.", "Document No.");
                     PurchCrMemoLine.SetRange("No.", "G/L Account No.");
                     PurchCrMemoLine.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if PurchCrMemoLine.FindSet then begin
+                    if PurchCrMemoLine.FindSet() then begin
                         if not PurchCrMemoHdr.Get("Document No.") then
                             exit;
                         CurrancyFactor := SetCurrancyFactor(PurchCrMemoHdr."Currency Factor");
@@ -217,7 +217,7 @@ report 3 "G/L Register"
                     SalesInvoiceLine.SetRange("Document No.", "Document No.");
                     SalesInvoiceLine.SetRange("No.", "G/L Account No.");
                     SalesInvoiceLine.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if SalesInvoiceLine.FindSet then begin
+                    if SalesInvoiceLine.FindSet() then begin
                         if not SalesInvoiceHeader.Get("Document No.") then
                             exit;
                         CurrancyFactor := SetCurrancyFactor(SalesInvoiceHeader."Currency Factor");
@@ -231,7 +231,7 @@ report 3 "G/L Register"
                     SalesCrMemoLine.SetRange("Document No.", "Document No.");
                     SalesCrMemoLine.SetRange("No.", "G/L Account No.");
                     SalesCrMemoLine.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                    if SalesCrMemoLine.FindSet then begin
+                    if SalesCrMemoLine.FindSet() then begin
                         if not SalesCrMemoHeader.Get("Document No.") then
                             exit;
                         CurrancyFactor := SetCurrancyFactor(SalesCrMemoHeader."Currency Factor");

@@ -734,7 +734,7 @@
         SetCheckPrepaymentinSalesSetup(true);
 
         // [GIVEN] Sales Order "X" with Posted Prepayment Invoice
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         CreatePrepmtSalesOrder(SalesHeader, SalesLine);
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
@@ -751,7 +751,7 @@
 
         // [THEN] Posted Sales Credit Memo is created with "Return Order No." = "X"
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", ReturnSalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("Return Order No.", ReturnSalesHeader."No.");
 
         // Tear down
@@ -771,7 +771,7 @@
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         // [GIVEN] Sales Order "X" with Posted Prepayment Invoice
-        SalesHeader[1]."No." := LibraryUtility.GenerateGUID;
+        SalesHeader[1]."No." := LibraryUtility.GenerateGUID();
         CreatePrepmtSalesOrder(SalesHeader[1], SalesLine);
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader[1]);
 
@@ -804,7 +804,7 @@
         Initialize();
 
         // [GIVEN] Purchase Order "X" with Posted Prepayment Invoice
-        PurchaseHeader[1]."No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader[1]."No." := LibraryUtility.GenerateGUID();
         CreatePrepmtPurchOrder(PurchaseHeader[1]);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader[1]);
 
@@ -812,14 +812,14 @@
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Sell-to Customer No.");
         CopyPurchOrderFromPurchOrder(PurchaseHeader[1]."No.", PurchaseHeader[2]);
-        PurchaseHeader[2]."Vendor Invoice No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader[2]."Vendor Invoice No." := LibraryUtility.GenerateGUID();
         PurchaseHeader[2].Modify();
 
         // [GIVEN] Posted Prepayment Invoice for order "Y"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader[2]);
 
         // [WHEN] Prepayment Credit Memo is being posted
-        PurchaseHeader[2]."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader[2]."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID();
         PurchaseHeader[2].Modify();
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader[2]);
 
@@ -1683,7 +1683,7 @@
     begin
         // [FEATURE] [Purchase] [Receipt] [Invoice] [Get Receipt Lines]
         // [SCENARIO 349477] Posting purchase invoice for not invoiced receipt when there has been another fully invoiced receipt in the purchase order with prepayment.
-        Initialize;
+        Initialize();
         PrepmtPerc := LibraryRandom.RandIntInRange(10, 90);
 
         PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, LibraryRandom.RandInt(20));
@@ -1740,7 +1740,7 @@
     begin
         // [FEATURE] [Purchase] [Receipt] [Invoice] [Get Receipt Lines]
         // [SCENARIO 349477] Posting purchase invoice for partially invoiced receipt in purchase order with prepayment.
-        Initialize;
+        Initialize();
         PrepmtPerc := 30;
 
         PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, LibraryRandom.RandInt(20));
@@ -1798,7 +1798,7 @@
     begin
         // [FEATURE] [Sales] [Shipment] [Invoice] [Get Shipment Lines]
         // [SCENARIO 349477] Posting sales invoice for not invoiced shipment when there has been another fully invoiced shipment in the sales order with prepayment.
-        Initialize;
+        Initialize();
         PrepmtPerc := LibraryRandom.RandIntInRange(10, 90);
 
         PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, LibraryRandom.RandInt(20));
@@ -1854,7 +1854,7 @@
     begin
         // [FEATURE] [Sales] [Shipment] [Invoice] [Get Shipment Lines]
         // [SCENARIO 349477] Posting sales invoice for partially invoiced shipment in sales order with prepayment.
-        Initialize;
+        Initialize();
         PrepmtPerc := 30;
 
         PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, LibraryRandom.RandInt(20));
@@ -2207,7 +2207,7 @@
         PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         CreatePurchLine(PurchaseLine[2], PurchaseHeader);
@@ -2305,7 +2305,7 @@
         PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         CreatePurchLine(PurchaseLine[2], PurchaseHeader);
@@ -2336,7 +2336,7 @@
     begin
         // [FEATURE] [Comments]
         // [SCENARIO 342788] System copies sales order's comments to posted prepayment invoices and credit memos when setup is enabled.
-        Initialize;
+        Initialize();
         LibrarySales.SetCopyCommentsOrderToInvoiceInSetup(true);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2383,7 +2383,7 @@
     begin
         // [FEATURE] [Comments]
         // [SCENARIO 342788] System copies purchase order's comments to posted prepayment invoices and credit memos when setup is enabled.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCopyCommentsOrderToInvoiceInSetup(true);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2403,7 +2403,7 @@
         PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         CreatePurchLine(PurchaseLine[2], PurchaseHeader);
@@ -2434,7 +2434,7 @@
     begin
         // [FEATURE] [Comments]
         // [SCENARIO 342788] System does not copy sales order's comments to posted prepayment invoices and credit memos when setup is disabled.
-        Initialize;
+        Initialize();
         LibrarySales.SetCopyCommentsOrderToInvoiceInSetup(false);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2481,7 +2481,7 @@
     begin
         // [FEATURE] [Comments]
         // [SCENARIO 342788] System does not copy purchase order's comments to posted prepayment invoices and credit memos when setup is disabled.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCopyCommentsOrderToInvoiceInSetup(false);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2501,7 +2501,7 @@
         PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         CreatePurchLine(PurchaseLine[2], PurchaseHeader);
@@ -2839,7 +2839,7 @@
     begin
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 361949] Post Sales Order partially with Prepayment % = 100 and Invoice Discount Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT Rate = 10. Sales Order with Prepayment % = 100.
         // [GIVEN] Sales Line with Item, Quantity = 3, "Unit Price" = 1000; Invoice Discount Amount = 300.
@@ -2913,7 +2913,7 @@
     begin
         // [FEATURE] [Purchase] [Invoice Discount]
         // [SCENARIO 361949] Post Purchase Order partially with Prepayment % = 100 and Invoice Discount Amount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT Rate = 10. Purchase Order with Prepayment % = 100.
         // [GIVEN] Purchase Line with Item, Quantity = 3, "Unit Price" = 1000; Invoice Discount Amount = 300.
@@ -2981,7 +2981,7 @@
         // [FEATURE] [Sales]
         // [SCENARIO 364426] Stan cannot change the "VAT Product Posting Group" in Sales Order with posted prepayment
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with "VAT Product Posting Group" = "X"
         CreatePrepmtSalesOrder(SalesHeader, SalesLine);
 
@@ -3015,7 +3015,7 @@
         // [FEATURE] [Sales]
         // [SCENARIO 364364] Stan cannot change the prepayment amount if prepayment G/L Account has different VAT Product posting group
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with sales prepayment account that has "VAT Product Posting Group" with VAT rate = "X"
         CreatePrepmtSalesOrder(SalesHeader, SalesLine);
 
@@ -3053,7 +3053,7 @@
         // [FEATURE] [Purchase]
         // [SCENARIO 364426] Stan cannot change the "VAT Product Posting Group" in Purchase Order with posted prepayment
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with "VAT Product Posting Group" = "X"
         CreatePrepmtPurchOrder(PurchaseHeader);
 
@@ -3088,7 +3088,7 @@
         // [FEATURE] [Purchase]
         // [SCENARIO 364364] Stan cannot change the prepayment amount if prepayment G/L Account has different VAT Product posting group
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with purchase prepayment account that has "VAT Product Posting Group" with VAT rate = "X"
         CreatePrepmtPurchOrder(PurchaseHeader);
 
@@ -4035,7 +4035,7 @@
         Vendor.Modify(true);
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Order, Vendor."No.");
-        PurchHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchHeader.Modify(true);
         CreatePrepPurhcLine(PurchHeader, PurchLine, LineGLAccount."No.");
     end;
@@ -4117,7 +4117,7 @@
     begin
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         GenPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-        GenPostingSetup.FindFirst;
+        GenPostingSetup.FindFirst();
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GenPostingSetup."Purch. Prepayments Account",
           DimensionValue."Dimension Code", DimensionValue.Code);
     end;
@@ -4435,7 +4435,7 @@
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
@@ -4569,7 +4569,7 @@
         with VATEntry do begin
             SetRange("Bill-to/Pay-to No.", CustomerNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit(Amount);
         end;
     end;
@@ -4613,7 +4613,7 @@
         with PurchInvHeader do begin
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Prepayment Invoice", true);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4622,7 +4622,7 @@
         with PurchCrMemoHdr do begin
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange("Prepayment Credit Memo", true);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4631,7 +4631,7 @@
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange("Prepayment Invoice", true);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4640,7 +4640,7 @@
         with SalesCrMemoHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange("Prepayment Credit Memo", true);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4693,7 +4693,7 @@
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
@@ -4727,7 +4727,7 @@
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual("Prepayment Amount" / 2, "Prepmt. Amount Inv. (LCY)", IncorrectPrepmtAmountInvLCYErr);
         end;
     end;
@@ -4739,7 +4739,7 @@
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual("Prepayment Amount" / 2, "Prepmt. Amount Inv. (LCY)", IncorrectPrepmtAmountInvLCYErr);
         end;
     end;
@@ -4818,7 +4818,7 @@
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Document Type", DocumentType);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Prepmt. Line Amount", SalesLine.Amount);
     end;
 
@@ -4828,7 +4828,7 @@
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("Document Type", DocumentType);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Prepmt. Line Amount", PurchaseLine.Amount);
     end;
 
@@ -4845,7 +4845,7 @@
 
         if ExpectedNoOfLineComments > 0 then begin
             SalesCommentLine.SetFilter("Document Line No.", '>0');
-            SalesCommentLine.FindLast;
+            SalesCommentLine.FindLast();
             SalesCommentLine.TestField(Comment, ExpectedLineComment);
         end;
     end;
@@ -4863,7 +4863,7 @@
 
         if ExpectedNoOfLineComments > 0 then begin
             PurchCommentLine.SetFilter("Document Line No.", '>0');
-            PurchCommentLine.FindLast;
+            PurchCommentLine.FindLast();
             PurchCommentLine.TestField(Comment, ExpectedLineComment);
         end;
     end;
@@ -4881,7 +4881,7 @@
 
         if ExpectedNoOfLineComments > 0 then begin
             SalesCommentLine.SetRange("Document Line No.", LineNo);
-            SalesCommentLine.FindLast;
+            SalesCommentLine.FindLast();
             SalesCommentLine.TestField(Comment, ExpectedLineComment);
         end;
     end;
@@ -4899,7 +4899,7 @@
 
         if ExpectedNoOfLineComments > 0 then begin
             PurchCommentLine.SetRange("Document Line No.", LineNo);
-            PurchCommentLine.FindLast;
+            PurchCommentLine.FindLast();
             PurchCommentLine.TestField(Comment, ExpectedLineComment);
         end;
     end;

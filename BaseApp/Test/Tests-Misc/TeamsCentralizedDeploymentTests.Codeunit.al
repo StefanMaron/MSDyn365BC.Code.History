@@ -21,7 +21,7 @@ codeunit 139321 "Teams Centralized Depl. Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [GIVEN] A newly setup company in Saas
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [WHEN] The Teams Centralized Deployment is completed
@@ -41,7 +41,7 @@ codeunit 139321 "Teams Centralized Depl. Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [GIVEN] A newly setup company in Saas
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // [WHEN] The Teams Centralized Deployment is completed
@@ -67,7 +67,7 @@ codeunit 139321 "Teams Centralized Depl. Tests"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [GIVEN] A newly setup company in Saas
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] The Teams Centralized Deployment is completed

@@ -119,7 +119,7 @@ codeunit 144012 "ERM Transaction No."
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         PostJournalsWithTransactionNo(GenJournalLine, Type, LibraryRandom.RandIntInRange(1, 10));  // Using Random for Transaction No.
 
         // Verify: Verify No. of Transactions in GL Register.
@@ -182,12 +182,12 @@ codeunit 144012 "ERM Transaction No."
         GLRegister: Record "G/L Register";
     begin
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         PostJournalsWithTransactionNo(GenJournalLine, Type, 0);  // Using 0 for Transaction No.
 
         // Verify: Verify No. of Transaction in GL Register.
         GLRegister.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
         Assert.AreEqual(GenJournalLine."Posting Date", GLRegister."Posting Date", ExpectedValueErr);
         Assert.AreEqual(1, GLRegister.Count, ExpectedValueErr);  // Using 1 for compare with maximum number of transactions.
     end;
@@ -201,7 +201,7 @@ codeunit 144012 "ERM Transaction No."
         // Verify No. of Transactions in GL Register after post transaction with Transaction No. from Recurring Journal.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         PostRecurringJournalsWithTransactionNo(GenJournalLine, LibraryRandom.RandIntInRange(1, 10));  // Using Random for Transaction No.
 
         // Verify: Verify No. of Transactions in GL Register.
@@ -218,12 +218,12 @@ codeunit 144012 "ERM Transaction No."
         // Verify No. of Transactions in GL Register after post transaction without Transaction No. from Recurring Journal.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         PostRecurringJournalsWithTransactionNo(GenJournalLine, 0);  // Using 0 for Transaction No.
 
         // Verify: Verify No. of Transactions in GL Register.
         GLRegister.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
         Assert.AreEqual(GenJournalLine."Posting Date", GLRegister."Posting Date", ExpectedValueErr);
         Assert.AreEqual(1, GLRegister.Count, ExpectedValueErr);  // Using 1 for compare with maximum number of transactions.
     end;
@@ -239,7 +239,7 @@ codeunit 144012 "ERM Transaction No."
         // Verify Period Transaction No. on GL Register after run Set Period Trans. Nos. Batch Report.
 
         // Setup: Post General Journal with different Transaction No.
-        Initialize;
+        Initialize();
         CreateJournalLinesWithTransactionNo(GenJournalLine, GenJournalTemplate.Type::General, LibraryRandom.RandIntInRange(1, 10));  // Using Random for Transaction No.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -261,7 +261,7 @@ codeunit 144012 "ERM Transaction No."
         // Verify GL Register report after post General Journal with Transaction No.
 
         // Setup: Post General Journal with different Transaction No.
-        Initialize;
+        Initialize();
         CreateJournalLinesWithTransactionNo(GenJournalLine, GenJournalTemplate.Type::General, LibraryRandom.RandIntInRange(1, 10));  // Using Random for Transaction No.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         SetPeriodTransNos(Format(WorkDate));
@@ -288,7 +288,7 @@ codeunit 144012 "ERM Transaction No."
         // Verify Warning message and error text on General Journal - Test report.
 
         // Setup: Create General Journal line with different Transaction No.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         CreateJournalLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandDec(100, 2), LibraryRandom.RandIntInRange(1, 10));  // Using Random for Amouont & Transaction No.
         CreateJournalLine(GenJournalLine, GenJournalBatch, -GenJournalLine.Amount / 2, GenJournalLine."Transaction No." + 1);  // Division by 2 required for Partial Amount & plus 1 required for different Transaction No.
@@ -316,18 +316,18 @@ codeunit 144012 "ERM Transaction No."
     begin
         // [FEATURE] [G/L Register] [Reverse]
         // [SCENARIO 372274] Reversed G/L Register has the same "Posting Date" as source G/L Register
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post General Journal with "Posting Date" = "D"
         PostJournalsWithTransactionNo(GenJournalLine, GenJournalTemplate.Type::Payments, 0);  // Using 0 for Transaction No.
 
         // [WHEN] Reverse last "G/L Register"
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
         // [THEN] Created reversed "G/L Register"."Posting Date" = "D"
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         Assert.AreEqual(GenJournalLine."Posting Date", GLRegister."Posting Date", GLRegister.FieldCaption("Posting Date"));
     end;
 
@@ -344,7 +344,7 @@ codeunit 144012 "ERM Transaction No."
         // [FEATURE] [Period Transaction No.] [Set Period Trans. Nos.] [UT]
         // [SCENARIO 266203] Report 10700 "Set Period Trans. Nos." in case of different "Transaction No." within the same "Posting Date"
         // [SCENARIO 266203] and different "Posting Date" within the same "Transaction No."
-        Initialize;
+        Initialize();
         TransactionNo := GetLastTransactionNo;
 
         // [GIVEN] GLEntry1:  "Entry No." = 1  "Posting Date" = 03-01-2018, "Transaction No." = 3
@@ -407,12 +407,12 @@ codeunit 144012 "ERM Transaction No."
     begin
         // [FEATURE] [Period Transaction No.] [Set Period Trans. Nos.] [UT]
         // [SCENARIO 266203] Report 10700 "Set Period Trans. Nos." in case of several G/L Entries with the same "Transaction No." and different "Posting Date" for several years
-        Initialize;
+        Initialize();
         TransactionNo := GetLastTransactionNo + 1;
         for i := 1 to ArrayLen(PostingDate) do begin
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
             PostingDate[i] := LibraryFiscalYear.GetFirstPostingDate(false);
-            LibraryFiscalYear.CloseFiscalYear;
+            LibraryFiscalYear.CloseFiscalYear();
         end;
 
         // [GIVEN] GLEntry1:  "Entry No." = 1  "Posting Date" = 02-01-2019, "Transaction No." = 1
@@ -449,8 +449,8 @@ codeunit 144012 "ERM Transaction No."
     begin
         // [FEATURE] [Period Transaction No.] [UI] [UT]
         // [SCENARIO 266203] There is a field "Period Trans. No." and action "Set Period Trans. Nos." on the "General Ledger Entries" page
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         MockGLEntry(GLEntry, WorkDate + 1, GetLastTransactionNo + 1);
 
@@ -481,7 +481,7 @@ codeunit 144012 "ERM Transaction No."
     begin
         // [FEATURE] [Recurring Journal] [Sales]
         // [SCENARIO 273494] Post Recurring Journal Line of G/L Account Type and it's Allocation with Sale Gen. Posting Type.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Recurring Journal Line with "Account Type" = "G/L Account" and empty "Gen. Posting Type".
         // [GIVEN] Allocation Line with "Gen. Posting Type" = Sale.
@@ -502,7 +502,7 @@ codeunit 144012 "ERM Transaction No."
     begin
         // [FEATURE] [Recurring Journal] [Purchase]
         // [SCENARIO 273494] Post Recurring Journal Line of G/L Account Type and it's Allocation with Purchase Gen. Posting Type.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Recurring Journal Line with "Account Type" = "G/L Account" and empty "Gen. Posting Type".
         // [GIVEN] Allocation Line with "Gen. Posting Type" = Purchase.
@@ -516,7 +516,7 @@ codeunit 144012 "ERM Transaction No."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
@@ -602,7 +602,7 @@ codeunit 144012 "ERM Transaction No."
         GLEntry: Record "G/L Entry";
     begin
         GLRegister.SetRange("Journal Batch Name", JournalBatchName);
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.Get(GLRegister."From Entry No.");
         exit(GLEntry."Period Trans. No.");
     end;
@@ -612,7 +612,7 @@ codeunit 144012 "ERM Transaction No."
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetCurrentKey("Transaction No.");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No.");
     end;
 
@@ -654,7 +654,7 @@ codeunit 144012 "ERM Transaction No."
         GLRegister: Record "G/L Register";
     begin
         GLRegister.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLRegister.TestField("Posting Date", GenJournalLine."Posting Date");
         Assert.AreEqual(NoOfTransaction, GLRegister.Count, ExpectedValueErr);
     end;
@@ -684,7 +684,7 @@ codeunit 144012 "ERM Transaction No."
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.Get(GLRegister."From Entry No.");
         GLEntry.TestField("Period Trans. No.", LibraryVariableStorage.DequeueInteger);
 

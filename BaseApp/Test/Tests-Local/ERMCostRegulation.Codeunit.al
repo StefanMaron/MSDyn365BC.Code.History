@@ -46,7 +46,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure PurchaseIntrastatJournalWithInvDiscSameMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a purchase order with a invoice discount and payment discount shipping and invoicing in same month with Currency.
-        Initialize;
+        Initialize();
         PurchaseIntrastatJournal(
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
@@ -57,7 +57,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure PurchaseIntrastatJournalWithInvDiscNextMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a purchase order with a invoice discount and payment discount shipping and invoicing in different months with Currency.
-        Initialize;
+        Initialize();
         PurchaseIntrastatJournal(
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
@@ -68,7 +68,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure PurchaseIntrastatJournalWithoutCurrencyInvDiscNextMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a purchase order with a payment and invoice discount shipping and invoicing in different months without Currency.
-        Initialize;
+        Initialize();
         PurchaseIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
@@ -78,7 +78,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure PurchaseIntrastatJournalWithoutCurrencyInvDiscSameMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a purchase order with a payment and invoice discount shipping and invoicing in same months without Currency.
-        Initialize;
+        Initialize();
         PurchaseIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
@@ -119,7 +119,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure SalesIntrastatJournalWithInvDiscSameMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a payment and invoice discount shipping and invoicing in same month with Currency.
-        Initialize;
+        Initialize();
         SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
 
@@ -129,7 +129,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure SalesIntrastatJournalWithInvDiscNextMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a invoice discount and payment discount shipping and invoicing in different months with Currency.
-        Initialize;
+        Initialize();
         SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), CreateCurrencyWithExchangeRate);  // Using Random value for NewPostingDate.
     end;
 
@@ -139,7 +139,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure SalesIntrastatJournalWithoutCurrencyInvDiscNextMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a payment and invoice discount shipping and invoicing in different months without Currency.
-        Initialize;
+        Initialize();
         SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
@@ -149,7 +149,7 @@ codeunit 144038 "ERM Cost Regulation"
     procedure SalesIntrastatJournalWithoutCurrencyInvDiscSameMonth()
     begin
         // Verify Amount in Intrastat Journal when posting a sales order with a payment and invoice discount shipping and invoicing in same months without Currency.
-        Initialize;
+        Initialize();
         SalesIntrastatJournal(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), '');  // Using Random value for NewPostingDate and blank Currency Code.
     end;
 
@@ -186,7 +186,7 @@ codeunit 144038 "ERM Cost Regulation"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UpdateIntrastatCodeInCountryRegion;
     end;
 
@@ -233,7 +233,7 @@ codeunit 144038 "ERM Cost Regulation"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Modify(true);
@@ -312,7 +312,7 @@ codeunit 144038 "ERM Cost Regulation"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter("Intrastat Code", '<>''''');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         exit(CountryRegion.Code);
     end;
 
@@ -380,7 +380,7 @@ codeunit 144038 "ERM Cost Regulation"
     begin
         IntrastatJnlLine.SetRange("Document No.", DocumentNo);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         Assert.AreEqual(
           Type, IntrastatJnlLine.Type,
           StrSubstNo(ValidationError, IntrastatJnlLine.FieldCaption(Type), Type, IntrastatJnlLine.TableCaption));

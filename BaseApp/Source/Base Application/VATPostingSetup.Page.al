@@ -31,6 +31,11 @@ page 472 "VAT Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT posting setup';
                 }
+                field(Blocked; Rec.Blocked)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if this particular combination of VAT business posting group and VAT product posting group is blocked.';
+                }
                 field("VAT Identifier"; "VAT Identifier")
                 {
                     ApplicationArea = Basic, Suite;
@@ -198,7 +203,7 @@ page 472 "VAT Posting Setup"
                 begin
                     CurrPage.SaveRecord;
                     CopyVATPostingSetup.SetVATSetup(Rec);
-                    CopyVATPostingSetup.RunModal;
+                    CopyVATPostingSetup.RunModal();
                     Clear(CopyVATPostingSetup);
                 end;
             }

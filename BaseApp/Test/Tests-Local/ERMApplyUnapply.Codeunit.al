@@ -1251,7 +1251,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         // [FEATURE] [Sales] [Apply]
         // [SCENARIO 293328] Credit memo can be applied to bill when their currency code = additional currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create currency "CURR" with specific exchange rate
         CurrencyCode :=
@@ -1442,7 +1442,7 @@ codeunit 147310 "ERM Apply Unapply"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1532,7 +1532,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         with CustLedgerEntry do begin
             SetRange("Applying Entry", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Validate("Applying Entry", false);
                     Modify(true);
@@ -1540,7 +1540,7 @@ codeunit 147310 "ERM Apply Unapply"
 
             Reset;
             SetFilter("Applies-to ID", '<>%1', '');
-            if FindSet then
+            if FindSet() then
                 repeat
                     Validate("Applies-to ID", '');
                     Modify(true);
@@ -1554,7 +1554,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         with VendLedgerEntry do begin
             SetRange("Applying Entry", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Validate("Applying Entry", false);
                     Modify(true);
@@ -1562,7 +1562,7 @@ codeunit 147310 "ERM Apply Unapply"
 
             Reset;
             SetFilter("Applies-to ID", '<>%1', '');
-            if FindSet then
+            if FindSet() then
                 repeat
                     Validate("Applies-to ID", '');
                     Modify(true);
@@ -1665,7 +1665,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
@@ -1675,7 +1675,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         VendLedgerEntry.SetRange("Document No.", DocumentNo);
         VendLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendLedgerEntry.FindFirst;
+        VendLedgerEntry.FindFirst();
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgerEntry);
     end;
 
@@ -1832,7 +1832,7 @@ codeunit 147310 "ERM Apply Unapply"
         with CarteraDoc do begin
             SetRange(Type, CarteraDocType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1845,7 +1845,7 @@ codeunit 147310 "ERM Apply Unapply"
             SetRange("Document Type", "Document Type"::Bill);
             SetRange("Customer No.", CustomerNo);
             SetRange(Open, true);
-            FindLast;
+            FindLast();
             Validate("Bill No.", '');
             Modify(true);
             exit("Document No.");
@@ -1860,7 +1860,7 @@ codeunit 147310 "ERM Apply Unapply"
             SetRange("Document Type", "Document Type"::Bill);
             SetRange("Vendor No.", VendorNo);
             SetRange(Open, true);
-            FindLast;
+            FindLast();
             Validate("Bill No.", '');
             Modify(true);
             exit("Document No.");
@@ -1899,7 +1899,7 @@ codeunit 147310 "ERM Apply Unapply"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No.");
     end;
 
@@ -2125,17 +2125,17 @@ codeunit 147310 "ERM Apply Unapply"
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
 
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
 
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Transaction No.", DetailedCustLedgEntry."Transaction No.");
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup.GetBillsAccount(false));
         Assert.RecordCount(GLEntry, 1);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, BillAmount);
     end;
 
@@ -2151,17 +2151,17 @@ codeunit 147310 "ERM Apply Unapply"
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
-        DetailedVendorLedgEntry.FindLast;
+        DetailedVendorLedgEntry.FindLast();
 
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Transaction No.", DetailedVendorLedgEntry."Transaction No.");
         GLEntry.SetRange("G/L Account No.", VendorPostingGroup.GetBillsAccount);
         Assert.RecordCount(GLEntry, 1);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -BillAmount);
     end;
 
@@ -2173,10 +2173,10 @@ codeunit 147310 "ERM Apply Unapply"
         GLEntry.SetRange("Source Code", SourceCode);
 
         GLEntry.SetRange("G/L Account No.", BalGLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Credit Amount", -GLAmount);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Debit Amount", -GLAmount);
     end;
 
@@ -2189,10 +2189,10 @@ codeunit 147310 "ERM Apply Unapply"
         GLEntry.SetRange("Source Code", SourceCode);
 
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, GLAmount);
         GLEntry.SetRange("G/L Account No.", BalGLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -GLAmount);
     end;
 
@@ -2220,7 +2220,7 @@ codeunit 147310 "ERM Apply Unapply"
         DetailedCustLedgEntry.SetRange("Customer No.", CustNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.SetRange(Unapplied, true);
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
 
         VerifyPairedGLEntriesWithSameTransaction(
           DocNo, DetailedCustLedgEntry."Transaction No.", GetCustomerReceivablesAccount(CustNo));
@@ -2233,7 +2233,7 @@ codeunit 147310 "ERM Apply Unapply"
         DetailedVendLedgEntry.SetRange("Entry Type", DetailedVendLedgEntry."Entry Type"::Application);
         DetailedVendLedgEntry.SetRange("Vendor No.", VendNo);
         DetailedVendLedgEntry.SetRange(Unapplied, true);
-        DetailedVendLedgEntry.FindLast;
+        DetailedVendLedgEntry.FindLast();
 
         VerifyPairedGLEntriesWithSameTransaction(
           DocNo, DetailedVendLedgEntry."Transaction No.", GetVendorPayablesAccount(VendNo));
@@ -2257,7 +2257,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
 
         GLEntry.SetRange("Transaction No.", DetailedCustLedgEntry."Transaction No.");
         GLEntry.FindSet();
@@ -2273,7 +2273,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Transaction No.", LastTransactionNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     local procedure VerifyPaymentGLEntryCount(DocumentNo: Code[20]; GLAccount: Code[20]; ExpectedCount: Integer)

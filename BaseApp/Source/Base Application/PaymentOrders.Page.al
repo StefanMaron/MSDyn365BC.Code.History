@@ -260,7 +260,7 @@ page 7000050 "Payment Orders"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Page Payment Orders Maturity Process")

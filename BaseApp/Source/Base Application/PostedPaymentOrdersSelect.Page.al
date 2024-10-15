@@ -255,7 +255,7 @@ page 7000065 "Posted Payment Orders Select."
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Posted Payment Orders Maturity")

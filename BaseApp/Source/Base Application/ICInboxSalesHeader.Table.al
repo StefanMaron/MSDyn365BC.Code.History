@@ -149,7 +149,7 @@ table 434 "IC Inbox Sales Header"
         ICInboxSalesLine.SetRange("IC Partner Code", "IC Partner Code");
         ICInboxSalesLine.SetRange("IC Transaction No.", "IC Transaction No.");
         ICInboxSalesLine.SetRange("Transaction Source", "Transaction Source");
-        if ICInboxSalesLine.FindFirst then
+        if ICInboxSalesLine.FindFirst() then
             ICInboxSalesLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

@@ -189,7 +189,7 @@ report 7000005 "Bank - Risk"
                       CurrExchRate.ExchangeAmount("Credit Limit for Discount", "Currency Code", '', WorkDate);
                 BillGr.SetRange("Bank Account No.", "No.");
                 BillGr.SetRange("Dealing Type", DealingType::Discount);
-                if BillGr.FindSet then
+                if BillGr.FindSet() then
                     if PrintAmountsInLCY then
                         repeat
                             BillGr.CalcFields("Amount (LCY)");

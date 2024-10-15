@@ -50,7 +50,7 @@ codeunit 144039 "UT PAG Debit Credit"
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 256 Payment Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -68,7 +68,7 @@ codeunit 144039 "UT PAG Debit Credit"
         PaymentJournal: TestPage "Payment Journal";
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 256 Payment Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         PaymentJournal.OpenEdit;
@@ -85,7 +85,7 @@ codeunit 144039 "UT PAG Debit Credit"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 255 Cash Receipt Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -103,7 +103,7 @@ codeunit 144039 "UT PAG Debit Credit"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 255 Cash Receipt Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         CashReceiptJournal.OpenEdit;
@@ -120,7 +120,7 @@ codeunit 144039 "UT PAG Debit Credit"
         PurchaseJournal: TestPage "Purchase Journal";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 254 Purchase Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -138,7 +138,7 @@ codeunit 144039 "UT PAG Debit Credit"
         PurchaseJournal: TestPage "Purchase Journal";
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 254 Purchase Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         PurchaseJournal.OpenEdit;
@@ -155,7 +155,7 @@ codeunit 144039 "UT PAG Debit Credit"
         SalesJournal: TestPage "Sales Journal";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 253 Sales Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -173,7 +173,7 @@ codeunit 144039 "UT PAG Debit Credit"
         SalesJournal: TestPage "Sales Journal";
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 253 Sales Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         SalesJournal.OpenEdit;
@@ -190,7 +190,7 @@ codeunit 144039 "UT PAG Debit Credit"
         GeneralJournal: TestPage "General Journal";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 39 General Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -208,7 +208,7 @@ codeunit 144039 "UT PAG Debit Credit"
         GeneralJournal: TestPage "General Journal";
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 39 General Journal.
-        Initialize;
+        Initialize();
 
         // Setup.
         GeneralJournal.OpenEdit;
@@ -226,7 +226,7 @@ codeunit 144039 "UT PAG Debit Credit"
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 283 Recurring General Journal.
         // Commit is explicitly called in function CheckTemplateName in codeunit - 230 GenJnlManagement.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -245,7 +245,7 @@ codeunit 144039 "UT PAG Debit Credit"
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 283 Recurring General Journal.
         // Commit is explicitly called in function CheckTemplateName in codeunit - 230 GenJnlManagement.
-        Initialize;
+        Initialize();
 
         // Setup.
         RecurringGeneralJournal.OpenEdit;
@@ -262,7 +262,7 @@ codeunit 144039 "UT PAG Debit Credit"
         ChartOfAccounts: TestPage "Chart of Accounts";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 16 Chart Of Accounts.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -280,7 +280,7 @@ codeunit 144039 "UT PAG Debit Credit"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         // Purpose of the test is to verify Debit Amount and Credit Amount captions are available on Page ID - 20 General Ledger Entries.
-        Initialize;
+        Initialize();
 
         // Setup.
         // Exercise.
@@ -298,7 +298,7 @@ codeunit 144039 "UT PAG Debit Credit"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         // Purpose of the test is to verify Amount Caption is not available on Page ID - 20 General Ledger Entries.
-        Initialize;
+        Initialize();
 
         // Setup.
         GeneralLedgerEntries.OpenEdit;

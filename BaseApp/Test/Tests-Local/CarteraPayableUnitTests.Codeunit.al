@@ -28,7 +28,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         OldPaymentOrderNoSeries: Code[20];
         PaymentOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
@@ -67,7 +67,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         POCommentLine: Record "BG/PO Comment Line";
         Comment: Variant;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreatePaymentOrderWithBankAccount(PaymentOrder);
@@ -100,7 +100,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         POCommentLine: Record "BG/PO Comment Line";
         PaymentOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PaymentOrderNo := CreatePaymentOrderWithBankAccount(PaymentOrder);
@@ -126,7 +126,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [Payment Order] [UI]
         // [SCENARIO 363721] Action "Payment Orders Maturity" on "Bill Groups List" with multiple lines should open page for selected Payment Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Payment Orders in "Payment Orders List" page: "PO1" and "PO2"
         CreatePaymentOrderWithBankAccount(PaymentOrder[1]);
@@ -154,7 +154,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [Payment Order] [UI]
         // [SCENARIO 380645] Action "Maturity" on "Payment Orders" should open a page for the selected Payment Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Payment Orders created: "PO1" and "PO2".
         CreatePaymentOrderWithBankAccount(PaymentOrder[1]);
@@ -183,7 +183,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [Payment Order] [UI]
         // [SCENARIO 380645] Action "Maturity" on "Posted Payment Orders" should open a page for the selected Posted Payment Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock two Posted Payment Orders: "PPO1" and "PPO2".
         MockPostedPaymentOrder(PostedPaymentOrder);
@@ -212,7 +212,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [Payment Order] [UI]
         // [SCENARIO 380645] Action "Maturity" on "Posted Payment Orders List" should open a page for the selected Posted Payment Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock two Posted Payment Orders: "PPO1" and "PPO2".
         MockPostedPaymentOrder(PostedPaymentOrder);
@@ -241,7 +241,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Documents Maturity" should open a page for the Payables type.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Document
         MockPayableCarteraDoc(CarteraDoc);
@@ -270,7 +270,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381041] Action "Posted Payment Orders Maturity" should open a page for the selected Posted Payment Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Posted Payment Orders created: "PPO1" and "PPO2"
         MockPostedPaymentOrder(PostedPaymentOrder);
@@ -302,8 +302,8 @@ codeunit 147506 "Cartera Payable Unit Tests"
     begin
         // [FEATURE] [Permission] [UI]
         // [SCENARIO 257878] Vendor Ledger Entry's "Payment Method Code" can be modified (including linked "Cartera Doc." update) via indirect customer license
-        Initialize;
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         MockPayableCarteraDoc(CarteraDoc);
         MockVendorLedgerEntry(VendorLedgerEntry, CarteraDoc);
@@ -328,14 +328,14 @@ codeunit 147506 "Cartera Payable Unit Tests"
         VendorLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
         VendorLedgerEntries.Close;
 
-        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope;
+        // TODO: Uncomment LibraryLowerPermissions.SetOutsideO365Scope();
         CarteraDoc.Find;
         CarteraDoc.TestField("Payment Method Code", PaymentMethod.Code);
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePaymentOrderWithBankAccount(var PaymentOrder: Record "Payment Order"): Code[20]
@@ -361,9 +361,9 @@ codeunit 147506 "Cartera Payable Unit Tests"
             Type := Type::Payable;
             "Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, FieldNo("Entry No."));
             "Document Type" := "Document Type"::Bill;
-            "Document No." := LibraryUtility.GenerateGUID;
-            "Account No." := LibraryUtility.GenerateGUID;
-            "No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
+            "Account No." := LibraryUtility.GenerateGUID();
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -420,7 +420,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
     var
         Comment: Text[80];
     begin
-        Comment := LibraryUtility.GenerateGUID;
+        Comment := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(Comment);
 
         POCommentSheet.New;

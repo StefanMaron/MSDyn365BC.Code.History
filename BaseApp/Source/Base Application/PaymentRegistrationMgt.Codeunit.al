@@ -80,7 +80,7 @@ codeunit 980 "Payment Registration Mgt."
 
         GenJournalLine.SetRange("Journal Template Name", PaymentRegistrationSetup."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", PaymentRegistrationSetup."Journal Batch Name");
-        if GenJournalLine.FindLast then
+        if GenJournalLine.FindLast() then
             GenJournalLine.SetFilter("Line No.", '>%1', GenJournalLine."Line No.");
 
         PaymentToleranceManagement.SetSuppressCommit(PreviewMode);
@@ -195,7 +195,7 @@ codeunit 980 "Payment Registration Mgt."
         if SalesHeader.ReadPermission then begin
             SalesHeader.Reset();
             SalesHeader.SetFilter("No.", DocNoFilter);
-            if SalesHeader.FindSet then
+            if SalesHeader.FindSet() then
                 repeat
                     SalesHeader.CalcFields(Amount, "Amount Including VAT");
                     if IsWithinTolerance(SalesHeader."Amount Including VAT", AmountFilter, AmountTolerancePerc) then
@@ -213,7 +213,7 @@ codeunit 980 "Payment Registration Mgt."
         if ServiceHeader.ReadPermission then begin
             ServiceHeader.Reset();
             ServiceHeader.SetFilter("No.", DocNoFilter);
-            if ServiceHeader.FindSet then
+            if ServiceHeader.FindSet() then
                 repeat
                     ServiceLine.Reset();
                     ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
@@ -234,7 +234,7 @@ codeunit 980 "Payment Registration Mgt."
         if ReminderHeader.ReadPermission then begin
             ReminderHeader.Reset();
             ReminderHeader.SetFilter("No.", DocNoFilter);
-            if ReminderHeader.FindSet then
+            if ReminderHeader.FindSet() then
                 repeat
                     ReminderHeader.CalcFields("Remaining Amount", "Interest Amount");
                     if IsWithinTolerance(ReminderHeader."Remaining Amount", AmountFilter, AmountTolerancePerc) or
@@ -253,7 +253,7 @@ codeunit 980 "Payment Registration Mgt."
         if FinChargeMemoHeader.ReadPermission then begin
             FinChargeMemoHeader.Reset();
             FinChargeMemoHeader.SetFilter("No.", DocNoFilter);
-            if FinChargeMemoHeader.FindSet then
+            if FinChargeMemoHeader.FindSet() then
                 repeat
                     FinChargeMemoHeader.CalcFields("Remaining Amount", "Interest Amount");
                     if IsWithinTolerance(FinChargeMemoHeader."Remaining Amount", AmountFilter, AmountTolerancePerc) or
@@ -346,7 +346,7 @@ codeunit 980 "Payment Registration Mgt."
 
         with SourcePaymentRegistrationBuffer do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempPaymentRegistrationBuffer := SourcePaymentRegistrationBuffer;
                     TempPaymentRegistrationBuffer.Insert();
@@ -483,7 +483,7 @@ codeunit 980 "Payment Registration Mgt."
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        if TempPaymentRegistrationBuffer.FindSet then
+        if TempPaymentRegistrationBuffer.FindSet() then
             repeat
                 CustLedgerEntry.Get(TempPaymentRegistrationBuffer."Ledger Entry No.");
                 CustLedgerEntry."Applies-to ID" := '';
@@ -498,7 +498,7 @@ codeunit 980 "Payment Registration Mgt."
     begin
         CheckDistinctSourceNo(PaymentRegistrationBuffer);
         CheckDistinctDateReceived(PaymentRegistrationBuffer);
-        if PaymentRegistrationBuffer.FindSet then
+        if PaymentRegistrationBuffer.FindSet() then
             repeat
                 UpdatePmtDiscountDateOnCustLedgerEntry(PaymentRegistrationBuffer);
                 UpdateApplicationFieldsOnCustLedgerEntry(PaymentRegistrationBuffer);
@@ -536,7 +536,7 @@ codeunit 980 "Payment Registration Mgt."
         PaymentRegistrationBuffer.Reset();
         PaymentRegistrationBuffer.SetRange("Payment Made", true);
         PaymentRegistrationBuffer.SetFilter("Amount Received", '<>0');
-        if not PaymentRegistrationBuffer.FindSet then
+        if not PaymentRegistrationBuffer.FindSet() then
             Error(NothingToPostErr);
     end;
 

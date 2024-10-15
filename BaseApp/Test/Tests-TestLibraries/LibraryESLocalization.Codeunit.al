@@ -71,7 +71,7 @@ codeunit 143000 "Library - ES Localization"
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CountryRegion.Code);
-        VATRegistrationNoFormat.Validate(Format, LibraryUtility.GenerateGUID);
+        VATRegistrationNoFormat.Validate(Format, LibraryUtility.GenerateGUID());
         VATRegistrationNoFormat.Modify(true);
         exit(StrLen(VATRegistrationNoFormat.Format));
     end;

@@ -76,7 +76,7 @@ page 7000071 "Bank Cat. Posted Payable Bills"
                 begin
                     StatusFilter := Format(StatusFilterOption, 0, '<Text>');
                     MatrixForm.Load(MatrixColumnCaptions, MatrixRecords, CategoryFilter, StatusFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Next Set")

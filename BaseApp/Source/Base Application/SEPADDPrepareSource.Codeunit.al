@@ -15,7 +15,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         if not FromDirectDebitCollectionEntry.IsEmpty() then begin
             FromDirectDebitCollectionEntry.SetFilter(Status, '%1|%2',
               FromDirectDebitCollectionEntry.Status::New, FromDirectDebitCollectionEntry.Status::"File Created");
-            if FromDirectDebitCollectionEntry.FindSet then
+            if FromDirectDebitCollectionEntry.FindSet() then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
                     ToDirectDebitCollectionEntry.Insert();
@@ -37,7 +37,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
         CarteraDoc.SetRange("Collection Agent", CarteraDoc."Collection Agent"::Bank);
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
-        if CarteraDoc.FindSet then
+        if CarteraDoc.FindSet() then
             repeat
                 ToDirectDebitCollectionEntry.Init();
                 ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";

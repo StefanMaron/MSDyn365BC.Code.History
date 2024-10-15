@@ -311,6 +311,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType YouHaveChangedADimensionMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 807021925 - NamedType 3312755539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Enabled must be equal to 'All Users'  in Feature Key: ID=DocumentJournalBackgroundCheck]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Res. Jnl. Error Handling - NamedType DisabledFeatureErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 807021925 - NamedType 2126021569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption]D;]A;(LookupHint=Codeunit Res. Jnl. Error Handling - NamedType TestFieldMustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 372670812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Adjusted Job ledger entry exist.]]></Val>

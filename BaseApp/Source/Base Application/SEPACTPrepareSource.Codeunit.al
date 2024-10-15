@@ -14,7 +14,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        if FromGenJnlLine.FindSet then begin
+        if FromGenJnlLine.FindSet() then begin
             GenJnlBatch.Get(FromGenJnlLine."Journal Template Name", FromGenJnlLine."Journal Batch Name");
 
             repeat
@@ -44,7 +44,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
         CarteraDoc.SetRange("Collection Agent", CarteraDoc."Collection Agent"::Bank);
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrder."No.");
-        if CarteraDoc.FindSet then
+        if CarteraDoc.FindSet() then
             repeat
                 with TempGenJnlLine do begin
                     Init;

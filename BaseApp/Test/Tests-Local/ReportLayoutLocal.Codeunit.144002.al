@@ -30,7 +30,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestCustomerAnnualDeclaration()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer - Annual Declaration");
     end;
 
@@ -39,7 +39,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestVendorAnnualDeclaration()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Vendor - Annual Declaration");
     end;
 
@@ -49,7 +49,7 @@ codeunit 144002 "Report Layout - Local"
     procedure TestAccountOfficialAccBook()
     begin
         // [FEATURE] [Account - Official Acc. Book]
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Account - Official Acc. Book");
     end;
 
@@ -65,7 +65,7 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Account - Official Acc. Book]
         // [SCENARIO 377046] Print 'Account Official Acc.Book' for first period when G/L Register has G/L Entries in different periods
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Register with Posting Date = Date1 for two G/L Entries with G/L Account "A1" on Date1, "A2" on Date2
         MockRegisterWithGLEntries(GLAccFrom, GLAccTo, DateFrom, DateTo);
@@ -92,7 +92,7 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Account - Official Acc. Book]
         // [SCENARIO 377046] Print 'Account Official Acc.Book' for last period when G/L Register has G/L Entries in different periods
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Register with Posting Date = Date1 for two G/L Entries with G/L Account "A1" on Date1, "A2" on Date2
         MockRegisterWithGLEntries(GLAccFrom, GLAccTo, DateFrom, DateTo);
@@ -112,7 +112,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestDetailAccountStatement()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Detail Account Statement");
     end;
 
@@ -121,7 +121,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestMainAccountingBook()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Main Accounting Book");
     end;
 
@@ -130,7 +130,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestDetailAccStatCOEntries()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Detail Acc. Stat.- C&O Entries");
     end;
 
@@ -139,7 +139,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestOfficialAccSummarizedBook()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Official Acc.Summarized Book");
     end;
 
@@ -148,7 +148,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestLongTermSalesInvoices()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Long Term Sales Invoices");
     end;
 
@@ -157,7 +157,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestLongTermPurchaseInvoices()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Long Term Purchase Invoices");
     end;
 
@@ -166,7 +166,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestTestVATRegistrationNumber()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Test VAT Registration Number");
     end;
 
@@ -175,7 +175,7 @@ codeunit 144002 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestNormalizedAccountSchedule()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Normalized Account Schedule");
     end;
 
@@ -187,7 +187,7 @@ codeunit 144002 "Report Layout - Local"
         FileManagement: Codeunit "File Management";
     begin
         // [SCENARIO 377122] Run "Statement" report with "Show Overdue" option
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
         REPORT.Run(REPORT::Statement);
@@ -207,10 +207,10 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Vendor] [Detail Trial Balance]
         // [SCENARIO 379109] "Vendor - Detail Trial Balance" report shows correct Net and Total Debit/Credit in case of "Show Amounts in LCY" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Balance = "S" on date "D1". Net Debit LCY = "D", Net Credit LCY = "C" on date "D2"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         StartBalanceLCY := MockVendorLedgerEntry(VendorNo, WorkDate - 1, 1);
         DebitLCY := MockVendorLedgerEntry(VendorNo, WorkDate, 1);
         CreditLCY := MockVendorLedgerEntry(VendorNo, WorkDate, -1);
@@ -240,10 +240,10 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Customer] [Detail Trial Bal.]
         // [SCENARIO 379109] "Customer - Detail Trial Bal." shows correct Net and Total Debit/Credit in case of "Show Amounts in LCY" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Balance = "S" on date "D1". Net Debit LCY = "D", Net Credit LCY = "C" on date "D2"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         StartBalanceLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate - 1, 1);
         CreditLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate, 1);
         DebitLCY := MockCustomerLedgerEntry(CustomerNo, WorkDate, -1);
@@ -272,21 +272,21 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Account - Official Acc. Book]
         // [SCENARIO 206017] Print 'Account Official Acc.Book' for closed accounting period with G/L Entry posted on 1st date of the period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Starting balance of G/L Account "X" with Debit Amount = 10
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         OpeningAmt := LibraryRandom.RandDec(100, 2);
         MockGLEntry(GLEntry, GLAccountNo, WorkDate, OpeningAmt, 0);
 
         // [GIVEN] G/L Register has G/L Entry with Debit Amount = 20 and Posting Date = 01-01-25 in new Fiscal Year
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
         StartPeriodAmt := LibraryRandom.RandDec(100, 2);
         PeriodTransNo := CreateRegisterWithGLEntry(GLAccountNo, PostingDate, StartPeriodAmt);
 
         // [GIVEN] Fiscal Year 2025 is closed
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
 
         // [WHEN] Run 'Account - Official Acc. Book' report for closed fiscal year
         RunAccountOfficialAccBookReport(StrSubstNo('%1..%2', PostingDate, CalcDate('<CY>', PostingDate)));
@@ -316,17 +316,17 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Account - Official Acc. Book]
         // [SCENARIO 206017] Print 'Account Official Acc.Book' for closed accounting period with G/L Entry posted on the middle of the period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Starting balance of G/L Account "X" with Debit Amount = 10
-        LibraryFiscalYear.CreateFiscalYear;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        LibraryFiscalYear.CreateFiscalYear();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         OpeningAmt := LibraryRandom.RandDec(100, 2);
         MockGLEntry(GLEntry, GLAccountNo, LibraryFiscalYear.GetFirstPostingDate(false), OpeningAmt, 0);
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
 
         // [GIVEN] G/L Register has G/L Entry with Debit Amount = 20 and Posting Date = 05-01-25 in new Fiscal Year
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         PostingDate := LibraryRandom.RandDateFrom(LibraryFiscalYear.GetFirstPostingDate(false), 10);
         PeriodAmt := LibraryRandom.RandDec(100, 2);
         PeriodTransNo := CreateRegisterWithGLEntry(GLAccountNo, PostingDate, PeriodAmt);
@@ -334,7 +334,7 @@ codeunit 144002 "Report Layout - Local"
         // [GIVEN] Fiscal Year 2025 is closed
         StartDate := LibraryFiscalYear.GetFirstPostingDate(false);
         EndDate := LibraryFiscalYear.GetLastPostingDate(false);
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
 
         // [WHEN] Run 'Account - Official Acc. Book' report for closed fiscal year
         RunAccountOfficialAccBookReport(StrSubstNo('%1..%2', StartDate, EndDate));
@@ -364,20 +364,20 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Account - Official Acc. Book]
         // [SCENARIO 215229] Print 'Account Official Acc.Book' for period which contains 1st transaction but entries exist in previous period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Take year of first transaction as period date 010117..311217
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         StartDate := CalcDate('<-CY>', GLEntry."Posting Date");
         EndDate := CalcDate('<CY>', GLEntry."Posting Date");
 
         // [GIVEN] Posted entry for G/L Account "X" with Debit Amount = 10 on 05.01.2017
-        PeriodGLAccountNo := LibraryERM.CreateGLAccountNo;
+        PeriodGLAccountNo := LibraryERM.CreateGLAccountNo();
         PeriodAmt := LibraryRandom.RandDec(100, 2);
         PeriodTransNo := CreateRegisterWithGLEntry(PeriodGLAccountNo, LibraryRandom.RandDateFrom(StartDate, 5), PeriodAmt);
 
         // [GIVEN] Posted opening entry for G/L Account "Y" with Debit Amount = 20 on 05.01.2016
-        OpeningGLAccountNo := LibraryERM.CreateGLAccountNo;
+        OpeningGLAccountNo := LibraryERM.CreateGLAccountNo();
         OpeningAmt := LibraryRandom.RandDec(100, 2);
         CreateRegisterWithGLEntry(
           OpeningGLAccountNo, LibraryRandom.RandDateFrom(CalcDate('<-1Y>', StartDate), 10), OpeningAmt);
@@ -405,7 +405,7 @@ codeunit 144002 "Report Layout - Local"
         // [FEATURE] [Account - Official Acc. Book]
         // [SCENARIO 266203] Report 10706 "Account - Official Acc. Book" in case of different "Transaction No." within the same "Posting Date"
         // [SCENARIO 266203] and different "Posting Date" within the same "Transaction No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLEntry1:  "Entry No." = 1  "Posting Date" = 03-01-2018, "Transaction No." = 3
         // [GIVEN] GLEntry2:  "Entry No." = 2  "Posting Date" = 02-01-2018, "Transaction No." = 3
@@ -442,7 +442,7 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [VAT Clause]
         // [SCENARIO 280820] Report "Standard Sales - Draft Invoice" shows VAT Clause
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT Identifier and VAT Clause having Description and Description 2
         LibraryERM.CreateVATClause(VATClause);
@@ -472,7 +472,7 @@ codeunit 144002 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [VAT Clause]
         // [SCENARIO 280820] Report "Standard Sales - Invoice" shows VAT Clause
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT Identifier and VAT Clause having Description and Description 2
         LibraryERM.CreateVATClause(VATClause);
@@ -495,7 +495,7 @@ codeunit 144002 "Report Layout - Local"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         Clear(LibraryReportValidation);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
@@ -736,7 +736,7 @@ codeunit 144002 "Report Layout - Local"
         Vendor.SetFilter("Date Filter", '%1..', FromDate);
         VendorDetailTrialBalance.SetTableView(Vendor);
         VendorDetailTrialBalance.InitializeRequest(true, false, false);
-        VendorDetailTrialBalance.Run;
+        VendorDetailTrialBalance.Run();
     end;
 
     local procedure RunCustomerDetailTrialBalanceReport(CustomerNo: Code[20]; FromDate: Date)
@@ -750,7 +750,7 @@ codeunit 144002 "Report Layout - Local"
         Customer.SetFilter("Date Filter", '%1..', FromDate);
         CustomerDetailTrialBal.SetTableView(Customer);
         CustomerDetailTrialBal.InitializeRequest(true, false, false);
-        CustomerDetailTrialBal.Run;
+        CustomerDetailTrialBal.Run();
     end;
 
     local procedure RunAccountOfficialAccBookReport(PostingDateFilter: Text)
@@ -798,7 +798,7 @@ codeunit 144002 "Report Layout - Local"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetFilter("Period Trans. No.", '<>%1', 0);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         AccountOfficialAccBook."G/L Entry Group".SetFilter("Posting Date", Format(GLEntry."Posting Date"));
         AccountOfficialAccBook.SaveAsPdf(FormatFileName(AccountOfficialAccBook.Caption));
     end;
@@ -809,7 +809,7 @@ codeunit 144002 "Report Layout - Local"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AccountOfficialAccBook."G/L Entry Group".SetFilter("Period Trans. No.", Format(GLEntry."Period Trans. No."));
         AccountOfficialAccBook."G/L Entry Group".SetFilter("Posting Date", LibraryVariableStorage.DequeueText);
         AccountOfficialAccBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -892,7 +892,7 @@ codeunit 144002 "Report Layout - Local"
         AccScheduleName: Record "Acc. Schedule Name";
     begin
         AccScheduleName.SetRange(Standardized, true);
-        AccScheduleName.FindFirst;
+        AccScheduleName.FindFirst();
         NormalizedAccountSchedule."Acc. Schedule Name".SetFilter(Name, AccScheduleName.Name);
         NormalizedAccountSchedule."Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate));
         NormalizedAccountSchedule.SaveAsPdf(FormatFileName(NormalizedAccountSchedule.Caption));

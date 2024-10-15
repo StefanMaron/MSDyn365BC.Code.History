@@ -142,7 +142,7 @@
   </Item>
   <Item ItemId=";Codeunit 2400256745 - NamedType 1064997700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SmartList Designer]]></Val>
+      <Val><![CDATA[SmartList Designer (Obsolete)]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

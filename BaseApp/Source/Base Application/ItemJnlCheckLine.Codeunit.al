@@ -1,4 +1,4 @@
-codeunit 21 "Item Jnl.-Check Line"
+﻿codeunit 21 "Item Jnl.-Check Line"
 {
     TableNo = "Item Journal Line";
 
@@ -47,18 +47,18 @@ codeunit 21 "Item Jnl.-Check Line"
                     exit;
             end else
                 if not OnlyStopTime then
-                    TestField("Item No.");
+                    TestField("Item No.", ErrorInfo.Create());
 
             if Item.Get("Item No.") then
-                Item.TestField("Base Unit of Measure");
+                Item.TestField("Base Unit of Measure", ErrorInfo.Create());
 
             IsHandled := false;
             OnAfterGetItem(Item, ItemJnlLine, IsHandled);
             if IsHandled then
                 exit;
 
-            TestField("Document No.");
-            TestField("Gen. Prod. Posting Group");
+            TestField("Document No.", ErrorInfo.Create());
+            TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
             CheckDates(ItemJnlLine);
 
@@ -73,77 +73,86 @@ codeunit 21 "Item Jnl.-Check Line"
                     if (Type <> Type::Resource) and (Item.Type = Item.Type::Inventory) and
                        (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Shipment"))
                     then
-                        TestField("Location Code");
+                        TestField("Location Code", ErrorInfo.Create());
                     if ("Entry Type" = "Entry Type"::Transfer) and
                        (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Receipt"))
                     then
-                        TestField("New Location Code")
+                        TestField("New Location Code", ErrorInfo.Create())
                     else
-                        TestField("New Location Code", '');
+                        TestField("New Location Code", '', ErrorInfo.Create());
+                    if GLSetup."Journal Templ. Name Mandatory" and
+                        (InvtSetup."Automatic Cost Posting" or InvtSetup."Expected Cost Posting to G/L")
+                    then begin
+                        InvtSetup.TestField("Invt. Cost Jnl. Template Name", ErrorInfo.Create());
+                        InvtSetup.TestField("Invt. Cost Jnl. Batch Name", ErrorInfo.Create());
+                    end;
                 end;
 
             CheckInTransitLocations(ItemJnlLine);
 
             if TransportMethod.Get("Transport Method") and TransportMethod."Port/Airport" then
-                TestField("Entry/Exit Point");
+                TestField("Entry/Exit Point", ErrorInfo.Create());
 
             if Item.IsInventoriableType() then
                 CheckBins(ItemJnlLine)
             else
-                ItemJnlLine.TestField("Bin Code", '');
+                ItemJnlLine.TestField("Bin Code", '', ErrorInfo.Create());
 
             if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::"Negative Adjmt."] then
-                TestField("Discount Amount", 0);
+                TestField("Discount Amount", 0, ErrorInfo.Create());
 
             if "Entry Type" = "Entry Type"::Transfer then begin
                 if ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
                    ("Item Charge No." = '') and
                    not Adjustment
                 then
-                    TestField(Amount, 0);
-                TestField("Discount Amount", 0);
+                    TestField(Amount, 0, ErrorInfo.Create());
+                TestField("Discount Amount", 0, ErrorInfo.Create());
                 if Quantity < 0 then
-                    FieldError(Quantity, StrSubstNo(Text003, FieldCaption("Entry Type"), "Entry Type"));
+                    FieldError(Quantity, ErrorInfo.Create(StrSubstNo(Text003, FieldCaption("Entry Type"), "Entry Type"), true));
                 if Quantity <> "Invoiced Quantity" then
-                    FieldError("Invoiced Quantity", StrSubstNo(Text004, FieldCaption(Quantity)));
+                    FieldError("Invoiced Quantity", ErrorInfo.Create(StrSubstNo(Text004, FieldCaption(Quantity)), true));
             end;
 
             if not "Phys. Inventory" then begin
                 CheckEmptyQuantity(ItemJnlLine);
-                TestField("Qty. (Calculated)", 0);
-                TestField("Qty. (Phys. Inventory)", 0);
+                TestField("Qty. (Calculated)", 0, ErrorInfo.Create());
+                TestField("Qty. (Phys. Inventory)", 0, ErrorInfo.Create());
             end else
                 CheckPhysInventory(ItemJnlLine);
 
             if "Entry Type" <> "Entry Type"::Output then begin
-                TestField("Run Time", 0);
-                TestField("Setup Time", 0);
-                TestField("Stop Time", 0);
-                TestField("Output Quantity", 0);
-                TestField("Scrap Quantity", 0);
+                TestField("Run Time", 0, ErrorInfo.Create());
+                TestField("Setup Time", 0, ErrorInfo.Create());
+                TestField("Stop Time", 0, ErrorInfo.Create());
+                TestField("Output Quantity", 0, ErrorInfo.Create());
+                TestField("Scrap Quantity", 0, ErrorInfo.Create());
             end;
 
             if "Applies-from Entry" <> 0 then begin
                 ItemLedgEntry.Get("Applies-from Entry");
-                ItemLedgEntry.TestField("Item No.", "Item No.");
-                ItemLedgEntry.TestField("Variant Code", "Variant Code");
-                ItemLedgEntry.TestField(Positive, false);
+                ItemLedgEntry.TestField("Item No.", "Item No.", ErrorInfo.Create());
+                ItemLedgEntry.TestField("Variant Code", "Variant Code", ErrorInfo.Create());
+                ItemLedgEntry.TestField(Positive, false, ErrorInfo.Create());
                 if "Applies-to Entry" = "Applies-from Entry" then
                     Error(
-                      Text011,
-                      FieldCaption("Applies-to Entry"),
-                      FieldCaption("Applies-from Entry"));
+                        ErrorInfo.Create(
+                            StrSubstNo(
+                                Text011,
+                                FieldCaption("Applies-to Entry"),
+                                FieldCaption("Applies-from Entry")),
+                            true));
             end;
 
             if ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) and
                not ("Value Entry Type" = "Value Entry Type"::Revaluation) and
                not OnlyStopTime
             then begin
-                TestField("Source No.");
-                TestField("Order Type", "Order Type"::Production);
+                TestField("Source No.", ErrorInfo.Create());
+                TestField("Order Type", "Order Type"::Production, ErrorInfo.Create());
                 if not CalledFromAdjustment and ("Entry Type" = "Entry Type"::Output) then
                     if CheckFindProdOrderLine(ProdOrderLine, "Order No.", "Order Line No.") then begin
-                        TestField("Item No.", ProdOrderLine."Item No.");
+                        TestField("Item No.", ProdOrderLine."Item No.", ErrorInfo.Create());
                         OnAfterCheckFindProdOrderLine(ItemJnlLine, ProdOrderLine);
                     end;
 
@@ -152,7 +161,7 @@ codeunit 21 "Item Jnl.-Check Line"
                     OnBeforeCheckSubcontracting(ItemJnlLine, IsHandled);
                     if not IsHandled then begin
                         WorkCenter.Get("Work Center No.");
-                        WorkCenter.TestField("Subcontractor No.");
+                        WorkCenter.TestField("Subcontractor No.", ErrorInfo.Create());
                     end;
                 end;
                 if not CalledFromInvtPutawayPick then
@@ -164,7 +173,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
             if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or ("Item Charge No." <> '') then
                 if "Inventory Value Per" = "Inventory Value Per"::" " then
-                    TestField("Applies-to Entry");
+                    TestField("Applies-to Entry", ErrorInfo.Create());
 
             CheckDimensions(ItemJnlLine);
 
@@ -192,10 +201,10 @@ codeunit 21 "Item Jnl.-Check Line"
                 if ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0) and
                    TimeIsEmpty and ("Invoiced Qty. (Base)" = 0)
                 then
-                    Error(Text007)
+                    Error(ErrorInfo.Create(Text007, true))
             end else begin
                 if ("Quantity (Base)" = 0) and ("Invoiced Qty. (Base)" = 0) then
-                    Error(Text007);
+                    Error(ErrorInfo.Create(Text007, true));
             end;
     end;
 
@@ -255,7 +264,7 @@ codeunit 21 "Item Jnl.-Check Line"
                         ReservationEntry.InitSortingAndFilters(false);
                         ItemJnlLine.SetReservationFilters(ReservationEntry);
                         ReservationEntry.ClearTrackingFilter;
-                        if ReservationEntry.FindSet then
+                        if ReservationEntry.FindSet() then
                             repeat
                                 if ReservationEntry."Appl.-to Item Entry" = 0 then
                                     ShowError := true;
@@ -294,13 +303,16 @@ codeunit 21 "Item Jnl.-Check Line"
         end;
         if ShowError then
             Error(
-              Text012,
-              ItemJnlLine.FieldCaption("Entry Type"),
-              ItemJnlLine."Entry Type",
-              ItemJnlLine.FieldCaption("Order No."),
-              ItemJnlLine."Order No.",
-              ItemJnlLine.FieldCaption("Order Line No."),
-              ItemJnlLine."Order Line No.");
+                ErrorInfo.Create(
+                    StrSubstNo(
+                        Text012,
+                        ItemJnlLine.FieldCaption("Entry Type"),
+                        ItemJnlLine."Entry Type",
+                        ItemJnlLine.FieldCaption("Order No."),
+                        ItemJnlLine."Order No.",
+                        ItemJnlLine.FieldCaption("Order Line No."),
+                        ItemJnlLine."Order Line No."),
+                    true));
     end;
 
     local procedure CheckWarehouseLastOutputOperation(ItemJnlLine: Record "Item Journal Line") Result: Boolean
@@ -420,7 +432,7 @@ codeunit 21 "Item Jnl.-Check Line"
             exit;
 
         if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
-            ItemJnlLine.TestField("New Bin Code");
+            ItemJnlLine.TestField("New Bin Code", ErrorInfo.Create());
     end;
 
     local procedure CheckDates(ItemJnlLine: Record "Item Journal Line")
@@ -430,9 +442,9 @@ codeunit 21 "Item Jnl.-Check Line"
         DateCheckDone: Boolean;
     begin
         with ItemJnlLine do begin
-            TestField("Posting Date");
+            TestField("Posting Date", ErrorInfo.Create());
             if "Posting Date" <> NormalDate("Posting Date") then
-                FieldError("Posting Date", Text000);
+                FieldError("Posting Date", ErrorInfo.Create(Text000, true));
 
             OnBeforeDateNotAllowed(ItemJnlLine, DateCheckDone);
             if not DateCheckDone then
@@ -443,7 +455,7 @@ codeunit 21 "Item Jnl.-Check Line"
 
             if "Document Date" <> 0D then
                 if "Document Date" <> NormalDate("Document Date") then
-                    FieldError("Document Date", Text000);
+                    FieldError("Document Date", ErrorInfo.Create(Text000, true));
         end;
     end;
 
@@ -461,7 +473,11 @@ codeunit 21 "Item Jnl.-Check Line"
         with ItemJnlLine do
             if not IsValueEntryForDeletedItem and not Correction and not CalledFromAdjustment then begin
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                    Error(DimCombBlockedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimCombErr);
+                    Error(
+                        ErrorInfo.Create(
+                            StrSubstNo(
+                                DimCombBlockedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimCombErr),
+                            true));
                 if "Item Charge No." = '' then begin
                     TableID[1] := DATABASE::Item;
                     No[1] := "Item No.";
@@ -473,18 +489,25 @@ codeunit 21 "Item Jnl.-Check Line"
                 No[2] := "Salespers./Purch. Code";
                 TableID[3] := DATABASE::"Work Center";
                 No[3] := "Work Center No.";
+                OnCheckDimensionsOnAfterAssignDimTableIDs(ItemJnlLine, TableID, No);
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then begin
                     if "Line No." <> 0 then
-                        Error(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr);
-                    Error(DimMgt.GetDimValuePostingErr);
+                        Error(
+                            ErrorInfo.Create(
+                                StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr),
+                            true));
+                    Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr), true));
                 end;
                 if ("Entry Type" = "Entry Type"::Transfer) and
                    ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then begin
                         if "Line No." <> 0 then
-                            Error(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr);
-                        Error(DimMgt.GetDimValuePostingErr);
+                            Error(
+                                ErrorInfo.Create(
+                                    StrSubstNo(DimCausedErr, "Journal Template Name", "Journal Batch Name", "Line No.", DimMgt.GetDimValuePostingErr),
+                                true));
+                        Error(ErrorInfo.Create(StrSubstNo(DimMgt.GetDimValuePostingErr), true));
                     end;
             end;
     end;
@@ -506,26 +529,32 @@ codeunit 21 "Item Jnl.-Check Line"
                 ItemJnlLine2."Entry Type" := ItemJnlLine2."Entry Type"::"Positive Adjmt.";
                 ItemJnlLine3."Entry Type" := ItemJnlLine3."Entry Type"::"Negative Adjmt.";
                 FieldError(
-                  "Entry Type",
-                  StrSubstNo(
-                    Text005, ItemJnlLine2."Entry Type", ItemJnlLine3."Entry Type", FieldCaption("Phys. Inventory"), true));
+                    "Entry Type",
+                    ErrorInfo.Create(
+                        StrSubstNo(
+                            Text005, ItemJnlLine2."Entry Type", ItemJnlLine3."Entry Type", FieldCaption("Phys. Inventory"), true),
+                        true));
             end;
             if ("Entry Type" = "Entry Type"::"Positive Adjmt.") and
                ("Qty. (Phys. Inventory)" - "Qty. (Calculated)" <> Quantity)
             then
                 FieldError(
-                  Quantity,
-                  StrSubstNo(
-                    Text006, FieldCaption("Qty. (Phys. Inventory)"), FieldCaption("Qty. (Calculated)"),
-                    FieldCaption("Entry Type"), "Entry Type", FieldCaption("Phys. Inventory"), true));
+                    Quantity,
+                     ErrorInfo.Create(
+                        StrSubstNo(
+                            Text006, FieldCaption("Qty. (Phys. Inventory)"), FieldCaption("Qty. (Calculated)"),
+                            FieldCaption("Entry Type"), "Entry Type", FieldCaption("Phys. Inventory"), true),
+                        true));
             if ("Entry Type" = "Entry Type"::"Negative Adjmt.") and
                ("Qty. (Calculated)" - "Qty. (Phys. Inventory)" <> Quantity)
             then
                 FieldError(
-                  Quantity,
-                  StrSubstNo(
-                    Text006, FieldCaption("Qty. (Calculated)"), FieldCaption("Qty. (Phys. Inventory)"),
-                    FieldCaption("Entry Type"), "Entry Type", FieldCaption("Phys. Inventory"), true));
+                    Quantity,
+                    ErrorInfo.Create(
+                        StrSubstNo(
+                            Text006, FieldCaption("Qty. (Calculated)"), FieldCaption("Qty. (Phys. Inventory)"),
+                            FieldCaption("Entry Type"), "Entry Type", FieldCaption("Phys. Inventory"), true),
+                        true));
         end;
     end;
 
@@ -537,7 +566,7 @@ codeunit 21 "Item Jnl.-Check Line"
     local procedure CheckInTransitLocation(LocationCode: Code[10])
     begin
         if Location.IsInTransit(LocationCode) then
-            Error(UseInTransitLocationErr, LocationCode)
+            Error(ErrorInfo.Create(StrSubstNo(UseInTransitLocationErr, LocationCode), true));
     end;
 
     local procedure CheckInTransitLocations(var ItemJnlLine: Record "Item Journal Line")
@@ -635,6 +664,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBinsOnBeforeCheckNonZeroQuantity(ItemJnlLine: Record "Item Journal Line"; var CalledFromAdjustment: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var ItemJnlLine: Record "Item Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 }

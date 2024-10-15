@@ -269,7 +269,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -289,7 +295,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        if GeneralPostingSetup.FindSet then
+        if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Purch. Account" = '' then
                     GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
@@ -322,7 +328,7 @@ codeunit 131305 "Library - ERM Country Data"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange("Force Doc. Balance", false);
-        if GenJournalTemplate.FindSet then
+        if GenJournalTemplate.FindSet() then
             GenJournalTemplate.ModifyAll("Force Doc. Balance", true);  // This field is FALSE by defualt in ES.
     end;
 
@@ -330,7 +336,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        if CustomerPostingGroup.FindSet then
+        if CustomerPostingGroup.FindSet() then
             repeat
                 if CustomerPostingGroup."Payment Disc. Debit Acc." = '' then begin
                     CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
@@ -347,7 +353,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        if VendorPostingGroup.FindSet then
+        if VendorPostingGroup.FindSet() then
             repeat
                 if VendorPostingGroup."Payment Disc. Debit Acc." = '' then begin
                     VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
@@ -374,7 +380,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        if InventoryPostingSetup.FindSet then
+        if InventoryPostingSetup.FindSet() then
             repeat
                 if InventoryPostingSetup."Subcontracted Variance Account" = '' then
                     InventoryPostingSetup.Validate("Subcontracted Variance Account", CreateGLAccount);
@@ -389,7 +395,7 @@ codeunit 131305 "Library - ERM Country Data"
         TransportMethod: Record "Transport Method";
     begin
         // To avoid error related to Entry/Exit Point, updating Transport Method Table.
-        if TransportMethod.FindSet then
+        if TransportMethod.FindSet() then
             repeat
                 TransportMethod.Validate("Port/Airport", false);
                 TransportMethod.Modify(true);

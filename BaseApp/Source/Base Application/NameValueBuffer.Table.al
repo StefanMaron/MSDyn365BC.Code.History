@@ -64,7 +64,7 @@ table 823 "Name/Value Buffer"
         Clear(Rec);
 
         NewID := 1;
-        if FindLast then
+        if FindLast() then
             NewID := ID + 1;
 
         ID := NewID;

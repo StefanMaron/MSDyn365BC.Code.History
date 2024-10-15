@@ -104,7 +104,7 @@ page 72 "Resource Groups"
                         begin
                             CurrPage.SetSelectionFilter(ResGr);
                             DefaultDimMultiple.SetMultiRecord(ResGr, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

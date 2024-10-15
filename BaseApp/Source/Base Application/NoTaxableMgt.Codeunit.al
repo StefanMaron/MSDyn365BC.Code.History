@@ -552,7 +552,7 @@ codeunit 10740 "No Taxable Mgt."
 
         if GLEntry.IsEmpty() then
             exit;
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         if not VATPostingSetup.Get(GLEntry."VAT Bus. Posting Group", GLEntry."VAT Prod. Posting Group") then
             exit;
         if not VATPostingSetup.IsNoTaxable then
@@ -642,7 +642,7 @@ codeunit 10740 "No Taxable Mgt."
             NoTaxableEntry.CalcSums(Amount);
             NormalAmount += NoTaxableEntry.Amount;
         end else begin
-            if NoTaxableEntry.FindSet then
+            if NoTaxableEntry.FindSet() then
                 repeat
                     NoTaxableNormalAmountSales[MapDeliveryOperationCode(NoTaxableEntry."Delivery Operation Code")] +=
                       NoTaxableEntry.Amount;
@@ -870,7 +870,7 @@ codeunit 10740 "No Taxable Mgt."
         with NoTaxableEntry do begin
             "Base (LCY)" := ConvertAmountFCYtoLCY(Base, "Posting Date", "Currency Code", "Currency Factor");
             "Amount (LCY)" := ConvertAmountFCYtoLCY(Amount, "Posting Date", "Currency Code", "Currency Factor");
-            GetGLSetup;
+            GetGLSetup();
             if GeneralLedgerSetup."Additional Reporting Currency" <> '' then begin
                 "Base (ACY)" :=
                   ConvertAmountLCYtoACY("Base (LCY)", "Posting Date", GeneralLedgerSetup."Additional Reporting Currency");

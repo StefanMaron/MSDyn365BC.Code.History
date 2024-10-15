@@ -379,7 +379,7 @@ page 542 "Default Dimensions-Multiple"
 
         MasterRecordRef.GetTable(MasterRecord);
         NoFieldRef := MasterRecordRef.Field(NoField);
-        if MasterRecordRef.FindSet then
+        if MasterRecordRef.FindSet() then
             repeat
                 No := NoFieldRef.Value;
                 CopyDefaultDimToDefaultDim(MasterRecordRef.Number, No);

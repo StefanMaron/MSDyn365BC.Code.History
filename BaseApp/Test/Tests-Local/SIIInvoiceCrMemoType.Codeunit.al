@@ -36,7 +36,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [SCENARIO 234067] XML has node "ImporteTotal" when post Sales Invoice with "Invoice Type" = "F2 Simplified Invoice"
         // [SCENARIO 252872] XML has node "ImporteTotal" with positive value
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Invoice Type" = "F2 Simplified Invoice"
         // [GIVEN] Customer Ledger Entry Created with Amount = 120
@@ -70,7 +70,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         // [SCENARIO 234067] XML has no node "ImporteTotal" when post Sales Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         PostSalesDocWithInvOrCrMemoType(
@@ -103,7 +103,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Invoice with "Invoice Type" = "F4 Invoice summary entry"
         // [SCENARIO 234067] XML has node "ImporteTotal" when post Sales Invoice with "Invoice Type" = "F4 Invoice summary entry"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Invoice Type" = "F4 Invoice summary entry"
         PostSalesDocWithInvOrCrMemoType(
@@ -136,7 +136,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Credit Memo with Type "Difference" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [SCENARIO 252872] XML has node "ImporteTotal" with negative value
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Difference" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [GIVEN] Customer Ledger Entry Created with Amount = -120
@@ -168,7 +168,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Credit Memo with Type "Difference" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Difference" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostSalesDocWithInvOrCrMemoType(
@@ -197,7 +197,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Credit Memo with Type "Difference" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Difference" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostSalesDocWithInvOrCrMemoType(
@@ -227,7 +227,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Credit Memo with Type "Replacement" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [SCENARIO 252872] XML has node "ImporteTotal" with negative value
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Replacement" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [GIVEN] Customer Ledger Entry Created with Amount = -120
@@ -261,7 +261,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Credit Memo with Type "Replacement" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Replacement" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostSalesDocWithInvOrCrMemoType(
@@ -290,7 +290,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Sales Credit Memo with Type "Replacement" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo type "Replacement" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostSalesDocWithInvOrCrMemoType(
@@ -321,7 +321,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [SCENARIO 234067] XML has node "ImporteTotal" when post Purchase Invoice with "Invoice Type" = "F2 Simplified Invoice"
         // [SCENARIO 252872] XML has node "ImporteTotal" with positive value
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F2 Simplified Invoice"
         // [GIVEN] Vendor Ledger Entry Created with Amount = 120
@@ -355,7 +355,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         // [SCENARIO 234067] XML has no node "ImporteTotal" when post Purchase Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F3 Invoice issued to replace simplified invoices"
         PostPurchDocWithInvOrCrMemoType(
@@ -388,7 +388,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Invoice with "Invoice Type" = "F4 Invoice summary entry"
         // [SCENARIO 234067] XML has node "ImporteTotal" when post Purchase Invoice with "Invoice Type" = "F4 Invoice summary entry"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F4 Invoice summary entry"
         PostPurchDocWithInvOrCrMemoType(
@@ -419,7 +419,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Invoice with "Invoice Type" = "F5 Imports (DUA)"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F5 Imports (DUA)"
         PostPurchDocWithInvOrCrMemoType(
@@ -447,7 +447,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 269099] XML has node "Contraparte" when post Purchase Invoice with "Invoice Type" = "F6 Accounting support material"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "F5 Imports (DUA)"
         PostPurchDocWithInvOrCrMemoType(
@@ -477,7 +477,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Credit Memo with Type "Difference" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [SCENARIO 252872] XML has node "ImporteTotal" with negative value
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Difference" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [GIVEN] Vendor Ledger Entry Created with Amount = -120
@@ -511,7 +511,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Credit Memo with Type "Difference" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Difference" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostPurchDocWithInvOrCrMemoType(
@@ -540,7 +540,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Credit Memo with Type "Difference" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Difference" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostPurchDocWithInvOrCrMemoType(
@@ -571,7 +571,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [SCENARIO 252872] XML has node "ImporteTotal" with negative value
         // [SCENARIO 256251] Sales Credit Memo with type "Replacement" has positive values for VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Replacement" and "Cr. Memo Type" = "R2 Corrected Invoice (Art. 80.3)"
         // [GIVEN] Vendor Ledger Entry Created with Amount = -120
@@ -605,7 +605,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Credit Memo with Type "Replacement" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Replacement" and "Cr. Memo Type" = "R3 Corrected Invoice (Art. 80.4)"
         PostPurchDocWithInvOrCrMemoType(
@@ -634,7 +634,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 223508] XML has node "Contraparte" when post Purchase Credit Memo with Type "Replacement" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo type "Replacement" and "Cr. Memo Type" = "R4 Corrected Invoice (Other)"
         PostPurchDocWithInvOrCrMemoType(
@@ -663,7 +663,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 263060] TipoFactura is 'LC' for Purchase invoice with invoice type "Customs - Complementary Liquidation"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Invoice Type" = "Customs - Complementary Liquidation"
         PostPurchDocWithInvOrCrMemoType(

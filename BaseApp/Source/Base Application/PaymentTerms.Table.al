@@ -39,6 +39,11 @@
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(8000; Id; Guid)
         {
             Caption = 'Id';

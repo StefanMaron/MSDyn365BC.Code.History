@@ -37,7 +37,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     procedure AlignCCAndCODimensions()
     begin
         // Verify that Cost Center Dimension and Cost Object Dimension fields can be aligned to different dimensions
-        Initialize;
+        Initialize();
 
         // Exercise:
         Commit();
@@ -59,7 +59,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         error: Text[200];
     begin
         // Verify that Cost Center Dimension and Cost Object Dimension fields cannot be set to the same value
-        Initialize;
+        Initialize();
 
         // Exercise:
         Commit();
@@ -77,7 +77,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         error: Text[200];
     begin
         // Verify that Cost Center Dimension field cannot have an empty value
-        Initialize;
+        Initialize();
 
         // Exercise:
         Commit();
@@ -95,7 +95,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         error: Text[200];
     begin
         // Verify that Cost Center Dimension field cannot have an empty value
-        Initialize;
+        Initialize();
 
         // Exercise:
         Commit();
@@ -132,7 +132,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         PrevCODimensionCOde: Code[20];
     begin
         // Verify that Cost Center Dimension and Cost Object Dimension fields are not updated if the user cancels the operation
-        Initialize;
+        Initialize();
 
         // Setup:
         PrevCCDimensionCode := CostCenterDimension;
@@ -156,7 +156,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         NewName: Text[100];
     begin
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostType(CostType);
 
         // Exercise:
@@ -181,7 +181,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         OldNumber: Code[20];
     begin
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostType(CostType);
         OldNumber := CostType."No.";
 
@@ -208,7 +208,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         EndCostTypeNo: Code[20];
     begin
         // Setup:
-        Initialize;
+        Initialize();
         CreateBeginEndCostTypes(BeginCostTypeNo, EndCostTypeNo);
 
         // Exercise:
@@ -228,7 +228,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Verify that a Cost Center whith Line Type = 'End-Total' has 'Blocked' checkbox checked, by default.
 
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostCenter(CostCenter);
 
         // Excercise:
@@ -255,7 +255,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Verify that a Cost Object whith Line Type = 'End-Total' has 'Blocked' checkbox checked, by default.
 
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostObject(CostObject);
 
         // Excercise:
@@ -280,7 +280,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Verify that a Cost Type whith Line Type = 'End-Total' has 'Blocked' checkbox checked, by default.
 
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
@@ -304,14 +304,14 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostType: Record "Cost Type";
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.VerifyCostTypeIntegrity;
 
         // Setup:
         CostType.SetFilter("G/L Account Range", '<>%1', '');
         CostType.SetFilter("Balance at Date", '%1', 0);
         CostType.SetFilter("Balance to Allocate", '%1', 0);
-        if not CostType.FindFirst then
+        if not CostType.FindFirst() then
             Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption, CostType.GetFilters));
         CostType.Delete(true);
 
@@ -335,7 +335,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         DimensionValue: Record "Dimension Value";
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CostAccountingSetup.Get();
@@ -360,7 +360,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         DimensionValue: Record "Dimension Value";
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         CostAccountingSetup.Get();
@@ -383,7 +383,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostType: Record "Cost Type";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostType(CostType);
@@ -407,7 +407,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         GLAccount: Record "G/L Account";
         CostType: Record "Cost Type";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -494,7 +494,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align G/L Account to "Automatic" and verify that when adding a new Income G/L Account,
         // a Cost Type is also created.
 
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypeAutomatic);
@@ -551,7 +551,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align G/L Account to "No Alignment" and verify that when adding a new Income G/L Account,
         // no Cost Type id added to the Chart of Cost Types.
 
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypeNoAlignment);
@@ -606,7 +606,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align G/L Account to "Prompt" and verify that when adding a new Income G/L Account,
         // a Cost Type is also created if the user selects "Yes" in the confirmation message.
 
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypePrompt);
@@ -630,7 +630,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align G/L Account to "Prompt" and verify that when adding a new Income G/L Account,
         // no Cost Type is created if the user selects "No" in the confirmation message.
 
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypePrompt);
@@ -721,7 +721,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Check that a cost center can be aligned to any dimension
 
-        Initialize;
+        Initialize();
 
         // Setup:
         UpdateAlignedDimension(CostAccountingSetup.FieldNo("Cost Center Dimension"));
@@ -744,7 +744,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Check that a cost object can be aligned to any dimension
 
-        Initialize;
+        Initialize();
 
         // Setup:
         UpdateAlignedDimension(CostAccountingSetup.FieldNo("Cost Object Dimension"));
@@ -765,14 +765,14 @@ codeunit 134810 "ERM Cost Accounting Setup"
         GLAccount: Record "G/L Account";
         CostTypeNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibraryCostAccounting.VerifyCostTypeIntegrity;
 
         // Setup:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
 
         CostType.SetFilter("G/L Account Range", '%1', GLAccount."No.");
-        if not CostType.FindFirst then
+        if not CostType.FindFirst() then
             Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption, CostType.GetFilters));
         CostTypeNo := CostType."No.";
 
@@ -807,7 +807,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Center Dimension"), AlignCostCenters);
 
         // Excercise:
@@ -822,7 +822,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
         // Setup:
-        Initialize;
+        Initialize();
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Object Dimension"), AlignCostObjects);
 
         // Excercise:
@@ -859,7 +859,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostAccountingSetup: Record "Cost Accounting Setup";
         GLAccount: Record "G/L Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align G/L Account"), AlignGLAccount);

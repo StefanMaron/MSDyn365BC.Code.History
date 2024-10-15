@@ -1,4 +1,4 @@
-page 9032 "Acc. Payables Activities"
+﻿page 9032 "Acc. Payables Activities"
 {
     Caption = 'Activities';
     PageType = CardPart;
@@ -12,25 +12,25 @@ page 9032 "Acc. Payables Activities"
             cuegroup(Payments)
             {
                 Caption = 'Payments';
-                field("Purchase Documents Due Today"; "Purchase Documents Due Today")
+                field("Purchase Documents Due Today"; Rec."Purchase Documents Due Today")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor Ledger Entries";
                     ToolTip = 'Specifies the number of purchase invoices that must be paid today.';
                 }
-                field("Vendors - Payment on Hold"; "Vendors - Payment on Hold")
+                field("Vendors - Payment on Hold"; Rec."Vendors - Payment on Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDownPageID = "Vendor List";
                     ToolTip = 'Specifies the number of vendor to whom your payment is on hold.';
                 }
-                field("Purchase Return Orders"; "Purchase Return Orders")
+                field("Purchase Return Orders"; Rec."Purchase Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
                     DrillDownPageID = "Purchase Return Order List";
                     ToolTip = 'Specifies the number of purchase return orders that are displayed in the Finance Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Outstanding Vendor Invoices"; "Outstanding Vendor Invoices")
+                field("Outstanding Vendor Invoices"; Rec."Outstanding Vendor Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of invoices from your vendors that have not been paid yet.';
@@ -65,13 +65,13 @@ page 9032 "Acc. Payables Activities"
             cuegroup("Document Approvals")
             {
                 Caption = 'Document Approvals';
-                field("POs Pending Approval"; "POs Pending Approval")
+                field("POs Pending Approval"; Rec."POs Pending Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of purchase orders that are pending approval.';
                 }
-                field("Approved Purchase Orders"; "Approved Purchase Orders")
+                field("Approved Purchase Orders"; Rec."Approved Purchase Orders")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Purchase Order List";
@@ -120,33 +120,6 @@ page 9032 "Acc. Payables Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
             cuegroup(MissingSIIEntries)
             {
                 Caption = 'Missing SII Entries';
@@ -186,26 +159,22 @@ page 9032 "Acc. Payables Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetFilter("Due Date Filter", '<=%1', WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
     end;
-
-    var
-        UserTaskManagement: Codeunit "User Task Management";
 
     local procedure CalculateCueFieldValues()
     var
         SIIRecreateMissingEntries: Codeunit "SII Recreate Missing Entries";
     begin
-        if FieldActive("Missing SII Entries") then
+        if Rec.FieldActive("Missing SII Entries") then
             "Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount;
-        if FieldActive("Days Since Last SII Check") then
+        if Rec.FieldActive("Days Since Last SII Check") then
             "Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck;
     end;
 }

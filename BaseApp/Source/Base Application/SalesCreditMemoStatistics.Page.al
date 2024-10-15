@@ -228,7 +228,7 @@ page 398 "Sales Credit Memo Statistics"
         CustLedgEntry.SetRange("Document No.", "No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
         CustLedgEntry.SetRange("Customer No.", "Bill-to Customer No.");
-        if CustLedgEntry.FindFirst then
+        if CustLedgEntry.FindFirst() then
             AmountLCY := -CustLedgEntry."Sales (LCY)";
 
         if AmountLCY <> 0 then

@@ -18,9 +18,6 @@ codeunit 232 "Gen. Jnl.-Post+Print"
         Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlLine: Record "Gen. Journal Line";
-        GLReg: Record "G/L Register";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
         RecRefToPrint: RecordRef;
         GenJnlPostviaJobQueue: Codeunit "Gen. Jnl.-Post via Job Queue";
@@ -31,6 +28,9 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
     local procedure "Code"()
     var
+        GLReg: Record "G/L Register";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        VendLedgEntry: Record "Vendor Ledger Entry";
         ConfirmManagement: Codeunit "Confirm Management";
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         HideDialog: Boolean;
@@ -135,6 +135,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
     begin
     end;
 
+    // removed from W1, still used in ES
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGLRegPostingReportPrint(var ReportID: Integer; ReqWindow: Boolean; SystemPrinter: Boolean; var GLRegister: Record "G/L Register"; var Handled: Boolean)
     begin

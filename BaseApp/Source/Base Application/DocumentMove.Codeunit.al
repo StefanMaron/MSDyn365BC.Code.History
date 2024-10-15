@@ -35,34 +35,34 @@ codeunit 7000004 "Document-Move"
     begin
         with BillGr do begin
             LockTable();
-            if BillGr2.FindLast then;
+            if BillGr2.FindLast() then;
             Reset;
             SetCurrentKey("Bank Account No.");
             SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst then
+            if FindFirst() then
                 Error(Text1100000);
         end;
 
         with PostedBillGr do begin
             LockTable();
-            if PostedBillGr2.FindLast then;
+            if PostedBillGr2.FindLast() then;
             Reset;
             SetCurrentKey("Bank Account No.");
             SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst then
+            if FindFirst() then
                 Error(Text1100001);
         end;
 
         with ClosedBillGr do begin
             LockTable();
-            if ClosedBillGr2.FindLast then;
+            if ClosedBillGr2.FindLast() then;
             Reset;
             SetCurrentKey("Bank Account No.");
             SetRange("Bank Account No.", BankAcc."No.");
             AccountingPeriod.SetRange(Closed, false);
-            if AccountingPeriod.FindFirst then
+            if AccountingPeriod.FindFirst() then
                 SetFilter("Closing Date", '>=%1', AccountingPeriod."Starting Date");
-            if FindFirst then
+            if FindFirst() then
                 Error(Text1100002);
             SetRange("Closing Date");
             ModifyAll("Bank Account No.", '');
@@ -70,34 +70,34 @@ codeunit 7000004 "Document-Move"
 
         with PmtOrd do begin
             LockTable();
-            if PmtOrd2.FindLast then;
+            if PmtOrd2.FindLast() then;
             Reset;
             SetCurrentKey("Bank Account No.");
             SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst then
+            if FindFirst() then
                 Error(Text1100003);
         end;
 
         with PostedPmtOrd do begin
             LockTable();
-            if PostedPmtOrd2.FindLast then;
+            if PostedPmtOrd2.FindLast() then;
             Reset;
             SetCurrentKey("Bank Account No.");
             SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst then
+            if FindFirst() then
                 Error(Text1100004);
         end;
 
         with ClosedPmtOrd do begin
             LockTable();
-            if ClosedPmtOrd2.FindLast then;
+            if ClosedPmtOrd2.FindLast() then;
             Reset;
             SetCurrentKey("Bank Account No.");
             SetRange("Bank Account No.", BankAcc."No.");
             AccountingPeriod.SetRange(Closed, false);
-            if AccountingPeriod.FindFirst then
+            if AccountingPeriod.FindFirst() then
                 SetFilter("Closing Date", '>=%1', AccountingPeriod."Starting Date");
-            if FindFirst then
+            if FindFirst() then
                 Error(Text1100005);
             SetRange("Closing Date");
             ModifyAll("Bank Account No.", '');

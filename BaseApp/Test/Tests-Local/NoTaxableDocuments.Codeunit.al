@@ -823,7 +823,7 @@ codeunit 147515 "No Taxable Documents"
         CreateSalesDocumentWithNormalNoTaxableVAT(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
         SalesLineNoTax.SetRange("Document Type", SalesHeader."Document Type");
         SalesLineNoTax.SetRange("Document No.", SalesHeader."No.");
-        SalesLineNoTax.FindFirst;
+        SalesLineNoTax.FindFirst();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
@@ -891,7 +891,7 @@ codeunit 147515 "No Taxable Documents"
         CreatePurchaseDocumentWithNormalNoTaxableVAT(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice);
         PurchaseLineNoTax.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLineNoTax.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLineNoTax.FindFirst;
+        PurchaseLineNoTax.FindFirst();
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -1096,7 +1096,7 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry.FilterNoTaxableEntry(
           NoTaxableEntry.Type::Sale.AsInteger(), CustLedgerEntry."Customer No.",
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", false);
-        NoTaxableEntry.FindFirst;
+        NoTaxableEntry.FindFirst();
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", ExpectedAmountLCY);
     end;
@@ -1108,7 +1108,7 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry.FilterNoTaxableEntry(
           NoTaxableEntry.Type::Purchase.AsInteger(), VendorLedgerEntry."Vendor No.",
           VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", false);
-        NoTaxableEntry.FindFirst;
+        NoTaxableEntry.FindFirst();
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", ExpectedAmountLCY);
     end;
@@ -1122,11 +1122,11 @@ codeunit 147515 "No Taxable Documents"
           CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", true);
 
         Assert.RecordCount(NoTaxableEntry, 2);
-        NoTaxableEntry.FindFirst;
+        NoTaxableEntry.FindFirst();
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", ExpectedAmountLCY);
 
-        NoTaxableEntry.FindLast;
+        NoTaxableEntry.FindLast();
         NoTaxableEntry.TestField(Amount, -ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", -ExpectedAmountLCY);
     end;
@@ -1144,10 +1144,10 @@ codeunit 147515 "No Taxable Documents"
     local procedure VerifyReversedAmounts(var NoTaxableEntry: Record "No Taxable Entry"; ExpectedAmount: Decimal; ExpectedAmountLCY: Decimal)
     begin
         Assert.RecordCount(NoTaxableEntry, 2);
-        NoTaxableEntry.FindFirst;
+        NoTaxableEntry.FindFirst();
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", ExpectedAmountLCY);
-        NoTaxableEntry.FindLast;
+        NoTaxableEntry.FindLast();
         NoTaxableEntry.TestField(Amount, -ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", -ExpectedAmountLCY);
     end;
@@ -1158,7 +1158,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("No Taxable Type", VATPostingSetup."No Taxable Type");
     end;
 

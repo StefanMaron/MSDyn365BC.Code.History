@@ -32,16 +32,18 @@ report 398 "Date Compress Vendor Ledger"
                     SetRange("Currency Code", "Currency Code");
                     SetRange("Document Type", "Document Type");
 
-                    if RetainNo(FieldNo("Document No.")) then
+                    if DateComprRetainFields."Retain Document No." then
                         SetRange("Document No.", "Document No.");
-                    if RetainNo(FieldNo("Buy-from Vendor No.")) then
+                    if DateComprRetainFields."Retain Buy-from Vendor No." then
                         SetRange("Buy-from Vendor No.", "Buy-from Vendor No.");
-                    if RetainNo(FieldNo("Purchaser Code")) then
+                    if DateComprRetainFields."Retain Purchaser Code" then
                         SetRange("Purchaser Code", "Purchaser Code");
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
+                    if DateComprRetainFields."Retain Global Dimension 1" then
                         SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
+                    if DateComprRetainFields."Retain Global Dimension 2" then
                         SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
+                    if DateComprRetainFields."Retain Journal Template Name" then
+                        SetRange("Journal Templ. Name", "Journal Templ. Name");
 
                     CalcFields(Amount);
                     if Amount >= 0 then
@@ -110,10 +112,10 @@ report 398 "Date Compress Vendor Ledger"
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Vendor Ledger", '', TempSelectedDim);
                 GLSetup.Get();
-                Retain[4] :=
+                DateComprRetainFields."Retain Global Dimension 1" :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Vendor Ledger", '', GLSetup."Global Dimension 1 Code");
-                Retain[5] :=
+                DateComprRetainFields."Retain Global Dimension 2" :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Vendor Ledger", '', GLSetup."Global Dimension 2 Code");
 
@@ -183,23 +185,29 @@ report 398 "Date Compress Vendor Ledger"
                     group("Retain Field Contents")
                     {
                         Caption = 'Retain Field Contents';
-                        field("Retain[1]"; Retain[1])
+                        field("Retain[1]"; DateComprRetainFields."Retain Document No.")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that is processed by the report or batch job.';
                         }
-                        field("Retain[2]"; Retain[2])
+                        field("Retain[2]"; DateComprRetainFields."Retain Buy-from Vendor No.")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Buy-from Vendor No.';
                             ToolTip = 'Specifies a filter for the vendor or vendors that you want to compress entries for.';
                         }
-                        field("Retain[3]"; Retain[3])
+                        field("Retain[3]"; DateComprRetainFields."Retain Purchaser Code")
                         {
                             ApplicationArea = Suite;
                             Caption = 'Purchaser Code';
                             ToolTip = 'Specifies the purchaser for whom vendor ledger entries are date compressed';
+                        }
+                        field("Retain[6]"; DateComprRetainFields."Retain Journal Template Name")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Journal Template Name';
+                            ToolTip = 'Specifies the name of the journal template that is used for the posting.';
                         }
                     }
                     field(RetainDimText; RetainDimText)
@@ -241,7 +249,7 @@ report 398 "Date Compress Vendor Ledger"
 
         trigger OnOpenPage()
         begin
-            InitializeParameter;
+            InitializeParameter();
         end;
 
         trigger OnInit()
@@ -294,16 +302,13 @@ report 398 "Date Compress Vendor Ledger"
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
         DimSelectionBuf: Record "Dimension Selection Buffer";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
         DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         VendLedgEntryFilter: Text[250];
-        NoOfFields: Integer;
-        Retain: array[10] of Boolean;
-        FieldNumber: array[10] of Integer;
-        FieldNameArray: array[10] of Text[100];
         LastEntryNo: Integer;
         NextTransactionNo: Integer;
         NoOfDeleted: Integer;
@@ -313,7 +318,6 @@ report 398 "Date Compress Vendor Ledger"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
-        i: Integer;
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
@@ -333,16 +337,30 @@ report 398 "Date Compress Vendor Ledger"
           EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date", EntrdDateComprReg."Period Length",
           VendLedgEntryFilter, GLReg."No.", SourceCodeSetup."Compress Vend. Ledger");
 
-        for i := 1 to NoOfFields do
-            if Retain[i] then
-                DateComprReg."Retain Field Contents" :=
-                  CopyStr(
-                    DateComprReg."Retain Field Contents" + ',' + FieldNameArray[i], 1,
-                    MaxStrLen(DateComprReg."Retain Field Contents"));
+        if DateComprRetainFields."Retain Document No." then
+            AddFieldContent(NewVendLedgEntry.FieldName("Document No."));
+        if DateComprRetainFields."Retain Buy-from Vendor No." then
+            AddFieldContent(NewVendLedgEntry.FieldName("Buy-from Vendor No."));
+        if DateComprRetainFields."Retain Purchaser Code" then
+            AddFieldContent(NewVendLedgEntry.FieldName("Purchaser Code"));
+        if DateComprRetainFields."Retain Global Dimension 1" then
+            AddFieldContent(NewVendLedgEntry.FieldName("Global Dimension 1 Code"));
+        if DateComprRetainFields."Retain Global Dimension 2" then
+            AddFieldContent(NewVendLedgEntry.FieldName("Global Dimension 2 Code"));
+        if DateComprRetainFields."Retain Journal Template Name" then
+            AddFieldContent(NewVendLedgEntry.FieldName("Journal Templ. Name"));
+
         DateComprReg."Retain Field Contents" := CopyStr(DateComprReg."Retain Field Contents", 2);
 
         GLRegExists := false;
         NoOfDeleted := 0;
+    end;
+
+    local procedure AddFieldContent(FieldName: Text)
+    begin
+        DateComprReg."Retain Field Contents" :=
+            CopyStr(
+                DateComprReg."Retain Field Contents" + ',' + FieldName, 1, MaxStrLen(DateComprReg."Retain Field Contents"));
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
@@ -391,25 +409,6 @@ report 398 "Date Compress Vendor Ledger"
             InitRegisters;
         end;
         LastDtldEntryNo := NewDtldVendLedgEntry.GetLastEntryNo();
-    end;
-
-    local procedure InsertField(Number: Integer; Name: Text[100])
-    begin
-        NoOfFields := NoOfFields + 1;
-        FieldNumber[NoOfFields] := Number;
-        FieldNameArray[NoOfFields] := Name;
-    end;
-
-    local procedure RetainNo(Number: Integer): Boolean
-    begin
-        exit(Retain[Index(Number)]);
-    end;
-
-    local procedure Index(Number: Integer): Integer
-    begin
-        for i := 1 to NoOfFields do
-            if Number = FieldNumber[i] then
-                exit(i);
     end;
 
     local procedure SummarizeEntry(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry")
@@ -486,16 +485,18 @@ report 398 "Date Compress Vendor Ledger"
             NewVendLedgEntry."User ID" := UserId;
             NewVendLedgEntry."Transaction No." := NextTransactionNo;
 
-            if RetainNo(FieldNo("Document No.")) then
+            if DateComprRetainFields."Retain Document No." then
                 NewVendLedgEntry."Document No." := "Document No.";
-            if RetainNo(FieldNo("Buy-from Vendor No.")) then
+            if DateComprRetainFields."Retain Buy-from Vendor No." then
                 NewVendLedgEntry."Buy-from Vendor No." := "Buy-from Vendor No.";
-            if RetainNo(FieldNo("Purchaser Code")) then
+            if DateComprRetainFields."Retain Purchaser Code" then
                 NewVendLedgEntry."Purchaser Code" := "Purchaser Code";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
+            if DateComprRetainFields."Retain Global Dimension 1" then
                 NewVendLedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
+            if DateComprRetainFields."Retain Global Dimension 2" then
                 NewVendLedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
+            if DateComprRetainFields."Retain Journal Template Name" then
+                NewVendLedgEntry."Journal Templ. Name" := "Journal Templ. Name";
 
             Window.Update(1, NewVendLedgEntry."Vendor No.");
             Window.Update(2, NewVendLedgEntry."Posting Date");
@@ -553,13 +554,13 @@ report 398 "Date Compress Vendor Ledger"
         PostingDate := DtldVendLedgEntryBuffer.GetRangeMin("Posting Date");
         DtldVendLedgEntryBuffer.SetRange("Posting Date", PostingDate);
         DtldVendLedgEntryBuffer.SetRange("Entry Type", DtldVendLedgEntry."Entry Type");
-        if RetainNo("Vendor Ledger Entry".FieldNo("Document No.")) then
+        if DateComprRetainFields."Retain Document No." then
             DtldVendLedgEntryBuffer.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
-        if RetainNo("Vendor Ledger Entry".FieldNo("Buy-from Vendor No.")) then
+        if DateComprRetainFields."Retain Buy-from Vendor No." then
             DtldVendLedgEntryBuffer.SetRange("Vendor No.", "Vendor Ledger Entry"."Buy-from Vendor No.");
-        if RetainNo("Vendor Ledger Entry".FieldNo("Global Dimension 1 Code")) then
+        if DateComprRetainFields."Retain Global Dimension 1" then
             DtldVendLedgEntryBuffer.SetRange("Initial Entry Global Dim. 1", "Vendor Ledger Entry"."Global Dimension 1 Code");
-        if RetainNo("Vendor Ledger Entry".FieldNo("Global Dimension 2 Code")) then
+        if DateComprRetainFields."Retain Global Dimension 2" then
             DtldVendLedgEntryBuffer.SetRange("Initial Entry Global Dim. 2", "Vendor Ledger Entry"."Global Dimension 2 Code");
 
         if not DtldVendLedgEntryBuffer.Find('-') then begin
@@ -639,34 +640,45 @@ report 398 "Date Compress Vendor Ledger"
         if EntrdVendLedgEntry.Description = '' then
             EntrdVendLedgEntry.Description := Text009;
 
-        with "Vendor Ledger Entry" do begin
-            InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-            InsertField(FieldNo("Buy-from Vendor No."), FieldCaption("Buy-from Vendor No."));
-            InsertField(FieldNo("Purchaser Code"), FieldCaption("Purchaser Code"));
-            InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-            InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-        end;
-
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress Vendor Ledger", '');
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with parameters DateComprRetainFields', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainBuyfromVendorNo: Boolean; RetainPurchaserCode: Boolean; RetainDimensionText: Text[250])
     begin
         InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentNo, RetainBuyfromVendorNo, RetainPurchaserCode, RetainDimensionText, true);
     end;
+#endif
 
+#if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest with parameters DateComprRetainFields', '20.0')]
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainBuyfromVendorNo: Boolean; RetainPurchaserCode: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
-        InitializeParameter;
+        InitializeParameter();
         EntrdDateComprReg."Starting Date" := StartingDate;
         EntrdDateComprReg."Ending Date" := EndingDate;
         EntrdDateComprReg."Period Length" := PeriodLength;
         EntrdVendLedgEntry.Description := Description;
-        Retain[1] := RetainDocumentNo;
-        Retain[2] := RetainBuyfromVendorNo;
-        Retain[3] := RetainPurchaserCode;
+        DateComprRetainFields."Retain Document No." := RetainDocumentNo;
+        DateComprRetainFields."Retain Buy-from Vendor No." := RetainBuyfromVendorNo;
+        DateComprRetainFields."Retain Purchaser Code" := RetainPurchaserCode;
+        RetainDimText := RetainDimensionText;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
+    end;
+#endif
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; NewDateComprRetainFields: Record "Date Compr. Retain Fields"; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
+    begin
+        InitializeParameter();
+        EntrdDateComprReg."Starting Date" := StartingDate;
+        EntrdDateComprReg."Ending Date" := EndingDate;
+        EntrdDateComprReg."Period Length" := PeriodLength;
+        EntrdVendLedgEntry.Description := Description;
+        DateComprRetainFields := NewDateComprRetainFields;
         RetainDimText := RetainDimensionText;
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
@@ -682,10 +694,11 @@ report 398 "Date Compress Vendor Ledger"
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
-        TelemetryDimensions.Add('RetainBuyFromVendorNo', Format(Retain[2], 0, 9));
-        TelemetryDimensions.Add('RetainPurchaserCode', Format(Retain[3], 0, 9));
+        TelemetryDimensions.Add('RetainDocumentNo', Format(DateComprRetainFields."Retain Document No.", 0, 9));
+        TelemetryDimensions.Add('RetainBuyFromVendorNo', Format(DateComprRetainFields."Retain Buy-from Vendor No.", 0, 9));
+        TelemetryDimensions.Add('RetainPurchaserCode', Format(DateComprRetainFields."Retain Purchaser Code", 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
+        TelemetryDimensions.Add('RetainJnlTemplate', Format(DateComprRetainFields."Retain Journal Template Name", 0, 9));
         TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4Y', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);

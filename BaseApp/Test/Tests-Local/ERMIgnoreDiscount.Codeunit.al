@@ -34,7 +34,7 @@ codeunit 144053 "ERM Ignore Discount"
     procedure InvoiceDiscOnSalesStatisticsWithIgnoreDiscounts()
     begin
         // Test to verify values on Sales Statistics page with Ignore Discounts True on G/L Account.
-        Initialize;
+        Initialize();
         InvoiceDiscountAmountOnSalesStatisticsPage(true, LibraryRandom.RandDec(10, 2), 0);  // True used for Ignore Discounts, Random value used for Customer Invoice Discount Percent and 0 used for Discount Percent.
     end;
 
@@ -46,7 +46,7 @@ codeunit 144053 "ERM Ignore Discount"
         DiscountPct: Decimal;
     begin
         // Test to verify values on Sales Statistics page with Ignore Discounts False on G/L Account.
-        Initialize;
+        Initialize();
         DiscountPct := LibraryRandom.RandDec(10, 2);
         InvoiceDiscountAmountOnSalesStatisticsPage(false, DiscountPct, DiscountPct);  // False used for Ignore Discounts.
     end;
@@ -81,7 +81,7 @@ codeunit 144053 "ERM Ignore Discount"
     procedure InvoiceDiscOnPurchStatisticsWithIgnoreDiscounts()
     begin
         // Test to verify values on Purchase Statistics page with Ignore Discounts True on G/L Account.
-        Initialize;
+        Initialize();
         InvoiceDiscountAmountOnPurchaseStatisticsPage(true, LibraryRandom.RandDec(10, 2), 0);  // True used for Ignore Discounts, Random value used for Vendor Invoice Discount Percent and 0 used for Discount Percent.
     end;
 
@@ -93,7 +93,7 @@ codeunit 144053 "ERM Ignore Discount"
         DiscountPct: Decimal;
     begin
         // Test to verify values on Purchase Statistics page with Ignore Discounts False on G/L Account.
-        Initialize;
+        Initialize();
         DiscountPct := LibraryRandom.RandDec(10, 2);
         InvoiceDiscountAmountOnPurchaseStatisticsPage(false, DiscountPct, DiscountPct);  // False used for Ignore Discounts.
     end;
@@ -125,7 +125,7 @@ codeunit 144053 "ERM Ignore Discount"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomerWithInvoiceDiscount(DiscountPct: Decimal): Code[20]

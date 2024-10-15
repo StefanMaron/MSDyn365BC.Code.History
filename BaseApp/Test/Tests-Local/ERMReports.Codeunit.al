@@ -67,7 +67,7 @@ codeunit 144097 "ERM Reports"
         // Test to verify values on Aged Accounts Receivable report after Sales Order posting.
 
         // Setup: Create and post sales order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesOrder(SalesLine, Customer."No.", 0);  // Using 0 for Payment Discount %.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -97,7 +97,7 @@ codeunit 144097 "ERM Reports"
         // Test to verify Payment Discount Amount on Order report.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -128,7 +128,7 @@ codeunit 144097 "ERM Reports"
         ExpectedValue: Decimal;
     begin
         // [SCENARIO 376523] Report "Aged Accounts Receivable" should showing Customer Ledger Entry if "Print Amounts in LCY" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Document with Amount incl. VAT = 100
         ExpectedValue := CreatePostSalesDocument;
@@ -156,7 +156,7 @@ codeunit 144097 "ERM Reports"
 
         // Setup: Create Customer, Cust. Ledger Entry and Pairs of Detailed Cust. Ledger Entries
         // for all 4 report periods, one with Excluded from calculation = TRUE, one with equal to FALSE
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         for I := 0 to ArrayLen(NonExcludedAmount) - 1 do begin
             NonExcludedAmount[I + 1] :=
@@ -184,7 +184,7 @@ codeunit 144097 "ERM Reports"
         // [SCENARIO 377101] "VAT Amount" should be calculated correctly in "Archived Sales Order" report when using multiple lines
 
         // [GIVEN] Sales Order with two lines, "Total Amount Incl. VAT" = 200, "Total VAT Amount" = 36
-        Initialize;
+        Initialize();
         CreateSalesOrderWithTwoLines(SalesHeader, TempVATAmountLine);
 
         // [GIVEN] Archived Sales Order
@@ -210,7 +210,7 @@ codeunit 144097 "ERM Reports"
         // [SCENARIO 377446] "EC %", "EC Amount" should be printed on VAT Amount Specification Section in "Archived Sales Order" report
 
         // [GIVEN] Sales Order with "VAT %" = 16, "EC %" = 4, Line Amount = 1000
-        Initialize;
+        Initialize();
         CreateSalesOrderWithTwoLines(SalesHeader, TempVATAmountLine);
 
         // [GIVEN] Archived Sales Order
@@ -242,7 +242,7 @@ codeunit 144097 "ERM Reports"
         // [SCENARIO 377101] "VAT Amount" should be calculated correctly in "Archived Purchase Order" report when using multiple lines
 
         // [GIVEN] Purchase Order with two lines, "Total Amount Incl. VAT" = 200, "Total VAT Amount" = 36
-        Initialize;
+        Initialize();
         CreatePurchOrderWithTwoLines(PurchHeader, TotalPurchLine);
 
         // [GIVEN] Archived Purchase Order
@@ -274,8 +274,8 @@ codeunit 144097 "ERM Reports"
 
         // [GIVEN] Posted sales "Invoice[1]" with "Amount" = 100, "Posting Date" = 25/03/2016 and "Document Date" = 25/05/2016
         // [GIVEN] Posted sales "Invoice[2]" with "Amount" = 200, "Posting Date" = 25/01/2016 and "Document Date" = 25/03/2016
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
         AmountLCY := MockCustLedgerEntryWithDifferentDate(CustLedgerEntry, CustomerNo, WorkDate, CalcDate('<+2M>', WorkDate));
         MockCustLedgerEntryWithDifferentDate(CustLedgerEntry, CustomerNo, CalcDate('<-2M>', WorkDate), WorkDate);
 
@@ -304,8 +304,8 @@ codeunit 144097 "ERM Reports"
 
         // [GIVEN] Posted purchase "Invoice[1]" with "Amount" = 100, "Posting Date" = 25/03/2016 and "Document Date" = 25/05/2016
         // [GIVEN] Posted purchase "Invoice[2]" with "Amount" = 200, "Posting Date" = 25/01/2016 and "Document Date" = 25/03/2016
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
         AmountLCY := MockVendorLedgerEntryWithDifferentDate(VendorLedgerEntry, VendorNo, WorkDate, CalcDate('<+2M+1D>', WorkDate));
         MockVendorLedgerEntryWithDifferentDate(VendorLedgerEntry, VendorNo, CalcDate('<-2M>', WorkDate), WorkDate);
 
@@ -331,7 +331,7 @@ codeunit 144097 "ERM Reports"
     begin
         // [FEATURE] [Sales] [Quote] [Payment Method Translation]
         // [SCENARIO 278606] Payment Method is Translated in report "Standard Sales - Quote"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information with "Allow Blank Payment Info."
         CompanyInformation.Get();
@@ -372,7 +372,7 @@ codeunit 144097 "ERM Reports"
     begin
         // [FEATURE] [Service] [Invoice] [Payment Method Translation]
         // [SCENARIO 278606] Payment Method is Translated in report "Service - Invoice"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Method "CASH" with Description
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -397,9 +397,9 @@ codeunit 144097 "ERM Reports"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -489,7 +489,7 @@ codeunit 144097 "ERM Reports"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgEntry do begin
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." := "Entry No." + 1;
             "Customer No." := CustomerNo;
@@ -504,7 +504,7 @@ codeunit 144097 "ERM Reports"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DtldCustLedgEntry do begin
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." := "Entry No." + 1;
             "Cust. Ledger Entry No." := CustLedgEntryNo;
@@ -685,7 +685,7 @@ codeunit 144097 "ERM Reports"
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "Document No." := DocumentNo;
-            "G/L Account No." := LibraryERM.CreateGLAccountNo;
+            "G/L Account No." := LibraryERM.CreateGLAccountNo();
             "Posting Date" := PostingDate;
             "Document Date" := DocumentDate;
             Amount := LibraryRandom.RandDec(100, 2);
@@ -700,7 +700,7 @@ codeunit 144097 "ERM Reports"
 
     local procedure RunAgedAccountsReceivableReport()
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
         REPORT.Run(REPORT::"Aged Accounts Receivable");

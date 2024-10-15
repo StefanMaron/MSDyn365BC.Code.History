@@ -216,7 +216,7 @@ report 10721 "Export Electronic Payments"
                         VendorBankAccount1.Reset();
                         VendorBankAccount1.SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
                         VendorBankAccount1.SetRange("Use For Electronic Payments", true);
-                        if VendorBankAccount1.FindFirst then begin
+                        if VendorBankAccount1.FindFirst() then begin
                             TempVendCCCControlDigits := VendorBankAccount1."CCC Control Digits";
                             TempVendCCCAccNo := VendorBankAccount1."CCC Bank Account No.";
                             TempUserText :=
@@ -590,7 +590,7 @@ report 10721 "Export Electronic Payments"
             VendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
             VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
             VendLedgEntry.SetRange(Open, true);
-            VendLedgEntry.FindFirst;
+            VendLedgEntry.FindFirst();
             VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
             if -ExportAmount > -VendLedgEntry."Remaining Amt. (LCY)" then
                 AmountPaid := -VendLedgEntry."Remaining Amt. (LCY)"

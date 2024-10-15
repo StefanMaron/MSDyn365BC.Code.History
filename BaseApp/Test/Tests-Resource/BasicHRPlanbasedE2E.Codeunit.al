@@ -52,7 +52,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee as Business Manager
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -60,7 +60,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         // Create Employee
         CreateEmployee;
         // Modify Employee
-        Employee.FindFirst;
+        Employee.FindFirst();
         ModifyEmployee(Employee."No.");
         // Delete Employee
         Employee.Delete(true);
@@ -75,7 +75,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee as Accountant
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -83,7 +83,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         // Create Employee
         CreateEmployee;
         // Modify Employee
-        Employee.FindFirst;
+        Employee.FindFirst();
         ModifyEmployee(Employee."No.");
         // Delete Employee
         Employee.Delete(true);
@@ -98,7 +98,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee as Team Member
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -108,7 +108,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryHumanResource.CreateEmployee(Employee);
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
         // [WHEN] Modify existing Employee
-        Employee.FindFirst;
+        Employee.FindFirst();
         ModifyEmployee(Employee."No.");
         // [THEN] Read and Modify are allowed
         // [WHEN] Delete Employee
@@ -124,7 +124,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee as Essential ISV Emb User
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -132,7 +132,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         // Create Employee
         CreateEmployee;
         // Modify Employee
-        Employee.FindFirst;
+        Employee.FindFirst();
         ModifyEmployee(Employee."No.");
         // Delete Employee
         Employee.Delete(true);
@@ -147,7 +147,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee as Team Member
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -165,7 +165,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
         // [WHEN] Modify existing Employee
-        Employee.FindFirst;
+        Employee.FindFirst();
         ModifyEmployee(Employee."No.");
         // [THEN] Read and Modify are allowed
         // [WHEN] Delete Employee
@@ -181,7 +181,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee as Device ISV Emb User
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
@@ -189,7 +189,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         // Create Employee
         CreateEmployee;
         // Modify Employee
-        Employee.FindFirst;
+        Employee.FindFirst();
         ModifyEmployee(Employee."No.");
         // Delete Employee
         Employee.Delete(true);
@@ -202,7 +202,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         EmployeeCard: TestPage "Employee Card";
     begin
-        EmployeeCard.OpenNew;
+        EmployeeCard.OpenNew();
         EmployeeCard."First Family Name".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Family Name")),
             1, MaxStrLen(Employee."First Family Name")));
@@ -233,7 +233,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
     var
         EmployeeCard: TestPage "Employee Card";
     begin
-        asserterror EmployeeCard.OpenNew;
+        asserterror EmployeeCard.OpenNew();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
     end;
 }

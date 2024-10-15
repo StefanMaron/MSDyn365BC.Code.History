@@ -239,7 +239,7 @@ page 7000015 "Closed Bill Groups"
                     Option: Integer;
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

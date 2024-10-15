@@ -354,7 +354,7 @@ page 7000076 "Docs. in Posted PO Subform"
             PartialSettlePayable.SetInitValue(PostedDoc."Remaining Amount",
               PostedDoc."Currency Code", PostedDoc."Entry No.");
         PartialSettlePayable.SetTableView(PostedDoc);
-        PartialSettlePayable.RunModal;
+        PartialSettlePayable.RunModal();
         CurrPage.Update(false);
     end;
 }

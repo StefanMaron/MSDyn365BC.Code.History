@@ -351,7 +351,7 @@ codeunit 144114 "ERM Transport Method"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Transport Method", TransportMethod);
     end;
 
@@ -360,7 +360,7 @@ codeunit 144114 "ERM Transport Method"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("No.", No);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.TestField("Entry Point", EntryPoint);
         PurchInvHeader.TestField("Transport Method", TransportMethod);
     end;
@@ -370,7 +370,7 @@ codeunit 144114 "ERM Transport Method"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("No.", No);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Exit Point", ExitPoint);
         SalesInvoiceHeader.TestField("Transport Method", TransportMethod);
     end;
@@ -380,7 +380,7 @@ codeunit 144114 "ERM Transport Method"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Exit Point", ServiceHeader."Exit Point");
         ServiceInvoiceHeader.TestField("Transport Method", ServiceHeader."Transport Method");
     end;

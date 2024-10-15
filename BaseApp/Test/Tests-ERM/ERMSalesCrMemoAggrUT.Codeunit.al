@@ -38,22 +38,22 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesHeader: Record "Sales Header";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Cr. Memo Aggr. UT");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Cr. Memo Aggr. UT");
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         if GeneralLedgerSetup.UseVat then begin
-            LibraryERMCountryData.CreateVATData;
-            LibraryERMCountryData.CreateGeneralPostingSetupData;
+            LibraryERMCountryData.CreateVATData();
+            LibraryERMCountryData.CreateGeneralPostingSetupData();
         end;
 
         LibrarySales.SetStockoutWarning(false);
@@ -77,7 +77,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateCrMemoWithOneLineThroughTestPageNoDiscount(SalesCreditMemo);
@@ -93,7 +93,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
@@ -109,7 +109,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(SalesCreditMemo);
@@ -128,7 +128,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CrMemoDiscountAmount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
         CrMemoDiscountAmount :=
           LibraryRandom.RandDecInDecimalRange(1, SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal / 2, 1);
@@ -136,7 +136,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine."Recalculate Invoice Disc." := true;
         SalesLine.Modify();
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
@@ -159,7 +159,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CrMemoDiscountAmount: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(SalesCreditMemo);
         CrMemoDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal;
@@ -179,7 +179,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageNoDiscount(SalesCreditMemo);
 
@@ -199,7 +199,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
 
@@ -219,7 +219,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
 
@@ -240,7 +240,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(SalesCreditMemo);
 
@@ -255,7 +255,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -267,12 +267,12 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         // Execute
         SalesLine.Delete(true);
@@ -281,7 +281,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         VerifyBufferTableIsUpdatedForCrMemo(SalesHeader."No.");
 
         // Execute last
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.Delete(true);
 
         // Verify
@@ -296,7 +296,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeDiscountPct(SalesHeader, SalesLine);
 
@@ -317,7 +317,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeDiscountAmt(SalesHeader, SalesLine);
         SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false);
@@ -338,12 +338,12 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         // Execute
         SalesLine.DeleteAll(true);
@@ -360,7 +360,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeDiscountPct(SalesHeader, SalesLine);
 
@@ -379,7 +379,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeDiscountAmt(SalesHeader, SalesLine);
 
@@ -403,7 +403,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewCustDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -434,7 +434,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewCustDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, Customer, CrMemoDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -464,7 +464,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         CreateCustomer(NewCustomer);
 
@@ -494,7 +494,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewCustomerDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -525,7 +525,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewCustomerDiscPct: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, Customer, CrMemoDiscountAmount);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -551,7 +551,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreatePostedCrMemoDiscountTypeAmt(SalesCrMemoHeader);
@@ -570,7 +570,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
 
@@ -600,7 +600,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         TempGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
 
         TempGUID := CreateGuid;
@@ -628,7 +628,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreatePostedCrMemoDiscountTypePct(SalesCrMemoHeader);
@@ -645,7 +645,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateCrMemoWithLinesThroughCodeNoDiscount(SalesHeader);
 
@@ -664,7 +664,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreatePostedCrMemoDiscountTypeAmt(SalesCrMemoHeader);
 
         // Execute
@@ -682,11 +682,11 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewCode: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreatePostedCrMemoNoDiscount(SalesCrMemoHeader);
 
         // Execute
-        NewCode := LibraryUtility.GenerateGUID;
+        NewCode := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader.Rename(NewCode);
 
         // Verify
@@ -703,7 +703,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         BufferRecordRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         GetFieldsThatMustMatchWithSalesHeader(TempCommonField);
         GetCrMemoAggregateSpecificFields(TempCrMemoBufferSpecificField);
 
@@ -735,7 +735,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AggregateLineRecordRef: RecordRef;
     begin
         // Setup
-        Initialize;
+        Initialize();
         GetFieldsThatMustMatchWithSalesLine(TempCommonField);
         GetCrMemoAggregateLineSpecificFields(TempCrMemoLineEntitySpecificField);
 
@@ -761,7 +761,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewSalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Execute
         CreateAndCancelPostedCrMemo(SalesCrMemoHeader, NewSalesInvoiceHeader);
@@ -780,7 +780,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         UnpaidSalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateAndMarkPostedCrMemoAsPaid(SalesCrMemoHeader);
         CreatePostedCrMemoNoDiscount(UnpaidSalesCrMemoHeader);
 
@@ -789,7 +789,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ClosedCustLedgerEntry.Delete();
 
         OpenCustLedgerEntry.SetRange("Entry No.", UnpaidSalesCrMemoHeader."Cust. Ledger Entry No.");
-        OpenCustLedgerEntry.FindFirst;
+        OpenCustLedgerEntry.FindFirst();
         OpenCustLedgerEntry.Rename(SalesCrMemoHeader."Cust. Ledger Entry No.");
 
         // Verify
@@ -806,7 +806,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         NewSalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateAndCancelPostedCrMemo(CancelledSalesCrMemoHeader, NewSalesInvoiceHeader);
         CancelledDocument.Get(DATABASE::"Sales Cr.Memo Header", CancelledSalesCrMemoHeader."No.");
 
@@ -828,7 +828,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
         SetAllowManualDisc;
 
@@ -855,7 +855,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGuid: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGuid, SalesHeader."Document Type"::"Credit Memo");
         CreatePostedCrMemoNoDiscount(SalesCrMemoHeader);
@@ -882,7 +882,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         UpdateSalesCrMemoAggregate(SalesCrMemoEntityBuffer, TempFieldBuffer);
 
@@ -909,7 +909,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCrMemoWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false);
         UpdateSalesCrMemoAggregate(SalesCrMemoEntityBuffer, TempFieldBuffer);
@@ -937,7 +937,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGuid: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGuid, SalesHeader."Document Type"::"Credit Memo");
         SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false);
@@ -959,7 +959,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreatePostedCrMemoNoDiscount(SalesCrMemoHeader);
         LibrarySales.SetAllowDocumentDeletionBeforeDate(SalesCrMemoHeader."Posting Date" + 1);
@@ -984,7 +984,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
         UpdateSalesCrMemoLineAggregate(TempSalesInvoiceLineAggregate, TempFieldBuffer);
@@ -1007,7 +1007,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
@@ -1036,11 +1036,11 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
         GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
-        TempSalesInvoiceLineAggregate.FindFirst;
+        TempSalesInvoiceLineAggregate.FindFirst();
         UpdateSalesCrMemoLineAggregate(TempSalesInvoiceLineAggregate, TempFieldBuffer);
 
         // Execute
@@ -1065,11 +1065,11 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ExpectedGUID: Guid;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
         GraphMgtSalCrMemoBuf.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
-        TempSalesInvoiceLineAggregate.FindFirst;
+        TempSalesInvoiceLineAggregate.FindFirst();
 
         // Execute
         GraphMgtSalCrMemoBuf.PropagateDeleteLine(TempSalesInvoiceLineAggregate);
@@ -1133,7 +1133,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
     local procedure CreateCrMemoWithOneLineThroughTestPage(var SalesCreditMemo: TestPage "Sales Credit Memo"; Customer: Record Customer; Item: Record Item)
     begin
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer."No.");
 
         CreateLineThroughTestPage(SalesCreditMemo, Item."No.");
@@ -1224,7 +1224,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         NewSalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesInvoiceHeader."Bill-to Customer No.");
-        NewSalesCrMemoHeader.FindLast;
+        NewSalesCrMemoHeader.FindLast();
     end;
 
     local procedure CreateAndCancelPostedCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var NewSalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1235,7 +1235,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateAndCancelPostedInvoice(SalesInvoiceHeader, SalesCrMemoHeader);
         CancelPostedSalesCrMemo.CancelPostedCrMemo(SalesCrMemoHeader);
         NewSalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesCrMemoHeader."Bill-to Customer No.");
-        NewSalesInvoiceHeader.FindLast;
+        NewSalesInvoiceHeader.FindLast();
     end;
 
     local procedure CreateAndMarkPostedCrMemoAsPaid(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -1268,7 +1268,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
@@ -1290,7 +1290,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateInvoiceWithRandomNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer)
@@ -1444,7 +1444,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         RecRef.Open(SourceTableID);
         TargetTableRecRef.Open(TempField.TableNo);
 
-        TempField.FindFirst;
+        TempField.FindFirst();
 
         repeat
             SourceTableFieldRef := RecRef.Field(TempField."No.");
@@ -1460,7 +1460,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         RecRef.Open(TableID);
 
         TempField.Reset();
-        TempField.FindFirst;
+        TempField.FindFirst();
 
         repeat
             Assert.IsFalse(
@@ -1559,8 +1559,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         if LinesRecordRef.Count = 0 then
             exit;
 
-        TempSalesInvoiceLineAggregate.FindFirst;
-        LinesRecordRef.FindFirst;
+        TempSalesInvoiceLineAggregate.FindFirst();
+        LinesRecordRef.FindFirst();
         repeat
             VerifyLineValuesMatch(LinesRecordRef, TempSalesInvoiceLineAggregate, SalesCrMemoEntityBuffer.Posted);
             TempSalesInvoiceLineAggregate.Next;
@@ -1584,7 +1584,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         if Posted then
             FilterOutFieldsMissingOnSalesCrMemoLine(TempField);
-        TempField.FindFirst;
+        TempField.FindFirst();
         repeat
             AggregateLineFieldRef := SourceRecordRef.Field(TempField."No.");
             SourceFieldRef := SourceRecordRef.Field(TempField."No.");
@@ -1895,7 +1895,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);

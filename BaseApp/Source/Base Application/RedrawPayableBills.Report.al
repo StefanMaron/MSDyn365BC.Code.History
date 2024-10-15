@@ -111,7 +111,7 @@ report 7000083 "Redraw Payable Bills"
 
                 if "Currency Code" <> '' then begin
                     Currency.SetFilter(Code, "Currency Code");
-                    Currency.FindFirst;
+                    Currency.FindFirst();
                     if SumLCYAmt <> 0 then begin
                         if SumLCYAmt > 0 then begin
                             Currency.TestField("Residual Gains Account");
@@ -457,7 +457,7 @@ report 7000083 "Redraw Payable Bills"
         VendLedgEntry2.SetRange("Document No.", VendLedgEntry."Document No.");
         VendLedgEntry2.SetRange("Document Type", VendLedgEntry."Document Type");
         VendLedgEntry2.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
-        if VendLedgEntry2.FindFirst then begin
+        if VendLedgEntry2.FindFirst() then begin
             OnBeforeVendFindVATSetup(VendLedgEntry2);
             ExistVATNOReal := GenJnlPostLine.VendFindVATSetup(VATPostingSetup, VendLedgEntry2, false);
         end;

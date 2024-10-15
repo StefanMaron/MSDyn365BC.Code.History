@@ -611,7 +611,7 @@ report 212 "Sales Prepmt. Document Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not LineDimSetEntry.FindSet then
+                                if not LineDimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -675,7 +675,7 @@ report 212 "Sales Prepmt. Document Test"
 
                         if not DimMgt.CheckDimIDComb(TempPrepmtInvLineBuf."Dimension Set ID") then
                             AddError(DimMgt.GetDimCombErr);
-                        TableID[1] := DimMgt.TypeToTableID3(TempSalesLine.Type::"G/L Account".AsInteger());
+                        TableID[1] := DimMgt.SalesLineTypeToTableID(TempSalesLine.Type::"G/L Account");
                         No[1] := "Prepayment Inv. Line Buffer"."G/L Account No.";
                         TableID[2] := DATABASE::Job;
                         No[2] := "Prepayment Inv. Line Buffer"."Job No.";

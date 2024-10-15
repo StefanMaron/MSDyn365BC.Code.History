@@ -1290,7 +1290,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 399176] Stan cannot assign "01 General" value for the "Special Scheme Code" in the VAT Posting Setup when "SII Exemption Code" of the related VAT clause is "E2"
 
-        Initialize;
+        Initialize();
         VATClauseCode :=
           LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21");
         Commit;
@@ -1316,7 +1316,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [UI] [Sales]
         // [SCENARIO 399176] Stan cannot assign "01 General" value for the "Special Scheme Code" in the VAT Posting Setup when "SII Exemption Code" of the related VAT clause is "E3"
 
-        Initialize;
+        Initialize();
         VATClauseCode :=
           LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22");
         Commit;
@@ -1342,8 +1342,8 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [UI] [Sales] [Purchase]
         // [SCENARIO 399176] Stan can access "Sales Special Scheme Code" and "Purch. Special Scheme Code" fields in the VAT Posting Setup list and card pages
 
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         VATPostingSetup.OpenView;
         Assert.IsTrue(VATPostingSetup."Sales Special Scheme Code".Visible, 'Special scheme code field is not visible');
         Assert.IsTrue(VATPostingSetup."Purch. Special Scheme Code".Visible, 'Special scheme code field is not visible');
@@ -1366,7 +1366,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [Sales]
         // [SCENARIO 399176] Special scheme codes specified in the VAT Posting Setup assign to the sales document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with three lines
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
@@ -1397,7 +1397,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
         SIISalesDocumentSchemeCode.SetRange("Document No.", DocNo);
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
-        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField(
           "Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"03 Special System");
         SIISalesDocumentSchemeCode.Next;
@@ -1417,7 +1417,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [Sales]
         // [SCENARIO 399176] Both Special scheme codes specified in the VAT Posting Setup and default "02 Export" code of the VAT exemption assign to the sales document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with two lines
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "01"
@@ -1442,7 +1442,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
         SIISalesDocumentSchemeCode.SetRange("Document No.", DocNo);
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
-        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"01 General");
         SIISalesDocumentSchemeCode.Next;
         SIISalesDocumentSchemeCode.TestField(
@@ -1461,7 +1461,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [Service]
         // [SCENARIO 399176] Special scheme codes specified in the VAT Posting Setup assign to the service document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Ser invoice with three lines
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
@@ -1493,7 +1493,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
         SIISalesDocumentSchemeCode.SetRange("Document No.", ServiceInvoiceHeader."No.");
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
-        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"03 Special System");
         SIISalesDocumentSchemeCode.Next;
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"04 Gold");
@@ -1512,7 +1512,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [Service]
         // [SCENARIO 399176] Both Special scheme codes specified in the VAT Posting Setup and default "02 Export" code of the VAT exemption assign to the service document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with two lines
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "01"
@@ -1538,7 +1538,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
         SIISalesDocumentSchemeCode.SetRange("Document No.", ServiceInvoiceHeader."No.");
         Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
-        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.FindSet();
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"01 General");
         SIISalesDocumentSchemeCode.Next;
         SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export");
@@ -1556,7 +1556,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [FEATURE] [Purchase]
         // [SCENARIO 399176] Special scheme codes specified in the VAT Posting Setup assign to the Purchase document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase invoice with three lines
         // [GIVEN] First line has VAT Posting Setup with "Purch. Special Scheme Code" = "03"
@@ -1586,7 +1586,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIIPurchDocSchemeCode.SetRange("Document Type", SIIPurchDocSchemeCode."Document Type"::"Posted Invoice");
         SIIPurchDocSchemeCode.SetRange("Document No.", DocNo);
         Assert.RecordCount(SIIPurchDocSchemeCode, 2);
-        SIIPurchDocSchemeCode.FindSet;
+        SIIPurchDocSchemeCode.FindSet();
         SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"03 Special System");
         SIIPurchDocSchemeCode.Next;
         SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"04 Gold");

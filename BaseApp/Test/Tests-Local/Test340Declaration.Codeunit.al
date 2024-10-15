@@ -37,7 +37,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Sales Invoice posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -54,7 +54,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -72,7 +72,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -90,7 +90,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -108,7 +108,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -125,7 +125,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -143,7 +143,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -161,7 +161,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -179,7 +179,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = TRUE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Purchase Invoice
@@ -196,7 +196,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = TRUE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Purchase Credit Memo
@@ -213,7 +213,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = TRUE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Payment
@@ -230,7 +230,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = TRUE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Refund
@@ -247,7 +247,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        Initialize;
+        Initialize();
         // 3.1. Setup of own VAT Cash Regime Deactivate CAC
         // Own VAT Cash Regime can only be TRUE when Unrealized VAT is TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -276,7 +276,7 @@ codeunit 147315 "Test 340 Declaration"
         // The attempt to set VAT Cash Regime to TRUE when Unrealized is FALSE sets Unrealized to TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
-        Initialize;
+        Initialize();
 
         // [WHEN] General Ledger Setup.VAT Cash Regime is set to TRUE
         with GeneralLedgerSetup do begin
@@ -296,7 +296,7 @@ codeunit 147315 "Test 340 Declaration"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
         // 3.3. Setup of the vendor's VAT Cash Regime - positive scenario
 
         // The peer's Unrealized VAT cannot be unset while VAT Cash Regime is active
@@ -307,7 +307,7 @@ codeunit 147315 "Test 340 Declaration"
 
         // [GIVEN] VAT Posting Setup Line.Unrealized VAT Type = Percentage
         with VATPostingSetup do begin
-            FindFirst;
+            FindFirst();
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
 
             // [GIVEN] The same line has VAT Cash Regime = TRUE
@@ -329,7 +329,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
         // 3.4. Setup of the vendor's VAT Cash Regime - Negative Scenario
 
         // The attempt to set VAT Cash Regime to TRUE when Unrealized is FALSE yields an error
@@ -337,7 +337,7 @@ codeunit 147315 "Test 340 Declaration"
         // [GIVEN] VAT Posting Setup Line.Unrealized VAT Type = ' '
         with VATPostingSetup do begin
             SetRange("Unrealized VAT Type", "Unrealized VAT Type"::" ");
-            FindFirst;
+            FindFirst();
 
             // [WHEN] General Ledger Setup.VAT Cash Regime is attempted to be set to TRUE
             asserterror Validate("VAT Cash Regime", true);
@@ -353,7 +353,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -371,7 +371,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -389,7 +389,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -407,7 +407,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -425,7 +425,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -443,7 +443,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -461,7 +461,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -479,7 +479,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Our company is not under VAT Cash Regime. Customer document is posted
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -497,7 +497,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = FALSE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Purchase Invoice
@@ -514,7 +514,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = FALSE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Purchase Credit Memo
@@ -531,7 +531,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = FALSE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Payment
@@ -548,7 +548,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] VAT Posting Setup X has VAT Cash Regime = FALSE
         // [GIVEN] X has Unrealized VAT set up
         // [GIVEN] Y is Refund
@@ -567,7 +567,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -590,7 +590,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -613,7 +613,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -636,7 +636,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -659,7 +659,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -682,7 +682,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -705,7 +705,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = TRUE
@@ -727,7 +727,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Invoices with unrealized VAT but not in VAT Cash Regime are not propagated to 340 file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = FALSE
@@ -748,7 +748,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Invoices with unrealized VAT but not in VAT Cash Regime are not propagated to 340 file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = FALSE
@@ -769,7 +769,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Invoices with unrealized VAT but not in VAT Cash Regime are not propagated to 340 file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = FALSE
@@ -790,7 +790,7 @@ codeunit 147315 "Test 340 Declaration"
     var
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
         // Invoices with unrealized VAT but not in VAT Cash Regime are not propagated to 340 file
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = FALSE
@@ -812,7 +812,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to file, Unrealized is TRUE
         // [GIVEN] VAT Entry Line X with an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = FALSE
@@ -835,7 +835,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to file, Unrealized is FALSE
         // [GIVEN] VAT Entry Line X withOUT an Unrealized VAT Entry
         // [GIVEN] X has VAT Cash Regime = FALSE
@@ -862,7 +862,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         // [FEATURE] [VAT Cash Regime] [UT]
         // [SCENARIO 377818] VAT Cash payments are exported with zero amounts in 340 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Cash Regime" = TRUE
         // [GIVEN] Payment (february) applied to Invoice (january). Total Amount Including VAT = "X".
@@ -894,7 +894,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         // [FEATURE] [VAT Cash Regime] [UT]
         // [SCENARIO 377818] VAT Cash invoices are exported with actual amounts in 340 file
-        Initialize;
+        Initialize();
 
         for DocumentType := VATEntry."Document Type"::Invoice to VATEntry."Document Type"::Reminder do begin
             // [GIVEN] VAT Posting Setup with "VAT Cash Regime" = TRUE
@@ -929,7 +929,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         // [FEATURE] [VAT Cash Regime] [UT]
         // [SCENARIO 377818] VAT Cash payment is exported with zero amounts and invoice with amounts in 340 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Cash Regime" = TRUE
         // [GIVEN] Payment applied to Invoice in the same period. VAT % = "Z", VAT Base = "X", VAT Amount = "Y".
@@ -964,7 +964,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         // [FEATURE] [Unrealized VAT] [UT]
         // [SCENARIO 377818] Unrealized VAT payment applied to invoice is exported with amounts in 340 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Posting Setup with "VAT Cash Regime" = FALSE
         // [GIVEN] Payment applied to Invoice in the same period. VAT % = "Z", VAT Base = "X", VAT Amount = "Y".
@@ -1004,7 +1004,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         // [FEATURE] [VAT Cash Regime] [Unrealized VAT] [UT]
         // [SCENARIO 377818] Normal VAT, Unrealized VAT and VAT Cash payment with invoices are correctly exported to 340 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] Normal VAT Invoice "I1": VAT % = "Z1", VAT Base = "X1", VAT Amount = "Y1".
         CreateVATEntry(NormalInvVATEntry, NormalInvVATEntry."Document Type"::Invoice);
@@ -1051,7 +1051,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
         Filename: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // Full scenario type Z is propagated to 340 file
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1074,7 +1074,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchaseInvoice: Report "Purchase - Invoice";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1094,7 +1094,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchaseCreditMemo: Report "Purchase - Credit Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1113,7 +1113,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceHeader: Record "Service Header";
         ServiceOrder: Report "Service Order";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1132,7 +1132,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceInvoice: Report "Service - Invoice";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1152,7 +1152,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCreditMemo: Report "Service - Credit Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1171,7 +1171,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchaseHeader: Record "Purchase Header";
         "Order": Report "Order";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1190,7 +1190,7 @@ codeunit 147315 "Test 340 Declaration"
         IssuedReminderHeader: Record "Issued Reminder Header";
         Reminder: Report Reminder;
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1210,7 +1210,7 @@ codeunit 147315 "Test 340 Declaration"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         FinanceChargeMemo: Report "Finance Charge Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = TRUE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1230,7 +1230,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchaseInvoice: Report "Purchase - Invoice";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1250,7 +1250,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchaseCreditMemo: Report "Purchase - Credit Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1269,7 +1269,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceHeader: Record "Service Header";
         ServiceOrder: Report "Service Order";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1288,7 +1288,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceInvoice: Report "Service - Invoice";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1308,7 +1308,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCreditMemo: Report "Service - Credit Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1327,7 +1327,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchaseHeader: Record "Purchase Header";
         "Order": Report "Order";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1346,7 +1346,7 @@ codeunit 147315 "Test 340 Declaration"
         IssuedReminderHeader: Record "Issued Reminder Header";
         Reminder: Report Reminder;
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1366,7 +1366,7 @@ codeunit 147315 "Test 340 Declaration"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         FinanceChargeMemo: Report "Finance Charge Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = TRUE
@@ -1386,7 +1386,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchaseInvoice: Report "Purchase - Invoice";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1406,7 +1406,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchaseCreditMemo: Report "Purchase - Credit Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1425,7 +1425,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceHeader: Record "Service Header";
         ServiceOrder: Report "Service Order";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1444,7 +1444,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceInvoice: Report "Service - Invoice";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1464,7 +1464,7 @@ codeunit 147315 "Test 340 Declaration"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceCreditMemo: Report "Service - Credit Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1483,7 +1483,7 @@ codeunit 147315 "Test 340 Declaration"
         PurchaseHeader: Record "Purchase Header";
         "Order": Report "Order";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1502,7 +1502,7 @@ codeunit 147315 "Test 340 Declaration"
         IssuedReminderHeader: Record "Issued Reminder Header";
         Reminder: Report Reminder;
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1522,7 +1522,7 @@ codeunit 147315 "Test 340 Declaration"
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         FinanceChargeMemo: Report "Finance Charge Memo";
     begin
-        Initialize;
+        Initialize();
         // VAT Cash Regime text is not printed
         // [GIVEN] General Ledger Setup.VAT Cash Regime = FALSE
         // [GIVEN] General Ledger Setup.Unrealized VAT = FALSE
@@ -1544,7 +1544,7 @@ codeunit 147315 "Test 340 Declaration"
         FileName: Text[1024];
     begin
         // [SCENARIO 328188] Run "Make 340 Declaration" report on Customer with long Name.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry Line for Customer with Name, that has length 100.
         CreateUnrealizedVATEntry(VATEntry, VATEntry."Document Type"::Invoice, true);
@@ -1571,7 +1571,7 @@ codeunit 147315 "Test 340 Declaration"
         Filename: Text[1024];
     begin
         // [SCENARIO 328188] Run "Make 340 Declaration" report on Customer with long Name.
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Entry Line.
         // [GIVEN] Current Company has Name with length 100.
@@ -1591,7 +1591,7 @@ codeunit 147315 "Test 340 Declaration"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Library340347Declaration.SetupVATType(false, false);
         DeleteObjectOptionsIfNeeded;
     end;
@@ -1725,7 +1725,7 @@ codeunit 147315 "Test 340 Declaration"
         ReminderHeader.SetRange("No.", ReminderHeader."No.");
         REPORT.Run(REPORT::"Issue Reminders", false, true, ReminderHeader);
         IssuedReminderHeader.SetFilter("Pre-Assigned No.", ReminderHeader."No.");
-        IssuedReminderHeader.FindFirst;
+        IssuedReminderHeader.FindFirst();
 
         FindVATEntry(VATEntry, IssuedReminderHeader."No.", VATEntry."Document Type"::Reminder);
     end;
@@ -1758,7 +1758,7 @@ codeunit 147315 "Test 340 Declaration"
         // Issue Finance Charge
         REPORT.Run(REPORT::"Issue Finance Charge Memos", false, true, FinanceChargeMemoHeader);
         IssuedFinChargeMemoHeader.SetFilter("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
-        IssuedFinChargeMemoHeader.FindFirst;
+        IssuedFinChargeMemoHeader.FindFirst();
 
         FindVATEntry(VATEntry, IssuedFinChargeMemoHeader."No.", VATEntry."Document Type"::"Finance Charge Memo");
     end;
@@ -1913,8 +1913,8 @@ codeunit 147315 "Test 340 Declaration"
             "Posting Date" := PostingDate;
             "Document Type" := DocumentType;
             Type := Type::Sale;
-            "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
+            "Document No." := LibraryUtility.GenerateGUID();
             "VAT %" := LibraryRandom.RandIntInRange(15, 20);
             "EC %" := LibraryRandom.RandIntInRange(5, 10);
             "VAT Cash Regime" := UseVATCashRegime;
@@ -1965,7 +1965,7 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Posting Date", WorkDate);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure Find340FileLineAmounts(Filename: Text; LineNo: Integer; var DocumentNo: Code[20]; var VATPercentage: Decimal; var Amounts: array[3] of Decimal; var CollectionAmount: Decimal)

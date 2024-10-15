@@ -61,7 +61,7 @@ codeunit 147316 "Test 347 Declaration"
         FileName: Text[1024];
         InvoiceAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = FALSE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
@@ -84,7 +84,7 @@ codeunit 147316 "Test 347 Declaration"
         CustomerNo: Code[20];
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = FALSE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
@@ -108,7 +108,7 @@ codeunit 147316 "Test 347 Declaration"
         FileName: Text[1024];
         InvoiceAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
@@ -131,7 +131,7 @@ codeunit 147316 "Test 347 Declaration"
         CustomerNo: Code[20];
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
@@ -155,7 +155,7 @@ codeunit 147316 "Test 347 Declaration"
         FileName: Text[1024];
         InvoiceAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
@@ -178,7 +178,7 @@ codeunit 147316 "Test 347 Declaration"
         VendorNo: Code[20];
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = FALSE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = FALSE
@@ -201,7 +201,7 @@ codeunit 147316 "Test 347 Declaration"
         CustomerNo: Code[20];
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = TRUE
@@ -226,7 +226,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363492] AnnualAmount is not exported for not paid VAT Cash Sales Invoice
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = TRUE
@@ -250,7 +250,7 @@ codeunit 147316 "Test 347 Declaration"
         VendorNo: Code[20];
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = TRUE
@@ -275,7 +275,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 363492] AnnualAmount is not exported for not paid VAT Cash Purchase Invoice
-        Initialize;
+        Initialize();
         // VATEntry."VAT Cash Regime" = TRUE values are propagated correctly to 347 lines
         // [GIVEN] VAT Entry Line X Unrealized = TRUE
         // [GIVEN] VAT Entry Line X has VAT Cash Regime = TRUE
@@ -301,7 +301,7 @@ codeunit 147316 "Test 347 Declaration"
         FileName: Text[1024];
         ExpectedVATCashAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Two lines for the same peer are summed up
         // [GIVEN] VAT Entry Lines X, Y for the same peer with Unrealized = TRUE
         // [GIVEN] VAT Entry Lines X, Y have VAT Cash Regime = TRUE
@@ -331,7 +331,7 @@ codeunit 147316 "Test 347 Declaration"
         VATCashAmountCust1: Decimal;
         VATCashAmountCust2: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Two lines for different peers are not summed up
         // [GIVEN] VAT Entry Lines X, Y for different peers with Unrealized = TRUE
         // [GIVEN] VAT Entry Lines X, Y have VAT Cash Regime = TRUE
@@ -362,7 +362,7 @@ codeunit 147316 "Test 347 Declaration"
         FileName: Text[1024];
         VATCashAmountCurrentYear: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Two lines for the same peer in different years are not summed up
         // [GIVEN] VAT Entry Lines X, Y for the same peer with Unrealized = TRUE, the line dates are in different years
         // [GIVEN] VAT Entry Lines X, Y have VAT Cash Regime = TRUE
@@ -389,7 +389,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [SCENARIO 264656] Blank value exports for Reverse Charge VAT Entry
 
-        Initialize;
+        Initialize();
         // Multi-line Reverse charge
         // [GIVEN] VAT Entry Line X having "VAT Calculation Type" = Reverse Charge
         // [GIVEN] VAT Entry Line Y having "VAT Calculation Type" = Reverse Charge
@@ -416,7 +416,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [SCENARIO 264656] Blank value exports with multiple VAT entries for different customer, one with Reverse Charge VAT Entry
 
-        Initialize;
+        Initialize();
         // Multi-line Reverse charge
         // [GIVEN] VAT Entry Line X having "VAT Calculation Type" = Reverse Charge
         // [GIVEN] VAT Entry Line Y having "VAT Calculation Type" = Normal
@@ -443,7 +443,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [SCENARIO 264656] Blank value exports with multiple VAT entries for same customer, one with Reverse Charge VAT Entry
 
-        Initialize;
+        Initialize();
         // Multi-line combined Reverse Charge and Normal
         // [GIVEN] VAT Entry Line X having "VAT Calculation Type" = Reverse Charge
         // [GIVEN] VAT Entry Line Y having "VAT Calculation Type" = Normal VAT
@@ -468,7 +468,7 @@ codeunit 147316 "Test 347 Declaration"
         CustomerNo: Code[20];
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // VAT other than Reverse Charge
         // [GIVEN] VAT Entry Line X having "VAT Calculation Type" = Normal VAT (or other than Reverse Charve)
         CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, true);
@@ -491,12 +491,12 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363481] Quarter Amount for Sales Invoice in VAT Cash Regime shows zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with VAT Cash Regime
         CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, true);
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", CustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -516,12 +516,12 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 363481] Quarter Amount for Purchase Invoice in VAT Cash Regime shows zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with VAT Cash Regime
         CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
         PurchInvHeader.SetRange("Pay-to Vendor No.", VendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         // [WHEN] The user runs "Make 347 Declaration report"
         FileName := RunMake347DeclarationReport;
@@ -544,7 +544,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363492] Annual Amount for Sales VAT Cash Invoice shows applied payment amount within reporting period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice inside reporting period with amount = "X"
         InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate, true, true);
@@ -582,7 +582,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363492] Annual Amount for Sales VAT Cash Invoice out of period shows applied payment amount within reporting period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice out of reporting period with amount = "X"
         InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate), true, true);
@@ -619,7 +619,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 363492] Annual Amount for Purchase VAT Cash Invoice shows applied payment amount within reporting period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice inside reporting period with amount = "X"
         InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
@@ -656,7 +656,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 363492] Annual Amount for Purchase VAT Cash Invoice out of period shows applied payment amount within reporting period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice inside reporting period with amount = "X"
         InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
@@ -695,7 +695,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 363719] Reverse Charge VAT is exported in separate line from VAT Cash and Normal Purchase Invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Paid VAT Cash Purchase Invoice with amount = "C"
         VATCashAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate, true, true);
@@ -743,7 +743,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 363492] Out of Period Purchase Invoice and in period Payment without Cash Regime are not exported
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice without Cash Regime out of reporting period
         InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, CalcDate('<-1Y>', WorkDate), false, false);
@@ -783,7 +783,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363492] Out of Period Sales Invoice and in period Payment without Cash Regime are not exported
-        Initialize;
+        Initialize();
         OldGeneralLedgerSetupVATCashRegime := SetGeneralLedgerSetupVATCashRegime(false);
         // [GIVEN] Sales Invoice without Cash Regime out of reporting period
         InvoiceAmount := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, CalcDate('<-1Y>', WorkDate), false, false);
@@ -901,7 +901,7 @@ codeunit 147316 "Test 347 Declaration"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Library347Declaration.Init347DeclarationParameters(Test347DeclarationParameter);
         if IsInitialized then
             exit;
@@ -953,7 +953,7 @@ codeunit 147316 "Test 347 Declaration"
     begin
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
-        ExternalDocumentNo := LibraryUtility.GenerateGUID;
+        ExternalDocumentNo := LibraryUtility.GenerateGUID();
         Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", PostingDate, Amount, ExternalDocumentNo);
         VendorNo := Vendor."No.";
     end;
@@ -966,7 +966,7 @@ codeunit 147316 "Test 347 Declaration"
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, UseUnrealizedVAT, UseVATCashRegime);
         Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Vendor.Modify(true);
-        ExternalDocumentNo := LibraryUtility.GenerateGUID;
+        ExternalDocumentNo := LibraryUtility.GenerateGUID();
         Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", PostingDate, Amount, ExternalDocumentNo);
     end;
 
@@ -976,7 +976,7 @@ codeunit 147316 "Test 347 Declaration"
         ExtDocumentNo: Code[20];
     begin
         Library340347Declaration.CreateReverseChargeVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group");
-        ExtDocumentNo := LibraryUtility.GenerateGUID;
+        ExtDocumentNo := LibraryUtility.GenerateGUID();
         Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 147316 "Test 347 Declaration"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", CustomerNo);
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
         exit(SalesInvoiceHeader."No.");
     end;
 
@@ -1011,7 +1011,7 @@ codeunit 147316 "Test 347 Declaration"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Pay-to Vendor No.", VendorNo);
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
         exit(PurchInvHeader."No.");
     end;
 

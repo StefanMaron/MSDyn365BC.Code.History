@@ -17,7 +17,7 @@ report 10715 "Telematic VAT Declaration"
                 trigger OnAfterGetRecord()
                 begin
                     VATDeclarationName.SetRange(Name, "Statement Name");
-                    if not VATDeclarationName.FindFirst then
+                    if not VATDeclarationName.FindFirst() then
                         Error(Text1100005);
 
                     CalcTotLine("VAT Declaration Line", TotalAmount, 0);
@@ -141,10 +141,10 @@ report 10715 "Telematic VAT Declaration"
 
         TemplateTransfFormat.Reset();
         TemplateTransfFormat.SetRange("VAT Statement Name", "VAT Declaration Line"."Statement Name");
-        if TemplateTransfFormat.FindSet then
+        if TemplateTransfFormat.FindSet() then
             repeat
                 TransferenceFormat.SetRange("VAT Statement Name", TemplateTransfFormat."VAT Statement Name");
-                if TransferenceFormat.FindSet then
+                if TransferenceFormat.FindSet() then
                     repeat
                         if TemplateTransfFormat.Box = TransferenceFormat.Box then begin
                             TemplateTransfFormat.Value := TransferenceFormat.Value;
@@ -266,7 +266,7 @@ report 10715 "Telematic VAT Declaration"
                         else
                             "VAT Declaration Line".CopyFilter("Date Filter", VATEntry."Posting Date");
                     SetSelectionFilterOnVATEntry(VATEntry, Selection);
-                    if VATEntry.FindFirst then;
+                    if VATEntry.FindFirst() then;
                     case VATStatementLine2."Amount Type" of
                         VATStatementLine2."Amount Type"::Amount:
                             begin
@@ -371,7 +371,7 @@ report 10715 "Telematic VAT Declaration"
                         else
                             "VAT Declaration Line".CopyFilter("Date Filter", VATEntry."Posting Date");
                     SetSelectionFilterOnVATEntry(VATEntry, Selection);
-                    if VATEntry.FindFirst then;
+                    if VATEntry.FindFirst() then;
                     case VATStatementLine2."Amount Type" of
                         VATStatementLine2."Amount Type"::Amount:
                             begin
@@ -513,7 +513,7 @@ report 10715 "Telematic VAT Declaration"
         File: File;
         OutStream: OutStream;
     begin
-        TransFormat.FindLast;
+        TransFormat.FindLast();
         Clear(File);
         File.WriteMode(true);
         File.TextMode(false);

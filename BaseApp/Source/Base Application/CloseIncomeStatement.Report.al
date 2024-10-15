@@ -330,7 +330,7 @@ report 94 "Close Income Statement"
             EndDateReq := 0D;
             AccountingPeriod.SetRange("New Fiscal Year", true);
             AccountingPeriod.SetRange("Date Locked", true);
-            if AccountingPeriod.FindLast then begin
+            if AccountingPeriod.FindLast() then begin
                 EndDateReq := AccountingPeriod."Starting Date" - 1;
                 if not ValidateEndDate(false) then
                     EndDateReq := 0D;
@@ -343,9 +343,9 @@ report 94 "Close Income Statement"
                 GLAccountCategory.SetRange("Account Category", GLAccountCategory."Account Category"::Equity);
                 GLAccountCategory.SetRange(
                   "Additional Report Definition", GLAccountCategory."Additional Report Definition"::"Retained Earnings");
-                if GLAccountCategory.FindFirst then begin
+                if GLAccountCategory.FindFirst() then begin
                     GLAccount.SetRange("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
-                    if GLAccount.FindFirst then
+                    if GLAccount.FindFirst() then
                         RetainedEarningsGLAcc."No." := GLAccount."No.";
                 end;
             end;
@@ -590,7 +590,7 @@ report 94 "Close Income Statement"
         DimSetEntry: Record "Dimension Set Entry";
     begin
         DimSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 DimBuf."Table ID" := DATABASE::"G/L Entry";
                 DimBuf."Entry No." := EntryNo;

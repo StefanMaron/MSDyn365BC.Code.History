@@ -175,7 +175,7 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         OnBeforeExecutePendingRequestsPerDocument(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsInvokeSoapRequest, SIISessionId);
         TempSIIHistoryBuffer.SetRange("Document State Id", SIIDocUploadState.Id);
-        if TempSIIHistoryBuffer.FindSet then
+        if TempSIIHistoryBuffer.FindSet() then
             repeat
                 TempSIIHistoryBuffer."Session Id" := SIISessionId;
                 if not TryGenerateXml(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsSupported, Message) then begin
@@ -354,7 +354,7 @@ codeunit 10752 "SII Doc. Upload Management"
                         RequestType := RequestType::CollectionInCashRegistration;
                     end else begin
                         CustLedgerEntry.SetRange("Entry No.", SIIDocUploadState."Entry No");
-                        if not CustLedgerEntry.FindFirst then begin
+                        if not CustLedgerEntry.FindFirst() then begin
                             Session.LogMessage('0000CNV', StrSubstNo(GeneratingXmlErrMsg, NoCustLedgerEntryErr), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
                             Error(NoCustLedgerEntryErr);
                         end;
@@ -367,7 +367,7 @@ codeunit 10752 "SII Doc. Upload Management"
             SIIDocUploadState."Document Source"::"Vendor Ledger":
                 begin
                     VendorLedgerEntry.SetRange("Entry No.", SIIDocUploadState."Entry No");
-                    if VendorLedgerEntry.FindFirst then begin
+                    if VendorLedgerEntry.FindFirst() then begin
                         RequestType := RequestType::InvoiceReceivedRegistration;
                         IsSupported :=
                           SIIXMLCreator.GenerateXml(
@@ -380,7 +380,7 @@ codeunit 10752 "SII Doc. Upload Management"
             SIIDocUploadState."Document Source"::"Detailed Customer Ledger":
                 begin
                     DetailedCustLedgEntry.SetRange("Entry No.", SIIDocUploadState."Entry No");
-                    if DetailedCustLedgEntry.FindFirst then begin
+                    if DetailedCustLedgEntry.FindFirst() then begin
                         RequestType := RequestType::PaymentReceivedRegistration;
                         IsSupported :=
                           SIIXMLCreator.GenerateXml(
@@ -393,7 +393,7 @@ codeunit 10752 "SII Doc. Upload Management"
             SIIDocUploadState."Document Source"::"Detailed Vendor Ledger":
                 begin
                     DetailedVendorLedgEntry.SetRange("Entry No.", SIIDocUploadState."Entry No");
-                    if DetailedVendorLedgEntry.FindFirst then begin
+                    if DetailedVendorLedgEntry.FindFirst() then begin
                         RequestType := RequestType::PaymentSentRegistration;
                         IsSupported :=
                           SIIXMLCreator.GenerateXml(
@@ -420,7 +420,7 @@ codeunit 10752 "SII Doc. Upload Management"
         with SIIHistory do begin
             SetCurrentKey(Status, "Is Manual");
             SetHistoryFilters(SIIHistory, IsManual);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempSIIHistoryBuffer := SIIHistory;
                     TempSIIHistoryBuffer.Insert();
@@ -433,7 +433,7 @@ codeunit 10752 "SII Doc. Upload Management"
         SIIHistory: Record "SII History";
     begin
         TempSIIHistoryBuffer.Reset();
-        if TempSIIHistoryBuffer.FindSet then begin
+        if TempSIIHistoryBuffer.FindSet() then begin
             SetHistoryFilters(SIIHistory, IsManual);
             if SIIHistory.FindSet(true) then
                 repeat
@@ -466,7 +466,7 @@ codeunit 10752 "SII Doc. Upload Management"
 
     local procedure ProcessBatchResponseCommunicationError(var TempSIIHistoryBuffer: Record "SII History" temporary; ErrorMessage: Text[250])
     begin
-        if TempSIIHistoryBuffer.FindSet then
+        if TempSIIHistoryBuffer.FindSet() then
             repeat
                 TempSIIHistoryBuffer.ProcessResponseCommunicationError(ErrorMessage);
             until TempSIIHistoryBuffer.Next() = 0;
@@ -474,7 +474,7 @@ codeunit 10752 "SII Doc. Upload Management"
 
     local procedure ProcessBatchResponse(var TempSIIHistoryBuffer: Record "SII History" temporary)
     begin
-        if TempSIIHistoryBuffer.FindSet then
+        if TempSIIHistoryBuffer.FindSet() then
             repeat
                 TempSIIHistoryBuffer.ProcessResponse;
             until TempSIIHistoryBuffer.Next() = 0;
@@ -487,7 +487,7 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         TempXMLBuffer[1].LoadFromText(ResponseText);
         TempXMLBuffer[1].SetFilter(Name, 'RespuestaLinea');
-        if TempXMLBuffer[1].FindSet then
+        if TempXMLBuffer[1].FindSet() then
             repeat
                 if SIIDocUploadState."Transaction Type" = SIIDocUploadState."Transaction Type"::"Collection In Cash" then
                     ProcessResponseCollectionInCash(SIIDocUploadState, TempSIIHistoryBuffer, TempXMLBuffer[2], TempXMLBuffer[1]."Entry No.")
@@ -525,7 +525,7 @@ codeunit 10752 "SII Doc. Upload Management"
             else
                 if SIIDocUploadState."Document Source" = SIIDocUploadState."Document Source"::"Customer Ledger" then
                     SIIDocUploadState.SetRange("Document No.", DocumentNo);
-            Found := SIIDocUploadState.FindFirst;
+            Found := SIIDocUploadState.FindFirst();
             if (not Found) and
                (SIIDocUploadState."Document Source" in [SIIDocUploadState."Document Source"::"Customer Ledger",
                                                         SIIDocUploadState."Document Source"::"Vendor Ledger"])
@@ -533,11 +533,11 @@ codeunit 10752 "SII Doc. Upload Management"
                 SIIDocUploadState.SetRange("External Document No.");
                 SIIDocUploadState.SetRange("Document No.");
                 SIIDocUploadState.SetRange("Corrected Doc. No.", DocumentNo);
-                Found := SIIDocUploadState.FindFirst;
+                Found := SIIDocUploadState.FindFirst();
             end;
             if Found then begin
                 TempSIIHistoryBuffer.SetRange("Document State Id", SIIDocUploadState.Id);
-                if TempSIIHistoryBuffer.FindFirst then begin
+                if TempSIIHistoryBuffer.FindFirst() then begin
                     XMLParseDocumentResponse(TempXMLBuffer, TempSIIHistoryBuffer, ParentEntryNo);
                     TempSIIHistoryBuffer.ProcessResponse;
                 end;
@@ -551,7 +551,7 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         if XMLParseCustData(TempXMLBuffer, SIIDocUploadState, ParentEntryNo) then begin
             TempSIIHistoryBuffer.SetRange("Document State Id", SIIDocUploadState.Id);
-            if TempSIIHistoryBuffer.FindFirst then begin
+            if TempSIIHistoryBuffer.FindFirst() then begin
                 XMLParseDocumentResponse(TempXMLBuffer, TempSIIHistoryBuffer, ParentEntryNo);
                 TempSIIHistoryBuffer.ProcessResponse;
             end;
@@ -566,10 +566,10 @@ codeunit 10752 "SII Doc. Upload Management"
         with XMLBuffer do begin
             SetRange("Parent Entry No.", ParentEntryNo);
             SetRange(Name, 'IDFactura');
-            if FindFirst then begin
+            if FindFirst() then begin
                 SetRange("Parent Entry No.", "Entry No.");
                 SetRange(Name, 'NumSerieFacturaEmisor');
-                if FindFirst then
+                if FindFirst() then
                     exit(CopyStr(Value, 1, 35));
             end;
         end;
@@ -579,13 +579,13 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
         XMLBuffer.SetFilter(Name, 'EstadoRegistro');
-        if XMLBuffer.FindFirst then
+        if XMLBuffer.FindFirst() then
             case XMLBuffer.Value of
                 'Incorrecto':
                     begin
                         SIIHistory.Status := SIIHistory.Status::Incorrect;
                         XMLBuffer.SetFilter(Name, 'DescripcionErrorRegistro');
-                        if XMLBuffer.FindFirst then
+                        if XMLBuffer.FindFirst() then
                             SIIHistory."Error Message" := CopyStr(XMLBuffer.Value, 1, MaxStrLen(SIIHistory."Error Message"));
                     end;
                 'Correcto':
@@ -594,7 +594,7 @@ codeunit 10752 "SII Doc. Upload Management"
                     begin
                         SIIHistory.Status := SIIHistory.Status::"Accepted With Errors";
                         XMLBuffer.SetFilter(Name, 'DescripcionErrorRegistro');
-                        if XMLBuffer.FindFirst then
+                        if XMLBuffer.FindFirst() then
                             SIIHistory."Error Message" := CopyStr(XMLBuffer.Value, 1, MaxStrLen(SIIHistory."Error Message"));
                     end;
                 else
@@ -646,7 +646,7 @@ codeunit 10752 "SII Doc. Upload Management"
     local procedure XMLParseErrorCode(var XMLBuffer: Record "XML Buffer"; var SIIHistory: Record "SII History")
     begin
         XMLBuffer.SetFilter(Name, 'faultcode');
-        if XMLBuffer.FindFirst then
+        if XMLBuffer.FindFirst() then
             if StrPos(XMLBuffer.Value, 'Server') > 0 then
                 // error is probably on the SII website side
                 SIIHistory.Status := SIIHistory.Status::Failed
@@ -658,7 +658,7 @@ codeunit 10752 "SII Doc. Upload Management"
             SIIHistory.Status := SIIHistory.Status::Failed;
 
         XMLBuffer.SetFilter(Name, 'faultstring');
-        if XMLBuffer.FindFirst then
+        if XMLBuffer.FindFirst() then
             SIIHistory."Error Message" := CopyStr(XMLBuffer.Value, 1, MaxStrLen(SIIHistory."Error Message"))
     end;
 

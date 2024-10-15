@@ -43,7 +43,7 @@ codeunit 144131 "UT REP VAT Statement"
         // Purpose of the test is to validate Customer - OnAfterGetRecord Trigger of Report - 10742 Test VAT Registration Number.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Enqueue value for handler - TestVATRegistrationNumberRequestPageHandler.
@@ -71,7 +71,7 @@ codeunit 144131 "UT REP VAT Statement"
         // Purpose of the test is to validate Vendor - OnAfterGetRecord Trigger of Report - 10742 Test VAT Registration Number.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
 
         // Enqueue value for handler - TestVATRegistrationNumberRequestPageHandler.
@@ -97,7 +97,7 @@ codeunit 144131 "UT REP VAT Statement"
         Contact: Record Contact;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateContact(Contact);
 
         // Enqueue value for handler
@@ -123,7 +123,7 @@ codeunit 144131 "UT REP VAT Statement"
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         Customer."VAT Registration No." := 'I3256173P';
         Customer.Modify();
@@ -151,7 +151,7 @@ codeunit 144131 "UT REP VAT Statement"
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         Customer."VAT Registration No." := 'K5163241V';
         Customer.Modify();
@@ -174,7 +174,7 @@ codeunit 144131 "UT REP VAT Statement"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
 
         if IsInitialized then

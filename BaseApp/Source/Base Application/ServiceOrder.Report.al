@@ -155,7 +155,7 @@ report 5900 "Service Order"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -427,7 +427,7 @@ report 5900 "Service Order"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -687,7 +687,7 @@ report 5900 "Service Order"
             exit;
         CACCaptionLbl := '';
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 if VATPostingSetup.Get(ServiceHeader."VAT Bus. Posting Group", ServiceLine."VAT Prod. Posting Group") then
                     if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then

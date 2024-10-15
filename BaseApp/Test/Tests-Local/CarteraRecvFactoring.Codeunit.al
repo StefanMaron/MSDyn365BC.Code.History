@@ -41,7 +41,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraReceivables.CreateFactoringCustomer(Customer, LocalCurrencyCode);
@@ -68,7 +68,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         DocumentNo: Code[20];
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(true, false, false);
@@ -273,7 +273,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.ModifyAll(SalesLine."Line Discount %", 0, true);
         SalesLine.ModifyAll(SalesLine."Line Discount Amount", 0, true);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
 
@@ -312,7 +312,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         BGPostAndPrint: Codeunit "BG/PO-Post and Print";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraReceivables.CreateFactoringCustomer(Customer, LocalCurrencyCode);
@@ -345,7 +345,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CurrencyCode := LibraryCarteraCommon.CreateCarteraCurrency(true, false, false);
@@ -513,7 +513,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.ModifyAll(SalesLine."Line Discount %", 0, true);
         SalesLine.ModifyAll(SalesLine."Line Discount Amount", 0, true);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
 
@@ -563,7 +563,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         BGPostAndPrint: Codeunit "BG/PO-Post and Print";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraReceivables.CreateFactoringCustomer(Customer, LocalCurrencyCode);
@@ -608,7 +608,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         DocumentNo: Code[20];
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraReceivables.CreateFactoringCustomer(Customer, LocalCurrencyCode);
@@ -644,7 +644,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         RejectionFeeAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionSetupAndPostBillGroupWithCollection(BillGroup, BillGroup.Factoring::Unrisked, TotalAmount, ExpectedVATAmount);
@@ -670,7 +670,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         RejectionFeeAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionSetupAndPostBillGroupWithCollection(BillGroup, BillGroup.Factoring::Risked, TotalAmount, ExpectedVATAmount);
@@ -699,7 +699,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         RejectionFeeAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Percentage := 50;
 
@@ -735,7 +735,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         PurchaseVATAccount: Code[20];
         ExpectedVATAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesVATAccount, PurchaseVATAccount);
@@ -767,7 +767,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         ExpectedVATAmount: Decimal;
         Percentage: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Percentage := 50;
 
@@ -806,7 +806,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         ExpectedVATAmount: Decimal;
         ExpectedDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RejectionSetupAndPostBillGroupWithDiscount(
@@ -839,7 +839,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         ExpectedVATAmount: Decimal;
         ExpectedDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Percentage := 50;
 
@@ -877,7 +877,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         ExpectedVATAmount: Decimal;
         ExpectedDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryCarteraCommon.SetupUnrealizedVAT(SalesVATAccount, PurchaseVATAccount);
@@ -912,7 +912,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         Percentage: Decimal;
         ExpectedDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Percentage := 50;
 
@@ -943,7 +943,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     var
         CarteraSetup: Record "Cartera Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
         LocalCurrencyCode := '';
 
@@ -989,7 +989,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenNew;
+        BillGroups.OpenNew();
 
         BillGroups."Dealing Type".SetValue(DealingType);
         BillGroups.Factoring.SetValue(Factoring);
@@ -1046,7 +1046,7 @@ codeunit 147533 "Cartera Recv. Factoring"
 
         PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         PostedBillGroups.Docs.GotoRecord(PostedCarteraDoc);
     end;
@@ -1058,7 +1058,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         OperationFee.SetRange(Code, OperationCode);
         OperationFee.SetRange("Type of Fee", TypeofFee);
 
-        if not OperationFee.FindFirst then
+        if not OperationFee.FindFirst() then
             exit(0);
 
         exit(OperationFee."Charge Amt. per Operation");
@@ -1071,7 +1071,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         FeeRange.SetRange(Code, BillGroup."Bank Account No.");
         FeeRange.SetRange("Currency Code", BillGroup."Currency Code");
         FeeRange.SetRange("Type of Fee", FeeRange."Type of Fee"::"Rejection Expenses");
-        FeeRange.FindFirst;
+        FeeRange.FindFirst();
         RejectionFeeAmount := TotalAmount * FeeRange."Charge % per Doc." / 100 + FeeRange."Charge Amount per Doc.";
     end;
 
@@ -1108,7 +1108,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         BillGroup.SetRange("No.", BillGroup."No.");
         BillGroupExportFactoring.SetTableView(BillGroup);
         BillGroupExportFactoring.SetSilentMode(FileName);
-        BillGroupExportFactoring.RunModal;
+        BillGroupExportFactoring.RunModal();
     end;
 
     local procedure PostCarteraJnl(var CarteraJournal: TestPage "Cartera Journal")
@@ -1212,7 +1212,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Lines
         ClosedCarteraDoc.SetRange(Type, ClosedCarteraDoc.Type::Receivable);
         ClosedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", ClosedBillGroup."No.");
-        ClosedCarteraDoc.FindFirst;
+        ClosedCarteraDoc.FindFirst();
 
         Assert.AreEqual(PostedCarteraDoc."Document No.", ClosedCarteraDoc."Document No.",
           'Document no. is wrong on the Closed Cartera Doc.');
@@ -1241,7 +1241,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         GLEntry: Record "G/L Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Transaction No.", GLRegister."No.");
 
         GLEntry.Find('-');
@@ -1319,7 +1319,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     begin
         PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         PostedBillGroup.Get(BillGroup."No.");
         PostedBillGroups.OpenEdit;
@@ -1334,7 +1334,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     begin
         PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
         PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
-        PostedCarteraDoc.FindFirst;
+        PostedCarteraDoc.FindFirst();
 
         PostedBillGroup.Get(BillGroup."No.");
         PostedBillGroups.OpenEdit;

@@ -474,6 +474,11 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Prepayment Order No.';
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -654,7 +659,7 @@ table 114 "Sales Cr.Memo Header"
                 SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
                 SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::"Credit Memo");
                 SIIDocUploadState.SetRange("Document No.", "No.");
-                if SIIDocUploadState.FindFirst then begin
+                if SIIDocUploadState.FindFirst() then begin
                     SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
                     PAGE.Run(PAGE::"SII History", SIIHistory);
                 end;
@@ -899,7 +904,7 @@ table 114 "Sales Cr.Memo Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure LookupAdjmtValueEntries()

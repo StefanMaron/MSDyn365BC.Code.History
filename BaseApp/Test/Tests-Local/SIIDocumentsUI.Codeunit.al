@@ -477,7 +477,7 @@ codeunit 147521 "SII Documents - UI"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 

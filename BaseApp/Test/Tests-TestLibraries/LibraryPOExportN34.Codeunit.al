@@ -87,7 +87,7 @@ codeunit 143012 "Library - PO - Export N34"
 
         PaymentOrder.SetRange("No.", PaymentOrderNo);
         PaymentOrderExportN34.SetTableView(PaymentOrder);
-        PaymentOrderExportN34.RunModal;
+        PaymentOrderExportN34.RunModal();
 
         exit(FileName);
     end;

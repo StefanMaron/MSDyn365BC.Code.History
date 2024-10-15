@@ -193,7 +193,7 @@ page 7000060 "Closed Payment Orders"
                     Option: Integer;
                 begin
                     Navigate.SetDoc("Posting Date", "No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

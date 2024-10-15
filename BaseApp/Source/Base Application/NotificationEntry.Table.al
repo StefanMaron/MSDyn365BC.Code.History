@@ -110,22 +110,6 @@ table 1511 "Notification Entry"
         NoUserSetupTelemetryTxt: Label 'No User Setup, cannot create notification', Locked = true;
         NoValidRecordTelemetryTxt: Label 'Not a valid record, cannot create notification', Locked = true;
 
-#if not CLEAN17
-    [Obsolete('Replaced by CreateNoficicationEntry().', '17.0')]
-    procedure CreateNew(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250])
-    begin
-        CreateNotificationEntry(
-            "Notification Entry Type".FromInteger(NewType), NewUserID, NewRecord, NewLinkTargetPage, NewCustomLink, '');
-    end;
-
-    [Obsolete('Replaced by CreateNoficicationEntry().', '17.0')]
-    procedure CreateNewEntry(NewType: Option "New Record",Approval,Overdue; RecipientUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
-    begin
-        CreateNotificationEntry(
-            "Notification Entry Type".FromInteger(NewType), RecipientUserID, NewRecord, NewLinkTargetPage, NewCustomLink, NewSenderUserID);
-    end;
-#endif
-
     procedure CreateNotificationEntry(NewType: Enum "Notification Entry Type"; RecipientUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
     var
         NotificationSchedule: Record "Notification Schedule";

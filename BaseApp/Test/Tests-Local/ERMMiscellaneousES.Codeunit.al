@@ -122,7 +122,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Purpose of this test to verify updates Name, VAT Registration No. in Report 10704 - Sales Invoice Book when Name, VAT Registration No. was set in Service Invoice and not in Customer.
 
         // Setup: Post Service Invoice and Service Credit Memo.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CompanyInformation."Country/Region Code");
         CreateAndPostServiceDocument(
@@ -153,8 +153,8 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Report] [Sales] [Sales Invoice Book]
         // [SCENARIO 230147] When "Sales Invoice Book" report is run then "External Document No." from Posted Sales Invoice is shown in the corresponding report column
-        Initialize;
-        ExternalDocNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        ExternalDocNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Posted Sales Invoice with External Document No. = "XX"
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -184,8 +184,8 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [SCENARIO 230147] When "Purchases Invoice Book" report is run then "Vendor Invoice No." from Posted Purchase Invoice is shown in the corresponding report column
         // [SCENARIO 261472] "Document Date" includes the dataset of the "Purchase Invoice Book" report
 
-        Initialize;
-        ExternalDocNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        ExternalDocNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Posted Purchase Invoice with External Document No. = "XX" and "Document Date" = "Y"
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
@@ -214,7 +214,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Purpose of this test to verify that the report BOM - Raw Materials is displaying the correct output.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Commit();  // Commit is required.
         LibraryVariableStorage.Enqueue(Item."Base Unit of Measure");  // Enqueue value for AssemblyBOMRawMaterialsRequestPageHandler.
@@ -244,7 +244,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [SCENARIO] Purpose of this test to verify the CONSISTENSE of Vendor Ledger Entries after partial posting of the Purchase Invoice with Payment Discount.
 
         // Setup: Post Purchase Order with Payment Discount.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         GeneralLedgerSetup.Get();
         PurchasesPayablesSetup.Get();
@@ -277,7 +277,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Purpose of this test to verify values on Aged Accounts Receivable report after Sales Order posting.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo);
         CreateAndPostSalesDocument(SalesLine2, SalesLine."Sell-to Customer No.");
 
@@ -303,7 +303,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Purpose of this test to verify that Amount (LCY) stats and Remaining Amount (LCY) stats are correct in customer ledger entries after reversing payment.
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
@@ -327,7 +327,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Purpose of this test to verify that Amount (LCY) stats and Remaining Amount (LCY) stats are correct in vendor ledger entries after reversing payment.
         // Setup.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         DocumentNo := CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::Vendor, CreateVendor, Amount, '', WorkDate);  // Using blank value for ShortcutDimensionOneCode.
 
@@ -354,7 +354,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Purpose of this test to verify that Item charge with Line Discount is correctly assigned to Item Cost.
 
         // Setup: Post Purchase Order with Charge Item.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -393,10 +393,10 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase Invoice] [Posted Shipment] [Item Charge] [Line Discount] [Payment Discount Type]
         // [SCENARIO 382480] When purchase item charge with a discount is assigned to a sales shipment, its cost should be added to the purchased item as non-inventoriable cost, not as actual cost.
-        Initialize;
+        Initialize();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        VendorNo := LibraryPurchase.CreateVendorNo();
         GLSetup.Get();
         UpdateGeneralLedgerSetup(
           GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines", GLSetup."Discount Calculation"::" ",
@@ -469,7 +469,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, 0);  // Using 0 for Payment Discount Percent.
@@ -528,7 +528,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, 0);  // Using 0 for Payment Discount Percent.
         PurchaseHeader.Get(DocumentType, PurchaseLine."Document No.");
 
@@ -554,7 +554,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Purpose of this test case to verify that VAT Amount field is correctly updated on Sales Invoice Statistics window when Max. VAT difference allowed" to 0,02.
 
         // Setup: Create Sales Invoice with multiple line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         VATDifference := 0.02;  // Value required for test case.
         UpdateGeneralLedgerSetup(
@@ -589,7 +589,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Purpose of this test to verify program populate Profit % field values on 5 decimal places instead of 6 decimal places in Item Card.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         Item.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
@@ -613,7 +613,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [VAT] [Country/Region]
         // [SCENARIO 351578] "VAT Country/Region Code" is taken from "Bill-to Country/Region Code" when "Bill-to Customer No." <> "Sell-to Customer No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "A" with "Country/Region Code" = "X"
         // [GIVEN] Customer "B" with "Country/Region Code" = "Y", "Bill-to Customer No." = "A"
@@ -643,7 +643,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [VAT] [Country/Region]
         // [SCENARIO 375654] "VAT Country/Region Code" is taken from "Ship-to Code" info
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "A" with "Country/Region Code" = "X"
         // [GIVEN] Ship-to Address "B" for Customer "A" with "Country/Region Code" = "Y"
@@ -673,7 +673,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         AccountType: Option Heading,Posting;
     begin
         // Purpose of this test to verify values on Official Acc. Summarized Book report with Account Type as Posting.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
         FindAndUpdateGLAccountWithAccountTypeAsHeading(GLAccountNo);
         OfficialAccSummarizedBookRptWithAccountType(AccountType::Posting, GLAccountNo, GLAccountNo);
@@ -690,7 +690,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         AccountType: Option Heading,Posting;
     begin
         // Purpose of this test to verify values on Official Acc. Summarized Book report with Account Type as Heading.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
         GLAccountNo2 := FindAndUpdateGLAccountWithAccountTypeAsHeading(GLAccountNo);
         OfficialAccSummarizedBookRptWithAccountType(AccountType::Heading, GLAccountNo, GLAccountNo2);
@@ -704,7 +704,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         CreateAndPostGeneralJournalLine(
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', AccountingPeriod."Starting Date");  // Using blank value for ShortcutDimensionOneCode.
 
@@ -731,7 +731,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         GLAccountNo2: Code[20];
     begin
         // Purpose of this test to verify values on Trial Balance report with Account Type as Posting.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
         GLAccountNo2 := CreateGLAccountWithAccountType(GLAccount."Account Type"::Heading, GLAccountNo);
         TrialBalanceReportWithAccountTypeFilter(GLAccountNo, GLAccountNo2, GLAccountNo, GLAccount."Account Type"::Posting, 0); // 0 indicates Posting option of Account Type
@@ -747,7 +747,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         GLAccountNo2: Code[20];
     begin
         // Purpose of this test to verify values on Trial Balance report with Account Type as Heading.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
         GLAccountNo2 := CreateGLAccountWithAccountType(GLAccount."Account Type"::Heading, GLAccountNo);
         TrialBalanceReportWithAccountTypeFilter(GLAccountNo, GLAccountNo2, GLAccountNo2, GLAccount."Account Type"::Heading, 1); // 1 indicates Heading option of Account Type
@@ -783,7 +783,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         Amount: Decimal;
     begin
         // Purpose of this test to verify values on Trial Balance report with Include Closing Entries and Dimension Code.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         TrialBalanceReportWithIncludeClosingEntries(GetDimensionValueCode, Amount, 2 * Amount);  // Taking sum of amounts for two entries with Dimension Code.
     end;
@@ -796,7 +796,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         Amount: Decimal;
     begin
         // Purpose of this test to verify values on Trial Balance report with Include Closing Entries and without Dimension Code.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         TrialBalanceReportWithIncludeClosingEntries('', Amount, 4 * Amount);  // Using blank value for DepartmentFilter and taking sum of amounts for all the four entries.
     end;
@@ -811,7 +811,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Setup: Post General Journal Lines with different Shortcut Dimension Codes and Posting Date.
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         PostingDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");  // Using -1D as required for the test case.
         GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');  // Using blank value for Totaling.
         CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount, '', PostingDate);  // Using blank value for ShortcutDimensionOneCode.
@@ -851,7 +851,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [SCENARIO] Unapply Payment Vendor Ledger Entry from simple Invoice
 
         // [GIVEN] Create and post Purchase Invoice, Create and post Gen Journal Line. Apply Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor, 0);  // Using 0 for PaymentDiscountPct.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Ship and Invoice.
@@ -892,7 +892,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [SCENARIO] Unapply Payment Customer Ledger Entry from simple Invoice
 
         // [GIVEN] Create and post Sales Invoice, Create and post Gen Journal Line. Apply Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo);
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
@@ -929,7 +929,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PostedDocNo: Code[20];
     begin
         // [SCENARIO] Check Pmt. Discount amount on Purchase Credit Memo after CopyDocument function
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -967,8 +967,8 @@ codeunit 144072 "ERM Miscellaneous ES"
         PostedDocNo: Code[20];
     begin
         // [SCENARIO] Check Pmt. Discount amount on Sales Credit Memo after CopyDocument function
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines",
@@ -1000,10 +1000,10 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account] [Suggest Vendor Payments]
         // [SCENARIO 380970] Suggest vendor payments after posted order with prepayment in case of blank Vendor."Preferred Bank Account Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = ""
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Purchase Order with prepayment percent. PurchaseHeader."Vendor Bank Acc. Code" has default value "" from vendor card.
         CreatePurchaseOrderWithPrepmtPct(PurchaseHeader, VendorNo);
         // [GIVEN] Post Prepayment Invoice. Post Order.
@@ -1029,7 +1029,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account] [Suggest Vendor Payments]
         // [SCENARIO 380970] Suggest vendor payments after posted order with prepayment in case of Vendor."Preferred Bank Account Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = "A"
         VendorNo := CreateVendorWithPreferredBankAccount(VendorPreferredBankAccountCode);
@@ -1058,10 +1058,10 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account] [Suggest Vendor Payments]
         // [SCENARIO 380970] Suggest vendor payments after posted order with prepayment in case of blank Vendor."Preferred Bank Account Code" and PurchaseHeader."Vendor Bank Acc. Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = ""
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Purchase Order with prepayment percent. Change PurchaseHeader."Vendor Bank Acc. Code" = "B"
         CreatePurchaseOrderWithPrepmtPct(PurchaseHeader, VendorNo);
         // [GIVEN] Post Prepayment Invoice. Post Order.
@@ -1088,7 +1088,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account] [Suggest Vendor Payments]
         // [SCENARIO 380970] Suggest vendor payments after posted order with prepayment in case of Vendor."Preferred Bank Account Code" and blank PurchaseHeader."Vendor Bank Acc. Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = "A"
         VendorNo := CreateVendorWithPreferredBankAccount(VendorPreferredBankAccountCode);
@@ -1119,7 +1119,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account] [Suggest Vendor Payments]
         // [SCENARIO 380970] Suggest vendor payments after posted order with prepayment in case of Vendor."Preferred Bank Account Code" and changed PurchaseHeader."Vendor Bank Acc. Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = "A"
         VendorNo := CreateVendorWithPreferredBankAccount(VendorPreferredBankAccountCode);
@@ -1148,10 +1148,10 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 380970] Posted Sales Order with prepayment in case of blank Customer."Preferred Bank Account Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = ""
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Sales Order with prepayment percent. SalesHeader."Cust. Bank Acc. Code" has default value "" from customer card.
         CreateSalesOrderWithPrepmtPct(SalesHeader, CustomerNo);
 
@@ -1173,7 +1173,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 380970] Posted Sales Order with prepayment in case of Customer."Preferred Bank Account Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = "A"
         CustomerNo := CreateCustomerWithPreferredBankAccount(CustomerPreferredBankAccountCode);
@@ -1197,10 +1197,10 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 380970] Posted Sales Order with prepayment in case of blank Customer."Preferred Bank Account Code" and SalesHeader."Cust. Bank Acc. Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = ""
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Sales Order with prepayment percent. Change SalesHeader."Cust. Bank Acc. Code" = "B"
         CreateSalesOrderWithPrepmtPct(SalesHeader, CustomerNo);
 
@@ -1222,7 +1222,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 380970] Posted Sales Order with prepayment in case of Customer."Preferred Bank Account Code" and blank SalesHeader."Cust. Bank Acc. Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = "A"
         CustomerNo := CreateCustomerWithPreferredBankAccount(CustomerPreferredBankAccountCode);
@@ -1248,7 +1248,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 380970] Posted Sales Order with prepayment in case of Customer."Preferred Bank Account Code" and changed SalesHeader."Cust. Bank Acc. Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = "A"
         CustomerNo := CreateCustomerWithPreferredBankAccount(CustomerPreferredBankAccountCode);
@@ -1277,7 +1277,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 381322] "Recipient Bank Account" in Payment Journal Line should match to "Recipient Bank Account" in applied document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = "A" and one more Customer Bank Account = "B"
         CustomerNo := CreateCustomerWithPreferredBankAccount(CustomerPreferredBankAccNo);
@@ -1306,7 +1306,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Sales] [Customer Bank Account]
         // [SCENARIO 381322] "Recipient Bank Account" in Payment Journal Line should match to "Preferred Bank Account Code" when clear applied document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Preferred Bank Account Code" = "A" and one more Customer Bank Account = "B"
         CustomerNo := CreateCustomerWithPreferredBankAccount(CustomerPreferredBankAccNo);
@@ -1338,7 +1338,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account]
         // [SCENARIO 381322] "Recipient Bank Account" in Payment Journal Line should match to "Recipient Bank Account" in applied sales document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = "A" and one more Vendor Bank Account = "B"
         VendorNo := CreateVendorWithPreferredBankAccount(VendorPreferredBankAccNo);
@@ -1367,7 +1367,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Vendor Bank Account]
         // [SCENARIO 381322] "Recipient Bank Account" in Payment Journal Line should match to "Preferred Bank Account Code" when clear applied purchase document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Preferred Bank Account Code" = "A" and one more Vendor Bank Account = "B"
         VendorNo := CreateVendorWithPreferredBankAccount(VendorPreferredBankAccNo);
@@ -1402,7 +1402,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [FEATURE] [Purchase] [VAT] [Post Payment Discount]
         // [SCENARIO 204097] VAT Base does not include "Payment Discount" when post Purchase Order with "Post Payment Discount" option in "Purchases & Payables Setup"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Post Payment Discount" is "Yes" in "Purchases & Payables Setup"
         PurchasesPayablesSetup.Get();
@@ -1450,7 +1450,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [FEATURE] [Sales] [VAT] [Post Payment Discount]
         // [SCENARIO 204097] VAT Base does not include "Payment Discount" when post Sales Order with "Post Payment Discount" option in "Sales & Receivables Setup"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Post Payment Discount" is "Yes" in "Sales & Receivables Setup"
         SalesReceivablesSetup.Get();
@@ -1492,7 +1492,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [FEATURE] [Correct Posted Invoice] [Invoice] [Purchase]
         // [SCENARIO 222227] An error when try Correct closed posted purchase invoice:
         // [SCENARIO 222227] "You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice for vendor with payment method having "Create Bills" = TRUE
         PurchInvHeader.Get(
@@ -1517,7 +1517,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [FEATURE] [Cancelled Document] [Invoice] [Purchase]
         // [SCENARIO 222227] An error when try Cancel closed posted purchase invoice:
         // [SCENARIO 222227] "You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice for vendor with payment method having "Create Bills" = TRUE
         PurchInvHeader.Get(
@@ -1542,7 +1542,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [FEATURE] [Correct Posted Invoice] [Invoice] [Sales]
         // [SCENARIO 222227] An error when try Correct closed posted sales invoice:
         // [SCENARIO 222227] "You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice for customer with payment method having "Create Bills" = TRUE
         SalesInvoiceHeader.Get(
@@ -1567,7 +1567,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [FEATURE] [Cancelled Document] [Invoice] [Sales]
         // [SCENARIO 222227] An error when try Cancel closed posted sales invoice:
         // [SCENARIO 222227] "You cannot perform this action for closed or partially paid entries, nor for any entries that are created with the Cartera module."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice for customer with payment method having "Create Bills" = TRUE
         SalesInvoiceHeader.Get(
@@ -1592,7 +1592,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Autoinvoice] [Reverse Charge] [Archive]
         // [SCENARIO 223004] Posted purchase invoice has filled "Autoinvoice No." value in case of Reverse Charge and "Archive Orders" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchases & Payables Setup "Archive Orders" = TRUE
         LibraryPurchase.SetArchiveOrders(true);
@@ -1619,7 +1619,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Purchase] [Autoinvoice] [Reverse Charge] [Archive]
         // [SCENARIO 223004] Posted purchase invoice has filled "Autoinvoice No." value in case of Reverse Charge and "Archive Orders" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchases & Payables Setup "Archive Orders" = FALSE
         LibraryPurchase.SetArchiveOrders(false);
@@ -1648,12 +1648,12 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [FEATURE] [Report] [G/L Balance]
         // [SCENARIO 278929] Trial Balance report with Include Opening Entries and Accumulate Balance options only counts opening entries once
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(1000, 2);
 
         // [GIVEN] An accounting period
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
 
         // [GIVEN] A G/L Account with type = posting
         GLAccountNo := CreateGLAccountWithAccountType(GLAccount."Account Type"::Posting, '');
@@ -1677,8 +1677,8 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -1722,7 +1722,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", SalesLine);
     end;
 
@@ -1785,7 +1785,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         BankAccount.SetRange(Blocked, false);
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -2157,7 +2157,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     local procedure PostPurchasePrepaymentInvoiceAndOrder(PurchaseHeader: Record "Purchase Header")
     begin
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -2209,7 +2209,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         with SalesShipmentLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2218,7 +2218,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -2229,7 +2229,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         GeneralLedgerSetup.Get();
         DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         exit(DimensionValue.Code);
     end;
 
@@ -2258,7 +2258,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         ReversalEntry: Record "Reversal Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
     end;
@@ -2334,7 +2334,7 @@ codeunit 144072 "ERM Miscellaneous ES"
             "Bank Payment Type"::" ");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure RunReportWithVATEntry(ReportID: Integer; DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
@@ -2352,7 +2352,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreEqual(true, CustLedgerEntry.Reversed, ReverseSignMsg);
         VerifyCustLedgEntryStats(CustLedgerEntry, Amount);
         CustLedgerEntry.Get(CustLedgerEntry."Reversed by Entry No.");
@@ -2364,7 +2364,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(true, VendorLedgerEntry.Reversed, ReverseSignMsg);
         VerifyVendLedgEntryStats(VendorLedgerEntry, Amount);
         VendorLedgerEntry.Get(VendorLedgerEntry."Reversed by Entry No.");
@@ -2391,7 +2391,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange(Open, true);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
         Assert.AreNearlyEqual(PaymentDiscountAmount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
         Assert.AreNearlyEqual(
@@ -2404,7 +2404,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Assert.AreNearlyEqual(
           LineAmount, PurchaseLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
         Assert.AreNearlyEqual(
@@ -2530,7 +2530,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
             Assert.AreNearlyEqual(
               CostAmtActual, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);

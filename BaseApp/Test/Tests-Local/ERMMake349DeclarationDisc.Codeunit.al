@@ -49,7 +49,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
         Amount := CreateAndPostSalesInvoice(CustomerNo, ItemNo);
         Amount := Amount + CreateAndPostSalesInvoice(CustomerNo, ItemNo);
-        FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID);  // Generate - File Name.
+        FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());  // Generate - File Name.
 
         // Exercise.
         RunMake349DeclarationReport(FileName);  // Open handlers - Make349DeclarationRequestPageHandler, CustomerVendorWarnings349ModalPageHandler.
@@ -80,7 +80,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         CreateAndPostSalesInvoice(CustomerNo, ItemNo);
 
         // [GIVEN] Generated File Name.
-        FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID);
+        FileName := TemporaryPath + StrSubstNo(FileNameTxt, LibraryUtility.GenerateGUID());
         Position := 58;
 
         // [WHEN] Run report 10710 - "Make 349 Declaration"
@@ -110,7 +110,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         VATregNoFormat: Record "VAT Registration No. Format";
     begin
         VATregNoFormat.SetRange(Format, FormatTxt);
-        VATregNoFormat.FindFirst;
+        VATregNoFormat.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Validate("Country/Region Code", VATregNoFormat."Country/Region Code");
@@ -155,7 +155,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
     begin
         Commit(); // Commit Required;
         Make349Declaration.InitializeRequest(FileName);
-        Make349Declaration.Run;
+        Make349Declaration.Run();
     end;
 
     local procedure VerifyAmountOnGeneratedTextFile(ExportFileName: Text; StartingPosition: Integer; ExpectedValue: Text)
@@ -189,7 +189,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         CountryRegion: Record "Country/Region";
         DeclarationMediaType: Option "Physical support",Telematic;
     begin
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Make349Declaration.FiscalYear.SetValue(Date2DMY(WorkDate, 3));
         Make349Declaration.Period.SetValue(Date2DMY(WorkDate, 2));
         Make349Declaration.ContactName.SetValue(DeclarationMediaType::Telematic);

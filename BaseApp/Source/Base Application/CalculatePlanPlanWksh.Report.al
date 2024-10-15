@@ -79,7 +79,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                 ReqLine.SetRange("Journal Batch Name", CurrWorksheetName);
                 PlanningErrorLog.SetRange("Worksheet Template Name", CurrTemplateName);
                 PlanningErrorLog.SetRange("Journal Batch Name", CurrWorksheetName);
-                ShouldSetAtStartPosition := PlanningErrorLog.FindFirst and ReqLine.FindFirst;
+                ShouldSetAtStartPosition := PlanningErrorLog.FindFirst and ReqLine.FindFirst();
                 OnOnPreDataItemOnAfterCalcShouldSetAtStartPosition(Item, PlanningErrorLog, ReqLine, SetAtStartPosition, ShouldSetAtStartPosition);
                 if ShouldSetAtStartPosition then
                     SetAtStartPosition := not Confirm(Text009);

@@ -58,7 +58,7 @@ report 10707 "Make 347 Declaration"
 
                     FilterVATEntry(VATEntry, "Posting Date", "Document Type", "Document No.", true);
 
-                    if not VATEntry.FindFirst then begin
+                    if not VATEntry.FindFirst() then begin
                         case "Document Type" of
                             "Document Type"::Invoice:
                                 CheckCustDocTypeInvoice("Cust. Ledger Entry", Customer);
@@ -125,7 +125,7 @@ report 10707 "Make 347 Declaration"
                             CustomerCashBuffer.Reset();
                             CustomerCashBuffer.SetRange("VAT Registration No.", Customer."VAT Registration No.");
                             CustomerCashBuffer.SetFilter("Operation Year", '<>%1', FiscalYear);
-                            if CustomerCashBuffer.FindSet then
+                            if CustomerCashBuffer.FindSet() then
                                 repeat
                                     CashAmountToExport := CustomerCashBuffer."Operation Amount";
                                     if CashAmountToExport >= MinAmountCash then begin
@@ -218,7 +218,7 @@ report 10707 "Make 347 Declaration"
                     CustomerLoc.SetCurrentKey("VAT Registration No.");
                     if not SIICollectionsInCash then
                         CustomerLoc.SetFilter("VAT Registration No.", '<>%1', '');
-                    if CustomerLoc.FindSet then
+                    if CustomerLoc.FindSet() then
                         repeat
                             if CustomerLoc."VAT Registration No." = '' then
                                 VATRegistrationNo := CustomerLoc."No."
@@ -258,7 +258,7 @@ report 10707 "Make 347 Declaration"
                     OperationTypeIdx := 1;
 
                     FilterVATEntry(VATEntry, "Posting Date", "Document Type", "Document No.", false);
-                    if not VATEntry.FindFirst then begin
+                    if not VATEntry.FindFirst() then begin
                         case "Document Type" of
                             "Document Type"::Invoice:
                                 CheckVendDocTypeInvoice("Vendor Ledger Entry", Vendor);
@@ -565,12 +565,7 @@ report 10707 "Make 347 Declaration"
                     if IsSilentMode then
                         FileManagement.CopyServerFile(FileName, ToTestFileName, true)
                     else
-#if not CLEAN17
-                        if Download(FileName, '', '', FileFilterTxt, ToFile) and FileManagement.IsLocalFileSystemAccessible then
-                            Message(FileSuccessfullyExportedMsg, ToFile);
-#else
                         if Download(FileName, '', '', FileFilterTxt, ToFile) then;
-#endif
                 end else begin
                     OutFile.Close;
                     Erase(FileName);
@@ -583,12 +578,7 @@ report 10707 "Make 347 Declaration"
                 if IsSilentMode then
                     FileManagement.CopyServerFile(FileName, ToTestFileName, true)
                 else
-#if not CLEAN17
-                    if Download(FileName, '', '', FileFilterTxt, ToFile) and FileManagement.IsLocalFileSystemAccessible then
-                        Message(FileSuccessfullyExportedMsg, ToFile);
-#else
                     if Download(FileName, '', '', FileFilterTxt, ToFile) then;
-#endif
             end;
         end else begin
             OutFile.Close;
@@ -691,9 +681,6 @@ report 10707 "Make 347 Declaration"
         ESCountryCodeTxt: Label 'ES', Locked = true;
         DoYouWantToContinueQst: Label 'At least one %1/%2 does not have any value in the %3 field. \Only customers or vendors with a value for %3 will be included in the file. \\Do you still want to create the 347 Declaration file?', Comment = '%1=Customer,%2=Vendor,%3=VAT Registration No.';
         FileFilterTxt: Label 'Txt Files|*.txt|All Files|*.*''', Comment = 'Please translate only "Txt Files" and "All Files". The rest of the characters should remain unchanged.';
-#if not CLEAN17
-        FileSuccessfullyExportedMsg: Label 'The 347 Declaration file has been exported successfully under %1.', Comment = '%1=file location on disk.';
-#endif
         IncorrectFiscalYearErr: Label 'Incorrect Fiscal Year.';
         IntegerTypeTxt: Label '<Integer>', Locked = true;
         LetterATxt: Label 'A', Locked = true;
@@ -858,7 +845,7 @@ report 10707 "Make 347 Declaration"
         GLAcc.Reset();
         GLAcc.SetFilter("No.", FilterString);
         GLAcc.SetRange("Ignore in 347 Report", true);
-        if GLAcc.FindFirst then
+        if GLAcc.FindFirst() then
             exit(true);
 
         exit(false);
@@ -957,7 +944,7 @@ report 10707 "Make 347 Declaration"
         Customer2.SetCurrentKey("VAT Registration No.");
         Customer2.SetFilter("No.", '<>%1', Customer."No.");
         Customer2.SetRange("VAT Registration No.", UpperCase(Customer."VAT Registration No."));
-        if Customer2.FindSet then
+        if Customer2.FindSet() then
             repeat
                 CustomerAmount := 0;
                 CustLedgEntry.SetCurrentKey("Customer No.", "Document Type");
@@ -965,11 +952,11 @@ report 10707 "Make 347 Declaration"
                 CustLedgEntry.SetRange("Posting Date", FromDate, ToDate);
                 CustLedgEntry.SetRange(
                   "Document Type", CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo");
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         FilterVATEntry(VATEntry3, CustLedgEntry."Posting Date", CustLedgEntry."Document Type",
                           CustLedgEntry."Document No.", true);
-                        if not VATEntry3.FindSet then
+                        if not VATEntry3.FindSet() then
                             case CustLedgEntry."Document Type" of
                                 CustLedgEntry."Document Type"::Invoice:
                                     CheckCustDocTypeInvoice(CustLedgEntry, Customer2);
@@ -1003,7 +990,7 @@ report 10707 "Make 347 Declaration"
         Vendor2.SetCurrentKey("VAT Registration No.");
         Vendor2.SetFilter("No.", '<>%1', Vendor."No.");
         Vendor2.SetRange("VAT Registration No.", UpperCase(Vendor."VAT Registration No."));
-        if Vendor2.FindSet then
+        if Vendor2.FindSet() then
             repeat
                 VendorAmount := 0;
                 VendorLedgerEntry.SetCurrentKey("Vendor No.", "Document Type");
@@ -1011,11 +998,11 @@ report 10707 "Make 347 Declaration"
                 VendorLedgerEntry.SetRange("Posting Date", FromDate, ToDate);
                 VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice,
                   VendorLedgerEntry."Document Type"::"Credit Memo");
-                if VendorLedgerEntry.FindSet then
+                if VendorLedgerEntry.FindSet() then
                     repeat
                         FilterVATEntry(VATEntry3, VendorLedgerEntry."Posting Date", VendorLedgerEntry."Document Type",
                           VendorLedgerEntry."Document No.", false);
-                        if not VATEntry3.FindSet then
+                        if not VATEntry3.FindSet() then
                             case VendorLedgerEntry."Document Type" of
                                 VendorLedgerEntry."Document Type"::Invoice:
                                     CheckVendDocTypeInvoice(VendorLedgerEntry, Vendor2);
@@ -1045,7 +1032,7 @@ report 10707 "Make 347 Declaration"
             SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
             SetRange("Document Type", "Document Type"::Payment);
             SetRange("Customer No.", CustomerNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     DocumentPostingDate := GetPaymentDocumentPostingDate(CustLedgerEntry);
                     if CheckCashTotalsPossibility(CustLedgerEntry, DocumentPostingDate) then
@@ -1064,7 +1051,7 @@ report 10707 "Make 347 Declaration"
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntryNo);
         DtldCustLedgEntry.SetRange(Unapplied, false);
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 if DtldCustLedgEntry."Cust. Ledger Entry No." = DtldCustLedgEntry."Applied Cust. Ledger Entry No." then begin
                     DtldCustLedgEntry2.Reset();
@@ -1073,7 +1060,7 @@ report 10707 "Make 347 Declaration"
                     DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::Application);
                     DtldCustLedgEntry2.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
                     DtldCustLedgEntry2.SetRange(Unapplied, false);
-                    if DtldCustLedgEntry2.FindSet then
+                    if DtldCustLedgEntry2.FindSet() then
                         repeat
                             if DtldCustLedgEntry2."Cust. Ledger Entry No." <>
                                DtldCustLedgEntry2."Applied Cust. Ledger Entry No."
@@ -1131,7 +1118,7 @@ report 10707 "Make 347 Declaration"
         GLEntryLoc.SetRange("Transaction No.", CustLedgerEntryParam."Transaction No.");
         GLEntryLoc.SetRange("Document No.", CustLedgerEntryParam."Document No.");
         GLEntryLoc.SetRange("Document Type", GLEntryLoc."Document Type"::Payment);
-        if GLEntryLoc.FindSet then
+        if GLEntryLoc.FindSet() then
             repeat
                 if IsCashAccount(GLEntryLoc."G/L Account No.") then
                     exit(true);
@@ -1226,7 +1213,7 @@ report 10707 "Make 347 Declaration"
         repeat
             if not TempInteger.Get(VATEntry."Transaction No.") then begin
                 GLEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-                if GLEntry.FindSet then
+                if GLEntry.FindSet() then
                     repeat
                         UpdateNotIn347Amount(GLEntry, idx);
                     until GLEntry.Next() = 0;
@@ -1313,11 +1300,11 @@ report 10707 "Make 347 Declaration"
         with CustLedgerEntryRelated do begin
             SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
             SetRange("Document Type", "Document Type"::Bill);
-            if FindFirst then begin
+            if FindFirst() then begin
                 Reset;
                 SetRange("Document No.", "Document No.");
                 SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-                if FindFirst then
+                if FindFirst() then
                     PostingDate := "Posting Date";
             end
         end;
@@ -1402,7 +1389,7 @@ report 10707 "Make 347 Declaration"
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
         DtldCustLedgEntry.SetRange("Initial Document Type", DtldCustLedgEntry."Initial Document Type"::Invoice);
         DtldCustLedgEntry.SetRange(Unapplied, false);
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 if CustLedgerEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.") then
                     if (CustLedgerEntry."Posting Date" < FromDate) or (CustLedgerEntry."Posting Date" > ToDate) then begin
@@ -1410,7 +1397,7 @@ report 10707 "Make 347 Declaration"
                           VATEntry, CustLedgerEntry."Posting Date", CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", true);
                         VATEntry.SetRange("VAT Cash Regime", true);
                         VATEntry.SetFilter("VAT Registration No.", '<>%1', '');
-                        if VATEntry.FindFirst then begin
+                        if VATEntry.FindFirst() then begin
                             TempCustLedgerEntry := CustLedgerEntry;
                             if TempCustLedgerEntry.Insert() then;
                         end;
@@ -1420,7 +1407,7 @@ report 10707 "Make 347 Declaration"
 
     local procedure ProcessPaidVATCashSalesInvoicesOutOfPeriod(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary)
     begin
-        if TempCustLedgerEntry.FindSet then
+        if TempCustLedgerEntry.FindSet() then
             repeat
                 TempCustLedgerEntry.SetRange("Date Filter");
                 TempCustLedgerEntry.CalcFields("Amount (LCY)");
@@ -1444,7 +1431,7 @@ report 10707 "Make 347 Declaration"
         DtldVendorLedgEntry.SetRange("Entry Type", DtldVendorLedgEntry."Entry Type"::Application);
         DtldVendorLedgEntry.SetRange("Initial Document Type", DtldVendorLedgEntry."Initial Document Type"::Invoice);
         DtldVendorLedgEntry.SetRange(Unapplied, false);
-        if DtldVendorLedgEntry.FindSet then
+        if DtldVendorLedgEntry.FindSet() then
             repeat
                 if VendorLedgerEntry.Get(DtldVendorLedgEntry."Vendor Ledger Entry No.") then
                     if (VendorLedgerEntry."Posting Date" < FromDate) or (VendorLedgerEntry."Posting Date" > ToDate) then begin
@@ -1452,7 +1439,7 @@ report 10707 "Make 347 Declaration"
                           VATEntry, VendorLedgerEntry."Posting Date", VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", false);
                         VATEntry.SetRange("VAT Cash Regime", true);
                         VATEntry.SetFilter("VAT Registration No.", '<>%1', '');
-                        if VATEntry.FindFirst then begin
+                        if VATEntry.FindFirst() then begin
                             TempVendorLedgerEntry := VendorLedgerEntry;
                             if TempVendorLedgerEntry.Insert() then;
                         end;
@@ -1462,7 +1449,7 @@ report 10707 "Make 347 Declaration"
 
     local procedure ProcessPaidVATCashPurchInvoicesOutOfPeriod(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
     begin
-        if TempVendorLedgerEntry.FindSet then
+        if TempVendorLedgerEntry.FindSet() then
             repeat
                 TempVendorLedgerEntry.SetRange("Date Filter");
                 TempVendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -1534,7 +1521,7 @@ report 10707 "Make 347 Declaration"
     begin
         CountryRegion.SetRange("EU Country/Region Code", '');
         CountryRegionFilter := ESCountryCodeTxt;
-        if CountryRegion.FindSet then
+        if CountryRegion.FindSet() then
             repeat
                 CountryRegionFilter += StrSubstNo('|%1', CountryRegion.Code);
             until CountryRegion.Next() = 0;

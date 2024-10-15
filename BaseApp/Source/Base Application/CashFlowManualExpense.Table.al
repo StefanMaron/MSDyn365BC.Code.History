@@ -137,14 +137,14 @@ table 850 "Cash Flow Manual Expense"
         CashFlowCode: Code[10];
     begin
         CashFlowManualExpense.SetFilter(Code, '%1', ExpTxt + '0*');
-        if not CashFlowManualExpense.FindLast then
+        if not CashFlowManualExpense.FindLast() then
             CashFlowCode := PadStr(ExpTxt, MaxStrLen(CashFlowManualExpense.Code), '0')
         else
             CashFlowCode := CashFlowManualExpense.Code;
         CashFlowCode := IncStr(CashFlowCode);
 
         CashFlowAccount.SetRange("Source Type", CashFlowAccount."Source Type"::"Cash Flow Manual Expense");
-        if not CashFlowAccount.FindFirst then
+        if not CashFlowAccount.FindFirst() then
             exit;
 
         Code := CashFlowCode;

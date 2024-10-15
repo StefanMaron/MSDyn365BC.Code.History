@@ -36,9 +36,9 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Purch. Order Approvals");
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryWorkflow.DisableAllWorkflows;
         UserSetup.DeleteAll();
@@ -66,7 +66,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [THEN] The user will get an error that he cannot post a purchase order that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
 
@@ -97,7 +97,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [THEN] The user will get an error that he cannot release a purchase order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
 
@@ -132,7 +132,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [THEN] The user will get an error that he cannot release the purchase order that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, chain the users for approval, set purchase amount limits
@@ -177,7 +177,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [THEN] The user will get an error that he cannot reopen the purchase order.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, chain the users for approval, set purchase amount limits
@@ -218,7 +218,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] A user sends the purchase order for approval and all users in the chain of approvals approve the document.
         // [THEN] The purchase order is approved and released.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -268,7 +268,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] A user sends the purchase order for approval, the first approver approves it and last approver rejects it.
         // [THEN] The purchase order is rejected and open.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -318,7 +318,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] A user sends the purchase order for approval and the first approver rejects it.
         // [THEN] The purchase order is rejected and open.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -361,7 +361,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] A user sends the purchase order for approval and then the user cancels it.
         // [THEN] The purchase order is canceled and open.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
 
@@ -397,7 +397,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] A user sends the purchase order for approval and the second user delegates the approval to the 3rd user and the last user approves it.
         // [THEN] The purchase order is approved and released.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup, PurchHeader);
         LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, FinalApproverUserSetup);
@@ -450,7 +450,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -528,7 +528,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
@@ -610,7 +610,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
         // [SCENARIO 379202] Release Purchase Order of Item when POAP workflow filtering on Fixed Asset
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workflow on Purchase Order Approval Template
         ReinitializeWorkflowsAndCreateWorkflowForPurchaseOrder(Workflow, WorkflowStep);
@@ -648,7 +648,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
         // [SCENARIO 379202] Release Purchase Order of Fixed Asset errors when POAP workflow filtering on Fixed Asset
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workflow on Purchase Order Approval Template
         ReinitializeWorkflowsAndCreateWorkflowForPurchaseOrder(Workflow, WorkflowStep);
@@ -664,11 +664,11 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         CreatePurchDocumentForFixedAsset(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandIntInRange(5000, 10000));
 
         // [GIVEN] Purchase lines in the order have a depreciation book code
-        DepreciationBook.FindFirst;
-        VATPostingSetup.FindFirst;
+        DepreciationBook.FindFirst();
+        VATPostingSetup.FindFirst();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 PurchaseLine."Depreciation Book Code" := DepreciationBook.Code;
                 PurchaseLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -704,7 +704,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Order is released.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalUserSetup, PurchaseHeader);
 
@@ -756,7 +756,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         SendDocumentForApproval(Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalUserSetup, PurchaseHeader);
 
@@ -811,7 +811,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         // [SCENARIO 395546] Purchase Order approval workflow with Over-Receipt workflow step
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Purchase Order Approval Workflow with additional Over-Receipt workflow step is enabled
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
@@ -997,7 +997,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
     local procedure VerifyPurchaseDocumentStatus(var PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField(Status, Status);
     end;
 
@@ -1128,7 +1128,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowEvent."Function Name");
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
     end;
 
     local procedure CreateOverReceiptCode(): Code[20]

@@ -1,6 +1,8 @@
 ﻿codeunit 5987 "Serv-Posting Journals Mgt."
 {
+#if not CLEAN20
     Permissions = TableData "Invoice Post. Buffer" = imd;
+#endif
 
     trigger OnRun()
     begin
@@ -319,7 +321,8 @@
         InvoicePostingInterface.PostBalancingEntry(ServiceHeader, GenJnlPostLine);
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -334,7 +337,7 @@
             CopyDocumentFields("Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
 
             CopyFromServiceHeader(ServiceHeader);
-            CopyFromInvoicePostBuffer(InvoicePostBuffer);
+            InvoicePostBuffer.CopyToGenJnlLine(GenJnlLine);
             "Gen. Posting Type" := "Gen. Posting Type"::Sale;
 
             OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
@@ -344,7 +347,8 @@
     end;
 #endif
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -373,6 +377,10 @@
             "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
             "Pmt. Discount Given/Rec. (LCY)" := -TotalServiceLineLCY."Pmt. Discount Amount";
             "System-Created Entry" := true;
+            "Orig. Pmt. Disc. Possible" := -TotalServiceLine."Pmt. Discount Amount";
+            "Orig. Pmt. Disc. Possible(LCY)" :=
+              CurrExchRate.ExchangeAmtFCYToLCY(
+                ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
 
             OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
@@ -381,7 +389,8 @@
     end;
 #endif
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -423,7 +432,7 @@
     end;
 #endif
 
-#if not CLEAN19
+#if not CLEAN20
     local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with GenJnlLine do begin
@@ -573,7 +582,7 @@
         TempValueEntryRelation.Reset();
         PassedValueEntryRelation.Reset();
 
-        if TempValueEntryRelation.FindSet then
+        if TempValueEntryRelation.FindSet() then
             repeat
                 PassedValueEntryRelation := TempValueEntryRelation;
                 PassedValueEntryRelation."Source RowId" := RowId;
@@ -632,7 +641,7 @@
                 Type::Cost:
                     begin
                         ServiceCost.SetRange(Code, "No.");
-                        ServiceCost.FindFirst;
+                        ServiceCost.FindFirst();
                         JobJnlLine.Type := JobJnlLine.Type::"G/L Account";
                         JobJnlLine."No." := ServiceCost."Account No.";
                     end;
@@ -728,40 +737,50 @@
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostInvoicePostBuffer(var GenJournalLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceHeader: Record "Service Header"; GLEntryNo: Integer; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValuesToJobJnlLine(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line")
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; GenJnlLineDocNo: Code[20])
     begin
     end;
 
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line")
     begin
     end;
 
+    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostInvoicePostBuffer(var GenJournalLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header"; ServiceLine: Record "Service Line"; GenJnlLineDocNo: Code[20]; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal)

@@ -95,7 +95,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         DocumentNo: Code[20];
     begin
         // Setup: Create Sales Document.
-        Initialize;
+        Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);  // True used for Post Line Discount.
         CreateSalesDocument(SalesLine, DocumentType, '');  // Blank - Currency Code.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -126,7 +126,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify Amounts on Sales Statistics Page on Created Sales Invoice.
 
         // Setup: Create Sales Invoice, Open Sales Invoice page and Enqueue values for SalesStatisticsModalPageHandler.
-        Initialize;
+        Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);  // True used for Post Line Discount.
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, '');  // Blank - Currency Code.
         SalesInvoice.OpenEdit;
@@ -160,7 +160,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify VAT Entry - Base, Amount and G/L Entry - Amount on Posted Sales Credit memo with Currency.
 
         // Setup: Create Sales Credit Memo with Currency.
-        Initialize;
+        Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);
         CurrencyCode := CreateCurrencyWithExchangeRate;
         OldCurrencyCode := UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(CurrencyCode);
@@ -196,7 +196,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify Amounts on Sales Credit Memo Statistics Page on Posted Sales Credit Memo with multiple lines.
 
         // Setup: Create and Post Sales Credit Memo with multiple lines.
-        Initialize;
+        Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);  // True used for Post Line Discount.
         DocumentNo := CreateAndPostSalesDocumentWithMultipleLine(SalesLine, SalesHeader."Document Type"::"Credit Memo");
         SalesCrMemoHeader.Get(DocumentNo);
@@ -228,7 +228,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify Amounts on Sales Invoice Statistics Page on Posted Sales Order with multiple lines.
 
         // Setup: Create and Post Sales Order with multiple lines.
-        Initialize;
+        Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);  // True used for Post Line Discount.
         DocumentNo := CreateAndPostSalesDocumentWithMultipleLine(SalesLine, SalesHeader."Document Type"::Order);
         SalesInvoiceHeader.Get(DocumentNo);
@@ -257,7 +257,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify VAT Entry - Base, Amount and G/L Entry - Amount on Posted Sales Invoice on General Journal with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchangeRate;
         OldCurrencyCode := UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(CurrencyCode);
 
@@ -280,7 +280,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         Amount: Decimal;
     begin
         // Test to verify G/L entry and VAT entry after posting Gen Journal Line with Currency and Reverse Charge VAT.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         PostGenJournalLineAndVerifyGLVATEntry(CreateCurrencyWithExchangeRate, Amount, Amount);
     end;
@@ -290,7 +290,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     procedure GenJournalLineReverseChargeVATWithoutCurrency()
     begin
         // Test to verify G/L entry and VAT entry after posting Gen Journal Line without Currency and Reverse Charge VAT.
-        Initialize;
+        Initialize();
         PostGenJournalLineAndVerifyGLVATEntry('', LibraryRandom.RandDec(100, 2), 0);  // Blank for Currency Code, random value for Amount, 0 for Additional Currency Base.
     end;
 
@@ -341,7 +341,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         UnitPrice: Decimal;
     begin
         // Test to verify G/L entry and VAT entry after posting Sales Credit Memo with Currency and Reverse Charge VAT.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         UnitPrice := LibraryRandom.RandDec(100, 2);
         PostSalesCreditMemoAndVerifyGLVATEntry(CreateCurrencyWithExchangeRate, Quantity, UnitPrice, Quantity * UnitPrice);
@@ -355,7 +355,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         UnitPrice: Decimal;
     begin
         // Test to verify G/L entry and VAT entry after posting Sales Credit Memo without Currency and Reverse Charge VAT.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         UnitPrice := LibraryRandom.RandDec(100, 2);
         PostSalesCreditMemoAndVerifyGLVATEntry('', Quantity, UnitPrice, 0);  // Blank for Currency Code, 0 for Additional Currency Base.
@@ -407,7 +407,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify G/L entry and VAT entry after posting Sales Credit Memo without Currency and Normal VAT.
 
         // Setup: Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         OldInvoiceRounding := UpdateInvRoundingSalesReceivablesSetup(false);  // FALSE for Invoice Rounding.
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);
 
@@ -443,7 +443,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(false);
 
         // Exercise.
@@ -470,7 +470,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 123180] Several prepayments from one sales document gives full document amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with 50% prepayment
         PrepmtInvoicesCnt := LibraryRandom.RandIntInRange(3, 5);
@@ -509,7 +509,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 123350] "Sales Prepmt. Document Test" EC Amount = prepayment EC amount for second prepayment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Amount = "A", Prepayment % = "P", "EC %" = "E"
         CreateSalesDocWithPostingSetup(SalesHeader);
@@ -546,7 +546,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         ItemUnitPrice: Decimal;
     begin
         // [SCENARIO 363582] Sales Document Posting with EC % and Prices Incl. VAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Posting Setup with EC % = 4 and VAT % = 18 specified
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -596,7 +596,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         ItemUnitPrice: Decimal;
     begin
         // [SCENARIO 363582] Sales Statistics with EC % and Prices Incl. VAT = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Posting Setup with EC % = 4 and VAT % = 18 specified
         CreateGeneralPostingSetup(GeneralPostingSetup);
@@ -647,7 +647,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 375571] Sales Document Posting with EC %; Prices Incl. VAT = TRUE and Prepayment
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Posting Setup with EC % = 4 and VAT % = 18 specified
         PrepmtGLAccNo :=
@@ -693,7 +693,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VATAmountLine: Record "VAT Amount Line";
     begin
         // [SCENARIO 379514] VAT %  of VAT Amount Line record is copied from sales line in the SalesLine.CalcVATAmountLines function
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "Reverse Charge VAT" and VAT %
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -725,7 +725,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 295191] "EC Amount" is calculated incorrectly by CalcVATAmountLines function when one of the lines has negative quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Sales Header with "Prices Including VAT" = TRUE
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -754,7 +754,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 295191] "EC Amount" is calculated incorrectly by CalcVATAmountLines function when one of the lines has negative quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Sales Header with "Prices Including VAT" = FALSE
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -775,7 +775,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure AddSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; UnitPrice: Decimal; VATPct: Decimal; ECPct: Decimal; PmtDiscountAmount: Decimal; Quantity: Decimal)
@@ -1030,7 +1030,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1156,7 +1156,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
@@ -1185,7 +1185,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);

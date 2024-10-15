@@ -288,7 +288,7 @@ page 634 "Chart of Accounts Overview"
                 Insert;
             until GLAcc.Next() = 0;
 
-        if FindFirst then;
+        if FindFirst() then;
     end;
 
     local procedure GetEndTotal(var GLAcc: Record "G/L Account"): Text[250]
@@ -298,7 +298,7 @@ page 634 "Chart of Accounts Overview"
         GLAcc2.SetFilter("No.", '>%1', GLAcc."No.");
         GLAcc2.SetRange(Indentation, GLAcc.Indentation);
         GLAcc2.SetRange("Account Type", 4);
-        if GLAcc2.FindFirst then
+        if GLAcc2.FindFirst() then
             exit(GLAcc2.Totaling);
 
         exit('');

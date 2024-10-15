@@ -433,6 +433,11 @@ table 5994 "Service Cr.Memo Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(129; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -763,7 +768,7 @@ table 5994 "Service Cr.Memo Header"
                 SIIDocUploadState.SetRange("Document Source", SIIDocUploadState."Document Source"::"Customer Ledger");
                 SIIDocUploadState.SetRange("Document Type", SIIDocUploadState."Document Type"::Invoice);
                 SIIDocUploadState.SetRange("Document No.", "No.");
-                if SIIDocUploadState.FindFirst then begin
+                if SIIDocUploadState.FindFirst() then begin
                     SIIHistory.SetRange("Document State Id", SIIDocUploadState.Id);
                     PAGE.Run(PAGE::"SII History", SIIHistory);
                 end;
@@ -889,7 +894,7 @@ table 5994 "Service Cr.Memo Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure SendRecords()

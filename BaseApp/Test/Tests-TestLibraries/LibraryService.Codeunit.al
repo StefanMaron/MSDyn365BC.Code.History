@@ -67,7 +67,7 @@ codeunit 131902 "Library - Service"
     begin
         CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
-        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID);
+        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify();
         exit(ExtendedTextLine.Text);
     end;
@@ -230,7 +230,7 @@ codeunit 131902 "Library - Service"
         ServiceContractAccountGroup.Modify(true);
     end;
 
-    procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; ContractType: Option; CustomerNo: Code[20])
+    procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; ContractType: Enum "Service Contract Type"; CustomerNo: Code[20])
     var
         ServiceContractAccountGroup: Record "Service Contract Account Group";
     begin
@@ -238,7 +238,7 @@ codeunit 131902 "Library - Service"
         ServiceContractHeader.Validate("Contract Type", ContractType);
         ServiceContractHeader.Insert(true);
         if CustomerNo = '' then
-            CustomerNo := LibrarySales.CreateCustomerNo;
+            CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceContractHeader.Validate("Customer No.", CustomerNo);
         // Validate one month as the default value of the Service Period.
         Evaluate(ServiceContractHeader."Service Period", ServicePeriodOneMonth);
@@ -292,7 +292,7 @@ codeunit 131902 "Library - Service"
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        ServiceCreditMemo.OpenNew;
+        ServiceCreditMemo.OpenNew();
         ServiceCreditMemo."Customer No.".Activate;
         ServiceCreditMemoNo := ServiceCreditMemo."No.".Value;
         ServiceCreditMemo.OK.Invoke;
@@ -307,7 +307,7 @@ codeunit 131902 "Library - Service"
         ServiceHeader.Validate("Document Type", DocumentType);
         ServiceHeader.Insert(true);
         if CustomerNo = '' then
-            CustomerNo := LibrarySales.CreateCustomerNo;
+            CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceHeader.Validate("Customer No.", CustomerNo);
         ServiceHeader.Validate("Your Reference", ServiceHeader."Customer No.");
         // Input mandatory fields for local builds.
@@ -333,7 +333,7 @@ codeunit 131902 "Library - Service"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenNew;
+        ServiceOrder.OpenNew();
         ServiceOrder."Customer No.".Activate;
         ServiceOrderNo := ServiceOrder."No.".Value;
         ServiceOrder.OK.Invoke;
@@ -404,7 +404,7 @@ codeunit 131902 "Library - Service"
         ServiceItem.Init();
         ServiceItem.Insert(true);
         if CustomerNo = '' then
-            CustomerNo := LibrarySales.CreateCustomerNo;
+            CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceItem.Validate("Customer No.", CustomerNo);
         ServiceItem.Validate(Description, ServiceItem."No.");  // Validating No. as Description because value is not important.
         ServiceItem.Modify(true);
@@ -474,7 +474,7 @@ codeunit 131902 "Library - Service"
         if (Type = ServiceLine.Type::Item) and (Item.Get(No) and Customer.Get(ServiceHeader."Customer No.")) then begin
             VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
             VATPostingSetup.SetFilter("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
-            if false = VATPostingSetup.FindFirst then
+            if false = VATPostingSetup.FindFirst() then
                 LibraryJob.CreateVATPostingSetup(Customer."VAT Bus. Posting Group", Item."VAT Prod. Posting Group", VATPostingSetup);
             OnBeforeCustomerModifyCreateServiceLine(Customer);
             Customer.Modify(true);
@@ -487,10 +487,10 @@ codeunit 131902 "Library - Service"
         case Type of
             ServiceLine.Type::Item:
                 if No = '' then
-                    No := LibraryInventory.CreateItemNo;
+                    No := LibraryInventory.CreateItemNo();
             ServiceLine.Type::Resource:
                 if No = '' then
-                    No := LibraryResource.CreateResourceNo;
+                    No := LibraryResource.CreateResourceNo();
         end;
         ServiceLine.Validate("No.", No);
         ServiceLine.Modify(true);
@@ -503,7 +503,7 @@ codeunit 131902 "Library - Service"
         CreateContractServiceOrders.SetTableView(ServiceContractHeader);
         CreateContractServiceOrders.InitializeRequest(StartDate, EndDate, 0);
         CreateContractServiceOrders.UseRequestPage(UseRequestPage);
-        CreateContractServiceOrders.RunModal;
+        CreateContractServiceOrders.RunModal();
     end;
 
     procedure CreateServiceOrderType(var ServiceOrderType: Record "Service Order Type")
@@ -672,23 +672,23 @@ codeunit 131902 "Library - Service"
         FaultReasonCode.FindSet();
     end;
 
-    procedure FindServiceContractLine(var ServiceContractLine: Record "Service Contract Line"; ContractType: Option; ContractNo: Code[20])
+    procedure FindServiceContractLine(var ServiceContractLine: Record "Service Contract Line"; ContractType: Enum "Service Contract Type"; ContractNo: Code[20])
     begin
         ServiceContractLine.SetRange("Contract Type", ContractType);
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
     end;
 
     procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; PreAssignedNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     procedure FindServiceCrMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     procedure PostServiceOrder(var ServiceHeader: Record "Service Header"; Ship: Boolean; Consume: Boolean; Invoice: Boolean)
@@ -729,7 +729,7 @@ codeunit 131902 "Library - Service"
     begin
         if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
             if ServiceHeader."Corrected Invoice No." = '' then begin
-                ServiceHeader."Corrected Invoice No." := LibraryUtility.GenerateGUID; // Skip validation (localization).
+                ServiceHeader."Corrected Invoice No." := LibraryUtility.GenerateGUID(); // Skip validation (localization).
                 ServiceHeader.Modify(true);
             end;
     end;

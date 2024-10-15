@@ -528,7 +528,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         exit(ServiceCrMemoHeader."No.");
     end;
 
@@ -537,7 +537,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -595,7 +595,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
@@ -606,7 +606,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(

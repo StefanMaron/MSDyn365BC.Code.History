@@ -36,7 +36,7 @@ codeunit 147314 "Cartera Payables Installments"
         DocumentNo: Code[20];
         NoOfInstallments: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -54,7 +54,7 @@ codeunit 147314 "Cartera Payables Installments"
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         LibraryCarteraPayables.FindOpenCarteraDocVendorLedgerEntries(FirstInstallmentVendorLedgerEntry,
           Vendor."No.", DocumentNo, FirstInstallmentVendorLedgerEntry."Document Situation"::Cartera,
           FirstInstallmentVendorLedgerEntry."Document Type"::Bill);
@@ -98,7 +98,7 @@ codeunit 147314 "Cartera Payables Installments"
         CreditMemoVATAmount: Decimal;
         CreditMemoAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -117,7 +117,7 @@ codeunit 147314 "Cartera Payables Installments"
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         TotalAmount :=
           LibraryCarteraPayables.GetPostedPurchaseInvoiceAmount(
@@ -164,7 +164,7 @@ codeunit 147314 "Cartera Payables Installments"
         NoOfInstallments: Integer;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -202,7 +202,7 @@ codeunit 147314 "Cartera Payables Installments"
         NoOfInstallments: Integer;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 1;
@@ -243,7 +243,7 @@ codeunit 147314 "Cartera Payables Installments"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 1;
@@ -286,7 +286,7 @@ codeunit 147314 "Cartera Payables Installments"
         SalesUnrVATAccount: Code[20];
         PurchUnrVATAccount: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         NoOfInstallments := 5;
@@ -322,7 +322,7 @@ codeunit 147314 "Cartera Payables Installments"
         TotalAmount: Decimal;
     begin
         // [SCENARIO 307483] Create cartera documents when Purchase Document with small amount has Payment Terms of multiple installments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has Payment Method with Create Bills = Yes and Payment Terms with 5 installments
         NoOfInstallments := LibraryRandom.RandIntInRange(2, 5);
@@ -336,7 +336,7 @@ codeunit 147314 "Cartera Payables Installments"
         // [GIVEN] Amount of the invoice is 0.01
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate(Quantity, 1);
         PurchaseLine.Validate("Direct Unit Cost", 0.01);
         PurchaseLine.Modify();
@@ -442,7 +442,7 @@ codeunit 147314 "Cartera Payables Installments"
         VendorLedgerEntry.SetRange(Open, true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Bill, DocumentNo);
         VendorLedgerEntry.CalcFields(Amount);
-        VendorLedgerEntry.Validate("Applies-to ID", LibraryUtility.GenerateGUID);
+        VendorLedgerEntry.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
         VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry.Amount);
         VendorLedgerEntry.Modify(true);
 
@@ -484,7 +484,7 @@ codeunit 147314 "Cartera Payables Installments"
         CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
         CarteraDoc.SetRange("Document No.", DocumentNo);
         CarteraDoc.SetRange("No.", '1');
-        CarteraDoc.FindFirst;
+        CarteraDoc.FindFirst();
 
         PayablesCarteraDocs.OpenView;
         PayablesCarteraDocs.GotoRecord(CarteraDoc);

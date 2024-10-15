@@ -76,7 +76,7 @@ page 103 "Account Schedule Names"
                     AccSchedule: Page "Account Schedule";
                 begin
                     AccSchedule.SetAccSchedName(Name);
-                    AccSchedule.Run;
+                    AccSchedule.Run();
                 end;
             }
             action(EditColumnLayoutSetup)
@@ -95,7 +95,7 @@ page 103 "Account Schedule Names"
                     ColumnLayout: Page "Column Layout";
                 begin
                     ColumnLayout.SetColumnLayoutName("Default Column Layout");
-                    ColumnLayout.Run;
+                    ColumnLayout.Run();
                 end;
             }
             action(CopyAccountSchedule)
@@ -115,6 +115,40 @@ page 103 "Account Schedule Names"
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleName);
                     REPORT.RunModal(REPORT::"Copy Account Schedule", true, true, AccScheduleName);
+                end;
+            }
+            action(ImportAccountSchedule)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Import Account Schedule';
+                Image = Import;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = false;
+                PromotedOnly = true;
+                Scope = Repeater;
+                ToolTip = 'Import a RapidStart configuration package that contains settings for an account schedule. Importing account schedules lets you share them, for example, with another business unit. This requires that the account schedule has been exported.';
+
+                trigger OnAction()
+                begin
+                    Rec.Import();
+                end;
+            }
+            action(ExportAccountSchedule)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Export Account Schedule';
+                Image = Export;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = false;
+                PromotedOnly = true;
+                Scope = Repeater;
+                ToolTip = 'Export settings for the selected account schedule to a RapidStart configuration package. Exporting an account schedule lets you share it with another business unit.';
+
+                trigger OnAction()
+                begin
+                    Rec.Export();
                 end;
             }
         }
@@ -137,7 +171,7 @@ page 103 "Account Schedule Names"
                     AccSchedOverview: Page "Acc. Schedule Overview";
                 begin
                     AccSchedOverview.SetAccSchedName(Name);
-                    AccSchedOverview.Run;
+                    AccSchedOverview.Run();
                 end;
             }
             group("F&unctions")

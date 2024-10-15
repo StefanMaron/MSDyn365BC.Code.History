@@ -905,7 +905,7 @@ page 253 "Sales Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action("Test Report")
@@ -1200,6 +1200,7 @@ page 253 "Sales Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1269,7 +1270,7 @@ page 253 "Sales Journal"
     begin
         if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
             exit;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);

@@ -64,7 +64,7 @@ xmlport 10720 "G/L Importing Tool"
                 begin
                     RegNo := 0;
 
-                    if NewGLAcct2.FindFirst then
+                    if NewGLAcct2.FindFirst() then
                         if not Confirm(Text1100000, false, NewGLAcct2.TableCaption) then
                             Error(Text1100001);
                 end;

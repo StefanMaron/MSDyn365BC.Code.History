@@ -1552,41 +1552,56 @@ codeunit 5342 "CRM Synch. Helper"
         end;
     end;
 
+    [Obsolete('Use another implementation of ConvertTableToOption', '20.0')]
     procedure ConvertTableToOption(SourceFieldRef: FieldRef; var OptionValue: Integer) TableIsMapped: Boolean
+    var
+        FieldRef: FieldRef;
+    begin
+        exit(ConvertTableToOption(SourceFieldRef, FieldRef, OptionValue));
+    end;
+
+    procedure ConvertTableToOption(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var OptionValue: Integer) TableIsMapped: Boolean
     var
         CRMOptionMapping: Record "CRM Option Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         RecID: RecordID;
+        IsOptionMappingEnabled: Boolean;
     begin
         TableIsMapped := false;
         OptionValue := 0;
-        if IsTableMappedToCRMOption(SourceFieldRef.Relation()) then begin
+        if IsTableMappedToCRMOption(SourceFieldRef, DestinationFieldRef) then begin
+            IsOptionMappingEnabled := CRMIntegrationManagement.IsOptionMappingEnabled();
             TableIsMapped := true;
             if FindRecordIDByPK(SourceFieldRef.Relation(), SourceFieldRef.Value(), RecID) then begin
                 CRMOptionMapping.SetRange("Record ID", RecID);
                 if CRMOptionMapping.FindFirst() then begin
                     OptionValue := CRMOptionMapping."Option Value";
-                    if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
-                        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
-                        CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
-                        CDSFailedOptionMapping.SetRange("Field No.", SourceFieldRef.Number());
-                        if CDSFailedOptionMapping.FindFirst() then
-                            CDSFailedOptionMapping.Delete();
-                    end;
-                end else
-                    if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
-                        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
-                        CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
-                        CDSFailedOptionMapping.SetRange("Field No.", SourceFieldRef.Number());
-                        if CDSFailedOptionMapping.IsEmpty() then begin
-                            CDSFailedOptionMapping.Init();
-                            CDSFailedOptionMapping."CRM Integration Record Id" := CRMIntegrationRecord.SystemId;
-                            CDSFailedOptionMapping."Record Id" := CRMIntegrationRecord."Integration ID";
-                            CDSFailedOptionMapping."Field No." := SourceFieldRef.Number();
-                            CDSFailedOptionMapping.Insert();
+                    if not IsOptionMappingEnabled then
+                        if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
+                            CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                            CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                            CDSFailedOptionMapping.SetRange("Field No.", SourceFieldRef.Number());
+                            if CDSFailedOptionMapping.FindFirst() then
+                                CDSFailedOptionMapping.Delete();
                         end;
-                    end;
+                end else
+                    if IsOptionMappingEnabled then
+                        Error(RecordMustBeCoupledErr, SourceFieldRef.Caption(), SourceFieldRef.Value(), CRMProductName.CDSServiceName())
+                    else
+                        if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
+                            CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                            CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                            CDSFailedOptionMapping.SetRange("Field No.", SourceFieldRef.Number());
+                            if CDSFailedOptionMapping.IsEmpty() then begin
+                                CDSFailedOptionMapping.Init();
+                                CDSFailedOptionMapping."CRM Integration Record Id" := CRMIntegrationRecord.SystemId;
+                                CDSFailedOptionMapping."Record Id" := CRMIntegrationRecord."Integration ID";
+                                CDSFailedOptionMapping."Field No." := SourceFieldRef.Number();
+                                CDSFailedOptionMapping.Insert();
+                            end;
+                        end;
             end;
         end;
         exit(TableIsMapped);
@@ -1597,39 +1612,56 @@ codeunit 5342 "CRM Synch. Helper"
         CRMOptionMapping: Record "CRM Option Mapping";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
-        RecID: RecordID;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        IsOptionMappingEnabled: Boolean;
         PrimaryKey: Variant;
     begin
         TableIsMapped := false;
-        if IsTableMappedToCRMOption(DestinationFieldRef.Relation()) then begin
+        if IsTableMappedToCRMOption(DestinationFieldRef, SourceFieldRef) then begin
+            IsOptionMappingEnabled := CRMIntegrationManagement.IsOptionMappingEnabled();
             TableIsMapped := true;
+
+            if IsOptionMappingEnabled then
+                if Format(SourceFieldRef.Value()) = ' ' then
+                    exit;
+
             CRMOptionMapping.SetRange("Option Value Caption", SourceFieldRef.Value());
             CRMOptionMapping.SetRange("Table ID", DestinationFieldRef.Relation());
             CRMOptionMapping.SetRange("Integration Field ID", SourceFieldRef.Number());
             if CRMOptionMapping.FindFirst() then begin
                 FindPKByRecordID(CRMOptionMapping."Record ID", PrimaryKey);
                 Evaluate(TableValue, PrimaryKey);
-                if CRMIntegrationRecord.FindByRecordID(DestinationFieldRef.Record().RecordId) then begin
-                    CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
-                    CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
-                    CDSFailedOptionMapping.SetRange("Field No.", DestinationFieldRef.Number());
-                    if CDSFailedOptionMapping.FindFirst() then
-                        CDSFailedOptionMapping.Delete();
-                end;
-            end else begin
-                TableValue := DestinationFieldRef.Value();
-                if CRMIntegrationRecord.FindByRecordID(DestinationFieldRef.Record().RecordId) then begin
-                    CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
-                    CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
-                    CDSFailedOptionMapping.SetRange("Field No.", DestinationFieldRef.Number());
-                    if CDSFailedOptionMapping.IsEmpty() then begin
-                        CDSFailedOptionMapping.Init();
-                        CDSFailedOptionMapping."CRM Integration Record Id" := CRMIntegrationRecord.SystemId;
-                        CDSFailedOptionMapping."Record Id" := CRMIntegrationRecord."Integration ID";
-                        CDSFailedOptionMapping."Field No." := DestinationFieldRef.Number();
-                        CDSFailedOptionMapping.Insert();
+                if not IsOptionMappingEnabled then
+                    if CRMIntegrationRecord.FindByRecordID(DestinationFieldRef.Record().RecordId) then begin
+                        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                        CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                        CDSFailedOptionMapping.SetRange("Field No.", DestinationFieldRef.Number());
+                        if CDSFailedOptionMapping.FindFirst() then
+                            CDSFailedOptionMapping.Delete();
                     end;
-                end;
+            end else
+                if IsOptionMappingEnabled then begin
+                    CRMOptionMapping.SetRange("Option Value Caption");
+                    CRMOptionMapping.SetRange("Option Value", SourceFieldRef.Value());
+                    if CRMOptionMapping.FindFirst() then begin
+                        FindPKByRecordID(CRMOptionMapping."Record ID", PrimaryKey);
+                        Evaluate(TableValue, PrimaryKey);
+                    end else
+                        Error(RecordMustBeCoupledErr, SourceFieldRef.Caption(), SourceFieldRef.Value(), CRMProductName.CDSServiceName());
+                end else begin
+                    TableValue := DestinationFieldRef.Value();
+                    if CRMIntegrationRecord.FindByRecordID(DestinationFieldRef.Record().RecordId) then begin
+                        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", CRMIntegrationRecord.SystemId);
+                        CDSFailedOptionMapping.SetRange("Record Id", CRMIntegrationRecord."Integration ID");
+                        CDSFailedOptionMapping.SetRange("Field No.", DestinationFieldRef.Number());
+                        if CDSFailedOptionMapping.IsEmpty() then begin
+                            CDSFailedOptionMapping.Init();
+                            CDSFailedOptionMapping."CRM Integration Record Id" := CRMIntegrationRecord.SystemId;
+                            CDSFailedOptionMapping."Record Id" := CRMIntegrationRecord."Integration ID";
+                            CDSFailedOptionMapping."Field No." := DestinationFieldRef.Number();
+                            CDSFailedOptionMapping.Insert();
+                        end;
+                    end;
             end;
         end;
         exit(TableIsMapped);
@@ -1644,12 +1676,23 @@ codeunit 5342 "CRM Synch. Helper"
             CRMOptionMapping.Rename(NewRecId);
     end;
 
-    local procedure IsTableMappedToCRMOption(TableID: Integer): Boolean
+    local procedure IsTableMappedToCRMOption(NAVFieldRef: FieldRef; CRMFieldRef: FieldRef): Boolean
     var
         CRMOptionMapping: Record "CRM Option Mapping";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMOptionMapping.SetRange("Table ID", TableID);
-        exit(not CRMOptionMapping.IsEmpty());
+        if CRMIntegrationManagement.IsOptionMappingEnabled() then begin
+            if CRMFieldRef.Type() = CRMFieldRef.Type::Option then begin
+                IntegrationTableMapping.SetRange("Table ID", NAVFieldRef.Relation());
+                IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+                exit(not IntegrationTableMapping.IsEmpty());
+            end;
+            exit(false);
+        end else begin
+            CRMOptionMapping.SetRange("Table ID", NAVFieldRef.Relation());
+            exit(not CRMOptionMapping.IsEmpty());
+        end;
     end;
 
     internal procedure IsContactBusinessRelationOptional(): Boolean

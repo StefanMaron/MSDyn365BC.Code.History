@@ -35,6 +35,12 @@ codeunit 7200 "CDS Integration Mgt."
     end;
 
     [Scope('Cloud')]
+    procedure IsBusinessEventsEnabled(): Boolean
+    begin
+        exit(CDSIntegrationImpl.IsBusinessEventsEnabled());
+    end;
+
+    [Scope('Cloud')]
     procedure IsConnectionActive(): Boolean
     var
     begin
@@ -166,6 +172,30 @@ codeunit 7200 "CDS Integration Mgt."
     procedure ResetCache()
     begin
         CDSIntegrationImpl.ResetCache();
+    end;
+
+    [Scope('Cloud')]
+    procedure GetOptionSetMetadata(EntityName: Text; FieldName: Text): Dictionary of [Integer, Text]
+    begin
+        exit(CDSIntegrationImpl.GetOptionSetMetadata(EntityName, FieldName));
+    end;
+
+    [Scope('Cloud')]
+    procedure InsertOptionSetMetadata(EntityName: Text; FieldName: Text; NewOptionLabel: Text): Integer
+    begin
+        exit(CDSIntegrationImpl.InsertOptionSetMetadata(EntityName, FieldName, NewOptionLabel));
+    end;
+
+    [Scope('Cloud')]
+    procedure InsertOptionSetMetadataWithOptionValue(EntityName: Text; FieldName: Text; NewOptionLabel: Text; NewOptionValue: Integer): Integer
+    begin
+        exit(CDSIntegrationImpl.InsertOptionSetMetadataWithOptionValue(EntityName, FieldName, NewOptionLabel, NewOptionValue));
+    end;
+
+    [Scope('Cloud')]
+    procedure UpdateOptionSetMetadata(EntityName: Text; FieldName: Text; OptionValue: Integer; NewOptionLabel: Text)
+    begin
+        CDSIntegrationImpl.UpdateOptionSetMetadata(EntityName, FieldName, OptionValue, NewOptionLabel);
     end;
 
     [Scope('Cloud')]

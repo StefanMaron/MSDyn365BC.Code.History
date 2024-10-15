@@ -241,11 +241,11 @@ table 7000005 "Bill Group"
                 Doc.SetRange("Bill Gr./Pmt. Order No.", "No.");
                 if Factoring = Factoring::" " then begin
                     Doc.SetFilter("Document Type", '<>%1', Doc."Document Type"::Bill);
-                    if Doc.FindFirst then
+                    if Doc.FindFirst() then
                         Error(Text1100005);
                 end else begin
                     Doc.SetFilter("Document Type", '%1', Doc."Document Type"::Bill);
-                    if Doc.FindFirst then
+                    if Doc.FindFirst() then
                         Error(Text1100006);
                 end;
             end;
@@ -278,7 +278,7 @@ table 7000005 "Bill Group"
         Doc.SetCurrentKey(Type, "Bill Gr./Pmt. Order No.");
         Doc.SetRange(Type, Doc.Type::Receivable);
         Doc.SetRange("Bill Gr./Pmt. Order No.", "No.");
-        if Doc.FindFirst then
+        if Doc.FindFirst() then
             Error(Text1100002);
 
         BGPOCommentLine.SetRange("BG/PO No.", "No.");

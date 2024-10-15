@@ -80,7 +80,7 @@ codeunit 144075 "ERM No Taxable VAT"
     begin
         // [FEATURE] [Sales] [Report]
         // [SCENARIO 293795] Sales Invoice Book report for posted Sales Invoice with VAT Calculation Type as No Taxable VAT.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         SalesInvoiceBookReportWithNoTaxableVAT(
           SalesHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT, 1);
@@ -96,7 +96,7 @@ codeunit 144075 "ERM No Taxable VAT"
     begin
         // [FEATURE] [Sales] [Report]
         // [SCENARIO 293795] Sales Invoice Book report for posted Sales Credit Memo with VAT Calculation Type as No Taxable VAT.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         SalesInvoiceBookReportWithNoTaxableVAT(
           SalesHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT, -1);
@@ -112,7 +112,7 @@ codeunit 144075 "ERM No Taxable VAT"
     begin
         // [FEATURE] [Purchase] [Report]
         // [SCENARIO 293795] Purchase Invoice Book report for posted Purchase Invoice with VAT Calculation Type as No Taxable VAT.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         PurchaseInvoiceBookReportWithNoTaxableVAT(
           PurchaseHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT, 1);
@@ -128,7 +128,7 @@ codeunit 144075 "ERM No Taxable VAT"
     begin
         // [FEATURE] [Purchase] [Report]
         // [SCENARIO 293795] Purchase Invoice Book report for posted Purchase Credit Memo with VAT Calculation Type as No Taxable VAT.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         PurchaseInvoiceBookReportWithNoTaxableVAT(
           PurchaseHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT, -1);
@@ -147,7 +147,7 @@ codeunit 144075 "ERM No Taxable VAT"
         // [FEATURE] [Sales] [Report]
         // [SCENARIO 323351] Sales Invoice Book report does not show No Taxable VAT that ignores in 347 report.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice "A" with G/L Account setup of No Taxable VAT and option "Ignore in 347 report" on
         PostSalesDocForNoTaxableScenario(
@@ -175,7 +175,7 @@ codeunit 144075 "ERM No Taxable VAT"
         // [FEATURE] [Purchase] [Report]
         // [SCENARIO 323351] Purchases Invoice Book report does not show No Taxable VAT that ignores in 347 report.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase invoice "A" with G/L Account setup of No Taxable VAT and option "Ignore in 347 report" on
         PostPurchDocForNoTaxableScenario(
@@ -465,7 +465,7 @@ codeunit 144075 "ERM No Taxable VAT"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", StrSubstNo(NotEqualToTxt, ''));  // Blank used for Not Equal to Blank filter.
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", StrSubstNo(NotEqualToTxt, ''));  // Blank used for Not Equal to Blank filter.
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure PostSalesDocumentWithNoTaxableVAT(DocumentType: Enum "Sales Document Type")
@@ -475,7 +475,7 @@ codeunit 144075 "ERM No Taxable VAT"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
         CreateSalesDocument(SalesHeader, VATPostingSetup, DocumentType, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
 
@@ -519,7 +519,7 @@ codeunit 144075 "ERM No Taxable VAT"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
         CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, DocumentType, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
 

@@ -106,7 +106,7 @@ page 10710 "XML Transference Format"
         if "VAT Statement Name" <> '' then
             VATStmtCode := "VAT Statement Name"
         else begin
-            VATSmtName.FindFirst;
+            VATSmtName.FindFirst();
             VATStmtCode := VATSmtName.Name;
         end;
     end;

@@ -48,7 +48,7 @@ codeunit 147529 "SII Payments"
         // [SCENARIO 232943] Sales Invoice Details has non-zero amounts for Unrealized VAT and Cash Regime
         // 265023: SII Doc. Upload State of Cash Based Sales Payment has "Inv. Entry No." and "Document No." of invoice applied to payment
 
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer, VATPostingSetup, 0);
 
@@ -101,7 +101,7 @@ codeunit 147529 "SII Payments"
         // [SCENARIO 232943] Purchase Invoice Details has non-zero amounts for Unrealized VAT and Cash Regime
         // 265023: SII Doc. Upload State of Cash Based Sales Payment has "Inv. Entry No." and "External Document No." of invoice applied to payment
 
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor, VATPostingSetup, 0);
 
@@ -153,7 +153,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Sales]
         // [SCENARIO 232943] Medio node has value of SII Payment Method Code of Customer Ledger Entry
 
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"01");
 
@@ -199,7 +199,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Purchase]
         // [SCENARIO 232943] Medio node has value of SII Payment Method Code of Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"01");
 
@@ -239,7 +239,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 267931] SII Doc. Upload State and SII History entries creates for Detailed Customer Ledger Entry with Payment and Unrealized VAT
 
-        Initialize;
+        Initialize();
 
         MockVATEntry(VATEntry);
         EntryNo := MockInvoiceCustLedgEntry(VATEntry."Document No.", VATEntry."Transaction No.");
@@ -259,7 +259,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 267931] SII Doc. Upload State and SII History entries creates for Detailed Vendor Ledger Entry with Payment and Unrealized VAT
 
-        Initialize;
+        Initialize();
 
         MockVATEntry(VATEntry);
         EntryNo := MockInvoiceVendLedgEntry(VATEntry."Document No.", VATEntry."Transaction No.");
@@ -279,7 +279,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 267931] No new sales SII History creates when send new request and there is an existing SII History entry
 
-        Initialize;
+        Initialize();
 
         MockVATEntry(VATEntry);
         DetailedCustLedgEntry.Get(MockInvoiceCustLedgEntry(VATEntry."Document No.", VATEntry."Transaction No."));
@@ -302,7 +302,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 267931] No new purchase SII History creates when send new request and there is an existing SII History entry
 
-        Initialize;
+        Initialize();
 
         MockVATEntry(VATEntry);
         DetailedVendorLedgEntry.Get(MockInvoiceVendLedgEntry(VATEntry."Document No.", VATEntry."Transaction No."));
@@ -323,7 +323,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [UT] [Bill] [Partial Payment]
         // [SCENARIO 274784] No new sales SII History creates on several Bills with several payments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoice
         MockVATEntry(VATEntry);
@@ -350,7 +350,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [UT] [Bill] [Partial Payment]
         // [SCENARIO 274784] No new purchase SII History creates on several Bills with several payments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoice
         MockVATEntry(VATEntry);
@@ -385,7 +385,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Sales]
         // [SCENARIO 263060] Medio node has value "05" of SII Payment Method Code of Customer Ledger Entry
 
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"05");
 
@@ -431,7 +431,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Payment]
         // [SCENARIO 263060] Medio node has value "05" of SII Payment Method Code of Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         CreateVendor(Vendor, VATPostingSetup, PaymentMethod."SII Payment Method Code"::"05");
 
@@ -475,7 +475,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Sales] [Cartera] [Bill]
         // [SCENARIO 272857] Stan can generate SII xml file for sales payment applied to bill
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup
         // [GIVEN] Cartera Customer with Payment Method with option "Create Bills" enabled
@@ -514,7 +514,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [Purchase] [Cartera] [Bill]
         // [SCENARIO 272857] Stan can generate SII xml file for purchase payment applied to bill
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Setup
         // [GIVEN] Cartera Vendor with Payment Method with option "Create Bills" enabled
@@ -854,7 +854,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 274784] SIIJobUploadPendingDocs.CreateSIIRequestForDtldCustLedgEntry() doesn't create a new request in case of Bill without Invoice
-        Initialize;
+        Initialize();
 
         MockVATEntry(VATEntry);
         DetailedCustLedgEntry.Get(MockBillCustLedgEntry(VATEntry."Document No.", VATEntry."Transaction No."));
@@ -877,7 +877,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [UT] [Purchase]
         // [SCENARIO 274784] SIIJobUploadPendingDocs.CreateSIIRequestForDtldVendLedgEntry() doesn't create a new request in case of Bill without Invoice
-        Initialize;
+        Initialize();
 
         MockVATEntry(VATEntry);
         DetailedVendorLedgEntry.Get(MockBillVendLedgEntry(VATEntry."Document No.", VATEntry."Transaction No."));
@@ -904,7 +904,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Last]
         // [SCENARIO 274784] Full payment to sales invoice in case of Unrealized Type = Last
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice for a local customer (Unreazlied Type = Last)
         CreateAndPostSalesInvoiceUnrealizedLast(VATPostingSetup, CustomerNo, DocumentNo, Amount);
@@ -939,7 +939,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Last]
         // [SCENARIO 274784] Full payment to purchase invoice in case of Unrealized Type = Last
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice for a local vendor (Unreazlied Type = Last)
         CreateAndPostPurchaseInvoiceUnrealizedLast(VATPostingSetup, VendorNo, DocumentNo, Amount, ExtDocumentNo);
@@ -973,7 +973,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Last] [Partial Payment]
         // [SCENARIO 274784] Partial payment to sales invoice in case of Unrealized Type = Last
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice for a local customer (Unreazlied Type = Last)
         CreateAndPostSalesInvoiceUnrealizedLast(VATPostingSetup, CustomerNo, DocumentNo, Amount);
@@ -1008,7 +1008,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Last] [Partial Payment]
         // [SCENARIO 274784] Full payment to purchase invoice in case of Unrealized Type = Last
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice for a local vendor (Unreazlied Type = Last)
         CreateAndPostPurchaseInvoiceUnrealizedLast(VATPostingSetup, VendorNo, DocumentNo, Amount, ExtDocumentNo);
@@ -1043,7 +1043,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Last] [Partial Payment]
         // [SCENARIO 274784] Two partial payments to sales invoice in case of Unrealized Type = Last
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice for a local customer (Unreazlied Type = Last)
         CreateAndPostSalesInvoiceUnrealizedLast(VATPostingSetup, CustomerNo, InvoiceNo, Amount);
@@ -1082,7 +1082,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Last] [Partial Payment]
         // [SCENARIO 274784] Two partial payments to purchase invoice in case of Unrealized Type = Last
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice for a local vendor (Unreazlied Type = Last)
         CreateAndPostPurchaseInvoiceUnrealizedLast(VATPostingSetup, VendorNo, InvDocumentNo, Amount, ExtDocumentNo);
@@ -1118,7 +1118,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Bill] [Partial Payment]
         // [SCENARIO 274784] Partial payment to sales Bill
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Customer with Payment Method with option "Create Bills" enabled
         // [GIVEN] Posted invoice with associated Bill
@@ -1154,7 +1154,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Bill] [Partial Payment]
         // [SCENARIO 274784] Partial payment to purchase Bill
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Vendor with Payment Method with option "Create Bills" enabled
         // [GIVEN] Posted invoice with associated Bill
@@ -1190,7 +1190,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two partial payments to sales Bill
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Customer with Payment Method with option "Create Bills" enabled
         // [GIVEN] Posted invoice with associated Bill
@@ -1230,7 +1230,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Bill] [Partial Payment]
         // [SCENARIO 274784] Partial payment to purchase Bill
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Vendor with Payment Method with option "Create Bills" enabled
         // [GIVEN] Posted invoice with associated Bill
@@ -1268,7 +1268,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two sales Bills each with one partial payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Customer with Payment Method with option "Create Bills" enabled, 2 payment terms installments
         // [GIVEN] Posted invoice with two associated Bills
@@ -1307,7 +1307,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two purchase Bills each with one partial payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Vendor with Payment Method with option "Create Bills" enabled, 2 payment terms installments
         // [GIVEN] Posted invoice with two associated Bills
@@ -1346,7 +1346,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two sales Bills with three partial payments (two to Bill 1, one to Bill 2)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Customer with Payment Method with option "Create Bills" enabled, 2 payment terms installments
         // [GIVEN] Posted invoice with two associated Bills
@@ -1389,7 +1389,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two purchase Bills with three partial payments (two to Bill 1, one to Bill 2)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Vendor with Payment Method with option "Create Bills" enabled, 2 payment terms installments
         // [GIVEN] Posted invoice with two associated Bills
@@ -1431,7 +1431,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Sales] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two sales Bills each with two partial payments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Customer with Payment Method with option "Create Bills" enabled, 2 payment terms installments
         // [GIVEN] Posted invoice with two associated Bills
@@ -1476,7 +1476,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [Purchase] [Bill] [Partial Payment]
         // [SCENARIO 274784] Two purchase Bills each with two partial payments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cartera Vendor with Payment Method with option "Create Bills" enabled, 2 payment terms installments
         // [GIVEN] Posted invoice with two associated Bills
@@ -1514,7 +1514,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 297338] It is possible to insert temporary Detailed Vendor Ledger Entry when SII is enabled
 
-        Initialize;
+        Initialize();
         TempDetailedVendorLedgEntry.Init();
         TempDetailedVendorLedgEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(TempDetailedVendorLedgEntry, TempDetailedVendorLedgEntry.FieldNo("Entry No."));
@@ -1531,7 +1531,7 @@ codeunit 147529 "SII Payments"
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 297338] It is possible to insert temporary Detailed Customer Ledger Entry when SII is enabled
 
-        Initialize;
+        Initialize();
         TempDetailedCustLedgEntry.Init();
         TempDetailedCustLedgEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(TempDetailedCustLedgEntry, TempDetailedCustLedgEntry.FieldNo("Entry No."));
@@ -1769,7 +1769,7 @@ codeunit 147529 "SII Payments"
     begin
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Document No.", DocNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindDtldCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocNo: Code[20])
@@ -1777,14 +1777,14 @@ codeunit 147529 "SII Payments"
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
         DetailedCustLedgEntry.SetRange("Document No.", DocNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
     end;
 
     local procedure FindVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20])
     begin
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetFilter("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FindDtldVendLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocNo: Code[20])
@@ -1792,14 +1792,14 @@ codeunit 147529 "SII Payments"
         DetailedVendorLedgEntry.Reset();
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.SetRange("Document No.", DocNo);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
     end;
 
     local procedure FindSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocSource: Enum "SII Doc. Upload State Document Source"; EntryNo: Integer)
     begin
         SIIDocUploadState.SetRange("Document Source", DocSource);
         SIIDocUploadState.SetRange("Entry No", EntryNo);
-        SIIDocUploadState.FindFirst;
+        SIIDocUploadState.FindFirst();
     end;
 
     local procedure GetPurchBillAmount(InvoiceNo: Code[20]; BillNo: Code[20]): Decimal
@@ -1895,7 +1895,7 @@ codeunit 147529 "SII Payments"
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := DocNo;
         CustLedgerEntry."Transaction No." := TransNo;
-        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo;
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
         CustLedgerEntry.Insert();
         exit(MockDtldCustLedgEntry(CustLedgerEntry."Entry No.", DocNo, TransNo));
     end;
@@ -1944,7 +1944,7 @@ codeunit 147529 "SII Payments"
         VendorLedgerEntry."Document No." := DocNo;
         VendorLedgerEntry."External Document No." := DocNo;
         VendorLedgerEntry."Transaction No." := TransNo;
-        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo;
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
         VendorLedgerEntry.Insert();
         exit(MockDtldVendLedgEntry(VendorLedgerEntry."Entry No.", DocNo, TransNo));
     end;
@@ -2038,7 +2038,7 @@ codeunit 147529 "SII Payments"
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
 
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
@@ -2060,7 +2060,7 @@ codeunit 147529 "SII Payments"
         SIIDocUploadState.SetRange("Document Source", DocumentSource);
         SIIDocUploadState.SetRange("Document No.", DocumentNo);
         Assert.RecordCount(SIIDocUploadState, 1);
-        SIIDocUploadState.FindFirst;
+        SIIDocUploadState.FindFirst();
         VerifySIIHistoryCount(SIIDocUploadState.Id, 1);
     end;
 
