@@ -29,6 +29,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         AmountToApplyErr: Label '"Amount to Apply" should be zero.';
         DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
         DialogTxt: Label 'Dialog';
+        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
+        DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
 
     [Test]
     [Scope('OnPrem')]
@@ -754,6 +756,95 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJournalLine.TestField("Applies-to Ext. Doc. No.", InvoiceExtDocNo);
     end;
 
+    [Test]
+    [HandlerFunctions('MultipleSelectionApplyCustomerEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckPostingDateForMultipleCustLedgEntriesWhenSetAppliesToIDOnApplyCustomerEntries()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [Application]
+        // [SCENARIO 383611] When "Set Applies-to ID" on "Apply Customer Entries" page is used for multiple lines, Posting date of each line is checked.
+        Initialize();
+
+        // [GIVEN] Two Posted Sales Invoices with Posting Date = "01.01.21" / "21.01.21".
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostGenJnlLine(
+            GenJournalLine, LibraryRandom.RandDate(-10),
+            GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), Customer."No.", '');
+        CreateAndPostGenJnlLine(
+            GenJournalLine, LibraryRandom.RandDate(10),
+            GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), Customer."No.", '');
+
+        // [GIVEN] Cash Receipt Journal Line with Posting Date = "11.01.21"
+        CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
+
+        // [GIVEN] Cash Receipt Journal Line with Currency = blank.
+        CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] "Apply Customer Entries" page is opened by Codeunit "Gen. Jnl.-Apply" run for Cash Receipt Journal Line.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");
+        asserterror CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
+
+        // [WHEN] Multiple lines are selected on "Apply Customer Entries" page and action "Set Applies-to ID" is used.
+        // Done in MultipleSelectionApplyCustomerEntriesModalPageHandler
+
+        // [THEN] Error "You cannot apply and post an entry to an entry with an earlier posting date." is thrown.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(EarlierPostingDateErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MultipleSelectionApplyCustomerEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckCurrencyForMultipleCustLedgEntriesWhenSetAppliesToIDOnApplyCustomerEntries()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        // [FEATURE] [Application]
+        // [SCENARIO 383611] When "Set Applies-to ID" on "Apply Customer Entries" page is used for multiple lines, Currency Code of each line is checked.
+        Initialize();
+
+        // [GIVEN] "Appln. between Currencies" in "Sales & Receivables Setup" is set to None.
+        LibrarySales.SetApplnBetweenCurrencies(SalesReceivablesSetup."Appln. between Currencies"::None);
+
+        // [GIVEN] Two Posted Sales Invoices with Currency Code = blank / "JPY".
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostGenJnlLine(
+            GenJournalLine, WorkDate(),
+            GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), Customer."No.", '');
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
+        CreateAndPostGenJnlLine(
+            GenJournalLine, WorkDate(),
+            GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(100), Customer."No.", Currency.Code);
+
+        // [GIVEN] Cash Receipt Journal Line with Currency = blank.
+        CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] "Apply Customer Entries" page is opened by Codeunit "Gen. Jnl.-Apply" run for Cash Receipt Journal Line.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");
+        asserterror CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
+
+        // [WHEN] Multiple lines are selected on "Apply Customer Entries" page and action "Set Applies-to ID" is used.
+        // Done in MultipleSelectionApplyCustomerEntriesModalPageHandler
+
+        // [THEN] Error "All entries in one application must be in the same currency." is thrown.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(DifferentCurrenciesErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -774,6 +865,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Sales/Receivables");
     end;
 
@@ -1126,6 +1218,16 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         ApplyCustomerEntries.ApplnAmountToApply.AssertEquals(0);
 
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MultipleSelectionApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: Page "Apply Customer Entries"; var Response: Action)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries.CheckCustLedgEntry(CustLedgerEntry);
     end;
 
     [ModalPageHandler]

@@ -4,6 +4,7 @@ table 9650 "Custom Report Layout"
     DataPerCompany = false;
     DrillDownPageID = "Custom Report Layouts";
     LookupPageID = "Custom Report Layouts";
+    Permissions = TableData "Custom Report Layout" = rimd;
 
     fields
     {
@@ -184,7 +185,8 @@ table 9650 "Custom Report Layout"
         end;
 
         CustomReportLayout.SetDefaultCustomXmlPart;
-        SetLayoutLastUpdated();
+        CustomReportLayout.SetLayoutLastUpdated();
+
         exit(CustomReportLayout.Code);
     end;
 
@@ -352,9 +354,9 @@ table 9650 "Custom Report Layout"
             "File Extension" := FileExtension;
         SetDefaultCustomXmlPart;
         Modify(true);
+        SetLayoutLastUpdated();
         Commit();
 
-        SetLayoutLastUpdated();
         if ErrorMessage <> '' then
             Message(ErrorMessage);
     end;
@@ -488,6 +490,7 @@ table 9650 "Custom Report Layout"
             SetLayoutBlob(OutTempBlob);
 
         SetLayoutLastUpdated();
+
         exit(ErrorMessage);
     end;
 
@@ -986,13 +989,17 @@ table 9650 "Custom Report Layout"
             "Custom XML Part".CreateOutStream(OutStr, TEXTENCODING::UTF16);
             OutStr.Write(Content);
         end;
+
         if CanModify then
             Modify;
     end;
 
-    local procedure SetLayoutLastUpdated()
+    internal procedure SetLayoutLastUpdated()
     begin
         "Layout Last Updated" := RoundDateTime(CurrentDateTime);
+
+        if CanModify() then
+            Rec.Modify();
     end;
 
     [IntegrationEvent(false, false)]

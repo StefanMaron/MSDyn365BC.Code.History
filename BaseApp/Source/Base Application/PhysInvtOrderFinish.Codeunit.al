@@ -375,11 +375,14 @@
     begin
         // NAVCZ
         InventorySetup.Get();
-        if PhysInvtOrderLine."Pos. Qty. (Base)" > 0 then
-            exit(InventorySetup."Def.Template for Phys.Pos.Adj");
-        if PhysInvtOrderLine."Neg. Qty. (Base)" > 0 then
-            exit(InventorySetup."Def.Template for Phys.Neg.Adj");
-        exit('');
+        case PhysInvtOrderLine."Entry Type" of
+            PhysInvtOrderLine."Entry Type"::"Positive Adjmt.":
+                exit(InventorySetup."Def.Template for Phys.Pos.Adj");
+            PhysInvtOrderLine."Entry Type"::"Negative Adjmt.":
+                exit(InventorySetup."Def.Template for Phys.Neg.Adj")
+            else
+                exit('');
+        end;
     end;
 
     [IntegrationEvent(false, false)]

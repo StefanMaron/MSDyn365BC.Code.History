@@ -627,8 +627,9 @@
 
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order] then begin
             TempSalesLineGlobal.CalcVATAmountLines(1, SalesHeader, TempSalesLineGlobal, TempVATAmountLine);
-            if TempVATAmountLine.GetTotalAmountInclVAT() < 0 then
-                Error(TotalInvoiceAmountNegativeErr);
+            if TempVATAmountLine.GetTotalLineAmount(false, '') < 0 then
+                if TempVATAmountLine.GetTotalAmountInclVAT() < 0 then
+                    Error(TotalInvoiceAmountNegativeErr);
         end;
     end;
 
@@ -6429,6 +6430,7 @@
             if InvoicePostBuffer.Type <> InvoicePostBuffer.Type::"Prepmt. Exch. Rate Difference" then
                 "Gen. Posting Type" := "Gen. Posting Type"::Sale;
             // NAVCZ
+            Correction := InvoicePostBuffer.Correction;
             if SalesHeader."Perform. Country/Region Code" <> '' then begin
                 "Perform. Country/Region Code" := SalesHeader."Perform. Country/Region Code";
                 "Currency Code VAT" := SalesHeader."Currency Code";

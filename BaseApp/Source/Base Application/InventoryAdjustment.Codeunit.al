@@ -1247,9 +1247,14 @@
                 CostElementBuf.UpdateCostElementBuffer(AvgCostBuf);
 
             if CostElementBuf."Remaining Quantity" > 0 then begin
-                CostElementBuf.RoundActualCost(
+                RoundCost(
+                  CostElementBuf."Actual Cost", AvgCostBuf."Rounding Residual", CostElementBuf."Actual Cost",
                   OutbndValueEntry."Valued Quantity" / CostElementBuf."Remaining Quantity",
-                  GLSetup."Amount Rounding Precision", Currency."Amount Rounding Precision");
+                  GLSetup."Amount Rounding Precision");
+                RoundCost(
+                  CostElementBuf."Actual Cost (ACY)", AvgCostBuf."Rounding Residual (ACY)", CostElementBuf."Actual Cost (ACY)",
+                  OutbndValueEntry."Valued Quantity" / CostElementBuf."Remaining Quantity",
+                  Currency."Amount Rounding Precision");
 
                 AvgCostBuf.DeductOutbndValueEntryFromBuf(OutbndValueEntry, CostElementBuf, IsAvgCostCalcTypeItem);
             end;
@@ -2355,12 +2360,13 @@
         AvgCostExceptionBuf.Reset();
         RevaluationPoint.Reset();
         TempValueEntryCalcdOutbndCostBuf.Reset();
-        AvgCostBuf.Init();
+        AvgCostBuf.Initialize(true);
     end;
 
     local procedure DeleteAvgBuffers(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry")
     begin
         ResetAvgBuffers(OutbndValueEntry, ExcludedValueEntry);
+        AvgCostBuf.Initialize(false);
         OutbndValueEntry.DeleteAll();
         ExcludedValueEntry.DeleteAll();
         AvgCostExceptionBuf.DeleteAll();
