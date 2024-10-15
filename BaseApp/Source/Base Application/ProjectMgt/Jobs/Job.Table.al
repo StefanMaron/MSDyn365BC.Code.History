@@ -1596,6 +1596,7 @@ table 167 Job
         JobPlanningLine.LockTable();
         if JobPlanningLine.Find('-') then
             repeat
+                OnCurrencyUpdatePlanningLinesOnBeforeUpdateJobPlanningLine(Job, JobPlanningLine);
                 if JobPlanningLine."Qty. Transferred to Invoice" <> 0 then
                     Error(AssociatedEntriesExistErr, FieldCaption("Currency Code"), TableCaption);
                 JobPlanningLine.Validate("Currency Code", "Currency Code");
@@ -2429,7 +2430,7 @@ table 167 Job
             Job."Language Code" := BillToCustomer."Language Code";
             IsHandled := false;
             OnBillToCustomerNoUpdatedOnBeforeUpdateBillToContact(Job, xJob, BillToCustomer, IsHandled);
-            if not IsHandled then            
+            if not IsHandled then
                 UpdateBillToContact(Job."Bill-to Customer No.");
             Job.CopyDefaultDimensionsFromCustomer();
         end else begin
@@ -2861,6 +2862,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBillToCustomerNoUpdatedOnBeforeUpdateBillToContact(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCurrencyUpdatePlanningLinesOnBeforeUpdateJobPlanningLine(var Job: Record Job; var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

@@ -1455,8 +1455,14 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    [ModalPageHandler]
+    procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
     end;
 
     [ConfirmHandler]

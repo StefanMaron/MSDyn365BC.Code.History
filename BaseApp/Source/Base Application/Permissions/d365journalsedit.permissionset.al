@@ -44,6 +44,7 @@ permissionset 242 "D365 JOURNALS, EDIT"
                   tabledata "VAT Registration No. Format" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "Vendor Invoice Disc." = R,
                   tabledata "Vendor Ledger Entry" = Rm,
                   tabledata "Whse. Item Entry Relation" = R;

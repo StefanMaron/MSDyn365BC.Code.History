@@ -52,6 +52,7 @@ permissionset 4671 "Output Journals - Post"
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R;
