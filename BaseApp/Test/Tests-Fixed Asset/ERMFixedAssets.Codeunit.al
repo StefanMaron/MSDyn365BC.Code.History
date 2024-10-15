@@ -2396,6 +2396,62 @@ codeunit 134451 "ERM Fixed Assets"
         VerifyFALedgerEntry(FANo, DepBookCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FAIgnoreDefaultEndingBookValue()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 376178] "Ending Book Value" for FA Depreciation Book is not defaulted if "Ignore Def. Ending Book Value"=TRUE
+        Initialize();
+
+        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
+        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [GIVEN] Created FA Depreciation Book
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+
+        // [WHEN] Set "Ignore Def. Ending Book Value"=TRUE and attempt to change "Ending Book Value" to 0.0
+        FADepreciationBook.Validate("Ignore Def. Ending Book Value", true);
+        FADepreciationBook.Validate("Ending Book Value", 0);
+        FADepreciationBook.Modify(true);
+
+        // [THEN] "Ending Book Value" on FA Depreciation Book is set to 0.0
+        Assert.AreEqual(0, FADepreciationBook."Ending Book Value", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FANotIgnoreDefaultEndingBookValue()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+    begin
+        // [FEATURE] [Depreciation]
+        // [SCENARIO 376178] "Ending Book Value" for FA Depreciation Book is defaulted if "Ignore Def. Ending Book Value"=FALSE
+        Initialize();
+
+        // [GIVEN] Created Depreciation Book with specified "Default Ending Book Value", Fixed Asset
+        CreateFixedAssetSetupWDefaultEndingBookValue(DepreciationBook, LibraryRandom.RandDec(100, 2));
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+
+        // [GIVEN] Created FA Depreciation Book
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+
+        // [WHEN] Set "Ignore Def. Ending Book Value"=FALSE and attempt to change "Ending Book Value" to 0.0
+        FADepreciationBook.Validate("Ignore Def. Ending Book Value", false);
+        FADepreciationBook.Validate("Ending Book Value", 0);
+        FADepreciationBook.Modify(true);
+
+        // [THEN] "Ending Book Value" on FA Depreciation Book is set to be equal to "Default Ending Book Value" from Depreciation Book
+        Assert.AreEqual(DepreciationBook."Default Ending Book Value", FADepreciationBook."Ending Book Value", '');
+    end;
+
     local procedure Initialize()
     var
         DimValue: Record "Dimension Value";

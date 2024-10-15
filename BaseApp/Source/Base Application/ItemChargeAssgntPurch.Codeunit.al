@@ -18,6 +18,8 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ByWeightTok: Label 'By Weight';
         ByVolumeTok: Label 'By Volume';
         ItemChargesNotAssignedErr: Label 'No item charges were assigned.';
+        ItemChargeAssignedMenu4Lbl: Label '%1,%2,%3,%4', Locked = true;
+        ItemChargeAssignedMenu3Lbl: Label '%1,%2,%3', Locked = true;
         UOMMgt: Codeunit "Unit of Measure Management";
 
     procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
@@ -342,7 +344,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         if ItemChargeAssgntPurch.IsEmpty then
             exit;
 
-        ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Type", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
+        ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
 
         IsHandled := false;
         OnSuggestAssgntOnAfterItemChargeAssgntPurchSetFilters(ItemChargeAssgntPurch, PurchLine, TotalQtyToAssign, TotalAmtToAssign, IsHandled);
@@ -350,8 +352,14 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
             exit;
 
         Selection := 1;
-        SuggestItemChargeMenuTxt :=
-          StrSubstNo('%1,%2,%3,%4', AssignEquallyMenuText, AssignByAmountMenuText, AssignByWeightMenuText, AssignByVolumeMenuText);
+        if ItemChargeAssgntPurch.IsEmpty() then
+            SuggestItemChargeMenuTxt :=
+              StrSubstNo(ItemChargeAssignedMenu4Lbl, AssignEquallyMenuText(), AssignByAmountMenuText(), AssignByWeightMenuText(), AssignByVolumeMenuText())
+        else
+            SuggestItemChargeMenuTxt :=
+              StrSubstNo(ItemChargeAssignedMenu3Lbl, AssignEquallyMenuText(), AssignByWeightMenuText(), AssignByVolumeMenuText());
+        ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type");
+
         if ItemChargeAssgntPurch.Count > 1 then begin
             Selection := 2;
             SuggestItemChargeMessageTxt := SuggestItemChargeMsg;
@@ -399,15 +407,15 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-        if ItemChargeAssgntPurch.FindFirst then
+        if ItemChargeAssgntPurch.FindFirst() then
             case SelectionTxt of
-                AssignEquallyMenuText:
+                AssignEquallyMenuText():
                     AssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign);
-                AssignByAmountMenuText:
+                AssignByAmountMenuText():
                     AssignByAmount(ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign);
-                AssignByWeightMenuText:
+                AssignByWeightMenuText():
                     AssignByWeight(ItemChargeAssgntPurch, Currency, TotalQtyToAssign);
-                AssignByVolumeMenuText:
+                AssignByVolumeMenuText():
                     AssignByVolume(ItemChargeAssgntPurch, Currency, TotalQtyToAssign);
                 else begin
                         OnAssignItemCharges(

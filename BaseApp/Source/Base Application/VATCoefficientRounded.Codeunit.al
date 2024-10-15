@@ -19,7 +19,7 @@ codeunit 31095 "VAT Coefficient Rounded"
             then
                 exit;
 
-            Amount := RoundAmount("Amount Including VAT", "VAT %", SalesHeader."VAT Base Discount %", SalesHeader."Currency Code");
+            Amount := RoundAmount("Amount Including VAT", "VAT %", SalesHeader."VAT Base Discount %", "VAT Difference", SalesHeader."Currency Code");
         end;
     end;
 
@@ -32,7 +32,7 @@ codeunit 31095 "VAT Coefficient Rounded"
                 exit;
 
             Amount :=
-              RoundAmount("Amount Including VAT", "VAT %", SalesInvoiceHeader."VAT Base Discount %", SalesInvoiceHeader."Currency Code");
+              RoundAmount("Amount Including VAT", "VAT %", SalesInvoiceHeader."VAT Base Discount %", "VAT Difference", SalesInvoiceHeader."Currency Code");
         end;
     end;
 
@@ -45,7 +45,7 @@ codeunit 31095 "VAT Coefficient Rounded"
                 exit;
 
             Amount :=
-              RoundAmount("Amount Including VAT", "VAT %", SalesCrMemoHeader."VAT Base Discount %", SalesCrMemoHeader."Currency Code");
+              RoundAmount("Amount Including VAT", "VAT %", SalesCrMemoHeader."VAT Base Discount %", "VAT Difference", SalesCrMemoHeader."Currency Code");
         end;
     end;
 
@@ -57,9 +57,9 @@ codeunit 31095 "VAT Coefficient Rounded"
             then
                 exit;
 
-            Amount := RoundAmount("Amount Including VAT", "VAT %", PurchaseHeader."VAT Base Discount %", PurchaseHeader."Currency Code");
+            Amount := RoundAmount("Amount Including VAT", "VAT %", PurchaseHeader."VAT Base Discount %", "VAT Difference", PurchaseHeader."Currency Code");
             "Ext. Amount (LCY)" :=
-              RoundAmount("Ext.Amount Including VAT (LCY)", "VAT %", PurchaseHeader."VAT Base Discount %", PurchaseHeader."Currency Code");
+              RoundAmount("Ext.Amount Including VAT (LCY)", "VAT %", PurchaseHeader."VAT Base Discount %", "Ext. VAT Difference (LCY)", PurchaseHeader."Currency Code");
         end;
     end;
 
@@ -71,9 +71,9 @@ codeunit 31095 "VAT Coefficient Rounded"
             then
                 exit;
 
-            Amount := RoundAmount("Amount Including VAT", "VAT %", PurchInvHeader."VAT Base Discount %", PurchInvHeader."Currency Code");
+            Amount := RoundAmount("Amount Including VAT", "VAT %", PurchInvHeader."VAT Base Discount %", "VAT Difference", PurchInvHeader."Currency Code");
             "Ext. Amount (LCY)" :=
-              RoundAmount("Ext.Amount Including VAT (LCY)", "VAT %", PurchInvHeader."VAT Base Discount %", PurchInvHeader."Currency Code");
+              RoundAmount("Ext.Amount Including VAT (LCY)", "VAT %", PurchInvHeader."VAT Base Discount %", "Ext. VAT Difference (LCY)", PurchInvHeader."Currency Code");
         end;
     end;
 
@@ -85,7 +85,7 @@ codeunit 31095 "VAT Coefficient Rounded"
             then
                 exit;
 
-            Amount := RoundAmount("Amount Including VAT", "VAT %", PurchCrMemoHdr."VAT Base Discount %", PurchCrMemoHdr."Currency Code");
+            Amount := RoundAmount("Amount Including VAT", "VAT %", PurchCrMemoHdr."VAT Base Discount %", "VAT Difference", PurchCrMemoHdr."Currency Code");
         end;
     end;
 
@@ -97,7 +97,7 @@ codeunit 31095 "VAT Coefficient Rounded"
             then
                 exit;
 
-            Amount := RoundAmount("Amount Including VAT", "VAT %", ServiceHeader."VAT Base Discount %", ServiceHeader."Currency Code");
+            Amount := RoundAmount("Amount Including VAT", "VAT %", ServiceHeader."VAT Base Discount %", "VAT Difference", ServiceHeader."Currency Code");
         end;
     end;
 
@@ -110,7 +110,7 @@ codeunit 31095 "VAT Coefficient Rounded"
                 exit;
 
             Amount :=
-              RoundAmount("Amount Including VAT", "VAT %", ServiceInvoiceHeader."VAT Base Discount %", ServiceInvoiceHeader."Currency Code");
+              RoundAmount("Amount Including VAT", "VAT %", ServiceInvoiceHeader."VAT Base Discount %", "VAT Difference", ServiceInvoiceHeader."Currency Code");
         end;
     end;
 
@@ -123,11 +123,11 @@ codeunit 31095 "VAT Coefficient Rounded"
                 exit;
 
             Amount :=
-              RoundAmount("Amount Including VAT", "VAT %", ServiceCrMemoHeader."VAT Base Discount %", ServiceCrMemoHeader."Currency Code");
+              RoundAmount("Amount Including VAT", "VAT %", ServiceCrMemoHeader."VAT Base Discount %", "VAT Difference", ServiceCrMemoHeader."Currency Code");
         end;
     end;
 
-    local procedure RoundAmount(AmountIncludingVAT: Decimal; VATPerc: Decimal; VATBaseDiscountPerc: Decimal; CurrencyCode: Code[10]): Decimal
+    local procedure RoundAmount(AmountIncludingVAT: Decimal; VATPerc: Decimal; VATBaseDiscountPerc: Decimal; VATDifference: Decimal; CurrencyCode: Code[10]): Decimal
     var
         GLSetup: Record "General Ledger Setup";
         RoundingPrecision: Decimal;
@@ -138,14 +138,14 @@ codeunit 31095 "VAT Coefficient Rounded"
         GLSetup.Get();
         GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
         if not GLSetup."Round VAT Coeff." then
-            exit(Round(AmountIncludingVAT / (1 + VATPerc / 100), RoundingPrecision));
+            exit(Round(AmountIncludingVAT / (1 + VATPerc / 100), RoundingPrecision) - VATDifference);
 
         GLSetup.TestField("VAT Coeff. Rounding Precision");
         exit(
           AmountIncludingVAT -
           Round(
             AmountIncludingVAT * Round(VATPerc / (100 + VATPerc), GLSetup."VAT Coeff. Rounding Precision") *
-            (1 - VATBaseDiscountPerc / 100), RoundingPrecision, RoundingDirection));
+            (1 - VATBaseDiscountPerc / 100), RoundingPrecision, RoundingDirection) - VATDifference);
     end;
 
     local procedure GetCurrency(CurrencyCode: Code[10])

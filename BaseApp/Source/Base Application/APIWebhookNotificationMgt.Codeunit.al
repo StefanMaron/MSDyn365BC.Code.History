@@ -3,6 +3,9 @@ codeunit 6153 "API Webhook Notification Mgt."
     // Registers notifications in table API Webhook Notification on entity insert, modify, rename and delete
 
     SingleInstance = true;
+    Permissions = TableData "API Webhook Subscription" = imd,
+                  TableData "API Webhook Notification" = imd,
+                  TableData "API Webhook Notification Aggr" = imd;
 
     trigger OnRun()
     begin
@@ -35,6 +38,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         UseCachedApiSubscriptionEnabled: Boolean;
         UseCachedDetailedLoggingEnabled: Boolean;
         TooManyJobsMsg: Label 'New job is not created. Count of jobs cannot exceed %1.', Locked = true;
+        NoPermissionsTxt: Label 'No permissions.', Locked = true;
         FieldTok: Label 'Field', Locked = true;
         EqConstTok: Label '=CONST(', Locked = true;
         EqFilterTok: Label '=FILTER(', Locked = true;
@@ -319,6 +323,14 @@ codeunit 6153 "API Webhook Notification Mgt."
           StrSubstNo(DeleteSubscriptionMsg,
             DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"),
           DATACLASSIFICATION::SystemMetadata);
+
+        if (not APIWebhookSubscription.WritePermission()) or
+           (not APIWebhookNotification.WritePermission()) or
+           (not APIWebhookNotificationAggr.WritePermission()) then begin
+            SendTraceTag('0000DY1', APIWebhookCategoryLbl, Verbosity::Warning, NoPermissionsTxt, DataClassification::SystemMetadata);
+            exit;
+        end;
+
         APIWebhookNotification.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
         if not APIWebhookNotification.IsEmpty() then
             APIWebhookNotification.DeleteAll(true);
@@ -336,6 +348,11 @@ codeunit 6153 "API Webhook Notification Mgt."
         FieldRef: FieldRef;
         FieldValue: Text;
     begin
+        if not APIWebhookNotification.WritePermission() then begin
+            SendTraceTag('0000DY2', APIWebhookCategoryLbl, Verbosity::Warning, NoPermissionsTxt, DataClassification::SystemMetadata);
+            exit(false);
+        end;
+
         if TryGetEntityKeyValue(ApiWebhookEntity, RecRef, FieldValue) then begin
             APIWebhookNotification.ID := CreateGuid();
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";

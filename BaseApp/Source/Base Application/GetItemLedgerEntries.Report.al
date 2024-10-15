@@ -423,6 +423,7 @@ report 594 "Get Item Ledger Entries"
             "Indirect Cost" :=
               Round(CalculateExchangeAmount("Indirect Cost", DocumentCurrencyFactor, IntrastatCurrencyFactor), 1, Direction);
             "Source Entry Date" := "Item Ledger Entry"."Posting Date";
+            Validate("Source Type", "Source Type"::"Item Entry");
             // NAVCZ
 
             IsHandled := false;
@@ -471,7 +472,7 @@ report 594 "Get Item Ledger Entries"
             else
                 Amount := Round(Abs(Amount), GLSetup."Amount Rounding Precision", Direction); // NAVCZ
             Validate("Item No.");
-            "Source Type" := "Source Type"::"Job Entry";
+            Validate("Source Type", "Source Type"::"Job Entry");
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
 
             Validate("Cost Regulation %", IndirectCostPctReq);
@@ -728,6 +729,7 @@ report 594 "Get Item Ledger Entries"
 
             "Additional Costs" := true;
             "Source Entry Date" := "Item Ledger Entry"."Posting Date";
+            Validate("Source Type", "Source Type"::"Item Entry");
             // NAVCZ
 
             IsHandled := false;
