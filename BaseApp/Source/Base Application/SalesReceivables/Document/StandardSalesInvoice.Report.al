@@ -208,6 +208,42 @@ report 1306 "Standard Sales - Invoice"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(AlternativeAddress_Lbl; AlternativeAddressTxt)
+            {
+            }
+            column(AlternativeAddress1; AlternativeAddress[1])
+            {
+            }
+            column(AlternativeAddress2; AlternativeAddress[2])
+            {
+            }
+            column(AlternativeAddress3; AlternativeAddress[3])
+            {
+            }
+            column(AlternativeAddress4; AlternativeAddress[4])
+            {
+            }
+            column(AlternativeAddress5; AlternativeAddress[5])
+            {
+            }
+            column(AlternativeAddress6; AlternativeAddress[6])
+            {
+            }
+            column(AlternativeAddress7; AlternativeAddress[7])
+            {
+            }
+            column(AlternativeAddress8; AlternativeAddress[8])
+            {
+            }
+            column(CustomerSirenNo; Cust.GetSIRENNoWithCaption())
+            {
+            }
+            column(GoodsAndServices_Lbl; GetGoodsAndServicesText())
+            {
+            }
+            column(VATPaidOnDebits_Lbl; GetVATPaidOnDebitsText())
+            {
+            }
             column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
             {
             }
@@ -1351,6 +1387,9 @@ report 1306 "Standard Sales - Invoice"
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
         LCYTxt: label ' (LCY)';
+        IncludesGoodsLbl: Label 'Sales invoice includes only goods.';
+        IncludesServicesLbl: Label 'Sales invoice includes only services.';
+        IncludesGoodsAndServicesLbl: Label 'Sales invoice includes goods and services.';
         VATClauseText: Text;
 
     protected var
@@ -1364,12 +1403,14 @@ report 1306 "Standard Sales - Invoice"
         CompanyAddr: array[8] of Text[100];
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
+        AlternativeAddress: array[8] of Text[100];
         FormattedLineAmount: Text;
         FormattedQuantity: Text;
         FormattedUnitPrice: Text;
         FormattedVATPct: Text;
         LineDiscountPctText: Text;
         PmtDiscText: Text;
+        AlternativeAddressTxt: Text;
         TotalExclVATText: Text[50];
         TotalInclVATText: Text[50];
         TotalSubTotal: Decimal;
@@ -1459,6 +1500,49 @@ report 1306 "Standard Sales - Invoice"
         MailManagement: Codeunit "Mail Management";
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
+    end;
+
+    local procedure GetGoodsAndServicesText(): Text
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        GotGoods: Boolean;
+        GotServices: Boolean;
+    begin
+        SalesInvoiceLine.SetRange("Document No.", Header."No.");
+        SalesInvoiceLine.SetFilter(Type, '<> %1', SalesInvoiceLine.Type::Item);
+        if not SalesInvoiceLine.IsEmpty() then
+            GotServices := true;
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
+        SalesInvoiceLine.SetLoadFields("No.");
+        if SalesInvoiceLine.FindSet() then
+            repeat
+                if IsItemInventory(SalesInvoiceLine."No.") then
+                    GotGoods := true
+                else
+                    GotServices := true;
+            until SalesInvoiceLine.Next() = 0;
+        if GotServices then
+            if GotGoods then
+                exit(IncludesGoodsAndServicesLbl)
+            else
+                exit(IncludesServicesLbl)
+        else
+            exit(IncludesGoodsLbl);
+    end;
+
+    local procedure IsItemInventory(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields(Type);
+        if Item.Get(ItemNo) then
+            exit(Item.Type = Item.Type::Inventory);
+    end;
+
+    local procedure GetVATPaidonDebitsText(): Text
+    begin
+        if Header."VAT Paid on Debits" then
+            exit(Header.FieldCaption("VAT Paid on Debits"));
     end;
 
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]
@@ -1590,10 +1674,17 @@ report 1306 "Standard Sales - Invoice"
     end;
 
     local procedure FormatAddressFields(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        i: Integer;
     begin
         FormatAddr.GetCompanyAddr(SalesInvoiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
         FormatAddr.SalesInvBillTo(CustAddr, SalesInvoiceHeader);
         ShowShippingAddr := FormatAddr.SalesInvShipTo(ShipToAddr, CustAddr, SalesInvoiceHeader);
+        if ShowShippingAddr then begin
+            for i := 1 to 8 do
+                AlternativeAddress[i] := ShipToAddr[i];
+            AlternativeAddressTxt := ShiptoAddrLbl;
+        end;
     end;
 
     local procedure FormatDocumentFields(SalesInvoiceHeader: Record "Sales Invoice Header")

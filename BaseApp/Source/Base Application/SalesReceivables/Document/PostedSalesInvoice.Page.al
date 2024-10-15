@@ -345,6 +345,12 @@ page 132 "Posted Sales Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies how the customer must pay for products on the sales document.';
                 }
+                field("VAT Paid on Debits"; Rec."VAT Paid on Debits")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies if the VAT was paid on debits for this document.';
+                }
                 group(Control15)
                 {
                     ShowCaption = false;

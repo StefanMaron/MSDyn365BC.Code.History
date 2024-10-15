@@ -809,6 +809,17 @@ codeunit 130619 "Library - Graph Document Tools"
     end;
 
     [Scope('OnPrem')]
+    procedure VerifyPurchaseIdsSetFromTxt(PurchaseLine: Record "Purchase Line"; JObjectTxt: Text)
+    var
+        JSONManagement: Codeunit "JSON Management";
+        JsonObject: DotNet JObject;
+    begin
+        JSONManagement.InitializeObject(JObjectTxt);
+        JSONManagement.GetJSONObject(JsonObject);
+        VerifyPurchaseIdsSet(PurchaseLine, JsonObject);
+    end;
+
+    [Scope('OnPrem')]
     procedure VerifySalesIdsSet(var SalesLine: Record "Sales Line"; var JObject: DotNet JObject)
     var
         Item: Record Item;

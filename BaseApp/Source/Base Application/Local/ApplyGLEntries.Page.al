@@ -191,7 +191,6 @@ page 10842 "Apply G/L Entries"
             group(Category_Process)
             {
                 Caption = 'Process';
-
                 actionref(SetAppliesToID_Promoted; SetAppliesToID)
                 {
                 }

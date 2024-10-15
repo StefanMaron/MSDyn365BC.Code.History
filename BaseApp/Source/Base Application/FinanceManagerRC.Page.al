@@ -288,12 +288,18 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Export G/L Entries to XML';
                             RunObject = report "Export G/L Entries to XML";
                         }
+#if not CLEAN23
                         action("Export G/L Entries - Tax Audit")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Export G/L Entries - Tax Audit';
                             RunObject = report "Export G/L Entries - Tax Audit";
+                            Visible = false;
+                            ObsoleteReason = 'Use Audit File Export Document with the FEC format selected. The Audit File Export and FEC Audit File extensions must be installed.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '23.0';
                         }
+#endif
                     }
                 }
                 group("Group7")

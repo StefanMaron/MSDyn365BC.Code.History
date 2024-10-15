@@ -34,6 +34,7 @@ codeunit 453 "Job Queue - Enqueue"
                 JobQueueEntry.Status := SavedStatus
             else
                 JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+            OnEnqueueJobQueueEntryOnBeforeJobQueueEntrySecondModify(JobQueueEntry);
             JobQueueEntry.Modify();
         end;
 
@@ -81,6 +82,11 @@ codeunit 453 "Job Queue - Enqueue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobQueueScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnqueueJobQueueEntryOnBeforeJobQueueEntrySecondModify(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

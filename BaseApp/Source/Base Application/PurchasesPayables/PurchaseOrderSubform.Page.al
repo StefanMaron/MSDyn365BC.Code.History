@@ -395,6 +395,18 @@
                         DeltaUpdateTotals();
                     end;
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
                 field("Prepayment %"; Rec."Prepayment %")
                 {
                     ApplicationArea = Prepayments;
@@ -1530,6 +1542,7 @@
         IsFoundation: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         AttachingLinesEnabled: Boolean;
+        ShowNonDedVATInLines: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
         SuppressTotals: Boolean;
@@ -1562,6 +1575,7 @@
     var
         ServerSetting: Codeunit "Server Setting";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         OnBeforeSetOpenPage();
 
@@ -1570,6 +1584,7 @@
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
         AttachingLinesEnabled :=
             PurchasesPayablesSetup."Auto Post Non-Invt. via Whse." = PurchasesPayablesSetup."Auto Post Non-Invt. via Whse."::"Attached/Assigned";
+        ShowNonDedVATInLines := NonDeductibleVAT.ShowNonDeductibleVATInLines();
     end;
 
     procedure ApproveCalcInvDisc()

@@ -42,7 +42,7 @@
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption,%2=Field Value;';
         VALVATAmountLCYTok: Label 'VALVATAmountLCY';
         VALVATAmtLCYTok: Label 'VALVATAmtLCY';
-		TotalVATAmountLCY: Label 'TotalVATAmountLCY';
+        TotalVATAmountLCY: Label 'TotalVATAmountLCY';
         VALVATBaseLCYTok: Label 'VALVATBaseLCY';
         TotalVATBaseLCY: Label 'TotalVATBaseLCY';
         VATPer_VATCounterLCYTok: Label 'VATAmtLineVAT1';
@@ -61,6 +61,12 @@
         TaxInvoiceTxt: Label 'Tax Invoice';
         EmptyReportDatasetTxt: Label 'There is nothing to print for the selected filters.';
         WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
+        InvIncludesGoodsTxt: Label 'Sales invoice includes only goods.';
+        InvIncludesServicesTxt: Label 'Sales invoice includes only services.';
+        InvIncludesGoodsAndServicesTxt: Label 'Sales invoice includes goods and services.';
+        CrMemoIncludesGoodsTxt: Label 'Sales credit memo includes only goods.';
+        CrMemoIncludesServicesTxt: Label 'Sales credit memo includes only services.';
+        CrMemoIncludesGoodsAndServicesTxt: Label 'Sales credit memo includes goods and services.';
 
     [Test]
     [HandlerFunctions('CustomerTrialBalanceRequestPageHandler')]
@@ -1366,7 +1372,7 @@
 
         // [THEN] Saved Excel file contains "External Doc No.".
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(21, 17, SalesHeader."External Document No.");
+        LibraryReportValidation.VerifyCellValue(21, 18, SalesHeader."External Document No.");
     end;
 
     [Test]
@@ -3131,6 +3137,627 @@
         Assert.RecordIsEmpty(InteractionLogEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_HasSirenNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with Customer having SIREN No.
+        Initialize();
+
+        // [GIVEN] A Customer with a Siren No.
+        CreateCustomerWithSirenNo(Customer);
+
+        // [GIVEN] A Sales Invoice for this Customer
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report DataSet contains Customer."SIREN No." with caption
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('CustomerSirenNo', Customer.GetSIRENNoWithCaption());
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_AltAddressFilledin()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with Customer having Alternative Address.
+        Initialize();
+
+        // [GIVEN] Customer "C1" with Bill-to customer "C2"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Customer.Modify();
+
+        // [GIVEN] Create and post invoice for customer "C1"
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Alternative address is filled in with correct values
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress_Lbl', 'Ship-to Address');
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress1', SalesInvoiceHeader."Ship-to Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_AltAddressEmpty()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with Customer not having Alternative Address.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice with shipping address = default
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report DataSet contains a line with empty Alternative Address
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress_Lbl', '');
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress1', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_VATPaidOnDebitsTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with "VAT Paid on Debits" = true.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice with "VAT Paid on Debits" = true
+        CreateSalesInvoiceWithVATPaidOnDebits(SalesHeader, true);
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report DataSet contains a line with "VAT Paid on Debits"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATPaidOnDebits_Lbl', SalesInvoiceHeader.FieldCaption("VAT Paid on Debits"));
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_VATPaidOnDebitsFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with "VAT Paid on Debits" = false.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice with "VAT Paid on Debits" = false
+        CreateSalesInvoiceWithVATPaidOnDebits(SalesHeader, false);
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report DataSet doesn't contain a line with "VAT Paid on Debits"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATPaidOnDebits_Lbl', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_IncludesItems()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with Invoice including only Inventory Items.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Inventory
+        CreateSalesLineForItemType(SalesHeader, ItemType::Inventory);
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report includes line "Invoice has only items"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', InvIncludesGoodsTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_IncludesServices()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with Invoice not including Inventory Items.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Service
+        CreateSalesLineForItemType(SalesHeader, ItemType::Service);
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report includes line "Invoice has only services"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', InvIncludesServicesTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesInvoice_IncludesMixed()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Invoice" with Invoice including Inventory Items and Services.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Inventory
+        CreateSalesLineForItemType(SalesHeader, ItemType::Inventory);
+
+        // [GIVEN] Add a Sales Line with Item Type = Service
+        CreateSalesLineForItemType(SalesHeader, ItemType::Service);
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report includes line "Invoice has items and services"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', InvIncludesGoodsAndServicesTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_HasSirenNo()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with Customer having SIREN No.
+        Initialize();
+
+        // [GIVEN] A Customer with a Siren No.
+        CreateCustomerWithSirenNo(Customer);
+
+        // [GIVEN] A Sales Invoice for this Customer
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report DataSet contains Customer."SIREN No." with caption
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('CustomerSirenNo', Customer.GetSIRENNoWithCaption());
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_AltAddressFilledin()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with Customer having Alternative Address.
+        Initialize();
+
+        // [GIVEN] Customer "C1" with Bill-to customer "C2"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Customer.Modify();
+
+        // [GIVEN] Create and post invoice for customer "C1"
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Alternative address is filled in with correct values
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress_Lbl', 'Ship-to Address');
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress1', SalesHeader."Ship-to Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_AltAddressEmpty()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with Customer not having Alternative Address.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice with shipping address = default
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report DataSet contains a line with empty Alternative Address
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress_Lbl', '');
+        LibraryReportDataset.AssertElementTagWithValueExists('AlternativeAddress1', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_VATPaidOnDebitsTrue()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with "VAT Paid on Debits" = true.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice with "VAT Paid on Debits" = true
+        CreateSalesInvoiceWithVATPaidOnDebits(SalesHeader, true);
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report DataSet contains a line with "VAT Paid on Debits"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATPaidOnDebits_Lbl', SalesHeader.FieldCaption("VAT Paid on Debits"));
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_VATPaidOnDebitsFalse()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with "VAT Paid on Debits" = false.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice with "VAT Paid on Debits" = false
+        CreateSalesInvoiceWithVATPaidOnDebits(SalesHeader, false);
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report DataSet doesn't contain a line with "VAT Paid on Debits"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATPaidOnDebits_Lbl', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_IncludesItems()
+    var
+        SalesHeader: Record "Sales Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with Invoice including only Inventory Items.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Inventory
+        CreateSalesLineForItemType(SalesHeader, ItemType::Inventory);
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report includes line "Invoice has only items"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', InvIncludesGoodsTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_IncludesServices()
+    var
+        SalesHeader: Record "Sales Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with Invoice not including Inventory Items.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Service
+        CreateSalesLineForItemType(SalesHeader, ItemType::Service);
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report includes line "Invoice has only services"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', InvIncludesServicesTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    procedure StandardSalesDraftInvoice_IncludesMixed()
+    var
+        SalesHeader: Record "Sales Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Draft Invoice]
+        // [SCENARIO 467032] Test Report "Standard Sales - Draft Invoice" with Invoice including Inventory Items and Services.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Inventory
+        CreateSalesLineForItemType(SalesHeader, ItemType::Inventory);
+
+        // [GIVEN] Add a Sales Line with Item Type = Service
+        CreateSalesLineForItemType(SalesHeader, ItemType::Service);
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report includes line "Invoice has items and services"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', InvIncludesGoodsAndServicesTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    procedure StandardSalesCreditMemo_HasSirenNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 467032] Test Report "Standard Sales - Credit Memo" with Customer having SIREN No.
+        Initialize();
+
+        // [GIVEN] A Customer with a Siren No.
+        CreateCustomerWithSirenNo(Customer);
+
+        // [GIVEN] A Credit Memo for this Customer
+        LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, Customer."No.");
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Credit Memo" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report DataSet contains Customer."SIREN No." with caption
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('CustomerSirenNo', Customer.GetSIRENNoWithCaption());
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    procedure StandardSalesCreditMemo_VATPaidOnDebitsTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 467032] Test Report "Standard Sales - Credit Memo" with "VAT Paid on Debits" = true.
+        Initialize();
+
+        // [GIVEN] Create a Sales Credit Memo with "VAT Paid on Debits" = true
+        CreateSalesCreditMemoWithVATPaidOnDebits(SalesHeader, true);
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Credit Memo" for Posted Sales Credit Memo
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report DataSet contains a line with "VAT Paid on Debits"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATPaidOnDebits_Lbl', SalesCrMemoHeader.FieldCaption("VAT Paid on Debits"));
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    procedure StandardSalesCreditMemo_VATPaidOnDebitsFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 467032] Test Report "Standard Sales - Credit Memo" with "VAT Paid on Debits" = false.
+        Initialize();
+
+        // [GIVEN] Create a Sales Credit Memo with "VAT Paid on Debits" = false
+        CreateSalesCreditMemoWithVATPaidOnDebits(SalesHeader, false);
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Credit Memo" for Posted Sales Credit Memo
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report DataSet doesn't contain a line with "VAT Paid on Debits"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('VATPaidOnDebits_Lbl', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    procedure StandardSalesCreditMemo_IncludesItems()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 467032] Test Report "Standard Sales - Credit Memo" with Credit Memo including only Inventory Items.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Inventory
+        CreateSalesLineForItemType(SalesHeader, ItemType::Inventory);
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Credit Memo" for Posted Sales Credit Memo
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report includes line "Credit Memo has only items"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', CrMemoIncludesGoodsTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    procedure StandardSalesCreditMemo_IncludesServices()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 467032] Test Report "Standard Sales - Credit Memo" with Credit Memo not including any Inventory Items.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Service
+        CreateSalesLineForItemType(SalesHeader, ItemType::Service);
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Credit Memo" for Posted Sales Credit Memo
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report includes line "Credit Memo has only services"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', CrMemoIncludesServicesTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    procedure StandardSalesCreditMemo_Mixed()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ItemType: Enum "Item Type";
+    begin
+        // [FEATURE] [Sales Credit Memo]
+        // [SCENARIO 467032] Test Report "Standard Sales - Credit Memo" with Credit Memo including Inventory Items and other lines.
+        Initialize();
+
+        // [GIVEN] Create Sales Header for Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Add a Sales Line with Item Type = Inventory
+        CreateSalesLineForItemType(SalesHeader, ItemType::Inventory);
+
+        // [GIVEN] Add a Sales Line with Item Type = Service
+        CreateSalesLineForItemType(SalesHeader, ItemType::Service);
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesCrMemoHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Credit Memo" for Posted Sales Credit Memo
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+
+        // [THEN] Report includes line "Credit Memo has items and services"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists('GoodsAndServices_Lbl', CrMemoIncludesGoodsAndServicesTxt);
+    end;
+
     local procedure Initialize()
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -3431,6 +4058,20 @@
         SalesInvoiceLine.Insert();
     end;
 
+    local procedure CreateSalesInvoiceWithVATPaidOnDebits(var SalesHeader: Record "Sales Header"; VATPaidOnDebits: Boolean)
+    begin
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Paid on Debits", VATPaidOnDebits);
+        SalesHeader.Modify();
+    end;
+
+    local procedure CreateSalesCreditMemoWithVATPaidOnDebits(var SalesHeader: Record "Sales Header"; VATPaidOnDebits: Boolean)
+    begin
+        LibrarySales.CreateSalesCreditMemoForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Paid on Debits", VATPaidOnDebits);
+        SalesHeader.Modify();
+    end;
+
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
@@ -3553,6 +4194,18 @@
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateSalesLineForItemType(SalesHeader: Record "Sales Header"; ItemType: Enum "Item Type")
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        LibraryService: Codeunit "Library - Service";
+    begin
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
+        Item.Validate(Type, ItemType);
+        Item.Modify();
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
+    end;
+
     local procedure CreateEmptySalesLineWithDescription(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -3581,6 +4234,13 @@
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Phone No.", LibraryUtility.GenerateRandomNumericText(10));
         Customer.Validate("Fax No.", LibraryUtility.GenerateRandomNumericText(10));
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithSirenNo(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("SIREN No.", LibraryUtility.GenerateRandomNumericText(9));
         Customer.Modify(true);
     end;
 
@@ -4677,8 +5337,8 @@
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetLastRow;
         VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1, 'VALVATAmtLCY');
-	end;
-		
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DraftSalesInvoiceRequestPageHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")

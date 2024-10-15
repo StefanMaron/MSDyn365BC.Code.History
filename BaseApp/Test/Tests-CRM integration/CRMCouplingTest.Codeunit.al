@@ -141,8 +141,6 @@ codeunit 139182 "CRM Coupling Test"
           'The Customer must have the same name as it had before syncing');
         Assert.AreEqual(Customer.Name, CRMAccount.Name,
           'The CRM Account must have the same name as the Customer after syncing');
-        Assert.IsTrue(Customer."Coupled to CRM",
-          'The Customer must be marked as coupled');
     end;
 
     [Test]

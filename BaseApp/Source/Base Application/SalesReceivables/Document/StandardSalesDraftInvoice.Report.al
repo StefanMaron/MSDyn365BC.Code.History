@@ -239,6 +239,42 @@ report 1303 "Standard Sales - Draft Invoice"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(AlternativeAddress_Lbl; AlternativeAddressTxt)
+            {
+            }
+            column(AlternativeAddress1; AlternativeAddress[1])
+            {
+            }
+            column(AlternativeAddress2; AlternativeAddress[2])
+            {
+            }
+            column(AlternativeAddress3; AlternativeAddress[3])
+            {
+            }
+            column(AlternativeAddress4; AlternativeAddress[4])
+            {
+            }
+            column(AlternativeAddress5; AlternativeAddress[5])
+            {
+            }
+            column(AlternativeAddress6; AlternativeAddress[6])
+            {
+            }
+            column(AlternativeAddress7; AlternativeAddress[7])
+            {
+            }
+            column(AlternativeAddress8; AlternativeAddress[8])
+            {
+            }
+            column(CustomerSirenNo; Cust.GetSIRENNoWithCaption())
+            {
+            }
+            column(GoodsAndServices_Lbl; GetGoodsAndServicesText())
+            {
+            }
+            column(VATPaidOnDebits_Lbl; GetVATPaidOnDebitsText())
+            {
+            }
             column(PaymentTermsDescription; PaymentTerms.Description)
             {
             }
@@ -901,9 +937,7 @@ report 1303 "Standard Sales - Draft Invoice"
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
-                FormatAddr.GetCompanyAddr("Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-                FormatAddr.SalesHeaderBillTo(CustAddr, Header);
-                ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, Header);
+                FormatAddressFields(Header);
                 DocumentTitleText := SalesConfirmationLbl;
                 YourDocumentTitleText := StrSubstNo(YourDocLbl, SalesConfirmationLbl);
                 InvoiceNoText := InvNoLbl;
@@ -1056,6 +1090,7 @@ report 1303 "Standard Sales - Draft Invoice"
         CustAddr: array[8] of Text[100];
         ChecksPayableText: Text;
         ShipToAddr: array[8] of Text[100];
+        AlternativeAddress: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         SalesPersonText: Text[50];
 #if not CLEAN22
@@ -1072,6 +1107,7 @@ report 1303 "Standard Sales - Draft Invoice"
         TotalVATAmountLCY: Decimal;
         PrevLineAmount: Decimal;
         PmtDiscText: Text;
+        AlternativeAddressTxt: Text;
         PaymentInstructionsTxt: Text;
         YourDocumentTitleText: Text;
         DocumentTitleText: Text;
@@ -1135,6 +1171,9 @@ report 1303 "Standard Sales - Draft Invoice"
         PriceLbl: Label 'Price';
         PricePerLbl: Label 'Price per';
         LCYTxt: label ' (LCY)';
+        IncludesGoodsLbl: Label 'Sales invoice includes only goods.';
+        IncludesServicesLbl: Label 'Sales invoice includes only services.';
+        IncludesGoodsAndServicesLbl: Label 'Sales invoice includes goods and services.';
         VATClauseText: Text;
 
     protected var
@@ -1194,6 +1233,50 @@ report 1303 "Standard Sales - Draft Invoice"
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
+    local procedure GetGoodsAndServicesText(): Text
+    var
+        SalesLine: Record "Sales Line";
+        GotGoods: Boolean;
+        GotServices: Boolean;
+    begin
+        SalesLine.SetRange("Document No.", Header."No.");
+        SalesLine.SetRange("Document Type", Header."Document Type");
+        SalesLine.SetFilter(Type, '<> %1', SalesLine.Type::Item);
+        if not SalesLine.IsEmpty() then
+            GotServices := true;
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetLoadFields("No.");
+        if SalesLine.FindSet() then
+            repeat
+                if IsItemInventory(SalesLine."No.") then
+                    GotGoods := true
+                else
+                    GotServices := true;
+            until SalesLine.Next() = 0;
+        if GotServices then
+            if GotGoods then
+                exit(IncludesGoodsAndServicesLbl)
+            else
+                exit(IncludesServicesLbl)
+        else
+            exit(IncludesGoodsLbl);
+    end;
+
+    local procedure IsItemInventory(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields(Type);
+        if Item.Get(ItemNo) then
+            exit(Item.Type = Item.Type::Inventory);
+    end;
+
+    local procedure GetVATPaidonDebitsText(): Text
+    begin
+        if Header."VAT Paid on Debits" then
+            exit(Header.FieldCaption("VAT Paid on Debits"));
+    end;
+
     local procedure CreateReportTotalLines()
     begin
         ReportTotalsLine.DeleteAll();
@@ -1222,6 +1305,20 @@ report 1303 "Standard Sales - Draft Invoice"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure FormatAddressFields(var SalesHeader: Record "Sales Header")
+    var
+        i: Integer;
+    begin
+        FormatAddr.GetCompanyAddr(SalesHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
+        FormatAddr.SalesHeaderBillTo(CustAddr, SalesHeader);
+        ShowShippingAddr := FormatAddr.SalesHeaderShipTo(ShipToAddr, CustAddr, SalesHeader);
+        if ShowShippingAddr then begin
+            for i := 1 to 8 do
+                AlternativeAddress[i] := ShipToAddr[i];
+            AlternativeAddressTxt := ShiptoAddrLbl;
+        end;
     end;
 
     local procedure FormatLineValues(CurrLine: Record "Sales Line")

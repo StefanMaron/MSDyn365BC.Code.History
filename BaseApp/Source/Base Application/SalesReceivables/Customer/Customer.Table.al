@@ -1205,6 +1205,21 @@
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Customer)));
         }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
@@ -1628,6 +1643,10 @@
         {
             Caption = 'Contact Graph Id';
         }
+        field(10805; "SIREN No."; Code[9])
+        {
+            Caption = 'SIREN No.';
+        }
         field(10860; "Payment in progress (LCY)"; Decimal)
         {
             CalcFormula = - Sum("Payment Line"."Amount (LCY)" WHERE("Account Type" = CONST(Customer),
@@ -1702,9 +1721,14 @@
         key(Key20; "Partner Type", "Country/Region Code")
         {
         }
+#if not CLEAN23
         key(Key21; "Coupled to CRM")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+            ObsoleteTag = '23.0';
         }
+#endif
         key(Key22; "IC Partner Code")
         {
         }
@@ -1930,6 +1954,7 @@
         RemovePaymentRoleranceQst: Label 'Do you want to remove payment tolerance from entries that are currently open?';
         CreateNewCustTxt: Label 'Create a new customer card for %1', Comment = '%1 is the name to be used to create the customer. ';
         SelectCustErr: Label 'You must select an existing customer.';
+        SirenNoTemplateTxt: Label '%1: %2', Locked = True;
         CustNotRegisteredTxt: Label 'This customer is not registered. To continue, choose one of the following options:';
         SelectCustTxt: Label 'Select an existing customer';
         OverrideImageQst: Label 'Override Image?';
@@ -2182,6 +2207,11 @@
         if "Customer Price Group" <> '' then
             if CustomerPriceGroup.Get("Customer Price Group") then
                 exit(CustomerPriceGroup."Price Calculation Method");
+    end;
+
+    procedure GetSIRENNoWithCaption(): Text
+    begin
+        exit(StrSubstNo(SirenNoTemplateTxt, Rec.FieldCaption("Siren No."), Rec."Siren No."));
     end;
 
     procedure GetTotalAmountLCY() TotalAmountLCY: Decimal
@@ -3278,7 +3308,10 @@
         OnBeforeCheckAllowMultiplePostingGroups(IsHandled);
         if IsHandled then
             exit;
-        TestField("Allow Multiple Posting Groups");
+
+        SalesSetup.Get();
+        if SalesSetup."Allow Multiple Posting Groups" then
+            TestField("Allow Multiple Posting Groups");
     end;
 
     [IntegrationEvent(false, false)]

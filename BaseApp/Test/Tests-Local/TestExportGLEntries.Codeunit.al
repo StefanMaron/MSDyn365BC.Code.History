@@ -1,7 +1,11 @@
+#if not CLEAN23
 codeunit 144563 "Test Export G/L Entries"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Run tests in FEC Audit File tests extension.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -3550,4 +3554,4 @@ codeunit 144563 "Test Export G/L Entries"
         ExportGLEntriesTaxAuditPage.OK.Invoke;
     end;
 }
-
+#endif

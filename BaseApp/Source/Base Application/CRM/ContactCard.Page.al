@@ -239,6 +239,11 @@ page 5050 "Contact Card"
                     Enabled = "APE CodeEnable";
                     ToolTip = 'Specifies the APE code for the contact.';
                 }
+                field("SIREN No."; Rec."SIREN No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the SIREN No. for the contact.';
+                }
                 field("Legal Form"; Rec."Legal Form")
                 {
                     ApplicationArea = Basic, Suite;
@@ -274,6 +279,13 @@ page 5050 "Contact Card"
                     Enabled = ParentalConsentReceivedEnable;
                     Importance = Additional;
                     ToolTip = 'Specifies that a parent or guardian of the minor has provided their consent to allow the minor to use this service. When this check box is selected, data for the minor can be processed.';
+                }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Enabled = RegistrationNumberEnabled;
+                    ToolTip = 'Specifies the registration number of the contact. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
             }
             part(ContactIntEntriesSubform; "Contact Int. Entries Subform")
@@ -1436,6 +1448,7 @@ page 5050 "Contact Card"
         CompanyNameEnable := true;
         VATRegistrationNoEnable := true;
         CurrencyCodeEnable := true;
+        RegistrationNumberEnabled := true;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1497,6 +1510,7 @@ page 5050 "Contact Card"
         RelatedEmployeeEnabled: Boolean;
         ShowMapLbl: Label 'Show Map';
         NoFieldVisible: Boolean;
+        RegistrationNumberEnabled: Boolean;
 
     protected var
         [InDataSet]
@@ -1515,6 +1529,7 @@ page 5050 "Contact Card"
         VATRegistrationNoEnable := Type = Type::Company;
         CompanyNameEnable := Type = Type::Person;
         OrganizationalLevelCodeEnable := Type = Type::Person;
+        RegistrationNumberEnabled := Rec.Type = Rec.Type::Company;
         "Trade RegisterEnable" := Type = Type::Company;
         "APE CodeEnable" := Type = Type::Company;
         "Legal FormEnable" := Type = Type::Company;

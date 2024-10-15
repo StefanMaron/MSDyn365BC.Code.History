@@ -199,6 +199,9 @@
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"
     },
     {
+      "path": "./FECAuditFile/Test/FEC Audit File Tests"
+    },
+    {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
     },
     {

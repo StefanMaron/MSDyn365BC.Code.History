@@ -584,6 +584,7 @@ table 110 "Sales Shipment Header"
         CertificateOfSupply: Record "Certificate of Supply";
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
+        PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
         LockTable();
         PostSalesDelete.DeleteSalesShptLines(Rec);

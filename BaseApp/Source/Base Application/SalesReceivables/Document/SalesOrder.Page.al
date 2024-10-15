@@ -443,6 +443,11 @@ page 42 "Sales Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
+                field("VAT Paid on Debits"; Rec."VAT Paid on Debits")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the VAT was paid on debits for this document.';
+                }
                 group(Control76)
                 {
                     ShowCaption = false;
@@ -1664,9 +1669,13 @@ page 42 "Sales Order"
                     var
                         ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                        ICFeedback: Codeunit "IC Feedback";
                     begin
-                        if ApprovalsMgmt.PrePostApprovalCheckSales(Rec) then
+                        Rec.TestField("IC Direction", Rec."IC Direction"::Outgoing);
+                        if ApprovalsMgmt.PrePostApprovalCheckSales(Rec) then begin
                             ICInOutboxMgt.SendSalesDoc(Rec, false);
+                            ICFeedback.ShowIntercompanyMessage(Rec, "IC Transaction Document Type"::Order);
+                        end;
                     end;
                 }
                 action("Reject IC Sales Order")
@@ -2740,7 +2749,7 @@ page 42 "Sales Order"
 
     local procedure SalespersonCodeOnAfterValidate()
     begin
-        CurrPage.SalesLines.PAGE.UpdateForm(true);
+        CurrPage.SalesLines.PAGE.UpdateForm(false);
     end;
 
     local procedure ShortcutDimension1CodeOnAfterV()
@@ -2826,14 +2835,17 @@ page 42 "Sales Order"
         OrderSalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        ICFeedback: Codeunit "IC Feedback";
     begin
         if not OrderSalesHeader.Get("Document Type", "No.") then begin
             SalesInvoiceHeader.SetRange("No.", "Last Posting No.");
-            if SalesInvoiceHeader.FindFirst() then
+            if SalesInvoiceHeader.FindFirst() then begin
+                ICFeedback.ShowIntercompanyMessage(Rec, "IC Transaction Document Type"::Order);
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesOrderQst, SalesInvoiceHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode())
                 then
                     InstructionMgt.ShowPostedDocument(SalesInvoiceHeader, Page::"Sales Order");
+            end;
         end;
     end;
 

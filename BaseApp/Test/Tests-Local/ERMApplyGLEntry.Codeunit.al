@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144007 "ERM Apply GL Entry"
 {
     // 1: Verify error message while reversing GL Register with applied GL Entries.
@@ -1148,4 +1149,4 @@ codeunit 144007 "ERM Apply GL Entry"
         ReverseTransactionEntries.Reverse.Invoke;
     end;
 }
-
+#endif

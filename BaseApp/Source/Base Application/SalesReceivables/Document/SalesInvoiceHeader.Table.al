@@ -646,6 +646,21 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Sales Invoice Header")));
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
@@ -756,6 +771,10 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
+        }
+        field(10801; "VAT Paid on Debits"; Boolean)
+        {
+            Caption = 'VAT Paid on Debits';
         }
     }
 

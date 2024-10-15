@@ -181,7 +181,7 @@ page 600 "IC Dimensions"
                     trigger OnAction()
                     var
                         ICSetup: Record "IC Setup";
-                        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+                        ICMapping: Codeunit "IC Mapping";
                         ICDimensionsSetup: Page "IC Dimensions Setup";
                         ICPartnerCode: Code[20];
                     begin
@@ -193,7 +193,7 @@ page 600 "IC Dimensions"
                         ICPartnerCode := ICSetup."Partner Code for Acc. Syn.";
                         if (ICPartnerCode <> '') then
                             if Confirm(StrSubstNo(SynchronizeIntercompanyQst, ICPartnerCode), true) then begin
-                                ICMappingDimensions.SynchronizeDimensions(false, ICPartnerCode);
+                                ICMapping.SynchronizeDimensions(false, ICPartnerCode);
                                 exit;
                             end;
                         ICDimensionsSetup.Run();

@@ -24,7 +24,7 @@
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>23.42617cm</Height>
+                  <Height>26.60119cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -2703,6 +2703,46 @@
                                       </TablixCell>
                                     </TablixCells>
                                   </TablixRow>
+                                  <TablixRow>
+                                    <Height>0.38806cm</Height>
+                                    <TablixCells>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="CustomerSirenNo">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!CustomerSirenNo.Value</Value>
+                                                    <Style>
+                                                      <FontFamily>segoe uI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>CustomerSirenNo</rd:DefaultName>
+                                            <Style>
+                                              <Border>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                          <ColSpan>5</ColSpan>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                    </TablixCells>
+                                  </TablixRow>
                                 </TablixRows>
                               </TablixBody>
                               <TablixColumnHierarchy>
@@ -2752,12 +2792,13 @@
                                       <Hidden>=Fields!LegalEntityType.Value = " "</Hidden>
                                     </Visibility>
                                   </TablixMember>
+                                  <TablixMember />
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>0.07056cm</Top>
                               <Left>0.02485cm</Left>
-                              <Height>8.0832cm</Height>
+                              <Height>8.47126cm</Height>
                               <Width>18.5cm</Width>
                               <Style>
                                 <Border>
@@ -4571,8 +4612,8 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>17.06934cm</Top>
-                              <Height>1.55224cm</Height>
+                              <Top>20.69675cm</Top>
+                              <Height>1.16418cm</Height>
                               <Width>16.8cm</Width>
                               <ZIndex>2</ZIndex>
                               <Style>
@@ -5501,7 +5542,7 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>14.96052cm</Top>
+                              <Top>18.82673cm</Top>
                               <Left>0.02485cm</Left>
                               <Height>1.76418cm</Height>
                               <Width>15.2cm</Width>
@@ -6067,7 +6108,7 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>18.98114cm</Top>
+                              <Top>14.76977cm</Top>
                               <Height>3.88058cm</Height>
                               <Width>18.02485cm</Width>
                               <ZIndex>4</ZIndex>
@@ -6822,7 +6863,7 @@
                                 </Paragraph>
                               </Paragraphs>
                               <rd:DefaultName>CompanyLegalStatement</rd:DefaultName>
-                              <Top>23.03811cm</Top>
+                              <Top>22.40311cm</Top>
                               <Height>11pt</Height>
                               <Width>18cm</Width>
                               <ZIndex>6</ZIndex>
@@ -6838,7 +6879,7 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>18.30602cm</Width>
+                                    <Width>12.30602cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -6907,10 +6948,10 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>8.44049cm</Top>
-                              <Left>0.02485cm</Left>
+                              <Top>8.6cm</Top>
+                              <Left>6.02485cm</Left>
                               <Height>0.4cm</Height>
-                              <Width>18.30602cm</Width>
+                              <Width>12.30602cm</Width>
                               <ZIndex>7</ZIndex>
                               <Style>
                                 <Border>
@@ -6918,6 +6959,62 @@
                                 </Border>
                               </Style>
                             </Tablix>
+                            <Textbox Name="GoodsAndServices_Lbl">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=First(Fields!GoodsAndServices_Lbl.Value)</Value>
+                                      <Style />
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>GoodsAndServices_Lbl</rd:DefaultName>
+                              <Top>13.48157cm</Top>
+                              <Left>0.02485cm</Left>
+                              <Height>0.6cm</Height>
+                              <Width>6cm</Width>
+                              <ZIndex>8</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="Textbox66">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=First(Fields!VATPaidOnDebits_Lbl.Value)</Value>
+                                      <Style />
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>Textbox65</rd:DefaultName>
+                              <Top>14.09921cm</Top>
+                              <Left>0.02485cm</Left>
+                              <Height>0.6cm</Height>
+                              <Width>6cm</Width>
+                              <ZIndex>9</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
+                              </Style>
+                            </Textbox>
                           </ReportItems>
                           <KeepTogether>true</KeepTogether>
                           <OmitBorderOnPageBreak>true</OmitBorderOnPageBreak>
@@ -6955,7 +7052,7 @@
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Top>0.22049cm</Top>
-            <Height>23.42617cm</Height>
+            <Height>26.60119cm</Height>
             <Width>18.52485cm</Width>
             <Style>
               <Border>
@@ -7457,6 +7554,15 @@ End Function
         </Field>
         <Field Name="ShipToAddress8">
           <DataField>ShipToAddress8</DataField>
+        </Field>
+        <Field Name="CustomerSirenNo">
+          <DataField>CustomerSirenNo</DataField>
+        </Field>
+        <Field Name="GoodsAndServices_Lbl">
+          <DataField>GoodsAndServices_Lbl</DataField>
+        </Field>
+        <Field Name="VATPaidOnDebits_Lbl">
+          <DataField>VATPaidOnDebits_Lbl</DataField>
         </Field>
         <Field Name="PaymentTermsDescription">
           <DataField>PaymentTermsDescription</DataField>

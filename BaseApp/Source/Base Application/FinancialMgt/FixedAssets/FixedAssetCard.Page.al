@@ -326,6 +326,7 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Depreciation Books';
                 SubPageLink = "FA No." = FIELD("No.");
                 Visible = NOT Simple;
+                UpdatePropagation = Both;
             }
             group(Maintenance)
             {
@@ -799,8 +800,10 @@ page 5600 "Fixed Asset Card"
                 if FADepreciationBook."FA No." = '' then begin
                     FADepreciationBook.Validate("FA No.", FixedAssetNo);
                     FADepreciationBook.Insert(true)
-                end else
+                end else begin
+                    FADepreciationBook.Description := Rec.Description;
                     FADepreciationBook.Modify(true);
+                end;
     end;
 
     protected procedure SetDefaultDepreciationBook()

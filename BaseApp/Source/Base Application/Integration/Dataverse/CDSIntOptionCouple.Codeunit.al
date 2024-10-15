@@ -69,7 +69,6 @@ codeunit 5365 "CDS Int. Option Couple"
         EmptyRecordRef: RecordRef;
         MatchingIntegrationRecordFieldRef: FieldRef;
         MatchingLocalFieldRef: FieldRef;
-        CoupledToCRMFieldRef: FieldRef;
         SetMatchingFieldFilterHandled: Boolean;
         MatchingFieldCount: Integer;
         MatchCount: Integer;
@@ -115,8 +114,6 @@ codeunit 5365 "CDS Int. Option Couple"
         foreach TableFilter in FilterList do begin
             if TableFilter <> '' then
                 LocalRecordRef.SetView(TableFilter);
-            if CRMIntegrationManagement.FindCoupledToCRMField(LocalRecordRef, CoupledToCRMFieldRef) then
-                CoupledToCRMFieldRef.SetRange(false);
             if LocalRecordRef.FindSet() then
                 repeat
                     if GuiAllowed() then begin
@@ -124,12 +121,10 @@ codeunit 5365 "CDS Int. Option Couple"
                         Dialog.Update(1, RecordNumber);
                     end;
                     LocalRecordSystemId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
-                    // re-check that the record is uncoupled as it could just be coupled by another job
                     CRMOptionMapping.SetRange("Record ID", LocalRecordRef.RecordId);
-                    if not CRMOptionMapping.IsEmpty() then begin
-                        Session.LogMessage('0000GAD', GetSingleMatchAlreadyCoupledTelemetryErrorMessage(LocalRecordRef, TempMatchingIntegrationFieldMapping), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                        CoupledLocalIds.Add(LocalRecordSystemId);
-                    end else begin
+                    if not CRMOptionMapping.IsEmpty() then
+                        CoupledLocalIds.Add(LocalRecordSystemId)
+                    else begin
                         Clear(IntegrationRecordRef);
                         CRMIntegrationTableSynch.LoadCRMOption(IntegrationRecordRef, IntegrationTableMapping);
                         // this inner loop is looping through a temporary record set with a handful of user-chosen matching fields - not a performance concern as such
