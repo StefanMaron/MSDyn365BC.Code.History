@@ -241,6 +241,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     local procedure TestIfAnyFreeNumberSeries(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
@@ -251,7 +252,8 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumInv, PurchCrMemoHdr);
 
-        if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Posted Invoice Nos.", PostingDate) = '' then
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Invoice");
+        if NoSeriesManagement.TryGetNextNo(GenJournalTemplate."Posting No. Series", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostInv, PurchCrMemoHdr);
     end;
 

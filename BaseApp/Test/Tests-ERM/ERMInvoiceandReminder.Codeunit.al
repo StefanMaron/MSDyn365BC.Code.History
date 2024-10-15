@@ -1,7 +1,8 @@
 codeunit 134907 "ERM Invoice and Reminder"
 {
     Permissions = TableData "Issued Reminder Header" = rimd,
-                  TableData "Issued Reminder Line" = rimd;
+                  TableData "Issued Reminder Line" = rimd,
+                  TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -547,6 +548,52 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastIssuedReminderLevelShouldNotBeLessZeroWhenCancelReminder()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        IssuedReminderLine: Record "Issued Reminder Line";
+        ReminderTerms: Record "Reminder Terms";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        CancelIssuedReminder: Codeunit "Cancel Issued Reminder";
+    begin
+        // [FEATURE] [Last Issued Reminder Level]
+        // [SCENARIO 404002] When cancelling Reminder value of "Last Issued Reminder Level" Customer Ledger Entries should not become less then zero
+        Initialize();
+
+        // [GIVEN] CLE with "Last Issued Reminder Level" = 0;
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo(), CustLedgerEntry."Document Type"::Invoice, 0);
+
+        // [GIVEN] Issued Reminder with line linked to CLE 
+        MockIssuedReminder(IssuedReminderHeader);
+        IssuedReminderHeader."Reminder Terms Code" := CreateReminderTerms();
+        IssuedReminderHeader.Modify();
+        IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
+        IssuedReminderLine.FindFirst();
+        IssuedReminderLine.Type := IssuedReminderLine.Type::"Customer Ledger Entry";
+        IssuedReminderLine."Entry No." := CustLedgerEntry."Entry No.";
+        IssuedReminderLine.Modify();
+
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalLine.Init();
+        GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+
+        // [WHEN] Cancel Issued Reminder
+        CancelIssuedReminder.SetJournal(GenJournalLine);
+        CancelIssuedReminder.SetParameters(true, true, WorkDate(), true);
+        CancelIssuedReminder.Run(IssuedReminderHeader);
+
+        // [THEN] CLE "Last Issued Reminder Level" = 0;
+        CustLedgerEntry.Find();
+        CustLedgerEntry.TestField("Last Issued Reminder Level", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -947,6 +994,24 @@ codeunit 134907 "ERM Invoice and Reminder"
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
+    local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; LastIssuedReminderLevel: Integer)
+    var
+        LastEntryNo: Integer;
+    begin
+        with CustLedgerEntry do begin
+            if FindLast then
+                LastEntryNo := "Entry No.";
+            Init;
+            "Entry No." := LastEntryNo + 1;
+            "Customer No." := CustomerNo;
+            "Posting Date" := WorkDate;
+            "Document Type" := DocumentType;
+            "Document No." := CustomerNo;
+            "Last Issued Reminder Level" := LastIssuedReminderLevel;
+            Insert;
+        end;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerVerifyMsg(Question: Text[1024]; var Reply: Boolean)
@@ -973,7 +1038,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         IssueReminders.JnlBatchName.SetValue(GenJournalBatch.Name);
         IssueReminders.OK.Invoke;
     end;
-    
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderTestRequestPageHandler(var ReminderTest: TestRequestPage "Reminder - Test")

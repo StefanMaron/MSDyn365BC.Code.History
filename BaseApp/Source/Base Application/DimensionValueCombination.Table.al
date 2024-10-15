@@ -14,7 +14,8 @@ table 351 "Dimension Value Combination"
         {
             Caption = 'Dimension 1 Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 1 Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 1 Code"),
+                                                         Blocked = CONST(false));
         }
         field(3; "Dimension 2 Code"; Code[20])
         {
@@ -26,7 +27,8 @@ table 351 "Dimension Value Combination"
         {
             Caption = 'Dimension 2 Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 2 Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 2 Code"),
+                                                         Blocked = CONST(false));
         }
     }
 

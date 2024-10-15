@@ -197,7 +197,7 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
         Assert.AreEqual(748802.07, CODAStatement."Statement Ending Balance", '"Statement Ending Balance"');
-        Assert.AreEqual(20090420D, CODAStatement."Statement Date", '"Statement Date"');
+        Assert.AreEqual(20090421D, CODAStatement."Statement Date", '"Statement Date"');
         Assert.AreEqual(746171.93, CODAStatement."Balance Last Statement", '"Balance Last Statement"');
         Assert.AreEqual(1, CODAStatement."CODA Statement No.", '"CODA Statement No."');
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
@@ -226,7 +226,7 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
         Assert.AreEqual(748802.07, CODAStatement."Statement Ending Balance", '"Statement Ending Balance"');
-        Assert.AreEqual(20090420D, CODAStatement."Statement Date", '"Statement Date"');
+        Assert.AreEqual(20090421D, CODAStatement."Statement Date", '"Statement Date"');
         Assert.AreEqual(746171.93, CODAStatement."Balance Last Statement", '"Balance Last Statement"');
         Assert.AreEqual(1, CODAStatement."CODA Statement No.", '"CODA Statement No."');
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
@@ -299,7 +299,7 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
         Assert.AreEqual(748802.07, CODAStatement."Statement Ending Balance", '"Statement Ending Balance"');
-        Assert.AreEqual(20090420D, CODAStatement."Statement Date", '"Statement Date"');
+        Assert.AreEqual(20090421D, CODAStatement."Statement Date", '"Statement Date"');
         Assert.AreEqual(746171.93, CODAStatement."Balance Last Statement", '"Balance Last Statement"');
         Assert.AreEqual(1, CODAStatement."CODA Statement No.", '"CODA Statement No."');
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
@@ -355,7 +355,7 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
         Assert.AreEqual(748802.07, CODAStatement."Statement Ending Balance", '"Statement Ending Balance"');
-        Assert.AreEqual(20090420D, CODAStatement."Statement Date", '"Statement Date"');
+        Assert.AreEqual(20090421D, CODAStatement."Statement Date", '"Statement Date"');
         Assert.AreEqual(746171.93, CODAStatement."Balance Last Statement", '"Balance Last Statement"');
         Assert.AreEqual(1, CODAStatement."CODA Statement No.", '"CODA Statement No."');
         Assert.AreEqual(0, CODAStatement.Information, 'Information');
@@ -412,7 +412,7 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual(BankAccount."No.", CODAStatement."Bank Account No.", 'BankAccount."No."');
         Assert.AreEqual('084', CODAStatement."Statement No.", '"Statement No."');
         Assert.AreEqual(748802.07, CODAStatement."Statement Ending Balance", '"Statement Ending Balance"');
-        Assert.AreEqual(20090420D, CODAStatement."Statement Date", '"Statement Date"');
+        Assert.AreEqual(20090421D, CODAStatement."Statement Date", '"Statement Date"');
         Assert.AreEqual(746171.93, CODAStatement."Balance Last Statement", '"Balance Last Statement"');
         Assert.AreEqual(1, CODAStatement."CODA Statement No.", '"CODA Statement No."');
         Assert.AreEqual(0, CODAStatement.Information, 'Information');

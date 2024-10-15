@@ -438,6 +438,7 @@
     local procedure TestIfAnyFreeNumberSeries(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
     begin
@@ -447,7 +448,8 @@
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Credit Memo Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumCM, SalesInvoiceHeader);
 
-        if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Posted Credit Memo Nos.", PostingDate) = '' then
+        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Cr. Memo");
+        if NoSeriesManagement.TryGetNextNo(GenJournalTemplate."Posting No. Series", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostCM, SalesInvoiceHeader);
 
         if (not CancellingOnly) and (NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '') then

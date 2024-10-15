@@ -1102,14 +1102,33 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
+            var
+                VendorName: Text;
             begin
-                LookupBuyfromVendorName();
+                VendorName := "Buy-from Vendor Name";
+                LookupBuyFromVendorName(VendorName);
+                "Buy-from Vendor Name" := CopyStr(VendorName, 1, MaxStrLen("Buy-from Vendor Name"));
             end;
 
             trigger OnValidate()
             var
                 Vendor: Record Vendor;
+                LookupStateManager: Codeunit "Lookup State Manager";
+                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                VendorRecVariant: Variant;
             begin
+                if LookupStateManager.IsRecordSaved() then begin
+                    LookupStateManager.GetSavedRecord(VendorRecVariant);
+                    Vendor := VendorRecVariant;
+                    if Vendor."No." <> '' then begin
+                        LookupStateManager.ClearSavedRecord();
+                        Validate("Buy-from Vendor No.", Vendor."No.");
+                        if "No." <> '' then
+                            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+                        exit;
+                    end;
+                end;
+
                 if ShouldSearchForVendorByName("Buy-from Vendor No.") then
                     Validate("Buy-from Vendor No.", Vendor.GetVendorNo("Buy-from Vendor Name"));
             end;
@@ -1322,7 +1341,7 @@
                     "Buy-from Vendor Name" := Vend.Name;
                     "Buy-from Vendor Name 2" := Vend."Name 2";
                     CopyBuyFromVendorAddressFieldsFromVendor(Vend, true);
-                    
+
                     OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(Rec);
 
                     "Enterprise No." := Vend."Enterprise No.";
@@ -5369,6 +5388,8 @@
         Vend.CheckBlockedVendOnDocs(Vend, false);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced with LookupBuyFromVendorName(var VendorName: Text[100]): Boolean', '19.0')]
     procedure LookupBuyfromVendorName(): Boolean
     var
         Vendor: Record Vendor;
@@ -5383,6 +5404,28 @@
             Validate("Buy-from Vendor No.", Vendor."No.");
             if "No." <> '' then
                 StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+            exit(true);
+        end;
+    end;
+#endif
+
+    procedure LookupBuyFromVendorName(var VendorName: Text): Boolean
+    var
+        Vendor: Record Vendor;
+        LookupStateManager: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        Vendor.SetFilter("Date Filter", GetFilter("Date Filter"));
+        if "Buy-from Vendor No." <> '' then
+            Vendor.Get("Buy-from Vendor No.");
+
+        if Vendor.LookupVendor(Vendor) then begin
+            if Rec."Buy-from Vendor Name" = Vendor.Name then
+                VendorName := ''
+            else
+                VendorName := Vendor.Name;
+            RecVariant := Vendor;
+            LookupStateManager.SaveRecord(RecVariant);
             exit(true);
         end;
     end;

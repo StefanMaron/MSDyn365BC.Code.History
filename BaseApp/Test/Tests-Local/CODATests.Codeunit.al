@@ -836,6 +836,88 @@ codeunit 144006 "CODA Tests"
         RelatedCODAStatementLine.TestField("Unapplied Amount", RelatedCODAStatementLine."Statement Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesModalPageHandler')]
+    procedure ApplyOneOfTwoVendorLedgerEntries()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
+        CODAStatementLine: Record "CODA Statement Line";
+        TransactionCoding: Record "Transaction Coding";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
+        TotalAmount: Decimal;
+    begin
+        // [FEATURE] [Apply] [Vendor]
+        // [SCENARIO 405674] Apply one of two vendor ledger entries in CODA statement line leads to "Partly applied" line status
+        Initialize();
+
+        // [GIVEN] Two vendor ledger entries with amounts "X" and "Y"
+        LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
+        CreateVendLedgerEntry(VendorLedgerEntry[1], VendorBankAccount."Vendor No.", false);
+        CreateVendLedgerEntry(VendorLedgerEntry[2], VendorBankAccount."Vendor No.", false);
+        TotalAmount := VendorLedgerEntry[1].Amount + VendorLedgerEntry[2].Amount;
+
+        // [GIVEN] CODA statement line with Statement Amount = "X" + "Y"
+        CreateCODAStatementLineWithStatementLineNo(
+          CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
+        UpdateCODAStatementLine(
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor, TotalAmount,
+          CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID);
+        CODAStatementLine.Validate("Account No.", VendorBankAccount."Vendor No.");
+        CODAStatementLine.Modify(true);
+
+        // [WHEN] Apply the line (set Applies-To ID) for the first vendor ledger entry with amount "X"
+        LibraryVariableStorage.Enqueue(CODAStatementLine."Document No.");
+        CODAWriteStatements.Apply(CODAStatementLine);
+
+        // [THEN] Statement line Status = "Partly applied", "Amount" = "X", "Unapplied Amount" = "Y"
+        CODAStatementLine.Find();
+        VerifyCODAStatementLineApplicationInfo(
+          CODAStatementLine, TotalAmount, VendorLedgerEntry[1].Amount,
+          CODAStatementLine."Application Status"::"Partly applied", VendorLedgerEntry[2].Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesModalPageHandler')]
+    procedure ApplyOneOfTwoCustomerLedgerEntries()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        CustLedgerEntry: array[2] of Record "Cust. Ledger Entry";
+        CODAStatementLine: Record "CODA Statement Line";
+        TransactionCoding: Record "Transaction Coding";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
+        TotalAmount: Decimal;
+    begin
+        // [FEATURE] [Apply] [Customer]
+        // [SCENARIO 405674] Apply one of two customer ledger entries in CODA statement line leads to "Partly applied" line status
+        Initialize();
+
+        // [GIVEN] Two customer ledger entries with amounts "X" and "Y"
+        LibraryCODAHelper.CreateCustomerBankAccount(CustomerBankAccount);
+        CreateCustLedgerEntry(CustLedgerEntry[1], CustomerBankAccount."Customer No.", false);
+        CreateCustLedgerEntry(CustLedgerEntry[2], CustomerBankAccount."Customer No.", false);
+        TotalAmount := CustLedgerEntry[1].Amount + CustLedgerEntry[2].Amount;
+
+        // [GIVEN] CODA statement line with Statement Amount = "X" + "Y"
+        CreateCODAStatementLineWithStatementLineNo(
+          CODAStatementLine, CustomerBankAccount."Bank Account No.", TransactionCoding."Account Type"::Customer);
+        UpdateCODAStatementLine(
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Customer, TotalAmount,
+          CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID);
+        CODAStatementLine.Validate("Account No.", CustomerBankAccount."Customer No.");
+        CODAStatementLine.Modify(true);
+
+        // [WHEN] Apply the line (set Applies-To ID) for the first customer ledger entry with amount "X"
+        LibraryVariableStorage.Enqueue(CODAStatementLine."Document No.");
+        CODAWriteStatements.Apply(CODAStatementLine);
+
+        // [THEN] Statement line Status = "Partly applied", "Amount" = "X", "Unapplied Amount" = "Y"
+        CODAStatementLine.Find();
+        VerifyCODAStatementLineApplicationInfo(
+          CODAStatementLine, TotalAmount, CustLedgerEntry[1].Amount,
+          CODAStatementLine."Application Status"::"Partly applied", CustLedgerEntry[2].Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"CODA Tests");
@@ -859,13 +941,15 @@ codeunit 144006 "CODA Tests"
         VendLedgerEntry.Init();
         VendLedgerEntry."Vendor No." := VendorNo;
         VendLedgerEntry."Document Type" := VendLedgerEntry."Document Type"::Invoice;
-        VendLedgerEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 1);
         VendLedgerEntry."Entry No." := LastEntryNo + 1;
         VendLedgerEntry.Open := true;
 
+        MockDtldVendLedgerEntry(VendLedgerEntry."Entry No.");
+        VendLedgerEntry.CalcFields(Amount);
+
         if SetupApply then begin
             VendLedgerEntry."Applies-to ID" := LibraryUtility.GenerateRandomCode(
-                VendLedgerEntry.FieldNo("Applies-to ID"), DATABASE::"Vendor Ledger Entry");
+                VendLedgerEntry.FieldNo("Applies-to ID"), Database::"Vendor Ledger Entry");
             VendLedgerEntry."Amount to Apply" := LibraryRandom.RandDecInRange(1, 100, 1);
         end;
         VendLedgerEntry.Insert();
@@ -882,13 +966,15 @@ codeunit 144006 "CODA Tests"
         CustLedgerEntry.Init();
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 1);
         CustLedgerEntry."Entry No." := LastEntryNo + 1;
         CustLedgerEntry.Open := true;
 
+        MockDtldCustLedgerEntry(CustLedgerEntry."Entry No.");
+        CustLedgerEntry.CalcFields(Amount);
+
         if SetupApply then begin
             CustLedgerEntry."Applies-to ID" := LibraryUtility.GenerateRandomCode(
-                CustLedgerEntry.FieldNo("Applies-to ID"), DATABASE::"Cust. Ledger Entry");
+                CustLedgerEntry.FieldNo("Applies-to ID"), Database::"Cust. Ledger Entry");
             CustLedgerEntry."Amount to Apply" := LibraryRandom.RandDecInRange(1, 100, 1);
         end;
         CustLedgerEntry.Insert();
@@ -974,7 +1060,37 @@ codeunit 144006 "CODA Tests"
         end;
     end;
 
-    local procedure UpdateCODAStatementLine(var CODAStatementLine: Record "CODA Statement Line"; PostingDate: Date; AccountType: Option; StatementAmount: Decimal; ApplicationStatus: Option; DocumentNo: Code[20])
+    local procedure MockDtldVendLedgerEntry(VendorLedgerEntryNo: Integer);
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        LastEntryNo: Integer;
+    begin
+        if DetailedVendorLedgEntry.FindLast() then;
+        LastEntryNo := DetailedVendorLedgEntry."Entry No.";
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LastEntryNo + 1;
+        DetailedVendorLedgEntry."Ledger Entry Amount" := true;
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 1);
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntryNo;
+        DetailedVendorLedgEntry.Insert();
+    end;
+
+    local procedure MockDtldCustLedgerEntry(CustLedgerEntryNo: Integer);
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        LastEntryNo: Integer;
+    begin
+        if DetailedCustLedgEntry.FindLast() then;
+        LastEntryNo := DetailedCustLedgEntry."Entry No.";
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." := LastEntryNo + 1;
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry.Amount := LibraryRandom.RandDecInRange(1, 1000, 1);
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry.Insert();
+    end;
+
+    local procedure UpdateCODAStatementLine(var CODAStatementLine: Record "CODA Statement Line"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; StatementAmount: Decimal; ApplicationStatus: Option; DocumentNo: Code[20])
     begin
         CODAStatementLine.Validate("Posting Date", PostingDate);
         CODAStatementLine.Validate("Account Type", AccountType);

@@ -367,6 +367,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     local procedure TestIfAnyFreeNumberSeries(PurchInvHeader: Record "Purch. Inv. Header")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
@@ -377,7 +378,8 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumCM, PurchInvHeader);
 
-        if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Posted Credit Memo Nos.", PostingDate) = '' then
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
+        if NoSeriesManagement.TryGetNextNo(GenJournalTemplate."Posting No. Series", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostCM, PurchInvHeader);
 
         if (not CancellingOnly) and (NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '') then

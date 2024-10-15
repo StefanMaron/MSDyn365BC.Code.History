@@ -18,8 +18,10 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -1308,6 +1310,119 @@ codeunit 134982 "ERM Financial Reports"
         FileManagement.DeleteServerFile(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('VATVIESDeclDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskVATtAdjmtSellToCustomerInGLForBillToCust()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        Customer: Record Customer;
+        CustomerBillTo: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntryPmt: Record "Cust. Ledger Entry";
+        FileName: Text[1024];
+    begin
+        // [FEATURE] [VAT- VIES Declaration Disk] [VAT Adjustment]
+        // [SCENARIO 406070] "VAT- VIES Declaration Disk" with "Sell-to/Buy-from No." in G/l Setup and VAT Adjustment for Bill-to Customer
+        Initialize;
+
+        // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in G/L Setup
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(TRUE);
+
+        // [GIVEN] Customer "Cust1", Bill-to Customer = "Cust2" with Payment Discount Terms
+        CreateVATPostingSetup(VATPostingSetup);
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+        UpdateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
+        UpdateEUCountryRegion(Customer."Country/Region Code");
+        LibrarySales.CreateCustomerWithVATRegNo(CustomerBillTo);
+        UpdateCustomer(CustomerBillTo, VATPostingSetup."VAT Bus. Posting Group");
+        UpdateEUCountryRegion(CustomerBillTo."Country/Region Code");
+        Customer.Validate("Bill-to Customer No.", CustomerBillTo."No.");
+        Customer.Modify(true);
+
+        // [GIVEN] Sales Invoice is posted on 01-01-21 with Amount = 1000, Pmt. Discount Possible = 20, Pmt. Discount Date = 05-01-21
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice,
+          CreatePostSalesInvoice(Customer."No.", VATPostingSetup."VAT Prod. Posting Group"));
+        CustLedgerEntry.CalcFields(Amount);
+
+        // [GIVEN] Payment is posted 05-01-21 and applied on 03-01-21 with Amount = -980
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryPmt, CustLedgerEntryPmt."Document Type"::Payment,
+          CreatePostPayment(CustomerBillTo."No.", -CustLedgerEntry.Amount + CustLedgerEntry."Remaining Pmt. Disc. Possible"));
+        PostCustomerApplicationOnDate(CustLedgerEntry, CustLedgerEntryPmt, CustLedgerEntry."Pmt. Discount Date" - 1);
+
+        // [WHEN] Run report "VAT- VIES Declaration Disk"
+        VATEntry.SetRange("Bill-to/Pay-to No.", CustomerBillTo."No.");
+        VATEntry.SetRange("Posting Date", CustLedgerEntry."Posting Date", CustLedgerEntry."Pmt. Discount Date");
+        RunVATVIESDeclarationDisk(VATEntry, FileName);
+
+        // [THEN] Value with amount 980 is exported in VAT VIES Declaration file at possion 41 with length 15
+        CustLedgerEntry.CalcFields(Amount);
+        Assert.AreEqual(
+          FormatZerolValue(Format(Round(CustLedgerEntry.Amount - CustLedgerEntry."Original Pmt. Disc. Possible", 1, '<')), 15),
+          LibraryTextFileValidation.ReadValueFromLine(FileName, 3, 41, 15), '');
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATVIESDeclDiskRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATVIESDeclDiskVATtAdjmtSellToCustomerInGLForSellToCust()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntryPmt: Record "Cust. Ledger Entry";
+        FileName: Text[1024];
+    begin
+        // [FEATURE] [VAT- VIES Declaration Disk]
+
+        // [SCENARIO 406070] "VAT- VIES Declaration Disk" with "Sell-to/Buy-from No." in G/l Setup and VAT Adjustment for Bill-to Customer
+        Initialize;
+
+        // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in G/L Setup
+        LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(TRUE);
+
+        // [GIVEN] Customer with Payment Discount Terms
+        CreateVATPostingSetup(VATPostingSetup);
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+        UpdateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
+        UpdateEUCountryRegion(Customer."Country/Region Code");
+
+        // [GIVEN] Sales Invoice is posted on 01-01-21 with Amount = 1000, Pmt. Discount Possible = 20, Pmt. Discount Date = 05-01-21
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice,
+          CreatePostSalesInvoice(Customer."No.", VATPostingSetup."VAT Prod. Posting Group"));
+        CustLedgerEntry.CalcFields(Amount);
+
+        // [GIVEN] Payment is posted 05-01-21 and applied on 03-01-21 with Amount = -980
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryPmt, CustLedgerEntryPmt."Document Type"::Payment,
+          CreatePostPayment(Customer."No.", -CustLedgerEntry.Amount + CustLedgerEntry."Remaining Pmt. Disc. Possible"));
+        PostCustomerApplicationOnDate(CustLedgerEntry, CustLedgerEntryPmt, CustLedgerEntry."Pmt. Discount Date" - 1);
+
+        // [WHEN] Run report "VAT- VIES Declaration Disk"
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
+        VATEntry.SetRange("Posting Date", CustLedgerEntry."Posting Date", CustLedgerEntry."Pmt. Discount Date");
+        RunVATVIESDeclarationDisk(VATEntry, FileName);
+
+        // [THEN] Value with amount 980 is exported in VAT VIES Declaration file at possion 41 with length 15
+        CustLedgerEntry.CalcFields(Amount);
+        Assert.AreEqual(
+          FormatZerolValue(Format(Round(CustLedgerEntry.Amount - CustLedgerEntry."Original Pmt. Disc. Possible", 1, '<')), 15),
+          LibraryTextFileValidation.ReadValueFromLine(FileName, 3, 41, 15), '');
+
+        FileManagement.DeleteServerFile(FileName);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1329,6 +1444,8 @@ codeunit 134982 "ERM Financial Reports"
         LibraryERMCountryData.UpdateGenJournalTemplate();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         IsInitialized := true;
         Commit();
 
@@ -1429,17 +1546,24 @@ codeunit 134982 "ERM Financial Reports"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Customer: Record Customer;
-        PaymentTerms: Record "Payment Terms";
     begin
         // Create Customer with Application Method Apply to Oldest and attach Payment Terms to it.
-        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Application Method", Customer."Application Method"::"Apply to Oldest");
-        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Modify(true);
+        UpdateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
         exit(Customer."No.");
+    end;
+
+    local procedure UpdateCustomer(var Customer: Record Customer; VATBusPostGr: Code[20])
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostGr);
+        Customer.Modify(true);
     end;
 
     local procedure CreateCustomerWithSimpleBillToCust(var SellToCustomer: Record Customer; var BillToCustomer: Record Customer)
@@ -1527,6 +1651,26 @@ codeunit 134982 "ERM Financial Reports"
         exit(BankAccount."No.");
     end;
 
+    local procedure CreatePostSalesInvoice(CustomerNo: Code[20]; VATProdPostGroup: Code[20]): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostGroup);
+        GLAccount.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
     local procedure CreateAndPostFAGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         DepreciationBookCode: Code[10];
@@ -1542,7 +1686,16 @@ codeunit 134982 "ERM Financial Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    [Normal]
+    local procedure CreatePostPayment(CustomerNo: Code[20]; Amount: Decimal): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
+    end;
+
     local procedure CreateFixedAsset(DepreciationBookCode: Code[10]): Code[20]
     var
         FixedAsset: Record "Fixed Asset";
@@ -1629,6 +1782,14 @@ codeunit 134982 "ERM Financial Reports"
         ChartOfAccounts.SetTableView(GLAccount);
         Commit();
         ChartOfAccounts.Run;
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 20));
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure FindDetailedCustLedgerEntryAmount(var GLAccountNo: Code[20]; CustomerPostingGroupCode: Code[20]): Decimal
@@ -1811,6 +1972,12 @@ codeunit 134982 "ERM Financial Reports"
         CountryRegion.Modify(true);
     end;
 
+    local procedure FormatZerolValue(Str: Text; Length: Integer): Text
+    begin
+        exit(
+          PadStr('', Length - StrLen(Str), '0') + Str);
+    end;
+
     local procedure PostCheck(var GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1840,6 +2007,20 @@ codeunit 134982 "ERM Financial Reports"
 
         // Post the check
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure PostCustomerApplicationOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntryPmt: Record "Cust. Ledger Entry"; ApplicationDate: Date)
+    var
+        DummyGenJournalBatch: Record "Gen. Journal Batch";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+
+    begin
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryPmt);
+        LibraryJournals.CreateGenJournalBatch(DummyGenJournalBatch);
+        CustEntryApplyPostedEntries.Apply(
+            CustLedgerEntryPmt, CustLedgerEntryPmt."Document No.", ApplicationDate,
+            DummyGenJournalBatch."Journal Template Name", DummyGenJournalBatch.Name);
     end;
 
     local procedure PostGenJournalLineAndReversTransaction(var GenJournalLine: Record "Gen. Journal Line")
