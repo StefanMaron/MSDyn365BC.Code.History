@@ -201,6 +201,8 @@ codeunit 134 "Import Attachment - Inc. Doc."
     local procedure FindUsingDocNoFilter(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; var PostingDate: Date; var DocNo: Code[20]): Boolean
     var
         FilterGroupID: Integer;
+        IsFound: Boolean;
+        IsHandled: Boolean;
     begin
         for FilterGroupID := 0 to 2 do begin
             IncomingDocumentAttachment.FilterGroup(FilterGroupID * 2);
@@ -217,6 +219,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
 
         if (DocNo = '') or (PostingDate = 0D) then
             exit(false);
+
+        IsHandled := false;
+        OnFindUsingDocNoFilterOnBeforeFind(IncomingDocumentAttachment, IncomingDocument, PostingDate, DocNo, IsFound, IsHandled);
+        if IsHandled then
+            exit(IsFound);
 
         IncomingDocument.SetRange("Document No.", DocNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
@@ -444,6 +451,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUploadFile(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindUsingDocNoFilterOnBeforeFind(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; var IsFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

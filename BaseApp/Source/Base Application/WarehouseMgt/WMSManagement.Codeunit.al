@@ -712,7 +712,14 @@ codeunit 7302 "WMS Management"
     end;
 
     procedure CalcCubageAndWeight(ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; var Cubage: Decimal; var Weight: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCubageAndWeight(ItemNo, UOMCode, Qty, Cubage, Weight, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemNo <> '' then begin
             GetItemUnitOfMeasure(ItemNo, UOMCode);
             Cubage := Qty * ItemUnitOfMeasure.Cubage;
@@ -2521,6 +2528,11 @@ then begin
 
     [IntegrationEvent(false, false)]
     local procedure OnInitWhseJnlLineOnAfterGetQuantity(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"; Location: Record Location)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCubageAndWeight(ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; var Cubage: Decimal; var Weight: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

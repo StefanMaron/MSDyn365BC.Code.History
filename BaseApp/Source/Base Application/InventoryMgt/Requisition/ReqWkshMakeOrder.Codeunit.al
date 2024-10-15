@@ -795,6 +795,7 @@
         Vendor: Record Vendor;
         SpecialOrder: Boolean;
         ShouldValidateSellToCustNo: Boolean;
+        ShouldSetShipToForSpecOrder: Boolean;
     begin
         OnBeforeInsertHeader(ReqLine2, PurchOrderHeader, OrderDateReq, PostingDateReq, ReceiveDateReq, ReferenceReq);
 
@@ -836,7 +837,10 @@
                 UpdateShipToOrLocationCode(ReqLine2, PurchOrderHeader)
             else begin
                 PurchOrderHeader.Validate("Location Code", "Location Code");
-                PurchOrderHeader.SetShipToForSpecOrder();
+                ShouldSetShipToForSpecOrder := true;
+                OnInsertHeaderOnBeforeSetShipToForSpecOrder(PurchOrderHeader, ReqLine2, ShouldSetShipToForSpecOrder);
+                if ShouldSetShipToForSpecOrder then
+                    PurchOrderHeader.SetShipToForSpecOrder();
                 if Vendor.Get(PurchOrderHeader."Buy-from Vendor No.") then
                     PurchOrderHeader.Validate("Shipment Method Code", Vendor."Shipment Method Code");
             end;
@@ -1800,6 +1804,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintPurchOrder(PurchaseHeader: Record "Purchase Header"; PrintPurchOrders: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertHeaderOnBeforeSetShipToForSpecOrder(var PurchaseHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line"; var ShouldSetShipToForSpecOrder: Boolean)
     begin
     end;
 }

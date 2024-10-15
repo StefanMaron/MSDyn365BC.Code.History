@@ -571,6 +571,8 @@ report 1305 "Standard Sales - Order Conf."
                     if DisplayAssemblyInformation then
                         AsmInfoExistsForLine := AsmToOrderExists(AsmHeader);
 
+                    OnLineOnAfterGetRecordOnBeforeCalcTotals(Header, Line, VATAmountLine);
+
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
                     TotalSubTotal += "Line Amount";
@@ -579,6 +581,7 @@ report 1305 "Standard Sales - Order Conf."
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+
                     OnLineOnAfterGetRecordOnAfterCalcTotals(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
@@ -941,6 +944,7 @@ report 1305 "Standard Sales - Order Conf."
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
@@ -1356,6 +1360,11 @@ report 1305 "Standard Sales - Order Conf."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatDocumentFields(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnBeforeCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

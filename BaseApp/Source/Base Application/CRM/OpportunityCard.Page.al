@@ -376,6 +376,7 @@ page 5124 "Opportunity Card"
                     trigger OnAction()
                     begin
                         StartActivateFirstStage();
+                        CurrPage.Update(true);
                     end;
                 }
                 action(Update)

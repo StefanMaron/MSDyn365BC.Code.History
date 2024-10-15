@@ -1078,19 +1078,39 @@ page 1007 "Job Planning Lines"
     local procedure IsTypeFieldEditable(): Boolean
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        IsHandled, TypeFieldEditable : Boolean;
     begin
-        if Type = Type::Text then begin
-            JobPlanningLineInvoice.SetRange("Job No.", "Job No.");
-            JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
-            JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
+        TypeFieldEditable := false;
+        IsHandled := false;
+        if Rec.Type = Rec.Type::Text then begin
+            JobPlanningLineInvoice.SetRange("Job No.", Rec."Job No.");
+            JobPlanningLineInvoice.SetRange("Job Task No.", Rec."Job Task No.");
+            JobPlanningLineInvoice.SetRange("Job Planning Line No.", Rec."Line No.");
+            OnIsTypeFieldEditableOnAfterFilterJobPlanningLineInvoice(JobPlanningLineInvoice, Rec, TypeFieldEditable, IsHandled);
+            if IsHandled then
+                exit(TypeFieldEditable);
             exit(JobPlanningLineInvoice.IsEmpty());
         end;
 
-        exit("Qty. Transferred to Invoice" = 0);
+        OnAfterIsTypeFieldEditable(Rec, TypeFieldEditable, IsHandled);
+        if IsHandled then
+            exit(TypeFieldEditable);
+
+        exit(Rec."Qty. Transferred to Invoice" = 0);
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnIsTypeFieldEditableOnAfterFilterJobPlanningLineInvoice(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobPlanningLine: Record "Job Planning Line"; var TypeFieldEditable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIsTypeFieldEditable(var JobPlanningLine: Record "Job Planning Line"; var TypeFieldEditable: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

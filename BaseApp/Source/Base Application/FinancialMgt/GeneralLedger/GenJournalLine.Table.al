@@ -3136,7 +3136,7 @@
         if not IsHandled then begin
             ClearCustVendApplnEntry();
             ClearAppliedGenJnlLine();
-            DeletePaymentFileErrors();
+            DeleteRelatedPaymentFileErrors();
             ClearDataExchangeEntries(false);
 
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
@@ -3437,6 +3437,7 @@
                 "Account Type" := "Account Type"::"G/L Account";
             Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
             Description := '';
+            OnSetupNewLineOnBeforeSuggestBalancingAmount(Rec, GenJnlBatch, CurrFieldNo);
             if GenJnlBatch."Suggest Balancing Amount" then
                 SuggestBalancingAmount(LastGenJnlLine, BottomLine);
         end;
@@ -5270,9 +5271,16 @@ then
     procedure ClearAppliedGenJnlLine()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
         if "Applies-to Doc. No." = '' then
             exit;
+
+        IsHandled := false;
+        OnBeforeModifyClearAppliedGenJnlLine(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJournalLine.SetFilter("Line No.", '<>%1', "Line No.");
@@ -5564,8 +5572,10 @@ then
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
-                        if FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo, "Applies-to Doc. No.") then
+                        if FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo, "Applies-to Doc. No.") then begin
+                            OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToDocNo(Rec, EmplLedgEntry);
                             "Exported to Payment File" := EmplLedgEntry."Exported to Payment File";
+                        end;
         end;
 
         OnAfterSetJournalLineFieldsFromApplication(Rec, AccType, AccNo, xRec);
@@ -6001,6 +6011,8 @@ then
         "Source Code" := SourceCode;
         if NoSeriesCode <> '' then
             "Posting No. Series" := NoSeriesCode;
+
+        OnAfterCopyDocumentFields(Rec, DocType, DocNo, ExtDocNo, SourceCode, NoSeriesCode);
     end;
 
     procedure CopyCustLedgEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -8598,21 +8610,25 @@ then
             TestField("Account No.");
             case "Account Type" of
                 "Account Type"::Customer:
-                    if SalesReceivablesSetup.Get() then
+                    begin
+                        Customer.Get("Account No.");
+                        SalesReceivablesSetup.Get();
                         if SalesReceivablesSetup."Allow Multiple Posting Groups" then begin
-                            Customer.Get("Account No.");
                             Customer.TestField("Allow Multiple Posting Groups");
                             PostingGroupChangeInterface := SalesReceivablesSetup."Check Multiple Posting Groups";
                             PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
                         end;
+                    end;
                 "Account Type"::Vendor:
-                    if PurchasesPayablesSetup.Get() then
+                    begin
+                        Vendor.Get("Account No.");
+                        PurchasesPayablesSetup.Get();
                         if PurchasesPayablesSetup."Allow Multiple Posting Groups" then begin
-                            Vendor.Get("Account No.");
                             Vendor.TestField("Allow Multiple Posting Groups");
                             PostingGroupChangeInterface := PurchasesPayablesSetup."Check Multiple Posting Groups";
                             PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
                         end;
+                    end;
                 else
                     error(CannotChangePostingGroupForAccountTypeErr, "Account Type");
             end;
@@ -8909,6 +8925,13 @@ then
         VATAmount := GenJnlAlloc1."VAT Amount";
     end;
 
+    local procedure DeleteRelatedPaymentFileErrors()
+    var
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        PaymentJnlExportErrorText.DeleteJnlLineErrorsWhenRecDeleted(Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var GenJournalLine: Record "Gen. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
     begin
@@ -9186,6 +9209,26 @@ then
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPostingGroupChange(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetupNewLineOnBeforeSuggestBalancingAmount(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDocumentFields(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyClearAppliedGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

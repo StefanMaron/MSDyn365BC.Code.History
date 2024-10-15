@@ -15,6 +15,7 @@ table 189 "VAT Setup"
             trigger OnValidate()
             var
                 ConfirmMgt: Codeunit "Confirm Management";
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
                 if "Non-Deductible VAT Is Enabled" then
                     Error(NotPossibleToDisableNonDedVATErr);
@@ -23,6 +24,7 @@ table 189 "VAT Setup"
                 If GuiAllowed and "Enable Non-Deductible VAT" then
                     ShowEnableNonDeductibleVATNotification();
                 "Non-Deductible VAT Is Enabled" := true;
+                FeatureTelemetry.LogUsage('0000KI4', 'Non-Deductible VAT', 'The feature is enabled');
             end;
         }
         field(3; "Use For Item Cost"; Boolean)

@@ -13,7 +13,7 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
         MXElectronicInvoicingTok: Label 'MXElectronicInvoicingTelemetryCategoryTok', Locked = true;
         ResponseErr: Label 'There was an error while connecting to the service. Error message: %1', Comment = '%1=Error message';
         RequestSuccessfulMsg: label 'CFDI request was submitted successfully', Locked = true;
-        RequestFailedMsg: label 'CFDI request failed with reason: %1', Locked = true;
+        RequestFailedMsg: label 'CFDI request failed with reason: %1, and error message: %2', Locked = true;
         SecretsMissingMsg: label 'CFDI Az Function secrets are  missing', Locked = true;
 
     [NonDebuggable]
@@ -70,7 +70,7 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
         AzureFunctionsAuthentication: Codeunit "Azure Functions Authentication";
         AzureFunctionsResponse: Codeunit "Azure Functions Response";
         IAzurefunctionsAuthentication: Interface "Azure Functions Authentication";
-        Response: Text;
+        Response, ErrorMsg : Text;
         ClientID, ClientSecret, ResourceUrL, Endpoint, AuthUrl : Text;
     begin
         GetAzFunctionSecrets(ClientID, ClientSecret, ResourceUrL, Endpoint, AuthUrl);
@@ -83,7 +83,8 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
             Session.LogMessage('0000JOX', RequestSuccessfulMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
             exit(Response);
         end else begin
-            Session.LogMessage('0000JOY', StrSubstNo(RequestFailedMsg, AzureFunctionsResponse.GetError()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            AzureFunctionsResponse.GetError(ErrorMsg);
+            Session.LogMessage('0000JOY', StrSubstNo(RequestFailedMsg, AzureFunctionsResponse.GetError(), ErrorMsg), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
             Error(ResponseErr, AzureFunctionsResponse.GetError());
         end;
     end;

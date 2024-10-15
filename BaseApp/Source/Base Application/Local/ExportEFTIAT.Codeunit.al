@@ -120,6 +120,7 @@ codeunit 10097 "Export EFT (IAT)"
             ACHUSHeader."Bank Account Number" := "No.";
             ACHUSHeader."Company Name" := CompanyInformation.Name;
             ACHUSHeader.Reference := ReferenceCode;
+            OnStartExportFileOnBeforeACHUSHeaderModify(ACHUSHeader, BankAccount);
             ACHUSHeader.Modify();
             EFTValues.SetNoOfRec := EFTValues.GetNoOfRec() + 1;
         end;
@@ -568,6 +569,11 @@ codeunit 10097 "Export EFT (IAT)"
 
     [IntegrationEvent(false, false)]
     local procedure OnStartExportBatchOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartExportFileOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header"; var BankAccount: Record "Bank Account")
     begin
     end;
 }

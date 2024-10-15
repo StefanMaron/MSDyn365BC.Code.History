@@ -234,13 +234,17 @@
                                 SalesLine.Validate("Unit of Measure Code", StdSalesLine."Unit of Measure Code");
                             if StdSalesLine.Description <> '' then
                                 SalesLine.Validate(Description, StdSalesLine.Description);
-                            if (StdSalesLine.Type = StdSalesLine.Type::"G/L Account") or
-                               (StdSalesLine.Type = StdSalesLine.Type::"Charge (Item)")
-                            then
-                                SalesLine.Validate(
-                                  "Unit Price",
-                                  Round(StdSalesLine."Amount Excl. VAT" *
-                                    (SalesLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
+
+                            IsHandled := false;
+                            OnApplyStdCodesToSalesLinesOnBeforeRoundUnitPrice(SalesLine, StdSalesLine, IsHandled);
+                            if not IsHandled then
+                                if (StdSalesLine.Type = StdSalesLine.Type::"G/L Account") or
+                                (StdSalesLine.Type = StdSalesLine.Type::"Charge (Item)")
+                                then
+                                    SalesLine.Validate(
+                                        "Unit Price",
+                                        Round(StdSalesLine."Amount Excl. VAT" *
+                                            (SalesLine."VAT %" / 100 * Factor + 1), Currency."Unit-Amount Rounding Precision"));
                         end;
 
                     SalesLine."Shortcut Dimension 1 Code" := StdSalesLine."Shortcut Dimension 1 Code";
@@ -430,6 +434,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyStdCodesToSalesLinesOnAfterInsertExtendedText(var StdCustSalesCode: Record "Standard Customer Sales Code"; var StdSalesLine: Record "Standard Sales Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToSalesLinesOnBeforeRoundUnitPrice(var SalesLine: Record "Sales Line"; StandardSalesLine: Record "Standard Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

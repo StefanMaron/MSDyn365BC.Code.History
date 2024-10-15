@@ -415,8 +415,11 @@ codeunit 1351 "Telemetry Subscribers"
 
     internal procedure SetJobQueueTelemetryDimensions(var JobQueueEntry: Record "Job Queue Entry"; var Dimensions: Dictionary of [Text, Text])
     begin
+        JobQueueEntry.CalcFields("Object Caption to Run");
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectName', Format(JobQueueEntry."Object Caption to Run"));
+        Dimensions.Add('JobQueueObjectDescription', Format(JobQueueEntry.Description));
         Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
         Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
