@@ -5,6 +5,7 @@ report 11561 "SR Vendor Payment Advice"
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Payment Advice';
     UsageCategory = ReportsAndAnalysis;
+    AllowScheduling = false;
 
     dataset
     {

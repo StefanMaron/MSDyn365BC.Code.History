@@ -71,6 +71,7 @@ codeunit 5606 "FA Check Consistency"
         DeprBasis: Decimal;
         SalvageValue: Decimal;
         NewAmount: Decimal;
+        SalvageValueErr: Label 'There is a reclassification salvage amount that must be posted first. Open the FA Journal page, and then post the relevant reclassification entry.';
 
     local procedure CheckNormalPosting()
     begin
@@ -294,8 +295,11 @@ codeunit 5606 "FA Check Consistency"
                     if not DeprBook."Allow Acq. Cost below Zero" or
                        ("FA Posting Type" <> "FA Posting Type"::"Acquisition Cost") or
                        not "Index Entry"
-                    then
+                    then begin
+                        if "Reclassification Entry" and (SalvageValue <> 0) then
+                            Error(SalvageValueErr);
                         CreateBookValueError;
+                    end;
             if DeprBasis < 0 then
                 CreateDeprBasisError;
         end;

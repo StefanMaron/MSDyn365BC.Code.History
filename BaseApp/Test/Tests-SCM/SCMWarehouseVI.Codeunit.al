@@ -1069,7 +1069,9 @@ codeunit 137408 "SCM Warehouse VI"
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseEntry: Record "Warehouse Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         LotNo: Code[20];
+        SerialNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Lot Specific Tracking]
@@ -1077,13 +1079,15 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Item with Lot specific tracking including Warehouse Tracking, also SN Transfer Tracking and SN Purchase Tracking.
         Initialize;
+        WarehouseSetupShipmentPostingPolicyShowErrorOn();
+
         CreateLotTrackedItemPartSerialTracked(Item);
 
         // [GIVEN] Location with Require Receive, Require Shipment and Require Pick.
         PrepareReceiveShipPickLocation(Location);
 
         // [GIVEN] Purchase Item to Location, assign Serial No and Lot No.
-        Qty := LibraryRandom.RandIntInRange(2, 5);
+        Qty := 1;
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, Item."No.", Qty);
         PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1095,6 +1099,10 @@ codeunit 137408 "SCM Warehouse VI"
             WarehouseEntry, WarehouseEntry."Entry Type"::"Positive Adjmt.",
             Location."Receipt Bin Code", Item."No.");
 
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        SerialNo := ItemLedgerEntry."Serial No.";
+
         // [GIVEN] Create Transfer for Item to simple Location, create Warehouse Shipment, create Pick.
         CreateAndUpdateLocation(Location2, false, false); // To Location
         CreateAndReleaseTransferOrder(TransferHeader, Location.Code, Location2.Code, Item."No.", Qty);
@@ -1103,6 +1111,9 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Set Lot No for Pick lines created.
         SetWhseActivityLinesLotNo(Location.Code, WarehouseActivityHeader.Type::Pick, Item."No.", LotNo);
+
+        // [GIVEN] Also assign a serial no.
+        SetWhseActivityLinesSerialNo(Location.Code, WarehouseActivityHeader.Type::Pick, Item."No.", SerialNo);
 
         // [WHEN] Register Pick.
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
@@ -4408,6 +4419,18 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ItemNo, LotNo);
     end;
 
+    local procedure SetWhseActivityLinesSerialNo(LocationCode: Code[10]; ActivityType: Option; ItemNo: Code[20]; SerialNo: Code[50])
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityHeader(WarehouseActivityHeader, LocationCode, ActivityType);
+        SetWarehouseActivityLineSerialNo(
+          WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, ItemNo, SerialNo);
+        SetWarehouseActivityLineSerialNo(
+          WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, ItemNo, SerialNo);
+    end;
+
     local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])
     var
         Zone: Record Zone;
@@ -5152,6 +5175,19 @@ codeunit 137408 "SCM Warehouse VI"
             Validate("Lot No.", LotNo);
             Modify(true);
         end;
+    end;
+
+    local procedure SetWarehouseActivityLineSerialNo(WarehouseActivityHeader: Record "Warehouse Activity Header"; ActionType: Option; ItemNo: Code[20]; SerialNo: Code[50])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Serial No.", SerialNo);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure VerifyReservationEntryQty(ReservationEntry: Record "Reservation Entry"; QtyBase: Decimal; QtyToHandle: Decimal; QtyToInvoice: Decimal)
