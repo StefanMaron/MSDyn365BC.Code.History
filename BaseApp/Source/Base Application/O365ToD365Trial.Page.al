@@ -32,8 +32,7 @@ page 2355 "O365 To D365 Trial"
                         var
                             Video: Codeunit Video;
                         begin
-                            SendTraceTag('000081W', InvToBusinessCentralCategoryLbl,
-                              VERBOSITY::Normal, IntroTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('000081W', IntroTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
                             Video.Play('https://go.microsoft.com/fwlink/?linkid=867632');
                         end;
                     }

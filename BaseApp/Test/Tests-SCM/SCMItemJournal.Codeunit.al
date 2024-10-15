@@ -1486,7 +1486,7 @@ codeunit 137033 "SCM Item Journal"
         UpdateItemCost(Item);
     end;
 
-    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Option)
+    local procedure CreateItemWithCostingMethod(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, 0, LibraryRandom.RandDec(10, 2));
         Item.Validate("Costing Method", CostingMethod);
@@ -1535,7 +1535,7 @@ codeunit 137033 "SCM Item Journal"
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateItemJournalLineWithEntryType(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output"; LocationCode: Code[10]; BinCode: Code[20])
+    local procedure CreateItemJournalLineWithEntryType(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; BinCode: Code[20])
     begin
         CreateItemJournal(ItemJournalLine);
         with ItemJournalLine do begin
@@ -1586,7 +1586,7 @@ codeunit 137033 "SCM Item Journal"
         for Count := 1 to TempItem.Count do begin
             LibraryInventory.CreateItemJournalLine(
               ItemJournalLine, ItemJournalBatch."Journal Template Name",
-              ItemJournalBatch.Name, Count mod 4,
+              ItemJournalBatch.Name, "Item Ledger Document Type".FromInteger(Count mod 4),
               TempItem."No.", LibraryRandom.RandInt(5));  // Random Item Quantity.
             TempItem.Next
         end;
@@ -1603,7 +1603,7 @@ codeunit 137033 "SCM Item Journal"
             "Source ID" := ItemJournalLine."Journal Template Name";
             "Source Batch Name" := ItemJournalLine."Journal Batch Name";
             "Source Ref. No." := ItemJournalLine."Line No.";
-            "Source Subtype" := ItemJournalLine."Entry Type";
+            "Source Subtype" := ItemJournalLine."Entry Type".AsInteger();
             "Source Prod. Order Line" := 0;
             "Reservation Status" := "Reservation Status"::Reservation;
             Quantity := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -1690,7 +1690,7 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournal.FindFirst;
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin

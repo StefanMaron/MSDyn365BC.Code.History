@@ -887,7 +887,7 @@ codeunit 141007 "ERM GST APAC"
         exit(FixedAsset."No.");
     end;
 
-    local procedure CreateGeneralJournalLineWithFCY(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; GenPostingType: Option)
+    local procedure CreateGeneralJournalLineWithFCY(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; GenPostingType: Enum "General Posting Type")
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -930,7 +930,7 @@ codeunit 141007 "ERM GST APAC"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; No: Code[20])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; No: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -938,7 +938,7 @@ codeunit 141007 "ERM GST APAC"
         CreateSalesLine(SalesLine, SalesHeader, Type, No);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; No: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
@@ -947,7 +947,7 @@ codeunit 141007 "ERM GST APAC"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
@@ -1009,26 +1009,22 @@ codeunit 141007 "ERM GST APAC"
     end;
 
     local procedure CreateSalesCreditMemoForPostedInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostedInvoiceNo: Code[20])
-    var
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
         SalesHeader.Modify(true);
-        LibrarySales.CopySalesDocument(SalesHeader, DocType::"Posted Invoice", PostedInvoiceNo, false, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedInvoiceNo, false, false);
     end;
 
     local procedure CreatePurchaseCreditMemoForPostedInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PostedInvoiceNo: Code[20])
-    var
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocType::"Posted Invoice", PostedInvoiceNo, false, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo, false, false);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
@@ -1082,9 +1078,8 @@ codeunit 141007 "ERM GST APAC"
     var
         SalesLine: Record "Sales Line";
         LineGLAccount: Record "G/L Account";
-        VATCalcType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalcType::"Normal VAT");
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order,
           LibrarySales.CreateCustomerWithBusPostingGroups(
@@ -1126,7 +1121,7 @@ codeunit 141007 "ERM GST APAC"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostPmtAppliedToInvoice(AccountType: Option; CVNo: Code[20]; PostedInvoiceNo: Code[20]; LineAmount: Decimal)
+    local procedure CreatePostPmtAppliedToInvoice(AccountType: Enum "Gen. Journal Account Type"; CVNo: Code[20]; PostedInvoiceNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1172,7 +1167,7 @@ codeunit 141007 "ERM GST APAC"
         end;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
         with GLEntry do begin
             SetRange("Document Type", DocumentType);
@@ -1182,7 +1177,7 @@ codeunit 141007 "ERM GST APAC"
         end;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Option; CVNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Enum "General Posting Type"; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             SetRange(Type, VATEntryType);
@@ -1396,7 +1391,7 @@ codeunit 141007 "ERM GST APAC"
         VATEntry.TestField("BAS Adjustment", ExpectedBASAdjusnment);
     end;
 
-    local procedure VerifyGLEntryBASAdjustment(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedBASAdjustment: Boolean)
+    local procedure VerifyGLEntryBASAdjustment(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedBASAdjustment: Boolean)
     var
         GLEntry: Record "G/L Entry";
     begin

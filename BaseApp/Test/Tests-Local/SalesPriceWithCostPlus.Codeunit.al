@@ -44,7 +44,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         CustomerSalesPriceCostPlusStartingdate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
     end;
 
-    local procedure CustomerSalesPriceCostPlusStartingdate(SalesType: Option; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
+    local procedure CustomerSalesPriceCostPlusStartingdate(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -103,7 +103,7 @@ codeunit 141051 "Sales Price With Cost Plus"
           CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
     end;
 
-    local procedure CustomerSalesPriceCostPlusDateRange(SalesType: Option; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date; Quantity: Decimal)
+    local procedure CustomerSalesPriceCostPlusDateRange(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -236,7 +236,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         CustomerSalesPriceDiscountAmtWithStartingDate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
     end;
 
-    local procedure CustomerSalesPriceDiscountAmtWithStartingDate(SalesType: Option; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
+    local procedure CustomerSalesPriceDiscountAmtWithStartingDate(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -397,7 +397,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         Item.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; CampaignNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CampaignNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -407,7 +407,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-    local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Option; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal)
+    local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal)
     var
         Item: Record Item;
     begin
@@ -418,13 +418,13 @@ codeunit 141051 "Sales Price With Cost Plus"
         SalesPrice.Modify(true);
     end;
 
-    local procedure CreateSalesPriceWithCostPlus(var SalesPrice: Record "Sales Price"; SalesType: Option; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal)
+    local procedure CreateSalesPriceWithCostPlus(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; CustomerNo: Code[20]; StartingDate: Date; MinimumQuantity: Decimal)
     begin
         CreateSalesPrice(SalesPrice, SalesType, CustomerNo, StartingDate, MinimumQuantity);
         UpdateCostPlusPctOnSalesPrice(SalesPrice);
     end;
 
-    local procedure CreateSalesPriceWithDiscountAmount(var SalesPrice: Record "Sales Price"; SalesType: Option; CustomerNo: Code[20]; StartingDate: Date)
+    local procedure CreateSalesPriceWithDiscountAmount(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; CustomerNo: Code[20]; StartingDate: Date)
     begin
         CreateSalesPrice(SalesPrice, SalesType, CustomerNo, StartingDate, LibraryRandom.RandDecInDecimalRange(10, 20, 2));  // Random range for Minimum Quantity
         SalesPrice.Validate("Discount Amount", LibraryRandom.RandDec(10, 2));

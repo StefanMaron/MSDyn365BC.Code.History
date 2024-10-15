@@ -459,7 +459,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         JobTask.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Due Date", WorkDate);
@@ -481,7 +481,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Option; No: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Option)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
@@ -491,7 +491,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLineWithPartialQuantity(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Option; No: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseLineWithPartialQuantity(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; Type: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Option)
     begin
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, JobTask, Type, No, JobLineType);
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);  // Partial Quantity.
@@ -499,7 +499,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrderWithJob(JobTaskType: Option; LineType: Option; No: Code[20]; JobLineType: Option)
+    local procedure CreatePurchaseOrderWithJob(JobTaskType: Option; LineType: Enum "Purchase Line Type"; No: Code[20]; JobLineType: Option)
     var
         JobTask: Record "Job Task";
         PurchaseHeader: Record "Purchase Header";
@@ -562,7 +562,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
           0, 'Error message must be same.');
     end;
 
-    local procedure PurchaseOrderWithDifferentLineType(Type: Option " ","G/L Account",Item,,"Fixed Asset","Charge (Item)"; No: Code[20])
+    local procedure PurchaseOrderWithDifferentLineType(Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         JobTask: Record "Job Task";

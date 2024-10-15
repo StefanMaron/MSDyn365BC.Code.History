@@ -77,6 +77,37 @@ page 5910 "Service Costs"
 
     actions
     {
+        area(Navigation)
+        {
+            action(SalesPriceLists)
+            {
+                ApplicationArea = Service;
+                Caption = 'Prices';
+                Image = SalesPrices;
+                Promoted = true;
+                PromotedCategory = Process;
+                Visible = ExtendedPriceEnabled;
+                ToolTip = 'View or edit prices and discounts for the service cost.';
+
+                trigger OnAction()
+                var
+                    AmountType: Enum "Price Amount Type";
+                    PriceType: Enum "Price Type";
+                begin
+                    Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                end;
+            }
+        }
     }
+
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 }
 

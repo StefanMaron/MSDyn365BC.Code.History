@@ -454,7 +454,7 @@ table 28071 "Sales Tax Invoice Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])

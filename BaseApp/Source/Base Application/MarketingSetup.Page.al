@@ -23,7 +23,7 @@ page 5094 "Marketing Setup"
 
                     trigger OnValidate()
                     begin
-                        AttachmentStorageTypeOnAfterVa;
+                        AttachmentStorageTypeOnAfterVa();
                     end;
                 }
                 field("Attachment Storage Location"; "Attachment Storage Location")
@@ -34,7 +34,7 @@ page 5094 "Marketing Setup"
 
                     trigger OnValidate()
                     begin
-                        AttachmentStorageLocationOnAft;
+                        AttachmentStorageLocationOnAft();
                     end;
                 }
             }
@@ -180,6 +180,12 @@ page 5094 "Marketing Setup"
                         Caption = 'Bank Accounts';
                         ToolTip = 'Specifies the business relation code that identifies that a contact is also a bank account.';
                     }
+                    field("Bus. Rel. Code for Employees"; "Bus. Rel. Code for Employees")
+                    {
+                        ApplicationArea = Basic, Suite, RelationshipMgmt;
+                        Caption = 'Employees';
+                        ToolTip = 'Specifies the business relation code that identifies that a contact is also an employee.';
+                    }
                 }
             }
             group(Numbering)
@@ -242,8 +248,8 @@ page 5094 "Marketing Setup"
                     trigger OnValidate()
                     begin
                         if "Autodiscovery E-Mail Address" <> xRec."Autodiscovery E-Mail Address" then begin
-                            OnAfterMarketingSetupEmailLoggingUsed;
-                            ExchangeWebServicesClient.InvalidateService
+                            OnAfterMarketingSetupEmailLoggingUsed();
+                            ExchangeWebServicesClient.InvalidateService();
                         end;
                     end;
                 }
@@ -256,8 +262,8 @@ page 5094 "Marketing Setup"
                     trigger OnValidate()
                     begin
                         if "Exchange Service URL" <> xRec."Exchange Service URL" then begin
-                            OnAfterMarketingSetupEmailLoggingUsed;
-                            ExchangeWebServicesClient.InvalidateService
+                            OnAfterMarketingSetupEmailLoggingUsed();
+                            ExchangeWebServicesClient.InvalidateService();
                         end;
                     end;
                 }
@@ -302,6 +308,14 @@ page 5094 "Marketing Setup"
                     Visible = ClientCredentialsVisible;
                     Enabled = not EmailLoggingEnabled;
                     ToolTip = 'Specifies the redirect URL of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                    trigger OnValidate()
+                    begin
+                        if "Exchange Redirect URL" <> xRec."Exchange Redirect URL" then begin
+                            OnAfterMarketingSetupEmailLoggingUsed();
+                            ExchangeWebServicesClient.InvalidateService();
+                        end;
+                    end;
                 }
                 field("Exchange Account User Name"; "Exchange Account User Name")
                 {
@@ -309,12 +323,15 @@ page 5094 "Marketing Setup"
                     Caption = 'Exchange User';
                     ToolTip = 'Specifies the email account that the scheduled job must use to connect to Exchange and process emails.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
                         if "Exchange Account User Name" <> xRec."Exchange Account User Name" then begin
-                            OnAfterMarketingSetupEmailLoggingUsed;
-                            ExchangeWebServicesClient.InvalidateService;
+                            OnAfterMarketingSetupEmailLoggingUsed();
+                            ExchangeWebServicesClient.InvalidateService();
                         end;
                     end;
                 }
@@ -325,13 +342,16 @@ page 5094 "Marketing Setup"
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the password of the user account that has access to Exchange.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be removed';
+                    ObsoleteTag = '17.0';
 
                     trigger OnValidate()
                     begin
-                        OnAfterMarketingSetupEmailLoggingUsed;
+                        OnAfterMarketingSetupEmailLoggingUsed();
                         SetExchangeAccountPassword(ExchangeAccountPasswordTemp);
                         Commit();
-                        ExchangeWebServicesClient.InvalidateService;
+                        ExchangeWebServicesClient.InvalidateService();
                     end;
                 }
                 field("Email Batch Size"; "Email Batch Size")
@@ -342,7 +362,7 @@ page 5094 "Marketing Setup"
 
                     trigger OnValidate()
                     begin
-                        OnAfterMarketingSetupEmailLoggingUsed;
+                        OnAfterMarketingSetupEmailLoggingUsed();
                     end;
                 }
                 group(Control5)
@@ -405,14 +425,23 @@ page 5094 "Marketing Setup"
                         ErrorMessage: Text;
                     begin
                         if EmailLoggingEnabled then begin
-                            SignInExchangeAdminUser();
+                            if not TryInitExchangeService() then
+                                SignInExchangeAdminUser();
                             if not ValidateEmailLoggingSetup(Rec, ErrorMessage) then
                                 Error(ErrorMessage);
-                            SendTraceTag('0000CIF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingEnabledTxt, DataClassification::SystemMetadata);
+                            Session.LogMessage('0000CIF', EmailLoggingEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                             SetupEmailLogging.CreateEmailLoggingJobQueueSetup();
                         end else begin
-                            SendTraceTag('0000CIG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDisabledTxt, DataClassification::SystemMetadata);
+                            Session.LogMessage('0000CIG', EmailLoggingDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                             SetupEmailLogging.DeleteEmailLoggingJobQueueSetup();
+                            ExchangeWebServicesClient.InvalidateService();
+                            if ("Exchange Account User Name" <> '') or (not IsNullGuid("Exchange Account Password Key")) then begin
+                                Session.LogMessage('0000CPO', DisableBasicAuthenticationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+                                if not IsNullGuid("Exchange Account Password Key") then
+                                    IsolatedStorageManagement.Delete("Exchange Account Password Key", DATASCOPE::Company);
+                                Clear("Exchange Account Password Key");
+                                Clear("Exchange Account User Name");
+                            end;
                         end;
                         "Email Logging Enabled" := EmailLoggingEnabled;
                         Modify();
@@ -454,6 +483,10 @@ page 5094 "Marketing Setup"
                     PromotedIsBig = true;
                     RunObject = Page "Social Listening Setup";
                     ToolTip = 'Set up the Microsoft Social Engagement server URL, agree to the license terms, and enable the Social Listening for Customers, Vendors, and/or Items.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Duplicate Search String Setup")
                 {
@@ -529,13 +562,14 @@ page 5094 "Marketing Setup"
                     Caption = 'Generate Integration IDs for Connector for Microsoft Dynamics';
                     Image = CreateSerialNo;
                     ToolTip = 'Generate identifiers (GUID) for records that can be used by Dynamics 365 Sales and in Dynamics 365.';
+                    Visible = false;
 
                     trigger OnAction()
                     var
                         IntegrationManagement: Codeunit "Integration Management";
                     begin
                         if Confirm(Text004, true) then begin
-                            IntegrationManagement.SetupIntegrationTables;
+                            IntegrationManagement.SetupIntegrationTables();
                             Message(Text005);
                         end;
                     end;
@@ -548,16 +582,16 @@ page 5094 "Marketing Setup"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        SoftwareAsAService := EnvironmentInfo.IsSaaS();
         ClientCredentialsVisible := not SoftwareAsAService;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
 
         AttachmentStorageLocationEnabl := "Attachment Storage Type" = "Attachment Storage Type"::"Disk File";
@@ -588,22 +622,20 @@ page 5094 "Marketing Setup"
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
         EmailLoggingEnabledTxt: Label 'Email Logging has been enabled from Marketing Setup page', Locked = true;
         EmailLoggingDisabledTxt: Label 'Email Logging has been disabled from Marketing Setup page', Locked = true;
-        CannotConnectToExchangeErr: Label 'Could not connect to Exchange with the specified user.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        DisableBasicAuthenticationTxt: Label 'Basic authentication is disabled. OAuth authentication is enforced to be used  next time.', Locked = true;
+        CannotAccessRootPublicFolderErr: Label 'Could not access the root public folder with the specified user.';
         CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         QueueFolderNotAccessibleTxt: Label 'The specified Queue folder does not exist or cannot be accessed.';
         StorageFolderNotAccessibleTxt: Label 'The specified Storage folder does not exist or cannot be accessed.';
         EmptyAutodiscoveryEmailAddressTxt: Label 'A valid email address is needed to find an instance of Exchange Server.';
-        CannotConnectToExchangeWithTokenTxt: Label 'Could not connect to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
-        CannotConnectToExchangeWithTenantIdTxt: Label 'Could not connect to Exchange. User: %1, URL: %2, Tenant: %3.', Locked = true;
+        CannotAccessRootPublicFolderTxt: Label 'Could not access the root public folder. User: %1, URL: %2, Token: %3.', Locked = true;
         CannotInitializeConnectionToExchangeWithTokenTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Token: %3.', Locked = true;
-        CannotInitializeConnectionToExchangeWithTenantIdTxt: Label 'Could not initialize connection to Exchange. User: %1, URL: %2, Tenant: %3.', Locked = true;
         ServiceInitializedTxt: Label 'Service has been initalized.', Locked = true;
         ServiceValidatedTxt: Label 'Service has been validated.', Locked = true;
         ExchangeTenantIdNotSpecifiedTxt: Label 'Exchange tenant ID is not specified.', Locked = true;
         ExchangeAccountNotSpecifiedTxt: Label 'Exchange account is not specified.', Locked = true;
         ExchangeAccountSpecifiedTxt: Label 'Exchange account is specified.', Locked = true;
         SignInAdminTxt: Label 'Sign in Exchange admin user.', Locked = true;
-        AdminSignedInTxt: Label 'Exchange admin user signed in successfuly.', Locked = true;
         ServiceNotInitializedTxt: Label 'Service is not initialized.', Locked = true;
         EmailLoggingSetupValidatedTxt: Label 'Email logging setup has been validated.', Locked = true;
         InteractionTemplateSetupNotConfiguredTxt: Label 'Interaction Template Setup is not configured.', Locked = true;
@@ -616,7 +648,7 @@ page 5094 "Marketing Setup"
         if ("Attachment Storage Type" = "Attachment Storage Type"::Embedded) or
            ("Attachment Storage Location" <> '')
         then begin
-            Modify;
+            Modify();
             Commit();
             REPORT.Run(REPORT::"Relocate Attachments");
         end;
@@ -625,7 +657,7 @@ page 5094 "Marketing Setup"
     procedure SetAttachmentStorageLocation()
     begin
         if "Attachment Storage Location" <> '' then begin
-            Modify;
+            Modify();
             Commit();
             REPORT.Run(REPORT::"Relocate Attachments");
         end;
@@ -634,12 +666,12 @@ page 5094 "Marketing Setup"
     local procedure AttachmentStorageTypeOnAfterVa()
     begin
         AttachmentStorageLocationEnabl := "Attachment Storage Type" = "Attachment Storage Type"::"Disk File";
-        SetAttachmentStorageType;
+        SetAttachmentStorageType();
     end;
 
     local procedure AttachmentStorageLocationOnAft()
     begin
-        SetAttachmentStorageLocation;
+        SetAttachmentStorageLocation();
     end;
 
     [TryFunction]
@@ -653,6 +685,7 @@ page 5094 "Marketing Setup"
     [NonDebuggable]
     procedure InitExchangeService()
     var
+        TempExchangeFolder: Record "Exchange Folder" temporary;
         SetupEmailLogging: Codeunit "Setup Email Logging";
         WebCredentials: DotNet WebCredentials;
         OAuthCredentials: DotNet OAuthCredentials;
@@ -660,111 +693,67 @@ page 5094 "Marketing Setup"
         Initialized: Boolean;
     begin
         if "Autodiscovery E-Mail Address" = '' then begin
-            SendTraceTag('0000D91', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyAutodiscoveryEmailAddressTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D91', EmptyAutodiscoveryEmailAddressTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text006);
         end;
 
         ExchangeWebServicesClient.InvalidateService();
 
         if not IsNullGuid("Exchange Tenant Id Key") then begin
-            SendTraceTag('0000D92', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdNotSpecifiedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D92', ExchangeTenantIdNotSpecifiedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             SetupEmailLogging.GetClientCredentialsAccessToken(GetExchangeTenantId(), Token);
             OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
             Initialized := ExchangeWebServicesClient.InitializeOnServerWithImpersonation("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials);
         end else
             if "Exchange Account User Name" <> '' then begin
-                SendTraceTag('0000D93', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountSpecifiedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D93', ExchangeAccountSpecifiedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 CreateExchangeAccountCredentials(WebCredentials);
                 Initialized := ExchangeWebServicesClient.InitializeOnServer("Autodiscovery E-Mail Address", "Exchange Service URL", WebCredentials.Credentials);
             end else begin
-                SendTraceTag('0000D94', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountNotSpecifiedTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000D94', ExchangeAccountNotSpecifiedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
                 Initialized := ExchangeWebServicesClient.InitializeOnClient("Autodiscovery E-Mail Address", "Exchange Service URL");
             end;
 
         if not Initialized then begin
-            SendTraceTag('0000D95', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeWithTokenTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), DataClassification::CustomerContent);
+            Session.LogMessage('0000D95', StrSubstNo(CannotInitializeConnectionToExchangeWithTokenTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(CannotInitializeConnectionToExchangeErr);
         end;
 
-        SendTraceTag('0000D96', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceInitializedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D96', ServiceInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
-        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then begin
-            SendTraceTag('0000D97', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeWithTokenTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), DataClassification::CustomerContent);
-            Error(CannotConnectToExchangeErr);
+        if not ExchangeWebServicesClient.GetPublicFolders(TempExchangeFolder) then begin
+            Session.LogMessage('0000D97', StrSubstNo(CannotAccessRootPublicFolderTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", Token), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            Error(CannotAccessRootPublicFolderErr);
         end;
 
-        SendTraceTag('0000D98', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceValidatedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D98', ServiceValidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     [NonDebuggable]
     local procedure SignInExchangeAdminUser()
     var
         SetupEmailLogging: Codeunit "Setup Email Logging";
-        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
-        OAuthCredentials: DotNet OAuthCredentials;
         Token: Text;
         TenantId: Text;
     begin
-        SendTraceTag('0000D99', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SignInAdminTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000D99', SignInAdminTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         if "Autodiscovery E-Mail Address" = '' then begin
-            SendTraceTag('0000D9A', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyAutodiscoveryEmailAddressTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9A', EmptyAutodiscoveryEmailAddressTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text006);
         end;
 
         SetupEmailLogging.PromptAdminConsent(Token);
         SetupEmailLogging.ExtractTenantIdFromAccessToken(TenantId, Token);
-        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
-
-        if not ExchangeWebServicesServer.Initialize("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials, false) then begin
-            SendTraceTag('0000D9B', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotInitializeConnectionToExchangeWithTenantIdTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", TenantId), DataClassification::CustomerContent);
-            Error(CannotInitializeConnectionToExchangeErr);
-        end;
-
-        if not ExchangeWebServicesServer.ValidCredentials() then begin
-            SendTraceTag('0000D9C', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotConnectToExchangeWithTenantIdTxt, "Autodiscovery E-Mail Address", "Exchange Service URL", TenantId), DataClassification::CustomerContent);
-            Error(CannotConnectToExchangeErr);
-        end;
-
-        SendTraceTag('0000D9D', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AdminSignedInTxt, DataClassification::SystemMetadata);
         SetExchangeTenantId(TenantId);
     end;
 
     [Scope('OnPrem')]
     procedure ClearEmailLoggingSetup(var MarketingSetup: Record "Marketing Setup")
+    var
+        SetupEmailLogging: Codeunit "Setup Email Logging";
     begin
-        ExchangeWebServicesClient.InvalidateService;
-
-        Clear(MarketingSetup."Autodiscovery E-Mail Address");
-        Clear(MarketingSetup."Email Batch Size");
-
-        Clear(MarketingSetup."Queue Folder Path");
-        if MarketingSetup."Queue Folder UID".HasValue then
-            Clear(MarketingSetup."Queue Folder UID");
-
-        Clear(MarketingSetup."Storage Folder Path");
-        if MarketingSetup."Storage Folder UID".HasValue then
-            Clear(MarketingSetup."Storage Folder UID");
-
-        Clear(MarketingSetup."Exchange Account User Name");
-        Clear(MarketingSetup."Exchange Service URL");
-
-        if not IsNullGuid(MarketingSetup."Exchange Account Password Key") then
-            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Account Password Key", DATASCOPE::Company);
-        Clear(MarketingSetup."Exchange Account Password Key");
-
-        Clear(MarketingSetup."Exchange Client Id");
-        Clear(MarketingSetup."Exchange Redirect URL");
-
-        if not IsNullGuid(MarketingSetup."Exchange Client Secret Key") then
-            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Client Secret Key", DATASCOPE::Company);
-        Clear(MarketingSetup."Exchange Client Secret Key");
-
-        if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then
-            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Tenant Id Key", DATASCOPE::Company);
-        Clear(MarketingSetup."Exchange Tenant Id Key");
-        Clear(MarketingSetup."Email Logging Enabled");
-
-        MarketingSetup.Modify();
+        ExchangeWebServicesClient.InvalidateService();
+        SetupEmailLogging.ClearEmailLoggingSetup(MarketingSetup);
     end;
 
     [NonDebuggable]
@@ -778,41 +767,41 @@ page 5094 "Marketing Setup"
         ProgressWindow.Open(Text013, ValidationCaption);
 
         if not TryInitExchangeService() then begin
-            SendTraceTag('0000D9E', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ServiceNotInitializedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9E', ServiceNotInitializedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := GetLastErrorText();
             exit(false);
         end;
 
         ValidationCaption := FieldCaption("Queue Folder Path");
-        ProgressWindow.Update;
+        ProgressWindow.Update();
         if not ExchangeWebServicesClient.FolderExists(MarketingSetup.GetQueueFolderUID()) then begin
-            SendTraceTag('0000D9F', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, QueueFolderNotAccessibleTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9F', QueueFolderNotAccessibleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := Text010;
             exit(false);
         end;
 
         ValidationCaption := FieldCaption("Storage Folder Path");
-        ProgressWindow.Update;
+        ProgressWindow.Update();
         if not ExchangeWebServicesClient.FolderExists(MarketingSetup.GetStorageFolderUID()) then begin
-            SendTraceTag('0000D9G', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StorageFolderNotAccessibleTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9G', StorageFolderNotAccessibleTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             ErrorMsg := Text011;
             exit(false);
         end;
 
         // Emails cannot be automatically logged unless Interaction Template Setup configured correctly.
         ValidationCaption := Text016;
-        ProgressWindow.Update;
+        ProgressWindow.Update();
         if not EmailLoggingDispatcher.CheckInteractionTemplateSetup(ErrorMsg) then begin
-            SendTraceTag('0000D9H', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, InteractionTemplateSetupNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9H', InteractionTemplateSetupNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
         Clear(ErrorMsg);
         MarketingSetup.Modify();
 
-        OnAfterMarketingSetupEmailLoggingCompleted;
-        SendTraceTag('0000D9I', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingSetupValidatedTxt, DataClassification::SystemMetadata);
+        OnAfterMarketingSetupEmailLoggingCompleted();
+        Session.LogMessage('0000D9I', EmailLoggingSetupValidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
         exit(true);
     end;
 

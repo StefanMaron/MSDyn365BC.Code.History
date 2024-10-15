@@ -39,7 +39,7 @@ page 5900 "Service Order"
 
                     trigger OnValidate()
                     begin
-                        CustomerNoOnAfterValidate;
+                        CustomerNoOnAfterValidate();
                     end;
                 }
                 field("Contact No."; "Contact No.")
@@ -119,6 +119,15 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the phone number of the customer in this service order.';
+                }
+                field(ContactMobilePhoneNo; SellToContact."Mobile Phone No.")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Mobile Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the contact person that the sevice order will be sent to.';
                 }
                 field("Phone No. 2"; "Phone No. 2")
                 {
@@ -281,6 +290,33 @@ page 5900 "Service Order"
                         Caption = 'Contact';
                         ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
                     }
+                    field(BillToContactPhoneNo; BillToContact."Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the person you should contact at the customer you are sending the order to.';
+                    }
+                    field(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the person you should contact at the customer you are sending the order to.';
+                    }
+                    field(BillToContactEmail; BillToContact."E-Mail")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the person you should contact at the customer you are sending the order to.';
+                    }
                 }
                 field("Your Reference"; "Your Reference")
                 {
@@ -358,7 +394,7 @@ page 5900 "Service Order"
                 }
                 field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Service;
                     ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
                 }
                 field("Tax Liable"; "Tax Liable")
@@ -1179,6 +1215,12 @@ page 5900 "Service Order"
         ActivateFields;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if BillToContact.Get("Bill-to Contact No.") then;
+        if SellToContact.Get("Contact No.") then;
+    end;
+
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if not DocumentIsPosted then
@@ -1187,6 +1229,8 @@ page 5900 "Service Order"
 
     var
         ServHeader: Record "Service Header";
+        BillToContact: Record Contact;
+        SellToContact: Record Contact;
         ServOrderMgt: Codeunit ServOrderManagement;
         ServLogMgt: Codeunit ServLogManagement;
         UserMgt: Codeunit "User Setup Management";

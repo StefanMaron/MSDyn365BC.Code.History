@@ -204,7 +204,7 @@ codeunit 133771 "Remittance REP Check UT"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; DocumentType: Option)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry."Entry No." := SelectVendorLedgerEntryNo;
         VendorLedgerEntry."Vendor No." := VendorNo;
@@ -230,7 +230,7 @@ codeunit 133771 "Remittance REP Check UT"
         exit(VendorLedgerEntry3."Entry No.");
     end;
 
-    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Option; DocumentType: Option; Sign: Integer): Decimal
+    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; Sign: Integer): Decimal
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -247,7 +247,7 @@ codeunit 133771 "Remittance REP Check UT"
         exit(DetailedVendorLedgEntry.Amount);
     end;
 
-    local procedure MockVendorLedgerEntryWithDetailedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; EntryType: Option; Sign: Integer)
+    local procedure MockVendorLedgerEntryWithDetailedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; Sign: Integer)
     begin
         CreateVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Applies-to ID", GenJournalLine."Account No.", DocumentType);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Entry No.", EntryType, DocumentType, Sign);
@@ -257,7 +257,7 @@ codeunit 133771 "Remittance REP Check UT"
         VendorLedgerEntry.Modify();
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -290,7 +290,7 @@ codeunit 133771 "Remittance REP Check UT"
         GenJournalBatch.Insert();
     end;
 
-    local procedure CreateGeneralJournalLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option)
+    local procedure CreateGeneralJournalLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")
     begin
         CreateGeneralJournalLine(GenJournalLine, AccountType, CreateVendor);
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);

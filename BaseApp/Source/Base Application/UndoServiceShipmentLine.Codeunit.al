@@ -82,7 +82,7 @@ codeunit 5818 "Undo Service Shipment Line"
     local procedure "Code"()
     var
         PostedWhseShptLine: Record "Posted Whse. Shipment Line";
-        SalesLine: Record "Sales Line";
+        ServiceLine: Record "Service Line";
         ServItem: Record "Service Item";
         ServLedgEntriesPost: Codeunit "ServLedgEntries-Post";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -128,14 +128,9 @@ codeunit 5818 "Undo Service Shipment Line"
                     Window.Open(Text001);
 
                 PostedWhseShptLineFound :=
-                  WhseUndoQty.FindPostedWhseShptLine(
-                    PostedWhseShptLine,
-                    DATABASE::"Service Shipment Line",
-                    "Document No.",
-                    DATABASE::"Service Line",
-                    SalesLine."Document Type"::Order,
-                    "Order No.",
-                    "Order Line No.");
+                    WhseUndoQty.FindPostedWhseShptLine(
+                        PostedWhseShptLine, DATABASE::"Service Shipment Line", "Document No.",
+                        DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
 
                 if Type = Type::Item then
                     ItemShptEntryNo := PostItemJnlLine(ServShptLine)
@@ -266,14 +261,10 @@ codeunit 5818 "Undo Service Shipment Line"
 
             OnAfterCopyItemJnlLineFromServShpt(ItemJnlLine, ServShptHeader, ServShptLine);
 
-            WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
-              DATABASE::"Service Line",
-              ServLine."Document Type"::Order,
-              "Order No.",
-              "Order Line No.",
-              TempWhseJnlLine."Reference Document"::"Posted Shipment",
-              TempWhseJnlLine,
-              NextLineNo);
+            WhseUndoQty.InsertTempWhseJnlLine(
+                ItemJnlLine,
+                DATABASE::"Service Line", ServLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
+                TempWhseJnlLine."Reference Document"::"Posted Shipment", TempWhseJnlLine, NextLineNo);
 
             if "Item Shpt. Entry No." <> 0 then begin
                 ItemJnlPostLine.Run(ItemJnlLine);

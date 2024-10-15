@@ -1,4 +1,4 @@
-﻿codeunit 5895 "Inventory Adjustment"
+codeunit 5895 "Inventory Adjustment"
 {
     Permissions = TableData Item = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -334,7 +334,7 @@
                     CalcCostPerUnit(OutbndValueEntry, OutbndCostElementBuf, OutbndItemLedgEntry.Quantity);
 
                     if not "Expected Cost" then begin
-                        OldCostElementBuf.Retrieve(0, 0);
+                        OldCostElementBuf.GetElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
                         "Invoiced Quantity" := OldCostElementBuf."Invoiced Quantity";
                         "Valued Quantity" := OldCostElementBuf."Invoiced Quantity";
                     end;
@@ -344,12 +344,12 @@
                       OutbndValueEntry, OutbndItemLedgEntry.Quantity);
 
                     if "Expected Cost" then begin
-                        OldCostElementBuf.Retrieve(OldCostElementBuf.Type::Total, OldCostElementBuf."Variance Type"::" ");
+                        OldCostElementBuf.GetElement(OldCostElementBuf.Type::Total, OldCostElementBuf."Variance Type"::" ");
                         AdjustedCostElementBuf."Actual Cost" := AdjustedCostElementBuf."Actual Cost" - OldCostElementBuf."Expected Cost";
                         AdjustedCostElementBuf."Actual Cost (ACY)" :=
                           AdjustedCostElementBuf."Actual Cost (ACY)" - OldCostElementBuf."Expected Cost (ACY)";
                     end else begin
-                        OldCostElementBuf.Retrieve("Entry Type"::"Direct Cost", 0);
+                        OldCostElementBuf.GetElement("Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
                         AdjustedCostElementBuf."Actual Cost" := AdjustedCostElementBuf."Actual Cost" - OldCostElementBuf."Actual Cost";
                         AdjustedCostElementBuf."Actual Cost (ACY)" :=
                           AdjustedCostElementBuf."Actual Cost (ACY)" - OldCostElementBuf."Actual Cost (ACY)";
@@ -439,7 +439,7 @@
                 then
                     "Inbound Completely Invoiced" := false;
 
-                AdjustedCostElementBuf.Retrieve(Type::"Direct Cost", "Variance Type"::" ");
+                AdjustedCostElementBuf.GetElement(Type::"Direct Cost", "Variance Type"::" ");
                 "Actual Cost" := "Actual Cost" + AdjustedCostElementBuf."Actual Cost";
                 "Actual Cost (ACY)" := "Actual Cost (ACY)" + AdjustedCostElementBuf."Actual Cost (ACY)";
                 "Remaining Quantity" := "Remaining Quantity" - OutbndItemApplnEntry.Quantity;
@@ -458,7 +458,7 @@
     begin
         ShareOfTotalCost := OutbndValueEntry."Valued Quantity" / ItemLedgEntryQty;
         with OutbndCostElementBuf do begin
-            NewCostElementBuf.Retrieve(Type::"Direct Cost", 0);
+            NewCostElementBuf.GetElement(Type::"Direct Cost", "Cost Variance Type"::" ");
             "Actual Cost" := "Actual Cost" + OutbndValueEntry."Cost per Unit" * "Remaining Quantity";
             "Actual Cost (ACY)" := "Actual Cost (ACY)" + OutbndValueEntry."Cost per Unit (ACY)" * "Remaining Quantity";
 
@@ -488,7 +488,7 @@
         end;
     end;
 
-    local procedure CreateCostAdjmtBuf(OutbndValueEntry: Record "Value Entry"; CostElementBuf: Record "Cost Element Buffer"; ItemLedgEntryPostingDate: Date; EntryType: Option): Boolean
+    local procedure CreateCostAdjmtBuf(OutbndValueEntry: Record "Value Entry"; CostElementBuf: Record "Cost Element Buffer"; ItemLedgEntryPostingDate: Date; EntryType: Enum "Cost Entry Type"): Boolean
     begin
         with CostElementBuf do
             if UpdateAdjmtBuf(OutbndValueEntry, "Actual Cost", "Actual Cost (ACY)", ItemLedgEntryPostingDate, EntryType) then begin
@@ -498,19 +498,17 @@
         exit(false);
     end;
 
-    local procedure CreateIndirectCostAdjmt(var CostElementBuf: Record "Cost Element Buffer"; var AdjustedCostElementBuf: Record "Cost Element Buffer"; OutbndValueEntry: Record "Value Entry"; EntryType: Option)
+    local procedure CreateIndirectCostAdjmt(var CostElementBuf: Record "Cost Element Buffer"; var AdjustedCostElementBuf: Record "Cost Element Buffer"; OutbndValueEntry: Record "Value Entry"; EntryType: Enum "Cost Entry Type")
     var
         ItemJnlLine: Record "Item Journal Line";
         OrigValueEntry: Record "Value Entry";
         NewAdjustedCost: Decimal;
         NewAdjustedCostACY: Decimal;
     begin
-        with CostElementBuf do begin
-            Retrieve(EntryType, 0);
-            AdjustedCostElementBuf.Retrieve(EntryType, 0);
-            NewAdjustedCost := AdjustedCostElementBuf."Actual Cost" - "Actual Cost";
-            NewAdjustedCostACY := AdjustedCostElementBuf."Actual Cost (ACY)" - "Actual Cost (ACY)";
-        end;
+        CostElementBuf.GetElement(EntryType, "Cost Variance Type"::" ");
+        AdjustedCostElementBuf.GetElement(EntryType, "Cost Variance Type"::" ");
+        NewAdjustedCost := AdjustedCostElementBuf."Actual Cost" - CostElementBuf."Actual Cost";
+        NewAdjustedCostACY := AdjustedCostElementBuf."Actual Cost (ACY)" - CostElementBuf."Actual Cost (ACY)";
 
         if HasNewCost(NewAdjustedCost, NewAdjustedCostACY) then begin
             GetOrigValueEntry(OrigValueEntry, OutbndValueEntry, EntryType);
@@ -637,7 +635,7 @@
                     CalcInbndDocOldCost(InbndValueEntry, DocCostElementBuf);
 
                     if not InbndValueEntry."Expected Cost" then begin
-                        DocCostElementBuf.Retrieve(0, 0);
+                        DocCostElementBuf.GetElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
                         InbndValueEntry."Valued Quantity" := DocCostElementBuf."Invoiced Quantity";
                         InbndValueEntry."Invoiced Quantity" := DocCostElementBuf."Invoiced Quantity";
                     end;
@@ -721,9 +719,9 @@
                     if TempInvtAdjmtBuf.Get(InbndValueEntry."Entry No.") then
                         InbndValueEntry.AddCost(TempInvtAdjmtBuf);
                     if InbndValueEntry."Expected Cost" then
-                        AddExpectedCost(0, 0, InbndValueEntry."Cost Amount (Expected)", InbndValueEntry."Cost Amount (Expected) (ACY)")
+                        AddExpectedCostElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InbndValueEntry."Cost Amount (Expected)", InbndValueEntry."Cost Amount (Expected) (ACY)")
                     else begin
-                        AddActualCost(0, 0, InbndValueEntry."Cost Amount (Actual)", InbndValueEntry."Cost Amount (Actual) (ACY)");
+                        AddActualCostElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InbndValueEntry."Cost Amount (Actual)", InbndValueEntry."Cost Amount (Actual) (ACY)");
                         if InbndValueEntry."Invoiced Quantity" <> 0 then begin
                             "Invoiced Quantity" := "Invoiced Quantity" + InbndValueEntry."Invoiced Quantity";
                             if not Modify then
@@ -783,7 +781,7 @@
                         IsInterimRevaluation(InbndValueEntry):
                             begin
                                 ShareOfTotalCost := InbndItemLedgEntry.Quantity / "Valued Quantity";
-                                AdjustedCostElementBuf.AddActualCost(
+                                AdjustedCostElementBuf.AddActualCostElement(
                                   AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
                                   ("Cost Amount (Expected)" + "Cost Amount (Actual)") * ShareOfTotalCost,
                                   ("Cost Amount (Expected) (ACY)" + "Cost Amount (Actual) (ACY)") * ShareOfTotalCost);
@@ -791,7 +789,7 @@
                         "Expected Cost":
                             begin
                                 ShareOfTotalCost := QtyNotInvoiced / "Valued Quantity";
-                                AdjustedCostElementBuf.AddActualCost(
+                                AdjustedCostElementBuf.AddActualCostElement(
                                   AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
                                   "Cost Amount (Expected)" * ShareOfTotalCost,
                                   "Cost Amount (Expected) (ACY)" * ShareOfTotalCost);
@@ -799,21 +797,21 @@
                         "Partial Revaluation":
                             begin
                                 ShareOfTotalCost := InbndItemLedgEntry.Quantity / "Valued Quantity";
-                                AdjustedCostElementBuf.AddActualCost(
+                                AdjustedCostElementBuf.AddActualCostElement(
                                   AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
                                   "Cost Amount (Actual)" * ShareOfTotalCost,
                                   "Cost Amount (Actual) (ACY)" * ShareOfTotalCost);
                             end;
-                        ("Entry Type" <= "Entry Type"::Revaluation) or not ExactCostReversing:
-                            AdjustedCostElementBuf.AddActualCost(
+                        ("Entry Type".AsInteger() <= "Entry Type"::Revaluation.AsInteger()) or not ExactCostReversing:
+                            AdjustedCostElementBuf.AddActualCostElement(
                               AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
                               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                         "Entry Type" = "Entry Type"::"Indirect Cost":
-                            AdjustedCostElementBuf.AddActualCost(
+                            AdjustedCostElementBuf.AddActualCostElement(
                               AdjustedCostElementBuf.Type::"Indirect Cost", AdjustedCostElementBuf."Variance Type"::" ",
                               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                         else
-                            AdjustedCostElementBuf.AddActualCost(
+                            AdjustedCostElementBuf.AddActualCostElement(
                               AdjustedCostElementBuf.Type::Variance, AdjustedCostElementBuf."Variance Type"::" ",
                               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                     end;
@@ -841,7 +839,7 @@
                 until Next = 0;
 
             CalcSums("Actual Cost", "Actual Cost (ACY)");
-            AddActualCost(Type::Total, "Variance Type"::" ", "Actual Cost", "Actual Cost (ACY)");
+            AddActualCostElement(Type::Total, "Variance Type"::" ", "Actual Cost", "Actual Cost (ACY)");
         end;
     end;
 
@@ -893,13 +891,13 @@
             repeat
                 if TempInvtAdjmtBuf.Get("Entry No.") then
                     AddCost(TempInvtAdjmtBuf);
-                CostElementBuf.AddExpectedCost(
-                  CostElementBuf.Type::Total, 0, "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
+                CostElementBuf.AddExpectedCostElement(
+                  CostElementBuf.Type::Total, "Cost Variance Type"::" ", "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
                 if not "Expected Cost" then
                     case true of
-                        ("Entry Type" <= "Entry Type"::Revaluation) or not ExactCostReversing:
+                        ("Entry Type".AsInteger() <= "Entry Type"::Revaluation.AsInteger()) or not ExactCostReversing:
                             begin
-                                CostElementBuf.AddActualCost(
+                                CostElementBuf.AddActualCostElement(
                                   CostElementBuf.Type::"Direct Cost", CostElementBuf."Variance Type"::" ",
                                   "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                                 if "Invoiced Quantity" <> 0 then begin
@@ -909,19 +907,19 @@
                                 end;
                             end;
                         "Entry Type" = "Entry Type"::"Indirect Cost":
-                            CostElementBuf.AddActualCost(
+                            CostElementBuf.AddActualCostElement(
                               CostElementBuf.Type::"Indirect Cost", CostElementBuf."Variance Type"::" ",
                               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                         else
-                            CostElementBuf.AddActualCost(
+                            CostElementBuf.AddActualCostElement(
                               CostElementBuf.Type::Variance, CostElementBuf."Variance Type"::" ",
                               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
                     end;
             until Next = 0;
 
             CostElementBuf.CalcSums("Actual Cost", "Actual Cost (ACY)");
-            CostElementBuf.AddActualCost(
-              CostElementBuf.Type::Total, 0, CostElementBuf."Actual Cost", CostElementBuf."Actual Cost (ACY)");
+            CostElementBuf.AddActualCostElement(
+              CostElementBuf.Type::Total, "Cost Variance Type"::" ", CostElementBuf."Actual Cost", CostElementBuf."Actual Cost (ACY)");
         end;
     end;
 
@@ -1024,7 +1022,6 @@
                     ModifyAll("Cost Is Adjusted", true);
                     Reset;
 
-                    EndOfValuationDateReached := false;
                     while not Restart and AvgValueEntriesToAdjustExist(
                             TempOutbndValueEntry, TempExcludedValueEntry, AvgCostAdjmtEntryPoint) and not EndOfValuationDateReached
                     do begin
@@ -1624,7 +1621,7 @@
                 until Next = 0;
     end;
 
-    local procedure UpdateAdjmtBuf(OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date; EntryType: Option): Boolean
+    local procedure UpdateAdjmtBuf(OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; ItemLedgEntryPostingDate: Date; EntryType: Enum "Cost Entry Type"): Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
@@ -1729,7 +1726,7 @@
         end;
     end;
 
-    local procedure InitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; EntryType: Option; VarianceType: Option; InvoicedQty: Decimal)
+    local procedure InitAdjmtJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; EntryType: Enum "Cost Entry Type"; VarianceType: Enum "Cost Variance Type"; InvoicedQty: Decimal)
     begin
         with OrigValueEntry do begin
             ItemJnlLine."Value Entry Type" := EntryType;
@@ -1826,7 +1823,7 @@
         exit(Round(Amt, AmtRndgPrec))
     end;
 
-    local procedure GetOrigValueEntry(var OrigValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry"; ValueEntryType: Option)
+    local procedure GetOrigValueEntry(var OrigValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry"; ValueEntryType: Enum "Cost Entry Type")
     var
         Found: Boolean;
         IsLastEntry: Boolean;
@@ -1858,7 +1855,7 @@
         end;
     end;
 
-    local procedure GetOrigVarianceType(ValueEntry: Record "Value Entry"): Integer
+    local procedure GetOrigVarianceType(ValueEntry: Record "Value Entry"): Enum "Cost Variance Type"
     begin
         with ValueEntry do begin
             if "Item Ledger Entry Type" in

@@ -102,7 +102,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         VATDifferenceWithDocument(GenJournalLine."Gen. Posting Type"::Sale, LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
-    local procedure VATDifferenceWithDocument(GenPostingType: Option; GLAccountNo: Code[20])
+    local procedure VATDifferenceWithDocument(GenPostingType: Enum "General Posting Type"; GLAccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -151,7 +151,7 @@ codeunit 134125 "ERM Reversal Change VAT Amount"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reversal Change VAT Amount");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; Amount: Decimal; VATAmount: Decimal; DocumentType: Option)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; Amount: Decimal; VATAmount: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,

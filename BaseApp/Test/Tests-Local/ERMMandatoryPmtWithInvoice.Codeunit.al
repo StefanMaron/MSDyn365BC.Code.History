@@ -48,7 +48,7 @@ codeunit 141078 "ERM Mandatory Pmt With Invoice"
         PaymentWithoutInvoiceError(GenJournalLine."Applies-to Doc. Type"::" ");
     end;
 
-    local procedure PaymentWithoutInvoiceError(AppliesToDocType: Option)
+    local procedure PaymentWithoutInvoiceError(AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -123,7 +123,7 @@ codeunit 141078 "ERM Mandatory Pmt With Invoice"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AppliesToDocType: Option)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";

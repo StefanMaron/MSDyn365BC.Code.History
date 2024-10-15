@@ -220,7 +220,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         DocApplToBiggerPmtAfterDiscDate(PurchHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure JnlPmtLineApplIDTo2Of3PostedDoc(DocumentType: Option)
+    local procedure JnlPmtLineApplIDTo2Of3PostedDoc(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         DocumentNo: array[2] of Code[20];
@@ -237,7 +237,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, DocumentNo[2]);
     end;
 
-    local procedure JnlPmtLineApplToDocLine(DocumentType: Option; ApplyToPostedDoc: Boolean)
+    local procedure JnlPmtLineApplToDocLine(DocumentType: Enum "Purchase Document Type"; ApplyToPostedDoc: Boolean)
     var
         Vendor: Record Vendor;
         DocumentNo: Code[20];
@@ -252,7 +252,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, DocumentNo);
     end;
 
-    local procedure DocUnderWHTLimitAppliedToPmt(DocumentType: Option)
+    local procedure DocUnderWHTLimitAppliedToPmt(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -269,7 +269,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         Assert.IsFalse(DoesWHTEntryExist(DocumentType, PostedDocumentNo), 'There must be no WHT Entry');
     end;
 
-    local procedure DocAppliedToPmt(DocumentType: Option)
+    local procedure DocAppliedToPmt(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -285,7 +285,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure UnapplyFCYDocAppliedToPmt(DocumentType: Option)
+    local procedure UnapplyFCYDocAppliedToPmt(DocumentType: Enum "Purchase Document Type")
     var
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
@@ -314,7 +314,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         end;
     end;
 
-    local procedure FCYDocAppliedToPmt(DocumentType: Option)
+    local procedure FCYDocAppliedToPmt(DocumentType: Enum "Purchase Document Type")
     var
         PostedDocumentNo: Code[20];
         PostedPmtDocNo: Code[20];
@@ -327,7 +327,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure ApplyFCYDocToPmt(DocumentType: Option; var PostedDocNo: Code[20]; var PaymentDocNo: Code[20])
+    local procedure ApplyFCYDocToPmt(DocumentType: Enum "Purchase Document Type"; var PostedDocNo: Code[20]; var PaymentDocNo: Code[20])
     var
         Vendor: Record Vendor;
     begin
@@ -337,7 +337,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PaymentDocNo := ApplyPaymentToInvoice(Vendor."No.", PostedDocNo, -CalcDocumentAmount(PostedDocNo));
     end;
 
-    local procedure DocApplToPmtsAllOverWHTLimit(DocumentType: Option)
+    local procedure DocApplToPmtsAllOverWHTLimit(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -360,7 +360,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure DocApplToPmtsOneIsUnderWHTLimit(DocumentType: Option)
+    local procedure DocApplToPmtsOneIsUnderWHTLimit(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -384,7 +384,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure DocApplToBiggerPmt(DocumentType: Option)
+    local procedure DocApplToBiggerPmt(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -400,7 +400,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure DocApplToPmtAfterDiscDate(DocumentType: Option)
+    local procedure DocApplToPmtAfterDiscDate(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -417,7 +417,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         Assert.ExpectedError('Remaining Unrealized Amount must be equal to ''0''');
     end;
 
-    local procedure DocApplToTwoPmtsAfterDiscDate(DocumentType: Option)
+    local procedure DocApplToTwoPmtsAfterDiscDate(DocumentType: Enum "Gen. Journal Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -440,7 +440,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure DocApplToBiggerPmtAfterDiscDate(DocumentType: Option)
+    local procedure DocApplToBiggerPmtAfterDiscDate(DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PostedDocumentNo: Code[20];
@@ -456,17 +456,17 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         VerifyWHTEntryIsRealizedCompletely(DocumentType, PostedDocumentNo);
     end;
 
-    local procedure PostDocumentWithoutWHT(DocumentType: Option; VendorNo: Code[20]): Code[20]
+    local procedure PostDocumentWithoutWHT(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]): Code[20]
     begin
         exit(PostDocument(DocumentType, VendorNo, false));
     end;
 
-    local procedure PostDocumentWithWHT(DocumentType: Option; VendorNo: Code[20]): Code[20]
+    local procedure PostDocumentWithWHT(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]): Code[20]
     begin
         exit(PostDocument(DocumentType, VendorNo, true));
     end;
 
-    local procedure PostDocument(DocumentType: Option; VendorNo: Code[20]; OverMinWHTAmount: Boolean): Code[20]
+    local procedure PostDocument(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; OverMinWHTAmount: Boolean): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -516,7 +516,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         exit(PostGenJnlLine(GenJournalLine));
     end;
 
-    local procedure PostTwoDocsWithPmtJnlLine(DocumentType: Option; VendorNo: Code[20]; var DocumentNo: array[2] of Code[20]; var PaymentDocNo: Code[20])
+    local procedure PostTwoDocsWithPmtJnlLine(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; var DocumentNo: array[2] of Code[20]; var PaymentDocNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocAmount: Decimal;
@@ -552,7 +552,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostDocJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocAmount: Decimal): Code[20]
+    local procedure PostDocJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocAmount: Decimal): Code[20]
     var
         ApplToGenJnlLine: Record "Gen. Journal Line";
     begin
@@ -570,7 +570,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         end;
     end;
 
-    local procedure SetApplyToIDToDocNo(VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure SetApplyToIDToDocNo(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -584,7 +584,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         end;
     end;
 
-    local procedure PostDocWithPmtJnlLine(DocumentType: Option; VendorNo: Code[20]; ApplyToPostedDoc: Boolean; var DocumentNo: Code[20]; var PaymentDocNo: Code[20])
+    local procedure PostDocWithPmtJnlLine(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; ApplyToPostedDoc: Boolean; var DocumentNo: Code[20]; var PaymentDocNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocAmount: Decimal;
@@ -634,7 +634,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
 
     local procedure PreparePaymentLine(VendorNo: Code[20]; PostedDocNo: Code[20]; PmtAmount: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     var
-        DocumentType: Integer;
+        DocumentType: Enum "Gen. Journal Document Type";
     begin
         PrepareJnlBatch(GenJournalLine);
         DocumentType := GetDocumentType(PostedDocNo);
@@ -750,7 +750,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         exit(Round(GetWHTMinDocumentAmountByDocNo(DocumentNo) / 2));
     end;
 
-    local procedure DoesWHTEntryExist(DocumentType: Option; PostedDocNo: Code[20]): Boolean
+    local procedure DoesWHTEntryExist(DocumentType: Enum "Gen. Journal Document Type"; PostedDocNo: Code[20]): Boolean
     var
         WHTEntry: Record "WHT Entry";
     begin
@@ -761,7 +761,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         end;
     end;
 
-    local procedure VerifyWHTEntryIsRealizedCompletely(DocumentType: Option; PostedDocNo: Code[20])
+    local procedure VerifyWHTEntryIsRealizedCompletely(DocumentType: Enum "Gen. Journal Document Type"; PostedDocNo: Code[20])
     var
         WHTEntry: Record "WHT Entry";
         TotalRealizedBase: Decimal;
@@ -806,7 +806,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         end;
     end;
 
-    local procedure GetDocumentType(DocumentNo: Code[20]): Integer
+    local procedure GetDocumentType(DocumentNo: Code[20]): Enum "Gen. Journal Document Type"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -815,7 +815,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         exit(VendLedgEntry."Document Type");
     end;
 
-    local procedure GetPmtDocumentType(DocumentType: Option): Integer
+    local procedure GetPmtDocumentType(DocumentType: Enum "Gen. Journal Document Type"): Enum "Gen. Journal Document Type"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin

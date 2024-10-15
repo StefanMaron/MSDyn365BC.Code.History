@@ -213,7 +213,7 @@ table 28046 "Temp WHT Entry"
         }
         field(34; "Unrealized Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Unrealized Amount (LCY)';
             DataClassification = SystemMetadata;
@@ -221,7 +221,7 @@ table 28046 "Temp WHT Entry"
         }
         field(35; "Unrealized Base (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Unrealized Base (LCY)';
             DataClassification = SystemMetadata;
@@ -238,7 +238,7 @@ table 28046 "Temp WHT Entry"
         }
         field(37; "Rem Unrealized Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Rem Unrealized Amount (LCY)';
             DataClassification = SystemMetadata;
@@ -246,7 +246,7 @@ table 28046 "Temp WHT Entry"
         }
         field(38; "Rem Unrealized Base (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Rem Unrealized Base (LCY)';
             DataClassification = SystemMetadata;

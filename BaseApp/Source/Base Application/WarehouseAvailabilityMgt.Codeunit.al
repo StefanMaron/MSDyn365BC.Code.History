@@ -1,11 +1,32 @@
-﻿codeunit 7314 "Warehouse Availability Mgt."
+codeunit 7314 "Warehouse Availability Mgt."
 {
 
     trigger OnRun()
     begin
     end;
 
+    [Obsolete('Replaced by CalcLineReservedQtyOnInvt with parameter WhseItemTrackingSetup.', '17.0')]
     procedure CalcLineReservedQtyOnInvt(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; HandleResPickAndShipQty: Boolean; SerialNo: Code[50]; LotNo: Code[50]; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        exit(
+            CalcLineReservedQtyOnInvt(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, HandleResPickAndShipQty,
+            WhseItemTrackingSetup, WarehouseActivityLine));
+    end;
+
+    procedure CalcLineReservedQtyOnInvt(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; HandleResPickAndShipQty: Boolean; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
+    var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        exit(
+            CalcLineReservedQtyOnInvt(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, HandleResPickAndShipQty,
+            DummyItemTrackingSetup, WarehouseActivityLine));
+    end;
+
+    procedure CalcLineReservedQtyOnInvt(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; HandleResPickAndShipQty: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup"; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
     var
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
@@ -20,19 +41,16 @@
             ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry."Serial No." <> '' then
-            ReservEntry.SetRange("Serial No.", SerialNo);
+            ReservEntry.SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
         if ReservEntry."Lot No." <> '' then
-            ReservEntry.SetRange("Lot No.", LotNo);
+            ReservEntry.SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
         if ReservEntry.Find('-') then
             repeat
                 ReservEntry2.SetRange("Entry No.", ReservEntry."Entry No.");
                 ReservEntry2.SetRange(Positive, true);
                 ReservEntry2.SetRange("Source Type", DATABASE::"Item Ledger Entry");
                 ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
-                if SerialNo <> '' then
-                    ReservEntry2.SetRange("Serial No.", SerialNo);
-                if LotNo <> '' then
-                    ReservEntry2.SetRange("Lot No.", LotNo);
+                ReservEntry2.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
                 if ReservEntry2.Find('-') then
                     repeat
                         ReservQtyonInvt += ReservEntry2."Quantity (Base)";
@@ -156,7 +174,7 @@
             if Location.RequireShipment(Location.Code) then
                 QtyShipped := CalcQtyShipped(Location, "No.", VariantCode);
             QtyReservedOnPickShip := CalcReservQtyOnPicksShips(Location.Code, "No.", VariantCode, WarehouseActivityLine);
-            QtyOnDedicatedBins := CalcQtyOnDedicatedBins(Location.Code, "No.", VariantCode, '', '');
+            QtyOnDedicatedBins := CalcQtyOnDedicatedBins(Location.Code, "No.", VariantCode);
 
             ReservedQtyOnInventory := "Reserved Qty. on Inventory";
             OnAfterCalcReservedQtyOnInventory(Item, ReservedQtyOnInventory, Location);
@@ -184,6 +202,7 @@
         PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
         TempBin: Record Bin temporary;
         WarehouseEntry: Record "Warehouse Entry";
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
         QtyRcvdNotAvailable: Decimal;
         QtyAvailToPutAway: Decimal;
     begin
@@ -209,7 +228,8 @@
 
                 if TempBin.FindSet() then
                     repeat
-                        QtyAvailToPutAway += CalcQtyOnBin(TempBin."Location Code", TempBin.Code, "Item No.", "Variant Code", '', '');
+                        QtyAvailToPutAway +=
+                            CalcQtyOnBin(TempBin."Location Code", TempBin.Code, "Item No.", "Variant Code", DummyItemTrackingSetup);
                     until TempBin.Next() = 0;
 
                 if QtyAvailToPutAway < QtyRcvdNotAvailable then
@@ -310,7 +330,24 @@
         end;
     end;
 
+    [Obsolete('Replaced by CalcQtyOnDedicatedBins with parameters WhseItemTrackingSetup.', '17.0')]
     procedure CalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]): Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        exit(CalcQtyOnDedicatedBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup));
+    end;
+
+    procedure CalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        DummyItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        exit(CalcQtyOnDedicatedBins(LocationCode, ItemNo, VariantCode, DummyItemTrackingSetup));
+    end;
+
+    procedure CalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         WhseEntry: Record "Warehouse Entry";
     begin
@@ -320,15 +357,12 @@
         WhseEntry.SetRange("Location Code", LocationCode);
         WhseEntry.SetRange("Variant Code", VariantCode);
         WhseEntry.SetRange(Dedicated, true);
-        if LotNo <> '' then
-            WhseEntry.SetRange("Lot No.", LotNo);
-        if SerialNo <> '' then
-            WhseEntry.SetRange("Serial No.", SerialNo);
+        WhseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
         WhseEntry.CalcSums(WhseEntry."Qty. (Base)");
         exit(WhseEntry."Qty. (Base)");
     end;
 
-    [Obsolete('Replaced by CalcLineReservedQtyOnInvt with WhseItemTrackingSetup parameter.','16.0')]
+    [Obsolete('Replaced by CalcLineReservedQtyOnInvt with WhseItemTrackingSetup parameter.', '16.0')]
     procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]): Decimal
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
@@ -358,7 +392,19 @@
         end;
     end;
 
+    [Obsolete('Replaced by CalcQtyOnBlockedITOrOnBlockedOutbndBins with parameter WhseItemTrackingSetup', '17.0')]
     procedure CalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; LNRequired: Boolean; SNRequired: Boolean) QtyBlocked: Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        WhseItemTrackingSetup."Serial No. Required" := SNRequired;
+        WhseItemTrackingSetup."Lot No. Required" := LNRequired;
+        exit(CalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup));
+    end;
+
+    procedure CalcQtyOnBlockedITOrOnBlockedOutbndBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBlocked: Decimal
     var
         BinContent: Record "Bin Content";
     begin
@@ -367,13 +413,8 @@
             SetRange("Location Code", LocationCode);
             SetRange("Item No.", ItemNo);
             SetRange("Variant Code", VariantCode);
-            if LotNo <> '' then
-                if LNRequired then
-                    SetRange("Lot No. Filter", LotNo);
-            if SerialNo <> '' then
-                if SNRequired then
-                    SetRange("Serial No. Filter", SerialNo);
-            if FindSet then
+            SetTrackingFilterFromItemTrackingSetupifNotBlankIfRequired(WhseItemTrackingSetup);
+            if FindSet() then
                 repeat
                     if "Block Movement" in ["Block Movement"::All, "Block Movement"::Outbound] then begin
                         CalcFields("Quantity (Base)");

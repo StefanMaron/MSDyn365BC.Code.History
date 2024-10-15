@@ -106,7 +106,7 @@ codeunit 141070 "UT REP Stock Card"
         OnAfterGetRecordItemLedgerEntryStockCard(Item."Costing Method"::Specific, GroupTotals::Item);
     end;
 
-    local procedure OnAfterGetRecordItemLedgerEntryStockCard(CostingMethod: Option FIFO,LIFO,Specific,"Average",Standard; GroupTotals: Option)
+    local procedure OnAfterGetRecordItemLedgerEntryStockCard(CostingMethod: Enum "Costing Method"; GroupTotals: Option)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -152,7 +152,7 @@ codeunit 141070 "UT REP Stock Card"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateItem(CostingMethod: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -175,7 +175,7 @@ codeunit 141070 "UT REP Stock Card"
         exit(ItemApplicationEntry.Quantity);
     end;
 
-    local procedure CreateItemLedgerEntries(var ItemLedgerEntry2: Record "Item Ledger Entry"; CostingMethod: Option)
+    local procedure CreateItemLedgerEntries(var ItemLedgerEntry2: Record "Item Ledger Entry"; CostingMethod: Enum "Costing Method")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

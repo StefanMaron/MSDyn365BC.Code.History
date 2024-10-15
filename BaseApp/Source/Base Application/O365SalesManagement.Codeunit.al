@@ -171,6 +171,7 @@ codeunit 2107 "O365 Sales Management"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Quickbooks integration to Invoicing is discontinued.', '17.0')]
     procedure GetQuickBooksVisible(): Boolean
     var
         QboVisible: Boolean;
@@ -181,6 +182,7 @@ codeunit 2107 "O365 Sales Management"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Quickbooks integration to Invoicing is discontinued.', '17.0')]
     procedure GetQboQbdVisibility(var QbOnlineVisible: Boolean; var QbDesktopVisible: Boolean)
     var
         QBOSyncProxy: Codeunit "QBO Sync Proxy";

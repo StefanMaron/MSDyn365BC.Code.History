@@ -20,7 +20,7 @@ page 5092 "Segment Subform"
 
                     trigger OnValidate()
                     begin
-                        ContactNoOnAfterValidate;
+                        ContactNoOnAfterValidate();
                     end;
                 }
                 field("Correspondence Type"; "Correspondence Type")
@@ -138,7 +138,7 @@ page 5092 "Segment Subform"
                     trigger OnAssistEdit()
                     begin
                         CurrPage.SaveRecord;
-                        MaintainAttachment;
+                        MaintainSegLineAttachment();
                         CurrPage.Update(false);
                     end;
                 }
@@ -147,6 +147,24 @@ page 5092 "Segment Subform"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the telephone number you used when calling the contact, or the e-mail address you used when sending an e-mail to the contact.';
                     Visible = false;
+                }
+                field("Contact Phone No."; "Contact Phone No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the telephone number of the contact to whom the segment line applies. The number will be filled in for you if you choose a contact in the Contact No. field on the line.';
+                }
+                field("Contact Mobile Phone No."; "Contact Mobile Phone No.")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the mobile telephone number of the contact to whom the segment line applies. The number will be filled in for you if you choose a contact in the Contact No. field on the line.';
+                }
+                field("Contact E-Mail"; "Contact Email")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the email address of the contact to whom the segment line applies. The address will be filled in for you if you choose a contact in the Contact No. field on the line.';
                 }
             }
         }
@@ -175,7 +193,7 @@ page 5092 "Segment Subform"
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            OpenAttachment;
+                            OpenSegLineAttachment();
                         end;
                     }
                     action(Create)
@@ -187,7 +205,7 @@ page 5092 "Segment Subform"
 
                         trigger OnAction()
                         begin
-                            CreateAttachment;
+                            CreateSegLineAttachment();
                         end;
                     }
                     action(Import)
@@ -200,7 +218,7 @@ page 5092 "Segment Subform"
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            ImportAttachment;
+                            ImportSegLineAttachment();
                         end;
                     }
                     action(Export)
@@ -213,7 +231,7 @@ page 5092 "Segment Subform"
                         trigger OnAction()
                         begin
                             TestField("Interaction Template Code");
-                            ExportAttachment;
+                            ExportSegLineAttachment();
                         end;
                     }
                     action(Remove)

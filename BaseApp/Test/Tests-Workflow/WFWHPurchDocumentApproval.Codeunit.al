@@ -202,7 +202,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
           DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo("No."),
           DATABASE::"Purchase Line", DummyPurchaseLine.FieldNo("Document No."));
         WorkflowTableRelation.Get(
-          DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(Id),
+          DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
     end;
 
@@ -230,10 +230,10 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Cancel);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::Open);
     end;
 
@@ -262,10 +262,10 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Continue);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::Released);
     end;
 
@@ -294,10 +294,10 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Reject);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::Open);
     end;
 
@@ -322,16 +322,16 @@ codeunit 134215 "WFWH Purch. Document Approval"
         CreateAndEnableOpenPurchaseOrderWorkflowDefinition(UserId);
         CreatePurchaseOrder(PurchaseHeader, LibraryRandom.RandIntInRange(5000, 10000));
         PurchaseOrderPageSendForApproval(PurchaseHeader);
-        ChangeWorkflowWebhookEntryInitiatedBy(PurchaseHeader.Id, BogusUserIdTxt);
+        ChangeWorkflowWebhookEntryInitiatedBy(PurchaseHeader.SystemId, BogusUserIdTxt);
 
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
+        asserterror WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotCancelErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
     end;
 
@@ -360,11 +360,11 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
+        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotContinueErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
     end;
 
@@ -393,11 +393,11 @@ codeunit 134215 "WFWH Purch. Document Approval"
         Commit();
 
         // Exercise
-        asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.Id));
+        asserterror WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(PurchaseHeader.SystemId));
 
         // Verify
         Assert.ExpectedError(StrSubstNo(UserCannotRejectErr, UserId));
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
     end;
 
@@ -425,7 +425,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
 
         // Verify
         Assert.AreEqual(1, DummyWorkflowWebhookEntry.Count, UnexpectedNoOfApprovalEntriesErr);
-        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.Id, DummyWorkflowWebhookEntry.Response::Pending);
+        VerifyWorkflowWebhookEntryResponse(PurchaseHeader.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
 
         // Exercise
         PurchaseHeader.Find; // Purcahse document's status was modified so reread from database.
@@ -871,7 +871,7 @@ codeunit 134215 "WFWH Purch. Document Approval"
             UserSetup.Delete(true);
     end;
 
-    local procedure VerifyPurchaseDocumentStatus(PurchaseHeader: Record "Purchase Header"; Status: Option)
+    local procedure VerifyPurchaseDocumentStatus(PurchaseHeader: Record "Purchase Header"; Status: Enum "Purchase Document Status")
     begin
         PurchaseHeader.SetRecFilter;
         PurchaseHeader.FindFirst;

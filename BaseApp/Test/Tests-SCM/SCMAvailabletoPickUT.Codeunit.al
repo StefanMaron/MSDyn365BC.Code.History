@@ -653,7 +653,7 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     [Normal]
-    local procedure RegisterWhseActivity(ActivityType: Option; SourceType: Integer; SourceDocument: Option; SourceNo: Code[20]; QtyToHandle: Decimal; TakeBinCode: Code[10]; PlaceBinCode: Code[10])
+    local procedure RegisterWhseActivity(ActivityType: Option; SourceType: Integer; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QtyToHandle: Decimal; TakeBinCode: Code[10]; PlaceBinCode: Code[10])
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";

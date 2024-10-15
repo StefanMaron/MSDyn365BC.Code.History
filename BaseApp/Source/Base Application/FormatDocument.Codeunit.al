@@ -220,6 +220,20 @@ codeunit 368 "Format Document"
           FormattedLineAmount);
     end;
 
+    procedure SetPurchaseLine(var PurchaseLine: Record "Purchase Line"; var FormattedQuantity: Text; var FormattedDirectUnitCost: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
+    begin
+        SetSalesPurchaseLine(not PurchaseLine.HasTypeToFillMandatoryFields(),
+          PurchaseLine.Quantity,
+          PurchaseLine."Direct Unit Cost",
+          PurchaseLine."VAT %",
+          PurchaseLine."Line Amount",
+          PurchaseLine."Currency Code",
+          FormattedQuantity,
+          FormattedDirectUnitCost,
+          FormattedVATPercentage,
+          FormattedLineAmount);
+    end;
+
     procedure SetPurchaseLine(var PurchaseLine: Record "Purchase Line"; var FormattedQuantity: Text; var FormattedDirectUnitCost: Text)
     var
         TempVatPct: Text;

@@ -531,8 +531,8 @@ codeunit 5830 "Calc. Availability Overview"
         AsmLine: Record "Assembly Line";
     begin
         with AsmLine do begin
-            FilterLinesWithItemToPlan(Item, "Document Type"::Order);
-            if FindFirst then
+            SetItemToPlanFilters(Item, "Document Type"::Order);
+            if FindFirst() then
                 repeat
                     SetRange("Location Code", "Location Code");
                     SetRange("Variant Code", "Variant Code");
@@ -555,7 +555,7 @@ codeunit 5830 "Calc. Availability Overview"
         AsmHeader: Record "Assembly Header";
     begin
         with AsmHeader do begin
-            FilterLinesWithItemToPlan(Item, "Document Type"::Order);
+            SetItemToPlanFilters(Item, "Document Type"::Order);
             if FindFirst then
                 repeat
                     SetRange("Location Code", "Location Code");
@@ -588,7 +588,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Supply, "Expected Receipt Date", "Location Code", "Variant Code",
                       "Outstanding Qty. (Base)", "Reserved Qty. (Base)",
-                      DATABASE::"Purchase Line", "Document Type", "Document No.", PurchHeader."Buy-from Vendor Name", 0);
+                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", PurchHeader."Buy-from Vendor Name", 0);
                 until Next = 0;
         end;
     end;
@@ -607,7 +607,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Supply, "Shipment Date", "Location Code", "Variant Code",
                       "Outstanding Qty. (Base)", "Reserved Qty. (Base)",
-                      DATABASE::"Sales Line", "Document Type", "Document No.", SalesHeader."Sell-to Customer Name", 0);
+                      DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", SalesHeader."Sell-to Customer Name", 0);
                 until Next = 0;
         end;
     end;
@@ -623,11 +623,11 @@ codeunit 5830 "Calc. Availability Overview"
                     ProdOrder.Get(Status, "Prod. Order No.");
                     CalcFields("Reserved Qty. (Base)");
                     InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Supply, "Due Date", "Location Code", "Variant Code",
-                      "Remaining Qty. (Base)", "Reserved Qty. (Base)",
-                      DATABASE::"Prod. Order Line", Status, "Prod. Order No.", ProdOrder.Description, 0);
-                until Next = 0;
+                        AvailabilityCalcOverview,
+                        AvailabilityCalcOverview.Type::Supply, "Due Date", "Location Code", "Variant Code",
+                        "Remaining Qty. (Base)", "Reserved Qty. (Base)",
+                        DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", ProdOrder.Description, 0);
+                until Next() = 0;
         end;
     end;
 
@@ -655,14 +655,14 @@ codeunit 5830 "Calc. Availability Overview"
         AsmHeader: Record "Assembly Header";
     begin
         with AsmHeader do begin
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
+            if FindItemToPlanLines(Item, "Document Type"::Order) then
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     InsertEntry(
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Supply, "Due Date", "Location Code", "Variant Code",
                       "Remaining Quantity (Base)", "Reserved Qty. (Base)",
-                      DATABASE::"Assembly Header", "Document Type",
+                      DATABASE::"Assembly Header", "Document Type".AsInteger(),
                       "No.", Description, 0);
                 until Next = 0;
         end;
@@ -682,7 +682,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Demand, "Shipment Date", "Location Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
-                      DATABASE::"Sales Line", "Document Type", "Document No.", SalesHeader."Sell-to Customer Name", DemandType::Sales);
+                      DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", SalesHeader."Sell-to Customer Name", DemandType::Sales);
                 until Next = 0;
         end;
     end;
@@ -701,7 +701,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Demand, "Needed by Date", "Location Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
-                      DATABASE::"Service Line", "Document Type", "Document No.", ServHeader."Ship-to Name", DemandType::Service);
+                      DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", ServHeader."Ship-to Name", DemandType::Service);
                 until Next = 0;
         end;
     end;
@@ -739,7 +739,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Demand, "Expected Receipt Date", "Location Code", "Variant Code",
                       -"Outstanding Qty. (Base)", -"Reserved Qty. (Base)",
-                      DATABASE::"Purchase Line", "Document Type", "Document No.", PurchHeader."Buy-from Vendor Name", 0);
+                      DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", PurchHeader."Buy-from Vendor Name", 0);
                 until Next = 0;
         end;
     end;
@@ -755,11 +755,11 @@ codeunit 5830 "Calc. Availability Overview"
                     ProdOrder.Get(Status, "Prod. Order No.");
                     CalcFields("Reserved Qty. (Base)");
                     InsertEntry(
-                      AvailabilityCalcOverview,
-                      AvailabilityCalcOverview.Type::Demand, "Due Date", "Location Code", "Variant Code",
-                      -"Remaining Qty. (Base)", -"Reserved Qty. (Base)",
-                      DATABASE::"Prod. Order Component", Status, "Prod. Order No.", ProdOrder.Description, DemandType::Production);
-                until Next = 0;
+                        AvailabilityCalcOverview,
+                        AvailabilityCalcOverview.Type::Demand, "Due Date", "Location Code", "Variant Code",
+                        -"Remaining Qty. (Base)", -"Reserved Qty. (Base)",
+                        DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", ProdOrder.Description, DemandType::Production);
+                until Next() = 0;
         end;
     end;
 
@@ -788,7 +788,7 @@ codeunit 5830 "Calc. Availability Overview"
         AsmLine: Record "Assembly Line";
     begin
         with AsmLine do begin
-            if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
+            if FindItemToPlanLines(Item, "Document Type"::Order) then
                 repeat
                     AsmHeader.Get("Document Type", "Document No.");
                     CalcFields("Reserved Qty. (Base)");
@@ -796,7 +796,7 @@ codeunit 5830 "Calc. Availability Overview"
                       AvailabilityCalcOverview,
                       AvailabilityCalcOverview.Type::Demand, "Due Date", "Location Code", "Variant Code",
                       -"Remaining Quantity (Base)", -"Reserved Qty. (Base)",
-                      DATABASE::"Assembly Line", "Document Type",
+                      DATABASE::"Assembly Line", "Document Type".AsInteger(),
                       "Document No.", AsmHeader.Description, DemandType::Assembly);
                 until Next = 0;
         end;
@@ -834,7 +834,7 @@ codeunit 5830 "Calc. Availability Overview"
     var
         AsmHeader: Record "Assembly Header";
     begin
-        exit(AsmHeader.LinesWithItemToPlanExist(Item, AsmHeader."Document Type"::Order));
+        exit(AsmHeader.ItemToPlanLinesExist(Item, AsmHeader."Document Type"::Order));
     end;
 
     local procedure SalesOrderDemandExists(var Item: Record Item): Boolean
@@ -883,7 +883,7 @@ codeunit 5830 "Calc. Availability Overview"
     var
         AsmLine: Record "Assembly Line";
     begin
-        exit(AsmLine.LinesWithItemToPlanExist(Item, AsmLine."Document Type"::Order));
+        exit(AsmLine.ItemToPlanLinesExist(Item, AsmLine."Document Type"::Order));
     end;
 
     local procedure ClosingEntryExists(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; NewType: Option; LocationCode: Code[20]; VariantCode: Code[20]; ClosingDate: Date) Found: Boolean
@@ -958,7 +958,7 @@ codeunit 5830 "Calc. Availability Overview"
                     end;
             DemandType::Assembly:
                 with AsmLine do
-                    if LinesWithItemToPlanExist(Item, "Document Type"::Order) then begin
+                    if ItemToPlanLinesExist(Item, "Document Type"::Order) then begin
                         if DemandNo <> '' then begin
                             SetRange("Document No.", DemandNo);
                             Found := not IsEmpty;
@@ -1220,7 +1220,7 @@ codeunit 5830 "Calc. Availability Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcRunningTotals(var Item: Record Item; var RunningTotal : Decimal; var InventoryRunningTotal : Decimal; var SupplyRunningTotal : Decimal; var DemandRunningTotal : Decimal)
+    local procedure OnAfterCalcRunningTotals(var Item: Record Item; var RunningTotal: Decimal; var InventoryRunningTotal: Decimal; var SupplyRunningTotal: Decimal; var DemandRunningTotal: Decimal)
     begin
     end;
 

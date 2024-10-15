@@ -177,7 +177,7 @@ page 9657 "Customer Report Selections"
                 var
                     ContBusRel: Record "Contact Business Relation";
                 begin
-                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer, GetFilter("Source No."));
+                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), GetFilter("Source No."));
                 end;
             }
         }
@@ -205,13 +205,13 @@ page 9657 "Customer Report Selections"
     begin
         case Usage of
             CustomReportSelection.Usage::"S.Quote":
-                Usage2 := Usage::"S.Quote";
+                Usage2 := Usage2::Quote;
             CustomReportSelection.Usage::"S.Order":
-                Usage2 := Usage::"S.Order";
+                Usage2 := Usage2::"Confirmation Order";
             CustomReportSelection.Usage::"S.Invoice":
-                Usage2 := Usage::"S.Invoice";
+                Usage2 := Usage2::Invoice;
             CustomReportSelection.Usage::"S.Cr.Memo":
-                Usage2 := Usage::"S.Cr.Memo";
+                Usage2 := Usage2::"Credit Memo";
             CustomReportSelection.Usage::"C.Statement":
                 Usage2 := Usage2::"Customer Statement";
             CustomReportSelection.Usage::JQ:

@@ -205,8 +205,10 @@ report 7390 "Whse. Calculate Inventory"
         NextDocNo: Code[20];
         NextLineNo: Integer;
         ZeroQty: Boolean;
-        HideValidationDialog: Boolean;
         StockProposal: Boolean;
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure SetWhseJnlLine(var NewWhseJnlLine: Record "Warehouse Journal Line")
     begin

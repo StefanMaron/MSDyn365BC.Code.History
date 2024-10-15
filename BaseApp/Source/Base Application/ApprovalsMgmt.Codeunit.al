@@ -428,7 +428,7 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
         ApprovalEntryToUpdate: Record "Approval Entry";
-        OldStatus: Option;
+        OldStatus: Enum "Approval Status";
     begin
         ApprovalEntry.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
@@ -450,7 +450,7 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
         ApprovalEntryToUpdate: Record "Approval Entry";
-        OldStatus: Option;
+        OldStatus: Enum "Approval Status";
     begin
         ApprovalEntry.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
@@ -924,7 +924,7 @@ codeunit 1535 "Approvals Mgmt."
                         GenJournalLine."Document Type"::"Credit Memo":
                             ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::"Credit Memo";
                         else
-                            ApprovalEntryArgument."Document Type" := GenJournalLine."Document Type".AsInteger();
+                            ApprovalEntryArgument."Document Type" := GenJournalLine."Document Type";
                     end;
                     ApprovalEntryArgument."Document No." := GenJournalLine."Document No.";
                     ApprovalEntryArgument."Salespers./Purch. Code" := GenJournalLine."Salespers./Purch. Code";
@@ -952,13 +952,13 @@ codeunit 1535 "Approvals Mgmt."
 
         ApprovalEntry.Reset();
         if (ApprovalEntry."Approver ID" <> UserId) and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
-            NotificationEntry.CreateNewEntry(
+            NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
         if WorkflowStepArgument."Notify Sender" and not (ApprovalEntry."Sender ID" in [UserId, ApprovalEntry."Approver ID"]) then
-            NotificationEntry.CreateNew(
+            NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link");
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", '');
     end;
 
     local procedure SetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
@@ -989,7 +989,7 @@ codeunit 1535 "Approvals Mgmt."
             ApprovalEntry."Limit Type" := ApprovalEntry."Limit Type"::"No Limits";
     end;
 
-    local procedure IsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Option; ApprovalAmountLCY: Decimal): Boolean
+    local procedure IsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal): Boolean
     var
         PurchaseHeader: Record "Purchase Header";
         IsHandled: Boolean;
@@ -1066,20 +1066,24 @@ codeunit 1535 "Approvals Mgmt."
     procedure IsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"): Boolean
     var
         IsSufficient: Boolean;
+        IsHandled: Boolean;
     begin
+        IsSufficient := true;
         case ApprovalEntryArgument."Table ID" of
             DATABASE::"Purchase Header":
-                exit(IsSufficientPurchApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
+                IsSufficient := IsSufficientPurchApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)");
             DATABASE::"Sales Header":
-                exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
-            DATABASE::"Gen. Journal Batch":
-                Message(ApporvalChainIsUnsupportedMsg, Format(ApprovalEntryArgument."Record ID to Approve"));
+                IsSufficient := IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)");
             DATABASE::"Gen. Journal Line":
-                exit(IsSufficientGenJournalLineApprover(UserSetup, ApprovalEntryArgument));
+                IsSufficient := IsSufficientGenJournalLineApprover(UserSetup, ApprovalEntryArgument);
         end;
 
-        IsSufficient := true;
-        OnAfterIsSufficientApprover(UserSetup, ApprovalEntryArgument, IsSufficient);
+        IsHandled := false;
+        OnAfterIsSufficientApprover(UserSetup, ApprovalEntryArgument, IsSufficient, IsHandled);
+        if not IsHandled then
+            if ApprovalEntryArgument."Table ID" = Database::"Gen. Journal Batch" then
+                Message(ApporvalChainIsUnsupportedMsg, Format(ApprovalEntryArgument."Record ID to Approve"));
+
         exit(IsSufficient);
     end;
 
@@ -1909,7 +1913,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"; var IsSufficient: Boolean)
+    local procedure OnAfterIsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"; var IsSufficient: Boolean; var IsHandled: Boolean)
     begin
     end;
 

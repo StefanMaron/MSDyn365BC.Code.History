@@ -202,7 +202,7 @@ codeunit 132600 "Report Layout"
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
         Initialize;
-        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
         LibraryVariableStorage.Enqueue(LibrarySales.CreateCustomerNo);
         Commit();
         REPORT.Run(REPORT::"Price List");

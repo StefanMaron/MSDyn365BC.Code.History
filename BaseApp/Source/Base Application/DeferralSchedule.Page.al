@@ -154,7 +154,7 @@ page 1702 "Deferral Schedule"
     var
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
         Changed: Boolean;
-        DisplayDeferralDocType: Option Purchase,Sales,"G/L";
+        DisplayDeferralDocType: Enum "Deferral Document Type";
         DisplayGenJnlTemplateName: Code[10];
         DisplayGenJnlBatchName: Code[10];
         DisplayDocumentType: Integer;
@@ -166,7 +166,7 @@ page 1702 "Deferral Schedule"
 
     procedure SetParameter(DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
     begin
-        DisplayDeferralDocType := DeferralDocType;
+        DisplayDeferralDocType := "Deferral Document Type".FromInteger(DeferralDocType);
         DisplayGenJnlTemplateName := GenJnlTemplateName;
         DisplayGenJnlBatchName := GenJnlBatchName;
         DisplayDocumentType := DocumentType;

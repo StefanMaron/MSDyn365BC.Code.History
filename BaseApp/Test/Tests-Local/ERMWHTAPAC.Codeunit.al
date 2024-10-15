@@ -560,7 +560,7 @@ codeunit 141014 "ERM WHT - APAC"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure ApplyVendorLedgerEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyVendorLedgerEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -577,7 +577,7 @@ codeunit 141014 "ERM WHT - APAC"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure ApplyAndPostVendorEntryApplication(DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyAndPostVendorEntryApplication(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -670,7 +670,7 @@ codeunit 141014 "ERM WHT - APAC"
         exit(BASCalculationSheet.A1);
     end;
 
-    local procedure CreateGeneralJournalLineWithBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLineWithBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     begin
         CreateGeneralJournalLine(GenJournalLine, DocumentType, AccountNo, AppliesToDocNo, CurrencyCode, WorkDate, Amount);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
@@ -678,7 +678,7 @@ codeunit 141014 "ERM WHT - APAC"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -746,7 +746,7 @@ codeunit 141014 "ERM WHT - APAC"
         exit(Vendor."No.");
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(5));  // Random Quantity.
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -869,7 +869,7 @@ codeunit 141014 "ERM WHT - APAC"
         GenJnlDocNo[4] := CreateAndPostGenJournalLine(VendorNo, CurrencyCode, DocumentNo2, CalcDate('<4M>', WorkDate), Amount);
     end;
 
-    local procedure CreateAndPostGenJournalLineWithWHT(PurchaseLine: Record "Purchase Line"; DocumentType: Option; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal) DocumentNo: Code[20]
+    local procedure CreateAndPostGenJournalLineWithWHT(PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal) DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         WHTPostingSetup: Record "WHT Posting Setup";
@@ -894,7 +894,7 @@ codeunit 141014 "ERM WHT - APAC"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateApplnVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; ApplyAmount: Decimal; ApplyToDocType: Option; ApplyToDocNo: Code[20]; DocumentNo: Code[20])
+    local procedure CreateApplnVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ApplyAmount: Decimal; ApplyToDocType: Enum "Gen. Journal Account Type"; ApplyToDocNo: Code[20]; DocumentNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -925,7 +925,7 @@ codeunit 141014 "ERM WHT - APAC"
         BASSetup.FindFirst;
     end;
 
-    local procedure FilterOnWHTEntry(var WHTEntry: Record "WHT Entry"; DocumentType: Option; BillToPayToNo: Code[20])
+    local procedure FilterOnWHTEntry(var WHTEntry: Record "WHT Entry"; DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20])
     begin
         WHTEntry.SetRange("Document Type", DocumentType);
         WHTEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
@@ -965,7 +965,7 @@ codeunit 141014 "ERM WHT - APAC"
         PostedPurchaseInvoice.Statistics.Invoke;  // Open Statistics Page.
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1087,7 +1087,7 @@ codeunit 141014 "ERM WHT - APAC"
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
     end;
 
-    local procedure VerifyWHTEntry(DocumentType: Option; BillToPayToNo: Code[20]; Amount: Decimal; UnrealizedAmount: Decimal)
+    local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; Amount: Decimal; UnrealizedAmount: Decimal)
     var
         WHTEntry: Record "WHT Entry";
     begin
@@ -1178,7 +1178,7 @@ codeunit 141014 "ERM WHT - APAC"
     var
         BASSetup: Record "BAS Setup";
         IncludeGSTEntries: Option Open;
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         SelectBASSetup(BASSetup);
         BASUpdate.UpdateBASCalcSheet.SetValue(true);

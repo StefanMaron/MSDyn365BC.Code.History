@@ -9,6 +9,21 @@ codeunit 5775 "Whse. Management"
         Text000: Label 'The Source Document is not defined.';
         UOMMgt: Codeunit "Unit of Measure Management";
 
+    procedure GetWhseActivSourceDocument(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Activity Source Document"
+    begin
+        exit("Warehouse Activity Source Document".FromInteger(GetSourceDocument(SourceType, SourceSubtype)));
+    end;
+
+    procedure GetWhseJnlSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Journal Source Document"
+    begin
+        exit("Warehouse Journal Source Document".FromInteger(GetSourceDocument(SourceType, SourceSubtype)));
+    end;
+
+    procedure GetWhseRqstSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Request Source Document"
+    begin
+        exit("Warehouse Request Source Document".FromInteger(GetSourceDocument(SourceType, SourceSubtype)));
+    end;
+
     procedure GetSourceDocument(SourceType: Integer; SourceSubtype: Integer): Integer
     var
         SourceDocument: Option ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
@@ -74,6 +89,75 @@ codeunit 5775 "Whse. Management"
                 exit(SourceDocument::"Job Jnl.");
         end;
         OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
+        if IsHandled then
+            exit(SourceDocument);
+        Error(Text000);
+    end;
+
+    procedure GetJournalSourceDocument(SourceType: Integer; SourceSubtype: Integer) SourceDocument: Enum "Warehouse Journal Source Document"
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetJournalSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
+        if IsHandled then
+            exit(SourceDocument);
+
+        case SourceType of
+            DATABASE::"Sales Line":
+                case SourceSubtype of
+                    1:
+                        exit(SourceDocument::"S. Order");
+                    2:
+                        exit(SourceDocument::"S. Invoice");
+                    3:
+                        exit(SourceDocument::"S. Credit Memo");
+                    5:
+                        exit(SourceDocument::"S. Return Order");
+                end;
+            DATABASE::"Purchase Line":
+                case SourceSubtype of
+                    1:
+                        exit(SourceDocument::"P. Order");
+                    2:
+                        exit(SourceDocument::"P. Invoice");
+                    3:
+                        exit(SourceDocument::"P. Credit Memo");
+                    5:
+                        exit(SourceDocument::"P. Return Order");
+                end;
+            DATABASE::"Service Line":
+                exit(SourceDocument::"Serv. Order");
+            DATABASE::"Prod. Order Component":
+                exit(SourceDocument::"Prod. Consumption");
+            DATABASE::"Assembly Line":
+                exit(SourceDocument::"Assembly Consumption");
+            DATABASE::"Assembly Header":
+                exit(SourceDocument::"Assembly Order");
+            DATABASE::"Transfer Line":
+                case SourceSubtype of
+                    0:
+                        exit(SourceDocument::"Outb. Transfer");
+                    1:
+                        exit(SourceDocument::"Inb. Transfer");
+                end;
+            DATABASE::"Item Journal Line":
+                case SourceSubtype of
+                    0:
+                        exit(SourceDocument::"Item Jnl.");
+                    1:
+                        exit(SourceDocument::"Reclass. Jnl.");
+                    2:
+                        exit(SourceDocument::"Phys. Invt. Jnl.");
+                    4:
+                        exit(SourceDocument::"Consumption Jnl.");
+                    5:
+                        exit(SourceDocument::"Output Jnl.");
+                end;
+            DATABASE::"Job Journal Line":
+                exit(SourceDocument::"Job Jnl.");
+        end;
+        OnAfterGetJournalSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
         if IsHandled then
             exit(SourceDocument);
         Error(Text000);
@@ -270,6 +354,16 @@ codeunit 5775 "Whse. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceType(WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetJournalSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetJournalSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
     begin
     end;
 }

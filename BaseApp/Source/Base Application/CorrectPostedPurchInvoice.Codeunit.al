@@ -107,7 +107,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         exit(true);
     end;
 
-    local procedure CreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; SkipCopyFromDescription: Boolean)
+    local procedure CreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; SkipCopyFromDescription: Boolean)
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
@@ -785,12 +785,12 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestInventoryPostingSetup(PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeTestInventoryPostingSetup(PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
     begin
     end;
 

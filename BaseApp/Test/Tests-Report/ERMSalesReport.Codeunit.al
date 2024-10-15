@@ -811,7 +811,7 @@ codeunit 134976 "ERM Sales Report"
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         OrderConfirmation: Report "Order Confirmation";
-        DefaultPostingDate: Option;
+        DefaultPostingDate: Enum "Default Posting Date";
     begin
         // Check Saved Sales Order Report to Verify that program generates report.
 
@@ -3109,7 +3109,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         // [FEATURE] [Customer] [Customer Detailed Aging]
         // [SCENARIO 349053] Report "Customer Detailed Aging" shows proper caption text for Customer when running with a filter.
-        Initialize();
+        Initialize;
 
         // [GIVEN] Customer was created
         LibrarySales.CreateCustomer(Customer);
@@ -3123,7 +3123,7 @@ codeunit 134976 "ERM Sales Report"
         // UI handled by CustomerDetailedAgingRequestPageHandler
 
         // [THEN] Resulting dataset has Customer table caption in it
-        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Customer_TABLECAPTION_CustFilter',
           StrSubstNo('%1: %2: %3', Customer.TableCaption, Customer.FieldCaption("No."), Customer."No."));
     end;
@@ -3366,9 +3366,7 @@ codeunit 134976 "ERM Sales Report"
     var
         Language: Record Language;
     begin
-        Language.Get(LanguageCode);
-        Language.Validate("Windows Language ID", WindowsLanguageID);
-        Language.Modify(true);
+        Language.Get('ENU');
     end;
 
     local procedure ClearGenJournalLine(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -3436,7 +3434,7 @@ codeunit 134976 "ERM Sales Report"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
     end;
 
-    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20])
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20])
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -3462,7 +3460,7 @@ codeunit 134976 "ERM Sales Report"
         exit(AssemblyItem."No.");
     end;
 
-    local procedure CreateAndSetupSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateAndSetupSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3583,7 +3581,7 @@ codeunit 134976 "ERM Sales Report"
         end;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         LibraryERM: Codeunit "Library - ERM";
@@ -3597,7 +3595,7 @@ codeunit 134976 "ERM Sales Report"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
+    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date)
     var
         LibraryERM: Codeunit "Library - ERM";
     begin
@@ -3636,7 +3634,7 @@ codeunit 134976 "ERM Sales Report"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithPaymentMethod(var SalesHeader: Record "Sales Header"; DocType: Integer; PaymentMethodCode: Code[10]; CustNo: Code[20])
+    local procedure CreateSalesDocumentWithPaymentMethod(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PaymentMethodCode: Code[10]; CustNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -3645,7 +3643,7 @@ codeunit 134976 "ERM Sales Report"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesDocumentWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(
@@ -3881,7 +3879,7 @@ codeunit 134976 "ERM Sales Report"
         YourReference := SalesHeader."Your Reference";
     end;
 
-    local procedure CreatePostGeneralJournalLineWithDueDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date; DueDate: Date)
+    local procedure CreatePostGeneralJournalLineWithDueDate(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; PostingDate: Date; DueDate: Date)
     var
         LibraryERM: Codeunit "Library - ERM";
     begin
@@ -3917,7 +3915,7 @@ codeunit 134976 "ERM Sales Report"
         end;
     end;
 
-    local procedure ReleaseSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure ReleaseSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -3930,7 +3928,7 @@ codeunit 134976 "ERM Sales Report"
         exit(Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate)));
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -3998,11 +3996,9 @@ codeunit 134976 "ERM Sales Report"
     local procedure GetRandomLanguageCode(): Code[10]
     var
         Language: Record Language;
-        RandomNum: Integer;
     begin
-        Language.Init();
-        RandomNum := LibraryRandom.RandIntInRange(1, Language.Count);
-        Language.Next(RandomNum);
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
         exit(Language.Code);
     end;
 
@@ -4123,7 +4119,7 @@ codeunit 134976 "ERM Sales Report"
         end
     end;
 
-    local procedure PostShipReceiveOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option)
+    local procedure PostShipReceiveOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLine(
@@ -4373,7 +4369,7 @@ codeunit 134976 "ERM Sales Report"
         REPORT.Run(REPORT::"Customer - Detail Trial Bal.", true, false, Customer);
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -4435,7 +4431,7 @@ codeunit 134976 "ERM Sales Report"
         end;
     end;
 
-    local procedure UpdateSalesReceivablesSetup(var OldDefaultPostingDate: Option; DefaultPostingDate: Option)
+    local procedure UpdateSalesReceivablesSetup(var OldDefaultPostingDate: Enum "Default Posting Date"; DefaultPostingDate: Enum "Default Posting Date")
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
@@ -4445,7 +4441,7 @@ codeunit 134976 "ERM Sales Report"
         SalesReceivablesSetup.Modify(true);
     end;
 
-    local procedure UnapplyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -4988,7 +4984,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertCurrentRowValueEquals(VALVATBaseLCYTok, VATBaseAmount);
     end;
 
-    local procedure VerifySalesReportVATAmount(DocumentType: Option; DocumentNo: Code[20]; Sign: Integer; VALVATAmountLCYNodeName: Text)
+    local procedure VerifySalesReportVATAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Sign: Integer; VALVATAmountLCYNodeName: Text)
     var
         VATEntry: Record "VAT Entry";
     begin

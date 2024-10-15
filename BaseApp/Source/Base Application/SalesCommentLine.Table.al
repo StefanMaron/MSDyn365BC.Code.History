@@ -78,7 +78,7 @@ table 44 "Sales Comment Line"
         if SalesCommentLine.FindSet() then
             repeat
                 SalesCommentLine2 := SalesCommentLine;
-                SalesCommentLine2."Document Type" := ToDocumentType;
+                SalesCommentLine2."Document Type" := "Sales Comment Document Type".FromInteger(ToDocumentType);
                 SalesCommentLine2."No." := ToNumber;
                 SalesCommentLine2.Insert();
             until SalesCommentLine.Next() = 0;
@@ -102,7 +102,7 @@ table 44 "Sales Comment Line"
         if SalesCommentLineSource.FindSet() then
             repeat
                 SalesCommentLineTarget := SalesCommentLineSource;
-                SalesCommentLineTarget."Document Type" := ToDocumentType;
+                SalesCommentLineTarget."Document Type" := "Sales Comment Document Type".FromInteger(ToDocumentType);
                 SalesCommentLineTarget."No." := ToNumber;
                 SalesCommentLineTarget."Document Line No." := ToDocumentLineNo;
                 SalesCommentLineTarget.Insert();
@@ -137,7 +137,7 @@ table 44 "Sales Comment Line"
                 if SalesCommentLineSource.FindSet() then
                     repeat
                         SalesCommentLineTarget := SalesCommentLineSource;
-                        SalesCommentLineTarget."Document Type" := ToDocumentType;
+                        SalesCommentLineTarget."Document Type" := "Sales Comment Document Type".FromInteger(ToDocumentType);
                         SalesCommentLineTarget."No." := ToNumber;
                         SalesCommentLineTarget."Document Line No." := 0;
                         SalesCommentLineTarget."Line No." := NextLineNo;
@@ -164,7 +164,7 @@ table 44 "Sales Comment Line"
         if SalesCommentLineSource.FindSet() then
             repeat
                 SalesCommentLineTarget := SalesCommentLineSource;
-                SalesCommentLineTarget."Document Type" := ToDocumentType;
+                SalesCommentLineTarget."Document Type" := "Sales Comment Document Type".FromInteger(ToDocumentType);
                 SalesCommentLineTarget."No." := ToNumber;
                 SalesCommentLineTarget.Insert();
             until SalesCommentLineSource.Next() = 0;

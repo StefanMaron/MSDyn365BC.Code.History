@@ -7,6 +7,7 @@ report 6 "Trial Balance"
     Caption = 'Trial Balance';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -215,6 +216,7 @@ report 6 "Trial Balance"
 
     requestpage
     {
+        SaveValues = true;
 
         layout
         {

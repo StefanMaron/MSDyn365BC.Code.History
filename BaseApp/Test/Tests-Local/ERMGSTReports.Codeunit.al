@@ -339,7 +339,7 @@ codeunit 141006 "ERM GST Reports"
         UpdateGeneralLedgerSetup;
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PostingDate: Date): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date): Code[20]
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -351,7 +351,7 @@ codeunit 141006 "ERM GST Reports"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; PostingDate: Date): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostingDate: Date): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -362,7 +362,7 @@ codeunit 141006 "ERM GST Reports"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal; AccountType: Option; AccountNo: Code[20]; BalGenPostingType: Option)
+    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalGenPostingType: Enum "General Posting Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -428,7 +428,7 @@ codeunit 141006 "ERM GST Reports"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateItem(CostingMethod: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
@@ -441,14 +441,14 @@ codeunit 141006 "ERM GST Reports"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));

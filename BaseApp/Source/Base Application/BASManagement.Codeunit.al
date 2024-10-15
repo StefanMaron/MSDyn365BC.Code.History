@@ -310,7 +310,8 @@ codeunit 11601 "BAS Management"
             if Exported then
                 Error(Text1450027);
             Clear(BASUpdate);
-            BASUpdate.InitializeRequest(BASCalcSheet3, true, 0, 0, false);
+            BASUpdate.InitializeRequest(
+                BASCalcSheet3, true, "VAT Statement Report Selection"::Open, "VAT Statement Report Period Selection"::"Before and Within Period", false);
             BASUpdate.RunModal;
         end;
     end;

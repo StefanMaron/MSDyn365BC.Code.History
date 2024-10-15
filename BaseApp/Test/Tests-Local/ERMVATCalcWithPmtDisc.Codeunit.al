@@ -302,7 +302,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
         UpdatePmtDiscExclVATOnGeneralLedgerSetup(GeneralLedgerSetup."Pmt. Disc. Excl. VAT");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Option; AccountNo: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[10]; Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -418,7 +418,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure VerifyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; Open: Boolean; RemainingAmount: Decimal)
+    local procedure VerifyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Open: Boolean; RemainingAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -427,7 +427,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
         CustLedgerEntry.TestField("Remaining Amount", RemainingAmount);
     end;
 
-    local procedure VerifyVendorLedgerEntry(DocumentType: Option; DocumentNo: Code[20]; Open: Boolean; RemainingAmount: Decimal)
+    local procedure VerifyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Open: Boolean; RemainingAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

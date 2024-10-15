@@ -119,8 +119,7 @@ codeunit 5469 "Library API - General Journal"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalBatch.SetRange(Id, JournalBatchId);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.GetBySystemId(JournalBatchId);
 
         exit(GenJournalBatch.Name);
     end;

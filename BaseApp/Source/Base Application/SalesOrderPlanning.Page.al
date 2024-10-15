@@ -303,7 +303,7 @@ page 99000883 "Sales Order Planning"
         SalesHeader: Record "Sales Header";
         ReservEntry: Record "Reservation Entry";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished;
+        NewStatus: Enum "Production Order Status";
         NewOrderType: Option ItemOrder,ProjectOrder;
 
     procedure SetSalesOrder(SalesOrderNo: Code[20])
@@ -376,10 +376,10 @@ page 99000883 "Sales Order Planning"
                                           ReservEntry2."Source Subtype", ReservEntry2."Source ID", ReservEntry2."Source Prod. Order Line");
                                         if ProdOrderLine."Due Date" > "Expected Delivery Date" then
                                             "Expected Delivery Date" := ProdOrderLine."Ending Date";
-                                        if ((ProdOrderLine.Status + 1) < "Planning Status") or
+                                        if ((ProdOrderLine.Status.AsInteger() + 1) < "Planning Status") or
                                            ("Planning Status" = "Planning Status"::None)
                                         then
-                                            "Planning Status" := ProdOrderLine.Status + 1;
+                                            "Planning Status" := ProdOrderLine.Status.AsInteger() + 1;
                                     end;
                             end;
                     until ReservEntry.Next = 0;
@@ -485,6 +485,7 @@ page 99000883 "Sales Order Planning"
     procedure CreateProdOrder()
     var
         CreateOrderFromSales: Page "Create Order From Sales";
+        NewStatusOption: Option;
         ShowCreateOrderForm: Boolean;
         IsHandled: Boolean;
     begin
@@ -498,7 +499,9 @@ page 99000883 "Sales Order Planning"
             if CreateOrderFromSales.RunModal <> ACTION::Yes then
                 exit;
 
-            CreateOrderFromSales.ReturnPostingInfo(NewStatus, NewOrderType);
+            NewStatusOption := NewStatus.AsInteger();
+            CreateOrderFromSales.ReturnPostingInfo(NewStatusOption, NewOrderType);
+            NewStatus := "Production Order Status".FromInteger(NewStatusOption);
             Clear(CreateOrderFromSales);
         end;
 
@@ -539,7 +542,7 @@ page 99000883 "Sales Order Planning"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished; var NewOrderType: Option ItemOrder,ProjectOrder; var ShowCreateOrderForm: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Enum "Production Order Status"; var NewOrderType: Option ItemOrder,ProjectOrder; var ShowCreateOrderForm: Boolean; var IsHandled: Boolean)
     begin
     end;
 

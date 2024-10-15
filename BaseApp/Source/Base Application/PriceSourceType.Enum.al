@@ -3,6 +3,7 @@ enum 7003 "Price Source Type" implements "Price Source", "Price Source Group"
     Extensible = true;
     value(0; All)
     {
+        Caption = '(All)';
         Implementation = "Price Source" = "Price Source - All", "Price Source Group" = "Price Source Group - All";
     }
     value(10; "All Customers")

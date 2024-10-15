@@ -47,14 +47,14 @@ codeunit 5323 "Exchange Add-in Setup"
         [NonDebuggable]
         AccessToken: Text;
     begin
-        SendTraceTag('0000BX8', ExchangeTelemetryCategoryTxt, Verbosity::Normal, TryInitializeWithEmailTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BX8', TryInitializeWithEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false);
 
         if AccessToken <> '' then begin
             ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint);
             if ValidateCredentials then begin
-                SendTraceTag('0000BX9', ExchangeTelemetryCategoryTxt, Verbosity::Normal, InitializedWithOAuthTokenTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BX9', InitializedWithOAuthTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                 exit;
             end;
         end;
@@ -67,7 +67,7 @@ codeunit 5323 "Exchange Add-in Setup"
         ExchangeWebServicesServer.SetImpersonatedIdentity(AuthenticationEmail);
         Initialized := true;
 
-        SendTraceTag('0000BYR', ExchangeTelemetryCategoryTxt, Verbosity::Normal, InitializedWithCertificateTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BYR', InitializedWithCertificateTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
     end;
 
     [TryFunction]
@@ -78,7 +78,7 @@ codeunit 5323 "Exchange Add-in Setup"
         ProgressWindow: Dialog;
         ErrorText: Text;
     begin
-        SendTraceTag('0000BXA', ExchangeTelemetryCategoryTxt, Verbosity::Normal, TryInitializeWithCredentialsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXA', TryInitializeWithCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         WebCredentials := WebCredentials.WebCredentials(Email, Password);
 
@@ -92,7 +92,7 @@ codeunit 5323 "Exchange Add-in Setup"
 
         // Autodiscover endpoint (can be slow)
         if not Initialized then begin
-            SendTraceTag('0000BXB', ExchangeTelemetryCategoryTxt, Verbosity::Normal, TryAutodiscoverEndpointTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXB', TryAutodiscoverEndpointTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             Initialized := ExchangeWebServicesServer.Initialize(Email, '', WebCredentials, true) and ValidateCredentials;
             ErrorText := GetLastErrorText;
         end;
@@ -100,11 +100,11 @@ codeunit 5323 "Exchange Add-in Setup"
         ProgressWindow.Close;
 
         if not Initialized then begin
-            SendTraceTag('0000BXC', ExchangeTelemetryCategoryTxt, Verbosity::Warning, NotInitializedWithCredentialsTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXC', NotInitializedWithCredentialsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             Error(ErrorText);
         end;
 
-        SendTraceTag('0000BXD', ExchangeTelemetryCategoryTxt, Verbosity::Normal, InitializedWithCredentialsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXD', InitializedWithCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
     end;
 
     [Scope('OnPrem')]
@@ -119,24 +119,24 @@ codeunit 5323 "Exchange Add-in Setup"
         User: Record User;
         TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
     begin
-        SendTraceTag('0000BXE', ExchangeTelemetryCategoryTxt, Verbosity::Normal, PromptForCredentialsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXE', PromptForCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         TempOfficeAdminCredentials.Init();
         TempOfficeAdminCredentials.Insert();
 
         User.SetRange("User Name", UserId);
         if User.FindFirst then begin
-            SendTraceTag('0000BXF', ExchangeTelemetryCategoryTxt, Verbosity::Normal, UserFoundTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXF', UserFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             TempOfficeAdminCredentials.Email := User."Authentication Email";
             TempOfficeAdminCredentials.Modify();
         end;
 
         if CredentialsRequired(TempOfficeAdminCredentials.Email) or (TempOfficeAdminCredentials.Email = '') then begin
-            SendTraceTag('0000BXG', ExchangeTelemetryCategoryTxt, Verbosity::Normal, CredentialsRequiredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXG', CredentialsRequiredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             ClearLastError;
             repeat
                 if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then begin
-                    SendTraceTag('0000BXH', ExchangeTelemetryCategoryTxt, Verbosity::Normal, CredentialsPromptCancelledTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000BXH', CredentialsPromptCancelledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                     exit(false);
                 end;
             until InitializeServiceWithCredentials(TempOfficeAdminCredentials.Email, TempOfficeAdminCredentials.GetPassword);
@@ -148,7 +148,7 @@ codeunit 5323 "Exchange Add-in Setup"
     [Scope('OnPrem')]
     procedure ImpersonateUser(Email: Text[80])
     begin
-        SendTraceTag('0000BXI', ExchangeTelemetryCategoryTxt, Verbosity::Normal, ImpersonateUserTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXI', ImpersonateUserTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         if not Initialized then
             Initialize(Email);
@@ -173,7 +173,7 @@ codeunit 5323 "Exchange Add-in Setup"
         Encoding: DotNet UTF8Encoding;
         ManifestText: Text;
     begin
-        SendTraceTag('0000BXJ', ExchangeTelemetryCategoryTxt, Verbosity::Normal, DeployAddInTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXJ', DeployAddInTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         AddinManifestManagement.GenerateManifest(OfficeAddin, ManifestText);
         Encoding := Encoding.UTF8Encoding;
@@ -205,15 +205,15 @@ codeunit 5323 "Exchange Add-in Setup"
         FromEmail: Text;
         HTMlBody: Text;
     begin
-        SendTraceTag('0000BXK', ExchangeTelemetryCategoryTxt, Verbosity::Normal, DeploySampleEmailsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXK', DeploySampleEmailsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
 
         if EmailAddress <> '' then begin
-            SendTraceTag('0000BXL', ExchangeTelemetryCategoryTxt, Verbosity::Normal, ToSpecifiedEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXL', ToSpecifiedEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             RecipientEmail := EmailAddress
         end else begin
             User.SetRange("User Name", UserId);
             if User.FindFirst then begin
-                SendTraceTag('0000BXM', ExchangeTelemetryCategoryTxt, Verbosity::Normal, ToUserEmailTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BXM', ToUserEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                 RecipientEmail := User."Authentication Email";
             end;
         end;
@@ -222,7 +222,7 @@ codeunit 5323 "Exchange Add-in Setup"
         if ContactBusinessRelation.FindFirst then begin
             if Contact.Get(ContactBusinessRelation."Contact No.") then begin
                 if Contact."E-Mail" <> '' then begin
-                    SendTraceTag('0000BXN', ExchangeTelemetryCategoryTxt, Verbosity::Normal, FromContactEmailTxt, DataClassification::SystemMetadata);
+                    Session.LogMessage('0000BXN', FromContactEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                     FromEmail := Contact."E-Mail";
                 end;
             end
@@ -230,14 +230,14 @@ codeunit 5323 "Exchange Add-in Setup"
 
         if FromEmail = '' then begin
             FromEmail := SalesEmailAddrTxt;
-            SendTraceTag('0000BYS', ExchangeTelemetryCategoryTxt, Verbosity::Normal, FromSalesEmailTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BYS', FromSalesEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
         end;
 
         HTMlBody := OfficeAddinSampleEmails.GetHTMLSampleMsg;
         ExchangeWebServicesServer.SaveHTMLEmailToInbox(StrSubstNo(WelcomeSubjectTxt, PRODUCTNAME.Marketing), HTMlBody,
           FromEmail, StrSubstNo(WelcomeEmailFromNameTxt, PRODUCTNAME.Full), RecipientEmail);
 
-        SendTraceTag('0000BXO', ExchangeTelemetryCategoryTxt, Verbosity::Normal, SampleEmailsDeployedTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXO', SampleEmailsDeployedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
     end;
 
     [TryFunction]
@@ -245,13 +245,13 @@ codeunit 5323 "Exchange Add-in Setup"
     begin
         if not ExchangeWebServicesServer.ValidCredentials then begin
             if StrPos(GetLastErrorText, '401') > 0 then begin
-                SendTraceTag('0000BXP', ExchangeTelemetryCategoryTxt, Verbosity::Warning, InvalidCredentialsTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('0000BXP', InvalidCredentialsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
                 Error(InvalidCredentialsErr);
             end;
-            SendTraceTag('0000BXQ', ExchangeTelemetryCategoryTxt, Verbosity::Warning, NoMailboxTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXQ', NoMailboxTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
             Error(NoMailboxErr);
         end;
-        SendTraceTag('0000BXR', ExchangeTelemetryCategoryTxt, Verbosity::Normal, ValidCredentialsTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXR', ValidCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
     end;
 }
 

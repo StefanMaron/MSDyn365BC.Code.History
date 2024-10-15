@@ -1125,7 +1125,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, ReminderHeader."No.", 0, 0);
 
         // Verify. Show results validated in Reminder page handler.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
           ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
 
         PaymentRegistrationMgt.ShowRecords(TempDocumentSearchResult);
@@ -1148,7 +1148,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, '', ReminderHeader."Remaining Amount", 0);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
           ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
     end;
 
@@ -1169,7 +1169,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, '', ReminderHeader."Interest Amount", 0);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
           ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
     end;
 
@@ -1190,7 +1190,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, ReminderHeader."No.", ReminderHeader."Remaining Amount", 0);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
           ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
     end;
 
@@ -1214,7 +1214,7 @@ codeunit 134700 "Payment Registration UT"
           (1 + TolerancePct / 100) * ReminderHeader."Remaining Amount", TolerancePct);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
           ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
 
         // Exercise: Find values within tolerance, using a reference amount below the actual document amount.
@@ -1222,7 +1222,7 @@ codeunit 134700 "Payment Registration UT"
           (1 - (TolerancePct / 100) * (1 - TolerancePct / 100)) * ReminderHeader."Remaining Amount", TolerancePct);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
           ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
     end;
 
@@ -1243,7 +1243,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, '', 0.5 * ReminderHeader."Remaining Amount", 10);
 
         // Verify.
-        asserterror VerifyDocumentSearchResult(TempDocumentSearchResult, 0, ReminderHeader."No.",
+        asserterror VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, ReminderHeader."No.",
             ReminderHeader."Remaining Amount", DATABASE::"Reminder Header");
     end;
 
@@ -1266,7 +1266,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, FinanceChargeMemoHeader."No.", 0, 0);
 
         // Verify. Show results validated in page handler.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, FinanceChargeMemoHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, FinanceChargeMemoHeader."No.",
           FinanceChargeMemoHeader."Remaining Amount", DATABASE::"Finance Charge Memo Header");
 
         PaymentRegistrationMgt.ShowRecords(TempDocumentSearchResult);
@@ -1289,7 +1289,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, '', FinanceChargeMemoHeader."Remaining Amount", 0);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, FinanceChargeMemoHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, FinanceChargeMemoHeader."No.",
           FinanceChargeMemoHeader."Remaining Amount", DATABASE::"Finance Charge Memo Header");
     end;
 
@@ -1311,7 +1311,7 @@ codeunit 134700 "Payment Registration UT"
           FinanceChargeMemoHeader."Remaining Amount", 0);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, FinanceChargeMemoHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, FinanceChargeMemoHeader."No.",
           FinanceChargeMemoHeader."Remaining Amount", DATABASE::"Finance Charge Memo Header");
     end;
 
@@ -1336,7 +1336,7 @@ codeunit 134700 "Payment Registration UT"
           (1 + TolerancePct / 100) * FinanceChargeMemoHeader."Remaining Amount", TolerancePct);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, FinanceChargeMemoHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, FinanceChargeMemoHeader."No.",
           FinanceChargeMemoHeader."Remaining Amount", DATABASE::"Finance Charge Memo Header");
 
         // Exercise: Find values within tolerance, using a reference amount below the actual document amount.
@@ -1345,7 +1345,7 @@ codeunit 134700 "Payment Registration UT"
           (1 - (TolerancePct / 100) * (1 - TolerancePct / 100)) * FinanceChargeMemoHeader."Remaining Amount", TolerancePct);
 
         // Verify.
-        VerifyDocumentSearchResult(TempDocumentSearchResult, 0, FinanceChargeMemoHeader."No.",
+        VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, FinanceChargeMemoHeader."No.",
           FinanceChargeMemoHeader."Remaining Amount", DATABASE::"Finance Charge Memo Header");
     end;
 
@@ -1367,7 +1367,7 @@ codeunit 134700 "Payment Registration UT"
           TempDocumentSearchResult, FinanceChargeMemoHeader."No.", 0.5 * FinanceChargeMemoHeader."Remaining Amount", 10);
 
         // Verify.
-        asserterror VerifyDocumentSearchResult(TempDocumentSearchResult, 0, FinanceChargeMemoHeader."No.",
+        asserterror VerifyDocumentSearchResult(TempDocumentSearchResult, "Service Document Type"::Quote, FinanceChargeMemoHeader."No.",
             FinanceChargeMemoHeader."Remaining Amount", DATABASE::"Finance Charge Memo Header");
     end;
 
@@ -2001,7 +2001,7 @@ codeunit 134700 "Payment Registration UT"
         exit(BankAccount."No.")
     end;
 
-    local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; IsOpen: Boolean): Integer
+    local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; IsOpen: Boolean): Integer
     begin
         with CustLedgerEntry do begin
             if FindLast then;
@@ -2214,7 +2214,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchSalesHeaderByDocNoShowResults(DocumentType: Option; Description: Text)
+    local procedure SearchSalesHeaderByDocNoShowResults(DocumentType: Enum "Sales Document Type"; Description: Text)
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         SalesHeader: Record "Sales Header";
@@ -2238,7 +2238,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchSalesHeaderByDocNoAndAmount(DocumentType: Option)
+    local procedure SearchSalesHeaderByDocNoAndAmount(DocumentType: Enum "Sales Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         SalesHeader: Record "Sales Header";
@@ -2258,7 +2258,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchSalesHeaderByAmount(DocumentType: Option)
+    local procedure SearchSalesHeaderByAmount(DocumentType: Enum "Sales Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         SalesHeader: Record "Sales Header";
@@ -2278,7 +2278,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchSalesHeaderWithTolerance(DocumentType: Option)
+    local procedure SearchSalesHeaderWithTolerance(DocumentType: Enum "Sales Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         SalesHeader: Record "Sales Header";
@@ -2309,7 +2309,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchSalesHeaderNegative(DocumentType: Option)
+    local procedure SearchSalesHeaderNegative(DocumentType: Enum "Sales Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         SalesHeader: Record "Sales Header";
@@ -2329,7 +2329,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchServiceHeaderByDocNoShowResults(DocumentType: Option; Description: Text)
+    local procedure SearchServiceHeaderByDocNoShowResults(DocumentType: Enum "Service Document Type"; Description: Text)
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         ServiceHeader: Record "Service Header";
@@ -2353,7 +2353,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchServiceHeaderByDocNoAndAmount(DocumentType: Option)
+    local procedure SearchServiceHeaderByDocNoAndAmount(DocumentType: Enum "Service Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         ServiceHeader: Record "Service Header";
@@ -2373,7 +2373,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchServiceHeaderByAmount(DocumentType: Option)
+    local procedure SearchServiceHeaderByAmount(DocumentType: Enum "Service Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         ServiceHeader: Record "Service Header";
@@ -2393,7 +2393,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchServiceHeaderWithTolerance(DocumentType: Option)
+    local procedure SearchServiceHeaderWithTolerance(DocumentType: Enum "Service Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         ServiceHeader: Record "Service Header";
@@ -2424,7 +2424,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SearchServiceHeaderNegative(DocumentType: Option)
+    local procedure SearchServiceHeaderNegative(DocumentType: Enum "Service Document Type")
     var
         TempDocumentSearchResult: Record "Document Search Result" temporary;
         ServiceHeader: Record "Service Header";
@@ -2499,7 +2499,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SetupSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure SetupSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -2515,7 +2515,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure SetupServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure SetupServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
         Item: Record Item;
@@ -2531,7 +2531,7 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     [Normal]
-    local procedure VerifyDocumentSearchResult(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocType: Integer; DocNo: Code[20]; Amount: Decimal; TableID: Integer)
+    local procedure VerifyDocumentSearchResult(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocType: Enum "Service Document Type"; DocNo: Code[20]; Amount: Decimal; TableID: Integer)
     begin
         TempDocumentSearchResult.Get(DocType, DocNo, TableID);
         TempDocumentSearchResult.TestField(Amount, Amount);

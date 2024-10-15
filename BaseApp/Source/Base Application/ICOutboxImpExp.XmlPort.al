@@ -304,6 +304,9 @@ xmlport 12 "IC Outbox Imp/Exp"
                                 fieldattribute(ICPartnerRef; ICOutBoxSalesLine."IC Partner Reference")
                                 {
                                 }
+                                fieldattribute(ICItemRefNo; ICOutBoxSalesLine."IC Item Reference No.")
+                                {
+                                }
                                 fieldattribute(TransSource; ICOutBoxSalesLine."Transaction Source")
                                 {
                                 }
@@ -535,6 +538,9 @@ xmlport 12 "IC Outbox Imp/Exp"
                                 {
                                 }
                                 fieldattribute(ICPartnerRef; ICOutBoxPurchLine."IC Partner Reference")
+                                {
+                                }
+                                fieldattribute(ICItemRefNo; ICOutBoxPurchLine."IC Item Reference No.")
                                 {
                                 }
                                 fieldattribute(TransSource; ICOutBoxPurchLine."Transaction Source")

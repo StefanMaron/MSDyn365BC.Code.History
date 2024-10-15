@@ -244,7 +244,7 @@ codeunit 136354 "UT T Job WIP Method"
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure ChangeWIPMethodInJobWhenJobTaskHasTotalCost()
     var
         Job: Record Job;
@@ -305,7 +305,7 @@ codeunit 136354 "UT T Job WIP Method"
     end;
 
     [ConfirmHandler]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');

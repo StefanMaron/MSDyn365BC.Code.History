@@ -259,7 +259,7 @@ codeunit 141081 "ERM Journals"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Receive and Invoice.
     end;
 
-    local procedure CreateAndUpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Option; PostingDate: Date)
+    local procedure CreateAndUpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; PostingDate: Date)
     begin
         CreateGenJournalLine(GenJournalLine, AccountNo, '', AccountType, 0);
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -282,7 +282,7 @@ codeunit 141081 "ERM Journals"
         end;
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CustomerVendorBankCode: Code[20]; AccountType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; CustomerVendorBankCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -387,7 +387,7 @@ codeunit 141081 "ERM Journals"
         end;
     end;
 
-    local procedure CreateGenJournalLineWithJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; CustomerVendorBankCode: Code[20]; AccountType: Option; Amount: Decimal; DocumentNo: Code[20])
+    local procedure CreateGenJournalLineWithJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; CustomerVendorBankCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal; DocumentNo: Code[20])
     var
         BankAccount: Record "Bank Account";
     begin
@@ -512,7 +512,7 @@ codeunit 141081 "ERM Journals"
         VendorLedgerEntry.TestField("Remaining Amount", 0);
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);

@@ -42,7 +42,7 @@ codeunit 28040 WHTManagement
         AppliedBase: Decimal;
         TempRemAmt: Decimal;
         TransType: Option Purchase,Sale,Settlement;
-        DocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        DocType: Enum "Gen. Journal Document Type";
         PayToAccType: Option Vendor,Customer;
         BuyFromAccType: Option Vendor,Customer;
         DocDate: Date;
@@ -57,7 +57,7 @@ codeunit 28040 WHTManagement
         UnrealizedWHT: Boolean;
         NextWHTEntryNo: Integer;
         TType: Option Purchase,Sale;
-        ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        ApplyDocType: Enum "Gen. Journal Document Type";
         ApplyDocNo: Code[20];
         TotAmt: Decimal;
         NextEntry: Integer;
@@ -7446,7 +7446,7 @@ codeunit 28040 WHTManagement
             WHTEntry.Closed := true;
     end;
 
-    local procedure FindWHTEntryForApply(var WHTEntry: Record "WHT Entry"; DocType: Option; DocNo: Code[20]; WHTBusPostingGr: Code[20]; WHTProdPostingGr: Code[20]): Boolean
+    local procedure FindWHTEntryForApply(var WHTEntry: Record "WHT Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; WHTBusPostingGr: Code[20]; WHTProdPostingGr: Code[20]): Boolean
     begin
         WHTEntry.Reset();
         WHTEntry.SetRange("Document Type", DocType);

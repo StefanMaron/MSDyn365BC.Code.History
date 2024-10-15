@@ -185,14 +185,14 @@ table 28044 "WHT Entry"
         }
         field(34; "Unrealized Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Unrealized Amount (LCY)';
             Editable = false;
         }
         field(35; "Unrealized Base (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Unrealized Base (LCY)';
             Editable = false;
@@ -207,14 +207,14 @@ table 28044 "WHT Entry"
         }
         field(37; "Rem Unrealized Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Rem Unrealized Amount (LCY)';
             Editable = false;
         }
         field(38; "Rem Unrealized Base (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Rem Unrealized Base (LCY)';
             Editable = false;
@@ -313,7 +313,7 @@ table 28044 "WHT Entry"
         }
         field(62; "Rem Realized Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Rem Realized Amount (LCY)';
             Editable = false;
         }
@@ -324,7 +324,7 @@ table 28044 "WHT Entry"
         }
         field(64; "Rem Realized Base (LCY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Rem Realized Base (LCY)';
             Editable = false;
         }

@@ -250,8 +250,6 @@ codeunit 137621 "SCM Costing Bugs II"
         ProductionBOMHeader: Record "Production BOM Header";
         ParentItem: Record Item;
         CompItem: Record Item;
-        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
-        Status: Option Quote,Planned,"Firm Planned",Released,Finished;
         Qty: Decimal;
         QtyPer: Decimal;
     begin
@@ -286,7 +284,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Finish Prod. Order.
-        ProdOrderStatusManagement.ChangeStatusOnProdOrder(ProductionOrder, Status::Finished, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(ParentItem."No." + '|' + CompItem."No.", '');
@@ -422,7 +420,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // Post negative adjustment and make a fixed application to second entry
         PostingDate[4] := CalcDate(Interval, PostingDate[3]);
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, 0);
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, "Item Journal Template Type"::Item);
         LibraryInventory.MakeItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, PostingDate[4], ItemLedgerEntry."Entry Type"::"Negative Adjmt.", 1);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
@@ -465,7 +463,7 @@ codeunit 137621 "SCM Costing Bugs II"
         // Post negative adjustment and make a fixed application to second purchase
         // The negative quantity should be higher than the purchase
         PostingDate[4] := CalcDate(Interval, PostingDate[3]);
-        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, 0);
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, "Item Journal Template Type"::Item);
         LibraryInventory.MakeItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, PostingDate[4], ItemLedgerEntry."Entry Type"::"Negative Adjmt.", 3);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
@@ -1815,7 +1813,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option; UnitCost: Decimal; ReplenishmentSystem: Option; RoundingPrecision: Decimal)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; ReplenishmentSystem: Enum "Replenishment System"; RoundingPrecision: Decimal)
     begin
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, UnitCost);
 
@@ -1960,7 +1958,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, 1, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure InitItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure InitItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2043,7 +2041,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ApplicationWorksheet.First;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Option; LocationCode: Code[10]; IsPositive: Boolean)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; IsPositive: Boolean)
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
@@ -2068,7 +2066,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure MakeItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure MakeItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, TemplateType);
     end;

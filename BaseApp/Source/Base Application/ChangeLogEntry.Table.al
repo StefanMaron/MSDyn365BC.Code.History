@@ -128,6 +128,19 @@ table 405 "Change Log Entry"
             Caption = 'Protected';
             DataClassification = SystemMetadata;
         }
+        field(26; "Changed Record SystemId"; Guid)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(27; "Notification Status"; Enum "Monitor Field Notification")
+        {
+            Caption = 'Notification status';
+            DataClassification = SystemMetadata;
+        }
+        field(28; "Field Log Entry Feature"; Enum "Field Log Entry Feature")
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

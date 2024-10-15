@@ -515,7 +515,7 @@ codeunit 136105 "Service - Price Management"
     end;
 
     [Normal]
-    local procedure CreateServiceLineWithDiscount(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateServiceLineWithDiscount(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer)
     begin
         // Use Random for Quantity and "Line Discount %" because value is not important.
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
@@ -526,7 +526,7 @@ codeunit 136105 "Service - Price Management"
     end;
 
     [Normal]
-    local procedure CreateServiceLineWithOutDisc(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; ServiceItemLineNo: Integer)
+    local procedure CreateServiceLineWithOutDisc(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; ServiceItemLineNo: Integer)
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);

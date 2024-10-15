@@ -6,6 +6,7 @@ report 113 "Customer/Item Sales"
     Caption = 'Customer/Item Sales';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

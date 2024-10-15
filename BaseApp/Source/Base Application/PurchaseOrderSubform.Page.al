@@ -1,4 +1,4 @@
-page 54 "Purchase Order Subform"
+﻿page 54 "Purchase Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -23,11 +23,11 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
 
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -42,13 +42,13 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type);
+                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Purchases) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -60,10 +60,10 @@ page 54 "Purchase Order Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
 
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
 
                         CurrPage.Update();
                     end;
@@ -73,20 +73,47 @@ page 54 "Purchase Order Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         CrossReferenceNoLookUp;
                         InsertExtendedText(false);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CrossReferenceNoOnAfterValidat;
-                        NoOnAfterValidate;
-                        DeltaUpdateTotals;
+                        InsertExtendedText(false);
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        PurchaseHeader.Get("Document Type", "Document No.");
+                        ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec, PurchaseHeader);
+                        InsertExtendedText(false);
+                        NoOnAfterValidate();
+                        OnItemReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        InsertExtendedText(false);
+                        NoOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("IC Partner Code"; "IC Partner Code")
@@ -115,7 +142,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -132,7 +159,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("WHT Business Posting Group"; "WHT Business Posting Group")
@@ -154,8 +181,8 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
-                        NoOnAfterValidate;
+                        DeltaUpdateTotals();
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Drop Shipment"; "Drop Shipment")
@@ -179,7 +206,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -199,7 +226,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -222,7 +249,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -242,7 +269,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Indirect Cost %"; "Indirect Cost %")
@@ -278,7 +305,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -289,7 +316,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Use Tax"; "Use Tax")
@@ -309,7 +336,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -322,7 +349,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount Amount"; "Line Discount Amount")
@@ -333,7 +360,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Prepayment %"; "Prepayment %")
@@ -362,7 +389,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Inv. Discount Amount"; "Inv. Discount Amount")
@@ -373,7 +400,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Inv. Disc. Amount to Invoice"; "Inv. Disc. Amount to Invoice")
@@ -433,7 +460,7 @@ page 54 "Purchase Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -446,7 +473,7 @@ page 54 "Purchase Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -648,8 +675,8 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAssistEdit()
                     begin
-                        CurrPage.SaveRecord();
-                        Commit();
+                        CurrPage.SaveRecord;
+                        Commit;
                         ShowDeferralSchedule();
                     end;
                 }
@@ -779,7 +806,7 @@ page 54 "Purchase Order Subform"
                 {
                     ApplicationArea = All;
                     Visible = OverReceiptAllowed;
-                    ToolTip = 'Specifies over-receipt cuantity.';
+                    ToolTip = 'Specifies over-receipt quantity.';
 
                     trigger OnValidate()
                     begin
@@ -826,7 +853,7 @@ page 54 "Purchase Order Subform"
 
                         trigger OnValidate()
                         begin
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                             DocumentTotals.PurchaseDocTotalsNotUpToDate;
                         end;
                     }
@@ -842,7 +869,7 @@ page 54 "Purchase Order Subform"
                         begin
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalPurchAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                             DocumentTotals.PurchaseDocTotalsNotUpToDate;
                         end;
                     }
@@ -1001,7 +1028,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action(Dimensions)
@@ -1015,7 +1042,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -1027,7 +1054,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action(ItemChargeAssignment)
@@ -1041,8 +1068,8 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowItemChargeAssgnt;
-                        SetItemChargeFieldsStyle;
+                        ShowItemChargeAssgnt();
+                        SetItemChargeFieldsStyle();
                     end;
                 }
                 action(DocumentLineTracking)
@@ -1053,7 +1080,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
                 action(DeferralSchedule)
@@ -1066,7 +1093,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDeferralSchedule;
+                        ShowDeferralSchedule();
                     end;
                 }
                 action(DocAttach)
@@ -1130,7 +1157,7 @@ page 54 "Purchase Order Subform"
                     trigger OnAction()
                     begin
                         Find;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action(OrderTracking)
@@ -1143,7 +1170,7 @@ page 54 "Purchase Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -1211,6 +1238,8 @@ page 54 "Purchase Order Subform"
             }
             group("Page")
             {
+                Caption = 'Page';
+
                 action(EditInExcel)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1240,16 +1269,16 @@ page 54 "Purchase Order Subform"
     begin
         GetTotalsPurchaseHeader;
         CalculateTotals;
-        UpdateEditableOnRow;
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        UpdateEditableOnRow();
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1276,6 +1305,7 @@ page 54 "Purchase Order Subform"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         PurchasesPayablesSetup.Get();
+        InventorySetup.Get();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         Currency.InitRoundingPrecision;
@@ -1292,7 +1322,7 @@ page 54 "Purchase Order Subform"
         SetDefaultType();
 
         Clear(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()
@@ -1302,8 +1332,9 @@ page 54 "Purchase Order Subform"
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
         SetOverReceiptControlsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -1312,6 +1343,7 @@ page 54 "Purchase Order Subform"
         PurchaseHeader: Record "Purchase Header";
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        InventorySetup: Record "Inventory Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -1319,7 +1351,6 @@ page 54 "Purchase Order Subform"
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the purchase order has been invoiced.';
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
-        ShortcutDimCode: array[8] of Code[20];
         VATAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
@@ -1331,6 +1362,13 @@ page 54 "Purchase Order Subform"
         IsSaaSExcelAddinEnabled: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
+        OverReceiptAllowed: Boolean;
+        SuppressTotals: Boolean;
+		[InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1339,10 +1377,6 @@ page 54 "Purchase Order Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        OverReceiptAllowed: Boolean;
-        SuppressTotals: Boolean;
-
-    protected var
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
 
@@ -1427,7 +1461,7 @@ page 54 "Purchase Order Subform"
 
     procedure NoOnAfterValidate()
     begin
-        UpdateEditableOnRow;
+        UpdateEditableOnRow();
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
@@ -1435,11 +1469,6 @@ page 54 "Purchase Order Subform"
             CurrPage.SaveRecord;
 
         OnAfterNoOnAfterValidate(Rec, xRec);
-    end;
-
-    local procedure CrossReferenceNoOnAfterValidat()
-    begin
-        InsertExtendedText(false);
     end;
 
     procedure ShowDocumentLineTracking()
@@ -1497,7 +1526,7 @@ page 54 "Purchase Order Subform"
             exit;
 
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
     procedure UpdateEditableOnRow()
@@ -1548,6 +1577,13 @@ page 54 "Purchase Order Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure SetDefaultType()
@@ -1606,6 +1642,11 @@ page 54 "Purchase Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

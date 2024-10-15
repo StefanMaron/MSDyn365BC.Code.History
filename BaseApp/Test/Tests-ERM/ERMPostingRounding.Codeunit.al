@@ -143,7 +143,7 @@ codeunit 134157 "ERM Posting Rounding"
         CreateVATPostingSetup(VATPostingSetup, 0);
         VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         for i := 1 to ArrayLen(GLAccountNo) do
-            GLAccountNo[i] := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+            GLAccountNo[i] := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         PrepareAmounts_TFS268735(Amounts, CurrExchRate);
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, CurrExchRate, 1);
 
@@ -171,7 +171,7 @@ codeunit 134157 "ERM Posting Rounding"
         CreateVATPostingSetup(VATPostingSetup, 0);
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
         for i := 1 to ArrayLen(GLAccountNo) do
-            GLAccountNo[i] := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0);
+            GLAccountNo[i] := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         PrepareAmounts_TFS268735(Amounts, CurrExchRate);
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, CurrExchRate, 1);
 

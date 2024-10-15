@@ -16,13 +16,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         ContactsMustBeRelatedToCompanyErr: Label 'The contact %1 must have a contact company that has a business relation to a customer.', Comment = '%1 = Contact No.';
         ContactMissingCompanyErr: Label 'The contact cannot be created because the company does not exist.';
         CRMUnitGroupExistsAndIsInactiveErr: Label 'The %1 %2 already exists in %3, but it cannot be synchronized, because it is inactive.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group;%3=product name';
-        CRMUnitGroupContainsMoreThanOneUoMErr: Label 'The %4 %1 %2 contains more than one %3. This setup cannot be used for synchronization.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group,%3=table caption: Unit., %4 = CRM product name';
-        CustomerHasChangedErr: Label 'Cannot create the invoice in %2. The customer from the original %2 sales order %1 was changed or is no longer coupled.', Comment = '%1=CRM sales order number, %2 = CRM product name';
-        NoCoupledSalesInvoiceHeaderErr: Label 'Cannot find the coupled %1 invoice header.', Comment = '%1 = CRM product name';
+        CRMUnitGroupContainsMoreThanOneUoMErr: Label 'The %4 %1 %2 contains more than one %3. This setup cannot be used for synchronization.', Comment = '%1=table caption: Unit Group,%2=The name of the indicated Unit Group,%3=table caption: Unit., %4 = CDS service name';
+        CustomerHasChangedErr: Label 'Cannot create the invoice in %2. The customer from the original %2 sales order %1 was changed or is no longer coupled.', Comment = '%1=CRM sales order number, %2 = CDS service name';
+        NoCoupledSalesInvoiceHeaderErr: Label 'Cannot find the coupled %1 invoice header.', Comment = '%1 = CDS service name';
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a record in %3.', Comment = '%1 =field caption, %2 = field value, %3 - product name ';
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - CRM product name';
+        CurrencyExchangeRateMissingErr: Label 'Cannot create or update the currency %1 in %2, because there is no exchange rate defined for it.', Comment = '%1 - currency code, %2 - CDS service name';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SourceDestCodePatternTxt: Label '%1-%2', Locked = true;
 
@@ -67,6 +67,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         RecRef: RecordRef;
         ConnectionID: Guid;
     begin
+        if Result then
+            exit;
+
         if IsJobQueueEntryCRMIntegrationJob(Sender, IntegrationTableMapping) and
            CRMIntegrationManagement.IsCRMTable(IntegrationTableMapping."Integration Table ID")
         then begin
@@ -80,7 +83,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     CRMConnectionSetup.RegisterConnectionWithName(ConnectionID);
                 RecRef.Open(IntegrationTableMapping."Integration Table ID");
                 IntegrationTableMapping.SetIntRecordRefFilter(RecRef);
-                Result := not RecRef.IsEmpty();
+                if not RecRef.IsEmpty() then
+                    Result := true;
                 RecRef.Close();
                 if CDSIntegrationImpl.IsIntegrationEnabled() then
                     CDSIntegrationImpl.UnregisterConnection(ConnectionID)
@@ -96,7 +100,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
         if (JobQueueLogEntry."Object Type to Run" = JobQueueLogEntry."Object Type to Run"::Codeunit) and
-           (JobQueueLogEntry."Object ID to Run" in [CODEUNIT::"Integration Synch. Job Runner", CODEUNIT::"CRM Statistics Job"])
+           (JobQueueLogEntry."Object ID to Run" in [CODEUNIT::"Integration Synch. Job Runner", CODEUNIT::"CRM Statistics Job", CODEUNIT::"Int. Uncouple Job Runner"])
         then begin
             IntegrationSynchJob.SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
             PAGE.RunModal(PAGE::"Integration Synch. Job List", IntegrationSynchJob);
@@ -120,6 +124,15 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     if RecRef.Number() = DATABASE::"Integration Table Mapping" then begin
                         RecRef.SetTable(IntegrationTableMapping);
                         exit(IntegrationTableMapping."Synch. Codeunit ID" = CODEUNIT::"CRM Integration Table Synch.");
+                    end;
+                end;
+            CODEUNIT::"Int. Uncouple Job Runner":
+                begin
+                    if not RecRef.Get(JobQueueEntry."Record ID to Process") then
+                        exit(false);
+                    if RecRef.Number() = DATABASE::"Integration Table Mapping" then begin
+                        RecRef.SetTable(IntegrationTableMapping);
+                        exit(IntegrationTableMapping."Uncouple Codeunit ID" = Codeunit::"CDS Int. Table Uncouple");
                     end;
                 end;
         end;
@@ -176,6 +189,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         OptionValue: Integer;
         TableValue: Text;
     begin
+        if IsValueFound then
+            exit;
+
         if CRMIntegrationManagement.IsCDSIntegrationEnabled() then
             if (SourceFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) or
                 (DestinationFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) then
@@ -207,10 +223,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 end;
             end;
 
-        if CRMSynchHelper.AreFieldsRelatedToMappedTables(SourceFieldRef, DestinationFieldRef, IntegrationTableMapping) then begin
-            IsValueFound := FindNewValueForCoupledRecordPK(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef, NewValue);
-            NeedsConversion := false;
-        end;
+        if CRMSynchHelper.AreFieldsRelatedToMappedTables(SourceFieldRef, DestinationFieldRef, IntegrationTableMapping) then
+            if FindNewValueForCoupledRecordPK(IntegrationTableMapping, SourceFieldRef, DestinationFieldRef, NewValue) then begin
+                IsValueFound := true;
+                NeedsConversion := false;
+            end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterTransferRecordFields', '', false, false)]
@@ -219,29 +236,27 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'CRM Account-Customer':
-                AdditionalFieldsWereModified :=
-                  UpdateCustomerBlocked(SourceRecordRef, DestinationRecordRef);
+                if UpdateCustomerBlocked(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
             'Sales Price-CRM Productpricelevel':
-                AdditionalFieldsWereModified :=
-                  UpdateCRMProductPricelevelAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef);
+                if UpdateCRMProductPricelevelAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
             'Currency-CRM Transactioncurrency':
-                AdditionalFieldsWereModified :=
-                  UpdateCRMTransactionCurrencyAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef);
+                if UpdateCRMTransactionCurrencyAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
             'Item-CRM Product',
-          'Resource-CRM Product':
-                AdditionalFieldsWereModified :=
-                  UpdateCRMProductAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef, DestinationIsInserted);
+            'Resource-CRM Product':
+                if UpdateCRMProductAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef, DestinationIsInserted) then
+                    AdditionalFieldsWereModified := true;
             'CRM Product-Item':
-                AdditionalFieldsWereModified :=
-                  UpdateItemAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef);
+                if UpdateItemAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
             'CRM Product-Resource':
-                AdditionalFieldsWereModified :=
-                  UpdateResourceAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef);
+                if UpdateResourceAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
             'Unit of Measure-CRM Uomschedule':
-                AdditionalFieldsWereModified :=
-                  UpdateCRMUoMScheduleAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef);
-            else
-                AdditionalFieldsWereModified := false;
+                if UpdateCRMUoMScheduleAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef) then
+                    AdditionalFieldsWereModified := true;
         end;
     end;
 
@@ -309,6 +324,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMProduct);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMProduct.CreatedByName = '') or (CRMProduct.ModifiedByName = '') or (CRMProduct.TransactionCurrencyIdName = '') then begin
@@ -330,6 +350,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMOpportunity);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMOpportunity.CreatedByName = '') or (CRMOpportunity.ModifiedByName = '') or (CRMOpportunity.TransactionCurrencyIdName = '') then begin
@@ -345,7 +370,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
     [Scope('OnPrem')]
-    procedure OnBeforeModifyRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    procedure OnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Customer Price Group-CRM Pricelevel':
@@ -361,7 +386,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterModifyRecord', '', false, false)]
     [Scope('OnPrem')]
-    procedure OnAfterModifyRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    procedure OnAfterModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Customer Price Group-CRM Pricelevel':
@@ -382,7 +407,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5340, 'OnQueryPostFilterIgnoreRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
     procedure OnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     begin
         if IgnoreRecord then
@@ -401,15 +426,21 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnFindUncoupledDestinationRecord', '', false, false)]
     procedure OnFindUncoupledDestinationRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var DestinationIsDeleted: Boolean; var DestinationFound: Boolean)
     begin
+        if DestinationFound then
+            exit;
+
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Unit of Measure-CRM Uomschedule':
-                DestinationFound := CRMUoMScheduleFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef);
+                if CRMUoMScheduleFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef) then
+                    DestinationFound := true;
             'Currency-CRM Transactioncurrency':
-                DestinationFound := CRMTransactionCurrencyFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef);
+                if CRMTransactionCurrencyFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef) then
+                    DestinationFound := true;
         end;
 
         if SourceRecordRef.Number() = DATABASE::"Sales Price" then
-            DestinationFound := CRMPriceListLineFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef);
+            if CRMPriceListLineFindUncoupledDestinationRecord(SourceRecordRef, DestinationRecordRef) then
+                DestinationFound := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Integration Table Mapping", 'OnAfterDeleteEvent', '', false, false)]
@@ -418,7 +449,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         JobQueueEntry: record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
+        JobQueueEntry.SetFilter("Object ID to Run", '%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", Rec.RecordId());
         JobQueueEntry.DeleteTasks();
     end;
@@ -473,7 +504,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         if OptionValue = CRMAccount.StatusCode::Inactive then begin
             DestinationFieldRef := DestinationRecordRef.Field(Customer.FieldNo(Blocked));
             OptionValue := DestinationFieldRef.Value();
-            if OptionValue = Customer.Blocked::" " then begin
+            if OptionValue = Customer.Blocked::" ".AsInteger() then begin
                 DestinationFieldRef.Value := Customer.Blocked::All;
                 exit(true);
             end;
@@ -518,6 +549,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CDSConnectionSetup: Record "CDS Connection Setup";
         ContactRecordRef: RecordRef;
     begin
+        if IgnoreRecord then
+            exit;
+
         if not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
             exit;
 
@@ -640,12 +674,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
             if not CRMSalesOrderToSalesOrder.GetCoupledCustomer(CRMSalesorder, Customer) then begin
                 if not CRMSalesOrderToSalesOrder.GetCRMAccountOfCRMSalesOrder(CRMSalesorder, CRMAccount) then
-                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.SHORT());
+                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
                 if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::"CRM Account", CRMAccount.AccountId, OutOfMapFilter) then
-                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.SHORT());
+                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             end;
             if Customer."No." <> SalesInvoiceHeader."Sell-to Customer No." then
-                Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.SHORT());
+                Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             CRMInvoice.CustomerId := CRMSalesorder.CustomerId;
             CRMInvoice.CustomerIdType := CRMSalesorder.CustomerIdType;
         end else begin
@@ -654,7 +688,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
             if not CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId) then
                 if not CRMSynchHelper.SynchRecordIfMappingExists(DATABASE::Customer, Customer.RecordId(), OutOfMapFilter) then
-                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.SHORT());
+                    Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             CRMInvoice.CustomerId := AccountId;
             CRMInvoice.CustomerIdType := CRMInvoice.CustomerIdType::account;
             if not CRMSynchHelper.FindCRMPriceListByCurrencyCode(CRMPricelevel, SalesInvoiceHeader."Currency Code") then
@@ -700,7 +734,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         // Get the NAV and CRM invoice headers
         SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
         if not CRMIntegrationRecord.FindIDFromRecordID(SalesInvoiceHeader.RecordId(), CRMSalesInvoiceHeaderId) then
-            Error(NoCoupledSalesInvoiceHeaderErr, CRMProductName.SHORT());
+            Error(NoCoupledSalesInvoiceHeaderErr, CRMProductName.CDSServiceName());
 
         // Initialize the CRM invoice lines
         InitializeCRMInvoiceLineFromCRMHeader(CRMInvoicedetail, CRMSalesInvoiceHeaderId);
@@ -931,7 +965,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationExchangeRateFieldRef := DestinationRecordRef.Field(CRMTransactioncurrency.FieldNo(ExchangeRate));
         LatestExchangeRate := CRMSynchHelper.GetCRMLCYToFCYExchangeRate(Format(CurrencyCodeFieldRef.Value()));
         if LatestExchangeRate = 0 then
-            Error(CurrencyExchangeRateMissingErr, Format(CurrencyCodeFieldRef.Value()), CRMProductName.SHORT());
+            Error(CurrencyExchangeRateMissingErr, Format(CurrencyCodeFieldRef.Value()), CRMProductName.CDSServiceName());
         if CRMSynchHelper.UpdateFieldRefValueIfChanged(
              DestinationExchangeRateFieldRef,
              Format(LatestExchangeRate))
@@ -1049,14 +1083,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         // If the CRM Unit Group is not active throw and error
         if CRMUomScheduleStateCode = CRMUomschedule.StateCode::Inactive then
-            Error(CRMUnitGroupExistsAndIsInactiveErr, CRMUomschedule.TableCaption(), CRMUomScheduleName, CRMProductName.SHORT());
+            Error(CRMUnitGroupExistsAndIsInactiveErr, CRMUomschedule.TableCaption(), CRMUomScheduleName, CRMProductName.CDSServiceName());
 
         // If the CRM Unit Group contains > 1 Units, fail
         CRMUom.SetRange(UoMScheduleId, CRMUomScheduleId);
         if CRMUom.Count() > 1 then
             Error(
               CRMUnitGroupContainsMoreThanOneUoMErr, CRMUomschedule.TableCaption(), CRMUomScheduleName, CRMUom.TableCaption(),
-              CRMProductName.SHORT());
+              CRMProductName.CDSServiceName());
 
         // If the CRM Unit Group contains zero Units, then exit (no match found)
         if not CRMUom.FindFirst() then
@@ -1266,7 +1300,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                         NewValue := CRMID;
                         exit(true);
                     end;
-                    Error(RecordMustBeCoupledErr, SourceFieldRef.Name(), SourceFieldRef.Value(), CRMProductName.SHORT());
+                    Error(RecordMustBeCoupledErr, SourceFieldRef.Name(), SourceFieldRef.Value(), CRMProductName.CDSServiceName());
                 end;
             IntegrationTableMapping.Direction::FromIntegrationTable:
                 begin
@@ -1297,10 +1331,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         PaymentTermsEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(PaymentTermsCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(PaymentTermsCode), CRMAccount.FieldNo(PaymentTermsCodeEnum), PaymentTermsEnumValue.AsInteger());
-        
+
         ShipmentMethodEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(Address1_FreightTermsCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(Address1_FreightTermsCode), CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), ShipmentMethodEnumValue.AsInteger());
-        
+
         ShippingAgentEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), ShippingAgentEnumValue.AsInteger());
     end;
@@ -1313,7 +1347,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         PaymentTermsEnumValue := DestinationRecordRef.Field(CRMInvoice.FieldNo(PaymentTermsCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMInvoice.FieldNo(PaymentTermsCode), CRMInvoice.FieldNo(PaymentTermsCodeEnum), PaymentTermsEnumValue.AsInteger());
-        
+
         ShippingAgentEnumValue := DestinationRecordRef.Field(CRMInvoice.FieldNo(ShippingMethodCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMInvoice.FieldNo(ShippingMethodCode), CRMInvoice.FieldNo(ShippingMethodCodeEnum), ShippingAgentEnumValue.AsInteger());
     end;

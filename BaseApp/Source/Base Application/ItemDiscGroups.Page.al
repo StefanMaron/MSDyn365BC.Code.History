@@ -47,15 +47,18 @@ page 513 "Item Disc. Groups"
             group("Item &Disc. Groups")
             {
                 Caption = 'Item &Disc. Groups';
-                Image = Group;
                 action("Sales &Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
+                    Visible = not ExtendedPriceEnabled;
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -68,8 +71,41 @@ page 513 "Item Disc. Groups"
                     end;
                 }
             }
+            group(Discounts)
+            {
+                Caption = 'Discounts';
+                Image = Discount;
+                action(SalesPriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = SalesLineDisc;
+                    Visible = ExtendedPriceEnabled;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Set up sales discounts for the item discount group.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Discount);
+                    end;
+                }
+            }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

@@ -245,7 +245,7 @@
             begin
                 OnBeforeValidateBillToCustomerName(Rec, Customer);
 
-                if ShouldLookForCustomerByName("Bill-to Customer No.") then
+                if ShouldSearchForCustomerByName("Bill-to Customer No.") then
                     Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
         }
@@ -366,7 +366,7 @@
                     end else
                         if "Sell-to Customer No." <> '' then begin
                             GetCust("Sell-to Customer No.");
-                            CopyShipToCustomerAddressFieldsFromCustomer(Cust);
+                            CopyShipToCustomerAddressFieldsFromCust(Cust);
                             PostCodeCheck.CopyAddressID(
                               DATABASE::Customer, Cust.GetPosition, 0, DATABASE::"Sales Header", GetPosition, 2);
                         end;
@@ -497,7 +497,7 @@
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmCurrencyFactorUpdate();
                 end;
 
                 if "Posting Date" <> xRec."Posting Date" then
@@ -674,7 +674,7 @@
                         if "Currency Code" <> '' then begin
                             UpdateCurrencyFactor;
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmCurrencyFactorUpdate();
                         end;
 
                 if ("No." <> '') and ("Currency Code" <> xRec."Currency Code") then
@@ -886,7 +886,7 @@
                     exit;
 
                 TestField("Bal. Account No.", '');
-                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.", Amount);
+                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type".AsInteger(), "Applies-to Doc. No.", Amount);
                 OnAfterSetApplyToFilters(CustLedgEntry, Rec);
 
                 ApplyCustEntries.SetSales(Rec, CustLedgEntry, SalesHeader.FieldNo("Applies-to Doc. No."));
@@ -1082,8 +1082,9 @@
                     exit;
                 end;
 
-                VATRegistrationLogMgt.CheckVIESForVATNo(ResultRecRef, VATRegistrationLog, Customer, Customer."No.",
-                  ApplicableCountryCode, VATRegistrationLog."Account Type"::Customer);
+                VATRegistrationLogMgt.CheckVIESForVATNo(
+                    ResultRecRef, VATRegistrationLog, Customer, Customer."No.",
+                    ApplicableCountryCode, VATRegistrationLog."Account Type"::Customer.AsInteger());
 
                 if VATRegistrationLog.Status = VATRegistrationLog.Status::Valid then begin
                     Message(ValidVATNoMsg);
@@ -1152,20 +1153,8 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
-            var
-                Customer: Record Customer;
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
             begin
-                if "Sell-to Customer No." <> '' then
-                    Customer.Get("Sell-to Customer No.");
-
-                if Customer.LookupCustomer(Customer) then begin
-                    xRec := Rec;
-                    "Sell-to Customer Name" := Customer.Name;
-                    Validate("Sell-to Customer No.", Customer."No.");
-                    if "No." <> '' then
-                        StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
-                end;
+                LookupSellToCustomerName();
             end;
 
             trigger OnValidate()
@@ -1175,7 +1164,7 @@
             begin
                 OnBeforeValidateSellToCustomerName(Rec, Customer);
 
-                if not EnvInfoProxy.IsInvoicing and ShouldLookForCustomerByName("Sell-to Customer No.") then
+                if not EnvInfoProxy.IsInvoicing and ShouldSearchForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
 
                 GetShippingTime(FieldNo("Sell-to Customer Name"));
@@ -2419,7 +2408,7 @@
                 TestStatusOpen;
                 if InventoryPickConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text066, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
-                if WhseShpmntConflict("Document Type", "No.", "Shipping Advice") then
+                if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text070, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
                 WhseSourceHeader.SalesHeaderVerifyChange(Rec, xRec);
             end;
@@ -2743,6 +2732,9 @@
         {
         }
         key(Key12; "Salesperson Code")
+        {
+        }
+        key(Key13; SystemModifiedAt)
         {
         }
     }
@@ -3072,7 +3064,7 @@
         UpdateOutboundWhseHandlingTime;
 
         "Responsibility Center" := UserSetupMgt.GetRespCenter(0, "Responsibility Center");
-        "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", "Document Type", "No.");
+        "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
 
         OnAfterInitRecord(Rec);
     end;
@@ -3350,7 +3342,7 @@
                 TempReservEntry.DeleteAll();
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 StoreSalesCommentLineToTemp(TempSalesCommentLine);
-                SalesCommentLine.DeleteComments("Document Type", "No.");
+                SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
                 IsHandled := false;
                 OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(Rec, SalesLine, CurrFieldNo, IsHandled);
@@ -3531,7 +3523,7 @@
         OnAfterUpdateCurrencyFactor(Rec, GetHideValidationDialog);
     end;
 
-    local procedure ConfirmUpdateCurrencyFactor()
+    procedure ConfirmCurrencyFactorUpdate()
     begin
         OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog);
 
@@ -3619,9 +3611,7 @@
     var
         "Field": Record "Field";
         JobTransferLine: Codeunit "Job Transfer Line";
-        EnvironmentInfo: Codeunit "Environment Information";
         Question: Text[250];
-        NotRunningOnSaaS: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3635,31 +3625,22 @@
         if not Field.Get(DATABASE::"Sales Header", ChangedFieldNo) then
             Field.Get(DATABASE::"Sales Line", ChangedFieldNo);
 
-        NotRunningOnSaaS := true;
-        case ChangedFieldNo of
-            FieldNo("Shipping Agent Code"),
-          FieldNo("Shipping Agent Service Code"):
-                NotRunningOnSaaS := not EnvironmentInfo.IsSaaS;
-        end;
         if AskQuestion then begin
             Question := StrSubstNo(Text031, Field."Field Caption");
             if GuiAllowed and not GetHideValidationDialog then
-                if NotRunningOnSaaS then
-                    if DIALOG.Confirm(Question, true) then
-                        case ChangedFieldNo of
-                            FieldNo("Shipment Date"),
-                          FieldNo("Shipping Agent Code"),
-                          FieldNo("Shipping Agent Service Code"),
-                          FieldNo("Shipping Time"),
-                          FieldNo("Requested Delivery Date"),
-                          FieldNo("Promised Delivery Date"),
-                          FieldNo("Outbound Whse. Handling Time"):
-                                ConfirmResvDateConflict;
-                        end
-                    else
-                        exit
+                if DIALOG.Confirm(Question, true) then
+                    case ChangedFieldNo of
+                        FieldNo("Shipment Date"),
+                        FieldNo("Shipping Agent Code"),
+                        FieldNo("Shipping Agent Service Code"),
+                        FieldNo("Shipping Time"),
+                        FieldNo("Requested Delivery Date"),
+                        FieldNo("Promised Delivery Date"),
+                        FieldNo("Outbound Whse. Handling Time"):
+                            ConfirmResvDateConflict;
+                    end
                 else
-                    ConfirmResvDateConflict;
+                    exit
         end;
 
         SalesLine.LockTable();
@@ -3824,7 +3805,7 @@
             exit;
 
         if SalesLine.FindSet then begin
-            ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type", "No.", GetHideValidationDialog);
+            ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.", GetHideValidationDialog);
             repeat
                 SalesLine.SuspendStatusCheck(true);
                 SalesLine.Delete(true);
@@ -4106,13 +4087,7 @@
             "Sell-to Contact" := Cont.Name;
         end;
 
-        if (Cont.Type = Cont.Type::Company) and Customer.Get("Sell-to Customer No.") then
-            "Sell-to Contact" := Customer.Contact
-        else
-            if Cont.Type = Cont.Type::Company then
-                "Sell-to Contact" := ''
-            else
-                "Sell-to Contact" := Cont.Name;
+        UpdateSellToCustContact(Customer, Cont);
 
         if "Document Type" = "Document Type"::Quote then begin
             if Customer.Get("Sell-to Customer No.") or Customer.Get(ContBusinessRelation."No.") then begin
@@ -4623,8 +4598,13 @@
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Obsolete('Typo in the function name, use GetPstdDocLinesToReverse instead', '15.1')]
     procedure GetPstdDocLinesToRevere()
+    begin
+        GetPstdDocLinesToReverse();
+    end;
+
+    procedure GetPstdDocLinesToReverse()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
     begin
@@ -4674,7 +4654,7 @@
         if NewSalesLine.Modify then;
     end;
 
-    procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    procedure InventoryPickConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         SalesLine: Record "Sales Line";
@@ -4695,7 +4675,13 @@
         exit(true);
     end;
 
+    [Obsolete('Replaced by WhseShipmentConflict().', '17.0')]
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    begin
+        exit(WhseShipmentConflict("Sales Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
+    end;
+
+    procedure WhseShipmentConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -4742,7 +4728,7 @@
     var
         RunCheck: Boolean;
     begin
-        RunCheck := ("Document Type" <= "Document Type"::Invoice) or ("Document Type" = "Document Type"::"Blanket Order");
+        RunCheck := ("Document Type".AsInteger() <= "Document Type"::Invoice.AsInteger()) or ("Document Type" = "Document Type"::"Blanket Order");
         OnAfterCheckCreditLimitCondition(Rec, RunCheck);
         exit(RunCheck);
     end;
@@ -4879,7 +4865,7 @@
             CustLedgEntry.SetRange("Document Type");
             CustLedgEntry.SetRange("Document No.");
         end else
-            if "Applies-to Doc. Type" <> 0 then begin
+            if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 if CustLedgEntry.FindFirst then;
                 CustLedgEntry.SetRange("Document Type");
@@ -4947,7 +4933,7 @@
             "Document Type"::Quote:
                 begin
                     DocumentSendingProfile.TrySendToEMail(
-                      DummyReportSelections.Usage::"S.Quote", Rec, FieldNo("No."),
+                      DummyReportSelections.Usage::"S.Quote".AsInteger(), Rec, FieldNo("No."),
                       GetDocTypeTxt, FieldNo("Bill-to Customer No."), ShowDialog);
                     Find;
                     "Quote Sent to Customer" := CurrentDateTime;
@@ -4955,7 +4941,7 @@
                 end;
             "Document Type"::Invoice:
                 DocumentSendingProfile.TrySendToEMail(
-                  DummyReportSelections.Usage::"S.Invoice Draft", Rec, FieldNo("No."),
+                  DummyReportSelections.Usage::"S.Invoice Draft".AsInteger(), Rec, FieldNo("No."),
                   GetDocTypeTxt, FieldNo("Bill-to Customer No."), ShowDialog);
         end;
 
@@ -4985,7 +4971,7 @@
         if IsHandled then
             exit;
 
-        FullDocTypeTxt := SelectStr("Document Type" + 1, FullSalesTypesTxt);
+        FullDocTypeTxt := SelectStr("Document Type".AsInteger() + 1, FullSalesTypesTxt);
     end;
 
     procedure LinkSalesDocWithOpportunity(OldOpportunityNo: Code[20])
@@ -5273,8 +5259,8 @@
 
     procedure SetStatus(NewStatus: Option)
     begin
-        Status := NewStatus;
-        Modify;
+        Status := "Sales Document Status".FromInteger(NewStatus);
+        Modify();
     end;
 
     local procedure TestSalesLineFieldsBeforeRecreate()
@@ -5419,18 +5405,23 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
-    procedure OnCustomerCreditLimitExceeded()
+    procedure OnCustomerCreditLimitExceeded(NotificationId: Guid)
     begin
     end;
 
     procedure CustomerCreditLimitExceeded()
+    var
+        NotificationId: Guid;
     begin
-        OnCustomerCreditLimitExceeded();
+        OnCustomerCreditLimitExceeded(NotificationId);
+    end;
+
+    procedure CustomerCreditLimitExceeded(NotificationId: Guid)
+    begin
+        OnCustomerCreditLimitExceeded(NotificationId);
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
     procedure OnCustomerCreditLimitNotExceeded()
     begin
     end;
@@ -5456,9 +5447,8 @@
     procedure DeferralHeadersExist(): Boolean
     var
         DeferralHeader: Record "Deferral Header";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
-        DeferralHeader.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralHeader.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralHeader.SetRange("Gen. Jnl. Template Name", '');
         DeferralHeader.SetRange("Gen. Jnl. Batch Name", '');
         DeferralHeader.SetRange("Document Type", "Document Type");
@@ -5673,7 +5663,7 @@
         OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo);
     end;
 
-    local procedure CopyShipToCustomerAddressFieldsFromCustomer(var SellToCustomer: Record Customer)
+    local procedure CopyShipToCustomerAddressFieldsFromCust(var SellToCustomer: Record Customer)
     var
         SellToCustTemplate: Record "Customer Template";
         IsHandled: Boolean;
@@ -6415,7 +6405,7 @@
         "Posting Date" := xRec."Posting Date";
     end;
 
-    local procedure ShouldLookForCustomerByName(CustomerNo: Code[20]): Boolean
+    procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
@@ -6558,6 +6548,23 @@
             Result :=
               ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
+    end;
+
+    procedure LookupSellToCustomerName(): Boolean
+    var
+        Customer: Record Customer;
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+    begin
+        if "Sell-to Customer No." <> '' then
+            Customer.Get("Sell-to Customer No.");
+
+        if Customer.LookupCustomer(Customer) then begin
+            "Sell-to Customer Name" := Customer.Name;
+            Validate("Sell-to Customer No.", Customer."No.");
+            if "No." <> '' then
+                StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            exit(true);
+        end;
     end;
 
     local procedure CheckPromisedDeliveryDate()

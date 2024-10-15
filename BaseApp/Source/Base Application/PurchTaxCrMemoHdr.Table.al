@@ -222,7 +222,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
             Editable = false;
             FieldClass = FlowField;
         }
-        field(69; "Vendor Cr. Memo No."; Code[20])
+        field(69; "Vendor Cr. Memo No."; Code[35])
         {
             Caption = 'Vendor Cr. Memo No.';
         }
@@ -427,7 +427,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5700; "Responsibility Center"; Code[10])
@@ -597,9 +597,6 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
 
     procedure TransferFieldsFrom(PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     begin
-        // cut values to avoid overflow in TransferFields
-        PurchCrMemoHeader."Vendor Cr. Memo No." :=
-            CopyStr(PurchCrMemoHeader."Vendor Cr. Memo No.", 1, MaxStrLen("Vendor Cr. Memo No."));
         TransferFields(PurchCrMemoHeader);
     end;
 }

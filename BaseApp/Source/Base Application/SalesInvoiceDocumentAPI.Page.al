@@ -41,15 +41,12 @@ page 2200 "Sales Invoice Document API"
         if IsNullGuid(InvoiceId) then
             exit(false);
 
-        SalesInvoiceHeader.SetRange(Id, InvoiceId);
-        if SalesInvoiceHeader.FindFirst then begin
+        if SalesInvoiceHeader.GetBySystemId(InvoiceId) then begin
             GetDocumentFromPostedInvoice(SalesInvoiceHeader);
             exit(true);
         end;
 
-        SalesHeader.SetRange(Id, InvoiceId);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        if SalesHeader.FindFirst then begin
+        if SalesHeader.GetBySystemId(InvoiceId) then begin
             GetDocumentFromDraftInvoice(SalesHeader);
             exit(true);
         end;
@@ -72,7 +69,7 @@ page 2200 "Sales Invoice Document API"
         DocumentPath: Text[250];
     begin
         SalesInvoiceHeader.SetRecFilter;
-        ReportSelections.GetPdfReport(
+        ReportSelections.GetPdfReportForCust(
           DocumentPath, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Sell-to Customer No.");
 
         Base64.CreateOutStream(OutStr);
@@ -94,7 +91,7 @@ page 2200 "Sales Invoice Document API"
         DocumentPath: Text[250];
     begin
         SalesHeader.SetRecFilter;
-        ReportSelections.GetPdfReport(
+        ReportSelections.GetPdfReportForCust(
           DocumentPath, ReportSelections.Usage::"S.Invoice Draft", SalesHeader, SalesHeader."Sell-to Customer No.");
 
         Base64.CreateOutStream(OutStr);

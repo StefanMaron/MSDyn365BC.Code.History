@@ -913,7 +913,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreateHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
     end;
@@ -929,7 +929,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         exit(Item."No.");
     end;
 
-    local procedure CreateLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreateLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(20) * 2); // Qty to let at least 2 partial postings
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -1200,7 +1200,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure VerifyAdditionalPrepaymentGLEntries(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    local procedure VerifyAdditionalPrepaymentGLEntries(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
         VerifyGLEntry(
           DocumentNo, DocumentType,
@@ -1212,7 +1212,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           -GetPrepaymentAmount(PurchaseHeader, PurchaseLine) + GetPrepaymentInvoicedAmount(PurchaseLine), 0, false);
     end;
 
-    local procedure VerifyAdditionalPrepaymentVATEntries(DocumentNo: Code[10]; DocumentType: Option; PurchaseLine: Record "Purchase Line")
+    local procedure VerifyAdditionalPrepaymentVATEntries(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseLine: Record "Purchase Line")
     var
         VATEntry: Record "VAT Entry";
         GSTPurchaseEntry: Record "GST Sales Entry";
@@ -1229,7 +1229,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         Assert.IsTrue(GSTPurchaseEntry.IsEmpty, EntriesError);
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal; VATAmount: Decimal; DoubleEntry: Boolean)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal; VATAmount: Decimal; DoubleEntry: Boolean)
     var
         GLEntry: Record "G/L Entry";
         CreditAmount: Decimal;
@@ -1258,7 +1258,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           StrSubstNo(ValidationError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
     end;
 
-    local procedure VerifyGSTPurchaseEntry(DocumentNo: Code[20]; DocumentType: Option; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Base: Decimal; Amount: Decimal; DoubleEntry: Boolean)
+    local procedure VerifyGSTPurchaseEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Base: Decimal; Amount: Decimal; DoubleEntry: Boolean)
     var
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
@@ -1280,12 +1280,12 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           StrSubstNo(ValidationError, GSTPurchaseEntry.FieldCaption(Amount), Amount, GSTPurchaseEntry.TableCaption));
     end;
 
-    local procedure VerifyInvoiceGLEntries(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PrepaymentPercent: Decimal)
+    local procedure VerifyInvoiceGLEntries(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PrepaymentPercent: Decimal)
     begin
         VerifyInvoiceGLEntriesOnDate(DocumentNo, DocumentType, PurchaseHeader, PurchaseLine, WorkDate, PrepaymentPercent);
     end;
 
-    local procedure VerifyInvoiceGLEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; PrepaymentPercent: Decimal)
+    local procedure VerifyInvoiceGLEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; PrepaymentPercent: Decimal)
     var
         PrepaymentAmount: Decimal;
         PrepaymentVATAmount: Decimal;
@@ -1344,7 +1344,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
               PrepaymentVATAmount + PrepaymentVATAmount2, 0, false);
     end;
 
-    local procedure VerifyInvoiceGLEntriesOnDate(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Date: Date; PrepaymentPercent: Decimal)
+    local procedure VerifyInvoiceGLEntriesOnDate(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Date: Date; PrepaymentPercent: Decimal)
     var
         PrepaymentAmount: Decimal;
         PrepaymentVATAmount: Decimal;
@@ -1377,7 +1377,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
               PrepaymentAmount - Amount - VATAmount + PrepaymentVATAmount, 0, false);
     end;
 
-    local procedure VerifyInvoiceGLEntriesAfterCurrencyRateChangeGain(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; InvoicedAmount: Decimal; Date: Date)
+    local procedure VerifyInvoiceGLEntriesAfterCurrencyRateChangeGain(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; InvoicedAmount: Decimal; Date: Date)
     var
         AmountDifference: Decimal;
     begin
@@ -1391,7 +1391,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           GetRealizedGainsAccountNo(PurchaseLine."Currency Code"), -AmountDifference, 0, false);
     end;
 
-    local procedure VerifyInvoiceGLEntriesAfterCurrencyRateChangeLoss(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; InvoicedAmount: Decimal; Date: Date)
+    local procedure VerifyInvoiceGLEntriesAfterCurrencyRateChangeLoss(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; InvoicedAmount: Decimal; Date: Date)
     var
         AmountDifference: Decimal;
     begin
@@ -1405,12 +1405,12 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           GetRealizedLossesAccountNo(PurchaseLine."Currency Code"), AmountDifference, 0, false);
     end;
 
-    local procedure VerifyInvoiceVATEntries(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    local procedure VerifyInvoiceVATEntries(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
         VerifyInvoiceVATEntriesOnDate(DocumentNo, DocumentType, PurchaseHeader, PurchaseLine, WorkDate);
     end;
 
-    local procedure VerifyInvoiceVATEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line")
+    local procedure VerifyInvoiceVATEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line")
     var
         PrepaymentVATBase: Decimal;
         PrepaymentVATAmount: Decimal;
@@ -1462,7 +1462,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           true);
     end;
 
-    local procedure VerifyInvoiceVATEntriesOnDate(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Date: Date)
+    local procedure VerifyInvoiceVATEntriesOnDate(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Date: Date)
     var
         PrepaymentVATBase: Decimal;
         PrepaymentVATAmount: Decimal;
@@ -1486,12 +1486,12 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           DocumentNo, DocumentType, PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group", Amount, VATAmount, true);
     end;
 
-    local procedure VerifyPrepaymentGLEntries(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean)
+    local procedure VerifyPrepaymentGLEntries(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean)
     begin
         VerifyPrepaymentGLEntriesOnDate(DocumentNo, DocumentType, PurchaseHeader, PurchaseLine, Invoice, WorkDate);
     end;
 
-    local procedure VerifyPrepaymentGLEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; Invoice: Boolean)
+    local procedure VerifyPrepaymentGLEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; Invoice: Boolean)
     var
         Sign: Integer;
         PrepaymentAmount: Decimal;
@@ -1532,7 +1532,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           -Sign * (PrepaymentAmount + PrepaymentAmount2 + PrepaymentVATAmount + PrepaymentVATAmount2), 0, false);
     end;
 
-    local procedure VerifyPrepaymentGLEntriesOnDate(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean; Date: Date)
+    local procedure VerifyPrepaymentGLEntriesOnDate(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean; Date: Date)
     var
         Sign: Integer;
         PrepaymentAmount: Decimal;
@@ -1559,12 +1559,12 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           -Sign * (PrepaymentAmount + PrepaymentVATAmount), 0, false);
     end;
 
-    local procedure VerifyPrepaymentVATEntries(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean)
+    local procedure VerifyPrepaymentVATEntries(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean)
     begin
         VerifyPrepaymentVATEntriesOnDate(DocumentNo, DocumentType, PurchaseHeader, PurchaseLine, Invoice, WorkDate);
     end;
 
-    local procedure VerifyPrepaymentVATEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; Invoice: Boolean)
+    local procedure VerifyPrepaymentVATEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; Invoice: Boolean)
     var
         Sign: Integer;
         PrepaymentVATBase: Decimal;
@@ -1598,7 +1598,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           Sign * PrepaymentVATBase2, Sign * PrepaymentVATAmount2, false);
     end;
 
-    local procedure VerifyPrepaymentVATEntriesOnDate(DocumentNo: Code[10]; DocumentType: Option; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean; Date: Date)
+    local procedure VerifyPrepaymentVATEntriesOnDate(DocumentNo: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; Invoice: Boolean; Date: Date)
     var
         Sign: Integer;
         PrepaymentVATBase: Decimal;
@@ -1621,7 +1621,7 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
           Sign * PrepaymentVATBase, Sign * PrepaymentVATAmount, false);
     end;
 
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Option; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Base: Decimal; Amount: Decimal; DoubleEntry: Boolean)
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Base: Decimal; Amount: Decimal; DoubleEntry: Boolean)
     var
         VATEntry: Record "VAT Entry";
         VATEntryRef: RecordRef;

@@ -1,4 +1,4 @@
-﻿codeunit 1012 "Job Jnl.-Post Line"
+codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,

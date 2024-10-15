@@ -762,7 +762,7 @@ codeunit 145302 "BAS Reporting"
         for i := 1 to ArrayLen(VATEntry) do
             MockVATEntry(
               VATEntry[i], VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
-              PostingDate, i);
+              PostingDate, "General Posting Type".FromInteger(i));
 
         // [GIVEN] Accepted VAT Report in period "X"
         MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
@@ -826,7 +826,7 @@ codeunit 145302 "BAS Reporting"
         VATReportHeader.Insert(true);
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; StatementTemplateName: Code[10]; StatementName: Code[10]; Type: Option; BoxNo: Text[30]; BASAdjustment: Boolean)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; StatementTemplateName: Code[10]; StatementName: Code[10]; Type: Enum "VAT Statement Line Type"; BoxNo: Text[30]; BASAdjustment: Boolean)
     begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, StatementTemplateName, StatementName);
         VATStatementLine.Validate(Type, Type);
@@ -857,7 +857,7 @@ codeunit 145302 "BAS Reporting"
         end;
     end;
 
-    local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; PostingDate: Date; EntryType: Option)
+    local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; PostingDate: Date; EntryType: Enum "General Posting Type")
     begin
         with VATEntry do begin
             Init;
@@ -960,7 +960,7 @@ codeunit 145302 "BAS Reporting"
     [Scope('OnPrem')]
     procedure VATReportBeforeAndWithinPeriodRequesPageHandler(var VATReportRequestPage: TestRequestPage "VAT Report Request Page")
     var
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         VATReportRequestPage.PeriodSelection.SetValue(PeriodSelection::"Before and Within Period");
         VATReportRequestPage.OK.Invoke;

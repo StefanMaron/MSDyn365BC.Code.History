@@ -68,11 +68,12 @@ page 7206 "CDS Owning Team Roles"
         CDSConnectionSetup.Get();
         CDSIntegrationImpl.CheckConnectionRequiredFields(CDSConnectionSetup, false);
 
+        DefaultOwningTeamId := CDSIntegrationImpl.GetOwningTeamId(CDSConnectionSetup);
+
         TempConnectionName := CDSIntegrationImpl.GetTempConnectionName();
         CDSIntegrationImpl.RegisterConnection(CDSConnectionSetup, TempConnectionName);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName, true);
 
-        DefaultOwningTeamId := CDSIntegrationImpl.GetOwningTeamId(CDSConnectionSetup);
         if not IsNullGuid(DefaultOwningTeamId) then
             if CRMTeam.Get(DefaultOwningTeamId) then begin
                 DefaultOwningBusinessUnitId := CRMTeam.BusinessUnitId;

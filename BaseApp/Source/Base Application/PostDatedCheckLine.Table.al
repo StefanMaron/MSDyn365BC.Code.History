@@ -439,11 +439,9 @@ table 28090 "Post Dated Check Line"
                     ClearCustVendAppID;
             end;
         }
-        field(50; "Bank Payment Type"; Option)
+        field(50; "Bank Payment Type"; Enum "Bank Payment Type")
         {
             Caption = 'Bank Payment Type';
-            OptionCaption = ' ,Computer Check,Manual Check';
-            OptionMembers = " ","Computer Check","Manual Check";
         }
         field(51; "Check Printed"; Boolean)
         {
@@ -477,7 +475,7 @@ table 28090 "Post Dated Check Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1500000; "Template Name"; Code[20])

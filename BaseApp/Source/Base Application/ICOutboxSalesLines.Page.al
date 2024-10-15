@@ -105,7 +105,7 @@ page 637 "IC Outbox Sales Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

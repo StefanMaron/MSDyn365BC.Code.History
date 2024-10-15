@@ -301,7 +301,7 @@ codeunit 99000757 "Update Prod. Order Cost"
         if not Item.Get(ProdOrderLine."Item No.") then
             exit;
 
-        if Item."Costing Method" > Item."Costing Method"::Average then
+        if Item."Costing Method".AsInteger() > Item."Costing Method"::Average.AsInteger() then
             exit;
 
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
@@ -313,7 +313,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                 TotalCostQty := 0;
                 TotalUnitCost := 0;
                 Item.Get(ProdOrderComp."Item No.");
-                if Item."Costing Method" <= Item."Costing Method"::Average then begin
+                if Item."Costing Method".AsInteger() <= Item."Costing Method"::Average.AsInteger() then begin
                     ReservEntry."Source Type" := DATABASE::"Prod. Order Component";
                     ReservEntry.InitSortingAndFilters(true);
                     ProdOrderComp.SetReservationFilters(ReservEntry);

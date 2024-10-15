@@ -108,7 +108,7 @@ codeunit 141072 "UT REP Stock Movement"
         PositiveQuantityOnStockMovementReport(ItemLedgerEntry."Entry Type"::Purchase);
     end;
 
-    local procedure PositiveQuantityOnStockMovementReport(EntryType: Option)
+    local procedure PositiveQuantityOnStockMovementReport(EntryType: Enum "Item Ledger Entry Type")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         NetChange: Decimal;
@@ -138,7 +138,7 @@ codeunit 141072 "UT REP Stock Movement"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Option; Quantity: Decimal; PostingDate: Date)
+    local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; Quantity: Decimal; PostingDate: Date)
     var
         ItemLedgerEntry2: Record "Item Ledger Entry";
     begin

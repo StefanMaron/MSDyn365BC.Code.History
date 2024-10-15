@@ -989,7 +989,7 @@ table 167 Job
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure UpdateBillToCont(CustomerNo: Code[20])
+    procedure UpdateBillToContact(CustomerNo: Code[20])
     var
         ContBusRel: Record "Contact Business Relation";
         Cust: Record Customer;
@@ -1116,7 +1116,7 @@ table 167 Job
             "Language Code" := Cust."Language Code";
             "Bill-to County" := Cust.County;
             Reserve := Cust.Reserve;
-            UpdateBillToCont("Bill-to Customer No.");
+            UpdateBillToContact("Bill-to Customer No.");
             CopyDefaultDimensionsFromCustomer();
         end else begin
             "Bill-to Name" := '';
@@ -1444,15 +1444,24 @@ table 167 Job
     var
         MyJob: Record "My Job";
     begin
-        if Status = Status::Open then begin
+        if Status <> Status::Open then
+            exit;
+
+        if MyJob.Get(ProjectManager, "No.") then begin
+            MyJob.Description := Description;
+            MyJob."Bill-to Name" := "Bill-to Name";
+            MyJob."Percent Completed" := PercentCompleted();
+            MyJob."Percent Invoiced" := PercentInvoiced();
+            MyJob.Modify();
+        end else begin
             MyJob.Init();
             MyJob."User ID" := ProjectManager;
             MyJob."Job No." := "No.";
             MyJob.Description := Description;
             MyJob.Status := Status;
             MyJob."Bill-to Name" := "Bill-to Name";
-            MyJob."Percent Completed" := PercentCompleted;
-            MyJob."Percent Invoiced" := PercentInvoiced;
+            MyJob."Percent Completed" := PercentCompleted();
+            MyJob."Percent Invoiced" := PercentInvoiced();
             MyJob."Exclude from Business Chart" := false;
             MyJob.Insert();
         end;
@@ -1477,7 +1486,7 @@ table 167 Job
         ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::JQ, Rec, ReportDistributionMgt.GetFullDocumentTypeText(Rec),
+          DummyReportSelections.Usage::JQ.AsInteger(), Rec, ReportDistributionMgt.GetFullDocumentTypeText(Rec),
           "Bill-to Customer No.", "No.", FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -1487,7 +1496,7 @@ table 167 Job
         ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.Send(
-          ReportSelections.Usage::JQ, Rec, "No.", "Bill-to Customer No.",
+          ReportSelections.Usage::JQ.AsInteger(), Rec, "No.", "Bill-to Customer No.",
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -1497,7 +1506,7 @@ table 167 Job
         ReportSelections: Record "Report Selections";
     begin
         DocumentSendingProfile.TrySendToPrinter(
-          ReportSelections.Usage::JQ, Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);
+          ReportSelections.Usage::JQ.AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);
     end;
 
     [Scope('OnPrem')]
@@ -1508,7 +1517,7 @@ table 167 Job
         ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.TrySendToEMail(
-          ReportSelections.Usage::JQ, Rec, FieldNo("No."),
+          ReportSelections.Usage::JQ.AsInteger(), Rec, FieldNo("No."),
           ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
@@ -1577,13 +1586,13 @@ table 167 Job
         TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.SetRange("Job No.", "No.");
         if not TimeSheetLine.IsEmpty then
-            TimeSheetLine.ModifyAll("Job Id", Id);
+            TimeSheetLine.ModifyAll("Job Id", SystemId);
 
         TimeSheetDetail.SetCurrentKey(Type, "Job No.");
         TimeSheetDetail.SetRange(Type, TimeSheetLine.Type::Job);
         TimeSheetDetail.SetRange("Job No.", "No.");
         if not TimeSheetDetail.IsEmpty then
-            TimeSheetDetail.ModifyAll("Job Id", Id);
+            TimeSheetDetail.ModifyAll("Job Id", SystemId);
     end;
 
     [IntegrationEvent(false, false)]

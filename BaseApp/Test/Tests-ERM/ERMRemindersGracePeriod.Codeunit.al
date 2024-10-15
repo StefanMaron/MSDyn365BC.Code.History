@@ -925,7 +925,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure FilterReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocumentNo: Code[20]; LineType: Option; DocumentType: Option)
+    local procedure FilterReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocumentNo: Code[20]; LineType: Enum "Reminder Line Type"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with ReminderLine do begin
             SetRange("Reminder No.", ReminderNo);

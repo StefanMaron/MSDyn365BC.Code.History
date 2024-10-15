@@ -16,9 +16,6 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
-        ItemChargeAssignPurchApplToDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Receipt,"Transfer Receipt","Return Shipment","Sales Shipment","Return Receipt";
-        ItemChargeAssignSalesApplToDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Return Receipt";
-        SalesHeaderDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         ItemBlockedErr: Label 'Blocked must be equal to ''No''  in Item: No.=%1';
         TestFieldCodeErr: Label 'TestField';
         IsInitialized: Boolean;
@@ -43,7 +40,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         BlockItem(ItemNo, false, false, true);
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Receipt had Amount Including VAT = 1000
-        CreatePurchaseInvoiceWithItemChargeAssignment(PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::Receipt);
+        CreatePurchaseInvoiceWithItemChargeAssignment(PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::Receipt);
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -79,7 +76,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Transfer Receipt had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Transfer Receipt");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Transfer Receipt");
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -105,12 +102,12 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         ItemNo := CreateBlockedItem(false, false, true);
 
         // [GIVEN] Sales Return Receipt for the Item was posted
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::"Return Order", ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Sales Return Receipt had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Return Receipt");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Return Receipt");
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -137,12 +134,12 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         ItemNo := CreateBlockedItem(false, false, true);
 
         // [GIVEN] Sales Shipment for the Item was posted
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::Invoice, ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Sales Shipment had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Sales Shipment");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Sales Shipment");
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -172,7 +169,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Return Shipment had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Return Shipment");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Return Shipment");
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -197,12 +194,12 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Sales Shipment for Item was posted and then Item was Sales Blocked
         ItemNo := LibraryInventory.CreateItemNo;
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::Invoice, ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
         BlockItem(ItemNo, false, true, false);
 
         // [GIVEN] Sales Invoice with Item Charge assigned to Shipment had Amount Including VAT = 1000
-        CreateSalesInvoiceWithItemChargeAssignment(SalesHeader, ItemLedgerEntry, ItemChargeAssignSalesApplToDocType::Shipment);
+        CreateSalesInvoiceWithItemChargeAssignment(SalesHeader, ItemLedgerEntry, "Sales Applies-to Document Type"::Shipment);
 
         // [WHEN] Post Sales Invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -226,13 +223,13 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Sales Return Receipt for the Item was posted and then Item was Sales Blocked
         ItemNo := LibraryInventory.CreateItemNo;
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::"Return Order", ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
         BlockItem(ItemNo, false, true, false);
 
         // [GIVEN] Sales Invoice with Item Charge assigned to Sales Return Receipt had Amount Including VAT = 1000
         CreateSalesInvoiceWithItemChargeAssignment(
-          SalesHeader, ItemLedgerEntry, ItemChargeAssignSalesApplToDocType::"Return Receipt");
+          SalesHeader, ItemLedgerEntry, "Sales Applies-to Document Type"::"Return Receipt");
 
         // [WHEN] Post Sales Invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -261,7 +258,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Purchase Receipt", ItemNo);
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Receipt had Amount Including VAT = 1000
-        CreatePurchaseInvoiceWithItemChargeAssignment(PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::Receipt);
+        CreatePurchaseInvoiceWithItemChargeAssignment(PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::Receipt);
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -298,7 +295,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Transfer Receipt had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Transfer Receipt");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Transfer Receipt");
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -325,12 +322,12 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Sales Return Receipt for the Item was posted
         ItemNo := LibraryInventory.CreateItemNo;
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::"Return Order", ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Sales Return Receipt had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Return Receipt");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Return Receipt");
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -358,12 +355,12 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Sales Shipment for the Item was posted
         ItemNo := LibraryInventory.CreateItemNo;
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::Invoice, ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Sales Shipment had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Sales Shipment");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Sales Shipment");
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -396,7 +393,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Purchase Invoice with Item Charge assigned to Return Shipment had Amount Including VAT = 1000
         CreatePurchaseInvoiceWithItemChargeAssignment(
-          PurchaseHeader, ItemLedgerEntry, ItemChargeAssignPurchApplToDocType::"Return Shipment");
+          PurchaseHeader, ItemLedgerEntry, "Purchase Applies-to Document Type"::"Return Shipment");
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -424,11 +421,11 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Sales Shipment for Item "I" was posted
         ItemNo := LibraryInventory.CreateItemNo;
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::Invoice, ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::Invoice, ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
 
         // [GIVEN] Sales Invoice with Item Charge assigned to Shipment had Amount Including VAT = 1000
-        CreateSalesInvoiceWithItemChargeAssignment(SalesHeader, ItemLedgerEntry, ItemChargeAssignSalesApplToDocType::Shipment);
+        CreateSalesInvoiceWithItemChargeAssignment(SalesHeader, ItemLedgerEntry, "Sales Applies-to Document Type"::Shipment);
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -455,12 +452,12 @@ codeunit 137930 "SCM Item Charge Blocked Item"
 
         // [GIVEN] Sales Return Receipt for the Item was posted
         ItemNo := LibraryInventory.CreateItemNo;
-        PostSimpleSalesDocWithItem(SalesHeaderDocumentType::"Return Order", ItemNo);
+        PostSimpleSalesDocWithItem("Sales Document Type"::"Return Order", ItemNo);
         FindItemLedgerEntryByDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Return Receipt", ItemNo);
 
         // [GIVEN] Sales Invoice with Item Charge assigned to Sales Return Receipt had Amount Including VAT = 1000
         CreateSalesInvoiceWithItemChargeAssignment(
-          SalesHeader, ItemLedgerEntry, ItemChargeAssignSalesApplToDocType::"Return Receipt");
+          SalesHeader, ItemLedgerEntry, "Sales Applies-to Document Type"::"Return Receipt");
 
         // [GIVEN] Item was Blocked
         BlockItem(ItemNo, true, false, false);
@@ -527,7 +524,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         Item.Modify(true);
     end;
 
-    local procedure CreatePurchaseInvoiceWithItemChargeAssignment(var PurchaseHeader: Record "Purchase Header"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssignPurchApplToDocType: Integer)
+    local procedure CreatePurchaseInvoiceWithItemChargeAssignment(var PurchaseHeader: Record "Purchase Header"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssignPurchApplToDocType: Enum "Purchase Applies-to Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
@@ -545,7 +542,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         PurchaseHeader.CalcFields("Amount Including VAT");
     end;
 
-    local procedure CreateSalesInvoiceWithItemChargeAssignment(var SalesHeader: Record "Sales Header"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssignSalesApplToDocType: Integer)
+    local procedure CreateSalesInvoiceWithItemChargeAssignment(var SalesHeader: Record "Sales Header"; ItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssignSalesApplToDocType: Enum "Sales Applies-to Document Type")
     var
         SalesLine: Record "Sales Line";
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
@@ -585,7 +582,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
     end;
 
-    local procedure PostSimplePurchaseDocWithItem(DocType: Integer; ItemNo: Code[20])
+    local procedure PostSimplePurchaseDocWithItem(DocType: Enum "Purchase Document Type"; ItemNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -595,7 +592,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure PostSimpleSalesDocWithItem(DocType: Integer; ItemNo: Code[20])
+    local procedure PostSimpleSalesDocWithItem(DocType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -614,14 +611,14 @@ codeunit 137930 "SCM Item Charge Blocked Item"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure FindItemLedgerEntryByDocTypeAndItemNo(var ItemLedgerEntry: Record "Item Ledger Entry"; DocType: Integer; ItemNo: Code[20])
+    local procedure FindItemLedgerEntryByDocTypeAndItemNo(var ItemLedgerEntry: Record "Item Ledger Entry"; DocType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document Type", DocType);
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure VerifyItemLedgerEntryAmounts(ItemNo: Code[20]; DocType: Integer; Positive: Boolean; CostAmountActual: Decimal; CostAmountNonInvtbl: Decimal; SalesAmountActual: Decimal)
+    local procedure VerifyItemLedgerEntryAmounts(ItemNo: Code[20]; DocType: Enum "Item Ledger Document Type"; Positive: Boolean; CostAmountActual: Decimal; CostAmountNonInvtbl: Decimal; SalesAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

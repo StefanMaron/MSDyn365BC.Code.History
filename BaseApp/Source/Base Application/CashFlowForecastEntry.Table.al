@@ -139,6 +139,10 @@ table 847 "Cash Flow Forecast Entry"
             Caption = 'G/L Budget Name';
             TableRelation = "G/L Budget Name";
         }
+        field(36; "Source Line No."; Integer)
+        {
+            Caption = 'Source Line No.';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -147,7 +151,7 @@ table 847 "Cash Flow Forecast Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

@@ -132,7 +132,7 @@ codeunit 141074 "UT REP Transaction Detail"
           GLEntry."Source Type"::"Fixed Asset", CreateFixedAsset, GLEntry."Document Type"::"Credit Memo", CreatePurchCrMemoHeader);
     end;
 
-    local procedure OnAfterGetRecordGLEntry(SourceType: Option; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure OnAfterGetRecordGLEntry(SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -216,7 +216,7 @@ codeunit 141074 "UT REP Transaction Detail"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; PostingDate: Date; SourceType: Option; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; PostingDate: Date; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         GLEntry2: Record "G/L Entry";
     begin
@@ -234,7 +234,7 @@ codeunit 141074 "UT REP Transaction Detail"
         GLEntry.Insert();
     end;
 
-    local procedure CreateGLEntryAndRunTransactionDetailReport(var GLEntry: Record "G/L Entry"; PostingDate: Date; SourceType: Option; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; ShowAmountsInAddReportingCurrency: Boolean)
+    local procedure CreateGLEntryAndRunTransactionDetailReport(var GLEntry: Record "G/L Entry"; PostingDate: Date; SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ShowAmountsInAddReportingCurrency: Boolean)
     begin
         // Setup.
         CreateGLEntry(GLEntry, PostingDate, SourceType, SourceNo, DocumentType, DocumentNo);

@@ -406,9 +406,13 @@ page 5 Currencies
 
                         trigger OnAction()
                         var
+                            Currency: Record Currency;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Currency);
+                            RecRef.GetTable(Currency);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }

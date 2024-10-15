@@ -242,7 +242,7 @@ table 133 "Incoming Document Attachment"
         NewAttachmentFromDocument(
           SalesHeader."Incoming Document Entry No.",
           DATABASE::"Sales Header",
-          SalesHeader."Document Type",
+          SalesHeader."Document Type".AsInteger(),
           SalesHeader."No.");
     end;
 
@@ -251,7 +251,7 @@ table 133 "Incoming Document Attachment"
         NewAttachmentFromDocument(
           PurchaseHeader."Incoming Document Entry No.",
           DATABASE::"Purchase Header",
-          PurchaseHeader."Document Type",
+          PurchaseHeader."Document Type".AsInteger(),
           PurchaseHeader."No.");
     end;
 
@@ -370,7 +370,7 @@ table 133 "Incoming Document Attachment"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure OnAttachBinaryFile()
     begin
     end;

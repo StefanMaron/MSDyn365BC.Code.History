@@ -1,4 +1,4 @@
-﻿page 576 "VAT Specification Subform"
+page 576 "VAT Specification Subform"
 {
     Caption = 'Lines';
     DeleteAllowed = false;

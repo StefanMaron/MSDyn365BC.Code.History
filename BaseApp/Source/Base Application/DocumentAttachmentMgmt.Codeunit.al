@@ -504,7 +504,8 @@ codeunit 1173 "Document Attachment Mgmt"
         if PurchCrMemoHdr."No." <> '' then
             ToRecRef.GetTable(PurchCrMemoHdr);
 
-        CopyAttachmentsForPostedDocs(FromRecRef, ToRecRef);
+        if ToRecRef.Number > 0 then
+            CopyAttachmentsForPostedDocs(FromRecRef, ToRecRef);
     end;
 
     [EventSubscriber(ObjectType::Table, 23, 'OnAfterDeleteEvent', '', false, false)]
@@ -1023,7 +1024,13 @@ codeunit 1173 "Document Attachment Mgmt"
         FromDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         FromNo: Code[20];
         ToNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyAttachmentsForPostedDocsLines(FromRecRef, ToRecRef, IsHandled);
+        if IsHandled then
+            exit;
+
         FromDocumentAttachment.SetRange("Table ID", FromRecRef.Number);
 
         FromFieldRef := FromRecRef.Field(1);
@@ -1226,5 +1233,10 @@ codeunit 1173 "Document Attachment Mgmt"
         DocumentAttachment.SetRange("No.", DocumentNo);
         Page.RunModal(Page::"Document Attachment Details", DocumentAttachment);
     END;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyAttachmentsForPostedDocsLines(var FromRecRef: RecordRef; var ToRecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
 }
 

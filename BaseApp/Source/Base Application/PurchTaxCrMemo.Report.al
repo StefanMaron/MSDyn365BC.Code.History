@@ -232,7 +232,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_PurchTaxCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_PurchTaxCrMemoLine; Description)
@@ -264,7 +264,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         }
                         column(DirectUnitCost_PurchTaxCrMemoLine; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDiscount_PurchTaxCrMemoLine; "Line Discount %")
@@ -281,7 +281,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         }
                         column(InvDiscountAmount; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(InvDiscountAmount0; TotalInvAmt <> 0)
@@ -292,7 +292,7 @@ report 28073 "Purch. - Tax Cr. Memo"
                         }
                         column(PurchTaxCrMemoLineAmount; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalAmt; TotalAmt)
@@ -306,12 +306,12 @@ report 28073 "Purch. - Tax Cr. Memo"
                         }
                         column(AmountIncluVAT_PurchTaxCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncludingVATAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmountLineVATAmountText; VATAmountLine.VATAmountText)
@@ -339,17 +339,17 @@ report 28073 "Purch. - Tax Cr. Memo"
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncLCYAmountLCY; AmountIncLCY - AmountLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CurrCode_PurchTaxCrMemoHdr; "Purch. Tax Cr. Memo Hdr."."Currency Code")

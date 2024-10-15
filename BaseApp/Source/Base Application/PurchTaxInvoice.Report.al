@@ -244,7 +244,7 @@ report 28071 "Purch. - Tax Invoice"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmount_PurchTaxInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Description_PurchTaxInvLine; Description)
@@ -258,7 +258,7 @@ report 28071 "Purch. - Tax Invoice"
                         }
                         column(DirectUnitCost_PurchTaxInvLine; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDiscount_PurchTaxInvLine; "Line Discount %")
@@ -275,7 +275,7 @@ report 28071 "Purch. - Tax Invoice"
                         }
                         column(InvDiscountAmount; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(InvDiscountAmount0; TotalInvAmt <> 0)
@@ -286,7 +286,7 @@ report 28071 "Purch. - Tax Invoice"
                         }
                         column(Amount_PurchTaxInvLine; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalAmt; TotalAmt)
@@ -300,12 +300,12 @@ report 28071 "Purch. - Tax Invoice"
                         }
                         column(AmtIncluVAT_PurchTaxInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmountIncludingVATAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmountLineVATAmountText; VATAmountLine.VATAmountText)
@@ -324,7 +324,7 @@ report 28071 "Purch. - Tax Invoice"
                         }
                         column(AmountIncLCY; AmountIncLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalInclVATTextLCY; TotalInclVATTextLCY)
@@ -338,7 +338,7 @@ report 28071 "Purch. - Tax Invoice"
                         }
                         column(AmountLCY; AmountLCY)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CurrencyLCY; CurrencyLCY)

@@ -45,7 +45,7 @@ page 1613 "Exchange Client Credentials"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if CloseAction = Action::LookupOK then begin
+        if CloseAction in [Action::LookupOK, Action::OK] then begin
             if Name = '' then
                 Error(EmptyClientIdErr);
             if Value = '' then

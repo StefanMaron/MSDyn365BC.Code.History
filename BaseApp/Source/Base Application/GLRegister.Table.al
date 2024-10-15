@@ -1,4 +1,4 @@
-﻿table 45 "G/L Register"
+table 45 "G/L Register"
 {
     Caption = 'G/L Register';
     LookupPageID = "G/L Registers";

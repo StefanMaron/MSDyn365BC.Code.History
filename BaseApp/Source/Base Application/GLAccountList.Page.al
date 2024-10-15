@@ -247,6 +247,45 @@ page 18 "G/L Account List"
                     ToolTip = 'View a summary of the debit and credit balances by dimensions for the current account.';
                 }
             }
+            group(Prices)
+            {
+                Caption = 'Prices';
+                Image = JobPrice;
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit sales prices for the account.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Sale, AmountType::Any);
+                    end;
+                }
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Costs;
+                    Promoted = true;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or edit purchase prices for the account.';
+
+                    trigger OnAction()
+                    var
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        Rec.ShowPriceListLines(PriceType::Purchase, AmountType::Any);
+                    end;
+                }
+            }
         }
         area(reporting)
         {
@@ -327,6 +366,13 @@ page 18 "G/L Account List"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
@@ -334,6 +380,7 @@ page 18 "G/L Account List"
     end;
 
     var
+        ExtendedPriceEnabled: Boolean;
         [InDataSet]
         Emphasize: Boolean;
         [InDataSet]

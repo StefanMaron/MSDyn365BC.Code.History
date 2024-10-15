@@ -118,8 +118,8 @@ page 11609 "BAS Setup Preview"
     var
         BASCalcSheet: Record "BAS Calculation Sheet";
         ExportBASSetupReport: Report "Export BAS Setup to Excel";
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         ExcludeClosingEntries: Boolean;
         [InDataSet]
         ExcludeClosingEntriesEnable: Boolean;

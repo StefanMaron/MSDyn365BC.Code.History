@@ -1,4 +1,4 @@
-﻿codeunit 134 "Import Attachment - Inc. Doc."
+codeunit 134 "Import Attachment - Inc. Doc."
 {
     TableNo = "Incoming Document Attachment";
 
@@ -207,7 +207,7 @@
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         DocTableNo: Integer;
-        DocType: Option;
+        DocType: Enum "Incoming Document Type";
         DocNo: Code[20];
     begin
         with IncomingDocumentAttachment do begin
@@ -379,7 +379,7 @@
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Replaced with the version accepting a stream.','15.3')]
+    [Obsolete('Replaced with the version accepting a stream.', '15.3')]
     procedure ProcessAndUploadPicture(PictureFilePath: Text; var IncomingDocumentAttachmentOriginal: Record "Incoming Document Attachment")
     var
         File: File;

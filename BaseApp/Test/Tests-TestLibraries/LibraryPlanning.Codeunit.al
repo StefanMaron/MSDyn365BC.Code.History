@@ -12,7 +12,7 @@ codeunit 132203 "Library - Planning"
     var
         LibraryUtility: Codeunit "Library - Utility";
 
-    procedure CreateProdOrderUsingPlanning(var ProductionOrder: Record "Production Order"; Status: Option; DocumentNo: Code[20]; SourceNo: Code[20])
+    procedure CreateProdOrderUsingPlanning(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; DocumentNo: Code[20]; SourceNo: Code[20])
     var
         SalesOrderPlanning: Page "Sales Order Planning";
     begin

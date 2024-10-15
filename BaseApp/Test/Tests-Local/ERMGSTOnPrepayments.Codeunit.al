@@ -1063,7 +1063,7 @@ codeunit 141026 "ERM GST On Prepayments"
         exit(GenBusinessPostingGroup.Code);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Integer; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -1154,7 +1154,7 @@ codeunit 141026 "ERM GST On Prepayments"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; PrepaymentPct: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Document Type"; No: Code[20]; PrepaymentPct: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random value is used for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -1162,7 +1162,7 @@ codeunit 141026 "ERM GST On Prepayments"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; BuyfromVendorNo: Code[20]; Type: Option; No: Code[20]; PrepaymentPct: Decimal)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; BuyfromVendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; PrepaymentPct: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1186,7 +1186,7 @@ codeunit 141026 "ERM GST On Prepayments"
         exit(PurchasePrepaymentPct."Item No.");
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; PrepaymentPercent: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Document Type"; No: Code[20]; PrepaymentPercent: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random value is used for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -1195,7 +1195,7 @@ codeunit 141026 "ERM GST On Prepayments"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; SellToCustomerNo: Code[20]; Type: Option; No: Code[20]; PrepaymentPercent: Decimal)
+    local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; SellToCustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; PrepaymentPercent: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1295,7 +1295,7 @@ codeunit 141026 "ERM GST On Prepayments"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure PostPaymentAppliedToPrepaymentSalesInvoice(var GeneralPostingSetup: Record "General Posting Setup"; Type: Option; No: Code[20])
+    local procedure PostPaymentAppliedToPrepaymentSalesInvoice(var GeneralPostingSetup: Record "General Posting Setup"; Type: Enum "Sales Line Type"; No: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1328,7 +1328,7 @@ codeunit 141026 "ERM GST On Prepayments"
           SalesLine."Sell-to Customer No.", AppliesToDocNo, Amount);
     end;
 
-    local procedure PostSalesPrepaymentInvoiceAndApplyPayment(var SalesLine: Record "Sales Line"; Type: Option; CustomerNo: Code[20]; No: Code[20]; PrepaymentPercent: Decimal)
+    local procedure PostSalesPrepaymentInvoiceAndApplyPayment(var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; No: Code[20]; PrepaymentPercent: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1354,7 +1354,7 @@ codeunit 141026 "ERM GST On Prepayments"
           PurchaseLine."Amount Including VAT");
     end;
 
-    local procedure PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(BuyFromVendorNo: Code[20]; Type: Option; No: Code[20]; PrepaymentPct: Decimal; LineDiscountPct: Decimal)
+    local procedure PrepaymentInvoiceWithDiffSourceOfPrepaymentPct(BuyFromVendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; PrepaymentPct: Decimal; LineDiscountPct: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";

@@ -285,7 +285,7 @@ codeunit 141056 "APAC ERM Prepayments"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
 
-    local procedure CreateAndPostPrepaymentSalesInvoice(var SalesLine: Record "Sales Line"; GenBusPostingGroup: Code[20]; PrepaymentPercent: Decimal; PricesIncludingVAT: Boolean; Type: Option; No: Code[20]; LineDiscountPercent: Decimal)
+    local procedure CreateAndPostPrepaymentSalesInvoice(var SalesLine: Record "Sales Line"; GenBusPostingGroup: Code[20]; PrepaymentPercent: Decimal; PricesIncludingVAT: Boolean; Type: Enum "Sales Line Type"; No: Code[20]; LineDiscountPercent: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin

@@ -485,7 +485,7 @@ table 5970 "Filed Service Contract Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Contact No."; Code[20])

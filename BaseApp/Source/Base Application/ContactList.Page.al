@@ -205,7 +205,7 @@ page 5052 "Contact List"
                         var
                             ContJobResp: Record "Contact Job Responsibility";
                         begin
-                            TestField(Type, Type::Person);
+                            CheckContactType(Type::Person);
                             ContJobResp.SetRange("Contact No.", "No.");
                             PAGE.RunModal(PAGE::"Contact Job Responsibilities", ContJobResp);
                         end;
@@ -349,9 +349,13 @@ page 5052 "Contact List"
 
                         trigger OnAction()
                         var
+                            Contact: Record Contact;
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CurrPage.SetSelectionFilter(Contact);
+                            RecRef.GetTable(Contact);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
                         end;
                     }
                 }
@@ -443,13 +447,50 @@ page 5052 "Contact List"
                 action("C&ustomer/Vendor/Bank Acc.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'C&ustomer/Vendor/Bank Acc.';
+                    Caption = 'C&ustomer/Vendor/Bank Acc./Employee';
                     Image = ContactReference;
-                    ToolTip = 'View the related customer, vendor, or bank account that is associated with the current record.';
+                    ToolTip = 'View the related customer, vendor, bank account, or employee that is associated with the current record.';
 
                     trigger OnAction()
                     begin
                         ShowCustVendBank;
+                    end;
+                }
+            }
+            group(Prices)
+            {
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
             }
@@ -682,6 +723,18 @@ page 5052 "Contact List"
                             CreateBankAccountLink;
                         end;
                     }
+                    action(LinkEmployee)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Employee';
+                        Image = Employee;
+                        ToolTip = 'Link the contact to an existing employee.';
+
+                        trigger OnAction()
+                        begin
+                            CreateEmployeeLink();
+                        end;
+                    }
                 }
             }
             action("Export Contact")
@@ -753,10 +806,10 @@ page 5052 "Contact List"
             action(NewSalesQuote)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'New Sales Quote';
+                Caption = 'Create Sales Quote';
                 Image = NewSalesQuote;
                 Promoted = true;
-                PromotedCategory = New;
+                PromotedCategory = Process;
                 ToolTip = 'Offer items or services to a customer.';
 
                 trigger OnAction()
@@ -817,15 +870,18 @@ page 5052 "Contact List"
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
     var
         ClientTypeManagement: Codeunit "Client Type Management";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         [InDataSet]
         StyleIsStrong: Boolean;
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;

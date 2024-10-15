@@ -37,12 +37,12 @@ codeunit 134378 "ERM Sales Order"
         PostingErr: Label '%1 must have a value in %2: %3=%4, %5=%6. It cannot be zero or empty.', Comment = '%1 must have a value in %2: %3=%4, %5=%6. It cannot be zero or empty.';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Released''.', Comment = '%1 = table,%2 = document type,%3 = document no.';
         WrongDimValueErr: Label 'Wrong dimension value in Sales Header %1.', Comment = '%1 = value';
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         WrongValueSalesHeaderInvoiceErr: Label 'The value of field Invoice in copied Sales Order must be ''No''.';
         WrongValueSalesHeaderShipErr: Label 'The value of field Ship in copied Sales Order must be ''No''.';
         ShippedNotInvoicedErr: Label 'Wrong sales orders shipped not invoiced count';
         WrongInvDiscAmountErr: Label 'Wrong Invoice Discount Amount in Sales Line.';
         QtyToShipBaseErr: Label 'Qty. to Ship (Base) must be equal to Qty. to Shipe in Sales Line';
+        QtyToShipUpdateErr: Label 'Qty. to Ship must be equal to %1 in Sales Line';
         ReturnQtyToReceiveBaseErr: Label 'Return Qty. to Receive (Base) must be equal to Return Qty. to Receive in Sales Line';
         QuantitytyToShipBaseErr: Label 'Qty. to Ship (Base) must be equal to Quantity in Sales Line';
         ReturnQuantityToReceiveBaseErr: Label 'Return Qty. to Receive (Base) must be equal to Quantity in Sales Line';
@@ -1562,6 +1562,73 @@ codeunit 134378 "ERM Sales Order"
 
         // [THEN] "Qty. to Ship (Base)" in Sales Order Line is "X"
         Assert.AreEqual(Qty, SalesLine."Qty. to Ship (Base)", QtyToShipBaseErr);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure QtyToShipInSalesLineIsCorrectlyUpdatedWithChangeInQty()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+        SalesLine4: Record "Sales Line";
+        Item1: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        Item4: Record Item;
+        Qty: Decimal;
+        Loc1: Record Location;
+        Loc2: Record Location;
+    begin
+        Initialize;
+
+        // [GIVEN] "Default Quantity to Ship" is "Remainder" in Sales and Receivables Setup.
+        UpdateDefaultQtyToShip(SalesReceivablesSetup."Default Quantity to Ship"::Remainder);
+        UpdateDefaultWarehouseSetup(false, true, false, true);
+
+        // [GIVEN] Qty is "X"
+        Qty := LibraryRandom.RandDec(1000, 2);
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Quote, CreateCustomer);
+
+        // [CASE 1]: Sales Line with non inventory item
+        LibraryInventory.CreateNonInventoryTypeItem(Item1);
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, Item1."No.", 0);
+        SalesLine1.Validate(Quantity, Qty);
+
+        // [THEN] "Qty. to Ship " in Sales Order Line is "X"
+        Assert.AreEqual(Qty, SalesLine1."Qty. to Ship", StrSubstNo(QtyToShipUpdateErr, Qty));
+
+        // [CASE 2]: Sales Line with inventory item, no location
+        LibraryInventory.CreateItem(Item2);
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, Item2."No.", 0);
+        SalesLine2.Validate(Quantity, Qty);
+
+        // [THEN] "Qty. to Ship " in Sales Order Line is "0"
+        Assert.AreEqual(0, SalesLine2."Qty. to Ship", StrSubstNo(QtyToShipUpdateErr, 0));
+
+        //[CASE 3]: Sales Line with inventory item and wharehouse location with pick and shipment true
+        LibraryWarehouse.CreateLocationWMS(Loc1, false, false, true, false, true);
+        LibraryInventory.CreateItem(Item3);
+        LibrarySales.CreateSalesLine(SalesLine3, SalesHeader, SalesLine3.Type::Item, Item3."No.", 0);
+        SalesLine3.Validate("Location Code", Loc1.Code);
+        SalesLine3.Validate(Quantity, Qty);
+
+        // [THEN] "Qty. to Ship " in Sales Order Line is "0"
+        Assert.AreEqual(0, SalesLine3."Qty. to Ship", StrSubstNo(QtyToShipUpdateErr, 0));
+
+        // [CASE 4]: Sales Line with inventory item and wharehouse location with pick and shipment false
+        LibraryWarehouse.CreateLocationWMS(Loc2, false, false, false, false, false);
+        LibraryInventory.CreateItem(Item4);
+        LibrarySales.CreateSalesLine(SalesLine4, SalesHeader, SalesLine4.Type::Item, Item4."No.", 0);
+        SalesLine4.Validate("Location Code", Loc2.Code);
+        SalesLine4.Validate(Quantity, Qty);
+
+        // [THEN] "Qty. to Ship " in Sales Order Line is "X"
+        Assert.AreEqual(Qty, SalesLine4."Qty. to Ship", StrSubstNo(QtyToShipUpdateErr, Qty));
+
     end;
 
     [Test]
@@ -3552,7 +3619,7 @@ codeunit 134378 "ERM Sales Order"
         Initialize;
         DocumentNo := LibraryUtility.GenerateGUID;
         for Index := 1 to 2 do begin
-            MockSalesHeader(SalesHeader, Index, DocumentNo);
+            MockSalesHeader(SalesHeader, "Sales Document Type".FromInteger(Index), DocumentNo);
             MockSalesLineWithShipNotInvLCY(SalesLine, SalesHeader, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         end;
 
@@ -4346,7 +4413,7 @@ codeunit 134378 "ERM Sales Order"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -4405,7 +4472,7 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
-    local procedure CreateSalesLineWithQty(var SalesLine: Record "Sales Line"; Qty: Decimal; DocType: Option)
+    local procedure CreateSalesLineWithQty(var SalesLine: Record "Sales Line"; Qty: Decimal; DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         Item: Record Item;
@@ -4415,14 +4482,14 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(20, 2),
           LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateSimpleSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option)
+    local procedure CreateSimpleSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type")
     var
         RecRef: RecordRef;
     begin
@@ -4437,7 +4504,7 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
-    local procedure CreatePostSalesOrderForUndoShipment(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Integer; AccountNo: Code[20])
+    local procedure CreatePostSalesOrderForUndoShipment(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Sales Line Type"; AccountNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -4459,7 +4526,7 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure CreatePostSalesReturnOrderForUndoReceipt(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Integer; AccountNo: Code[20])
+    local procedure CreatePostSalesReturnOrderForUndoReceipt(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Sales Line Type"; AccountNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -4581,7 +4648,7 @@ codeunit 134378 "ERM Sales Order"
         SalesHeaderOrderFromQuote.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithInvDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; Qty: Decimal; UnitPrice: Decimal; InvDiscPercent: Decimal)
+    local procedure CreateSalesDocumentWithInvDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Qty: Decimal; UnitPrice: Decimal; InvDiscPercent: Decimal)
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
@@ -4744,7 +4811,7 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
-    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesHeader.Init();
         SalesHeader."Document Type" := DocumentType;
@@ -4813,7 +4880,7 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
-    local procedure FindSalesLineWithType(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Option; LineType: Option)
+    local procedure FindSalesLineWithType(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; LineType: Enum "Sales Line Type")
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -4973,7 +5040,7 @@ codeunit 134378 "ERM Sales Order"
         end;
     end;
 
-    local procedure OpenSalesOrderAndPost(SalesHeaderNo: Code[20]; Status: Option)
+    local procedure OpenSalesOrderAndPost(SalesHeaderNo: Code[20]; Status: Enum "Sales Document Status")
     var
         SalesOrder: TestPage "Sales Order";
     begin
@@ -5032,6 +5099,20 @@ codeunit 134378 "ERM Sales Order"
         with SalesReceivablesSetup do begin
             Get;
             Validate("Default Quantity to Ship", NewDefaultQtyToShip);
+            Modify(true);
+        end;
+    end;
+
+    local procedure UpdateDefaultWarehouseSetup(RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean)
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        with WarehouseSetup do begin
+            Get;
+            Validate("Require Put-away", RequirePutAway);
+            Validate("Require Pick", RequirePick);
+            Validate("Require Receive", RequireReceive);
+            Validate("Require Shipment", RequireShipment);
             Modify(true);
         end;
     end;
@@ -5220,7 +5301,7 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.SetAllowVATDifference(true);
     end;
 
-    local procedure CreateVATPostingSetupWithBusPostGroup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATBusinessPostingGroup: Code[20])
+    local procedure CreateVATPostingSetupWithBusPostGroup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATBusinessPostingGroup: Code[20])
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
@@ -5307,7 +5388,7 @@ codeunit 134378 "ERM Sales Order"
 
         LibraryVariableStorage.Enqueue(SuggestType);
 
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
     local procedure SalesOrderItemChargeAssignment(var SalesLine: Record "Sales Line"; var AmountToAssign: Decimal; var QtyToAssign: Decimal; SuggestChoice: Integer)
@@ -5635,7 +5716,7 @@ codeunit 134378 "ERM Sales Order"
           ExpectedDimSetID, ValueEntry."Dimension Set ID", StrSubstNo(IncorrectDimSetIDErr, ItemLedgEntry.TableCaption));
     end;
 
-    local procedure VerifyQuantitytoShipOnSalesLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyQuantitytoShipOnSalesLine(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -5795,6 +5876,7 @@ codeunit 134378 "ERM Sales Order"
     [Scope('OnPrem')]
     procedure CopySalesDocumentHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
     var
+        DocType: Option;
         DocumentType: Variant;
         No: Variant;
     begin
@@ -5844,7 +5926,7 @@ codeunit 134378 "ERM Sales Order"
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, '');
             LibraryVariableStorage.Clear;
-            LibraryVariableStorage.Enqueue(DocType::Order);
+            LibraryVariableStorage.Enqueue("Sales Document Type From"::Order);
             LibraryVariableStorage.Enqueue(FromSalesOrderNo);
             CopySalesDocument(SalesHeader);
             Get("Document Type"::Order, "No.");

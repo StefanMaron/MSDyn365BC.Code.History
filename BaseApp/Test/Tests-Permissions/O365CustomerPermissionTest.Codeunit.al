@@ -155,17 +155,17 @@ codeunit 139453 "O365 Customer Permission Test"
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
         // [FEATURE] [Sales Credit Memo]
-        // [SCENARIO 308913] Open "Posted Sales Cr. Memo - Update" from "Posted Sales Credit Memo" card with "D365 Sales Doc, Edit".
+        // [SCENARIO 308913] Open "Pstd. Sales Cr. Memo - Update" from "Posted Sales Credit Memo" card with "D365 Sales Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
         LibraryLowerPermissions.SetSalesDocsCreate;
 
-        // [WHEN] Open "Posted Sales Cr. Memo - Update" page from "Posted Sales Credit Memo" card.
+        // [WHEN] Open "Pstd. Sales Cr. Memo - Update" page from "Posted Sales Credit Memo" card.
         PostedSalesCreditMemo.OpenView;
         PostedSalesCreditMemo."Update Document".Invoke;
 
-        // [THEN] "Posted Sales Cr. Memo - Update" opens.
+        // [THEN] "Pstd. Sales Cr. Memo - Update" opens.
     end;
 
     [Test]
@@ -176,17 +176,17 @@ codeunit 139453 "O365 Customer Permission Test"
         PostedSalesCreditMemos: TestPage "Posted Sales Credit Memos";
     begin
         // [FEATURE] [Sales Credit Memo]
-        // [SCENARIO 308913] Open "Posted Sales Cr. Memo - Update" from "Posted Sales Credit Memos" list with "D365 Sales Doc, Edit".
+        // [SCENARIO 308913] Open "Pstd. Sales Cr. Memo - Update" from "Posted Sales Credit Memos" list with "D365 Sales Doc, Edit".
         Initialize;
 
         // [GIVEN] A user with "D365 Sales Doc, Edit" permission set.
         LibraryLowerPermissions.SetSalesDocsCreate;
 
-        // [WHEN] Open "Posted Sales Cr. Memo - Update" page from "Posted Sales Credit Memos" list.
+        // [WHEN] Open "Pstd. Sales Cr. Memo - Update" page from "Posted Sales Credit Memos" list.
         PostedSalesCreditMemos.OpenView;
         PostedSalesCreditMemos."Update Document".Invoke;
 
-        // [THEN] "Posted Sales Cr. Memo - Update" opens.
+        // [THEN] "Pstd. Sales Cr. Memo - Update" opens.
     end;
 
     local procedure Initialize()
@@ -239,9 +239,9 @@ codeunit 139453 "O365 Customer Permission Test"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedSalesCrMemoUpdateOKModalPageHandler(var PostedSalesCrMemoUpdate: TestPage "Posted Sales Cr. Memo - Update")
+    procedure PostedSalesCrMemoUpdateOKModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
     begin
-        PostedSalesCrMemoUpdate.OK.Invoke;
+        PstdSalesCrMemoUpdate.OK.Invoke;
     end;
 }
 

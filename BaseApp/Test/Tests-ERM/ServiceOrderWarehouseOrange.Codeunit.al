@@ -678,7 +678,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     end;
 
     [Normal]
-    local procedure CreateAndUpdateServiceLines(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; ServiceItemLineNo: Integer; ServiceLineType: Option; No: Code[20]; LineQuantity: Integer)
+    local procedure CreateAndUpdateServiceLines(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; ServiceItemLineNo: Integer; ServiceLineType: Enum "Service Line Type"; No: Code[20]; LineQuantity: Integer)
     begin
         Clear(ServiceLine);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLineType, No);
@@ -819,7 +819,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceItem.Modify(true);
     end;
 
-    local procedure CreateServiceDocumentWithServiceLine(var ServiceHeader: Record "Service Header"; ServiceDocumentType: Option; ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10])
+    local procedure CreateServiceDocumentWithServiceLine(var ServiceHeader: Record "Service Header"; ServiceDocumentType: Enum "Service Document Type"; ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10])
     var
         Customer: Record Customer;
     begin
@@ -931,7 +931,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     end;
 
     [Normal]
-    local procedure TestPostServiceDocumentWithNonItemLines(LocationCode: Code[10]; ServiceDocumentType: Option)
+    local procedure TestPostServiceDocumentWithNonItemLines(LocationCode: Code[10]; ServiceDocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
@@ -958,7 +958,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     end;
 
     [Normal]
-    local procedure TestPostServiceDocumentWithItem(ServiceDocumentType: Option; LineQuantityDelta: Integer; IsBlankBincode: Boolean)
+    local procedure TestPostServiceDocumentWithItem(ServiceDocumentType: Enum "Service Document Type"; LineQuantityDelta: Integer; IsBlankBincode: Boolean)
     var
         Item: Record Item;
         Location: Record Location;
@@ -1144,7 +1144,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WhseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
         with WhseActivityLine do begin
             SetRange("Activity Type", "Activity Type"::"Put-away");

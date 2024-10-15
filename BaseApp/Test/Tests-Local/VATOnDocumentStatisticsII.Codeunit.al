@@ -221,7 +221,7 @@ codeunit 141080 "VAT On Document Statistics II"
         IsInitialized := true;
     end;
 
-    local procedure CreateCurrencyWithExchangeRate(GenPostingType: Option): Code[10]
+    local procedure CreateCurrencyWithExchangeRate(GenPostingType: Enum "General Posting Type"): Code[10]
     var
         Currency: Record Currency;
     begin
@@ -233,7 +233,7 @@ codeunit 141080 "VAT On Document Statistics II"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGLAccount(GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -246,7 +246,7 @@ codeunit 141080 "VAT On Document Statistics II"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         GLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
@@ -265,7 +265,7 @@ codeunit 141080 "VAT On Document Statistics II"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         GLAccount: Record "G/L Account";
@@ -368,7 +368,7 @@ codeunit 141080 "VAT On Document Statistics II"
         LibraryVariableStorage.Enqueue(VATAmount);
     end;
 
-    local procedure RunAddReportingCurrAndCreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    local procedure RunAddReportingCurrAndCreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     var
         GLAccount: Record "G/L Account";
     begin
@@ -378,7 +378,7 @@ codeunit 141080 "VAT On Document Statistics II"
         CreatePurchaseDocument(PurchaseLine, DocumentType);
     end;
 
-    local procedure RunAddReportingCurrAndCreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure RunAddReportingCurrAndCreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         GLAccount: Record "G/L Account";
     begin

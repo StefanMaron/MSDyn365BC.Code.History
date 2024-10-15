@@ -3,7 +3,7 @@ page 5334 "CRM Option Mapping"
     ApplicationArea = Suite;
     UsageCategory = Lists;
     Caption = 'Common Data Service Option Mapping';
-
+    AdditionalSearchTerms = 'CDS Option Mapping';
     Editable = false;
     PageType = List;
     ShowFilter = false;

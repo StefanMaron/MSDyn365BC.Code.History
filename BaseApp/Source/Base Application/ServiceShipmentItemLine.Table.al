@@ -296,7 +296,7 @@ table 5989 "Service Shipment Item Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

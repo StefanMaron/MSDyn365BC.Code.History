@@ -22,7 +22,6 @@ codeunit 134558 "ERM Cash Flow Pages"
         isInitialized: Boolean;
         DimensionValueCode: Code[20];
         SourceDocumentNo: Code[20];
-        SourceType: Option " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Orders","Purchase Orders","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget";
         UnexpectedChartCFNoTxt: Label 'Unexpected Chart on Role Center CF No. in CF Setup.';
         CashFlowSetupReply: Boolean;
         CashFlowForeCastErrorTxt: Label 'You must choose a cash flow forecast.';
@@ -323,10 +322,10 @@ codeunit 134558 "ERM Cash Flow Pages"
         Initialize;
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
         LibraryCashFlowHelper.FilterSingleJournalLine(
-          CFWorksheetLine, ServiceHeader."No.", SourceType::"Service Orders", CashFlowForecast."No.");
+          CFWorksheetLine, ServiceHeader."No.", "Cash Flow Source Type"::"Service Orders", CashFlowForecast."No.");
         LibraryCashFlowForecast.PostJournalLines(CFWorksheetLine);
         CFForecastEntry.SetRange("Document No.", ServiceHeader."No.");
         CFForecastEntry.FindFirst;
@@ -360,7 +359,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Setup
         Initialize;
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
         // Identify service orders within the period of the first entry
         CFWorksheetLine.SetRange("Source Type", CFWorksheetLine."Source Type"::"Service Orders");
@@ -409,7 +408,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Setup
         Initialize;
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
         CFWorksheetLine.SetRange("Source Type", CFWorksheetLine."Source Type"::"Service Orders");
         CFWorksheetLine.FindFirst;
@@ -704,7 +703,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         ConsiderSource: array[16] of Boolean;
     begin
         // fill journal
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // filter on the created source document
@@ -869,7 +868,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         ConsiderSource: array[16] of Boolean;
     begin
         CashFlowForecast.FindFirst;
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         LibraryCashFlowForecast.FillJournal(ConsiderSource, CashFlowForecast."No.", true);
         exit(CashFlowForecast."No.");
     end;

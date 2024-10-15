@@ -96,7 +96,7 @@ codeunit 141075 "UT REP Aged Accounts"
           LibraryRandom.RandInt(5));  // Blank used for Currency Code, False for Print Entry Details and Random value for Date Expression.
     end;
 
-    local procedure OnAfterGetRecVendAgedAccPayBackDating(CurrencyCode: Code[10]; ExpectedCurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Option; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer)
+    local procedure OnAfterGetRecVendAgedAccPayBackDating(CurrencyCode: Code[10]; ExpectedCurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Enum "Vendor Blocked"; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer)
     begin
         // Setup and Exercise.
         CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(CurrencyCode, PrintEntryDetails, Blocked, UseAgingDate, UseCurrency, NoOfDays);
@@ -184,7 +184,7 @@ codeunit 141075 "UT REP Aged Accounts"
           UseCurrency::"Customer Currency", LibraryRandom.RandInt(5));  // Blank for Currency Code, Random value used for Date Expression, False for Print Entry Details.
     end;
 
-    local procedure OnAfterGetRecCustAgedAccRecBackDating(CurrencyCode: Code[10]; ExpectedCurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Option; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer)
+    local procedure OnAfterGetRecCustAgedAccRecBackDating(CurrencyCode: Code[10]; ExpectedCurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Enum "Customer Blocked"; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer)
     begin
         // Setup and Exercise.
         CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(
@@ -227,8 +227,8 @@ codeunit 141075 "UT REP Aged Accounts"
         // [FEATURE] [Purchase]
         // [SCENARIO 333888] Report "Aged Acc. Pay. (BackDating)" can be printed without RDLC rendering errors
         Initialize;
-		
-		// [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
+
+        // [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
         CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(
           CreateCurrency, true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
 
@@ -261,7 +261,7 @@ codeunit 141075 "UT REP Aged Accounts"
         CurrencyExchangeRate.Insert();
     end;
 
-    local procedure CreateCustomer(CurrencyCode: Code[10]; Blocked: Option; CreditLimitLCY: Decimal): Code[20]
+    local procedure CreateCustomer(CurrencyCode: Code[10]; Blocked: Enum "Customer Blocked"; CreditLimitLCY: Decimal): Code[20]
     var
         Customer: Record Customer;
     begin
@@ -274,7 +274,7 @@ codeunit 141075 "UT REP Aged Accounts"
         exit(Customer."No.");
     end;
 
-    local procedure CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(CurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Option; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer; CreditLimitLCY: Decimal) Amount: Decimal
+    local procedure CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(CurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Enum "Customer Blocked"; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer; CreditLimitLCY: Decimal) Amount: Decimal
     var
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -289,7 +289,7 @@ codeunit 141075 "UT REP Aged Accounts"
         REPORT.Run(REPORT::"Aged Acc. Rec. (BackDating)");  // Opens AgedAccountsReceivableBackdatingRequestPageHandler.
     end;
 
-    local procedure CreateCustomerLedgerEntry(var CustomerLedgerEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; Blocked: Option; CreditLimitLCY: Decimal)
+    local procedure CreateCustomerLedgerEntry(var CustomerLedgerEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; Blocked: Enum "Customer Blocked"; CreditLimitLCY: Decimal)
     var
         CustomerLedgerEntry2: Record "Cust. Ledger Entry";
     begin
@@ -333,7 +333,7 @@ codeunit 141075 "UT REP Aged Accounts"
         exit(DetailedVendorLedgEntry.Amount);
     end;
 
-    local procedure CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(CurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Option; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer) Amount: Decimal
+    local procedure CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(CurrencyCode: Code[10]; PrintEntryDetails: Boolean; Blocked: Enum "Vendor Blocked"; UseAgingDate: Option; UseCurrency: Option; NoOfDays: Integer) Amount: Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -347,7 +347,7 @@ codeunit 141075 "UT REP Aged Accounts"
         REPORT.Run(REPORT::"Aged Acc. Pay. (BackDating)");  // Opens AgedAccountsPayableBackdatingRequestPageHandler.
     end;
 
-    local procedure CreateVendor(CurrencyCode: Code[10]; Blocked: Option): Code[20]
+    local procedure CreateVendor(CurrencyCode: Code[10]; Blocked: Enum "Vendor Blocked"): Code[20]
     var
         Vendor: Record Vendor;
     begin
@@ -358,7 +358,7 @@ codeunit 141075 "UT REP Aged Accounts"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10]; Blocked: Option)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CurrencyCode: Code[10]; Blocked: Enum "Vendor Blocked")
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin

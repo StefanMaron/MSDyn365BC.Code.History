@@ -161,14 +161,14 @@ report 1702 "Deferral Summary - Purchasing"
                     7: // Posted Invoice
                         if PurchInvLine.Get("Document No.", "Line No.") then begin
                             LineDescription := PurchInvLine.Description;
-                            LineType := PurchInvLine.Type;
+                            LineType := PurchInvLine.Type.AsInteger();
                             if PurchInvHeader.Get("Document No.") then
                                 PostingDate := PurchInvHeader."Posting Date";
                         end;
                     8: // Posted Credit Memo
                         if PurchCrMemoLine.Get("Document No.", "Line No.") then begin
                             LineDescription := PurchCrMemoLine.Description;
-                            LineType := PurchCrMemoLine.Type;
+                            LineType := PurchCrMemoLine.Type.AsInteger();
                             if PurchCrMemoHdr.Get("Document No.") then
                                 PostingDate := PurchCrMemoHdr."Posting Date";
                             ReverseAmounts := true;
@@ -176,7 +176,7 @@ report 1702 "Deferral Summary - Purchasing"
                     9: // Posted Return Receipt
                         if PurchaseLine.Get("Document Type", "Document No.", "Line No.") then begin
                             LineDescription := PurchaseLine.Description;
-                            LineType := PurchaseLine.Type;
+                            LineType := PurchaseLine.Type.AsInteger();
                             if PurchaseHeader.Get("Document Type", "Document No.") then
                                 PostingDate := PurchaseHeader."Posting Date";
                             ReverseAmounts := true;
