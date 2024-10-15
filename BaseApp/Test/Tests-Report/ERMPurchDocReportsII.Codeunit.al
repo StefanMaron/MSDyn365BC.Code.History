@@ -1,4 +1,4 @@
-codeunit 134336 "ERM Purch. Doc. Reports - II"
+﻿codeunit 134336 "ERM Purch. Doc. Reports - II"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -303,16 +303,14 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
         CountryRegion.FindFirst();
         Vendor.Get(CreateVendor);
-        Vendor.Address :=
-            CopyStr(
-                LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor), 1,
-                LibraryUtility.GetFieldLength(DATABASE::Vendor, Vendor.FieldNo(Address)));
-        Vendor."Address 2" :=
-            CopyStr(
-                LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Address 2"), DATABASE::Vendor), 1,
-                LibraryUtility.GetFieldLength(DATABASE::Vendor, Vendor.FieldNo("Address 2")));
-        Vendor."Country/Region Code" := CountryRegion.Code;
-        Vendor."Post Code" := PostCode.Code;
+        Vendor.Validate(
+          Address, CopyStr(LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor), 1,
+            LibraryUtility.GetFieldLength(DATABASE::Vendor, Vendor.FieldNo(Address))));
+        Vendor.Validate(
+          "Address 2", CopyStr(LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Address 2"), DATABASE::Vendor), 1,
+            LibraryUtility.GetFieldLength(DATABASE::Vendor, Vendor.FieldNo("Address 2"))));
+        Vendor.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor.Validate("Post Code", PostCode.Code);
         Vendor.Modify(true);
     end;
 

@@ -798,6 +798,95 @@ codeunit 145302 "BAS Reporting"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [HandlerFunctions('VATReportRequesPageHandler')]
+    [Scope('OnPrem')]
+    procedure BASReportRowTotalingShouldEqualToDrillDownVatEntriesList()
+    var
+        VATStatementLine: array[2] of Record "VAT Statement Line";
+        RowTotalingVATStatementLine: Record "VAT Statement Line";
+        VATStatementName: Record "VAT Statement Name";
+        VATReportHeader: Record "VAT Report Header";
+        VATBusinessPostingGroup: array[2] of Record "VAT Business Posting Group";
+        VATProductPostingGroup: array[2] of Record "VAT Product Posting Group";
+        VATStatementReportLine: Record "VAT Statement Report Line";
+        VATEntry: array[3] of Record "VAT Entry";
+        BASReport: TestPage "VAT Report";
+        VATEntries: TestPage "VAT Entries";
+    begin
+        // [SCENARIO 461117] The Amount on the BAS report is not equal to the total amount from its drill-down list when the Posting date and the GST date are different in the GST entries.
+
+        Initialize();
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup[1]);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup[2]);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup[2]);
+
+        // [GIVEN] VAT Statement Line "VSL1"
+        LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
+        UpdateVATReportsConfiguration(VATStatementName.Name, VATStatementName."Statement Template Name");
+        CreateVATStatementLine(
+          VATStatementLine[1], VATStatementName."Statement Template Name", VATStatementName.Name,
+          VATStatementLine[1].Type::"VAT Entry Totaling", '', false);
+        VATStatementLine[1]."VAT Bus. Posting Group" := VATBusinessPostingGroup[1].Code;
+        VATStatementLine[1]."VAT Prod. Posting Group" := VATProductPostingGroup[1].Code;
+        VATStatementLine[1]."Row No." :=
+          LibraryUtility.GenerateRandomCode(VATStatementLine[1].FieldNo("Row No."), DATABASE::"VAT Statement Line");
+        VATStatementLine[1].Modify();
+
+        // [GIVEN] VAT Statement Line "VSL2" with VAT groups different from "VSL1"
+        CreateVATStatementLine(
+          VATStatementLine[2], VATStatementName."Statement Template Name", VATStatementName.Name,
+          VATStatementLine[2].Type::"VAT Entry Totaling", '', false);
+        VATStatementLine[2]."VAT Bus. Posting Group" := VATBusinessPostingGroup[2].Code;
+        VATStatementLine[2]."VAT Prod. Posting Group" := VATProductPostingGroup[2].Code;
+        VATStatementLine[2]."Row No." := VATStatementLine[1]."Row No.";
+        VATStatementLine[2].Modify();
+
+        // [GIVEN] Row Totaling VAT Statement Line "RTVSL" that groups "VSL1" and "VSL2"
+        CreateVATStatementLine(
+          RowTotalingVATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name,
+          RowTotalingVATStatementLine.Type::"Row Totaling",
+          CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(VATStatementLine[2]."Box No.")), false);
+        RowTotalingVATStatementLine."Row Totaling" := VATStatementLine[1]."Row No.";
+        RowTotalingVATStatementLine.Modify();
+
+        // [GIVEN] Create BAS Report and Mock 3 VAT Entries "VE1", "VE1", and "VE3"
+        CreateBASReport(VATReportHeader);
+        MockVATEntry(
+          VATEntry[1], VATBusinessPostingGroup[1].Code, VATProductPostingGroup[1].Code,
+          VATReportHeader."Start Date", VATEntry[1].Type::Sale);
+        MockVATEntry(
+          VATEntry[2], VATBusinessPostingGroup[2].Code, VATProductPostingGroup[2].Code,
+          VATReportHeader."Start Date" + LibraryRandom.RandInt(4), VATEntry[1].Type::Sale);
+        MockVATEntry(
+          VATEntry[3], VATBusinessPostingGroup[2].Code, VATProductPostingGroup[2].Code,
+          VATReportHeader."End Date", VATEntry[1].Type::Sale);
+
+        // [WHEN] BAS Report suggested line for VAT Statement Line "RTVSL"
+        BASReportSuggestLines(BASReport, VATReportHeader);
+
+        // [THEN] VAT Statement Report line is suggested with Amount = "VE1".Amount + "VE2".Amount + "VE3".Amount
+        FindVATStatementReportLine(
+          VATStatementReportLine, VATReportHeader, RowTotalingVATStatementLine."Box No.");
+        BASReport.VATReportLines.GotoRecord(VATStatementReportLine);
+        BASReport.VATReportLines.Amount.AssertEquals(VATEntry[1].Amount + VATEntry[2].Amount + VATEntry[3].Amount);
+        VATEntries.Trap;
+
+        // [WHEN] DrillDown on Amount field is invoked
+        BASReport.VATReportLines.Amount.DrillDown;
+
+        // [THEN] VAT Entry page appears with lines "VE1", "VE2" and "VE3"
+        VATEntries.GotoRecord(VATEntry[1]);
+        VATEntries.Amount.AssertEquals(VATEntry[1].Amount);
+        VATEntries.GotoRecord(VATEntry[2]);
+        VATEntries.Amount.AssertEquals(VATEntry[2].Amount);
+        VATEntries.GotoRecord(VATEntry[3]);
+        VATEntries.Amount.AssertEquals(VATEntry[3].Amount);
+        VATEntries.Close();
+        BASReport.Close();
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -852,6 +941,7 @@ codeunit 145302 "BAS Reporting"
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             Amount := LibraryRandom.RandDec(30, 2);
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             "G/L Account No." := GLAccountNo;
             Insert();
         end;
@@ -985,6 +1075,7 @@ codeunit 145302 "BAS Reporting"
         CalcAndPostVATSettlement.StartingDate.SetValue(PostingDate);
         CalcAndPostVATSettlement.EndDateReq.SetValue(PostingDate);
         CalcAndPostVATSettlement.PostingDt.SetValue(PostingDate);
+        CalcAndPostVATSettlement.VATDt.SetValue(PostingDate);
         CalcAndPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText);
         CalcAndPostVATSettlement.Post.SetValue(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");

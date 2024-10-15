@@ -1469,7 +1469,14 @@
             //TestTableRelation = false;
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupBlanketOrderNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Quantity Received", 0);
                 BlanketOrderLookup();
             end;
@@ -2551,7 +2558,6 @@
             trigger OnValidate()
             var
                 Item: Record Item;
-                UnitOfMeasureTranslation: Record "Unit of Measure Translation";
                 Resource: Record Resource;
                 IsHandled: Boolean;
                 ShouldUpdateItemReference: Boolean;
@@ -2577,19 +2583,7 @@
                     WhseValidateSourceLine.PurchaseLineVerifyChange(Rec, xRec);
                     PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
                 end;
-                if "Unit of Measure Code" = '' then
-                    "Unit of Measure" := ''
-                else begin
-                    UnitOfMeasure.Get("Unit of Measure Code");
-                    "Unit of Measure" := UnitOfMeasure.Description;
-                    GetPurchHeader();
-                    if PurchHeader."Language Code" <> '' then begin
-                        UnitOfMeasureTranslation.SetRange(Code, "Unit of Measure Code");
-                        UnitOfMeasureTranslation.SetRange("Language Code", PurchHeader."Language Code");
-                        if UnitOfMeasureTranslation.FindFirst() then
-                            "Unit of Measure" := UnitOfMeasureTranslation.Description;
-                    end;
-                end;
+                SetUnitOfMeasure();
                 ShouldUpdateItemReference := Type = Type::Item;
                 OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(Rec, ShouldUpdateItemReference);
                 if ShouldUpdateItemReference then
@@ -3853,6 +3847,7 @@
             PurchLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
             PurchLine2.SetRange("Blanket Order No.", "Document No.");
             PurchLine2.SetRange("Blanket Order Line No.", "Line No.");
+            OnModifyOnAfterSetFilters(Rec, PurchLine2);
             if PurchLine2.FindSet() then
                 repeat
                     PurchLine2.TestField(Type, Type);
@@ -7252,6 +7247,7 @@
     var
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
+        OnBeforeHandleDedicatedBin(Rec, xRec, IssueWarning);
         if not IsInbound() and ("Quantity (Base)" <> 0) then
             WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
@@ -7854,6 +7850,31 @@
         "Prepmt Amt Deducted" := 0;
     end;
 
+    local procedure SetUnitOfMeasure()
+    var
+        UnitOfMeasureTranslation: Record "Unit of Measure Translation";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetUnitOfMeasure(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Unit of Measure Code" = '' then
+            "Unit of Measure" := ''
+        else begin
+            UnitOfMeasure.Get("Unit of Measure Code");
+            "Unit of Measure" := UnitOfMeasure.Description;
+            GetPurchHeader();
+            if PurchHeader."Language Code" <> '' then begin
+                UnitOfMeasureTranslation.SetRange(Code, "Unit of Measure Code");
+                UnitOfMeasureTranslation.SetRange("Language Code", PurchHeader."Language Code");
+                if UnitOfMeasureTranslation.FindFirst() then
+                    "Unit of Measure" := UnitOfMeasureTranslation.Description;
+            end;
+        end;
+    end;
+
     procedure SetVendorItemNo()
     var
         Item: Record Item;
@@ -8013,7 +8034,7 @@
           (("Qty. Rcd. Not Invoiced" <> 0) or ("Return Qty. Shipped Not Invd." <> 0)));
     end;
 
-    local procedure IsServiceCharge(): Boolean
+    procedure IsServiceCharge(): Boolean
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
@@ -9186,13 +9207,20 @@
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
-        CreateDim(DefaultDimSource);
+        if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
+            CreateDim(DefaultDimSource);
     end;
 
     local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             FieldNo = Rec.FieldNo("No."):
                 TableValuePair.Add(DimMgt.PurchLineTypeToTableID(Type), Rec."No.");
@@ -9203,6 +9231,7 @@
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
+        OnAfterInitTableValuePair(TableValuePair, FieldNo);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -9504,6 +9533,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssignFieldsForQtyPerUOM(var PurchaseLine: Record "Purchase Line"; Item: Record Item; FieldNo: Integer; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleDedicatedBin(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; IssueWarning: Boolean)
     begin
     end;
 
@@ -9960,6 +9994,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBlanketOrderNo(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShortcutDimCode(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -9981,6 +10020,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectMultipleItems(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUnitOfMeasure(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11027,6 +11071,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnModifyOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency)
     begin
     end;
@@ -11043,6 +11092,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeUpdateAmounts(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 }

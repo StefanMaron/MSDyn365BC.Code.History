@@ -741,7 +741,7 @@ codeunit 136400 "Resource Employee"
 
         // [VERIFY] Verify City for Resource
         Resource.Find();
-        Resource.TestField(City, PostCode.City);
+        Resource.TestField(City, ''); // removed by local CU 28000
     end;
 
     [Normal]

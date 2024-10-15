@@ -1785,6 +1785,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 QtyToAsmBase := ATOSalesLine.QtyToAsmBaseOnATO();
             WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(NewWhseActivLine);
             QtyToPickBase := QtyToAsmBase - WMSMgt.CalcQtyBaseOnATOInvtPick(ATOSalesLine, WhseItemTrackingSetup);
+            OnCreateATOPickLineOnAfterCalcQtyToPickBase(RemQtyToPickBase, QtyToPickBase, ATOSalesLine);
             if QtyToPickBase > 0 then begin
                 MakeHeader();
                 if Location."Bin Mandatory" and (BinCode = '') then
@@ -1797,6 +1798,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     CreateATOInventoryMovementsAutomatically(AsmHeader, ATOInvtMovementsCreated, TotalATOInvtMovementsToBeCreated);
             end;
         end;
+        OnAfterCreateATOPickLine(QtyToPickBase, AsmHeader, NewWhseActivLine, WhseActivHeader, RemQtyToPickBase);
     end;
 
     local procedure CreateATOInventoryMovementsAutomatically(var AssemblyHeader: Record "Assembly Header"; var ATOInvtMovementsCreated: Integer; var TotalATOInvtMovementsToBeCreated: Integer)
@@ -1889,6 +1891,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoCreatePickOrMove(var WarehouseRequest: Record "Warehouse Request"; LineCreated: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateATOPickLine(QtyToPickBase: Decimal; AssemblyHeader: Record "Assembly Header"; NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 
@@ -2124,6 +2131,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcInvtAvailabilityOnAfterCalcQtyBlocked(WarehouseActivityLine: Record "Warehouse Activity Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var QtyBlocked: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateATOPickLineOnAfterCalcQtyToPickBase(var RemQtyToPickBase: Decimal; QtyToPickBase: Decimal; ATOSalesLine: Record "Sales Line")
     begin
     end;
 

@@ -376,4 +376,3 @@
         exit(PeriodStartDate[1]);
     end;
 }
-

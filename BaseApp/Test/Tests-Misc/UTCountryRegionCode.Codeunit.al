@@ -301,7 +301,7 @@ codeunit 134995 "UT Country/Region Code"
         PostCode: Code[20];
     begin
         // [FEATURE] [Post Code]
-        // [SCENARIO 235201] If there are two cities in different countries with the same "Post Code", then when set Customer's "Post Code", City must be picked according to Customer's "Country/Region Code"
+        // [SCENARIO 235201] If there are two cities in different countries with the same "Post Code", then when set Customer's "Post Code" and GUI is not allowed, City must be blank
         CountryCode[1] := LibraryUTUtility.GetNewCode10;
         CountryCode[2] := LibraryUTUtility.GetNewCode10;
 
@@ -321,7 +321,7 @@ codeunit 134995 "UT Country/Region Code"
         Customer.Modify(true);
 
         Customer.TestField("Country/Region Code", CountryCode[1]);
-        Customer.TestField(City, CityName);
+        Customer.TestField(City, ''); // dropped by local CU 28000
     end;
 
     [Test]
@@ -334,7 +334,7 @@ codeunit 134995 "UT Country/Region Code"
         PostCode: Code[20];
     begin
         // [FEATURE] [Post Code]
-        // [SCENARIO 235201] If there are two cities in different countries with the same name, then when set Customer's "City", "Post Code" must be picked according to Customer's "Country/Region Code"
+        // [SCENARIO 235201] If there are two cities in different countries with the same name, then when set Customer's "City" and GUI is not allowed, "Post Code" must be blank
         CountryCode[1] := 'B';
         CountryCode[2] := 'A';
         InitTwoCountries(CountryCode);
@@ -355,7 +355,7 @@ codeunit 134995 "UT Country/Region Code"
 
         // [THEN] Post Code was filled during validation 
         Customer.TestField("Country/Region Code", CountryCode[1]);
-        Customer.TestField("Post Code", PostCode);
+        Customer.TestField("Post Code", ''); // dropped by local CU 28000
     end;
 
     [Test]

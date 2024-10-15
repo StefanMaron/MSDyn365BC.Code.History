@@ -856,8 +856,9 @@ page 283 "Recurring General Journal"
     begin
         OnBeforeOnOpenPage();
 
-
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -872,7 +873,6 @@ page 283 "Recurring General Journal"
         SelectJournalWithError();
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         OnAfterOnOpenPage(CurrentJnlBatchName);
-        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var

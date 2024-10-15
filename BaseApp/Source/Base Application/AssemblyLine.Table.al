@@ -358,6 +358,12 @@ table 901 "Assembly Line"
             Caption = 'Consumed Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
+
+            trigger OnValidate()
+            begin
+                "Consumed Quantity (Base)" := CalcBaseQty("Consumed Quantity", FieldCaption("Consumed Quantity"), FieldCaption("Consumed Quantity (Base)"));
+                InitRemainingQty();
+            end;
         }
         field(45; "Consumed Quantity (Base)"; Decimal)
         {
@@ -484,7 +490,14 @@ table 901 "Assembly Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityPer(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 if Type = Type::" " then
@@ -778,7 +791,10 @@ table 901 "Assembly Line"
         "Quantity to Consume" :=
           MinValue(MaxQtyToConsume(), CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
         RoundQty("Quantity to Consume");
-        "Quantity to Consume (Base)" := MinValue(MaxQtyToConsumeBase(), CalcBaseQty("Quantity to Consume", FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")));
+        if MaxQtyToConsumeBase() <> 0 then
+            "Quantity to Consume (Base)" := MinValue(MaxQtyToConsumeBase(), CalcBaseQty("Quantity to Consume", FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")))
+        else
+            "Quantity to Consume (Base)" := 0;
 
         OnAfterInitQtyToConsume(Rec, xRec, CurrFieldNo);
     end;
@@ -1023,7 +1039,14 @@ table 901 "Assembly Line"
     end;
 
     local procedure GetItemResource()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemResource(Rec, Item, Resource, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then
             if Item."No." <> "No." then
                 Item.Get("No.");
@@ -1907,9 +1930,9 @@ table 901 "Assembly Line"
         DimMgt: Codeunit DimensionManagement;
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(CurrFieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource);
-        CreateDim(DefaultDimSource, HeaderDimensionSetID);
+        if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(CurrFieldNo)) then
+            CreateDim(DefaultDimSource, HeaderDimensionSetID);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
@@ -1925,13 +1948,20 @@ table 901 "Assembly Line"
     local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
     var
         DimMgt: Codeunit DimensionManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             FieldNo = Rec.FieldNo("No."):
                 TableValuePair.Add(DimMgt.TypeToTableID4(Rec.Type.AsInteger()), Rec."No.");
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
+        OnAfterInitTableValuePair(TableValuePair, FieldNo);
     end;
 
 #if not CLEAN20
@@ -2080,6 +2110,11 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemResource(AssemblyLine: Record "Assembly Line"; var Item: Record Item; var Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindBin(var AssemblyLine: Record "Assembly Line"; var NewBinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -2101,6 +2136,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantityBase(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityPer(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2161,6 +2201,16 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantitytoConsume(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 }

@@ -36,6 +36,8 @@ codeunit 134920 "ERM General Journal UT"
         MustSelectAndEmailBodyOrAttahmentErr: Label 'You must select an email body or attachment in report selection';
         RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted.';
         VATAmountLCYErr: Label 'Invalid VAT Amount LCY';
+        GenJouranlLinePostedMsg: Label 'The journal lines were successfully posted.';
+        NoSeriesLineStartDateErr: Label 'Starting Date not updated.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5361,6 +5363,78 @@ codeunit 134920 "ERM General Journal UT"
           10000, NewDocNo);
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,JournalLinesScheduledMessageHandler')]
+    [Scope('OnPrem')]
+    procedure RenumberDocNoForEachStartingDate()
+    var
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Record "No. Series";
+        NoSeriesLine: array[3] of Record "No. Series Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        NewDocNo: Code[20];
+    begin
+        // [SCENARIO 461384] Renumber Document Numbers on General Journal does not consider No. Series Lines setup for each Starting Date
+        Initialize();
+
+        // [GIVEN] Create two GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(GLAccount2);
+
+        // [GIVEN] Create No Series and three no series line with different Starting Date
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        CreateNoSeriesLine(NoSeriesLine[1], NoSeries.Code, WorkDate());
+        CreateNoSeriesLine(NoSeriesLine[2], NoSeries.Code, CalcDate('<+1M>', WorkDate()));
+        CreateNoSeriesLine(NoSeriesLine[3], NoSeries.Code, CalcDate('<+2M>', WorkDate()));
+
+        // [GIVEN] Create first general journal line 
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeries.Code);
+        SetNewDocNo(GenJournalLine);
+
+        // [GIVEN] Create second general journal line
+        CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
+        SetNewDocNo(GenJournalLine);
+        UpdateGenJournaLine(GenJournalLine, CalcDate('<+1M>', WorkDate()));
+
+        // [GIVEN] Create third general journal line
+        CreateSingleLineGenJnlDoc(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
+        SetNewDocNo(GenJournalLine);
+        UpdateGenJournaLine(GenJournalLine, CalcDate('<+2M>', WorkDate()));
+
+        // [THEN] Renumber the document mo
+        Commit();
+        GenJournalLine.RenumberDocumentNo();
+
+        // [VERIFY Verify all three document no
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeries.Code, WorkDate(), false);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          10000, NewDocNo);
+
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeries.Code, CalcDate('<+1M>', WorkDate()), false);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          20000, NewDocNo);
+
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeries.Code, CalcDate('<+2M>', WorkDate()), false);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          30000, NewDocNo);
+
+        // [GIVEN] Post the Gen. Journal Line
+        GenJnlPost.Run(GenJournalLine);
+
+        // [VERIFY] Verify Gen. Journal Line post successfully
+        Assert.ExpectedMessage(GenJouranlLinePostedMsg, LibraryVariableStorageCounter.DequeueText);
+
+        // [VERIFY] No. Series line start date update successfully.
+        Assert.AreEqual(WorkDate(), NoSeriesLine[1]."Starting Date", NoSeriesLineStartDateErr);
+        Assert.AreEqual(CalcDate('<+1M>', WorkDate()), NoSeriesLine[2]."Starting Date", NoSeriesLineStartDateErr);
+        Assert.AreEqual(CalcDate('<+2M>', WorkDate()), NoSeriesLine[3]."Starting Date", NoSeriesLineStartDateErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -6353,6 +6427,19 @@ codeunit 134920 "ERM General Journal UT"
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Journal_Template_Name', GenJnlTemplateName);
 
         GenJnlBatchJson := JSONManagement.WriteObjectToString();
+    end;
+
+    local procedure CreateNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; SeriesCode: Code[20]; StartDate: Date)
+    begin
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, SeriesCode, LibraryUtility.GenerateGUID(), '');
+        NoSeriesLine.Validate("Starting Date", StartDate);
+        NoSeriesLine.Modify();
+    end;
+
+    local procedure UpdateGenJournaLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
+    begin
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify();
     end;
 
     [ModalPageHandler]

@@ -48,6 +48,8 @@ report 297 "Batch Post Sales Invoices"
                     {
                         ApplicationArea = VAT;
                         Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -72,6 +74,8 @@ report 297 "Batch Post Sales Invoices"
                     {
                         ApplicationArea = VAT;
                         Caption = 'Replace VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies if you want to replace the sales invoices VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
@@ -118,6 +122,7 @@ report 297 "Batch Post Sales Invoices"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
             IsHandled: Boolean;
         begin
             IsHandled := false;
@@ -131,6 +136,7 @@ report 297 "Batch Post Sales Invoices"
                 ReplaceDocumentDate := false;
                 PrintDoc := false;
                 PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+                VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
             end;
             OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible, PostingDateReq);
         end;
@@ -151,6 +157,7 @@ report 297 "Batch Post Sales Invoices"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+        VATDateEnabled: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date)

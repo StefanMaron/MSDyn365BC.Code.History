@@ -833,6 +833,15 @@
             Caption = 'Bank Acc. Recon. Batch Name';
             TableRelation = IF ("Bank Acc. Recon. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Bank Acc. Recon. Template Name"));
         }
+        field(188; "Control VAT Period"; Enum "VAT Period Control")
+        {
+            Caption = 'Control VAT Period';
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, StrSubstNo(VATPeriodControlUsageMsg, Format("Control VAT Period")));
+            end;
+        }
         field(11600; "BAS to be Lodged as a Group"; Boolean)
         {
             Caption = 'BAS to be Lodged as a Group';
@@ -1023,6 +1032,7 @@
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
+        VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
         VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage set to %1', Locked = true;
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
@@ -1099,7 +1109,7 @@
         RecordHasBeenRead := true;
     end;
 
-    procedure UpdateVATDate(NewDate: Date; VATDateType: Enum "VAT Reporting Date"; var VATDate : Date) 
+    procedure UpdateVATDate(NewDate: Date; VATDateType: Enum "VAT Reporting Date"; var VATDate: Date)
     begin
         if ("VAT Reporting Date" = VATDateType) then
             VatDate := NewDate;
@@ -1109,8 +1119,10 @@
     begin
         Get();
         case "VAT Reporting Date" of
-            Enum::"VAT Reporting Date"::"Posting Date": exit(PostingDate);
-            Enum::"VAT Reporting Date"::"Document Date": exit(DocumentDate);
+            Enum::"VAT Reporting Date"::"Posting Date":
+                exit(PostingDate);
+            Enum::"VAT Reporting Date"::"Document Date":
+                exit(DocumentDate);
         end;
         exit(PostingDate);
     end;

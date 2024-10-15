@@ -126,9 +126,9 @@ page 742 "VAT Report Statement Subform"
                             VATEntry.SetRange("Use Tax", VATStatementLine2."Use Tax");
                             VATEntry.SetRange("BAS Adjustment", VATStatementLine2."BAS Adjustment");
                             if VATReportHeader."Include Prev. Open Entries" then
-                                VATEntry.SetRange("Posting Date", 0D, VATReportHeader."End Date")
+                                VATEntry.SetRange("VAT Reporting Date", 0D, VATReportHeader."End Date")
                             else
-                                VATEntry.SetRange("Posting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
+                                VATEntry.SetRange("VAT Reporting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
                             VATEntry.SetRange(Closed, false);
                             if VATEntry.FindSet() then
                                 repeat

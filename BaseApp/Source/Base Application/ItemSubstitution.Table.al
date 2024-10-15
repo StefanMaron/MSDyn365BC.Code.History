@@ -219,7 +219,7 @@ table 5715 "Item Substitution"
         ItemSubstitution: Record "Item Substitution";
     begin
         if Interchangeable then
-            if Confirm(Text001 + Text002) then
+            if ConfirmDeletion() then
                 DeleteInterchangeableItem(Type, "No.", "Variant Code", "Substitute Type", "Substitute No.", "Substitute Variant Code")
             else
                 if ItemSubstitution.Get(
@@ -264,6 +264,18 @@ table 5715 "Item Substitution"
         "Substitute Variant Code" := Variant2;
         Interchangeable := Substitutable;
         SetItemVariantDescription(Type.AsInteger(), "No.", "Variant Code", Description);
+    end;
+
+    local procedure ConfirmDeletion() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmDeletion(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := Confirm(Text001 + Text002)
     end;
 
     procedure CreateSubstitutionItem2Item(ItemNo1: Code[20]; Variant1: Code[10]; ItemNo2: Code[20]; Variant2: Code[10]; Substitutable: Boolean)
@@ -382,6 +394,11 @@ table 5715 "Item Substitution"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemVariantDescription(Type: Integer; Number: Code[20]; Variant: Code[10]; var Description: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmDeletion(var ItemSubstitution: Record "Item Substitution"; xItemSubstitution: Record "Item Substitution"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

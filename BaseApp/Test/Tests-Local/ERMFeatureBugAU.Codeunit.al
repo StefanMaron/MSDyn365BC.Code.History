@@ -501,6 +501,7 @@ codeunit 144004 "ERM Feature Bug AU"
         CalcandPostVATSettlement.StartingDate.SetValue(WorkDate());
         CalcandPostVATSettlement.EndDateReq.SetValue(WorkDate());
         CalcandPostVATSettlement.PostingDt.SetValue(WorkDate());
+        CalcandPostVATSettlement.VATDt.SetValue(WorkDate());
         CalcandPostVATSettlement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
         CalcandPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText);
         CalcandPostVATSettlement."VAT Posting Setup".SetFilter("VAT Bus. Posting Group", LibraryVariableStorage.DequeueText);

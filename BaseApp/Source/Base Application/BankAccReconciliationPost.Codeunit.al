@@ -55,6 +55,7 @@
         NotFullyAppliedErr: Label 'One or more payments are not fully applied.\\The sum of applied amounts is %1. It must be %2.', Comment = '%1 - total applied amount, %2 - total transaction amount';
         LineNoTAppliedErr: Label 'The line with transaction date %1 and transaction text ''%2'' is not applied. You must apply all lines.', Comment = '%1 - transaction date, %2 - arbitrary text';
         TransactionAlreadyReconciledErr: Label 'The line with transaction date %1 and transaction text ''%2'' is already reconciled.\\You must remove it from the payment reconciliation journal before posting.', Comment = '%1 - transaction date, %2 - arbitrary text';
+        EventNameTelemetryTxt: Label 'Post bank reconciliation', Locked = true;
 
     [Scope('OnPrem')]
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -100,6 +101,7 @@
     local procedure StoreFieldsPrePosting(BankAccRecon: Record "Bank Acc. Reconciliation"; var PrePostingOutstdPayments: Decimal; var PrePostingOutstdBankTransactions: Decimal; var PrePostingGLBalance: Decimal; var PrePostingTotalPositiveDifference: Decimal; var PrePostingTotalNegativeDifference: Decimal)
     var
         PreBankAcc: Record "Bank Account";
+        BankAccPostingGroup: Record "Bank Account Posting Group";
         BankAccReconTest: Codeunit "Bank Acc. Recon. Test";
     begin
         BankAccRecon.CalcFields(
@@ -115,13 +117,15 @@
         PreBankAcc.SetFilter("Date Filter", '..%1', BankAccRecon."Statement Date");
         PreBankAcc.SetAutoCalcFields("Balance at Date");
         if PreBankAcc.Get(BankAccRecon."Bank Account No.") then
-            PrePostingGLBalance := PreBankAcc."Balance at Date";
+            if BankAccPostingGroup.Get(PreBankAcc."Bank Acc. Posting Group") then
+                PrePostingGLBalance := BankAccReconTest.GetGLAccountBalanceLCY(PreBankAcc, BankAccPostingGroup, BankAccRecon."Statement Date");
     end;
 
     local procedure Post(BankAccRecon: Record "Bank Acc. Reconciliation")
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         AppliedAmount: Decimal;
         PrePostingOutstdPayments: Decimal;
         PrePostingOutstdBankTransactions: Decimal;
@@ -131,6 +135,7 @@
         TotalTransAmtNotAppliedErr: Text;
     begin
         OnBeforePost(BankAccRecon, BankAccReconLine);
+        FeatureTelemetry.LogUptake('0000JLO', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         StoreFieldsPrePosting(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
         with BankAccRecon do begin
             // Run through lines
@@ -200,6 +205,8 @@
                 "Statement Type"::"Payment Application":
                     HandlePaymentApplicationTransfer(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
             end;
+            FeatureTelemetry.LogUsage('0000JLP', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), EventNameTelemetryTxt);
+            Session.LogMessage('0000JLQ', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccRecon.GetBankReconciliationTelemetryFeatureName());
         end;
     end;
 
