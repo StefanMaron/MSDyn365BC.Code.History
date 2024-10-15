@@ -3209,7 +3209,13 @@ table 81 "Gen. Journal Line"
     var
         SourceExists1: Boolean;
         SourceExists2: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSource(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceExists1 := ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '');
         SourceExists2 := ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '');
         case true of
@@ -7020,6 +7026,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 }

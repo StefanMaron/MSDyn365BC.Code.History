@@ -1679,6 +1679,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Budget - NamedType AnalysisViewBudgetEntryExistsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 2184629082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value %1 - %2 is blocked.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 3144747853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value Type for Dimension Value %1 - %2 must not be %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value, %3 = Dimension Value Type value]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMustNotBeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1111060729 - NamedType 1320827926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value for %1 is missing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code]D;]A;(LookupHint=Codeunit ERM Budget - NamedType DimValueMissingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3944115356 - NamedType 638311702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Gen. Prod. Posting Group must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero]]></Val>
@@ -1762,7 +1789,7 @@
   </Item>
   <Item ItemId=";Codeunit 1932411446 - NamedType 1743333713" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Allow G/L Acc. Deletion Before must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.]]></Val>
+      <Val><![CDATA[Check G/L Acc. Deletion After must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -6703,11 +6730,11 @@
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 3546971989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table]]></Val>
+      <Val><![CDATA[The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - G\L Acc No]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType NotExistingFreightGLAccNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType NotExistingFreightGLAccNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 16987930" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

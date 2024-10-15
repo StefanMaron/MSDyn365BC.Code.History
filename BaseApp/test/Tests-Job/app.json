@@ -2,18 +2,18 @@
     "id":  "9bf23d52-8194-4857-8896-5e48b24493f6",
     "name":  "Tests-Job",
     "publisher":  "Microsoft",
-    "version":  "15.4.41023.41345",
+    "version":  "15.5.41926.0",
     "platform":  "15.0.0.0",
     "dependencies":  [
                          {
                              "appId":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "15.4.0.0"
+                             "version":  "15.5.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "15.4.0.0",
+    "application":  "15.5.0.0",
     "brief":  "Tests-Job (W1)"
 }

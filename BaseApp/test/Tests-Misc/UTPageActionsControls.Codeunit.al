@@ -3885,6 +3885,74 @@ codeunit 134341 "UT Page Actions & Controls"
         PostCode.TestField("Time Zone", TimeZone.ID);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShipToOptionsOnPurchaseQuotePage()
+    var
+        PurchaseQuoteHeader: Record "Purchase Header";
+        PurchaseQuotePage: TestPage "Purchase Quote";
+        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
+    begin
+        // [FEATURE] [Purchase] [Quote] [Ship-to-Address]
+        // [SCENARIO 343963] Ship-to options on Purchase Quote page consist of: Default (Company Address), Location, Custom Address
+
+        // [GIVEN] Created Purchase Quote
+        LibraryPurchase.CreatePurchaseQuote(PurchaseQuoteHeader);
+
+        // [WHEN] Opened th page
+        PurchaseQuotePage.OpenEdit();
+        PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseQuoteHeader."No.");
+
+        // [THEN] Ship-to options consist of: Default (Company Address), Location, Custom Address
+        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::"Default (Company Address)");
+        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
+        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,LogSegmentHandler')]
+    [Scope('OnPrem')]
+    procedure CheckNewSegmentLoggedSuccessfully()
+    var
+        Contact: Record Contact;
+        InteractionTemplate: Record "Interaction Template";
+        LoggedSegment: Record "Logged Segment";
+
+        Segment: TestPage Segment;
+        Description: Code[20];
+        SegmentNo: Code[20];
+    begin
+        // [FEATURE] [Segment]
+        // [SCENARIO 346492] Create New Segment with Segment Line
+        // [GIVEN] Created Interaction Template
+        CreateInteractionTemplate(InteractionTemplate);
+
+        // [GIVEN] Created Contact with SalesPerson
+        CreateContactWithSalesperson(Contact);
+
+        // [GIVEN] Created new segment with page
+        Segment.OpenNew();
+        Description := LibraryUtility.GenerateGUID;
+        Segment.Description.SetValue(Description);
+        Segment.SegLines."Contact No.".SETVALUE(Contact."No.");
+        Segment."Interaction Template Code".SETVALUE(InteractionTemplate.Code);
+
+        SegmentNo := Segment."No.".Value();
+        Segment.Close();
+        Segment.OpenEdit();
+        Segment.Filter.SetFilter("No.", SegmentNo);
+        Segment.First();
+        Commit();
+
+        // [WHEN] Log Segment
+        Segment.LogSegment.Invoke();
+
+        // [THEN] The page Segment Closed successfully 
+        // [THEN] The Segment logged successfully 
+        LoggedSegment.SetRange(Description, Description);
+        LoggedSegment.FindFirst();
+    end;
+
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
     var
         PostCode: Record "Post Code";
@@ -4290,6 +4358,24 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.RecordIsNotEmpty(InventoryPostingSetup);
     end;
 
+    local procedure CreateContactWithSalesperson(var Contact: Record Contact)
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        Contact.Init();
+        Contact."No." := LibraryUtility.GenerateGUID;
+        Contact."Salesperson Code" := SalespersonPurchaser.Code;
+        Contact.Insert();
+    end;
+
+    local procedure CreateInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
+    begin
+        InteractionTemplate.Init();
+        InteractionTemplate.Code := LibraryUtility.GenerateGUID;
+        InteractionTemplate.Insert(false);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemListMPH(var ItemList: TestPage "Item List")
@@ -4681,6 +4767,27 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         TimeZones.FILTER.SetFilter(ID, LibraryVariableStorage.DequeueText);
         TimeZones.OK.Invoke;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        //MessageHandler
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
+    begin
+        Response := true;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure LogSegmentHandler(var LogSegment: TestRequestPage "Log Segment")
+    begin
+        LogSegment.OK.Invoke();
     end;
 }
 

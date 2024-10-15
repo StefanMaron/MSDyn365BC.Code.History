@@ -1292,6 +1292,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Access in SaaS Tests - NamedType NewUsersCannotLoginQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 554105113 - NamedType 725509951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You can only change your own web service access keys.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Access in SaaS Tests - NamedType CannotEditForOtherUsersErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1438280909 - NamedType 1306647436" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The account USER001 already exists.]]></Val>

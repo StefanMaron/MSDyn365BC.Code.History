@@ -6156,7 +6156,7 @@ table 39 "Purchase Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          PurchSetup.RecordId, "Gen. Bus. Posting Group",
+          PurchSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
           PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Invoice Discounts");
     end;
 
