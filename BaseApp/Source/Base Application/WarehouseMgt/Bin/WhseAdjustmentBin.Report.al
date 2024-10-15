@@ -115,6 +115,7 @@ report 7320 "Whse. Adjustment Bin"
 
                 trigger OnPreDataItem()
                 begin
+                    Clear(WhseEntry);
                     if Details then
                         CurrReport.Break();
 
@@ -200,8 +201,8 @@ report 7320 "Whse. Adjustment Bin"
                 if Location.Code <> "Location Code" then begin
                     Location.Get("Location Code");
                     if Location."Adjustment Bin Code" = '' then
-                        CurrReport.Skip()
-                        ;
+                        CurrReport.Skip();
+
                     SetRange("Bin Code", Location."Adjustment Bin Code");
                     if not Find('-') then
                         CurrReport.Break();

@@ -1970,7 +1970,8 @@
                 IsHandled: Boolean;
             begin
                 if ("Phys Invt Counting Period Code" <> '') and
-                   ("Phys Invt Counting Period Code" <> xRec."Phys Invt Counting Period Code")
+                   (("Phys Invt Counting Period Code" <> xRec."Phys Invt Counting Period Code") or
+                   (xRec."Phys Invt Counting Period Code" <> ''))
                 then begin
                     PhysInvtCountPeriod.Get("Phys Invt Counting Period Code");
                     PhysInvtCountPeriod.TestField("Count Frequency per Year");
