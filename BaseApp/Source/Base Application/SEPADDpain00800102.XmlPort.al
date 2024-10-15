@@ -82,13 +82,16 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                         {
                             textelement(OrgId)
                             {
-                                tableelement(BankAccountOthr; "Bank Account")
+                                textelement(Othr)
                                 {
-                                    LinkFields = "No." = field("Sender Bank Account Code");
-                                    LinkTable = PaymentExportDataGroup;
-                                    XmlName = 'Othr';
-                                    fieldelement(Id; BankAccountOthr.CUC)
+                                    textelement(OrganizationID)
                                     {
+                                        XmlName = 'Id';
+
+                                        trigger OnBeforePassVariable()
+                                        begin
+                                            OrganizationID := paymentexportdatagroup.GetOrganizationID();
+                                        end;
                                     }
                                 }
                             }
@@ -460,3 +463,4 @@ xmlport 1010 "SEPA DD pain.008.001.02"
         PaymentExportDataGroup.Insert();
     end;
 }
+
