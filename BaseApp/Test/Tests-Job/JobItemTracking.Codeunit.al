@@ -37,7 +37,7 @@ codeunit 136319 "Job Item Tracking"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         Assert: Codeunit Assert;
-        ItemTrackingHandlerAction: Option Assign,AssignSpecific,AssignMultiple,Select,NothingToHandle,SelectWithQtyToHandle,ChangeSelection,AssignLot;
+        ItemTrackingHandlerAction: Option Assign,AssignSpecific,AssignSpecificLot,AssignMultiple,Select,NothingToHandle,SelectWithQtyToHandle,ChangeSelection,ChangeSelectionLot,ChangeSelectionLotLast,ChangeSelectionQty,AssignLot;
         IsInitialized: Boolean;
         ReInitializeJobSetup: Boolean;
 
@@ -321,13 +321,312 @@ codeunit 136319 "Job Item Tracking"
         LibraryJob.PostJobJournal(JobJournalLine);
 
         // [THEN] Reservation Entries are deleted
+        ReservationEntry.Reset();
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
         ReservationEntry.SetRange("Item No.", SerialTrackedItem."No.");
-        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
         Assert.RecordCount(ReservationEntry, 0);
 
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
         ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,JobTransferFromJobPlanLineHandler,MessageHandler,ConfirmHandlerTrue,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateTransferredSNAndPostJobJournalDeletesAllReservationEntries()
+    var
+        SerialTrackedItem: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ProspectSerialNo: Code[50];
+        SurplusSerialNo: Code[50];
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
+        // [SCENARIO] Modifying and Posting the Job Journal with the transferred ItemTracking with serial no. from Job Planning Line deletes all the related reservation entries.
+        // [GIVEN] Location, serial tracked item with sufficient quantity in the inventory
+        Initialize();
+
+        CreateSerialTrackedItem(SerialTrackedItem, true);
+        QtyInventory := 2;
+        CreateAndPostInvtAdjustmentWithSNTracking(SerialTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job with the item in the planning line
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, SerialTrackedItem."No.", LocationWithRequirePick.Code, '', 1);
+
+        // [GIVEN] 'Item Tracking Lines' is opened
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine.OpenItemTrackingLines();
+
+        // [WHEN] Creating Job Journal Lines from Job Planning Lines
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+
+        // [THEN] Reservation entries are also transferred
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", SerialTrackedItem."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+
+        // [WHEN] Update item tracking on Job Journal Line
+        JobJournalLine.SetRange("Job No.", JobTask."Job No.");
+        JobJournalLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobJournalLine.SetRange(Type, JobJournalLine.Type::Item);
+        JobJournalLine.SetRange("Line Type", JobJournalLine."Line Type"::Budget);
+        JobJournalLine.FindFirst();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::ChangeSelection);
+        LibraryVariableStorage.Enqueue(GetUnassignedSerialNo(SerialTrackedItem, LocationWithRequirePick.Code));
+        JobJournalLine.OpenItemTrackingLines(false);
+
+        // [THEN] There are two reservation entries with different serial numbers. First for Surplus (JobPlanningLine), Second for Prospect (JobJournalLine)
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", SerialTrackedItem."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+        ReservationEntry.FindFirst();
+        SurplusSerialNo := ReservationEntry."Serial No.";
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+        ReservationEntry.FindFirst();
+        ProspectSerialNo := ReservationEntry."Serial No.";
+
+        Assert.AreNotEqual(ProspectSerialNo, SurplusSerialNo, StrSubstNo('Reservation entry should have different serial number for %1', ReservationEntry."Reservation Status"::Prospect));
+
+        // [WHEN] Post Job Journal
+        JobJournalLine.FindFirst();
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Reservation Entries are deleted including intermediate reservation entries created for Item Journal Lines.
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", SerialTrackedItem."No.");
+        Assert.RecordCount(ReservationEntry, 0);
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        Assert.RecordCount(ReservationEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,JobTransferFromJobPlanLineHandler,MessageHandler,ConfirmHandlerTrue,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateTransferredLotNoAndPostJobJournalDeletesAllReservationEntries()
+    var
+        LotTrackedItem: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ProspectLotNo: Code[50];
+        SurplusLotNo: Code[50];
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
+        // [SCENARIO] Modifying and Posting the Job Journal with the transferred ItemTracking with lot no. from Job Planning Line deletes all the related reservation entries.
+        // [GIVEN] Location, lot tracked item with sufficient quantity in the inventory
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+        QtyInventory := 2;
+        CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job with the item in the planning line
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, LotTrackedItem."No.", LocationWithRequirePick.Code, '', 1);
+
+        // [GIVEN] 'Item Tracking Lines' is opened
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine.OpenItemTrackingLines();
+
+        // [WHEN] Creating Job Journal Lines from Job Planning Lines
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+
+        // [THEN] Reservation entries are also transferred
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+
+        // [WHEN] Update item tracking on Job Journal Line
+        JobJournalLine.SetRange("Job No.", JobTask."Job No.");
+        JobJournalLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobJournalLine.SetRange(Type, JobJournalLine.Type::Item);
+        JobJournalLine.SetRange("Line Type", JobJournalLine."Line Type"::Budget);
+        JobJournalLine.FindFirst();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::ChangeSelectionLot);
+        LibraryVariableStorage.Enqueue(GetUnassignedLotNo(LotTrackedItem, LocationWithRequirePick.Code));
+        JobJournalLine.OpenItemTrackingLines(false);
+
+        // [THEN] There are two reservation entries with different lot numbers. First for Surplus (JobPlanningLine), Second for Prospect (JobJournalLine)
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+        ReservationEntry.FindFirst();
+        SurplusLotNo := ReservationEntry."Lot No.";
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, JobPlanningLine."Quantity (Base)");
+        ReservationEntry.FindFirst();
+        ProspectLotNo := ReservationEntry."Lot No.";
+
+        Assert.AreNotEqual(ProspectLotNo, SurplusLotNo, StrSubstNo('Reservation entry should have different lot number for %1', ReservationEntry."Reservation Status"::Prospect));
+
+        // [WHEN] Post Job Journal
+        JobJournalLine.FindFirst();
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Reservation Entries are deleted including intermediate reservation entries created for Item Journal Lines.
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
+        Assert.RecordCount(ReservationEntry, 0);
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        Assert.RecordCount(ReservationEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,JobTransferFromJobPlanLineHandler,MessageHandler,ConfirmHandlerTrue,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure SplitLotNoAndPostTransferredJobJournalDeletesAllReservationEntries()
+    var
+        LotTrackedItem: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        UnusedLotNo: Code[50];
+        LotNumbersUsed: List of [Code[50]];
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
+        // [SCENARIO] Splitting and Posting the Job Journal with the transferred ItemTracking with lot no. from Job Planning Line deletes all the related reservation entries.
+        // [GIVEN] Location, lot tracked item with sufficient quantity in the inventory
+        Initialize();
+        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+        QtyInventory := 4;
+        // 3 Lots are assigned.
+        CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', 4, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', 2, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', 2, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job with the item in the planning line
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, LotTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory);
+
+        // [GIVEN] 'Item Tracking Lines' is opened
+        // Item tracking is assigned as Lot1 = Qty 3; Lot2 = Qty 1
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine.OpenItemTrackingLines(); //Creates Lot 1 with Qty 4
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::ChangeSelectionQty);
+        LibraryVariableStorage.Enqueue(3);
+        JobPlanningLine.OpenItemTrackingLines(); //Creates Lot 1 with Qty 3
+
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignSpecificLot);
+        UnusedLotNo := GetUnassignedLotNo(LotTrackedItem, LocationWithRequirePick.Code);
+        LibraryVariableStorage.Enqueue(UnusedLotNo);
+        LibraryVariableStorage.Enqueue(1);
+        JobPlanningLine.OpenItemTrackingLines(); //Creates Lot 2 with Qty 1
+
+        // [WHEN] Creating Job Journal Lines from Job Planning Lines
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+
+        // [THEN] Reservation entries are also transferred (2 lots created) 
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        Assert.RecordCount(ReservationEntry, 2);
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, 2);
+
+        // [WHEN] Split the item tracking on Job Journal Line into
+        // Lot1: Qty 3
+        // Lot3: Qty 1
+        JobJournalLine.SetRange("Job No.", JobTask."Job No.");
+        JobJournalLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobJournalLine.SetRange(Type, JobJournalLine.Type::Item);
+        JobJournalLine.SetRange("Line Type", JobJournalLine."Line Type"::Budget);
+        JobJournalLine.FindFirst();
+
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::ChangeSelectionLotLast);
+        UnusedLotNo := GetUnassignedLotNo(LotTrackedItem, LocationWithRequirePick.Code);
+        LibraryVariableStorage.Enqueue(UnusedLotNo);
+        JobJournalLine.OpenItemTrackingLines(false);
+
+        // [THEN] There are 4 reservation entries with 3 lot numbers.
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        Assert.RecordCount(ReservationEntry, 2);
+        ReservationEntry.FindSet();
+        repeat
+            if not LotNumbersUsed.Contains(ReservationEntry."Lot No.") then
+                LotNumbersUsed.Add(ReservationEntry."Lot No.");
+        until ReservationEntry.Next() = 0;
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.SetRange("Source Type", Database::"Job Journal Line");
+        Assert.RecordCount(ReservationEntry, 2);
+        ReservationEntry.FindSet();
+        repeat
+            if not LotNumbersUsed.Contains(ReservationEntry."Lot No.") then
+                LotNumbersUsed.Add(ReservationEntry."Lot No.");
+        until ReservationEntry.Next() = 0;
+
+        Assert.AreEqual(3, LotNumbersUsed.Count, 'Three different lot numbers should have been used.');
+
+        // [WHEN] Post Job Journal
+        JobJournalLine.FindFirst();
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Reservation Entries are deleted including intermediate reservation entries created for Item Journal Lines.
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.SetRange("Item No.", LotTrackedItem."No.");
+        Assert.RecordCount(ReservationEntry, 0);
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Prospect);
         Assert.RecordCount(ReservationEntry, 0);
     end;
 
@@ -1831,6 +2130,236 @@ codeunit 136319 "Job Item Tracking"
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
+    procedure QtyToHandleDoesNotMatchItemTrackingOnJobPlanningLineForLotWithSplitError()
+    var
+        ItemLotAll1: Record Item;
+        JobPlanningLine1: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        ReservationStatus: Enum "Reservation Status";
+        QtyInventory: Integer;
+        QtyOnJobPlanningLine: Integer;
+        QtyToHandle: Integer;
+    begin
+        // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines for Lot
+        // [SCENARIO] Qty to Handle on inventory pick should match the Qty on item tracking lines on Job Planning Line.
+
+        // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePickBinMandatory Bin1
+        // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePick
+
+        Initialize();
+        LibraryItemTracking.CreateLotItem(ItemLotAll1);
+        QtyInventory := 4;
+        QtyOnJobPlanningLine := 3;
+        QtyToHandle := 1;
+
+        // [GIVEN] Split the Inventory for ItemLotAll1 between two different lots by setting Qty = QtyInventory/2
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create Job with job tasks
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] 2 Job Planning Lines for Job Task T1, Line Type = Budget
+        CreateJobPlanningLineWithData(JobPlanningLine1, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine1.Type::Item, ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyOnJobPlanningLine);
+        CreateJobPlanningLineWithData(JobPlanningLine2, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine2.Type::Item, ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyOnJobPlanningLine);
+
+        // [WHEN] Lot numbers are assigned on all the Job planning lines
+        // [WHEN] 'Item Tracking Lines' is opened for Job Planning Line and Lot numbers are assigned. ItemLotAll1 has inventory split across two lots.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine1.OpenItemTrackingLines();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine2.OpenItemTrackingLines();
+
+        // [THEN] Reservation entries exists for the tracked items with status Surplus with Quantity = 3;
+        VerifyReservationEntryQtySum(JobPlanningLine1, 2, -QtyOnJobPlanningLine, ReservationStatus::Surplus);
+        VerifyReservationEntryQtySum(JobPlanningLine2, 2, -QtyOnJobPlanningLine, ReservationStatus::Surplus);
+
+        // [THEN] There are no lines with Reservation Status = "Prospect"
+        VerifyReservationEntry(JobPlanningLine1, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine2, 0, 0, ReservationStatus::Prospect);
+
+        // [GIVEN] Inventory Picks are created for the job.
+        Job.Get(JobTask."Job No.");
+        OpenJobAndCreateInventoryPick(Job);
+
+        // [WHEN] Set Qty To Handle to 1 for all the lines.
+        Clear(WarehouseActivityLine);
+        WarehouseActivityLine.SetRange("Item No.", ItemLotAll1."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [WHEN] Split the first line and set Qty to handle = QtyToHandle
+        SplitFirstLineInInvPickPage(Job."No.", LocationWithRequirePickBinMandatory.Code);
+        SplitFirstLineInInvPickPage(Job."No.", LocationWithRequirePick.Code);
+
+        Clear(WarehouseActivityLine);
+        WarehouseActivityLine.SetRange("Item No.", ItemLotAll1."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [WHEN] Post Inventory Pick for LocationWithRequirePickBinMandatory
+        Commit(); //committing before the error.
+        asserterror PostInventoryPickFromPage(Job."No.", LocationWithRequirePickBinMandatory.Code, false);
+
+        // [THEN] Error is thrown that quantity to handle in item tracking does not match with the inventory pick quantity 
+        Assert.ExpectedError(StrSubstNo('%1 in the item tracking assigned', WarehouseActivityLine.FieldCaption(WarehouseActivityLine."Qty. to Handle (Base)")));
+
+        // [WHEN] Post Inventory Pick for LocationWithRequirePick
+        asserterror PostInventoryPickFromPage(Job."No.", LocationWithRequirePick.Code, false);
+
+        // [THEN] Error is thrown that quantity to handle in item tracking does not match with the inventory pick quantity
+        Assert.ExpectedError(StrSubstNo('%1 in the item tracking assigned', WarehouseActivityLine.FieldCaption(WarehouseActivityLine."Qty. to Handle (Base)")));
+
+        // [WHEN] Post Inventory Pick for LocationWithRequirePickBinMandatory with Handling Full Quantity
+        PostInventoryPickFromPage(Job."No.", LocationWithRequirePickBinMandatory.Code, true);
+        // [WHEN] Post Inventory Pick for LocationWithRequirePick with Handling Full Quantity
+        PostInventoryPickFromPage(Job."No.", LocationWithRequirePick.Code, true);
+
+        // [THEN] Reservation entries are updated and no error is thrown
+        VerifyReservationEntry(JobPlanningLine1, 0, 0, ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine2, 0, 0, ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine1, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine2, 0, 0, ReservationStatus::Prospect);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PostInventoryPickForLotTransferredFromJobPlanningLinesWithSplit()
+    var
+        ItemLotAll1: Record Item;
+        ItemLotAll2: Record Item;
+        JobPlanningLine1: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        JobPlanningLine3: Record "Job Planning Line";
+        JobPlanningLine4: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        ReservationStatus: Enum "Reservation Status";
+        QtyInventory: Integer;
+        QtyOnJobPlanningLine: Integer;
+        QtyToHandle: Integer;
+    begin
+        // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
+        // [SCENARIO] Posting of Inventory Picks is possible after splitting for Lot tracking transferred from Job Planning Line 
+
+        // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePickBinMandatory Bin1
+        // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePick
+        // [GIVEN] Job planning line with ItemLotAll2 Location LocationWithRequirePickBinMandatory Bin1
+        // [GIVEN] Job planning line with ItemLotAll2 Location LocationWithRequirePick
+
+        Initialize();
+        LibraryItemTracking.CreateLotItem(ItemLotAll1);
+        LibraryItemTracking.CreateLotItem(ItemLotAll2);
+        QtyInventory := 2;
+        QtyOnJobPlanningLine := 2;
+        QtyToHandle := 1;
+
+        // [GIVEN] Split the Inventory for ItemLotAll1 between two different lots by setting Qty = QtyInventory/2
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyInventory / 2, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] ItemAll2 is assigned 1 Lot. 
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll2."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithLotTracking(ItemLotAll2."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create Job with job tasks
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] 4 Job Planning Lines for Job Task T1, Line Type = Budget
+        CreateJobPlanningLineWithData(JobPlanningLine1, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine1.Type::Item, ItemLotAll1."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyOnJobPlanningLine);
+        CreateJobPlanningLineWithData(JobPlanningLine2, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine2.Type::Item, ItemLotAll1."No.", LocationWithRequirePick.Code, '', QtyOnJobPlanningLine);
+
+        CreateJobPlanningLineWithData(JobPlanningLine3, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine3.Type::Item, ItemLotAll2."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyOnJobPlanningLine);
+        CreateJobPlanningLineWithData(JobPlanningLine4, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine4.Type::Item, ItemLotAll2."No.", LocationWithRequirePick.Code, '', QtyOnJobPlanningLine);
+
+        // [WHEN] Lot numbers are assigned on all the Job planning lines
+        // [WHEN] 'Item Tracking Lines' is opened for Job Planning Line and Lot numbers are assigned. ItemLotAll1 has inventory split across two lots.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine1.OpenItemTrackingLines();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine2.OpenItemTrackingLines();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine3.OpenItemTrackingLines();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select);
+        JobPlanningLine4.OpenItemTrackingLines();
+
+        // [THEN] Reservation entries exists for the tracked items with status Surplus with Quantity = 3;
+        VerifyReservationEntryQtySum(JobPlanningLine1, 2, -QtyOnJobPlanningLine, ReservationStatus::Surplus);
+        VerifyReservationEntryQtySum(JobPlanningLine2, 2, -QtyOnJobPlanningLine, ReservationStatus::Surplus);
+
+        VerifyReservationEntry(JobPlanningLine3, 1, -QtyOnJobPlanningLine, ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine4, 1, -QtyOnJobPlanningLine, ReservationStatus::Surplus);
+
+        // [THEN] There are no lines with Reservation Status = "Prospect"
+        VerifyReservationEntry(JobPlanningLine1, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine2, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine3, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine4, 0, 0, ReservationStatus::Prospect);
+
+        // [GIVEN] Inventory Picks are created for the job.
+        Job.Get(JobTask."Job No.");
+        OpenJobAndCreateInventoryPick(Job);
+
+        // [WHEN] Set Qty To Handle to 1 for all the lines.
+        Clear(WarehouseActivityLine);
+        WarehouseActivityLine.SetFilter("Item No.", '= %1|%2', ItemLotAll1."No.", ItemLotAll2."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [WHEN] Split the first line and set Qty to handle = QtyToHandle
+        SplitFirstLineInInvPickPage(Job."No.", LocationWithRequirePickBinMandatory.Code);
+        SplitFirstLineInInvPickPage(Job."No.", LocationWithRequirePick.Code);
+
+        Clear(WarehouseActivityLine);
+        WarehouseActivityLine.SetFilter("Item No.", '= %1|%2', ItemLotAll1."No.", ItemLotAll2."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [WHEN] Post Inventory Pick for LocationWithRequirePickBinMandatory
+        PostInventoryPickFromPage(Job."No.", LocationWithRequirePickBinMandatory.Code, false);
+
+        // [WHEN] Post Inventory Pick for LocationWithRequirePick
+        PostInventoryPickFromPage(Job."No.", LocationWithRequirePick.Code, false);
+
+        // [THEN] No error is thrown and Reservation entries are removed for location LocationWithRequirePickBinMandatory.
+        VerifyReservationEntry(JobPlanningLine1, 0, 0, ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine2, 0, 0, ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine3, 1, -(QtyOnJobPlanningLine - QtyToHandle), ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine4, 1, -(QtyOnJobPlanningLine - QtyToHandle), ReservationStatus::Surplus);
+        VerifyReservationEntry(JobPlanningLine1, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine2, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine3, 0, 0, ReservationStatus::Prospect);
+        VerifyReservationEntry(JobPlanningLine4, 0, 0, ReservationStatus::Prospect);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
     procedure PostPartialInventoryPickForLotFromJobPlanningLinesWithNegAdjLot()
     var
         ItemLotAll: Record Item;
@@ -2772,6 +3301,39 @@ codeunit 136319 "Job Item Tracking"
         end;
     end;
 
+    local procedure GetUnassignedLotNo(Item: Record Item; LocationCode: Code[10]): Code[50]
+    var
+        LotNos: DotNet ArrayList;
+    begin
+        LotNos := LotNos.ArrayList();
+
+        GetUnassignedLotNos(Item."No.", LocationCode, 1, LotNos);
+        exit(LotNos.Item(0));
+    end;
+
+    local procedure GetUnassignedLotNos(ItemNo: Code[20]; LocationCode: Code[10]; HowMany: Integer; LotNos: DotNet ArrayList)
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        NoOfNos: Integer;
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        if LocationCode <> '' then
+            ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        if ItemLedgerEntry.FindSet() then begin
+            ReservationEntry.SetRange("Item No.", ItemNo);
+            repeat
+                ReservationEntry.SetRange("Lot No.", ItemLedgerEntry."Lot No.");
+                if ReservationEntry.IsEmpty then begin
+                    LotNos.Add(ItemLedgerEntry."Lot No.");
+                    NoOfNos += 1;
+                    if NoOfNos >= HowMany then
+                        exit;
+                end;
+            until ItemLedgerEntry.Next() = 0;
+        end;
+    end;
+
     local procedure VerifyWhseEntriesAfterRegisterPick(Job: Record Job; JobTask: Record "Job Task"; SNSpecificTracking: Boolean; SourceBin: Code[20])
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -2910,6 +3472,26 @@ codeunit 136319 "Job Item Tracking"
                 Assert.RecordCount(ResEntryJobJnlLine, 1);
             until ResEntryPlanningLine.Next() = 0;
         until JobJournalLine.Next() = 0;
+    end;
+
+    local procedure VerifyReservationEntryQtySum(var JobPlanningLine: Record "Job Planning Line"; ExpectedCount: Integer; ExpectedQtySum: Decimal; ReservationStatus: Enum "Reservation Status")
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ActualQtySum: Decimal;
+    begin
+        ReservationEntry.SetRange("Item No.", JobPlanningLine."No.");
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        ReservationEntry.SetRange("Source ID", JobPlanningLine."Job No.");
+        ReservationEntry.SetRange("Source Ref. No.", JobPlanningLine."Job Contract Entry No.");
+        ReservationEntry.SetRange("Reservation Status", ReservationStatus);
+        Assert.RecordCount(ReservationEntry, ExpectedCount);
+        if ExpectedCount > 0 then begin
+            ReservationEntry.FindSet();
+            repeat
+                ActualQtySum += ReservationEntry.Quantity;
+            until ReservationEntry.Next() = 0;
+            Assert.AreEqual(ExpectedQtySum, ActualQtySum, StrSubstNo('The Sum of Quantity on the Reservation Entries should be equal to %1', ExpectedQtySum));
+        end;
     end;
 
     local procedure VerifyReservationEntry(var JobPlanningLine: Record "Job Planning Line"; ExpectedCount: Integer; ExpectedQty: Decimal; ReservationStatus: Enum "Reservation Status")
@@ -3073,11 +3655,29 @@ codeunit 136319 "Job Item Tracking"
             InventoryPickPage.WhseActivityLines."Qty. to Handle".SetValue(1);
             if InventoryPickPage.WhseActivityLines.Quantity.AsDecimal() > 1 then
                 InventoryPickPage.WhseActivityLines.SplitWhseActivityLine.Invoke();
-        until InventoryPickPage.WhseActivityLines.Next();
+        until InventoryPickPage.WhseActivityLines.Next() = false;
 
         if AutoFillQtyToHandle then
             InventoryPickPage.AutofillQtyToHandle.Invoke();
         InventoryPickPage."P&ost".Invoke(); //Needs confirmation handler
+    end;
+
+    local procedure SplitFirstLineInInvPickPage(JobNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        InventoryPickPage: TestPage "Inventory Pick";
+    begin
+        WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Job Usage");
+        WarehouseActivityHeader.SetRange("Source No.", JobNo);
+        WarehouseActivityHeader.SetRange("Location Code", LocationCode);
+        WarehouseActivityHeader.FindFirst();
+        InventoryPickPage.OpenEdit();
+        InventoryPickPage.GoToRecord(WarehouseActivityHeader);
+
+        //Split all the lines
+        InventoryPickPage.WhseActivityLines.First();
+        InventoryPickPage.WhseActivityLines."Qty. to Handle".SetValue(1);
+        InventoryPickPage.WhseActivityLines.SplitWhseActivityLine.Invoke();
     end;
 
     local procedure RegisterWarehousePickFromPage(JobNo: Code[20]; LocationCode: Code[10]; AutoFillQtyToHandle: Boolean)
@@ -3357,6 +3957,7 @@ codeunit 136319 "Job Item Tracking"
         SerialNos: DotNet ArrayList;
         ActionOption: Integer;
         SerialNo: Text;
+        LotNo: Text;
         ItemNo: Code[20];
         LocationCode: Code[10];
         HowMany: Integer;
@@ -3374,6 +3975,14 @@ codeunit 136319 "Job Item Tracking"
                     ItemTrackingLines.First();
                     ItemTrackingLines."Serial No.".SetValue(SerialNo);
                     ItemTrackingLines."Quantity (Base)".SetValue(1);
+                end;
+            ItemTrackingHandlerAction::AssignSpecificLot:
+                begin
+                    LotNo := LibraryVariableStorage.DequeueText();
+                    ItemTrackingLines.Last();
+                    if ItemTrackingLines.Next() then; //Assign the lot number at the end.
+                    ItemTrackingLines."Lot No.".SetValue(LotNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingHandlerAction::Select:
                 ItemTrackingLines."Select Entries".Invoke(); // ItemTrackingSummaryPageHandler
@@ -3394,6 +4003,21 @@ codeunit 136319 "Job Item Tracking"
                 begin
                     ItemTrackingLines.First();
                     ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                end;
+            ItemTrackingHandlerAction::ChangeSelectionLot:
+                begin
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                end;
+            ItemTrackingHandlerAction::ChangeSelectionLotLast:
+                begin
+                    ItemTrackingLines.Last();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                end;
+            ItemTrackingHandlerAction::ChangeSelectionQty:
+                begin
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueText());
                 end;
             ItemTrackingHandlerAction::AssignMultiple:
                 begin

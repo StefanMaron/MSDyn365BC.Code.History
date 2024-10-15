@@ -2880,6 +2880,8 @@ codeunit 134301 "Workflow Notification Test"
         URLFilter := StrSubstNo('''Document Type'' IS ''%1'' AND ''No.'' IS ''%2''', DocumentType, DocumentNo);
         Regex := Regex.Regex(' ');
         URLFilter := Regex.Replace(URLFilter, '%20');
+        Regex := Regex.Regex('''');
+        URLFilter := Regex.Replace(URLFilter, '%27');
     end;
 
     local procedure SetApprovalEntryData(var ApprovalEntry: Record "Approval Entry")

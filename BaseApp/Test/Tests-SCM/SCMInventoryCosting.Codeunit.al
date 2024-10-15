@@ -1175,6 +1175,63 @@ codeunit 137007 "SCM Inventory Costing"
         AsmItem.TestField("Standard Cost", CompItem."Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure InterimRoundingInCalculateStandardCost()
+    var
+        ProdItem: Record Item;
+        CompItem: array[2] of Record Item;
+        BOMComponent: Record "BOM Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Rounding] [Production BOM]
+        // [SCENARIO 436700] Interim quantities and amounts are rounded during standard cost calculation, same as it works now for BOM Cost Shares.
+        Initialize();
+
+        // [GIVEN] Component item with Unit Cost = 5.75.
+        LibraryInventory.CreateItem(CompItem[1]);
+        CompItem[1].Validate("Unit Cost", 5.75);
+        CompItem[1].Modify(true);
+
+        // [GIVEN] Component item with Unit Cost = 8.85.
+        LibraryInventory.CreateItem(CompItem[2]);
+        CompItem[2].Validate("Unit Cost", 8.85);
+        CompItem[2].Modify(true);
+
+        // [GIVEN] Production item, set the scrap = 1%.
+        // [GIVEN] Create BOM with two components.
+        // [GIVEN] Set "Qty. per" = 0.02525 for the first component.
+        // [GIVEN] Set "Qty. per" = 0.03157 for the second component.
+        CreateItemWithCostingMethod(ProdItem, ProdItem."Costing Method"::Standard);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", 0.02525);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[2]."No.", 0.03157);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Scrap %", 1);
+        ProdItem.Modify(true);
+
+        // [WHEN] Calculate standard cost for the production order.
+        CalculateStandardCost.CalcItem(ProdItem."No.", false);
+
+        // [THEN] The cost is calculated as follows:
+        // [THEN] First component's quantity = 0.02525 * 1.01 (scrap) = 0.0255025 -> rounded to 0.0255.
+        // [THEN] Second component's quantity = 0.03157 * 1.01 (scrap) = 0.0318857 -> rounded to 0.03189.
+        // [THEN] First component's unit amount = 0.0255 * 5.75 = 0.146625 -> rounded to 0.14663.
+        // [THEN] Second component's unit amount = 0.03189 * 8.85 = 0.2822265 -> rounded to 0.28223.
+        // [THEN] That makes the standard cost for the final item = 0.14663 + 0.28223 = 0.42886.
+        ProdItem.Find();
+        ProdItem.TestField("Standard Cost", Round(0.42886, LibraryERM.GetUnitAmountRoundingPrecision()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

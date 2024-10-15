@@ -516,6 +516,7 @@ codeunit 378 "Transfer Extended Text"
         ExtTextHeader.SetCurrentKey(
           "Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
         ExtTextHeader.SetRange("Starting Date", 0D, DocDate);
+        OnReadExtTextLinesOnBeforeSetFilters(ExtTextHeader);
         ExtTextHeader.SetFilter("Ending Date", '%1..|%2', DocDate, 0D);
         if LanguageCode = '' then begin
             ExtTextHeader.SetRange("Language Code", '');
@@ -860,6 +861,11 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinChrgMemoCheckIfAnyExtTextOnBeforeSetFilters(var FinChrgMemoLine: Record "Finance Charge Memo Line"; var AutoText: Boolean; Unconditionally: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReadExtTextLinesOnBeforeSetFilters(var ExtTextHeader: Record "Extended Text Header")
     begin
     end;
 }

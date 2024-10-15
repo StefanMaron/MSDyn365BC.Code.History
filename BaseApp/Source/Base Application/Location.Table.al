@@ -46,6 +46,7 @@ table 14 Location
             trigger OnLookup()
             begin
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+                OnAfterLookupCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -56,6 +57,7 @@ table 14 Location
                 OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                OnAfterValidateCity(Rec, PostCode);
             end;
         }
         field(5704; "Phone No."; Text[30])
@@ -93,6 +95,7 @@ table 14 Location
             trigger OnLookup()
             begin
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+                OnAfterLookupPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -103,6 +106,7 @@ table 14 Location
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                OnAfterValidatePostCode(Rec, PostCode);
             end;
         }
         field(5715; County; Text[30])
@@ -962,6 +966,26 @@ table 14 Location
         end;
 
         FindFirst();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupCity(var Location: Record Location; var PostCode: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupPostCode(var Location: Record Location; var PostCode: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCity(var Location: Record Location; var PostCode: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePostCode(var Location: Record Location; var PostCode: Record "Post Code")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

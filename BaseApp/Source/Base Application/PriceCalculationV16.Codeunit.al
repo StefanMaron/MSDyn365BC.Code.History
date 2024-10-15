@@ -391,7 +391,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         if FoundBestPrice then
             PriceListLine := BestPriceListLine;
 
-        OnAfterCalcBestAmount(AmountType, PriceCalculationBufferMgt, PriceListLine);
+        OnAfterCalcBestAmount(AmountType, PriceCalculationBufferMgt, PriceListLine, FoundBestPrice);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnFindSupportedSetup', '', false, false)]
@@ -459,8 +459,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcBestAmount(AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; var PriceListLine: Record "Price List Line")
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCalcBestAmount(AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; var PriceListLine: Record "Price List Line"; var FoundBestPrice: Boolean)
     begin
     end;
 }
