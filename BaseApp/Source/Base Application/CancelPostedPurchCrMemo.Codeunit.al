@@ -226,7 +226,13 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     local procedure TestIfCrMemoIsCorrectiveDoc(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
         CancelledDocument: Record "Cancelled Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfCrMemoIsCorrectiveDoc(PurchCrMemoHdr, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CancelledDocument.FindPurchCorrectiveCrMemo(PurchCrMemoHdr."No.") then
             ErrorHelperHeader(ErrorType::IsCanceled, PurchCrMemoHdr);
     end;
@@ -455,6 +461,11 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestCorrectCrMemoIsAllowed(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfCrMemoIsCorrectiveDoc(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
     begin
     end;
 

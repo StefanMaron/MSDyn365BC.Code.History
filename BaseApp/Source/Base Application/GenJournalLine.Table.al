@@ -3278,6 +3278,8 @@
         end;
         GenJnlLine2."Applies-to ID" := NewAppliesToID;
         GenJnlLine2.Modify();
+
+        OnAfterRenumberAppliesToID(GenJnlLine2, OriginalAppliesToID, NewAppliesToID, AccType, AccNo);
     end;
 
     procedure RenumberAppliesToDocNo(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToDocNo: Code[20]; NewAppliesToDocNo: Code[20])
@@ -3756,7 +3758,7 @@
             JournalErrorsMgt.GetErrorMessages(TempErrorMessage);
             if TempErrorMessage.FindSet() then
                 repeat
-                    if Rec.Get(TempErrorMessage."Record ID") then
+                    if Rec.Get(TempErrorMessage."Context Record ID") then
                         Rec.Mark(true)
                 until TempErrorMessage.Next() = 0;
             MarkedOnly(true);
@@ -4069,6 +4071,7 @@
 
     procedure SetApplyToAmount()
     begin
+        OnBeforeSetApplyToAmount(Rec);
         case "Account Type" of
             "Account Type"::Customer:
                 begin
@@ -4111,6 +4114,7 @@
                         end;
                 end;
         end;
+        OnAfterSetApplyToAmount(Rec);
     end;
 
     procedure ValidateApplyRequirements(TempGenJnlLine: Record "Gen. Journal Line" temporary)
@@ -6960,6 +6964,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyToAmount(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
     begin
     end;
@@ -7077,6 +7086,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountWithVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetApplyToAmount(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7771,6 +7785,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRenumberAppliesToID(GenJournalLine: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]);
     begin
     end;
 

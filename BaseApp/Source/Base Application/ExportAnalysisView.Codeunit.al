@@ -1,4 +1,4 @@
-codeunit 424 "Export Analysis View"
+﻿codeunit 424 "Export Analysis View"
 {
 
     trigger OnRun()
@@ -262,6 +262,7 @@ codeunit 424 "Export Analysis View"
                             FillNextCellInRow("Add.-Curr. Debit Amount" * SignValue);
                             FillNextCellInRow("Add.-Curr. Credit Amount" * SignValue);
                         end;
+                        OnCreateAnalysisViewEntryPartOnBeforeStartNewRow(TempExcelBuffer, AnalysisViewEntry, AnalysisByDimParameters);
                         StartNewRow;
                     end;
                 until Next() = 0;
@@ -587,6 +588,7 @@ codeunit 424 "Export Analysis View"
             FillNextCellInRow(Text020);
         end;
 
+        OnCreateRowWithColumnsCaptionsOnBeforeStartNewRow(TempExcelBuffer, AnalysisViewEntry);
         StartNewRow;
     end;
 
@@ -945,6 +947,16 @@ codeunit 424 "Export Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExportData(varTempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAnalysisViewEntryPartOnBeforeStartNewRow(var TempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRowWithColumnsCaptionsOnBeforeStartNewRow(var TempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry")
     begin
     end;
 

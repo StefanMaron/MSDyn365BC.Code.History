@@ -249,6 +249,7 @@ codeunit 5150 "Integration Management"
                     end;
                 end;
         end;
+        OnAfterUpdateParentIntegrationRecord(RecRef, TimeStamp);
     end;
 
     procedure SetupIntegrationTables()
@@ -855,6 +856,11 @@ codeunit 5150 "Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateRelatedRecordIdFields(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateParentIntegrationRecord(RecRef: RecordRef; TimeStamp: DateTime)
     begin
     end;
 

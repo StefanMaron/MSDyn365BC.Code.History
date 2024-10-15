@@ -185,10 +185,13 @@ report 5199 "Update Contact Classification"
         NoOfYears: Decimal;
         FromDate: Date;
         ToDate: Date;
+        IsHandled: Boolean;
     begin
+        OnBeforeFindCustomerValues(Cust);
         NoOfRecs := Cust.Count();
         if Cust.Find('-') then
             repeat
+                OnFindCustomerValuesOnBeforeCustLoop(ProfileQuestionnaireLine, Cust);
                 RecCount := RecCount + 1;
                 Window.Update(5, Cust."No.");
                 Window.Update(6, Round(10000 * RecCount / NoOfRecs, 1));
@@ -203,6 +206,7 @@ report 5199 "Update Contact Classification"
                             ProfileQuestionnaireLine.FieldCaption("Ending Date Formula"),
                             ProfileQuestionnaireLine.FieldCaption("Starting Date Formula")));
                     Cust.SetRange("Date Filter", FromDate, ToDate);
+                    OnFindCustomerValuesOnBeforeCustomerClassFieldCase(Cust, CustLedgEntry, CustLedgEntry2);
                     case ProfileQuestionnaireLine."Customer Class. Field" of
                         ProfileQuestionnaireLine."Customer Class. Field"::"Sales (LCY)":
                             begin
@@ -288,10 +292,15 @@ report 5199 "Update Contact Classification"
                                             end;
                                     until CustLedgEntry.Next() = 0;
                                     InsertContactValue(ProfileQuestionnaireLine, CustContactNo, DaysOverdue / NoOfInvoices, 0D, 0);
-                                end else
-                                    InsertContactValue(ProfileQuestionnaireLine, CustContactNo, 0, 0D, 0);
+                                end else begin
+                                    IsHandled := false;
+                                    OnFindCustomerValuesOnAvgOverdueDayOnZeroInvoices(ProfileQuestionnaireLine, CustLedgEntry, ValueEntry, Cust, CustContactNo, IsHandled);
+                                    if not IsHandled then
+                                        InsertContactValue(ProfileQuestionnaireLine, CustContactNo, 0, 0D, 0);
+                                end;
                             end;
                     end;
+                    OnFindCustomerValuesOnAfterCustomerClassFieldCase(Cust);
                 end;
             until Cust.Next() = 0
     end;
@@ -426,9 +435,11 @@ report 5199 "Update Contact Classification"
         FromDate: Date;
         ToDate: Date;
     begin
+        OnBeforeFindContactValues(Cont);
         NoOfRecs := Cont.Count();
         if Cont.Find('-') then
             repeat
+                OnFindContactValuesOnBeforeContLoop(ProfileQuestionnaireLine, Cont);
                 RecCount := RecCount + 1;
                 Window.Update(5, Cont."No.");
                 Window.Update(6, Round(10000 * RecCount / NoOfRecs, 1));
@@ -485,6 +496,7 @@ report 5199 "Update Contact Classification"
                                     InsertContactValue(ProfileQuestionnaireLine, Cont."No.", 0, 0D, 0);
                             end;
                     end;
+                    OnFindContactValuesOnAfterContactClassFieldCase(Cont);
                 end;
             until Cont.Next() = 0
     end;
@@ -847,6 +859,46 @@ report 5199 "Update Contact Classification"
                 end;
             until (ProfileQuestnLine2.Next() = 0) or
                   (ProfileQuestnLine2.Type = ProfileQuestnLine2.Type::Question);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindContactValues(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindCustomerValues(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindContactValuesOnAfterContactClassFieldCase(var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindContactValuesOnBeforeContLoop(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCustomerValuesOnBeforeCustLoop(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCustomerValuesOnAfterCustomerClassFieldCase(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCustomerValuesOnBeforeCustomerClassFieldCase(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry2: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCustomerValuesOnAvgOverdueDayOnZeroInvoices(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var CustLedgEntry: Record "Cust. Ledger Entry"; var ValueEntry: Record "Value Entry"; var Customer: Record Customer; var CustContactNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

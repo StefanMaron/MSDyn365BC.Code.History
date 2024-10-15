@@ -204,6 +204,7 @@
                         ShowShortcutDimCode(ShortcutDimCode);
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                        OnAfterValidateDescription(Rec, xRec);
                     end;
                 }
                 field("Drop Shipment"; "Drop Shipment")
@@ -1527,10 +1528,6 @@
         InitType();
         SetDefaultType();
 
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
         Clear(ShortcutDimCode);
         UpdateTypeText();
     end;
@@ -2013,6 +2010,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterValidateDescription(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
