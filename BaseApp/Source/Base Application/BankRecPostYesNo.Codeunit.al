@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 codeunit 10121 "Bank Rec.-Post (Yes/No)"
 {
@@ -34,4 +33,3 @@ codeunit 10121 "Bank Rec.-Post (Yes/No)"
 }
 
 #endif
-#pragma warning restore AS0074

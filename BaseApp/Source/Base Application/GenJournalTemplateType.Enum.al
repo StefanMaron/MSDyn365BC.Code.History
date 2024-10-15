@@ -39,7 +39,6 @@ enum 89 "Gen. Journal Template Type"
     {
         Caption = 'Payroll Accrual';
     }
-#pragma warning disable AS0074
 #if not CLEAN21
     value(9; Deposits)
     {
@@ -49,7 +48,6 @@ enum 89 "Gen. Journal Template Type"
         ObsoleteTag = '21.0';
     }
 #endif
-#pragma warning restore AS0074
     value(10; "Sales Tax")
     {
         Caption = 'Sales Tax';

@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 codeunit 10120 "Bank Rec.-Post"
 {
@@ -14,7 +13,6 @@ codeunit 10120 "Bank Rec.-Post"
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
-#pragma warning restore AS0074
 
     trigger OnRun()
     begin

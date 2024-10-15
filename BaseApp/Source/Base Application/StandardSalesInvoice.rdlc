@@ -3906,15 +3906,6 @@
                                                   <GroupExpressions>
                                                     <GroupExpression>=Fields!LineNo_AssemblyLine.Value</GroupExpression>
                                                   </GroupExpressions>
-                                                  <Filters>
-                                                    <Filter>
-                                                      <FilterExpression>=CStr(Fields!Quantity_AssemblyLine.Value) = String.Empty</FilterExpression>
-                                                      <Operator>Equal</Operator>
-                                                      <FilterValues>
-                                                        <FilterValue DataType="Boolean">=false</FilterValue>
-                                                      </FilterValues>
-                                                    </Filter>
-                                                  </Filters>
                                                 </Group>
                                                 <SortExpressions>
                                                   <SortExpression>
@@ -3923,6 +3914,9 @@
                                                 </SortExpressions>
                                               </TablixMember>
                                             </TablixMembers>
+                                            <Visibility>
+                                              <Hidden>=NOT Fields!DisplayAssemblyLines.Value</Hidden>
+                                            </Visibility>
                                           </TablixMember>
                                         </TablixMembers>
                                       </TablixMember>
@@ -6255,6 +6249,9 @@ End Function
         <Field Name="ExternalDocumentNo_Lbl">
           <DataField>ExternalDocumentNo_Lbl</DataField>
         </Field>
+        <Field Name="DisplayAssemblyLines">
+          <DataField>DisplayAssemblyLines</DataField>
+        </Field>
         <Field Name="LineNo_Line">
           <DataField>LineNo_Line</DataField>
         </Field>
@@ -6527,6 +6524,9 @@ End Function
         </Field>
         <Field Name="Description_VATClauseLine">
           <DataField>Description_VATClauseLine</DataField>
+        </Field>
+        <Field Name="Description2_VATClauseLine">
+          <DataField>Description2_VATClauseLine</DataField>
         </Field>
         <Field Name="VATAmount_VATClauseLine">
           <DataField>VATAmount_VATClauseLine</DataField>

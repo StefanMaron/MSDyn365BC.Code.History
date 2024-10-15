@@ -1168,7 +1168,7 @@ codeunit 6501 "Item Tracking Data Collection"
         // "Buffer Value2" : Adjustment needed to neutralize double entries
 
         ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
-        if FindRelatedParentTrkgSpec(JobJnlLine, TempTrackingSpecification, ItemTrackingSetup) then begin
+        if FindRelatedJobParentTrkgSpec(JobJnlLine, TempTrackingSpecification, ItemTrackingSetup) then begin
             RemainingQty := TempTrackingSpecification."Quantity (Base)" + TempTrackingSpecification."Buffer Value2";
             QtyOnJnlLine := ReservEntry."Quantity (Base)";
             ReservEntry."Transferred from Entry No." := Abs(TempTrackingSpecification."Entry No.");
@@ -1186,17 +1186,18 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
     end;
 
-    local procedure FindRelatedParentTrkgSpec(JobJnlLine: Record "Job Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    local procedure FindRelatedJobParentTrkgSpec(JobJnlLine: Record "Job Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        TempTrackingSpecification.Reset();
-        JobPlanningLine.Get(JobJnlLine."Job No.", JobJnlLine."Job Task No.", JobJnlLine."Job Planning Line No.");
-        TempTrackingSpecification.SetSourceFilter(
-          DATABASE::"Job Planning Line", 2, JobJnlLine."Job No.", JobPlanningLine."Job Contract Entry No.", false);
-        TempTrackingSpecification.SetSourceFilter('', 0);
-        TempTrackingSpecification.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
-        exit(TempTrackingSpecification.FindFirst());
+        if JobPlanningLine.Get(JobJnlLine."Job No.", JobJnlLine."Job Task No.", JobJnlLine."Job Planning Line No.") then begin
+            TempTrackingSpecification.Reset();
+            TempTrackingSpecification.SetSourceFilter(
+            DATABASE::"Job Planning Line", 2, JobJnlLine."Job No.", JobPlanningLine."Job Contract Entry No.", false);
+            TempTrackingSpecification.SetSourceFilter('', 0);
+            TempTrackingSpecification.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
+            exit(TempTrackingSpecification.FindFirst());
+        end;
     end;
 
     local procedure AddToAdjustmentEntryDataSet(var ReservEntry: Record "Reservation Entry"; AdjustQty: Decimal)

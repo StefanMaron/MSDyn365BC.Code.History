@@ -733,6 +733,25 @@
             Caption = 'Date/Time First Req. Sent';
             Editable = false;
         }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10055; "Transit-to Location"; Code[10])
+        {
+            Caption = 'Transit-to Location';
+            TableRelation = Location WHERE ("Use As In-Transit" = CONST (false));
+        }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(27000; "CFDI Purpose"; Code[10])
         {
             Caption = 'CFDI Purpose';

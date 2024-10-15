@@ -588,7 +588,7 @@ table 472 "Job Queue Entry"
         ErrorMessages: Page "Error Messages";
     begin
         ErrorMessage.SetRange("Register ID", "Error Message Register Id");
-        if ErrorMessage.FindSet() then begin
+        if not IsNullGuid("Error Message Register Id") and ErrorMessage.FindSet() then begin
             ErrorMessages.SetRecords(ErrorMessage);
             ErrorMessages.Run();
         end else
@@ -799,9 +799,12 @@ table 472 "Job Queue Entry"
         TaskGUID: Guid;
         IsHandled: Boolean;
         JobTimeout: Duration;
+        ShouldChangeUserID: Boolean;
     begin
         CheckRequiredPermissions();
-        if "User ID" <> UserId() then begin
+        ShouldChangeUserID := "User ID" <> UserId();
+        OnScheduleTaskOnAfterCalcShouldChangeUserID(Rec, ShouldChangeUserID);
+        if ShouldChangeUserID then begin
             "User ID" := UserId();
             Modify(true);
         end;
@@ -1493,6 +1496,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunReportRequestPageBeforeGetReportParameters(JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnScheduleTaskOnAfterCalcShouldChangeUserID(var JobQueueEntry: Record "Job Queue Entry"; var ShouldChangeUserID: Boolean)
     begin
     end;
 

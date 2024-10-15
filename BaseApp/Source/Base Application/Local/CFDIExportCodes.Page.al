@@ -22,6 +22,11 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for this entry according to the CFDI export definition.';
                 }
+                field("Foreign Trade"; "Foreign Trade")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the entry indicates foreing trade according to the SAT export definition.';
+                }
             }
         }
     }

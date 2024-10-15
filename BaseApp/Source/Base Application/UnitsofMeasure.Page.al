@@ -34,6 +34,11 @@ page 209 "Units of Measure"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the unit of measure required for reporting to the Mexican tax authorities (SAT)';
                 }
+                field("SAT Customs Unit"; Rec."SAT Customs Unit")
+                {
+                    ApplicationArea = Invoicing, Basic, Suite;
+                    ToolTip = 'Specifies the unit of measure applicable to the quantity expressed in the merchandise at customs according to the SAT customs unit definition.';
+                }
                 field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;

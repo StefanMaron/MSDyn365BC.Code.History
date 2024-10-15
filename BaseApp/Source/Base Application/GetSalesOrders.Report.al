@@ -263,7 +263,7 @@ report 698 "Get Sales Orders"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertReqWkshLineOnBeforeCode(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; LineNo: Integer; ReqWkshName: Record "Requisition Wksh. Name"; GetDim: Option Item,"Sales Line"; var IsHandled: Boolean)
     begin
     end;

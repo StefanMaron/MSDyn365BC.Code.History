@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 codeunit 10142 "Deposit-Post + Print"
 {
@@ -49,4 +48,3 @@ codeunit 10142 "Deposit-Post + Print"
 }
 
 #endif
-#pragma warning restore AS0074

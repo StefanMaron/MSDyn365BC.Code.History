@@ -14,6 +14,9 @@
                 fieldelement(Description; "CFDI Export Code".Description)
                 {
                 }
+                fieldelement(ForeignTrade; "CFDI Export Code"."Foreign Trade")
+                {
+                }
             }
         }
     }

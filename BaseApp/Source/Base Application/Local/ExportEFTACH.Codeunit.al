@@ -325,6 +325,7 @@ codeunit 10094 "Export EFT (ACH)"
         ACHUSFooter."File Hash Total" := EFTValues.GetFileHashTotal();
         ACHUSFooter."Total File Debit Amount" := EFTValues.GetTotalFileDebit();
         ACHUSFooter."Total File Credit Amount" := EFTValues.GetTotalFileCredit();
+        OnEndExportFileOnBeforeACHUSFooterModify(ACHUSFooter, BankAccount);
         ACHUSFooter.Modify();
 
         exit(true);
@@ -417,6 +418,7 @@ codeunit 10094 "Export EFT (ACH)"
         ZipOutStream: OutStream;
         ToFile: Text;
     begin
+        OnBeforeDownloadWebclientZip(TempNameValueBuffer, TempEraseFileNameValueBuffer, ZipFileName, DataCompression);
         // Download the .zip file containing the reports if one was generated (usually from being on the web client)
         if (ZipFileName <> '') and TempNameValueBuffer.FindSet() then
             // If there's a single file, download it directly instead of the zip file
@@ -485,7 +487,17 @@ codeunit 10094 "Export EFT (ACH)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadWebclientZip(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; TempEraseFileNameValueBuffer: Record "Name/Value Buffer" temporary; ZipFileName: Text; var DataCompression: Codeunit "Data Compression")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnEndExportBatchOnBeforeACHUSFooterModify(var ACHUSFooter: Record "ACH US Footer"; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEndExportFileOnBeforeACHUSFooterModify(var ACHUSFooter: Record "ACH US Footer"; BankAccount: Record "Bank Account")
     begin
     end;
 

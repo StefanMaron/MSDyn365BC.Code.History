@@ -51,6 +51,7 @@
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
+        OnBeforeEmailFile(HideDialog);
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
@@ -766,6 +767,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEmailFileInternal(var TempEmailItem: Record "Email Item" temporary; var HtmlBodyFilePath: Text[250]; var EmailSubject: Text[250]; var ToEmailAddress: Text[250]; var PostedDocNo: Code[20]; var EmailDocName: Text[250]; var HideDialog: Boolean; var ReportUsage: Integer; var IsFromPostedDoc: Boolean; var SenderUserID: Code[50]; var EmailScenario: Enum "Email Scenario")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEmailFile(var HideDialog: Boolean)
     begin
     end;
 

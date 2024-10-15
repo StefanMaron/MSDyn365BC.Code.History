@@ -48,7 +48,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         exit(CurrPriceType);
     end;
 
-    procedure IsPriceUpdateNeeded(AmountType: enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
+    procedure IsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer) Result: Boolean;
     begin
         if FoundPrice then
             Result := true
@@ -56,6 +56,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
             Result :=
                 Result or
                 not (CalledByFieldNo in [ServiceLine.FieldNo(Quantity), ServiceLine.FieldNo("Variant Code")]);
+        OnAfterIsPriceUpdateNeeded(AmountType, FoundPrice, CalledByFieldNo, ServiceLine, Result);
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -295,6 +296,11 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDocumentDate(var DocumentDate: Date; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsPriceUpdateNeeded(AmountType: Enum "Price Amount Type"; FoundPrice: Boolean; CalledByFieldNo: Integer; ServiceLine: Record "Service Line"; var Result: Boolean)
     begin
     end;
 

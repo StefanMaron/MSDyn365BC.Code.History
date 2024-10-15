@@ -310,6 +310,7 @@
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxSalesHeader."Currency Code", OutboxTransaction."IC Partner Code");
         OnCreateOutboxSalesInvTransOnAfterTransferFieldsFromSalesInvHeader(ICOutBoxSalesHeader, SalesInvHdr, OutboxTransaction);
         ICOutBoxSalesHeader.Insert();
+        OnCreateOutboxSalesInvTransOnAfterICOutBoxSalesHeaderInsert(ICOutBoxSalesHeader, SalesInvHdr);
 
         ICDocDim.Init();
         ICDocDim."Transaction No." := OutboxTransaction."Transaction No.";
@@ -432,6 +433,7 @@
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxSalesHeader."Currency Code", OutboxTransaction."IC Partner Code");
         OnCreateOutboxSalesCrMemoTransOnAfterTransferFieldsFromSalesCrMemoHeader(ICOutBoxSalesHeader, SalesCrMemoHdr, OutboxTransaction);
         ICOutBoxSalesHeader.Insert();
+        OnCreateOutboxSalesCrMemoTransOnAfterICOutBoxSalesHeaderInsert(ICOutBoxSalesHeader, SalesCrMemoHdr);
 
         ICDocDim.Init();
         ICDocDim."Transaction No." := OutboxTransaction."Transaction No.";
@@ -846,6 +848,7 @@
             if SalesHeader."Bill-to Customer No." <> ICInboxSalesHeader."Bill-to Customer No." then
                 SalesHeader.Validate("Bill-to Customer No.", ICInboxSalesHeader."Bill-to Customer No.");
             SalesHeader."External Document No." := ICInboxSalesHeader."No.";
+            SalesHeader."IC Reference Document No." := ICInboxSalesHeader."No.";
             SalesHeader."Ship-to Name" := ICInboxSalesHeader."Ship-to Name";
             SalesHeader."Ship-to Address" := ICInboxSalesHeader."Ship-to Address";
             SalesHeader."Ship-to Address 2" := ICInboxSalesHeader."Ship-to Address 2";
@@ -2489,11 +2492,17 @@
             until DimSetEntry.Next() = 0;
     end;
 
-    local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLineSource: Record "Purchase Line"): Boolean
+    local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLineSource: Record "Purchase Line") Found: Boolean
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindReceiptLine(PurchRcptLine, PurchaseLineSource, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
         if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLineSource."Receipt No.") then
             exit(false);
 
@@ -2774,7 +2783,13 @@
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckICSalesDocumentAlreadySent(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::"Credit Memo":
@@ -2804,7 +2819,13 @@
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckICPurchaseDocumentAlreadySent(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::"Credit Memo":
@@ -2946,12 +2967,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesCrMemoTransOnAfterICOutBoxSalesHeaderInsert(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxPurchDocTransOnAfterPurchLineSetFilters(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesInvTransOnAfterICOutBoxSalesHeaderInsert(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateJournalLinesOnBeforeModify(var GenJournalLine: Record "Gen. Journal Line"; ICInboxJnlLine: Record "IC Inbox Jnl. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckICPurchaseDocumentAlreadySent(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckICSalesDocumentAlreadySent(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2967,6 +3008,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateJournalLines(InboxTransaction: Record "IC Inbox Transaction"; InboxJnlLine: Record "IC Inbox Jnl. Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLineSource: Record "Purchase Line"; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 

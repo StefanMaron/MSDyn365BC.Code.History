@@ -1212,8 +1212,14 @@
                     Image = "Report";
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
-                    RunObject = Report "Vendor 1099 Div";
                     ToolTip = 'View the federal form 1099-DIV for dividends and distribution.';
+
+                    trigger OnAction()
+                    var
+                        IRS1099Management: Codeunit "IRS 1099 Management";
+                    begin
+                        IRS1099Management.Run1099DivReport;
+                    end;
                 }
                 action("Vendor 1099 Information")
                 {
@@ -1232,14 +1238,13 @@
                     Image = "Report";
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
-                    RunObject = Report "Vendor 1099 Int";
                     ToolTip = 'View the federal form 1099-INT for interest income.';
 
                     trigger OnAction()
                     var
                         IRS1099Management: Codeunit "IRS 1099 Management";
                     begin
-                        IRS1099Management.Run1099DivReport();
+                        IRS1099Management.Run1099IntReport;
                     end;
                 }
                 action("Vendor 1099 Misc")

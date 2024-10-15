@@ -298,10 +298,10 @@
                     ContNo := AccountNo;
                 end;
             else begin
-                    OnLogDocumentOnCaseElse(AccountTableNo, AccountNo, ContNo);
-                    if ContNo = '' then
-                        exit;
-                end;
+                OnLogDocumentOnCaseElse(AccountTableNo, AccountNo, ContNo);
+                if ContNo = '' then
+                    exit;
+            end;
         end;
 
         TempSegmentLine.Init();
@@ -416,6 +416,8 @@
                     InteractTmplCode := InteractionTmplSetup."Service Contract Quote";
                 25:
                     InteractTmplCode := InteractionTmplSetup."Service Quote";
+                26:
+                    InteractTmplCode := InteractionTmplSetup."Sales Draft Invoices";
             end;
 
         OnAfterFindInteractTmplCode(DocumentType, InteractionTmplSetup, InteractTmplCode);
@@ -568,6 +570,8 @@
                 InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Service Contract Quote");
             25:
                 InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Service Quote");
+            26:
+                InteractTmplSetupCaption := CopyStr(InteractionTmplSetup.FieldCaption("Sales Draft Invoices"), 1, 80);
         end;
 
         OnAfterFindInteractTmplSetupCaption(DocumentType.AsInteger(), InteractionTmplSetup, InteractTmplSetupCaption);

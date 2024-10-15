@@ -68,6 +68,7 @@
                 repeat
                     ProcessDetails(TempEFTExportWorkset, BankAccount, DataExchDefCode, DataExchEntryCodeDetail, DetailArray, Filename, EFTValues);
                 until TempEFTExportWorkset.Next() = 0;
+                OnEFTPaymentProcessOnAfterProcessDetailsLoop(TempEFTExportWorkset, BankAccount, DataExchDefCode, DataExchEntryCodeDetail, DetailArray, Filename, EFTValues);
                 TempEFTExportWorkset.FindFirst();
                 ProcessFooters(TempEFTExportWorkset, BankAccount, DataExchDefCode, FooterArray, Filename, DataExchEntryCodeFooter, EFTValues);
 
@@ -362,6 +363,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnEFTPaymentProcessAfterBankExportImportSetupSetFilters(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var BankExportImportSetup: Record "Bank Export/Import Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEFTPaymentProcessOnAfterProcessDetailsLoop(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var BankAccount: Record "Bank Account"; DataExchDefCode: Code[20]; var DataExchEntryCodeDetail: Integer; var DetailArray: array[100] of Integer; Filename: Text; var EFTValues: Codeunit "EFT Values")
     begin
     end;
 }

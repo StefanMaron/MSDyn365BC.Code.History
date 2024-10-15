@@ -2272,6 +2272,27 @@ codeunit 142053 "ERM Sales/Purchase Document"
         PurchInvHeader.TestField("Buy-from Vendor No.", VendorNo);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseInvoiceStatsPurchaseAmountLCYModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyAmountLCYOnPurchInvStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 451479] Verify the Purchase (LCY) value in on Posted Purchase Invoice Statistics
+        Initialize();
+
+        // [GIVEN] Create Purchase Invoice and Post
+        CreatePurchaseDocumentWithoutTaxAreaCode(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Opening the Posted Purchase Invoice Statistics
+        OpenPostedInvoiceStatistics(PostedDocumentNo);
+
+        // [VERIFY] Verification has been done in handler PurchaseInvoiceStatsModalPageHandler
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2786,6 +2807,23 @@ codeunit 142053 "ERM Sales/Purchase Document"
         end;
     end;
 
+    local procedure CreatePurchaseDocumentWithoutTaxAreaCode(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
+        with PurchaseLine do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine, PurchaseHeader, Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+            Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(50, 100));
+            Modify(true);
+        end;
+    end;
+
     local procedure CancelSalesInvoice(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesInvHeaderNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -3269,6 +3307,18 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         LibraryVariableStorage.Dequeue(AmountInclVAT);
         PurchCreditMemoStats.AmountInclVAT.AssertEquals(AmountInclVAT);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceStatsPurchaseAmountLCYModalPageHandler(var PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics")
+    var
+        PurchaseAmountLCY: Variant;
+        AmountLCY: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(PurchaseAmountLCY);
+        Evaluate(AmountLCY, PurchaseInvoiceStatistics.AmountLCY.Value);
+        PurchaseInvoiceStatistics.AmountLCY.AssertEquals(Abs(AmountLCY));
     end;
 
     [RequestPageHandler]

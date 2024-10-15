@@ -71,5 +71,7 @@
                   tabledata "SAT Municipality" = RIMD,
                   tabledata "SAT Locality" = RIMD,
                   tabledata "SAT Suburb" = RIMD,
+                  tabledata "SAT International Trade Term" = RIMD,
+                  tabledata "SAT Customs Unit" = RIMD,
                   tabledata "Vendor Location" = RIMD;
 }

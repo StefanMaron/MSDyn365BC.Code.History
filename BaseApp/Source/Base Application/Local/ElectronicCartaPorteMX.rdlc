@@ -20,7 +20,7 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value EvaluationMode="Auto">Moneda / Tipo de cambio</Value>
+                    <Value>Moneda / Tipo de cambio</Value>
                     <Style>
                       <FontWeight>Bold</FontWeight>
                     </Style>
@@ -45,7 +45,7 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value EvaluationMode="Auto">XXX / </Value>
+                    <Value>XXX / </Value>
                     <Style>
                       <FontWeight>Bold</FontWeight>
                     </Style>
@@ -103,7 +103,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!DocumentLine_Quantity.Value</Value>
+                                  <Value>=Fields!DocumentLine_Quantity.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -126,7 +126,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ItemSATClassificationCode.Value</Value>
+                                  <Value>=Fields!ItemSATClassificationCode.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -147,7 +147,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!SATUOMDescription.Value</Value>
+                                  <Value>=Fields!SATUOMDescription.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -168,7 +168,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Fields!ItemSATClassificationDescription.Value</Value>
+                                  <Value>=Fields!ItemSATClassificationDescription.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -189,7 +189,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">$0.00</Value>
+                                  <Value>$0.00</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -214,7 +214,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto" />
+                                  <Value />
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -235,7 +235,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">$0.00</Value>
+                                  <Value>$0.00</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
@@ -268,7 +268,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto">Cantidad</Value>
+                                <Value>Cantidad</Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -300,7 +300,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto">Clave</Value>
+                                <Value>Clave</Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -332,7 +332,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto">Unidad</Value>
+                                <Value>Unidad</Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -364,7 +364,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto">Descripci�n</Value>
+                                <Value>Descripci�n</Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -393,7 +393,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto">Valor unitario </Value>
+                                <Value>Valor unitario </Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -422,7 +422,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto">Descuento</Value>
+                                <Value>Descuento</Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -451,7 +451,7 @@
                           <Paragraph>
                             <TextRuns>
                               <TextRun>
-                                <Value EvaluationMode="Auto"> Importe</Value>
+                                <Value> Importe</Value>
                                 <Style />
                               </TextRun>
                             </TextRuns>
@@ -513,7 +513,7 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value EvaluationMode="Auto">=First(Fields!TotalAmountText.Value, "DataSet_Result")</Value>
+                    <Value>=First(Fields!TotalAmountText.Value, "DataSet_Result")</Value>
                     <Style>
                       <FontWeight>Bold</FontWeight>
                     </Style>
@@ -572,7 +572,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Figuras de Transporte</Value>
+                                      <Value>Figuras de Transporte</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontFamily>Times New Roman</FontFamily>
@@ -622,7 +622,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Tipo</Value>
+                                      <Value>Tipo</Value>
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -653,7 +653,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">RFC</Value>
+                                      <Value>RFC</Value>
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -684,7 +684,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Nombre</Value>
+                                      <Value>Nombre</Value>
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -715,7 +715,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">N�m Licencia</Value>
+                                      <Value>N�m Licencia</Value>
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -746,7 +746,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Direcci�n</Value>
+                                      <Value>Direcci�n</Value>
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -782,7 +782,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Operadores</Value>
+                                      <Value>Operadores</Value>
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -812,7 +812,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!OperatorRFC.Value</Value>
+                                      <Value>=Fields!OperatorRFC.Value</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -844,7 +844,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!OperatorName.Value</Value>
+                                      <Value>=Fields!OperatorName.Value</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -876,7 +876,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!OperatorLicense.Value</Value>
+                                      <Value>=Fields!OperatorLicense.Value</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -908,7 +908,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto" />
+                                      <Value />
                                       <Style />
                                     </TextRun>
                                   </TextRuns>
@@ -1007,7 +1007,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Ubicaciones</Value>
+                                      <Value>Ubicaciones</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontFamily>Times New Roman</FontFamily>
@@ -1057,7 +1057,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Tipo</Value>
+                                      <Value>Tipo</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1093,7 +1093,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Tipo de UbicaciÝn</Value>
+                                      <Value>Tipo de UbicaciÝn</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1129,7 +1129,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">ID UbicaciÝn</Value>
+                                      <Value>ID UbicaciÝn</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1165,7 +1165,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Distancia</Value>
+                                      <Value>Distancia</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1201,7 +1201,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Direcci�n</Value>
+                                      <Value>Direcci�n</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontFamily>Times New Roman</FontFamily>
@@ -1244,7 +1244,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Origen</Value>
+                                      <Value>Origen</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1280,7 +1280,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Origen</Value>
+                                      <Value>Origen</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1316,7 +1316,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!IDUbicacionOrigen.Value</Value>
+                                      <Value>=Fields!IDUbicacionOrigen.Value</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1352,7 +1352,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">0km</Value>
+                                      <Value>0km</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1388,7 +1388,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!LocationFromAddress.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!LocationFromAddress.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1429,7 +1429,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Destino Final</Value>
+                                      <Value>Destino Final</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1465,7 +1465,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Destino</Value>
+                                      <Value>Destino</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1501,7 +1501,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!IDUbicacionDestino.Value</Value>
+                                      <Value>=Fields!IDUbicacionDestino.Value</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1537,7 +1537,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!TransitDistance.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!TransitDistance.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1573,7 +1573,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!LocationToAddress.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!LocationToAddress.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -1671,7 +1671,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Mercanc�as</Value>
+                                      <Value>Mercanc�as</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontFamily>Times New Roman</FontFamily>
@@ -1723,7 +1723,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Peso KG</Value>
+                                      <Value>Peso KG</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1759,7 +1759,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Cantidad</Value>
+                                      <Value>Cantidad</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontFamily>Times New Roman</FontFamily>
@@ -1797,7 +1797,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Unidad</Value>
+                                      <Value>Unidad</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1834,7 +1834,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Descripci�n</Value>
+                                      <Value>Descripci�n</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1871,7 +1871,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Embalaje</Value>
+                                      <Value>Embalaje</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1908,7 +1908,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Mat Peligroso</Value>
+                                      <Value>Mat Peligroso</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1945,7 +1945,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Cve Mat Peligroso</Value>
+                                      <Value>Cve Mat Peligroso</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -1987,7 +1987,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!GrossWeight.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!GrossWeight.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2019,7 +2019,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!DocumentLine_Quantity.Value</Value>
+                                      <Value>=Fields!DocumentLine_Quantity.Value</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2051,7 +2051,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=Fields!SATUOMDescription.Value</Value>
+                                      <Value>=Fields!SATUOMDescription.Value</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2083,7 +2083,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!DocumentLine_Description.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!DocumentLine_Description.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2115,7 +2115,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!SATPackagingType.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!SATPackagingType.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2147,7 +2147,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!MaterialPeligroso.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!MaterialPeligroso.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2179,7 +2179,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!SATHazardousMaterial.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!SATHazardousMaterial.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2283,7 +2283,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Medios de Transporte</Value>
+                                      <Value>Medios de Transporte</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontFamily>Times New Roman</FontFamily>
@@ -2333,7 +2333,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Nombre del Asegurado</Value>
+                                      <Value>Nombre del Asegurado</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2369,7 +2369,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Permiso SCT</Value>
+                                      <Value>Permiso SCT</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2405,7 +2405,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">N�mero de p�liza</Value>
+                                      <Value>N�mero de p�liza</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2441,7 +2441,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">N�mero de permiso SCT</Value>
+                                      <Value>N�mero de permiso SCT</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2484,7 +2484,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!InsurerName.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!InsurerName.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontSize>9pt</FontSize>
@@ -2520,7 +2520,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!CompanyInformation_SATTaxRegime.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!CompanyInformation_SATTaxRegime.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2552,7 +2552,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!InsurerPolicyNumber.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!InsurerPolicyNumber.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2584,7 +2584,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!CompanyInformation_SCTPermissionNumber.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!SCTPermissionNumber.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2623,7 +2623,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Placa VM</Value>
+                                      <Value>Placa VM</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2659,7 +2659,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Configuraci�n Vehicular</Value>
+                                      <Value>Configuraci�n Vehicular</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2698,7 +2698,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">A�o Modelo VM</Value>
+                                      <Value>A�o Modelo VM</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2739,7 +2739,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!VehicleLicencePlate.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!VehicleLicencePlate.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2771,7 +2771,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!SATFederalAutotransport.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!SATFederalAutotransport.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2806,7 +2806,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!VehicleYear.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!VehicleYear.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2845,7 +2845,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">N�mero de placa</Value>
+                                      <Value>N�mero de placa</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2881,7 +2881,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">Subtipo Remolque</Value>
+                                      <Value>Subtipo Remolque</Value>
                                       <Style>
                                         <FontStyle>Normal</FontStyle>
                                         <FontWeight>Normal</FontWeight>
@@ -2926,7 +2926,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!Trailer1LicencePlate.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!Trailer1LicencePlate.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2958,7 +2958,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!Trailer1SATTrailerType.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!Trailer1SATTrailerType.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -2999,7 +2999,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!Trailer2LicencePlate.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!Trailer2LicencePlate.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -3031,7 +3031,7 @@
                                 <Paragraph>
                                   <TextRuns>
                                     <TextRun>
-                                      <Value EvaluationMode="Auto">=First(Fields!Trailer2SATTrailerType.Value, "DataSet_Result")</Value>
+                                      <Value>=First(Fields!Trailer2SATTrailerType.Value, "DataSet_Result")</Value>
                                       <Style>
                                         <FontSize>9pt</FontSize>
                                       </Style>
@@ -3139,7 +3139,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">TRASLADO</Value>
+                      <Value>TRASLADO</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3167,7 +3167,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">UUID</Value>
+                      <Value>UUID</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -3195,7 +3195,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">T11</Value>
+                      <Value>T11</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3224,7 +3224,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!FolioText.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!FolioText.Value, "DataSet_Result")</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -3252,7 +3252,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">Fecha de emisi�n</Value>
+                      <Value>Fecha de emisi�n</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -3280,7 +3280,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!DateTimeStamped.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!DateTimeStamped.Value, "DataSet_Result")</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -3308,7 +3308,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">Lugar de emisi�n</Value>
+                      <Value>Lugar de emisi�n</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -3336,7 +3336,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!CompanyInformation_SATPostalCode.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!CompanyInformation_SATPostalCode.Value, "DataSet_Result")</Value>
                       <Style>
                         <Format>d</Format>
                       </Style>
@@ -3364,7 +3364,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">RS</Value>
+                      <Value>RS</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3390,7 +3390,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!CompanyInformation_RFCNo.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!CompanyInformation_RFCNo.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3418,7 +3418,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!CompanyInformation_RFCNo.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!CompanyInformation_RFCNo.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3446,7 +3446,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!FiscalRegimeCaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!FiscalRegimeCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3472,7 +3472,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!CompanyInformation_SATTaxRegime.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!CompanyInformation_SATTaxRegime.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Normal</FontWeight>
                       </Style>
@@ -3498,7 +3498,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!ClientCartaPorteCaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!ClientCartaPorteCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3526,7 +3526,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!TransferRFCNo.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!TransferRFCNo.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3554,7 +3554,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!UsoCFDICaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!UsoCFDICaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3580,7 +3580,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!UsoCFDText.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!UsoCFDText.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Normal</FontWeight>
                       </Style>
@@ -3614,7 +3614,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!DocumentFooter.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!DocumentFooter.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontStyle>Italic</FontStyle>
                         <FontWeight>Bold</FontWeight>
@@ -3643,7 +3643,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Globals!PageNumber</Value>
+                      <Value>=Globals!PageNumber</Value>
                       <Style />
                     </TextRun>
                   </TextRuns>
@@ -3666,7 +3666,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(First(Fields!OriginalStringBase64Text.Value, "DataSet_Result")))</Value>
+                      <Value>=System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(First(Fields!OriginalStringBase64Text.Value, "DataSet_Result")))</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -3698,7 +3698,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(First(Fields!DigitalSignatureBase64Text.Value, "DataSet_Result")))</Value>
+                      <Value>=System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(First(Fields!DigitalSignatureBase64Text.Value, "DataSet_Result")))</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -3730,7 +3730,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(First(Fields!DigitalSignaturePACBase64Text.Value, "DataSet_Result")))</Value>
+                      <Value>=System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(First(Fields!DigitalSignaturePACBase64Text.Value, "DataSet_Result")))</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -3778,7 +3778,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!Digital_StampCaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!Digital_StampCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3801,7 +3801,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!Digital_StampCaptionSAT.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!Digital_StampCaptionSAT.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -3825,7 +3825,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!Original_StringCaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!Original_StringCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
                       </Style>
@@ -4044,8 +4044,8 @@ End Function
         <Field Name="CompanyInformation_SATTaxRegime">
           <DataField>CompanyInformation_SATTaxRegime</DataField>
         </Field>
-        <Field Name="CompanyInformation_SCTPermissionNumber">
-          <DataField>CompanyInformation_SCTPermissionNumber</DataField>
+        <Field Name="SCTPermissionNumber">
+          <DataField>SCTPermissionNumber</DataField>
         </Field>
         <Field Name="TransferRFCNo">
           <DataField>TransferRFCNo</DataField>

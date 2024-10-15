@@ -2748,6 +2748,46 @@ codeunit 137038 "SCM Transfers"
         WarehouseRequest.TestField("Shipping Agent Service Code", ShippingAgentServiceCode);
     end;
 
+    [Test]
+    procedure PostTransferOrderWithCommentLine();
+    var
+        Location: array[3] of Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: array[2] of Record "Transfer Line";
+        Item: Record Item;
+        DescriptionText: Text[100];
+    begin
+        // [SCENARIO 455861] Intransit Transfer Order shipped with blocked item on a previously shipped line
+        Initialize;
+
+        // [GIVEN] Locations "L1" and "L2". "L1" Code field contains special characters, that are used in filters.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] An intransit location if it is not a direct transfer
+        LibraryWarehouse.CreateInTransitLocation(Location[3]);
+
+        // [GIVEN] Item with stock at Location "L1".
+        CreateItemWithPositiveInventory(Item, Location[1].Code, 10);
+
+        // [GIVEN] Transfer Order From = "L1" To = "L2". Intransit is "L3" (which is empty on direct transfer)
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
+        TransferHeader.VALIDATE("Direct Transfer", false);
+        TransferHeader.Modify();
+
+        // [GIVEN] Create Comment transfer line and one Item Line
+        DescriptionText := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(TransferLine[2].Description), 0);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[1], Item."No.", 1);
+        CreateCommentTransferLine(TransferHeader, TransferLine[2], DescriptionText);
+
+        // [THEN] Post transfer Order
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);  // Ship and receive
+
+        // [VERIFY] Verify posted transfer shipment and receipt has comment line posted.
+        VerifyPostedTransferShipment(TransferHeader."No.", 2);
+        VerifyPostedTransferReceipt(TransferHeader."No.", 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3798,6 +3838,42 @@ codeunit 137038 "SCM Transfers"
         ItemJournalLine."Posting Date" := CalcDate('<-1W>', WorkDate());
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateCommentTransferLine(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; Description: Text[100])
+    var
+        RecRef: RecordRef;
+    begin
+        Clear(TransferLine);
+        TransferLine.Init();
+        TransferLine.Validate("Document No.", TransferHeader."No.");
+        RecRef.GetTable(TransferLine);
+        TransferLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TransferLine.FieldNo("Line No.")));
+        TransferLine.Insert(true);
+        TransferLine.Validate(Description, Description);
+        TransferLine.Modify(true);
+    end;
+
+    local procedure VerifyPostedTransferShipment(TransferOrderNo: Code[20]; LineCount: Integer)
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+    begin
+        TransferShipmentHeader.SetRange("Transfer Order No.", TransferOrderNo);
+        TransferShipmentHeader.FindFirst();
+        TransferShipmentLine.SetFilter("Document No.", TransferShipmentHeader."No.");
+        Assert.AreEqual(LineCount, TransferShipmentLine.Count(), '');
+    end;
+
+    local procedure VerifyPostedTransferReceipt(TransferOrderNo: Code[20]; LineCount: Integer)
+    var
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+        TransferReceiptLine: Record "Transfer Receipt Line";
+    begin
+        TransferReceiptHeader.SetRange("Transfer Order No.", TransferOrderNo);
+        TransferReceiptHeader.FindFirst();
+        TransferReceiptLine.SetFilter("Document No.", TransferReceiptHeader."No.");
+        Assert.AreEqual(LineCount, TransferReceiptLine.Count(), '');
     end;
 
     [MessageHandler]

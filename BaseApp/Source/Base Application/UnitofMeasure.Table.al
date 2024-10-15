@@ -46,6 +46,11 @@ table 204 "Unit of Measure"
             Caption = 'SAT UofM Classification';
             TableRelation = "SAT Unit of Measure";
         }
+        field(27001; "SAT Customs Unit"; Code[10])
+        {
+            Caption = 'SAT Customs Unit';
+            TableRelation = "SAT Customs Unit";
+        }
     }
 
     keys

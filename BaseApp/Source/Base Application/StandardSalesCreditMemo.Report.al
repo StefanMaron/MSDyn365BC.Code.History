@@ -577,6 +577,7 @@
                     if Type = Type::"G/L Account" then
                         "No." := '';
 
+                    OnLineOnAfterGetRecordOnBeforeCheckLineDiscount(Line, Header);
                     if "Line Discount %" = 0 then
                         LineDiscountPctText := ''
                     else
@@ -778,6 +779,9 @@
                 {
                 }
                 column(Description_VATClauseLine; VATClauseText)
+                {
+                }
+                column(Description2_VATClauseLine; VATClause."Description 2")
                 {
                 }
                 column(VATAmount_VATClauseLine; "VAT Amount")
@@ -1374,6 +1378,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatDocumentFields(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnBeforeCheckLineDiscount(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

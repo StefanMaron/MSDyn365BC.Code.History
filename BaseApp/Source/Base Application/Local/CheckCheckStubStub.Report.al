@@ -1182,7 +1182,12 @@ report 10412 "Check (Check/Stub/Stub)"
                                 if Vend.Blocked in [Vend.Blocked::All, Vend.Blocked::Payment] then
                                     Error(Text064Err, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), Vend."No.");
                                 Vend.Contact := '';
-                                FormatAddr.Vendor(CheckToAddr, Vend);
+                                if GenJnlLine."Remit-to Code" = '' then
+                                    FormatAddr.Vendor(CheckToAddr, Vend)
+                                else begin
+                                    RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
+                                    FormatAddr.VendorRemitToAddress(RemitAddress, CheckToAddr);
+                                end;
                                 if BankAcc2."Currency Code" <> "Currency Code" then
                                     Error(Text005Err);
                                 if Vend."Purchaser Code" <> '' then
@@ -1416,6 +1421,7 @@ report 10412 "Check (Check/Stub/Stub)"
         GLSetup: Record "General Ledger Setup";
         Employee: Record Employee;
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        RemitAddress: Record "Remit Address";
         CheckTranslationManagement: Report "Check Translation Management";
         PrintCheckHelper: Codeunit "Print Check Helper";
         FormatAddr: Codeunit "Format Address";

@@ -30,6 +30,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         BlockIfUpgradeNeededErr: Label 'You must update the form boxes in the 1099 Forms-Boxes window before you can run this report.';
         February2020Lbl: Label 'February 2020';
         Upgrade2021Lbl: Label '2021';
+        Upgrade2022Lbl: Label '2022';
 
     [Test]
     [Scope('OnPrem')]
@@ -40,11 +41,13 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [FEATURE] [DEMO]
         // [SCENARIO 374401] All IRS 1099 codes required for upgrade are up to date in the demodata
 
-        IRS1099FormBox.Get(GetIRS1099UpgradeCode2019);
-        IRS1099FormBox.Get(GetIRS1099UpgradeCode2020);
-        IRS1099FormBox.Get(GetIRS1099UpgradeCode2020February);
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2019());
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2020());
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2020February());
         // TFS ID 412412: 1099 format 2021
-        IRS1099FormBox.Get(GetIRS1099UpgradeCode2021);
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2021());
+        // TFS ID 454897: 1099 format 2022
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2022());
     end;
 
     [Test]
@@ -165,6 +168,38 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     end;
 
     [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure NotificationUpgrade2022ThrownOnIRS1099FormBoxPage()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
+        IRSCode: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 412412] Notification of upgrade February 2020 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
+
+        Initialize();
+        IRSCode := GetIRS1099UpgradeCode2019();
+        InsertIRS1099Code(IRSCode);
+        IRSCode := GetIRS1099UpgradeCode2020();
+        InsertIRS1099Code(IRSCode);
+        IRSCode := GetIRS1099UpgradeCode2020February();
+        InsertIRS1099Code(IRSCode);
+        IRSCode := GetIRS1099UpgradeCode2021();
+        InsertIRS1099Code(IRSCode);
+
+        LibraryVariableStorage.Enqueue(Upgrade2022Lbl);
+        IRS1099FormBoxPage.OpenView();
+        IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
+        IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
+        RemoveIRS1099UpgradeCodeYear2019();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure NotificationNotShowOnIRS1099FormBoxPage()
@@ -189,6 +224,9 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // TFS ID 412412: 1099 format 2021
         IRSCode := GetIRS1099UpgradeCode2021();
         InsertIRS1099Code(IRSCode);
+        // TFS ID 454897: 1099 format 2022
+        IRSCode := GetIRS1099UpgradeCode2022();
+        InsertIRS1099Code(IRSCode);
 
         CodeCoverageMgt.StartApplicationCoverage();
         IRS1099FormBoxPage.OpenView();
@@ -204,6 +242,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         RemoveIRS1099UpgradeCodeYear2020();
         RemoveIRS1099UpgradeCodeYear2020February();
         RemoveIRS1099UpgradeCodeYear2021();
+        RemoveIRS1099UpgradeCodeYear2022();
     end;
 
     [Test]
@@ -573,7 +612,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         VendorList: TestPage "Vendor List";
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 412412] A "Vendor 1099 Misc 2021" report shown from the Vendor List page when "MISC-11" code exists in the database
+        // [SCENARIO 412412] A "Vendor 1099 Misc 2022" report shown from the Vendor List page when "MISC-11" code exists in the database
 
         Initialize();
         InsertIRS1099Code(GetIRS1099UpgradeCode2020);
@@ -603,6 +642,166 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         IRS1099FormBox."Vendor 1099 Misc".Invoke;
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Misc1099ForYear2022RepShownFromVendPage()
+    var
+        VendorList: TestPage "Vendor List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Misc 2022" report shown from the Vendor List page when "MISC-16" code exists in the database
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        VendorList.OpenEdit();
+        VendorList."Vendor 1099 Misc".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Misc1099ForYear2022RepShownFromIRS1099FormBoxPage()
+    var
+        IRS1099FormBox: TestPage "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Misc 2022" report shown from the IRS-100 Form Box page when "MISC-16" code exists in the database
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox."Vendor 1099 Misc".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Int2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Int1099ForYear2022RepShownFromVendPage()
+    var
+        VendorList: TestPage "Vendor List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Int 2022" report shown from the Vendor List page when upgrade for year 2022 has been executed
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        VendorList.OpenEdit();
+        VendorList."Vendor 1099 Int".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Int2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Int1099ForYear2022RepShownFromIRS1099FormBoxPage()
+    var
+        IRS1099FormBox: TestPage "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Int 2022" report shown from the IRS-100 Form Box page when upgrade for year 2022 has been executed
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox."Vendor 1099 Int".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Div1099ForYear2022RepShownFromVendPage()
+    var
+        VendorList: TestPage "Vendor List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Div 2022" report shown from the Vendor List page when upgrade for year 2022 has been executed
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        VendorList.OpenEdit();
+        VendorList."Vendor 1099 Div".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Div1099ForYear2022RepShownFromIRS1099FormBoxPage()
+    var
+        IRS1099FormBox: TestPage "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Div 2022" report shown from the IRS-100 Form Box page when upgrade for year 2022 has been executed
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox."Vendor 1099 Div".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Nec1099ForYear2022RepShownFromVendPage()
+    var
+        VendorList: TestPage "Vendor List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Nec 2022" report shown from the Vendor List page when upgrade for year 2022 has been executed
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        VendorList.OpenEdit();
+        VendorList.RunVendor1099NecReport.Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Nec1099ForYear2022RepShownFromIRS1099FormBoxPage()
+    var
+        IRS1099FormBox: TestPage "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 454897] A "Vendor 1099 Nec 2022" report shown from the IRS-100 Form Box page when upgrade for year 2022 has been executed
+
+        Initialize();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2022());
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox.RunVendor1099NecReport.Invoke();
+    end;
+
     local procedure Initialize()
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
@@ -615,7 +814,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         InsertIRS1099Code('DIV-08');
         InsertIRS1099Code('DIV-9');
         InsertIRS1099Code('DIV-10');
-        IRS1099FormBox.SetFilter(Code, '*NEC*|MISC-11');
+        IRS1099FormBox.SetFilter(Code, '*NEC*|MISC-11|MISC-16');
         IRS1099FormBox.DeleteAll();
     end;
 
@@ -637,6 +836,11 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     local procedure GetIRS1099UpgradeCode2021(): Code[10]
     begin
         exit('MISC-11');
+    end;
+
+    local procedure GetIRS1099UpgradeCode2022(): Code[10]
+    begin
+        exit('MISC-16');
     end;
 
     local procedure RemoveIRS1099UpgradeCodeYear2019()
@@ -668,6 +872,14 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2021());
+        IRS1099FormBox.DeleteAll();
+    end;
+
+    local procedure RemoveIRS1099UpgradeCodeYear2022()
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2022);
         IRS1099FormBox.DeleteAll();
     end;
 
@@ -833,6 +1045,34 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     procedure Vendor1099Misc2021RequestPageHandler(var Vendor1099Misc2021: TestRequestPage "Vendor 1099 Misc 2021")
     begin
         Vendor1099Misc2021.Cancel.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2022RequestPageHandler(var Vendor1099Misc2022: TestRequestPage "Vendor 1099 Misc 2022")
+    begin
+        Vendor1099Misc2022.Cancel.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Int2022RequestPageHandler(var Vendor1099Int2022: TestRequestPage "Vendor 1099 Int 2022")
+    begin
+        Vendor1099Int2022.Cancel.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2022RequestPageHandler(var Vendor1099Div2022: TestRequestPage "Vendor 1099 Div 2022")
+    begin
+        Vendor1099Div2022.Cancel.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Nec2022RequestPageHandler(var Vendor1099Nec2022: TestRequestPage "Vendor 1099 Nec 2022")
+    begin
+        Vendor1099Nec2022.Cancel.Invoke();
     end;
 }
 

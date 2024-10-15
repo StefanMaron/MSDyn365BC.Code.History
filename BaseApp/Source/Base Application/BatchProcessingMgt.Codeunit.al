@@ -457,6 +457,21 @@ codeunit 1380 "Batch Processing Mgt."
         exit(true);
     end;
 
+    procedure GetTimeParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Time): Boolean
+    var
+        Result: Time;
+        Value: Text[250];
+    begin
+        if not GetTextParameter(RecordID, ParameterId, Value) then
+            exit(false);
+
+        if not Evaluate(Result, Value) then
+            exit(false);
+
+        ParameterValue := Result;
+        exit(true);
+    end;
+
     procedure IsActive() Result: Boolean
     begin
         OnSystemSetBatchProcessingActive(Result);

@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 report 10407 "Bank Rec. Test Report"
 {
@@ -8,7 +7,6 @@ report 10407 "Bank Rec. Test Report"
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
-#pragma warning restore AS0074
     dataset
     {
         dataitem("Bank Rec. Header"; "Bank Rec. Header")

@@ -586,25 +586,28 @@ codeunit 99000830 "Create Reserv. Entry"
         if ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation then
             exit;
 
+        IsError := CheckSourceTypeSubtype(ReservEntry);
+
+        if IsError then
+            Error(Text000);
+    end;
+
+    local procedure CheckSourceTypeSubtype(var ReservEntry: Record "Reservation Entry") IsError: Boolean
+    begin
         case ReservEntry."Source Type" of
             DATABASE::"Sales Line":
                 IsError := not (ReservEntry."Source Subtype" in [1, 5]);
             DATABASE::"Purchase Line":
                 IsError := not (ReservEntry."Source Subtype" in [1, 5]);
-            DATABASE::"Prod. Order Line",
-          DATABASE::"Prod. Order Component":
-                IsError := (ReservEntry."Source Subtype" = 4) or
-                  ((ReservEntry."Source Subtype" = 1) and (ReservEntry.Binding = ReservEntry.Binding::" "));
-            DATABASE::"Assembly Header",
-          DATABASE::"Assembly Line":
+            DATABASE::"Prod. Order Line", DATABASE::"Prod. Order Component":
+                IsError := (ReservEntry."Source Subtype" = 4) or ((ReservEntry."Source Subtype" = 1) and (ReservEntry.Binding = ReservEntry.Binding::" "));
+            DATABASE::"Assembly Header", DATABASE::"Assembly Line":
                 IsError := not (ReservEntry."Source Subtype" = 1); // Only Assembly Order supported
-            DATABASE::"Requisition Line",
-          DATABASE::"Planning Component":
+            DATABASE::"Requisition Line", DATABASE::"Planning Component":
                 IsError := ReservEntry.Binding = ReservEntry.Binding::" ";
             DATABASE::"Item Journal Line":
                 // Item Journal Lines with Entry Type Transfer can carry reservations during posting:
-                IsError := (ReservEntry."Source Subtype" <> 4) and
-                  (ReservEntry."Source Ref. No." <> 0);
+                IsError := (ReservEntry."Source Subtype" <> 4) and (ReservEntry."Source Ref. No." <> 0);
             DATABASE::"Job Journal Line":
                 IsError := ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order";
             DATABASE::"Job Planning Line":
@@ -612,9 +615,7 @@ codeunit 99000830 "Create Reserv. Entry"
             else
                 OnAfterCheckValidity(ReservEntry, IsError);
         end;
-
-        if IsError then
-            Error(Text000);
+        OnAfterCheckSourceTypeSubtype(ReservEntry, IsError);
     end;
 
     procedure GetLastEntry(var ReservEntry: Record "Reservation Entry")
@@ -1005,6 +1006,11 @@ codeunit 99000830 "Create Reserv. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckValidity(ReservEntry: Record "Reservation Entry"; var IsError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSourceTypeSubtype(var ReservationEntry: Record "Reservation Entry"; var IsError: Boolean)
     begin
     end;
 
