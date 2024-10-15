@@ -15,6 +15,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -5501,7 +5502,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         Initialize();
         GeneralLedgerSetup.Get();
 
-        // [GIVEN] General ledger setup with shopurtcut dimensions
+        // [GIVEN] General ledger setup with shortcut dimensions
         CreateShortcutDimensions(DimensionValue);
         SetGLSetupShortcutDimensionsAll(DimensionValue);
         DimSetId := GetDimSetId();
@@ -5542,7 +5543,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         // [SCENARIO 396220] Modify(true) dimension set entry
         Initialize();
 
-        // [GIVEN] General ledger setup with shopurtcut dimensions
+        // [GIVEN] General ledger setup with shortcut dimensions
         CreateShortcutDimensions(DimensionValue);
         SetGLSetupShortcutDimensionsAll(DimensionValue);
         // [GIVEN] Corrupted dimension set entry
@@ -5599,6 +5600,144 @@ codeunit 134485 "ERM Dimension Shortcuts"
         VerifyNonShrtcutDimSetEntryGlobalDimNo(DimSetId);
         // [THEN] Change log entries are created
         VerifyChangeLogEntry(DimSetId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchOrderSubformDescriptionUpdateDimShortcuts()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        DimensionValue: array[6] of Record "Dimension Value";
+        PurchOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 412920] [Purchase Order] [UI]
+        // [GIVEN] Purchase order subform dimension shortcuts updated when Description validated
+        Initialize();
+
+        // [GIVEN] General ledger setup with shortcut dimensions SD3-SD8
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+
+        // [GIVEN] Vendor V with default dimensions SD3-SD8
+        CreateVendorWithDefaultDimension(Vendor, DimensionValue);
+        // [GIVEN] Item I with description "XXX"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Purchase order for vendor V
+        LibraryPurchase.CreatePurchHeader(PurchHeader, "Purchase Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Open page Purchase Order
+        PurchOrder.OpenEdit();
+        PurchOrder.Filter.SetFilter("No.", PurchHeader."No.");
+
+        // [WHEN] Validate line Description with "XXX"
+        PurchOrder.PurchLines.New();
+        PurchOrder.PurchLines.Type.SetValue("Purchase Line Type"::Item);
+        PurchOrder.PurchLines.Description.SetValue(Item.Description);
+
+        // [THEN] Purchase line has shortcut dimensions SD3-SD8
+        PurchOrder.PurchLines.ShortcutDimCode3.AssertEquals(DimensionValue[1].Code);
+        PurchOrder.PurchLines.ShortcutDimCode4.AssertEquals(DimensionValue[2].Code);
+        PurchOrder.PurchLines.ShortcutDimCode5.AssertEquals(DimensionValue[3].Code);
+        PurchOrder.PurchLines.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
+        PurchOrder.PurchLines.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
+        PurchOrder.PurchLines.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
+        PurchOrder.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchReturnOrderSubformDescriptionUpdateDimShortcuts()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        DimensionValue: array[6] of Record "Dimension Value";
+        PurchReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [SCENARIO 412920] [Purchase Return Order] [UI]
+        // [GIVEN] Purchase return order subform dimension shortcuts updated when Description validated
+        Initialize();
+
+        // [GIVEN] General ledger setup with shortcut dimensions SD3-SD8
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+
+        // [GIVEN] Vendor V with default dimensions SD3-SD8
+        CreateVendorWithDefaultDimension(Vendor, DimensionValue);
+        // [GIVEN] Item I with description "XXX"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Purchase return order for vendor V
+        LibraryPurchase.CreatePurchHeader(PurchHeader, "Purchase Document Type"::"Return Order", Vendor."No.");
+
+        // [GIVEN] Open page Purchase Return Order
+        PurchReturnOrder.OpenEdit();
+        PurchReturnOrder.Filter.SetFilter("No.", PurchHeader."No.");
+
+        // [WHEN] Validate line Description with "XXX"
+        PurchReturnOrder.PurchLines.New();
+        PurchReturnOrder.PurchLines.Type.SetValue("Purchase Line Type"::Item);
+        PurchReturnOrder.PurchLines.Description.SetValue(Item.Description);
+
+        // [THEN] Purchase line has shortcut dimensions SD3-SD8
+        PurchReturnOrder.PurchLines.ShortcutDimCode3.AssertEquals(DimensionValue[1].Code);
+        PurchReturnOrder.PurchLines.ShortcutDimCode4.AssertEquals(DimensionValue[2].Code);
+        PurchReturnOrder.PurchLines.ShortcutDimCode5.AssertEquals(DimensionValue[3].Code);
+        PurchReturnOrder.PurchLines.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
+        PurchReturnOrder.PurchLines.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
+        PurchReturnOrder.PurchLines.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
+        PurchReturnOrder.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchQuoteSubformDescriptionUpdateDimShortcuts()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        DimensionValue: array[6] of Record "Dimension Value";
+        PurchaseQuote: TestPage "Purchase Quote";
+    begin
+        // [SCENARIO 412920] [Purchase Quote] [UI]
+        // [GIVEN] Purchase quote subform dimension shortcuts updated when Description validated
+        Initialize();
+
+        // [GIVEN] General ledger setup with shortcut dimensions SD3-SD8
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+
+        // [GIVEN] Vendor V with default dimensions SD3-SD8
+        CreateVendorWithDefaultDimension(Vendor, DimensionValue);
+        // [GIVEN] Item I with description "XXX"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Purchase quote for vendor V
+        LibraryPurchase.CreatePurchHeader(PurchHeader, "Purchase Document Type"::Quote, Vendor."No.");
+
+        // [GIVEN] Open page Purchase Quote
+        PurchaseQuote.OpenEdit();
+        PurchaseQuote.Filter.SetFilter("No.", PurchHeader."No.");
+
+        // [WHEN] Validate line Description with "XXX"
+        PurchaseQuote.PurchLines.New();
+        PurchaseQuote.PurchLines.Type.SetValue("Purchase Line Type"::Item);
+        PurchaseQuote.PurchLines.Description.SetValue(Item.Description);
+
+        // [THEN] Purchase line has shortcut dimensions SD3-SD8
+        PurchaseQuote.PurchLines.ShortcutDimCode3.AssertEquals(DimensionValue[1].Code);
+        PurchaseQuote.PurchLines.ShortcutDimCode4.AssertEquals(DimensionValue[2].Code);
+        PurchaseQuote.PurchLines.ShortcutDimCode5.AssertEquals(DimensionValue[3].Code);
+        PurchaseQuote.PurchLines.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
+        PurchaseQuote.PurchLines.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
+        PurchaseQuote.PurchLines.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
+        PurchaseQuote.Close;
     end;
 
     local procedure Initialize()
@@ -5688,6 +5827,16 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLSetup.Validate("Shortcut Dimension 7 Code", '');
         GLSetup.Validate("Shortcut Dimension 8 Code", '');
         GLSetup.Modify();
+    end;
+
+    local procedure CreateVendorWithDefaultDimension(var Vendor: Record Vendor; DimensionValue: array[6] of Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+        i: Integer;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        for i := 1 to 6 do
+            LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", DimensionValue[i]."Dimension Code", DimensionValue[i].Code);
     end;
 
     local procedure RemoveTempBatches()

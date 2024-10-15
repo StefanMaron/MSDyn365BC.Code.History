@@ -879,9 +879,13 @@ page 283 "Recurring General Journal"
     begin
         OnBeforeOnOpenPage();
 
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
+
         SetControlVisibility;
         SetDimensionsVisibility;
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -890,7 +894,6 @@ page 283 "Recurring General Journal"
         end;
         SelectJournalWithError();
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-
         OnAfterOnOpenPage(CurrentJnlBatchName);
     end;
 
@@ -901,6 +904,7 @@ page 283 "Recurring General Journal"
         ColumnLayout: Record "Column Layout";
         GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
+        ClientTypeManagement: Codeunit "Client Type Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
         CurrentJnlBatchName: Code[10];

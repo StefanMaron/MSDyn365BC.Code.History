@@ -246,13 +246,14 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         if ReceiptQty = 0 then
             exit;
 
+        If ItemJnlLine."Red Storno" then
+            ReceiptQty := -ReceiptQty;
+
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then
             repeat
                 OldReservEntry.TestField("Item No.", InvtDocLine."Item No.");
                 OldReservEntry.TestField("Variant Code", InvtDocLine."Variant Code");
                 OldReservEntry.TestField("Location Code", InvtDocLine."Location Code");
-                if ItemJnlLine."Red Storno" then
-                    OldReservEntry.Validate("Quantity (Base)", -OldReservEntry."Quantity (Base)");
                 ReceiptQty :=
                   CreateReservEntry.TransferReservEntry(
                     DATABASE::"Item Journal Line",
@@ -323,12 +324,15 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
 
     procedure CallItemTracking(var InvtDocLine: Record "Invt. Document Line")
     var
+        InvtDocumentHeader: Record "Invt. Document Header";
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
+        InvtDocumentHeader.Get(InvtDocLine."Document Type", InvtDocLine."Document No.");
         TrackingSpecification.InitFromInvtDocLine(InvtDocLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, InvtDocLine."Document Date");
-        ItemTrackingLines.SetInbound(InvtDocLine."Document Type" = InvtDocLine."Document Type"::Receipt);
+        ItemTrackingLines.SetInbound(
+          (InvtDocLine."Document Type" = InvtDocLine."Document Type"::Receipt) xor InvtDocumentHeader.Correction);
         ItemTrackingLines.RunModal();
     end;
 
@@ -612,6 +616,22 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         if MatchThisEntry(ReservSummEntry."Entry No.") then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, ReservSummEntry."Entry No." - EntryStartNo(), Positive, TotalQuantity);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnAfterSignFactor', '', false, false)]
+    local procedure SetReservEntrySignFactorForRedStorno(ReservationEntry: Record "Reservation Entry"; var Sign: Integer)
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        RedStorno: Boolean;
+    begin
+        if ReservationEntry."Source Type" = Database::"Invt. Document Line" then begin
+            InvtDocumentHeader.Get(ReservationEntry."Source Subtype", ReservationEntry."Source ID");
+            RedStorno := InvtDocumentHeader.Correction;
+            if (InvtDocumentHeader."Document Type" = InvtDocumentHeader."Document Type"::Receipt) xor RedStorno then
+                Sign := 1
+            else
+                Sign := -1;
+        end;
     end;
 }
 

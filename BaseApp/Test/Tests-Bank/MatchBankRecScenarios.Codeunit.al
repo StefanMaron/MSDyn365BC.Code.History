@@ -554,6 +554,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Create bank reconciliation with bank satetement line Description = 'XYZ'
         StatementDescription := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(StatementDescription), 0);
         CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage, StatementDescription);
+        LibraryVariableStorage.Clear(); //clear not needed value
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -597,6 +598,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         // [GIVEN] Create bank reconciliation with bank satetement line for bank "B1"
         CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage,
             LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(GenJnlLine.Description), 0));
+        LibraryVariableStorage.Clear();  //clear not needed value
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -631,6 +633,62 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccountLedgerEntry.TestField("Statement Line No.", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToGenJnlReqPageHandler,GenJnlPagePostHandler')]
+    [Scope('OnPrem')]
+    procedure BankAccReconciliationLineAppliedEntriesValueAfterPostGenJnlLine()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        CustomerNo: Variant;
+        Amount: Decimal;
+    begin
+        // [SCENARIO 417646] Bank Acc. Reconciliation Line field Applied Entries should be correct after posting linked Gen. Journal line
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation 
+        CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage,
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(GenJnlLine.Description), 0));
+        LibraryVariableStorage.Dequeue(CustomerNo);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BankAccReconciliation."Bank Account No.";
+        GenJournalBatch.Modify();
+
+        // For running the report:
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        // [GIVEN] Transfer to General Journal is invoked
+        Commit();
+        LibraryLowerPermissions.SetBanking;
+        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+
+        // [WHEN] Gen. Journal Line is posted
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.SetRange("Bal. Account No.", BankAccReconciliation."Bank Account No.");
+        GenJnlLine.FindFirst();
+        GenJnlLine.Validate("Document No.", '1');
+        GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
+        GenJnlLine.Validate("Account No.", CustomerNo);
+        GenJnlLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [THEN] Bank Acc. Reconciliation Line "Applied Entries" = 1
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliationLine."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Applied Amount", -GenJnlLine.Amount);
+        BankAccReconciliationLine.FindFirst();
+        BankAccReconciliationLine.TestField("Applied Entries", 1);
+    end;
+
     local procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAcc(AmountToApply: Decimal)
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -653,16 +711,17 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match Bank Rec. Scenarios");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Match Bank Rec. Scenarios");
 
-        LibraryERMCountryData.UpdateLocalData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
-        LibraryVariableStorage.Clear;
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Match Bank Rec. Scenarios");
@@ -883,6 +942,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         LibraryERM.CreateBankAccount(BankAccount);
         LibrarySales.CreateCustomer(Customer);
+        LibraryVariableStorage.Enqueue(Customer."No.");
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
@@ -1089,6 +1149,13 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GeneralJournal.CurrentJnlBatchName.AssertEquals(BatchName);
         GeneralJournal."Bal. Account Type".AssertEquals(GenJnlLine."Bal. Account Type"::"Bank Account");
         GeneralJournal."Bal. Account No.".AssertEquals(BankAccNo);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GenJnlPagePostHandler(var GeneralJournal: TestPage "General Journal")
+    begin
+        GeneralJournal.Close();
     end;
 
     [RequestPageHandler]

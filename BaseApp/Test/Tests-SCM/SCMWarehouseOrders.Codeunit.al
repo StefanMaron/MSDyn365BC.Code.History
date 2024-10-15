@@ -2186,6 +2186,61 @@ codeunit 137161 "SCM Warehouse Orders"
         Assert.AreEqual(Qty + Qty / 4 + Qty / 4, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
     end;
 
+    [Test]
+    procedure AvailQtyToPickInPickWorksheetHavingAnotherShipmentPicked()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Pick Worksheet] [Available Qty. to Pick] [Warehouse Shipment]
+        // [SCENARIO 419227] Available Qty. to Pick in pick worksheet when there is another picked warehouse shipment exists for this item.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Item and location with required shipment and pick.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create bin "B1" and set it as "Shipment Bin Code" at location.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", Bin[1].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create bin "B2" and post inventory adjustment of 20 pcs to it.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[2].Code, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order "SO1" for 10 pcs. Release and create warehouse shipment.
+        // [GIVEN] Create and register pick.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Qty / 2, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        RegisterWarehouseActivity(
+            "Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", "Warehouse Activity Type"::Pick);
+
+        // [GIVEN] Sales order "SO2" for 20 pcs. Release and create warehouse shipment.
+        CreateAndReleaseSalesOrder(SalesHeader, '', Item."No.", Qty, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Open pick worksheet and pull the warehouse shipment.
+        GetWarehouseDocumentOnWarehouseWorksheetLine(
+          WhseWorksheetName, Location.Code, WarehouseShipmentHeader."No.", '''''');
+
+        // [THEN] A pick worksheet line shows "Qty. Avail. to Pick" = 10.
+        FindWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
+        Assert.AreEqual(Qty / 2, WhseWorksheetLine.AvailableQtyToPickExcludingQCBins(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");

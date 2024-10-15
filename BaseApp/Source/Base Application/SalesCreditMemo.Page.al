@@ -55,9 +55,6 @@ page 44 "Sales Credit Memo"
                             InitRecord;
 
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-
-                        SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
 
@@ -400,8 +397,7 @@ page 44 "Sales Credit Memo"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
-                        SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Shipment Date"; "Shipment Date")
@@ -424,14 +420,6 @@ page 44 "Sales Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
-
-                    trigger OnValidate()
-                    var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-                    begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-                    end;
                 }
                 field("Agreement No."; "Agreement No.")
                 {
@@ -524,10 +512,7 @@ page 44 "Sales Credit Memo"
                                 if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                     SetRange("Bill-to Customer No.");
 
-                            CurrPage.SaveRecord;
-                            SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                            CurrPage.Update(false);
+                            CurrPage.Update();
                         end;
                     }
                     field("Bill-to Address"; "Bill-to Address")
@@ -781,6 +766,7 @@ page 44 "Sales Credit Memo"
                             Commit();
 
                         OpenDocumentStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(CreditMemo_CustomerCard)

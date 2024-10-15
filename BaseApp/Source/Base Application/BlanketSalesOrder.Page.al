@@ -249,7 +249,6 @@ page 507 "Blanket Sales Order"
                     trigger OnValidate()
                     begin
                         CurrPage.Update();
-                        SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
                 field("Shipment Date"; "Shipment Date")
@@ -535,18 +534,11 @@ page 507 "Blanket Sales Order"
                             ToolTip = 'Specifies the customer to whom you will send the invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
-                            var
-                                ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                             begin
                                 if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
                                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                         SetRange("Bill-to Customer No.");
-
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                    SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                                CurrPage.Update(false);
+                                CurrPage.Update();
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")

@@ -1056,7 +1056,7 @@ table 337 "Reservation Entry"
                           CreateReservEntry.TransferReservEntry(
                             SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
                             QtyPerUOM, OldReservEntry, TransferQty);
-                        OnTransferReservationsOnAfterSecondOldReservEntryLoop(OldReservEntry, NewReservEntry);
+                        OnTransferReservationsOnAfterSecondOldReservEntryLoop(OldReservEntry, NewReservEntry, SourceType, SourceSubtype, SourceID);
                     until (OldReservEntry.Next() = 0) or (TransferQty = 0);
             end;
     end;
@@ -1418,7 +1418,7 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferReservationsOnAfterSecondOldReservEntryLoop(var OldReservEntry: Record "Reservation Entry"; var NewReservEntry: Record "Reservation Entry")
+    local procedure OnTransferReservationsOnAfterSecondOldReservEntryLoop(var OldReservEntry: Record "Reservation Entry"; var NewReservEntry: Record "Reservation Entry"; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20])
     begin
     end;
 

@@ -3512,6 +3512,7 @@
 
         GenJnlLine := GenJnlLinePostApply;
         CustLedgEntry.TransferFields(CustLedgEntryPostApply);
+        OnCustPostApplyCustLedgEntryOnAfterCustLedgEntryTransferFields(CustLedgEntry, GenJnlLine);
         with GenJnlLine do begin
             "Source Currency Code" := CustLedgEntryPostApply."Currency Code";
             "Applies-to ID" := CustLedgEntryPostApply."Applies-to ID";
@@ -4234,6 +4235,7 @@
         NewCVLedgEntryBuf."Applies-to ID" := '';
         NewCVLedgEntryBuf."Amount to Apply" := 0;
 
+        OnApplyVendLedgEntryOnBeforeUnrealizedVAT(GenJnlLine, NewCVLedgEntryBuf, NewVendLedgEntry);
         if GLSetup."Unrealized VAT" or
            (GLSetup."Prepayment Unrealized VAT" and NewCVLedgEntryBuf.Prepayment)
         then
@@ -4300,6 +4302,7 @@
 
         GenJnlLine := GenJnlLinePostApply;
         VendLedgEntry.TransferFields(VendLedgEntryPostApply);
+        OnVendPostApplyVendLedgEntryOnAfterVendLedgEntryTransferFields(VendLedgEntry, GenJnlLine);
         with GenJnlLine do begin
             "Source Currency Code" := VendLedgEntryPostApply."Currency Code";
             "Applies-to ID" := VendLedgEntryPostApply."Applies-to ID";
@@ -7387,7 +7390,13 @@
     local procedure CopyDimPostBufToInvPostBuf(var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
     var
         DimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyDimPostBufToInvPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         DimSetID := TempDimPostingBuffer."Dimension Set ID";
         TempInvoicePostBuffer.DeleteAll();
         TempDimPostingBuffer.Reset();
@@ -7410,7 +7419,13 @@
     local procedure CopyInvPostBufToDimPostBuf(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary)
     var
         DimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyInvPostBufToDimPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         DimSetID := TempInvoicePostBuffer."Dimension Set ID";
         TempDimPostingBuffer.DeleteAll();
         TempInvoicePostBuffer.Reset();
@@ -8496,6 +8511,19 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Invoice Post Buffer refactoring', '19.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyDimPostBufToInvPostBuf(var TempInvoicePostBuffer: Record "Invoice Post. Buffer"; var TempDimPostingBuffer: Record "Dimension Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Invoice Post Buffer refactoring', '19.0')]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyInvPostBufToDimPostBuf(var TempDimPostingBuffer: Record "Dimension Posting Buffer"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGLAccDimError(var GenJournalLine: Record "Gen. Journal Line"; GLAccNo: Code[20]; var IsHandled: Boolean)
     begin
@@ -9243,6 +9271,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyVendLedgEntryOnBeforeUnrealizedVAT(var GenJournalLine: Record "Gen. Journal Line"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyVendLedgEntryOnBeforeTempOldVendLedgEntryDelete(var GenJournalLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; AppliedAmount: Decimal)
     begin
     end;
@@ -9350,6 +9383,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnContinuePostingOnBeforeCalculateCurrentBalance(var GenJournalLine: Record "Gen. Journal Line"; var NextTransactionNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustPostApplyCustLedgEntryOnAfterCustLedgEntryTransferFields(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -9738,6 +9776,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCustUnrealizedVATOnAfterSetSalesVATAccounts(var VATEntry: Record "VAT Entry"; var VATPostingSetup: Record "VAT Posting Setup"; var SalesVATAccount: Code[20]; var SalesVATUnrealAccount: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendPostApplyVendLedgEntryOnAfterVendLedgEntryTransferFields(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

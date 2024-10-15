@@ -1722,22 +1722,41 @@
         case Type of
             Type::Item:
                 ShouldRetrieveCostPrice :=
-                  ("No." <> xRec."No.") or
-                  ("Location Code" <> xRec."Location Code") or
-                  ("Variant Code" <> xRec."Variant Code") or
-                  (not BypassQtyValidation and (Quantity <> xRec.Quantity)) or
-                  ("Unit of Measure Code" <> xRec."Unit of Measure Code");
+                    ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice() or
+                    ("Location Code" <> xRec."Location Code") or
+                    ("Variant Code" <> xRec."Variant Code") or
+                    (not BypassQtyValidation and (Quantity <> xRec.Quantity)) or
+                    ("Unit of Measure Code" <> xRec."Unit of Measure Code");
             Type::Resource:
                 ShouldRetrieveCostPrice :=
-                  ("No." <> xRec."No.") or
-                  ("Work Type Code" <> xRec."Work Type Code") or
-                  ("Unit of Measure Code" <> xRec."Unit of Measure Code");
+                    ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice() or
+                    ("Work Type Code" <> xRec."Work Type Code") or
+                    ("Unit of Measure Code" <> xRec."Unit of Measure Code");
             Type::"G/L Account":
-                ShouldRetrieveCostPrice := "No." <> xRec."No.";
+                ShouldRetrieveCostPrice :=
+                    ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice();
             else
                 exit(false);
         end;
         exit(ShouldRetrieveCostPrice);
+    end;
+
+    local procedure IsQuantityChangedForPrice(): Boolean;
+#if not CLEAN19
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+#endif
+    begin
+        if Quantity = xRec.Quantity then
+            exit(false);
+#if not CLEAN19
+        exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
+#else
+        exit(true);
+#endif
     end;
 
     local procedure UpdateTotalCost()

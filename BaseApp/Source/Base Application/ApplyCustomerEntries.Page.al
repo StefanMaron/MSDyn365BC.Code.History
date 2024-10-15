@@ -1539,7 +1539,7 @@ page 232 "Apply Customer Entries"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforePostDirectApplication(var CustLedgerEntry: Record "Cust. Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     begin
     end;

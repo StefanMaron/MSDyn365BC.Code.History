@@ -403,7 +403,7 @@ table 271 "Bank Account Ledger Entry"
         if BankAccReconciliationLine."Statement Amount" = Amount then begin
             BankAccReconciliationLine."Applied Amount" += Amount;
             BankAccReconciliationLine.Difference := BankAccReconciliationLine."Statement Amount" - BankAccReconciliationLine."Applied Amount";
-            BankAccReconciliationLine."Applied Entries" := "Entry No.";
+            BankAccReconciliationLine."Applied Entries" += 1;
             BankAccReconciliationLine.Modify();
         end else begin
             "Statement Status" := "Statement Status"::Open;

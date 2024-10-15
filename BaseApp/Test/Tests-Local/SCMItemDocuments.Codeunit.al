@@ -28,7 +28,7 @@ codeunit 147111 "SCM Item Documents"
         isInitialized: Boolean;
         WrongQuantityErr: Label 'Wrong quantity in "Item G/L Turnover"';
         WrongAmountErr: Label 'Wrong amount in "Item G/L Turnover"';
-        ItemTrackingAction: Option AssignSerialNo,SelectEntries;
+        ItemTrackingAction: Option AssignSerialNo,SelectEntries,ManualSN;
 
     [Test]
     [Scope('OnPrem')]
@@ -375,6 +375,128 @@ codeunit 147111 "SCM Item Documents"
         Assert.AreEqual(NewAmount, CreditCost, WrongAmountErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesRedStornoModalPageHandler,EnterQuantityToCreateModalPageHandler,ItemTrackingSummaryModalPageHandler')]
+    procedure OutboundItemTrackingForInvtReceiptWithRedStorno()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        ApplyToEntryNo: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Inventory Receipt] [Red Storno]
+        // [SCENARIO 415530] Item Tracking Lines page works in outbound mode when opened for inventory receipt with red storno.
+        Initialize();
+
+        // [GIVEN] Enable Red Storno.
+        EnableRedStorno();
+
+        // [GIVEN] Serial no.-tracked item.
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Inventory receipt for 1 pc, assign serial no., post.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
+        InvtDocumentLine.OpenItemTrackingLines();
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [GIVEN] Note item entry no. for the posted receipt.
+        ApplyToEntryNo := FindLastPositiveItemLedgEntry(Item."No.");
+
+        // [GIVEN] Inventory receipt with red storno.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        InvtDocumentHeader.Validate(Correction, true);
+        InvtDocumentHeader.Modify(true);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+
+        // [WHEN] Open item tracking lines for the inventory receipt line.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::SelectEntries);
+        LibraryVariableStorage.Enqueue(ApplyToEntryNo);
+        InvtDocumentLine.OpenItemTrackingLines();
+
+        // [THEN] Item Tracking Lines page is opened in an outbound mode.
+        // [THEN] It is possible to "Select Entries" and fill in "Applies-to-Entry No".
+
+        // [THEN] The inventory receipt with red storno is successfully posted.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] The original receipt is reversed.
+        VerifyItemInventory(Item, Location.Code, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesRedStornoModalPageHandler,EnterQuantityToCreateModalPageHandler,ItemTrackingSummaryModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure InboundItemTrackingForInvtShipmentWithRedStorno()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Item Tracking] [Inventory Shipment] [Red Storno]
+        // [SCENARIO 415530] Item Tracking Lines page works in inbound mode when opened for inventory shipment with red storno.
+        Initialize();
+
+        // [GIVEN] Enable Red Storno.
+        EnableRedStorno();
+
+        // [GIVEN] Serial no.-tracked item.
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Inventory receipt for 1 pc, assign serial no., post.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
+        InvtDocumentLine.OpenItemTrackingLines();
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [GIVEN] Inventory shipment for 1 pc, select serial no., post.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::SelectEntries);
+        InvtDocumentLine.OpenItemTrackingLines();
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [GIVEN] Note item entry no. for the posted shipment.
+        ItemLedgerEntry.Get(FindLastNegativeItemLedgEntry(Item."No."));
+
+        // [GIVEN] Inventory shipment with red storno.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, Location.Code);
+        InvtDocumentHeader.Validate(Correction, true);
+        InvtDocumentHeader.Modify(true);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+
+        // [WHEN] Open item tracking lines for the inventory shipment line.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(ItemTrackingAction::ManualSN);
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Serial No.");
+        LibraryVariableStorage.Enqueue(ItemLedgerEntry."Entry No.");
+        InvtDocumentLine.OpenItemTrackingLines();
+
+        // [THEN] Item Tracking Lines page is opened in an inbound mode.
+        // [THEN] It is possible to fill in "Applies-from-Entry No".
+
+        // [THEN] The inventory shipment with red storno is successfully posted.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] The original shipment is reversed.
+        VerifyItemInventory(Item, Location.Code, 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -488,6 +610,16 @@ codeunit 147111 "SCM Item Documents"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.FindLast();
+        exit(ItemLedgerEntry."Entry No.");
+    end;
+
+    local procedure FindLastNegativeItemLedgEntry(ItemNo: Code[20]): Integer
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, false);
         ItemLedgerEntry.FindLast();
         exit(ItemLedgerEntry."Entry No.");
     end;
@@ -625,6 +757,46 @@ codeunit 147111 "SCM Item Documents"
             FindFirst();
             TestField(Quantity, ExpectedQty);
         end;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesRedStornoModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        IsRedStorno: Boolean;
+    begin
+        IsRedStorno := LibraryVariableStorage.DequeueBoolean();
+
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingAction::AssignSerialNo:
+                ItemTrackingLines."Assign Serial No.".Invoke();
+            ItemTrackingAction::SelectEntries:
+                begin
+                    ItemTrackingLines."Select Entries".Invoke();
+                    if IsRedStorno then
+                        ItemTrackingLines."Appl.-to Item Entry".SetValue(LibraryVariableStorage.DequeueInteger());
+                end;
+            ItemTrackingAction::ManualSN:
+                begin
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(1);
+                    if IsRedStorno then
+                        ItemTrackingLines."Appl.-from Item Entry".SetValue(LibraryVariableStorage.DequeueInteger());
+                end;
+        end;
+
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK().Invoke();
     end;
 }
 

@@ -84,9 +84,35 @@ page 975 "Time Sheet Archive Card"
         UpdateControls();
     end;
 
+    trigger OnOpenPage()
+    begin
+        CheckSetDefaultOwnerFilter();
+
+        OnAfterOnOpenPage(Rec);
+    end;
+
     local procedure UpdateControls()
     begin
         CurrPage.TimeSheetLines.Page.SetColumns("No.");
         CurrPage.PeriodSummaryArcFactBox.PAGE.UpdateData(Rec);
+    end;
+
+    local procedure CheckSetDefaultOwnerFilter()
+    var
+        UserSetup: Record "User Setup";
+        TimeSheetMgt: Codeunit "Time Sheet Management";
+    begin
+        if UserSetup.Get(UserId) then;
+        if not UserSetup."Time Sheet Admin." then begin
+            FilterGroup(2);
+            if (GetFilter("Owner User ID") = '') and (GetFilter("Approver User ID") = '') then
+                TimeSheetMgt.FilterTimeSheetsArchive(Rec, FieldNo("Owner User ID"));
+            FilterGroup(0);
+        end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var TimeSheetHeaderArchive: Record "Time Sheet Header Archive")
+    begin
     end;
 }

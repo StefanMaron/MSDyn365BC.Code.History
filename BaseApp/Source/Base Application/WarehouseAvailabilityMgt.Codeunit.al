@@ -850,8 +850,8 @@ codeunit 7314 "Warehouse Availability Mgt."
 
                 Item.SetRange("Location Filter", "Location Code");
                 Item.SetRange("Variant Filter", "Variant Code");
-                Item.CalcFields("Reserved Qty. on Inventory");
-                AvailQtyBase -= Item."Reserved Qty. on Inventory";
+                Item.CalcFields("Reserved Qty. on Inventory", "Qty. Picked");
+                AvailQtyBase := AvailQtyBase - Item."Reserved Qty. on Inventory" - Item."Qty. Picked";
             end else
                 AvailQtyBase := CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine);
 

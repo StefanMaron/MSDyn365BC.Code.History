@@ -4927,6 +4927,79 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrder.TestField("Last Date Modified", Today);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UoMRoundingExpectedQuantityCalculatedCorrectly()
+    var
+        ItemProduct: Record Item;
+        ItemComponent: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        NonBaseUOMComp: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        BaseUOMComp: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO]
+
+        // [GIVEN] Add yourselves as Warehouse Employee to WHITE location
+        Initialize();
+
+        // [GIVEN] ItemProduct. BaseUoM = PCS. Additional UoM = BOX = 180. No rounding.
+        NonBaseQtyPerUOM := 180;
+        SetupUoMTest(ItemProduct, ItemUOM, BaseUOM, NonBaseUOM, NonBaseQtyPerUOM, 0);
+
+        // [GIVEN] ItemComponent. BaseUoM = PCS. Consumption rounding = 0.00001
+        SetupUoMTest(ItemComponent, ItemUOM, BaseUOMComp, NonBaseUOMComp, 0, 0);
+        ItemComponent."Rounding Precision" := 0.00001;
+        ItemComponent.Modify();
+
+        // [GIVEN] Production BOM for ItemProduct with Non-base UoM and with ItemComponent Quantity Per = 0.00027.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, NonBaseUOM.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemComponent."No.", 0.00027);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        ItemProduct.Validate("Replenishment System", ItemProduct."Replenishment System"::"Prod. Order");
+        ItemProduct.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ItemProduct.Modify(true);
+
+        // [GIVEN] Create a new Released Production order and add line ItemProduct, Qty 39360 PCS.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            ItemProduct."No.",
+            39360
+        );
+        LibraryManufacturing.CreateProdOrderLine(
+            ProductionOrderLine,
+            ProductionOrderLine.Status::Released,
+            ProductionOrder."No.",
+            ItemProduct."No.",
+            '',
+            '',
+            39360
+        );
+
+        // [WHEN] Refreshing released production order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Expected quantity for component is correctly calculated and rounded with the rounding precision defined.
+        ProdOrderComponent.SetRange("Item No.", ItemComponent."No.");
+        ProdOrderComponent.FindFirst();
+
+        // Expected quantity = (39360 PCS / (180 PCS / BOX)) * 0.00027 = 0.0590445 ≈ 0.05904
+        ProdOrderComponent.TestField("Expected Quantity", 0.05904);
+        ProdOrderComponent.TestField("Expected Qty. (Base)", 0.05904);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

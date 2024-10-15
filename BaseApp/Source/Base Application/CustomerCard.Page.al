@@ -1070,9 +1070,9 @@
 #endif                
                 action("Item References")
                 {
+                    AccessByPermission = TableData "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     Promoted = true;
                     PromotedCategory = Category9;
@@ -2493,7 +2493,6 @@
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         OfficeManagement: Codeunit "Office Management";
@@ -2512,7 +2511,6 @@
 
         IsSaaS := EnvironmentInfo.IsSaaS();
         IsOfficeAddin := OfficeManagement.IsAvailable;
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
         WorkFlowEventFilter :=
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode + '|' +
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
@@ -2702,8 +2700,6 @@
         CanCancelApprovalForFlow: Boolean;
         IsSaaS: Boolean;
         IsCountyVisible: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
         PrevCountryCode: Code[10];

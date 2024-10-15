@@ -657,6 +657,10 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(8000; "Document Id"; Guid)
         {
             Caption = 'Document Id';

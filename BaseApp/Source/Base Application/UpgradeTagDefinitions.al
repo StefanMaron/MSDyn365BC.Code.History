@@ -733,6 +733,12 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-385481-UserTaskDescriptionToUTF8-20210112');
     end;
 
+    [Obsolete('Function will be removed or moved to internal', '20.0')]
+    procedure GetRestartSetCoupledFlagJQEsUpgradeTag(): Code[250]
+    begin
+        exit('MS-417920-RestartSetCoupledFlagJQEs-20211207');
+    end;
+
     procedure GetUpgradeNativeAPIWebServiceUpgradeTag(): Code[250]
     begin
         exit('MS-386191-NativeAPIWebService-20210121');

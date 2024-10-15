@@ -1878,6 +1878,50 @@ codeunit 134328 "ERM Purchase Invoice"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CopyPurchaseInvoiceWithDifferentVATBusGroupInclVAT()
+    var
+        PurchHeaderSrc: Record "Purchase Header";
+        PurchHeaderDst: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        VATBusPostGroup: Code[20];
+    begin
+        // [SCENARIO 421483] It is allowed to Copy document with multiple VAT Bus. Posting Group in the source lines if header included.
+        // [FEATURE] [Copy Document]
+        Initialize();
+
+        // [GIVEN] Source Purchase Invoice with "VAT Bus. Posting Group" = "X" in line
+        LibraryPurchase.CreatePurchHeader(
+          PurchHeaderSrc, PurchHeaderSrc."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(20));
+        PurchHeaderSrc.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchHeaderSrc.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchHeaderSrc, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale),
+          LibraryRandom.RandDec(10, 2));
+        VATBusPostGroup := PurchaseLine."VAT Bus. Posting Group";
+
+        // [GIVEN] Destination Purchase Invoice with "VAT Bus. Posting Group" = "Y"
+        LibraryPurchase.CreatePurchHeader(
+          PurchHeaderDst, PurchHeaderDst."Document Type"::Invoice, PurchHeaderSrc."Buy-from Vendor No.");
+
+        // [WHEN] Run "Copy Purchase Document" report Invoice to Invoice with Include Header = TRUE and Recalculate Lines = FALSE
+        LibraryPurchase.CopyPurchaseDocument(PurchHeaderDst, "Purchase Document Type From"::Invoice, PurchHeaderSrc."No.", true, false);
+
+        // [THEN] Line is copied
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", PurchHeaderDst."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchHeaderDst."No.");
+        Assert.RecordCount(PurchaseLine, 1);
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("VAT Bus. Posting Group", VATBusPostGroup);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure DeleteNonPostedInvoice()
