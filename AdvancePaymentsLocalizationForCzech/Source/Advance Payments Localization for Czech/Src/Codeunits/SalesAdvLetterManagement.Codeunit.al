@@ -1125,7 +1125,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                 if Preview then begin
                     SalesLine.SetFilter("Document Type", '%1|%2', SalesLine."Document Type"::Order, SalesLine."Document Type"::Invoice);
                     SalesLine.SetRange("Document No.", InvoiceNo);
-                    Continue := SalesInvoiceLine.FindSet();
+                    Continue := SalesLine.FindSet();
                 end else begin
                     SalesInvoiceLine.SetRange("Document No.", InvoiceNo);
                     Continue := SalesInvoiceLine.FindSet();
@@ -1186,11 +1186,12 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                                     TempInvoicePostBuffer2.SetRange("VAT %", TempInvoicePostBuffer1."VAT %");
                                 end;
                         end;
+                        TempInvoicePostBuffer2.SetFilter(Amount, '<>%1', 0);
                         if TempInvoicePostBuffer2.FindSet() then
                             repeat
                                 UseAmount := TempInvoicePostBuffer1.Amount;
                                 UseBaseAmount := TempInvoicePostBuffer1."VAT Base Amount";
-                                if TempInvoicePostBuffer2.Amount > UseAmount then begin
+                                if Abs(TempInvoicePostBuffer2.Amount) < Abs(UseAmount) then begin
                                     UseAmount := TempInvoicePostBuffer2.Amount;
                                     UseBaseAmount := TempInvoicePostBuffer2."VAT Base Amount";
                                 end;

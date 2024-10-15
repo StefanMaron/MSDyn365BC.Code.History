@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
@@ -2276,5 +2276,4 @@ codeunit 442 "Sales-Post Prepayments"
     begin
     end;
 }
-
 #endif

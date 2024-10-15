@@ -756,7 +756,7 @@ page 6630 "Sales Return Order"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Rcvd-from Country/Region Code"; Rec."Rcvd-from Country/Region Code")
+                field("Rcvd-from Country/Region Code"; Rec."Rcvd.-from Count./Region Code")
                 {
                     ApplicationArea = BasicEU, BasicCH, BasicNO;
                     ToolTip = 'Specifies the country or region from which the items are returned for the purpose of Intrastat reporting.';
