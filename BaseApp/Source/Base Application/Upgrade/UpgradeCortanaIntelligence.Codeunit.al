@@ -52,7 +52,9 @@ codeunit 14040 "Upgrade Cortana Intelligence"
         AzureAIUsage."Limit Period" := CortanaIntelligenceUsage."Limit Period";
         AzureAIUsage."Last DateTime Updated" := CortanaIntelligenceUsage."Last DateTime Updated";
 
-        AzureAIUsage.Insert();
+        if AzureAIUsage.Insert() then;
+
+        CortanaIntelligenceUsage.DeleteAll();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCortanaIntelligenceUsageUpgradeTag());
     end;

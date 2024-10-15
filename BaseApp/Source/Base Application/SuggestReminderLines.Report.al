@@ -29,7 +29,7 @@ report 189 "Suggest Reminder Lines"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Mark := not MakeReminder.Run;
+                    Mark := not MakeReminder.Code;
                 end;
             end;
 

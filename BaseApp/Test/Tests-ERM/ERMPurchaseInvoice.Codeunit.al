@@ -2,6 +2,7 @@ codeunit 134328 "ERM Purchase Invoice"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -51,6 +52,9 @@ codeunit 134328 "ERM Purchase Invoice"
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         ConfirmCreateEmptyPostedInvMsg: Label 'Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created', Comment = '%1 - Invoice No.';
+        PAndPqoircPermissionSetTxt: Label 'P&P-Q/O/I/R/C';
+        PurchaseAccountIsMissingTxt: Label 'Purch. Account is missing in General Posting Setup.';
+        PurchaseVatAccountIsMissingTxt: Label 'Purchase VAT Account is missing in VAT Posting Setup.';
 
     [Test]
     [Scope('OnPrem')]
@@ -172,6 +176,37 @@ codeunit 134328 "ERM Purchase Invoice"
         VerifyVendorLedgerEntry(PostedInvoiceNo, PurchInvHeader."Amount Including VAT");
         VerifyVATEntry(PostedInvoiceNo, PurchInvHeader."Amount Including VAT");
         VerifyValueEntry(PostedInvoiceNo, PurchInvHeader.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseInvoiceWhileModifyingLineDuringPosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        ERMPurchaseInvoice: codeunit "ERM Purchase Invoice";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO 315920] Line is getting refreshed inside posting of a Purchase Invoice.
+        Initialize;
+        // [GIVEN] Create Purchase Order, where Description is 'A' in the line.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateVendor(''), PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+        PurchaseLine.validate(Quantity, 2);
+        PurchaseLine.validate("Direct Unit Cost", 10);
+        PurchaseLine.Validate("Qty. to Invoice", 1);
+        PurchaseLine."Description 2" := 'A';
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Subscribe to COD90.OnBeforePostUpdateOrderLineModifyTempLine to set Description to 'X'
+        BindSubscription(ERMPurchaseInvoice);
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Description is still 'A', not changed
+        PurchInvLine.Get(PostedDocumentNo, PurchaseLine."Line No.");
+        PurchInvLine.TestField("Description 2", 'A');
     end;
 
     [Test]
@@ -1965,7 +2000,7 @@ codeunit 134328 "ERM Purchase Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('VendorLookupHandler,ConfirmHandler')]
+    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
     [Scope('OnPrem')]
     procedure LookUpSecondVendorSameNameAsBuyFromVendOnPurchInvoice()
     var
@@ -1984,20 +2019,25 @@ codeunit 134328 "ERM Purchase Invoice"
         // [GIVEN] Purchase Invoice card is opened
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryVariableStorage.Enqueue(Vendor2."No.");
+        LibraryVariableStorage.Enqueue(true); // yes to change "Buy-from Vendor No."
+        LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [WHEN] Select "Vend2" when lookup "Buy-from Vendor Name"
         PurchaseInvoice."Buy-from Vendor Name".Lookup;
+        PurchaseInvoice.Close;
 
         // [THEN] "Buy-from Vendor No." is updated with "Vend2" on the Purchase Invoice
         PurchaseHeader.Find;
         PurchaseHeader.TestField("Buy-from Vendor No.", Vendor2."No.");
         PurchaseHeader.TestField("Buy-from Vendor Name", Vendor2.Name);
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
-    [HandlerFunctions('VendorLookupHandler,ConfirmHandler')]
+    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
     [Scope('OnPrem')]
     procedure LookUpSecondVendorSameNameAsPayToVendOnPurchInvoice()
     var
@@ -2016,16 +2056,296 @@ codeunit 134328 "ERM Purchase Invoice"
         // [GIVEN] Purchase Invoice card is opened
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryVariableStorage.Enqueue(Vendor2."No.");
+        LibraryVariableStorage.Enqueue(true); // yes to change "Pay-to Vendor No."
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [WHEN] Select "Vend2" when lookup "Pay-to Name"
         PurchaseInvoice."Pay-to Name".Lookup;
+        PurchaseInvoice.Close;
 
         // [THEN] "Pay-to Vendor No." is updated with "Vend2" on the Purchase Invoice
         PurchaseHeader.Find;
         PurchaseHeader.TestField("Pay-to Vendor No.", Vendor2."No.");
         PurchaseHeader.TestField("Pay-to Name", Vendor2.Name);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PostAndNew()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PurchaseInvoice2: TestPage "Purchase Invoice";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NextDocNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 293548] Action "Post and new" opens new invoice after posting the current one
+        Initialize;
+
+        // [GIVEN] Purchase Invoice card is opened with invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        LibraryLowerPermissions.SetPurchDocsPost;
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Action "Post and new" is being clicked
+        PurchaseInvoice2.trap;
+        PurchSetup.get;
+        NextDocNo := NoSeriesMgt.GetNextNo(PurchSetup."Invoice Nos.", WorkDate(), false);
+        PurchaseInvoice.PostAndNew.Invoke();
+
+        // [THEN] Purchase invoice page opened with new invoice
+        PurchaseInvoice2."No.".AssertEquals(NextDocNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceLineLimitedPermissionCreation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        StandardText: Record "Standard Text";
+        MyNotifications: Record "My Notifications";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [Permissions]
+        // [SCENARIO 325667] Purchase Line without type is added when user has limited permissions.
+        Initialize;
+
+        // [GIVEN] Standard text.
+        LibrarySales.CreateStandardText(StandardText);
+        // [GIVEN] Enabled notification about missing G/L account.
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        // [GIVEN] Purchase header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(''));
+        // [GIVEN] Permisson to create purchase invoices.
+        LibraryLowerPermissions.PushPermissionSet(PAndPqoircPermissionSetTxt);
+
+        // [WHEN] Add Purchase Line with standard text, but without type.
+        PurchaseLine.Init;
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Validate("No.", StandardText.Code);
+        PurchaseLine.Insert(true);
+
+        // [THEN] Purchase line is created.
+        Assert.RecordIsNotEmpty(PurchaseLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceLineWithoutAccountCreation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        MyNotifications: Record "My Notifications";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [SCENARIO 325667] Notification is shown when Purchase Line is added and G/L Account is missing in posting group.
+        Initialize;
+
+        // [GIVEN] Enabled notification about missing G/L account.
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        // [GIVEN] Purchase header with "Gen. Bus. Posting Group" and "VAT Bus. Posting Group" are not in Posting Setup.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithNewPostingGroups);
+
+        // [WHEN] Add Purchase Line (SendNotificationHandler).
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+
+        // [THEN] Notification "Purch. Account is missing in General Posting Setup." is sent.
+        Assert.ExpectedMessage(PurchaseAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        // [THEN] Notification "Purchase VAT Account is missing in VAT Posting Setup." is sent.
+        Assert.ExpectedMessage(PurchaseVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorLookupHandler')]
+    [Scope('OnPrem')]
+    procedure LookUpBuyFromVendorNameValidateItemInLine()
+    var
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+
+        CreateVendorsWithSameName(Vendor1, Vendor2);
+
+        PurchaseHeader.Init;
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.TestField("No.");
+
+        LibraryVariableStorage.Enqueue(Vendor1."No.");
+
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        PurchaseInvoice."Buy-from Vendor Name".Lookup;
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.Close;
+
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor1."No.");
+        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor1.Name);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField(Type);
+        PurchaseLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorLookupHandler,ConfirmHandlerYesNo')]
+    [Scope('OnPrem')]
+    procedure LookUpPayToVendorNameValidateItemInLine()
+    var
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+
+        CreateVendorsWithSameName(Vendor1, Vendor2);
+
+        PurchaseHeader.Init;
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.TestField("No.");
+
+        LibraryVariableStorage.Enqueue(Vendor2."No.");
+        LibraryVariableStorage.Enqueue(true);
+
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor1."No.");
+        PurchaseInvoice."Pay-to Name".Lookup;
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.Close;
+
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor1."No.");
+        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor1.Name);
+        PurchaseHeader.TestField("Pay-to Vendor No.", Vendor2."No.");
+        PurchaseHeader.TestField("Pay-to Name", Vendor2.Name);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField(Type);
+        PurchaseLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBuyFromVendorNameValidateItemInLine()
+    var
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+
+        CreateVendorsWithSameName(Vendor1, Vendor2);
+
+        PurchaseHeader.Init;
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.TestField("No.");
+
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor1."No.");
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.Close;
+
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor1."No.");
+        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor1.Name);
+        PurchaseHeader.TestField("Pay-to Vendor No.", Vendor1."No.");
+        PurchaseHeader.TestField("Pay-to Name", Vendor1.Name);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField(Type);
+        PurchaseLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYesNo')]
+    [Scope('OnPrem')]
+    procedure ValidatePayToVendorNameValidateItemInLine()
+    var
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 332188]
+        Initialize;
+
+        CreateVendorsWithSameName(Vendor1, Vendor2);
+        Vendor2.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Vendor2.Name));
+        Vendor2.Modify; // we don't need duplicate names in this test
+
+        PurchaseHeader.Init;
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.TestField("No.");
+
+        LibraryVariableStorage.Enqueue(true);
+
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor1."No.");
+        PurchaseInvoice."Pay-to Name".SetValue(Vendor2."No.");
+        PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
+        PurchaseInvoice.PurchLines."No.".SetValue(LibraryInventory.CreateItemNo);
+        PurchaseInvoice.Close;
+
+        PurchaseHeader.Find;
+        PurchaseHeader.TestField("Buy-from Vendor No.", Vendor1."No.");
+        PurchaseHeader.TestField("Buy-from Vendor Name", Vendor1.Name);
+        PurchaseHeader.TestField("Pay-to Vendor No.", Vendor2."No.");
+        PurchaseHeader.TestField("Pay-to Name", Vendor2.Name);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField(Type);
+        PurchaseLine.TestField("No.");
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     local procedure Initialize()
@@ -2337,7 +2657,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         LibraryPurchase.CreateVendor(Vendor1);
         LibraryPurchase.CreateVendor(Vendor2);
-        Vendor1.Validate(Name, LibraryUtility.GenerateGUID);
+        Vendor1.Validate(Name, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Vendor1.Name)));
         Vendor1.Modify(true);
         Vendor2.Validate(Name, Vendor1.Name);
         Vendor2.Modify(true);
@@ -2380,6 +2700,24 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, CreateVendor(''), DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure CreateVendorWithNewPostingGroups(): Code[20]
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateReceiptsAndPurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
@@ -3113,6 +3451,16 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
+    local procedure OnBeforePostUpdateOrderLineModifyTempLineHandler(var TempPurchaseLine: Record "Purchase Line" temporary; WhseShip: Boolean; WhseReceive: Boolean; CommitIsSuppressed: Boolean; PurchHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.Get(TempPurchaseLine.RecordId);
+        PurchaseLine."Description 2" := 'x';
+        PurchaseLine.Modify();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
@@ -3217,6 +3565,20 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         VendorLookup.GotoKey(LibraryVariableStorage.DequeueText);
         VendorLookup.OK.Invoke;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 }
 

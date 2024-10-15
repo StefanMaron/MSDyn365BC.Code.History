@@ -7,7 +7,7 @@ codeunit 10671 "SAF-T XML Import"
         NotPossibleToFindXMLFilesForMappingTypeErr: Label 'Not possible to find the XML files for mapping type %1', Comment = '%1 = a mapping type, one of the following - SAF-T Standard Account, Income Statement';
         NotPossibleToParseMappingXMLFileErr: Label 'Not possible to parse XML file with %1 for mapping', Comment = '%1 = a mapping type, one of the following - SAF-T Standard Account, Income Statement';
         MappingFileNotLoadedErr: Label 'Mapping source file %1 was not loaded. Choose the Import the Source Files For Mapping action and import one or more mapping source files.', Comment = '%1 = file name, like StandardVATCodes.xml';
-        NoMappingSourceIdentifiedErr: Label 'Not possible to identify mapping source type %1. Open a SAF-T Mapping Source page and import souce file with such type', Comment = '%1 = possible values: Two Digit Standard Account, Four Digit Standard Account, Income Statement, Standard Tax Code';
+        NoMappingSourceIdentifiedErr: Label 'Not possible to identify mapping source type %1. Open a SAF-T Mapping Source page and import source file with such type', Comment = '%1 = possible values: Two Digit Standard Account, Four Digit Standard Account, Income Statement, Standard Tax Code';
         SAFTStandardAccountsTxt: Label 'SAF-T Standard Accounts';
         SAFTGroupingCodesTxt: Label 'SAF-T Grouping Codes';
         SAFTTaxCodeTxt: Label 'SAF-T Tax Codes';
@@ -91,12 +91,10 @@ codeunit 10671 "SAF-T XML Import"
     var
         TempMediaResources: Record "Media Resources" temporary;
         SAFTMappingSourceType: Enum "SAF-T Mapping Source Type";
-        MappingType: Integer;
     begin
-        for MappingType := SAFTMappingRange."Mapping Type"::"Two Digit Standard Account" to SAFTMappingRange."Mapping Type"::"Income Statement" do
-            CopyMediaResourceToTempFromMappingSources(TempMediaResources, MappingType, true);
-        CopyMediaResourceToTempFromMappingSources(TempMediaResources, SAFTMappingSourceType::"Standard Tax Code", true);
-        exit(not TempMediaResources.IsEmpty());
+        exit(
+            CopyMediaResourceToTempFromMappingSources(TempMediaResources, SAFTMappingRange.GetSAFTMappingSourceTypeByMappingType(), true) and
+            CopyMediaResourceToTempFromMappingSources(TempMediaResources, SAFTMappingSourceType::"Standard Tax Code", true));
     end;
 
     local procedure ImportStandardVATCodesFromXMLBuffer(var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -213,7 +211,7 @@ codeunit 10671 "SAF-T XML Import"
         InsertNotApplicationMappingCode(SAFTMapping."Mapping Type");
     end;
 
-    local procedure CopyMediaResourceToTempFromMappingSources(var TempMediaResource: Record "Media Resources" temporary; SAFTMappingSourceType: Enum "SAF-T Mapping Source Type"; CheckOnly: Boolean)
+    local procedure CopyMediaResourceToTempFromMappingSources(var TempMediaResource: Record "Media Resources" temporary; SAFTMappingSourceType: Enum "SAF-T Mapping Source Type"; CheckOnly: Boolean) MappingSourceFileLoaded: Boolean;
     var
         MediaResources: Record "Media Resources";
         SAFTMappingSource: Record "SAF-T Mapping Source";
@@ -221,19 +219,24 @@ codeunit 10671 "SAF-T XML Import"
         SAFTMappingSource.SetRange("Source Type", SAFTMappingSourceType);
         if not SAFTMappingSource.FindSet() then begin
             if CheckOnly then
-                exit;
+                exit(false);
             error(NoMappingSourceIdentifiedErr, Format(SAFTMappingSourceType));
         end;
         repeat
+            MappingSourceFileLoaded := false;
             if MediaResources.Get(SAFTMappingSource."Source No.") then begin
                 MediaResources.CalcFields(Blob);
-                TempMediaResource.Init();
-                TempMediaResource := MediaResources;
-                TempMediaResource.Insert();
-            end else
-                if not CheckOnly then
-                    error(MappingFileNotLoadedErr, SAFTMappingSource."Source No.");
+                if MediaResources.Blob.HasValue() then begin
+                    TempMediaResource.Init();
+                    TempMediaResource := MediaResources;
+                    TempMediaResource.Insert();
+                    MappingSourceFileLoaded := true;
+                end;
+            end;
+            if (not MappingSourceFileLoaded) and (not CheckOnly) then
+                error(MappingFileNotLoadedErr, SAFTMappingSource."Source No.");
         until SAFTMappingSource.Next() = 0;
+        exit(MappingSourceFileLoaded);
     end;
 
     local procedure CopyMediaResourceToTempFromMappingSource(var TempMediaResource: Record "Media Resources" temporary; SAFTMappingSource: Record "SAF-T Mapping Source")

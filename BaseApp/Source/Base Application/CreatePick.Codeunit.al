@@ -128,6 +128,7 @@ codeunit 7312 "Create Pick"
                     if TempWhseItemTrackingLine."Qty. to Handle (Base)" <> 0 then begin
                         if TempWhseItemTrackingLine."Qty. to Handle (Base)" > RemQtyToPickBase then begin
                             TempWhseItemTrackingLine."Qty. to Handle (Base)" := RemQtyToPickBase;
+                            OnBeforeTempWhseItemTrackingLineModifyOnAfterAssignRemQtyToPickBase(TempWhseItemTrackingLine);
                             TempWhseItemTrackingLine.Modify;
                         end;
                         NewQtyToHandle :=
@@ -628,7 +629,7 @@ codeunit 7312 "Create Pick"
                           SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, AvailableQtyBase);
 
                         if AvailableQtyBase > 0 then begin
-                            ToQtyToPickBase := CalcQtyToPickBase(FromBinContent);
+                            ToQtyToPickBase := CalcQtyToPickBase(FromBinContent,TempWhseActivLine);
                             if AvailableQtyBase > ToQtyToPickBase then
                                 AvailableQtyBase := ToQtyToPickBase;
 
@@ -878,7 +879,7 @@ codeunit 7312 "Create Pick"
         exit(true);
     end;
 
-    local procedure CalcBinAvailQtyToPick(var QtyToPickBase: Decimal; var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line")
+    procedure CalcBinAvailQtyToPick(var QtyToPickBase: Decimal; var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line")
     var
         AvailableQtyBase: Decimal;
     begin
@@ -2480,7 +2481,7 @@ codeunit 7312 "Create Pick"
         CalledFromMoveWksh := CalledFromMoveWksh2;
     end;
 
-    local procedure CalcQtyToPickBase(var BinContent: Record "Bin Content"): Decimal
+    local procedure CalcQtyToPickBase(var BinContent: Record "Bin Content"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary): Decimal
     var
         WhseEntry: Record "Warehouse Entry";
         WhseActivLine: Record "Warehouse Activity Line";
@@ -2742,7 +2743,7 @@ codeunit 7312 "Create Pick"
         end;
     end;
 
-    local procedure UpdateQuantitiesToPick(QtyAvailableBase: Decimal; FromQtyPerUOM: Decimal; var FromQtyToPick: Decimal; var FromQtyToPickBase: Decimal; ToQtyPerUOM: Decimal; var ToQtyToPick: Decimal; var ToQtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal)
+    procedure UpdateQuantitiesToPick(QtyAvailableBase: Decimal; FromQtyPerUOM: Decimal; var FromQtyToPick: Decimal; var FromQtyToPickBase: Decimal; ToQtyPerUOM: Decimal; var ToQtyToPick: Decimal; var ToQtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal)
     begin
         UpdateToQtyToPick(QtyAvailableBase, ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase, TotalQtyToPick, TotalQtyToPickBase);
         UpdateFromQtyToPick(QtyAvailableBase, FromQtyPerUOM, FromQtyToPick, FromQtyToPickBase, ToQtyPerUOM, ToQtyToPick, ToQtyToPickBase);
@@ -2844,6 +2845,9 @@ codeunit 7312 "Create Pick"
             CalcSums("Qty. Picked (Base)", "Consumed Quantity (Base)");
             QtyAssgndToAsmLine := CalcQtyPickedNotConsumedBase;
         end;
+
+        OnAfterCalcTotalQtyAssgndOnWhse(
+            LocationCode, ItemNo, VariantCode, QtyAssgndToWhseAct, QtyAssgndToShipment, QtyAssgndToProdComp, QtyAssgndToAsmLine);
 
         exit(QtyAssgndToWhseAct + QtyAssgndToShipment + QtyAssgndToProdComp + QtyAssgndToAsmLine);
     end;
@@ -3333,6 +3337,11 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcTotalQtyAssgndOnWhse(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyAssgndToWhseAct: Decimal; var QtyAssgndToShipment: Decimal; var QtyAssgndToProdComp: Decimal; var QtyAssgndToAsmLine: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -3459,6 +3468,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempWhseItemTrackingLineModify(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempWhseItemTrackingLineModifyOnAfterAssignRemQtyToPickBase(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
     begin
     end;
 

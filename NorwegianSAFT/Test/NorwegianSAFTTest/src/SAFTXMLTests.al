@@ -1,4 +1,4 @@
-codeunit 148503 "SAF-T XML Tests"
+codeunit 148103 "SAF-T XML Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -31,8 +31,8 @@ codeunit 148503 "SAF-T XML Tests"
         // [SCENARIO 309923] The first XML file generates by SAF-T Export functionality has master data
 
         Initialize();
-        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account");
         NumberOfMasterDataRecords := LibraryRandom.RandInt(5);
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", NumberOfMasterDataRecords);
         SAFTTestHelper.PostRandomAmountForNumberOfMasterDataRecords(SAFTMappingRange."Ending Date", NumberOfMasterDataRecords);
         MatchGLAccountsFourDigit(SAFTMappingRange.Code);
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
@@ -68,16 +68,16 @@ codeunit 148503 "SAF-T XML Tests"
         // [SCENARIO 309923] The master data information in the first XML file has OpeningDebitBalance
 
         Initialize();
-        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account");
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
         MatchGLAccountsFourDigit(SAFTMappingRange.Code);
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
         BalanceAmount := LibraryRandom.RandDec(100, 2);
         ClosingAmount := LibraryRandom.RandDec(100, 2);
         SAFTTestHelper.MockEntriesForFirstRecordOfMasterData(
-            GLAccount."Income/Balance"::"Income Statement", SAFTExportHeader."Starting Date" - 1,
+            GLAccount."Income/Balance"::"Balance Sheet", SAFTExportHeader."Starting Date" - 1,
             BalanceAmount, BalanceAmount, -BalanceAmount);
         SAFTTestHelper.MockEntriesForFirstRecordOfMasterData(
-            GLAccount."Income/Balance"::"Income Statement", SAFTExportHeader."Starting Date",
+            GLAccount."Income/Balance"::"Balance Sheet", SAFTExportHeader."Starting Date",
             ClosingAmount, ClosingAmount, ClosingAmount);
         LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
         SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
@@ -101,16 +101,16 @@ codeunit 148503 "SAF-T XML Tests"
         // [SCENARIO 309923] The master data information in the first XML file has OpeningCreditBalance
 
         Initialize();
-        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account");
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
         MatchGLAccountsFourDigit(SAFTMappingRange.Code);
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
         BalanceAmount := LibraryRandom.RandDec(100, 2);
         ClosingAmount := LibraryRandom.RandDec(100, 2);
         SAFTTestHelper.MockEntriesForFirstRecordOfMasterData(
-            GLAccount."Income/Balance"::"Income Statement", SAFTExportHeader."Starting Date" - 1,
+            GLAccount."Income/Balance"::"Balance Sheet", SAFTExportHeader."Starting Date" - 1,
             -BalanceAmount, -BalanceAmount, BalanceAmount);
         SAFTTestHelper.MockEntriesForFirstRecordOfMasterData(
-            GLAccount."Income/Balance"::"Income Statement", SAFTExportHeader."Starting Date",
+            GLAccount."Income/Balance"::"Balance Sheet", SAFTExportHeader."Starting Date",
             ClosingAmount, ClosingAmount, ClosingAmount);
         LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
         SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
@@ -133,12 +133,12 @@ codeunit 148503 "SAF-T XML Tests"
         // [SCENARIO 309923] The master data information in the first XML file has ClosingDebitBalance
 
         Initialize();
-        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account");
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
         MatchGLAccountsFourDigit(SAFTMappingRange.Code);
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
         BalanceAmount := LibraryRandom.RandDec(100, 2);
         SAFTTestHelper.MockEntriesForFirstRecordOfMasterData(
-            GLAccount."Income/Balance"::"Income Statement", SAFTExportHeader."Ending Date",
+            GLAccount."Income/Balance"::"Balance Sheet", SAFTExportHeader."Ending Date",
             BalanceAmount, BalanceAmount, -BalanceAmount);
         LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
         SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
@@ -161,12 +161,12 @@ codeunit 148503 "SAF-T XML Tests"
         // [SCENARIO 309923] The master data information in the first XML file has ClosingCreditBalance
 
         Initialize();
-        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account");
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
         MatchGLAccountsFourDigit(SAFTMappingRange.Code);
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
         BalanceAmount := LibraryRandom.RandDec(100, 2);
         SAFTTestHelper.MockEntriesForFirstRecordOfMasterData(
-            GLAccount."Income/Balance"::"Income Statement", SAFTExportHeader."Ending Date",
+            GLAccount."Income/Balance"::"Balance Sheet", SAFTExportHeader."Ending Date",
             -BalanceAmount, -BalanceAmount, BalanceAmount);
         LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
         SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
@@ -199,12 +199,12 @@ codeunit 148503 "SAF-T XML Tests"
         // [SCENARIO 309923] The structure of the XML file with General Ledger Entries is correct
 
         Initialize();
-        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account");
+        SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
         MatchGLAccountsFourDigit(SAFTMappingRange.Code);
         SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
         EntriesInTransactionNumber := LibraryRandom.RandInt(5);
         JournalsNumber := LibraryRandom.RandInt(5);
-        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.FindFirst();
         SAFTTestHelper.SetDimensionForGLAccount(GLAccount."No.", SAFTAnalysisType, DimValueCode, DimSetID);
         SAFTSourceCode.FindSet();
@@ -248,11 +248,11 @@ codeunit 148503 "SAF-T XML Tests"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SAF-T XML Tests");
     end;
 
-    local procedure SetupSAFT(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"): Code[20]
+    local procedure SetupSAFT(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; NumberOfMasterDataRecords: Integer): Code[20]
     var
         SAFTMappingHelper: Codeunit "SAF-T Mapping Helper";
     begin
-        SAFTTestHelper.SetupMasterData();
+        SAFTTestHelper.SetupMasterData(NumberOfMasterDataRecords);
         SAFTTestHelper.InsertSAFTMappingRangeFullySetup(
             SAFTMappingRange, MappingType, GetWorkDateInYearWithNoGLEntries(),
             CalcDate('<CY>', GetWorkDateInYearWithNoGLEntries()));
@@ -546,13 +546,6 @@ codeunit 148503 "SAF-T XML Tests"
         SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:AddressType', 'StreetAddress');
     end;
 
-    local procedure VerifyContact(var TempXMLBuffer: Record "XML Buffer" temporary; Name: Text; PhoneNo: Text; FaxNo: Text; Email: Text; HomePage: Text; MobilePhoneNo: Text)
-    begin
-        VerifyContactSimple(TempXMLBuffer, Name, PhoneNo, FaxNo, Email, HomePage);
-        SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'nl:MobilePhone', MobilePhoneNo);
-        SAFTTestHelper.AssertElementName(TempXMLBuffer, 'nl:Contact');
-    end;
-
     local procedure VerifyContactSimple(var TempXMLBuffer: Record "XML Buffer" temporary; Name: Text; PhoneNo: Text; FaxNo: Text; Email: Text; HomePage: Text)
     var
         FirstName: Text;
@@ -751,11 +744,5 @@ codeunit 148503 "SAF-T XML Tests"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
-    end;
-
-    [MessageHandler]
-    procedure MessageHandler(Message: Text)
-    begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 }

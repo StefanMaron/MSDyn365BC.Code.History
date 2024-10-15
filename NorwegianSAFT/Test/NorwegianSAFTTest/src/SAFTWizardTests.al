@@ -1,4 +1,4 @@
-codeunit 148501 "SAF-T Wizard Tests"
+codeunit 148101 "SAF-T Wizard Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -323,12 +323,5 @@ codeunit 148501 "SAF-T Wizard Tests"
     begin
         Dimensions.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
         Dimensions.ExportToSAFT.SetValue(false);
-    end;
-
-    [ConfirmHandler]
-    procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
-    begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
-        Reply := true;
     end;
 }

@@ -106,42 +106,40 @@ report 10630 "VAT Reconciliation"
                 if not ShowDetails and ("VAT Amount" = 0) and not ShowTransWithoutVAT then
                     CurrReport.Skip;
 
-                if "VAT Amount" <> 0 then begin
+                VATEntry.Reset;
+                VATEntry.SetRange("Transaction No.", "Transaction No.");
+                VATEntry.SetRange(Amount, "VAT Amount");
+                if VATEntry.FindFirst then begin
+                    if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
+                        BaseAmountRevCharges := VATEntry.Base;
+                        SalesVATRevCharges := VATEntry.Amount;
+                    end else
+                        if "Gen. Posting Type" = "Gen. Posting Type"::Sale then begin
+                            BaseAmountSalesVAT := -VATEntry.Base;
+                            SalesVAT := -VATEntry.Amount;
+                        end else begin
+                            BaseAmountPurchVAT := VATEntry.Base;
+                            PurchVAT := VATEntry.Amount;
+                        end;
+                end else begin
                     VATEntry.Reset;
                     VATEntry.SetRange("Transaction No.", "Transaction No.");
-                    VATEntry.SetRange(Amount, "VAT Amount");
-                    if VATEntry.FindFirst then begin
-                        if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
-                            BaseAmountRevCharges := VATEntry.Base;
-                            SalesVATRevCharges := VATEntry.Amount;
-                        end else
-                            if "Gen. Posting Type" = "Gen. Posting Type"::Sale then begin
-                                BaseAmountSalesVAT := -VATEntry.Base;
-                                SalesVAT := -VATEntry.Amount;
-                            end else begin
-                                BaseAmountPurchVAT := VATEntry.Base;
-                                PurchVAT := VATEntry.Amount;
-                            end;
-                    end else begin
-                        VATEntry.Reset;
-                        VATEntry.SetRange("Transaction No.", "Transaction No.");
-                        VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-                        VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-                        if VATEntry.FindSet then begin
-                            repeat
-                                if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
-                                    BaseAmountRevCharges += VATEntry.Base;
-                                    SalesVATRevCharges += VATEntry.Amount;
-                                end else
-                                    if "Gen. Posting Type" = "Gen. Posting Type"::Sale then begin
-                                        BaseAmountSalesVAT -= VATEntry.Base;
-                                        SalesVAT -= VATEntry.Amount;
-                                    end else begin
-                                        BaseAmountPurchVAT += VATEntry.Base;
-                                        PurchVAT += VATEntry.Amount;
-                                    end;
-                            until VATEntry.Next = 0;
-                        end;
+                    VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
+                    VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
+                    if VATEntry.FindSet then begin
+                        repeat
+                            if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
+                                BaseAmountRevCharges += VATEntry.Base;
+                                SalesVATRevCharges += VATEntry.Amount;
+                            end else
+                                if "Gen. Posting Type" = "Gen. Posting Type"::Sale then begin
+                                    BaseAmountSalesVAT -= VATEntry.Base;
+                                    SalesVAT -= VATEntry.Amount;
+                                end else begin
+                                    BaseAmountPurchVAT += VATEntry.Base;
+                                    PurchVAT += VATEntry.Amount;
+                                end;
+                        until VATEntry.Next = 0;
                     end;
                 end;
                 GLAccount.Get("G/L Account No.");

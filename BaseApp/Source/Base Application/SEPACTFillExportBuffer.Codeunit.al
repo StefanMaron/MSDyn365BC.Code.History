@@ -121,6 +121,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 UpdateGenJnlFields(PaymentExportData, TempGenJnlLine, BankExportImportSetup."Reg.Reporting Thresh.Amt (LCY)");
                 ValidatePaymentExportData(PaymentExportData, TempGenJnlLine);
                 Insert(true);
+                TempInteger.DeleteAll;
                 GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
                 if TempInteger.FindSet then
                     repeat
@@ -130,7 +131,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                           TempInteger.Number,
                           "Transfer Date", "Currency Code", Amount, CopyStr("End-to-End ID", 1, MaxStrLen("End-to-End ID")),
                           TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
-                    until TempInteger.Next = 0;
+                    until TempInteger.Next = 0
+                else
+                    CreditTransferEntry.CreateNew(
+                      CreditTransferRegister."No.", "Entry No.",
+                      TempGenJnlLine."Account Type", TempGenJnlLine."Account No.",
+                      TempGenJnlLine.GetAppliesToDocEntryNo,
+                      "Transfer Date", "Currency Code", Amount, CopyStr("End-to-End ID", 1, MaxStrLen("End-to-End ID")),
+                      TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
                 MoveToWaitingJournal(
                   TempGenJnlLine, CopyStr("Message ID", 1, 20), CopyStr("Payment Information ID", 1, 20), CopyStr("Document No.", 1, 20),
                   CopyStr("End-to-End ID", 1, 20));

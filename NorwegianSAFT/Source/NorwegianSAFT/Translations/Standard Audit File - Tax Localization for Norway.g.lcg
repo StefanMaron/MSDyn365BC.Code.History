@@ -545,6 +545,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table SAF-T Mapping Range - Field Accounting Period - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 3901834970 - Field 3376138136 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Include Incoming Balance]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table SAF-T Mapping Range - Field Include Incoming Balance - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3901834970 - NamedType 2715514529" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Starting date cannot be before ending date.]]></Val>
@@ -579,6 +588,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table SAF-T Mapping Range - NamedType CannotSelectAccPeriodWithoutEndingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3901834970 - EnumValue 2327360480 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Accounting Period]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Range - EnumValue Accounting Period - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 3901834970 - EnumValue 31514389 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Date Range]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Range - EnumValue Date Range - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1270772992 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -878,6 +905,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Export Mgt. - NamedType ExportIsInProgressMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3675363531 - NamedType 3437776458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more export lines are in progress or completed.\]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Export Mgt. - NamedType LinesInProgressOrCompletedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3675363531 - NamedType 547411560" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to cancel all export jobs and restart?]]></Val>
@@ -1006,7 +1042,7 @@
   </Item>
   <Item ItemId=";Codeunit 3675363531 - NamedType 1661455056" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SAF-T file generated.]]></Val>
+      <Val><![CDATA[SAF-T file not generated.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1060,7 +1096,7 @@
   </Item>
   <Item ItemId=";Codeunit 3675363531 - NamedType 1241378796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[General ledger entries from %1 to %2]]></Val>
+      <Val><![CDATA[General Ledger Entries from %1 to %2]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1118,7 +1154,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1]D;]A;(LookupHint=Codeunit SAF-T Export Mgt. - NamedType ScheduleTaskForLineTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = number]D;]A;(LookupHint=Codeunit SAF-T Export Mgt. - NamedType ScheduleTaskForLineTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2208688230 - NamedType 2669253661" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1292,6 +1328,51 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType AssortedJournalsSourceCodeDescriptionLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1223916161 - NamedType 1460283503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[General Ledger Journals]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType GeneralLedgerJournalsSourceCodeDescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1223916161 - NamedType 2765860070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Account Receivables]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType AccountReceivablesSourceCodeDescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1223916161 - NamedType 3192184248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Account Payables]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType AccountPayablesSourceCodeDescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1223916161 - NamedType 2249180175" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Set up SAF-T]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType SAFTSetupGuideTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1223916161 - NamedType 599325382" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[SAF-T Dimension No Series.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType SAFTDimLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1223916161 - NamedType 1484253947" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[DEFAULT]]></Val>
@@ -1299,51 +1380,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Mapping Helper - NamedType DefaultLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 995805155 - NamedType 1460283503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[General Ledger Journals]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Installation - NamedType GeneralLedgerJournalsSourceCodeDescriptionLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 995805155 - NamedType 2765860070" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Account Receivables]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Installation - NamedType AccountReceivablesSourceCodeDescriptionLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 995805155 - NamedType 3192184248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Account Payables]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Installation - NamedType AccountPayablesSourceCodeDescriptionLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 995805155 - NamedType 599325382" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SAF-T Dimension No Series.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Installation - NamedType SAFTDimLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 995805155 - NamedType 2249180175" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Set up SAF-T]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SAF-T Installation - NamedType SAFTSetupGuideTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1324273395 - NamedType 1372292303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1384,7 +1420,7 @@
   </Item>
   <Item ItemId=";Codeunit 1324273395 - NamedType 224191084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Not possible to identify mapping source type %1. Open a SAF-T Mapping Source page and import souce file with such type]]></Val>
+      <Val><![CDATA[Not possible to identify mapping source type %1. Open a SAF-T Mapping Source page and import source file with such type]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1969,7 +2005,7 @@
   </Item>
   <Item ItemId=";Page 1594291934 - Action 3734234140 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Mark G/L accounts that have posted G/L entries in the reported period in green.]]></Val>
+      <Val><![CDATA[Mark G/L accounts that have posted G/L entries in green. If option Include Incoming Balance enabled then all posted G/L entries are considered for calculation. Otherwise only G/L entries of the reporting period are considered.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2086,7 +2122,7 @@
   </Item>
   <Item ItemId=";Page 2441102194 - Control 1833568529 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specified the range type.]]></Val>
+      <Val><![CDATA[Specifies the range type.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2199,6 +2235,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page SAF-T Mapping Setup Card - Control EndingDate - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2085307926 - Control 1163052056 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies if the incoming balance of G/L account of type "Balance Account" needs to be considered for mapping instead of the reporting period's net change.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page SAF-T Mapping Setup Card - Control IncludeIncomingBalance - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2085307926 - Action 972680765 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2887,7 +2932,7 @@
   </Item>
   <Item ItemId=";PageExtension 351339034 - Control 2374442188 - Property 2001309823" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specified the code that will be exported to the JournalID XML node in the SAF-T file.]]></Val>
+      <Val><![CDATA[Specifies the code that will be exported to the JournalID XML node in the SAF-T file.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2921,22 +2966,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Report SAF-T Copy Mapping - Control MappingRangeID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Report 683032088 - Control 2320886912 - Property 2879900210" ItemType=";Report - Control" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Report 683032088 - Control 363376037 - Property 2879900210" ItemType=";Report - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Replace Existing Mapping]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Report SAF-T Copy Mapping - Control Replace - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Report SAF-T Copy Mapping - Control ReplaceControl - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Report 683032088 - Control 2320886912 - Property 1295455071" ItemType=";Report - Control" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Report 683032088 - Control 363376037 - Property 1295455071" ItemType=";Report - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Specifies that the existing mapping will be replaced by the mapping range to copy.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Report SAF-T Copy Mapping - Control Replace - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Report SAF-T Copy Mapping - Control ReplaceControl - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";PageExtension 3535736462 - Control 3797089627 - Property 2001309823" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -3144,6 +3189,69 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 4132487568)(LookupHint=TableExtension SAF-T Tax Setup - NamedType SAFTTaxCodeLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 733575408 - EnumValue 4000850171 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Two Digit Standard Account]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Source Type - EnumValue Two Digit Standard Account - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 733575408 - EnumValue 3851814869 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Four Digit Standard Account]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Source Type - EnumValue Four Digit Standard Account - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 733575408 - EnumValue 1491939138 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Income Statement]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Source Type - EnumValue Income Statement - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 733575408 - EnumValue 538232189 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Standard Tax Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Source Type - EnumValue Standard Tax Code - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 962137475 - EnumValue 4000850171 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Two Digit Standard Account]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Type - EnumValue Two Digit Standard Account - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 962137475 - EnumValue 3851814869 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Four Digit Standard Account]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Type - EnumValue Four Digit Standard Account - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Enum 962137475 - EnumValue 1491939138 - Property 2879900210" ItemType=";Enum - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Income Statement]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Enum SAF-T Mapping Type - EnumValue Income Statement - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

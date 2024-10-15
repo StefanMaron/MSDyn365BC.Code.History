@@ -34,6 +34,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         IncorrectItemApplicationErr: Label 'Incorrect item application.';
         InvRoundingLineDoesNotExistErr: Label 'Invoice rounding line does not exist.';
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
+        COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -832,6 +833,75 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Assert.IsFalse(PostedPurchCreditMemo.CancelCrMemo.Visible, 'User can cancel a non-corrective purchase credit memo.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanCancelPurchaseCrMemoWithServiceItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CancelPostedPurchCrMemo: Codeunit "Cancel Posted Purch. Cr. Memo";
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [UT]
+        // [SCENARIO 322909] Cassie can cancel Posted Purchase Credit Memo with Item of Type Service when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::Service, GeneralPostingSetup);
+        CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
+        Commit;
+
+        CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanCancelPurchaseCrMemoWithNonInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CancelPostedPurchCrMemo: Codeunit "Cancel Posted Purch. Cr. Memo";
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [UT]
+        // [SCENARIO 322909] Cassie can cancel Posted Purchase Credit Memo with Item of Type Non-Inventory when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::"Non-Inventory", GeneralPostingSetup);
+        CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
+        Commit;
+
+        CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CantCancelPurchaseCrMemoWithInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CancelPostedPurchCrMemo: Codeunit "Cancel Posted Purch. Cr. Memo";
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [UT]
+        // [SCENARIO 322909] Cassie can't cancel Posted Purchase Credit Memo with Item of Type Inventory when COGS account is empty in General Posting Setup.
+        Initialize;
+
+        CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::Inventory, GeneralPostingSetup);
+        CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
+        Commit;
+
+        asserterror CancelPostedPurchCrMemo.TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
+
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -878,6 +948,34 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchHeader."No.");
         PurchInvHeader.FindLast;
         CancelInvoice(PurchCrMemoHdr, PurchInvHeader);
+    end;
+
+    local procedure CancelInvoiceByCreditMemoWithItemType(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; ItemType: Option; var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, ItemType);
+        Item.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        CancelInvoice(PurchCrMemoHdr, PurchInvHeader);
+    end;
+
+    local procedure CleanCOGSAccountOnGenPostingSetup(var OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Copy(OldGeneralPostingSetup);
+        GeneralPostingSetup.Validate("COGS Account", '');
+        GeneralPostingSetup.Modify(true);
     end;
 
     local procedure PostPurchInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
@@ -1048,6 +1146,15 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Purchase);
         ItemLedgEntry.FindLast;
         exit(ItemLedgEntry."Entry No.");
+    end;
+
+    local procedure RestoreGenPostingSetup(OldGeneralPostingSetup: Record "General Posting Setup")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.Get(OldGeneralPostingSetup."Gen. Bus. Posting Group", OldGeneralPostingSetup."Gen. Prod. Posting Group");
+        GeneralPostingSetup."COGS Account" := OldGeneralPostingSetup."COGS Account";
+        GeneralPostingSetup.Modify;
     end;
 
     local procedure VerifyAmountEqualRemainingAmount(DocType: Option; DocNo: Code[20])

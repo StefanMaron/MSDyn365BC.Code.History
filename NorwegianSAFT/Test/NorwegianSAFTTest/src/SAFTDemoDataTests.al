@@ -1,4 +1,4 @@
-codeunit 148500 "SAF-T Demodata Tests"
+codeunit 148100 "SAF-T Demodata Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;

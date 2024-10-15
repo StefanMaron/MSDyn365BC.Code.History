@@ -372,6 +372,8 @@ table 297 "Issued Reminder Header"
             DocumentSendingProfile.TrySendToPrinter(
               DummyReportSelections.Usage::Reminder, Rec,
               IssuedReminderHeaderToSend.FieldNo("Customer No."), ShowRequestForm);
+
+        OnAfterPrintRecords(Rec, ShowRequestForm, SendAsEmail, HideDialog);
     end;
 
     procedure Navigate()
@@ -423,6 +425,11 @@ table 297 "Issued Reminder Header"
         IssuedReminderLine.SetFilter(Type, '>%1', IssuedReminderLine.Type::" ");
         IssuedReminderLine.SetFilter("Account Code", '<>%1&<>%2', '', "Account Code");
         exit(not IssuedReminderLine.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintRecords(var IssuedReminderHeader: Record "Issued Reminder Header"; ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

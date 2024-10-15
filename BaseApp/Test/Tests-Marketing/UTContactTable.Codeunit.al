@@ -480,6 +480,24 @@ codeunit 134826 "UT Contact Table"
         ContactCard.LastDateTimeModified.AssertEquals(ExpectedDateTime);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestGetContNoGetContactByName_CaseSensitive()
+    var
+        Contact: array[2] of Record Contact;
+        RandomText1: Text[100];
+        RandomText2: Text[100];
+    begin
+        RandomText1 := 'aaa';
+        RandomText2 := 'AAA';
+
+        MockContactWithName(Contact[1], RandomText1);
+        MockContactWithName(Contact[2], RandomText2);
+
+        Assert.AreEqual(Contact[1]."No.", Contact[1].GetContNo(RandomText1), '');
+        Assert.AreEqual(Contact[2]."No.", Contact[1].GetContNo(RandomText2), '');
+    end;
+
     local procedure GetContactNoFromContBusRelations(LinkOption: Option; CodeNo: Code[20]): Code[20]
     var
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -525,6 +543,13 @@ codeunit 134826 "UT Contact Table"
         ContactBusinessRelation.Init;
         ContactBusinessRelation."Contact No." := Contact."No.";
         ContactBusinessRelation.Insert(true);
+    end;
+
+    local procedure MockContactWithName(var Contact: Record Contact; ContactName: Text[100])
+    begin
+        Contact.Init;
+        Contact.Name := ContactName;
+        Contact.Insert(true);
     end;
 
     local procedure MockSalesQuoteWithSellBillToContactNo(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])

@@ -38,6 +38,7 @@ codeunit 136208 "Marketing Interaction"
         IsNotFoundOnPageErr: Label 'is not found on the page.';
         FirstContentBodyTxt: Label 'First Content Body Text';
         AttachmentExportQst: Label 'Do you want to export attachment to view or edit it externaly?';
+        FilePathsAreNotEqualErr: Label 'Export file path is not equal to file path of the attachment.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1907,6 +1908,49 @@ codeunit 136208 "Marketing Interaction"
         VerifyILEHTMLMergeFile(Attachment, 139, '<td>HundredThirtyNine</td>', '<td>HundredForty</td>');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportInteractionTemplates()
+    var
+        MarketingSetup: Record "Marketing Setup";
+        InteractionGroup: Record "Interaction Group";
+        InteractionTemplate: Record "Interaction Template";
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        NameValueBuffer: Record "Name/Value Buffer";
+        MarketingInteraction: Codeunit "Marketing Interaction";
+        FilePath: Text;
+        ExportFilePath: Text;
+    begin
+        // [SCENARIO 323680] Attachment file path is valid when export Interaction Template.
+        Initialize;
+
+        // [GIVEN] Marketing Setup stores attachements on disk.
+        MarketingSetup.Validate("Attachment Storage Type", MarketingSetup."Attachment Storage Type"::"Disk File");
+        MarketingSetup.Validate("Attachment Storage Location", DelChr(TemporaryPath, '>', '\'));
+        MarketingSetup.Modify(true);
+
+        // [GIVEN] Interaction Template with *.docx file attachment.
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
+        InteractionTemplate.Validate("Wizard Action", InteractionTemplate."Wizard Action"::Open);
+        InteractionTemplate.Modify(true);
+        CreateInteractionTmplLanguage(InteractionTmplLanguage, InteractionTemplate.Code, FindLanguageCode(''), '');
+        InteractionTmplLanguage.Validate("Attachment No.", CreateAttachmentWithFileValue('docx'));
+        InteractionTmplLanguage.Modify;
+        FilePath := GetAttachmentFilePath(InteractionTmplLanguage."Attachment No.");
+
+        // [WHEN] Invoke export attachment from Interaction Tmpl. Language.
+        BindSubscription(MarketingInteraction);
+        InteractionTmplLanguage.ExportAttachment;
+        NameValueBuffer.Get(SessionId);
+        ExportFilePath := NameValueBuffer.Value;
+        UnbindSubscription(MarketingInteraction);
+
+        // [THEN] The path of exported file is equal to path stored in attachment of Interaction Tmpl. Language.
+        Assert.AreEqual(FilePath, ExportFilePath, FilePathsAreNotEqualErr);
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -2184,6 +2228,14 @@ codeunit 136208 "Marketing Interaction"
     begin
         InterLogEntryCommentLine.SetRange("Entry No.", EntryNo);
         InterLogEntryCommentLine.FindFirst;
+    end;
+
+    local procedure GetAttachmentFilePath(AttachmentNo: Integer): Text
+    var
+        Attachment: Record Attachment;
+    begin
+        Attachment.Get(AttachmentNo);
+        exit(Attachment."Storage Pointer" + '\' + Format(Attachment."No.") + '.' + Attachment."File Extension");
     end;
 
     local procedure GetInterLogEntryDocTypeFromSalesDoc(SalesHeader: Record "Sales Header"): Integer
@@ -2866,6 +2918,18 @@ codeunit 136208 "Marketing Interaction"
         SMTPMailSetup.Get;
         SMTPMailSetup."User ID" := 'test@test.com';
         SMTPMailSetup.Modify;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    var
+        NameValueBuffer: Record "Name/Value Buffer";
+    begin
+        NameValueBuffer.Init;
+        NameValueBuffer.ID := SessionId;
+        NameValueBuffer.Value := FromFileName;
+        NameValueBuffer.Insert(true);
+        IsHandled := true;
     end;
 }
 

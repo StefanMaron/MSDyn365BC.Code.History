@@ -100,6 +100,7 @@ codeunit 150029 "APIV1 - Purchase Invoices E2E"
         PurchaseHeader.SETRANGE("No.", InvoiceNumber);
         PurchaseHeader.SETRANGE("Buy-from Vendor No.", VendorNo);
         PurchaseHeader.SETRANGE("Document Date", InvoiceDate);
+        PurchaseHeader.SETRANGE("Posting Date", InvoiceDate);
         Assert.IsTrue(PurchaseHeader.FINDFIRST(), 'The unposted invoice should exist');
 
         LibraryGraphDocumentTools.VerifyPurchaseDocumentBuyFromAddress(BuyFromVendor, PurchaseHeader, ResponseText, FALSE, FALSE);
@@ -302,13 +303,14 @@ codeunit 150029 "APIV1 - Purchase Invoices E2E"
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"APIV1 - Purchase Invoices", InvoiceServiceNameTxt);
         LibraryGraphMgt.PostToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
 
-        CreateInvoiceThroughTestPage(PurchaseInvoice, Vendor, InvoiceDate);
+        CreateInvoiceThroughTestPage(PurchaseInvoice, Vendor, InvoiceDate, InvoiceDate);
 
         // [THEN] the invoice should exist in the table and match the invoice created from the page
         ApiPurchaseHeader.RESET();
         ApiPurchaseHeader.SETRANGE("Buy-from Vendor No.", VendorNo);
         ApiPurchaseHeader.SETRANGE("Document Type", ApiPurchaseHeader."Document Type"::Invoice);
         ApiPurchaseHeader.SETRANGE("Document Date", InvoiceDate);
+        ApiPurchaseHeader.SETRANGE("Posting Date", InvoiceDate);
         Assert.IsTrue(ApiPurchaseHeader.FINDFIRST(), 'The unposted invoice should exist');
 
         // Ignore these fields when comparing Page and API Invoices
@@ -450,11 +452,12 @@ codeunit 150029 "APIV1 - Purchase Invoices E2E"
         EXIT(InvoiceWithComplexJSON);
     end;
 
-    local procedure CreateInvoiceThroughTestPage(var PurchaseInvoice: TestPage 51; Vendor: Record "Vendor"; DocumentDate: Date)
+    local procedure CreateInvoiceThroughTestPage(var PurchaseInvoice: TestPage 51; Vendor: Record "Vendor"; DocumentDate: Date; PostingDate: Date)
     begin
         PurchaseInvoice.OPENNEW();
         PurchaseInvoice."Buy-from Vendor No.".SETVALUE(Vendor."No.");
         PurchaseInvoice."Document Date".SETVALUE(DocumentDate);
+        PurchaseInvoice."Posting Date".SETVALUE(PostingDate);
     end;
 
     local procedure ModifyPurchaseHeaderPostingDate(var PurchaseHeader: Record "Purchase Header"; PostingDate: Date)

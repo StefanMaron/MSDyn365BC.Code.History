@@ -41,6 +41,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Recurring Post");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Export Data");
+        ClassifySAFT();
     end;
 
     local procedure ClassifyPayableEmployeeLedgerEntry()
@@ -240,6 +241,22 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationMgt.SetTableFieldsToNormal(TableNo);
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyVATReportHeader.FieldNo("Submitted By"));
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"VAT Return Period");
+    end;
+
+    local procedure ClassifySAFT()
+    var
+        DataClassificationMgt: Codeunit "Data Classification Mgt.";
+    begin
+        DataClassificationMgt.SetTableFieldsToNormal(10670);
+        DataClassificationMgt.SetTableFieldsToNormal(10671);
+        DataClassificationMgt.SetTableFieldsToNormal(10672);
+        DataClassificationMgt.SetTableFieldsToNormal(10673);
+        DataClassificationMgt.SetTableFieldsToNormal(10674);
+        DataClassificationMgt.SetTableFieldsToNormal(10676);
+        DataClassificationMgt.SetTableFieldsToNormal(10677);
+        DataClassificationMgt.SetTableFieldsToNormal(10681);
+        DataClassificationMgt.SetTableFieldsToNormal(10682);
+        DataClassificationMgt.SetTableFieldsToNormal(10683);
     end;
 }
 
