@@ -258,6 +258,7 @@ codeunit 80 "Sales-Post"
 #if not CLEAN23
         NoDeferralScheduleErr: Label 'You must create a deferral schedule because you have specified the deferral code %2 in line %1.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
+        TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
 #endif
         ReverseChargeApplies: Boolean;
         SendShipmentAlsoQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
@@ -8708,6 +8709,7 @@ codeunit 80 "Sales-Post"
     local procedure FillDeferralPostingBuffer(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20])
     var
         DeferralTemplate: Record "Deferral Template";
+        IsDeferralAmountCheck: boolean;
     begin
         DeferralTemplate.Get(SalesLine."Deferral Code");
 
@@ -8738,6 +8740,12 @@ codeunit 80 "Sales-Post"
                 if TempDeferralLine.FindSet() then
                     repeat
                         if (TempDeferralLine."Amount (LCY)" <> 0) or (TempDeferralLine.Amount <> 0) then begin
+
+                            if not IsDeferralAmountCheck then begin
+                                CheckDeferralAmount(TempDeferralLine);
+                                IsDeferralAmountCheck := true;
+                            end;
+
                             DeferralPostBuffer.PrepareSales(SalesLine, GenJnlLineDocNo);
                             DeferralPostBuffer.InitFromDeferralLine(TempDeferralLine);
                             if not SalesLine.IsCreditDocType() then
@@ -10297,7 +10305,7 @@ codeunit 80 "Sales-Post"
             SalesHeader.TestPostingDate(PostingDateExists);
 
         OnValidatePostingAndDocumentDateOnBeforeSalesHeaderModify(SalesHeader, ModifyHeader);
-	
+
         if ModifyHeader then
             SalesHeader.Modify();
 
@@ -10682,6 +10690,27 @@ codeunit 80 "Sales-Post"
         then
             exit(true);
     end;
+
+#if not CLEAN23
+    local procedure CheckDeferralAmount(DeferralLine: Record "Deferral Line")
+    var
+        DeferralHeader: Record "Deferral Header";
+    begin
+        if not DeferralHeader.Get(
+            DeferralLine."Deferral Doc. Type",
+            DeferralLine."Gen. Jnl. Template Name",
+            DeferralLine."Gen. Jnl. Batch Name",
+            DeferralLine."Document Type",
+            DeferralLine."Document No.",
+            DeferralLine."Line No.")
+        then
+            exit;
+
+        DeferralHeader.CalcFields("Schedule Line Total");
+        if DeferralHeader."Schedule Line Total" <> DeferralHeader."Amount to Defer" then
+            Error(TotalToDeferErr);
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnArchivePurchaseOrdersOnBeforePurchOrderLineModify(var PurchOrderLine: Record "Purchase Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
