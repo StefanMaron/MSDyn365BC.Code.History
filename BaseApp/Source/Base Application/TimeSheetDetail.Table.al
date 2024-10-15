@@ -120,19 +120,19 @@ table 952 "Time Sheet Detail"
     trigger OnInsert()
     begin
         TimeSheetMgt.CheckAccPeriod(Date);
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
         SetDimension();
     end;
 
     trigger OnModify()
     begin
         TimeSheetMgt.CheckAccPeriod(Date);
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     var

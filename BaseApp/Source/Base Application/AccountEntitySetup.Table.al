@@ -31,8 +31,8 @@ table 5481 "Account Entity Setup"
 
     procedure SafeGet()
     begin
-        if not Get then
-            Insert;
+        if not Get() then
+            Insert();
     end;
 }
 

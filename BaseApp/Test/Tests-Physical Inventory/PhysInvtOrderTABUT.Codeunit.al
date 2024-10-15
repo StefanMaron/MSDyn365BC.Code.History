@@ -106,7 +106,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PstdPhysInvtOrderHdr.Navigate;
 
         // [THEN] Verify Table Name on Navigate Page.
-        Navigate."Table Name".AssertEquals(CopyStr(PstdPhysInvtOrderHdr.TableCaption, 1, MaxStrLen(DocumentEntry."Table Name")));
+        Navigate."Table Name".AssertEquals(CopyStr(PstdPhysInvtOrderHdr.TableCaption(), 1, MaxStrLen(DocumentEntry."Table Name")));
     end;
 
     [Test]
@@ -232,7 +232,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PhysInvtCommentLine.SetUpNewLine;
 
         // [THEN] Verify Date on Physical Inventory Comment Line.
-        PhysInvtCommentLine.TestField(Date, WorkDate);
+        PhysInvtCommentLine.TestField(Date, WorkDate());
     end;
 
     [Test]
@@ -386,14 +386,14 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PhysInvtOrderLine.Modify();
 
         // Exercise.
-        PhysInvtOrderHeader.Validate("Posting Date", WorkDate);
+        PhysInvtOrderHeader.Validate("Posting Date", WorkDate());
         PhysInvtOrderHeader.Modify();
 
         // [THEN] Verify Qty. Exp. Calculated on Physical Inventory Order Line and Posting Date on Physical Inventory Order Header.
         PhysInvtOrderLine.Get(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
         PhysInvtOrderLine.TestField("Qty. Exp. Calculated", not Confirm);
         if Confirm then
-            PhysInvtOrderHeader.TestField("Posting Date", WorkDate)
+            PhysInvtOrderHeader.TestField("Posting Date", WorkDate())
         else
             PhysInvtOrderHeader.TestField("Posting Date", 0D);
     end;
@@ -707,7 +707,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.OK.Invoke;
     end;

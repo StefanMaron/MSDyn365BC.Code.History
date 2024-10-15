@@ -30,22 +30,22 @@ page 5156 "Customer Template List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the contact conversion template.';
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the contact type of the contact conversion template.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the country/region of the customer that will be created with the template.';
                 }
-                field("Territory Code"; "Territory Code")
+                field("Territory Code"; Rec."Territory Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the territory code of the customer that will be created with the template.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the customer that will be created with the template.';

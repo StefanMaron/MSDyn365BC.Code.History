@@ -205,9 +205,9 @@ codeunit 350 IntraJnlManagement
             if TempIntrastatJnlLine.CalcSums("Statistical Value") then begin
                 TempIntrastatJnlLine2.CopyFilters(IntrastatJnlLine);
                 TempIntrastatJnlLine2 := LastIntrastatJnlLine;
-                if TempIntrastatJnlLine2.Next <> 0 then begin
-                    StatisticalValue := TempIntrastatJnlLine."Statistical Value";
-                end else
+                if TempIntrastatJnlLine2.Next() <> 0 then
+                    StatisticalValue := TempIntrastatJnlLine."Statistical Value"
+                else
                     StatisticalValue := TempIntrastatJnlLine."Statistical Value" + LastIntrastatJnlLine."Statistical Value";
 
                 ShowStatisticalValue := true;

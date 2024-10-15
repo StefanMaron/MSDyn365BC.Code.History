@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2136 "O365 Help Feedback Settings"
 {
     Caption = 'Help & Feedback';
@@ -8,6 +9,9 @@ page 2136 "O365 Help Feedback Settings"
     PageType = List;
     SourceTable = "O365 Settings Menu";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,11 +22,11 @@ page 2136 "O365 Help Feedback Settings"
                 ShowCaption = false;
                 field(Title; Title)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the help setting.';
                 }
             }
@@ -35,7 +39,7 @@ page 2136 "O365 Help Feedback Settings"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -44,7 +48,7 @@ page 2136 "O365 Help Feedback Settings"
 
                 trigger OnAction()
                 begin
-                    OpenLink;
+                    OpenLink();
                 end;
             }
         }
@@ -52,7 +56,7 @@ page 2136 "O365 Help Feedback Settings"
 
     trigger OnOpenPage()
     begin
-        InsertMenuItems;
+        InsertMenuItems();
     end;
 
     var
@@ -79,4 +83,4 @@ page 2136 "O365 Help Feedback Settings"
           'https://go.microsoft.com/fwlink/?linkid=831305', PrivacyTitleLbl, PrivacyDescriptionLbl);
     end;
 }
-
+#endif

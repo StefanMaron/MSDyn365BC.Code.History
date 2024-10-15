@@ -14,30 +14,30 @@ page 6064 "Contract Gain/Loss Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the contract number linked to this contract gain/loss entry.';
                 }
-                field("Contract Group Code"; "Contract Group Code")
+                field("Contract Group Code"; Rec."Contract Group Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the contract group code linked to this contract gain/loss entry.';
                 }
-                field("Change Date"; "Change Date")
+                field("Change Date"; Rec."Change Date")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the date when the change on the service contract occurred.';
                 }
-                field("Responsibility Center"; "Responsibility Center")
+                field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the responsibility center, such as a distribution hub, that is associated with the involved user, company, customer, or vendor.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -51,24 +51,24 @@ page 6064 "Contract Gain/Loss Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("Type of Change"; "Type of Change")
+                field("Type of Change"; Rec."Type of Change")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the type of change on the service contract.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the customer number that is linked to this contract gain/loss entry.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;

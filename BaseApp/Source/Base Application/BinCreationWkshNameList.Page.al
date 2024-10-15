@@ -1,7 +1,7 @@
 page 7373 "Bin Creation Wksh. Name List"
 {
     Caption = 'Bin Creation Wksh. Name List';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     DelayedInsert = true;
     Editable = false;
     PageType = List;
@@ -24,7 +24,7 @@ page 7373 "Bin Creation Wksh. Name List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description for the worksheet.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code for which the worksheet should be used.';
@@ -55,9 +55,6 @@ page 7373 "Bin Creation Wksh. Name List"
                 ApplicationArea = Warehouse;
                 Caption = 'Edit Worksheet';
                 Image = OpenWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the related worksheet.';
 
@@ -65,6 +62,17 @@ page 7373 "Bin Creation Wksh. Name List"
                 begin
                     BinCreateLine.TemplateSelectionFromBatch(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Worksheet_Promoted"; "Edit Worksheet")
+                {
+                }
             }
         }
     }
@@ -108,7 +116,7 @@ page 7373 "Bin Creation Wksh. Name List"
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := BinCreateName;
-        Find;
+        Find();
         exit(RealSteps);
     end;
 

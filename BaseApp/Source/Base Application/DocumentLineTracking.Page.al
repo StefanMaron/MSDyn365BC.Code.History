@@ -61,24 +61,24 @@ page 6560 "Document Line Tracking"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number that is assigned to the entry.';
                     Visible = false;
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the table that stores the tracked document line.';
                     Visible = false;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the table that stores the tracked document line.';
                 }
-                field("No. of Records"; "No. of Records")
+                field("No. of Records"; Rec."No. of Records")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -86,7 +86,7 @@ page 6560 "Document Line Tracking"
 
                     trigger OnDrillDown()
                     begin
-                        ShowRecords;
+                        ShowRecords();
                     end;
                 }
             }
@@ -103,14 +103,23 @@ page 6560 "Document Line Tracking"
                 Caption = '&Show';
                 Enabled = ShowEnable;
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show related document.';
 
                 trigger OnAction()
                 begin
-                    ShowRecords;
+                    ShowRecords();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Show_Promoted; Show)
+                {
+                }
             }
         }
     }
@@ -152,30 +161,6 @@ page 6560 "Document Line Tracking"
         TempDocumentEntry: Record "Document Entry" temporary;
 
     var
-        CountingRecordsMsg: Label 'Counting records...';
-        SalesOrderLinesTxt: Label 'Sales Order Lines';
-        ArchivedSalesOrderLinesTxt: Label 'Archived Sales Order Lines';
-        PostedSalesShipmentLinesTxt: Label 'Posted Sales Shipment Lines';
-        PostedSalesInvoiceLinesTxt: Label 'Posted Sales Invoice Lines';
-        PurchaseOrderLinesTxt: Label 'Purchase Order Lines';
-        ArchivedPurchaseOrderLinesTxt: Label 'Archived Purchase Order Lines';
-        PostedPurchaseReceiptLinesTxt: Label 'Posted Purchase Receipt Lines';
-        PostedPurchaseInvoiceLinesTxt: Label 'Posted Purchase Invoice Lines';
-        NoSalesOrderMsg: Label 'There is no Sales Order / Archived Sales Order with this Document Number and Document Line No.';
-        NoPurchaseOrderMsg: Label 'There is no Purchase Order / Archived Purchase Order with this Document Number and Document Line No.';
-        ArchivedTxt: Label 'Archived';
-        BlanketSalesOrderLinesTxt: Label 'Blanket Sales Order Lines';
-        ArchivedBlanketSalesOrderLinesTxt: Label 'Archived Blanket Sales Order Lines';
-        BlanketPurchaseOrderLinesTxt: Label 'Blanket Purchase Order Lines';
-        ArchivedBlanketPurchaseOrderLinesTxt: Label 'Archived Blanket Purchase Order Lines';
-        SalesReturnOrderLinesTxt: Label 'Sales Return Order Lines';
-        ArchivedSalesReturnOrderLinesTxt: Label 'Archived Sales Return Order Lines';
-        PostedReturnReceiptLinesTxt: Label 'Posted Return Receipt Lines';
-        PostedSalesCreditMemoLinesTxt: Label 'Posted Sales Credit Memo Lines';
-        PurchaseReturnOrderLinesTxt: Label 'Purchase Return Order Lines';
-        ArchivedPurchaseReturnOrderLinesTxt: Label 'Archived Purchase Return Order Lines';
-        PostedReturnShipmentLinesTxt: Label 'Posted Return Shipment Lines';
-        PostedPurchaseCreditMemoLinesTxt: Label 'Posted Purchase Credit Memo Lines';
         SalesLine: Record "Sales Line";
         SalesShptLine: Record "Sales Shipment Line";
         SalesInvLine: Record "Sales Invoice Line";
@@ -215,6 +200,31 @@ page 6560 "Document Line Tracking"
         UseBlanketOrderNo: Boolean;
         UseOrderNo: Boolean;
 
+        CountingRecordsMsg: Label 'Counting records...';
+        SalesOrderLinesTxt: Label 'Sales Order Lines';
+        ArchivedSalesOrderLinesTxt: Label 'Archived Sales Order Lines';
+        PostedSalesShipmentLinesTxt: Label 'Posted Sales Shipment Lines';
+        PostedSalesInvoiceLinesTxt: Label 'Posted Sales Invoice Lines';
+        PurchaseOrderLinesTxt: Label 'Purchase Order Lines';
+        ArchivedPurchaseOrderLinesTxt: Label 'Archived Purchase Order Lines';
+        PostedPurchaseReceiptLinesTxt: Label 'Posted Purchase Receipt Lines';
+        PostedPurchaseInvoiceLinesTxt: Label 'Posted Purchase Invoice Lines';
+        NoSalesOrderMsg: Label 'There is no Sales Order / Archived Sales Order with this Document Number and Document Line No.';
+        NoPurchaseOrderMsg: Label 'There is no Purchase Order / Archived Purchase Order with this Document Number and Document Line No.';
+        ArchivedTxt: Label 'Archived';
+        BlanketSalesOrderLinesTxt: Label 'Blanket Sales Order Lines';
+        ArchivedBlanketSalesOrderLinesTxt: Label 'Archived Blanket Sales Order Lines';
+        BlanketPurchaseOrderLinesTxt: Label 'Blanket Purchase Order Lines';
+        ArchivedBlanketPurchaseOrderLinesTxt: Label 'Archived Blanket Purchase Order Lines';
+        SalesReturnOrderLinesTxt: Label 'Sales Return Order Lines';
+        ArchivedSalesReturnOrderLinesTxt: Label 'Archived Sales Return Order Lines';
+        PostedReturnReceiptLinesTxt: Label 'Posted Return Receipt Lines';
+        PostedSalesCreditMemoLinesTxt: Label 'Posted Sales Credit Memo Lines';
+        PurchaseReturnOrderLinesTxt: Label 'Purchase Return Order Lines';
+        ArchivedPurchaseReturnOrderLinesTxt: Label 'Archived Purchase Return Order Lines';
+        PostedReturnShipmentLinesTxt: Label 'Posted Return Shipment Lines';
+        PostedPurchaseCreditMemoLinesTxt: Label 'Posted Purchase Credit Memo Lines';
+
     procedure SetDoc(NewSourceDocType: Option SalesOrder,PurchaseOrder,BlanketSalesOrder,BlanketPurchaseOrder,SalesShipment,PurchaseReceipt,SalesInvoice,PurchaseInvoice,SalesReturnOrder,PurchaseReturnOrder,SalesCreditMemo,PurchaseCreditMemo,ReturnReceipt,ReturnShipment; NewDocNo: Code[20]; NewSourceDocLineNo: Integer; NewDocBlanketOrderNo: Code[20]; NewDocBlanketOrderLineNo: Integer; NewDocOrderNo: Code[20]; NewDocOrderLineNo: Integer)
     begin
         SourceDocType := NewSourceDocType;
@@ -241,36 +251,36 @@ page 6560 "Document Line Tracking"
 
             case SourceDocType of
                 SourceDocType::SalesOrder:
-                    FindRecordsForSalesOrder;
+                    FindRecordsForSalesOrder();
                 SourceDocType::PurchaseOrder:
-                    FindRecordsForPurchOrder;
+                    FindRecordsForPurchOrder();
                 SourceDocType::BlanketSalesOrder:
-                    FindRecordsForBlanketSalesOrder;
+                    FindRecordsForBlanketSalesOrder();
                 SourceDocType::BlanketPurchaseOrder:
-                    FindRecordsForBlanketPurchOrder;
+                    FindRecordsForBlanketPurchOrder();
                 SourceDocType::SalesShipment:
-                    FindRecordsForSalesShipment;
+                    FindRecordsForSalesShipment();
                 SourceDocType::PurchaseReceipt:
-                    FindRecordsForPurchaseReceipt;
+                    FindRecordsForPurchaseReceipt();
                 SourceDocType::SalesInvoice:
-                    FindRecordsForSalesInvoice;
+                    FindRecordsForSalesInvoice();
                 SourceDocType::PurchaseInvoice:
-                    FindRecordsForPurchInvoice;
+                    FindRecordsForPurchInvoice();
                 SourceDocType::SalesReturnOrder:
-                    FindRecordsForSalesReturnOrder;
+                    FindRecordsForSalesReturnOrder();
                 SourceDocType::PurchaseReturnOrder:
-                    FindRecordsForPurchReturnOrder;
+                    FindRecordsForPurchReturnOrder();
                 SourceDocType::SalesCreditMemo:
-                    FindRecordsForSalesCreditMemo;
+                    FindRecordsForSalesCreditMemo();
                 SourceDocType::PurchaseCreditMemo:
-                    FindRecordsForPurchCreditMemo;
+                    FindRecordsForPurchCreditMemo();
                 SourceDocType::ReturnReceipt:
-                    FindRecordsForReturnReceipt;
+                    FindRecordsForReturnReceipt();
                 SourceDocType::ReturnShipment:
-                    FindRecordsForReturnShipment;
+                    FindRecordsForReturnShipment();
             end;
 
-            GetDocumentData;
+            GetDocumentData();
 
             if DocNo = '' then
                 case SourceDocType of
@@ -285,7 +295,7 @@ page 6560 "Document Line Tracking"
             CurrPage.Update(false);
             DocExists := Find('-');
             if DocExists then;
-            Window.Close;
+            Window.Close();
         end;
     end;
 
@@ -472,18 +482,16 @@ page 6560 "Document Line Tracking"
     local procedure ShowRecords()
     begin
         TempDocumentEntry := Rec;
-        if TempDocumentEntry.Find then
+        if TempDocumentEntry.Find() then
             Rec := TempDocumentEntry;
 
         with TempDocumentEntry do
             case "Table ID" of
                 DATABASE::"Sales Line":
-                    begin
-                        if "Document Type" = "Document Type"::"Blanket Order" then
-                            PAGE.RunModal(PAGE::"Sales Lines", BlanketSalesOrderLine)
-                        else
-                            PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
-                    end;
+                    if "Document Type" = "Document Type"::"Blanket Order" then
+                        PAGE.RunModal(PAGE::"Sales Lines", BlanketSalesOrderLine)
+                    else
+                        PAGE.RunModal(PAGE::"Sales Lines", SalesLine);
                 DATABASE::"Sales Shipment Line":
                     PAGE.RunModal(0, SalesShptLine);
                 DATABASE::"Sales Invoice Line":
@@ -491,21 +499,17 @@ page 6560 "Document Line Tracking"
                 DATABASE::"Sales Cr.Memo Line":
                     PAGE.RunModal(0, SalesCrMemoLine);
                 DATABASE::"Sales Line Archive":
-                    begin
-                        if "Document Type" = "Document Type"::"Blanket Order" then
-                            PAGE.RunModal(PAGE::"Sales Line Archive List", BlanketSalesOrderLineArchive)
-                        else
-                            PAGE.RunModal(PAGE::"Sales Line Archive List", SalesLineArchive);
-                    end;
+                    if "Document Type" = "Document Type"::"Blanket Order" then
+                        PAGE.RunModal(PAGE::"Sales Line Archive List", BlanketSalesOrderLineArchive)
+                    else
+                        PAGE.RunModal(PAGE::"Sales Line Archive List", SalesLineArchive);
                 DATABASE::"Return Receipt Line":
                     PAGE.RunModal(0, ReturnReceiptLine);
                 DATABASE::"Purchase Line":
-                    begin
-                        if "Document Type" = "Document Type"::"Blanket Order" then
-                            PAGE.RunModal(PAGE::"Purchase Lines", BlanketPurchOrderLine)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
-                    end;
+                    if "Document Type" = "Document Type"::"Blanket Order" then
+                        PAGE.RunModal(PAGE::"Purchase Lines", BlanketPurchOrderLine)
+                    else
+                        PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
                 DATABASE::"Purch. Rcpt. Line":
                     PAGE.RunModal(0, PurchRcptLine);
                 DATABASE::"Purch. Inv. Line":
@@ -513,12 +517,10 @@ page 6560 "Document Line Tracking"
                 DATABASE::"Purch. Cr. Memo Line":
                     PAGE.RunModal(0, PurchCrMemoLine);
                 DATABASE::"Purchase Line Archive":
-                    begin
-                        if "Document Type" = "Document Type"::"Blanket Order" then
-                            PAGE.RunModal(PAGE::"Purchase Line Archive List", BlanketPurchOrderLineArchive)
-                        else
-                            PAGE.RunModal(PAGE::"Purchase Line Archive List", PurchLineArchive);
-                    end;
+                    if "Document Type" = "Document Type"::"Blanket Order" then
+                        PAGE.RunModal(PAGE::"Purchase Line Archive List", BlanketPurchOrderLineArchive)
+                    else
+                        PAGE.RunModal(PAGE::"Purchase Line Archive List", PurchLineArchive);
                 DATABASE::"Return Shipment Line":
                     PAGE.RunModal(0, ReturnShipmentLine);
             end;
@@ -592,68 +594,59 @@ page 6560 "Document Line Tracking"
                         end;
                 end;
             SourceDocType::SalesShipment:
-                with SalesShptLine do begin
+                with SalesShptLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::PurchaseReceipt:
-                with PurchRcptLine do begin
+                with PurchRcptLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::SalesInvoice:
-                with SalesInvLine do begin
+                with SalesInvLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::PurchaseInvoice:
-                with PurchInvLine do begin
+                with PurchInvLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::ReturnShipment:
-                with ReturnShipmentLine do begin
+                with ReturnShipmentLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::PurchaseCreditMemo:
-                with PurchCrMemoLine do begin
+                with PurchCrMemoLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::SalesReturnOrder:
-                with SalesLine do begin
+                with SalesLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::ReturnReceipt:
-                with ReturnReceiptLine do begin
+                with ReturnReceiptLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
             SourceDocType::SalesCreditMemo:
-                with SalesCrMemoLine do begin
+                with SalesCrMemoLine do
                     if FilteredRecordExist(GetFilters, IsEmpty) then begin
                         FindFirst();
                         AssignLineFields(TableCaption, "Document No.", '', Format(Type), "No.", Description, Quantity, "Unit of Measure Code");
                     end;
-                end;
         end;
     end;
 

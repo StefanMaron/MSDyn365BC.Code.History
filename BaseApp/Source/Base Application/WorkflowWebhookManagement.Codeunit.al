@@ -331,20 +331,18 @@ codeunit 1543 "Workflow Webhook Management"
     begin
         ResponseTypeNotExpected := WorkflowStepArgument."Response Type"::"Not Expected";
 
-        if WorkflowStepArgument.IsEmpty or (WorkflowStepArgument."Response Type" <> ResponseTypeNotExpected) then begin
+        if WorkflowStepArgument.IsEmpty() or (WorkflowStepArgument."Response Type" <> ResponseTypeNotExpected) then begin
             WorkflowStepInstance.SetLoadFields("Workflow Step ID");
             WorkflowStepInstance.Init();
             WorkflowStepInstance.SetRange(ID, WorkflowStepInstanceID);
             WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
 
-            if WorkflowStepInstance.FindSet() then begin
+            if WorkflowStepInstance.FindSet() then
                 repeat
-                    if WorkflowStep.Get(WorkflowStepInstance."Workflow Code", WorkflowStepInstance."Workflow Step ID") then begin
-                        if WorkflowStep."Function Name" = WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode then
+                    if WorkflowStep.Get(WorkflowStepInstance."Workflow Code", WorkflowStepInstance."Workflow Step ID") then
+                        if WorkflowStep."Function Name" = WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode() then
                             exit(DummyWorkflowWebhookEntry.Response::Pending);
-                    end;
                 until WorkflowStepInstance.Next() = 0;
-            end;
         end;
 
         exit(DummyWorkflowWebhookEntry.Response::NotExpected);
@@ -355,7 +353,7 @@ codeunit 1543 "Workflow Webhook Management"
         WorkflowWebhookEntry.SetCurrentKey("Workflow Step Instance ID");
         WorkflowWebhookEntry.SetRange("Workflow Step Instance ID", Id);
 
-        exit(WorkflowWebhookEntry.FindFirst);
+        exit(WorkflowWebhookEntry.FindFirst());
     end;
 
     procedure FindWorkflowWebhookEntryByRecordIdAndResponse(var WorkflowWebhookEntry: Record "Workflow Webhook Entry"; RecordId: RecordID; ResponseStatus: Option): Boolean
@@ -363,7 +361,7 @@ codeunit 1543 "Workflow Webhook Management"
         WorkflowWebhookEntry.SetRange("Record ID", RecordId);
         WorkflowWebhookEntry.SetRange(Response, ResponseStatus);
 
-        exit(WorkflowWebhookEntry.FindFirst);
+        exit(WorkflowWebhookEntry.FindFirst())
     end;
 
     procedure HasPendingWorkflowWebhookEntryByRecordId(RecordId: RecordID): Boolean

@@ -18,7 +18,7 @@ codeunit 131302 "Library - Fiscal Year"
         for Counter := 1 to AccountingPeriod.Count - 1 do begin
             CODEUNIT.Run(CODEUNIT::"Fiscal Year-Close", AccountingPeriod);
             if Counter < AccountingPeriod.Count then
-                AccountingPeriod.Next;
+                AccountingPeriod.Next();
         end;
         Commit();  // Required because Modal Page Pops Up.
         RollbackAdjustedAllowPostingFromDate;
@@ -40,7 +40,7 @@ codeunit 131302 "Library - Fiscal Year"
     begin
         // Find a Date to create a new Fiscal Year if no Fiscal Year exists in Demo Data.
         Date.SetRange("Period Type", Date."Period Type"::Year);
-        Date.SetRange("Period No.", Date2DMY(WorkDate, 3));
+        Date.SetRange("Period No.", Date2DMY(WorkDate(), 3));
         Date.FindFirst();
 
         // Create a new Fiscal Year With Number of Periods = 12, Period Length = 1M.
@@ -99,7 +99,7 @@ codeunit 131302 "Library - Fiscal Year"
     [Scope('OnPrem')]
     procedure GetPastNewYearDate(NumberOfPastYears: Integer): Date
     begin
-        exit(CalcDate(StrSubstNo('<-%1Y-CY>', NumberOfPastYears), WorkDate));
+        exit(CalcDate(StrSubstNo('<-%1Y-CY>', NumberOfPastYears), WorkDate()));
     end;
 
     [Scope('OnPrem')]

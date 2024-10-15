@@ -144,7 +144,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         PostMultipleInvoicesAcrossKeyDateIntervals(
           Vendor, '<2M>', Balance, DueDate,
           LibraryERM.CreateCurrencyWithExchangeRate(
-            CalcDate('<-1Y>', WorkDate), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
+            CalcDate('<-1Y>', WorkDate()), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
 
         // Exercise: Run report SR Ven. Due Amount per Period.
         RunReportDueAmtPerPeriod('<2M>', Layout::"Columns after Key Date", ShowAmountsInLCY, Vendor."No.");
@@ -164,7 +164,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         LibraryVariableStorage.Dequeue(PeriodLength);
         LibraryVariableStorage.Dequeue(Layout);
         LibraryVariableStorage.Dequeue(ShowLCY);
-        SRVenDueAmountPerPeriod."Key Date".SetValue(WorkDate);
+        SRVenDueAmountPerPeriod."Key Date".SetValue(WorkDate());
         SRVenDueAmountPerPeriod."Period Length".SetValue(PeriodLength);
         SRVenDueAmountPerPeriod.Layout.SetValue(Layout);
         SRVenDueAmountPerPeriod.ShowAmtInLCY.SetValue(ShowLCY);
@@ -199,7 +199,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         PeriodLengthDateFormula: DateFormula;
         "count": Integer;
     begin
-        DueDate := WorkDate;
+        DueDate := WorkDate();
         Balance[1] := LibraryRandom.RandDec(1000, 2);
         PostPurchaseInvoiceWithGivenDate(Vendor, DueDate, Balance[1], CurrencyCode);
 
@@ -218,7 +218,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         PeriodLengthDateFormula: DateFormula;
     begin
         Evaluate(PeriodLengthDateFormula, PeriodLength);
-        PostingDate := CalcDate('<-2M>', WorkDate);
+        PostingDate := CalcDate('<-2M>', WorkDate());
         for count := 1 to ArrayLen(Balance) do begin
             DueDate[count] := PostingDate;
             Balance[count] := LibraryRandom.RandDec(1000, 2);
@@ -293,7 +293,7 @@ codeunit 144028 "Test Vend. Due Amt. Report"
             DetailedVendLedgEntry.FindSet();
             repeat
                 TotalAmountLCY[Count] += DetailedVendLedgEntry."Amount (LCY)";
-            until DetailedVendLedgEntry.Next = 0;
+            until DetailedVendLedgEntry.Next() = 0;
 
             // Verify Total Amount for each column.
             if ShowAmountsInLCY then

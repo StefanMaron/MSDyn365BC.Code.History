@@ -24,6 +24,14 @@ table 6304 "Power BI User Configuration"
         field(4; "Report Visibility"; Boolean)
         {
             Caption = 'Report Visibility';
+            ObsoleteReason = 'The report part visibility is now handled by the standard personalization experience. Hide the page using Personalization instead of using this value.';
+#if not CLEAN21
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#endif
         }
         field(5; "Selected Report ID"; Guid)
         {
@@ -42,5 +50,42 @@ table 6304 "Power BI User Configuration"
     fieldgroups
     {
     }
-}
 
+    procedure CreateOrReadForCurrentUser(PageId: Text[50])
+    var
+        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+#if not CLEAN21
+        SetPowerBIUserConfig: Codeunit "Set Power BI User Config";
+#endif
+        IsHandled: Boolean;
+    begin
+        OnBeforeCreateOrReadUserConfigEntry(Rec, PageId, IsHandled);
+        if IsHandled then
+            exit;
+
+        Reset();
+
+        if not Get(PageId, UserSecurityId(), PowerBIServiceMgt.GetEnglishContext()) then begin
+            "Page ID" := PageId;
+            "User Security ID" := UserSecurityId();
+            "Profile ID" := PowerBIServiceMgt.GetEnglishContext();
+#if not CLEAN21
+            "Report Visibility" := true;
+
+            SetPowerBIUserConfig.OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(Rec);
+#endif
+            OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(Rec);
+            Insert(true);
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOrReadUserConfigEntryOnBeforePowerBIUserConfigurationInsert(var PowerBIUserConfiguration: Record "Power BI User Configuration")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateOrReadUserConfigEntry(var PowerBIUserConfiguration: Record "Power BI User Configuration"; PageID: Text; var IsHandled: Boolean)
+    begin
+    end;
+}

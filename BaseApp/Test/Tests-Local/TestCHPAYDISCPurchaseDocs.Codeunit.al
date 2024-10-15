@@ -225,7 +225,7 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
         VendorLedgerEntry.FindSet();
         repeat
             SetAppliesToIdOnVendorLedgerEntry(VendorLedgerEntry, AmtToApply);
-        until VendorLedgerEntry.Next = 0;
+        until VendorLedgerEntry.Next() = 0;
 
         PmtGenJournalLine.Validate(Amount, -AmtToApply);
         PmtGenJournalLine.Modify(true);
@@ -257,7 +257,7 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
         VATPostingSetup.Modify(true);
 
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2),
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
         CurrencyExchangeRate.FindFirst();
@@ -324,7 +324,7 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
                       GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');
             end;
             PrevTransactionNo := VATEntry."Transaction No.";
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
 
         VATEntry.SetRange("Source Code", SourceCodeSetup.Reversal);
         if VATEntry.FindSet() then
@@ -344,14 +344,14 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
                         Assert.AreNearlyEqual(PmtDiscountAmtFCY, -VATEntry."Base (FCY)" - VATEntry."Amount (FCY)",
                           GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
         VATEntry.SetRange("Source Code", SourceCodeSetup."Purchase Entry Application");
         if VATEntry.FindSet() then
             repeat
                 Assert.AreNearlyEqual(PmtDiscountAmtFCY, VATEntry."Base (FCY)" + VATEntry."Amount (FCY)",
                   GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyApplicationWithVATBalancingError(GenJournalLine: Record "Gen. Journal Line")

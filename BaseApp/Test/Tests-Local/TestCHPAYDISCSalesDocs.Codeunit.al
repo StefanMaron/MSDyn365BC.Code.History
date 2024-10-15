@@ -293,7 +293,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         CustLedgerEntry.FindSet();
         repeat
             SetAppliesToIdOnCustLedgerEntry(CustLedgerEntry, AmtToApply);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
 
         PmtGenJournalLine.Validate(Amount, -AmtToApply);
         PmtGenJournalLine.Modify(true);
@@ -323,7 +323,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         VATPostingSetup.TestField("Adjust for Payment Discount", true);
 
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, LibraryRandom.RandDec(10, 2),
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
         CurrencyExchangeRate.FindFirst();
@@ -389,7 +389,7 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
                       GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');
             end;
             PrevTransactionNo := VATEntry."Transaction No.";
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
 
         VATEntry.SetRange("Source Code", SourceCodeSetup.Reversal);
         if VATEntry.FindSet() then
@@ -409,14 +409,14 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
                         Assert.AreNearlyEqual(PmtDiscountAmtFCY, -VATEntry."Base (FCY)" - VATEntry."Amount (FCY)",
                           GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
         VATEntry.SetRange("Source Code", SourceCodeSetup."Sales Entry Application");
         if VATEntry.FindSet() then
             repeat
                 Assert.AreNearlyEqual(PmtDiscountAmtFCY, VATEntry."Base (FCY)" + VATEntry."Amount (FCY)",
                   GeneralLedgerSetup."Inv. Rounding Precision (LCY)", 'Wrong Disc VAT FCY total.');
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
     end;
 
     [Normal]

@@ -177,7 +177,7 @@ codeunit 134636 "API Setup UT"
         Clear(Customer.SystemId);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         VerifyCustomerRelatedRecordIDs(Customer);
@@ -310,7 +310,7 @@ codeunit 134636 "API Setup UT"
         Clear(Vendor.Id);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         VerifyVendorRelatedRecordIDs(Vendor);
@@ -438,7 +438,7 @@ codeunit 134636 "API Setup UT"
         Clear(Item.Id);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         VerifyItemRelatedRecordIDs(Item);
@@ -472,7 +472,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(4, SalesInvoiceEntityAggregate.Count, 'Wrong number of Aggregate records found');
@@ -512,7 +512,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(2, SalesInvoiceEntityAggregate.Count, 'Wrong number of Aggregate records found');
@@ -547,7 +547,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(2, SalesQuoteEntityBuffer.Count, 'Wrong number of Aggregate records found');
@@ -579,7 +579,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(1, SalesQuoteEntityBuffer.Count, 'Wrong number of Aggregate records found');
@@ -611,7 +611,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(4, SalesCrMemoEntityBuffer.Count, 'Wrong number of Aggregate records found');
@@ -652,7 +652,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(2, SalesCrMemoEntityBuffer.Count, 'Wrong number of Aggregate records found');
@@ -685,7 +685,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(2, SalesOrderEntityBuffer.Count, 'Wrong number of Aggregate records found');
@@ -716,7 +716,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(1, SalesOrderEntityBuffer.Count, 'Wrong number of Aggregate records found');
@@ -747,7 +747,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(4, PurchInvEntityAggregate.Count, 'Wrong number of Aggregate records found');
@@ -787,7 +787,7 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Verify
         Assert.AreEqual(2, PurchInvEntityAggregate.Count, 'Wrong number of Aggregate records found');
@@ -806,7 +806,7 @@ codeunit 134636 "API Setup UT"
         PaymentMethod: Record "Payment Method";
         Currency: Record Currency;
     begin
-        Customer.Find;
+        Customer.Find();
 
         Assert.IsTrue(PaymentTerms.Get(Customer."Payment Terms Code"), 'Could not get payment terms');
         Assert.IsTrue(PaymentMethod.Get(Customer."Payment Method Code"), 'Could not get Payment Method');
@@ -829,7 +829,7 @@ codeunit 134636 "API Setup UT"
         PaymentMethod: Record "Payment Method";
         Currency: Record Currency;
     begin
-        Vendor.Find;
+        Vendor.Find();
 
         Assert.IsTrue(PaymentTerms.Get(Vendor."Payment Terms Code"), 'Could not get payment terms');
         Assert.IsTrue(PaymentMethod.Get(Vendor."Payment Method Code"), 'Could not get Payment Method');
@@ -850,7 +850,7 @@ codeunit 134636 "API Setup UT"
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        Item.Find;
+        Item.Find();
 
         Assert.IsTrue(UnitOfMeasure.Get(Item."Base Unit of Measure"), 'Could not get "Base Unit of Measure"');
 

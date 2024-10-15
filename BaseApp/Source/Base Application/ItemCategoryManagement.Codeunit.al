@@ -89,7 +89,7 @@ codeunit 5722 "Item Category Management"
     begin
         ItemCategory.Reset();
         ItemCategory.SetFilter(Code, '@' + Text);
-        exit(ItemCategory.FindSet);
+        exit(ItemCategory.FindSet());
     end;
 
     [Scope('OnPrem')]

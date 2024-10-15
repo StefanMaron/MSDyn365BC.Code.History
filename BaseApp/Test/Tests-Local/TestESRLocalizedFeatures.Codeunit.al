@@ -27,7 +27,7 @@ codeunit 144061 "Test ESR Localized Features"
     var
         VendorBankAccountCard: TestPage "Vendor Bank Account Card";
     begin
-        Init;
+        Init();
         VendorBankAccountCard.OpenNew();
         VendorBankAccountCard.Code.SetValue('POST');
         VendorBankAccountCard."Payment Form".SetValue('Post Payment Domestic');
@@ -62,7 +62,7 @@ codeunit 144061 "Test ESR Localized Features"
         GeneralPostingSetup: Record "General Posting Setup";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        Init;
+        Init();
 
         // Setup PostingSetup and VAT PostingSetup.
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
@@ -75,7 +75,7 @@ codeunit 144061 "Test ESR Localized Features"
         // Open the new purchase orders page
         PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor."No.");
-        PurchaseOrder."Posting Date".SetValue(WorkDate);
+        PurchaseOrder."Posting Date".SetValue(WorkDate());
         PurchaseOrder."Vendor Invoice No.".SetValue(Format(LibraryRandom.RandIntInRange(11111, 99999)));
 
         PurchaseOrder."ESR/ISR Coding Line".SetValue('0100000400689>331459012023430000000000001+010033140>');

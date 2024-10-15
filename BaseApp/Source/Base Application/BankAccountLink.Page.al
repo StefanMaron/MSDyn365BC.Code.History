@@ -14,7 +14,7 @@ page 5137 "Bank Account Link"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Bank Account No.';

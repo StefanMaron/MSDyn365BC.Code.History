@@ -34,14 +34,14 @@
                     Item.SetRange("Cost is Adjusted", false);
                     Item.SetRange("Allow Online Adjustment", false);
 
-                    UpdateInvtAdjmtEntryOrder;
+                    UpdateInvtAdjmtEntryOrder();
 
                     InvtAdjmtEntryOrder.SetCurrentKey("Cost is Adjusted", "Allow Online Adjustment");
                     InvtAdjmtEntryOrder.SetRange("Cost is Adjusted", false);
                     InvtAdjmtEntryOrder.SetRange("Allow Online Adjustment", false);
                     InvtAdjmtEntryOrder.SetRange("Is Finished", true);
 
-                    if not (Item.IsEmpty and InvtAdjmtEntryOrder.IsEmpty) then
+                    if not (Item.IsEmpty() and InvtAdjmtEntryOrder.IsEmpty) then
                         Message(Text000);
                 end;
             end;
@@ -49,6 +49,10 @@
         field(40; "Prevent Negative Inventory"; Boolean)
         {
             Caption = 'Prevent Negative Inventory';
+        }
+        field(45; "Variant Mandatory if Exists"; Boolean)
+        {
+            Caption = 'Variant Mandatory if Exists';
         }
         field(50; "Skip Prompt to Create Item"; Boolean)
         {
@@ -159,7 +163,7 @@
                 if "Expected Cost Posting to G/L" <> xRec."Expected Cost Posting to G/L" then
                     if ItemLedgEntry.FindFirst() then begin
                         ChangeExpCostPostToGL.ChangeExpCostPostingToGL(Rec, "Expected Cost Posting to G/L");
-                        Find;
+                        Find();
                     end;
             end;
         }
@@ -334,12 +338,13 @@
 
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         Item: Record Item;
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        ObjTransl: Record "Object Translation";
+
+        Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
         Text004: Label 'The program has cancelled the change that would have caused an adjustment of all items.';
         Text005: Label '%1 has been changed to %2. You should now run %3.';
-        ObjTransl: Record "Object Translation";
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
 
     local procedure UpdateInvtAdjmtEntryOrder()

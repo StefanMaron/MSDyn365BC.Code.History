@@ -52,7 +52,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -64,7 +64,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -76,7 +76,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Cause of Absence Code"; "Cause of Absence Code")
+                field("Cause of Absence Code"; Rec."Cause of Absence Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -100,7 +100,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -112,7 +112,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Service Order No."; "Service Order No.")
+                field("Service Order No."; Rec."Service Order No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
@@ -124,7 +124,7 @@ page 974 "Time Sheet Lines Subform"
                         CurrPage.SaveRecord();
                     end;
                 }
-                field("Assembly Order No."; "Assembly Order No.")
+                field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the assembly order number that is associated with the time sheet line.';
@@ -242,7 +242,7 @@ page 974 "Time Sheet Lines Subform"
                         ValidateQuantity(7);
                     end;
                 }
-                field("Total Quantity"; "Total Quantity")
+                field("Total Quantity"; Rec."Total Quantity")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Total';
@@ -320,6 +320,7 @@ page 974 "Time Sheet Lines Subform"
                 {
                     ApplicationArea = Jobs;
                     Caption = '&Approve';
+                    Ellipsis = true;
                     Image = ReleaseDoc;
                     ToolTip = 'Approve the lines on the time sheet.';
                     Promoted = true;

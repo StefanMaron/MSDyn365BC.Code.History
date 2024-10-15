@@ -48,7 +48,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVMgt.ImportDebitDirectFile(GenJournalLine);
 
         // Verify.
-        LSVJnl.Find;
+        LSVJnl.Find();
         LSVJnl.CalcFields("Amount Plus");
         VerifyLSVJnl(LSVJnlStatus, FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, CurrencyCode, LSVJnl);
         VerifyLSVJournalLines(CustLedgerEntry, LSVJnl, LSVStatus, RejectionReason);
@@ -80,7 +80,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         asserterror
           ImportDDFileCreditNoRejection('81', '00', LSVJournalLine."LSV Status"::"Closed by Import File",
             LSVJournalLine."DD Rejection Reason"::" ", LSVJournal."LSV Status"::Finished, 1,
-            LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
+            LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
         Assert.ExpectedError(WrongCurrErr);
     end;
 
@@ -135,7 +135,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVMgt.ImportDebitDirectFile(GenJournalLine);
 
         // Verify.
-        LSVJnl.Find;
+        LSVJnl.Find();
         VerifyLSVJnl(LSVJnl."LSV Status"::"File Created", FindCustLedgerEntries(CustLedgerEntry, Customer."No."),
           CustLedgerEntry.Count, CurrencyCode, LSVJnl);
         VerifyLSVJournalLines(CustLedgerEntry, LSVJnl, LSVJnlLine."LSV Status"::Rejected, RejectionReason);
@@ -314,7 +314,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         CustLedgerEntry.CalcFields("Remaining Amount");
         CashReceiptJournal.Amount.AssertEquals(CustLedgerEntry."Remaining Pmt. Disc. Possible" - CustLedgerEntry."Remaining Amount");
 
-        LSVJnl.Find;
+        LSVJnl.Find();
         VerifyLSVJnl(LSVJnl."LSV Status"::Finished, FindCustLedgerEntries(CustLedgerEntry, Customer."No."),
           CustLedgerEntry.Count, '', LSVJnl);
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
@@ -322,7 +322,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         repeat
             VerifyLSVJournalLine(CustLedgerEntry, LSVJnlLine."LSV Status"::"Transferred to Pmt. Journal",
               LSVJnlLine."DD Rejection Reason"::" ");
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -354,14 +354,14 @@ codeunit 144044 "Test LSV DD Payment Import"
         GenJournalLine.DeleteAll(true);
 
         // Verify.
-        LSVJnl.Find;
+        LSVJnl.Find();
         VerifyLSVJnl(LSVJnl."LSV Status"::"File Created", FindCustLedgerEntries(CustLedgerEntry, Customer."No."),
           CustLedgerEntry.Count, '', LSVJnl);
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
         CustLedgerEntry.FindSet();
         repeat
             VerifyLSVJournalLine(CustLedgerEntry, LSVJnlLine."LSV Status"::Open, LSVJnlLine."DD Rejection Reason"::" ");
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [Test]
@@ -476,7 +476,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         LibrarySales.FindItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandDec(10, 2));
-        SalesHeader.Validate("Due Date", WorkDate);
+        SalesHeader.Validate("Due Date", WorkDate());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
@@ -578,7 +578,7 @@ codeunit 144044 "Test LSV DD Payment Import"
             Line := NextLine;
         until NextLine = '';
 
-        DDFile.Close;
+        DDFile.Close();
     end;
 
     local procedure FindCustLedgerEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]) CollectionAmount: Decimal
@@ -589,7 +589,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         CustLedgEntry.FindSet();
         repeat
             CollectionAmount += CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
     end;
 
     local procedure FindLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; LSVJnlNo: Integer)
@@ -626,7 +626,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         CustLedgEntry.FindSet();
         VerifyLSVJournalLine(CustLedgEntry, LSVJnlLine."LSV Status"::"Closed by Import File", LSVJnlLine."DD Rejection Reason"::" ");
 
-        while CustLedgEntry.Next <> 0 do
+        while CustLedgEntry.Next() <> 0 do
             VerifyLSVJournalLine(CustLedgEntry, ExpStatus, DDRejReason);
     end;
 
@@ -663,13 +663,13 @@ codeunit 144044 "Test LSV DD Payment Import"
         LSVJournalLine.FindSet();
         repeat
             VerifyGenJournalLine(GenJournalLine, LSVJnl, LSVJournalLine, GenJournalLine."Document Type"::Payment, 1);
-        until LSVJournalLine.Next = 0;
+        until LSVJournalLine.Next() = 0;
 
         LSVJournalLine.SetRange("DD Rejection Reason", LSVJournalLine."DD Rejection Reason"::"Customer protestation");
         if LSVJournalLine.FindSet() then
             repeat
                 VerifyGenJournalLine(GenJournalLine, LSVJnl, LSVJournalLine, GenJournalLine."Document Type"::Refund, 1);
-            until LSVJournalLine.Next = 0;
+            until LSVJournalLine.Next() = 0;
 
         LSVJournalLine.SetRange("DD Rejection Reason",
           LSVJournalLine."DD Rejection Reason"::"Customer account number and address do not match",
@@ -677,7 +677,7 @@ codeunit 144044 "Test LSV DD Payment Import"
         if LSVJournalLine.FindSet() then
             repeat
                 VerifyGenJournalLine(GenJournalLine, LSVJnl, LSVJournalLine, GenJournalLine."Document Type"::Payment, 0);
-            until LSVJournalLine.Next = 0;
+            until LSVJournalLine.Next() = 0;
     end;
 
     local procedure VerifyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; LSVJnl: Record "LSV Journal"; LSVJnlLine: Record "LSV Journal Line"; ExpDocumentType: Option; ExpCount: Integer)
@@ -724,7 +724,7 @@ codeunit 144044 "Test LSV DD Payment Import"
     var
         GeneralMgt: Codeunit GeneralMgt;
     begin
-        LSVJnl.Find;
+        LSVJnl.Find();
         LSVJnl.CalcFields("No. Of Entries Plus", "Amount Plus");
         LSVJnl.TestField("LSV Status", ExpStatus);
         LSVJnl.TestField("No. Of Entries Plus", ExpCount);
@@ -734,7 +734,7 @@ codeunit 144044 "Test LSV DD Payment Import"
 
     local procedure VerifyBackup(LSVSetup: Record "LSV Setup")
     begin
-        LSVSetup.Find;
+        LSVSetup.Find();
         Assert.IsTrue(Exists(LSVSetup."Backup Folder" + 'DD' + LSVSetup."Last Backup No." + '.BAK'),
           'No backup was created in' + LSVSetup."Backup Folder" + 'DD' + LSVSetup."Last Backup No." + '.BAK');
         Erase(LSVSetup."Backup Folder" + 'DD' + LSVSetup."Last Backup No." + '.BAK');
@@ -753,15 +753,15 @@ codeunit 144044 "Test LSV DD Payment Import"
             LibraryReportDataset.AssertCurrentRowValueEquals('Customer_Name', LSVJournalLine.Name);
             LibraryReportDataset.AssertCurrentRowValueEquals('Amount', LSVJournalLine."Collection Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals('CashDeductAmt', LSVJournalLine."Pmt. Discount");
-        until LSVJournalLine.Next = 0;
+        until LSVJournalLine.Next() = 0;
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure LSVSuggestCollectionReqPageHandler(var LSVSuggestCollection: TestRequestPage "LSV Suggest Collection")
     begin
-        LSVSuggestCollection.FromDueDate.SetValue(WorkDate);
-        LSVSuggestCollection.ToDueDate.SetValue(WorkDate);
+        LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
+        LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
         LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
         LSVSuggestCollection.OK.Invoke;
     end;

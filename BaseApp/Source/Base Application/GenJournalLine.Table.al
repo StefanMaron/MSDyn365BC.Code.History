@@ -47,7 +47,7 @@
                                                "Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account", "Bal. Account Type"::"Fixed Asset"]
                     then
                         Validate("Payment Terms Code", '');
-                UpdateSource;
+                UpdateSource();
 
                 if ("Account Type" <> "Account Type"::"Fixed Asset") and
                    ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
@@ -66,7 +66,7 @@
 
                 if "Journal Template Name" <> '' then
                     if "Account Type" = "Account Type"::"IC Partner" then begin
-                        GetTemplate;
+                        GetTemplate();
                         if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                             FieldError("Account Type");
                     end;
@@ -96,7 +96,7 @@
             var
                 IsHandled: Boolean;
             begin
-                if "Account No." <> xRec."Account No." then begin
+                if ("Account No." <> xRec."Account No.") and not (xRec."Account No." = '') then begin
                     ClearAppliedAutomatically();
                     ClearApplication("Account Type");
                     BlankJobNo(FieldNo("Account No."));
@@ -106,7 +106,7 @@
                     "IC Partner Code" := '';
 
                 if "Account No." = '' then begin
-                    CleanLine;
+                    CleanLine();
                     exit;
                 end;
 
@@ -125,27 +125,27 @@
 
                 case "Account Type" of
                     "Account Type"::"G/L Account":
-                        GetGLAccount;
+                        GetGLAccount();
                     "Account Type"::Customer:
-                        GetCustomerAccount;
+                        GetCustomerAccount();
                     "Account Type"::Vendor:
-                        GetVendorAccount;
+                        GetVendorAccount();
                     "Account Type"::Employee:
-                        GetEmployeeAccount;
+                        GetEmployeeAccount();
                     "Account Type"::"Bank Account":
-                        GetBankAccount;
+                        GetBankAccount();
                     "Account Type"::"Fixed Asset":
-                        GetFAAccount;
+                        GetFAAccount();
                     "Account Type"::"IC Partner":
-                        GetICPartnerAccount;
+                        GetICPartnerAccount();
                 end;
 
                 OnValidateAccountNoOnAfterAssignValue(Rec, xRec);
 
                 Validate("Currency Code");
                 Validate("VAT Prod. Posting Group");
-                UpdateLineBalance;
-                UpdateSource;
+                UpdateLineBalance();
+                UpdateSource();
 
                 IsHandled := false;
                 OnAccountNoOnValidateOnBeforeCreateDim(Rec, IsHandled);
@@ -154,18 +154,18 @@
 
                 CreateDimFromDefaultDim(FieldNo("Account No."));
 
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
+                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
                 ValidateApplyRequirements(Rec);
 
                 case "Account Type" of
                     "Account Type"::"G/L Account":
-                        UpdateAccountID;
+                        UpdateAccountID();
                     "Account Type"::Customer:
-                        UpdateCustomerID;
+                        UpdateCustomerID();
                     "Account Type"::"Bank Account":
-                        UpdateBankAccountID;
+                        UpdateBankAccountID();
                     "Account Type"::Vendor:
-                        UpdateVendorID;
+                        UpdateVendorID();
                 end;
             end;
         }
@@ -189,13 +189,18 @@
 
                 ValidateApplyRequirements(Rec);
 
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
                 end;
 
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
+
+                
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
             end;
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
@@ -234,7 +239,7 @@
                                 Vend.CheckBlockedVendOnJnls(Vend, "Document Type", false);
                             end;
                     end;
-                UpdateSalesPurchLCY;
+                UpdateSalesPurchLCY();
                 ValidateApplyRequirements(Rec);
             end;
         }
@@ -256,13 +261,13 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
                     "VAT Calculation Type"::"Reverse Charge VAT":
                         begin
                             "VAT Amount" :=
-                              Round(Amount * "VAT %" / (100 + "VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                              Round(Amount * "VAT %" / (100 + "VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                             "VAT Base Amount" :=
                               Round(Amount - "VAT Amount", Currency."Amount Rounding Precision");
                         end;
@@ -296,7 +301,7 @@
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
-                UpdateSalesPurchLCY;
+                UpdateSalesPurchLCY();
 
                 if "Deferral Code" <> '' then
                     Validate("Deferral Code");
@@ -333,18 +338,18 @@
                     "IC Partner Code" := '';
 
                 if "Bal. Account No." = '' then begin
-                    UpdateLineBalance;
-                    UpdateSource;
+                    UpdateLineBalance();
+                    UpdateSource();
                     Clear("Balance Account Id");
                     CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                     if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) then
                         "Recipient Bank Account" := '';
                     if xRec."Bal. Account No." <> '' then begin
-                        ClearBalancePostingGroups;
+                        ClearBalancePostingGroups();
                         "Bal. Tax Area Code" := '';
                         "Bal. Tax Liable" := false;
                         "Bal. Tax Group Code" := '';
-                        ClearCurrencyCode;
+                        ClearCurrencyCode();
                     end;
                     exit;
                 end;
@@ -358,30 +363,30 @@
 
                 case "Bal. Account Type" of
                     "Bal. Account Type"::"G/L Account":
-                        GetGLBalAccount;
+                        GetGLBalAccount();
                     "Bal. Account Type"::Customer:
-                        GetCustomerBalAccount;
+                        GetCustomerBalAccount();
                     "Bal. Account Type"::Vendor:
-                        GetVendorBalAccount;
+                        GetVendorBalAccount();
                     "Bal. Account Type"::Employee:
-                        GetEmployeeBalAccount;
+                        GetEmployeeBalAccount();
                     "Bal. Account Type"::"Bank Account":
-                        GetBankBalAccount;
+                        GetBankBalAccount();
                     "Bal. Account Type"::"Fixed Asset":
-                        GetFABalAccount;
+                        GetFABalAccount();
                     "Bal. Account Type"::"IC Partner":
-                        GetICPartnerBalAccount;
+                        GetICPartnerBalAccount();
                 end;
 
                 OnValidateBalAccountNoOnAfterAssignValue(Rec, xRec);
 
                 Validate("Currency Code");
                 Validate("Bal. VAT Prod. Posting Group");
-                UpdateLineBalance;
-                UpdateSource;
+                UpdateLineBalance();
+                UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
                 UpdateBalanceAccountId();
-                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo);
+                Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
                 ValidateApplyRequirements(Rec);
             end;
         }
@@ -413,7 +418,7 @@
                 if "Currency Code" <> '' then begin
                     if ("Bal. Account Type" = "Bal. Account Type"::Employee) or ("Account Type" = "Account Type"::Employee) then
                         Error(OnlyLocalCurrencyForEmployeeErr);
-                    GetCurrency;
+                    GetCurrency();
                     if ("Currency Code" <> xRec."Currency Code") or
                        ("Posting Date" <> xRec."Posting Date") or
                        (CurrFieldNo = FieldNo("Currency Code")) or
@@ -425,7 +430,7 @@
                     "Currency Factor" := 0;
                 Validate("Currency Factor");
 
-                if not CustVendAccountNosModified then
+                if not CustVendAccountNosModified() then
                     if ("Currency Code" <> xRec."Currency Code") and (Amount <> 0) then
                         PaymentToleranceMgt.PmtTolGenJnl(Rec);
 
@@ -454,7 +459,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "Debit Amount" := Round("Debit Amount", Currency."Amount Rounding Precision");
                 Correction := "Debit Amount" < 0;
                 if ("Credit Amount" = 0) or ("Debit Amount" <> 0) then begin
@@ -472,7 +477,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "Credit Amount" := Round("Credit Amount", Currency."Amount Rounding Precision");
                 Correction := "Credit Amount" < 0;
                 if ("Debit Amount" = 0) or ("Credit Amount" <> 0) then begin
@@ -499,8 +504,8 @@
                     Amount := "Amount (LCY)";
                     Validate(Amount);
                 end else begin
-                    if CheckFixedCurrency then begin
-                        GetCurrency;
+                    if CheckFixedCurrency() then begin
+                        GetCurrency();
                         Amount := Round(
                             CurrExchRate.ExchangeAmtLCYToFCY(
                               "Posting Date", "Currency Code",
@@ -514,7 +519,7 @@
 
                     Validate("VAT %");
                     Validate("Bal. VAT %");
-                    UpdateLineBalance;
+                    UpdateLineBalance();
                 end;
             end;
         }
@@ -569,7 +574,7 @@
             begin
                 if "Bill-to/Pay-to No." <> xRec."Bill-to/Pay-to No." then
                     "Ship-to/Order Address Code" := '';
-                ReadGLSetup;
+                ReadGLSetup();
                 if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then
                     UpdateCountryCodeAndVATRegNo("Bill-to/Pay-to No.");
             end;
@@ -577,7 +582,6 @@
         field(23; "Posting Group"; Code[20])
         {
             Caption = 'Posting Group';
-            Editable = false;
             TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group"
@@ -682,14 +686,14 @@
                     AccType::Employee:
                         LookUpAppliesToDocEmpl(AccNo);
                 end;
-                SetJournalLineFieldsFromApplication;
+                SetJournalLineFieldsFromApplication();
 
                 if xRec.Amount <> 0 then
                     if not PaymentToleranceMgt.PmtTolGenJnl(Rec) then
                         exit;
 
                 if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice then
-                    UpdateAppliesToInvoiceID;
+                    UpdateAppliesToInvoiceID();
             end;
 
             trigger OnValidate()
@@ -702,7 +706,7 @@
                     PaymentToleranceMgt.SetSuppressCommit(true);
 
                 if "Applies-to Doc. No." <> xRec."Applies-to Doc. No." then
-                    ClearCustVendApplnEntry;
+                    ClearCustVendApplnEntry();
 
                 if ("Applies-to Doc. No." = '') and (xRec."Applies-to Doc. No." <> '') then begin
                     PaymentToleranceMgt.DelPmtTolApllnDocNo(Rec, xRec."Applies-to Doc. No.");
@@ -777,26 +781,26 @@
                 if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and (Amount <> 0) then begin
                     if xRec."Applies-to Doc. No." <> '' then
                         PaymentToleranceMgt.DelPmtTolApllnDocNo(Rec, xRec."Applies-to Doc. No.");
-                    SetApplyToAmount;
+                    SetApplyToAmount();
                     PaymentToleranceMgt.PmtTolGenJnl(Rec);
-                    xRec.ClearAppliedGenJnlLine;
+                    xRec.ClearAppliedGenJnlLine();
                 end;
 
                 case "Account Type" of
                     "Account Type"::Customer:
-                        GetCustLedgerEntry;
+                        GetCustLedgerEntry();
                     "Account Type"::Vendor:
-                        GetVendLedgerEntry;
+                        GetVendLedgerEntry();
                     "Account Type"::Employee:
-                        GetEmplLedgerEntry;
+                        GetEmplLedgerEntry();
                 end;
 
                 OnAppliesToDocNoOnValidateOnBeforeValidateApplyRequirements(Rec);
                 ValidateApplyRequirements(Rec);
-                SetJournalLineFieldsFromApplication;
+                SetJournalLineFieldsFromApplication();
 
                 if "Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice then
-                    UpdateAppliesToInvoiceID;
+                    UpdateAppliesToInvoiceID();
             end;
         }
         field(38; "Due Date"; Date)
@@ -837,7 +841,7 @@
                 CheckBalAccountNoOnJobNoValidation();
 
                 Job.Get("Job No.");
-                Job.TestBlocked;
+                Job.TestBlocked();
                 "Job Currency Code" := Job."Currency Code";
 
                 CreateDimFromDefaultDim(FieldNo("Job No."));
@@ -874,8 +878,8 @@
                     TestField(Amount);
                 end;
 
-                GetCurrency;
-                "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                GetCurrency();
+                "VAT Amount" := Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
 
                 if "VAT Amount" * Amount < 0 then
                     if "VAT Amount" > 0 then
@@ -889,16 +893,16 @@
                   "VAT Amount" -
                   Round(
                     Amount * "VAT %" / (100 + "VAT %"),
-                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(Text013, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
 
                 "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
-                UpdateSalesPurchLCY;
+                UpdateSalesPurchLCY();
 
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
                 end;
@@ -973,8 +977,8 @@
             trigger OnValidate()
             begin
                 if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') then
-                    ClearCustVendApplnEntry;
-                SetJournalLineFieldsFromApplication;
+                    ClearCustVendApplnEntry();
+                SetJournalLineFieldsFromApplication();
             end;
         }
         field(50; "Business Unit Code"; Code[20])
@@ -989,7 +993,7 @@
 
             trigger OnValidate()
             begin
-                UpdateJournalBatchID;
+                UpdateJournalBatchID();
             end;
         }
         field(52; "Reason Code"; Code[10])
@@ -1008,7 +1012,7 @@
                    ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]
                 then
                     TestField("Currency Code", '');
-                UpdateSalesPurchLCY;
+                UpdateSalesPurchLCY();
 
                 CheckRecurringDimensionsAndFilters();
                 ShowSetDimFiltersNotification();
@@ -1046,7 +1050,7 @@
                     TestField("Gen. Posting Type", "Gen. Posting Type"::" ");
                 if ("Gen. Posting Type" = "Gen. Posting Type"::Settlement) and (CurrFieldNo <> 0) then
                     Error(Text006, "Gen. Posting Type");
-                CheckVATInAlloc;
+                CheckVATInAlloc();
                 if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
                     Validate("VAT Prod. Posting Group");
                 if "Gen. Posting Type" <> "Gen. Posting Type"::Purchase then
@@ -1143,7 +1147,7 @@
                     then
                         Validate("Payment Terms Code", '');
 
-                UpdateSource;
+                UpdateSource();
                 if ("Account Type" <> "Account Type"::"Fixed Asset") and
                    ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
                 then begin
@@ -1166,7 +1170,7 @@
                     Validate("Payment Terms Code", '');
 
                 if "Bal. Account Type" = "Bal. Account Type"::"IC Partner" then begin
-                    GetTemplate;
+                    GetTemplate();
                     if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
                         FieldError("Bal. Account Type");
                 end;
@@ -1253,13 +1257,13 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 case "Bal. VAT Calculation Type" of
                     "Bal. VAT Calculation Type"::"Normal VAT",
                     "Bal. VAT Calculation Type"::"Reverse Charge VAT":
                         begin
                             "Bal. VAT Amount" :=
-                              Round(-Amount * "Bal. VAT %" / (100 + "Bal. VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                              Round(-Amount * "Bal. VAT %" / (100 + "Bal. VAT %"), Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                             "Bal. VAT Base Amount" :=
                               Round(-Amount - "Bal. VAT Amount", Currency."Amount Rounding Precision");
                         end;
@@ -1299,7 +1303,7 @@
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
 
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
-                UpdateSalesPurchLCY;
+                UpdateSalesPurchLCY();
             end;
         }
         field(69; "Bal. VAT Amount"; Decimal)
@@ -1323,9 +1327,9 @@
                     TestField(Amount);
                 end;
 
-                GetCurrency;
+                GetCurrency();
                 "Bal. VAT Amount" :=
-                  Round("Bal. VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                  Round("Bal. VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
 
                 if "Bal. VAT Amount" * Amount > 0 then
                     if "Bal. VAT Amount" > 0 then
@@ -1339,7 +1343,7 @@
                   "Bal. VAT Amount" -
                   Round(
                     -Amount * "Bal. VAT %" / (100 + "Bal. VAT %"),
-                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                 if Abs("Bal. VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(
                       Text013, FieldCaption("Bal. VAT Difference"), Currency."Max. VAT Difference Allowed");
@@ -1354,7 +1358,7 @@
                           "Bal. VAT Amount", "Currency Factor"));
                 "Bal. VAT Base Amount (LCY)" := -("Amount (LCY)" + "Bal. VAT Amount (LCY)");
 
-                UpdateSalesPurchLCY;
+                UpdateSalesPurchLCY();
             end;
         }
         field(70; "Bank Payment Type"; Enum "Bank Payment Type")
@@ -1385,7 +1389,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "VAT Base Amount" := Round("VAT Base Amount", Currency."Amount Rounding Precision");
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT",
@@ -1393,7 +1397,7 @@
                         Amount :=
                           Round(
                             "VAT Base Amount" * (1 + "VAT %" / 100),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "VAT Calculation Type"::"Full VAT":
                         if "VAT Base Amount" <> 0 then
                             FieldError(
@@ -1435,7 +1439,7 @@
 
             trigger OnValidate()
             begin
-                GetCurrency;
+                GetCurrency();
                 "Bal. VAT Base Amount" := Round("Bal. VAT Base Amount", Currency."Amount Rounding Precision");
                 case "Bal. VAT Calculation Type" of
                     "Bal. VAT Calculation Type"::"Normal VAT",
@@ -1443,7 +1447,7 @@
                         Amount :=
                           Round(
                             -"Bal. VAT Base Amount" * (1 + "Bal. VAT %" / 100),
-                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                     "Bal. VAT Calculation Type"::"Full VAT":
                         if "Bal. VAT Base Amount" <> 0 then
                             FieldError(
@@ -1504,6 +1508,11 @@
             trigger OnValidate()
             begin
                 Validate("Payment Terms Code");
+
+                
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
             end;
         }
         field(77; "External Document No."; Code[35])
@@ -1519,7 +1528,7 @@
                 if ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '') or
                    ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '')
                 then
-                    UpdateSource
+                    UpdateSource()
                 else
                     "Source No." := '';
             end;
@@ -1542,7 +1551,7 @@
                 if ("Account Type" <> "Account Type"::"G/L Account") and ("Account No." <> '') or
                    ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '')
                 then
-                    UpdateSource;
+                    UpdateSource();
             end;
         }
         field(80; "Posting No. Series"; Code[20])
@@ -1644,7 +1653,7 @@
 
                 Validate("VAT Prod. Posting Group");
 
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
                 end;
@@ -1666,7 +1675,7 @@
 
                 CheckEmptyVATProdPostingGroup();
 
-                CheckVATInAlloc;
+                CheckVATInAlloc();
 
                 "VAT %" := 0;
                 "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
@@ -1690,7 +1699,7 @@
                     end;
                 Validate("VAT %");
 
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
                 end;
@@ -1861,11 +1870,9 @@
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(114; "IC Direction"; Option)
+        field(114; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';
-            OptionCaption = 'Outgoing,Incoming';
-            OptionMembers = Outgoing,Incoming;
         }
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
@@ -1878,7 +1885,7 @@
             begin
                 if "Journal Template Name" <> '' then
                     if "IC Partner G/L Acc. No." <> '' then begin
-                        GetTemplate;
+                        GetTemplate();
                         GenJnlTemplate.TestField(Type, GenJnlTemplate.Type::Intercompany);
                         if ICGLAccount.Get("IC Partner G/L Acc. No.") then
                             ICGLAccount.TestField(Blocked, false);
@@ -1903,7 +1910,7 @@
 
             trigger OnValidate()
             begin
-                ReadGLSetup;
+                ReadGLSetup();
                 if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No." then
                     UpdateCountryCodeAndVATRegNo("Sell-to/Buy-from No.");
             end;
@@ -1962,6 +1969,17 @@
             AutoFormatType = 1;
             Caption = 'Orig. Pmt. Disc. Possible (LCY)';
         }
+        field(128; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = true;
+
+            trigger OnValidate()
+            begin
+                if "VAT Reporting Date" = 0D then
+                    InitVATDate();
+            end;
+        }
         field(160; "Job Queue Status"; Option)
         {
             Caption = 'Job Queue Status';
@@ -2010,7 +2028,7 @@
 
             trigger OnValidate()
             begin
-                UpdatePaymentMethodId;
+                UpdatePaymentMethodId();
             end;
         }
         field(173; "Applies-to Ext. Doc. No."; Code[35])
@@ -2086,6 +2104,11 @@
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Sell-to/Buy-from No."));
+        }
         field(1001; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
@@ -2107,7 +2130,7 @@
                     exit;
                 end;
 
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     CopyDimensionsFromJobTaskLine();
                     UpdatePricesFromJobJnlLine();
@@ -2136,7 +2159,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     if "Job Planning Line No." <> 0 then
                         Validate("Job Planning Line No.");
                     CreateTempJobJnlLine();
@@ -2159,7 +2182,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount %", "Job Line Discount %");
                     UpdatePricesFromJobJnlLine();
@@ -2174,7 +2197,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount Amount (LCY)", "Job Line Disc. Amount (LCY)");
                     UpdatePricesFromJobJnlLine();
@@ -2206,7 +2229,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Unit Price", "Job Unit Price");
                     UpdatePricesFromJobJnlLine();
@@ -2246,7 +2269,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount Amount", "Job Line Discount Amount");
                     UpdatePricesFromJobJnlLine();
@@ -2262,7 +2285,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Amount", "Job Line Amount");
                     UpdatePricesFromJobJnlLine();
@@ -2285,7 +2308,7 @@
 
             trigger OnValidate()
             begin
-                if JobTaskIsSet then begin
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Amount (LCY)", "Job Line Amount (LCY)");
                     UpdatePricesFromJobJnlLine();
@@ -2303,7 +2326,7 @@
             trigger OnValidate()
             begin
                 if ("Job Currency Code" <> xRec."Job Currency Code") or ("Job Currency Code" <> '') then
-                    if JobTaskIsSet then begin
+                    if JobTaskIsSet() then begin
                         CreateTempJobJnlLine();
                         UpdatePricesFromJobJnlLine();
                     end;
@@ -2501,8 +2524,8 @@
                     TestField("Insurance No.", '');
                 if "FA Posting Type" <> "FA Posting Type"::Maintenance then
                     TestField("Maintenance Code", '');
-                GetFAVATSetup;
-                GetFAAddCurrExchRate;
+                GetFAVATSetup();
+                GetFAAddCurrExchRate();
             end;
         }
         field(5602; "Depreciation Book Code"; Code[10])
@@ -2530,8 +2553,8 @@
                     FADeprBook.Get("Bal. Account No.", "Depreciation Book Code");
                     "Posting Group" := FADeprBook."FA Posting Group";
                 end;
-                GetFAVATSetup;
-                GetFAAddCurrExchRate;
+                GetFAVATSetup();
+                GetFAAddCurrExchRate();
             end;
         }
         field(5603; "Salvage Value"; Decimal)
@@ -2675,7 +2698,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAccountNo;
+                UpdateAccountNo();
             end;
         }
         field(8002; "Customer Id"; Guid)
@@ -2685,7 +2708,7 @@
 
             trigger OnValidate()
             begin
-                UpdateCustomerNo;
+                UpdateCustomerNo();
             end;
         }
         field(8003; "Applies-to Invoice Id"; Guid)
@@ -2744,7 +2767,7 @@
 
             trigger OnValidate()
             begin
-                UpdateVendorNo;
+                UpdateVendorNo();
             end;
         }
         field(11510; "Swiss QRBill"; Boolean)
@@ -2849,7 +2872,7 @@
         }
         key(Key10; "Journal Batch Name", "Journal Template Name")
         {
-            SumIndexFields = "Balance (LCY)";
+            SumIndexFields = "Balance (LCY)", Amount;
         }
         key(Key11; "Source Code", "Document No.", "Posting Date")
         {
@@ -2885,9 +2908,9 @@
 
         TestField("Check Printed", false);
 
-        ClearCustVendApplnEntry;
-        ClearAppliedGenJnlLine;
-        DeletePaymentFileErrors;
+        ClearCustVendApplnEntry();
+        ClearAppliedGenJnlLine();
+        DeletePaymentFileErrors();
         ClearDataExchangeEntries(false);
 
         GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
@@ -2917,7 +2940,7 @@
         GenJnlAlloc.LockTable();
         LockTable();
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
 
         GenJnlTemplate.Get("Journal Template Name");
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -2928,6 +2951,8 @@
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
+        InitVATDate();
+
         ShowSetDimFiltersNotification();
     end;
 
@@ -2936,7 +2961,7 @@
         IsHandled: Boolean;
     begin
         CheckJobQueueStatus(Rec);
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
 
         IsHandled := false;
         OnModifyOnBeforeTestCheckPrinted(Rec, IsHandled);
@@ -2944,7 +2969,7 @@
             TestField("Check Printed", false);
 
         if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') then
-            ClearCustVendApplnEntry;
+            ClearCustVendApplnEntry();
     end;
 
     trigger OnRename()
@@ -3047,6 +3072,7 @@
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         HideValidationDialog: Boolean;
+        SkipTaxCalculation: Boolean;
 
     procedure EmptyLine() Result: Boolean
     var
@@ -3060,6 +3086,11 @@
           (("Bal. Account No." = '') or not "System-Created Entry"));
     end;
 
+    local procedure InitVATDate()
+    begin
+        "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+    end;
+
     local procedure BlankJobNo(CurrentFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -3070,6 +3101,16 @@
             exit;
 
         Validate("Job No.", '');
+    end;
+
+    procedure CanCalculateTax(): Boolean
+    begin
+        exit(SkipTaxCalculation);
+    end;
+
+    procedure SetSkipTaxCalulation(Skip: Boolean)
+    begin
+        SkipTaxCalculation := Skip;
     end;
 
     procedure UpdateLineBalance()
@@ -3101,7 +3142,7 @@
         Clear(GenJnlAlloc);
         GenJnlAlloc.UpdateAllocations(Rec);
 
-        UpdateSalesPurchLCY;
+        UpdateSalesPurchLCY();
 
         if ("Deferral Code" <> '') and (Amount <> xRec.Amount) and ((Amount <> 0) and (xRec.Amount <> 0)) then
             Validate("Deferral Code");
@@ -3123,17 +3164,19 @@
         if GenJnlLine.FindFirst() then begin
             "Posting Date" := LastGenJnlLine."Posting Date";
             "Document Date" := LastGenJnlLine."Posting Date";
+            "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
             "Document No." := LastGenJnlLine."Document No.";
             IsHandled := false;
             OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled, Rec, GenJnlBatch);
             if BottomLine and not IsHandled and
                (Balance - LastGenJnlLine."Balance (LCY)" = 0) and
-               not LastGenJnlLine.EmptyLine
+               not LastGenJnlLine.EmptyLine()
             then
                 IncrementDocumentNo(GenJnlBatch, "Document No.");
         end else begin
-            "Posting Date" := WorkDate;
-            "Document Date" := WorkDate;
+            "Posting Date" := WorkDate();
+            "Document Date" := WorkDate();
+            "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
             IsHandled := false;
             OnSetUpNewLineOnBeforeSetDocumentNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled, Rec);
             if not IsHandled then
@@ -3173,16 +3216,20 @@
                 SuggestBalancingAmount(LastGenJnlLine, BottomLine);
         end;
 
-        UpdateJournalBatchID;
+        UpdateJournalBatchID();
 
         OnAfterSetupNewLine(Rec, GenJnlTemplate, GenJnlBatch, LastGenJnlLine, Balance, BottomLine);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by InitNewLine(PostingDate: Date; DocumentDate: Date; VATDate: Date; PostingDescription: Text[100]; ShortcutDim1Code: Code[20]; ShortcutDim2Code: Code[20]; DimSetID: Integer; ReasonCode: Code[10])', '21.0')]
     procedure InitNewLine(PostingDate: Date; DocumentDate: Date; PostingDescription: Text[100]; ShortcutDim1Code: Code[20]; ShortcutDim2Code: Code[20]; DimSetID: Integer; ReasonCode: Code[10])
     begin
-        Init;
+        Init();
         "Posting Date" := PostingDate;
         "Document Date" := DocumentDate;
+        if "VAT Reporting Date" = 0D then
+            "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
         Description := PostingDescription;
         "Shortcut Dimension 1 Code" := ShortcutDim1Code;
         "Shortcut Dimension 2 Code" := ShortcutDim2Code;
@@ -3190,6 +3237,26 @@
         "Reason Code" := ReasonCode;
         OnAfterInitNewLine(Rec);
     end;
+#endif
+
+    procedure InitNewLine(PostingDate: Date; DocumentDate: Date; VATDate: Date; PostingDescription: Text[100]; ShortcutDim1Code: Code[20]; ShortcutDim2Code: Code[20]; DimSetID: Integer; ReasonCode: Code[10])
+    begin
+        Init();
+        "Posting Date" := PostingDate;
+        "Document Date" := DocumentDate;
+        if VATDate = 0D then
+            "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date")
+        else
+            "VAT Reporting Date" := VATDate;
+        Description := PostingDescription;
+        "Shortcut Dimension 1 Code" := ShortcutDim1Code;
+        "Shortcut Dimension 2 Code" := ShortcutDim2Code;
+        "Dimension Set ID" := DimSetID;
+        "Reason Code" := ReasonCode;
+        OnAfterInitNewLine(Rec);
+    end;
+
+
 
     local procedure CheckAccountTypeOnJobValidation()
     var
@@ -3352,7 +3419,7 @@
                         exit;
                     if not First and
                         (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
-                        not LastGenJnlLine.EmptyLine
+                        not LastGenJnlLine.EmptyLine()
                     then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
@@ -3494,14 +3561,14 @@
            "Additional-Currency Posting"::"Additional-Currency Amount Only"
         then begin
             if GLSetup."Additional Reporting Currency" = '' then
-                ReadGLSetup;
+                ReadGLSetup();
             CurrencyCode := GLSetup."Additional Reporting Currency";
         end else
             CurrencyCode := "Currency Code";
 
         if CurrencyCode = '' then begin
             Clear(Currency);
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         end else
             if CurrencyCode <> Currency.Code then begin
                 Currency.Get(CurrencyCode);
@@ -3544,7 +3611,7 @@
 
     local procedure CheckGLAcc(GLAcc: Record "G/L Account")
     begin
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         if GLAcc."Direct Posting" or ("Journal Template Name" = '') or "System-Created Entry" then
             exit;
         if "Posting Date" <> 0D then
@@ -3690,7 +3757,7 @@
             AccType::Customer:
                 if xRec."Applies-to ID" <> '' then begin
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
-                        ClearCustApplnEntryFields;
+                        ClearCustApplnEntryFields();
                         TempCustLedgEntry.DeleteAll();
                         OnClearCustVendApplnEntryOnBeforeCustEntrySetApplIDSetApplId(Rec, CustLedgEntry);
                         CustEntrySetApplID.SetApplId(CustLedgEntry, TempCustLedgEntry, '');
@@ -3698,33 +3765,33 @@
                 end else
                     if xRec."Applies-to Doc. No." <> '' then
                         if FindFirstCustLedgEntryWithAppliesToDocNo(AccNo, xRec."Applies-to Doc. No.") then begin
-                            ClearCustApplnEntryFields;
+                            ClearCustApplnEntryFields();
                             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
                         end;
             AccType::Vendor:
                 if xRec."Applies-to ID" <> '' then begin
                     if FindFirstVendLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
-                        ClearVendApplnEntryFields;
+                        ClearVendApplnEntryFields();
                         TempVendLedgEntry.DeleteAll();
                         VendEntrySetApplID.SetApplId(VendLedgEntry, TempVendLedgEntry, '');
                     end
                 end else
                     if xRec."Applies-to Doc. No." <> '' then
                         if FindFirstVendLedgEntryWithAppliesToDocNo(AccNo, xRec."Applies-to Doc. No.") then begin
-                            ClearVendApplnEntryFields;
+                            ClearVendApplnEntryFields();
                             CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                         end;
             AccType::Employee:
                 if xRec."Applies-to ID" <> '' then begin
                     if FindFirstEmplLedgEntryWithAppliesToID(AccNo, xRec."Applies-to ID") then begin
-                        ClearEmplApplnEntryFields;
+                        ClearEmplApplnEntryFields();
                         TempEmplLedgEntry.DeleteAll();
                         EmplEntrySetApplID.SetApplId(EmplLedgEntry, TempEmplLedgEntry, '');
                     end
                 end else
                     if xRec."Applies-to Doc. No." <> '' then
                         if FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo, xRec."Applies-to Doc. No.") then begin
-                            ClearEmplApplnEntryFields;
+                            ClearEmplApplnEntryFields();
                             CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmplLedgEntry);
                         end;
         end;
@@ -3867,7 +3934,7 @@
     var
         IsHandled: Boolean;
     begin
-        GetCurrency;
+        GetCurrency();
         if "Currency Code" = '' then
             "Amount (LCY)" := Amount
         else
@@ -3893,13 +3960,13 @@
 
         Validate("VAT %");
         Validate("Bal. VAT %");
-        UpdateLineBalance;
+        UpdateLineBalance();
         if "Deferral Code" <> '' then
             Validate("Deferral Code");
 
         UpdateApplyToAmount();
 
-        if JobTaskIsSet then begin
+        if JobTaskIsSet() then begin
             CreateTempJobJnlLine();
             UpdatePricesFromJobJnlLine();
         end;
@@ -3924,7 +3991,7 @@
             if CurrFieldNo = 0 then                     // batch job
                 PaymentToleranceMgt.SetBatchMode(true);
             if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then
-                SetApplyToAmount;
+                SetApplyToAmount();
             if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
                 PaymentToleranceMgt.PmtTolGenJnl(Rec);
         end;
@@ -4000,16 +4067,16 @@
             exit;
         FABalAcc := ("Bal. Account Type" = "Bal. Account Type"::"Fixed Asset");
         if not FABalAcc then begin
-            ClearPostingGroups;
+            ClearPostingGroups();
             "Tax Group Code" := '';
             Validate("VAT Prod. Posting Group");
         end;
         if FABalAcc then begin
-            ClearBalancePostingGroups;
+            ClearBalancePostingGroups();
             "Bal. Tax Group Code" := '';
             Validate("Bal. VAT Prod. Posting Group");
         end;
-        if CopyVATSetupToJnlLines then
+        if CopyVATSetupToJnlLines() then
             if (("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") or
                 ("FA Posting Type" = "FA Posting Type"::Disposal) or
                 ("FA Posting Type" = "FA Posting Type"::Maintenance)) and
@@ -4018,14 +4085,14 @@
                 if FAPostingGr.GetPostingGroup("Posting Group", "Depreciation Book Code") then begin
                     case "FA Posting Type" of
                         "FA Posting Type"::"Acquisition Cost":
-                            LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccount);
+                            LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccount());
                         "FA Posting Type"::Disposal:
-                            LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccountOnDisposal);
+                            LocalGLAcc.Get(FAPostingGr.GetAcquisitionCostAccountOnDisposal());
                         "FA Posting Type"::Maintenance:
-                            LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
+                            LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount());
                     end;
                     OnGetFAVATSetupOnBeforeCheckGLAcc(Rec, LocalGLAcc);
-                    LocalGLAcc.CheckGLAcc;
+                    LocalGLAcc.CheckGLAcc();
                     if not FABalAcc then begin
                         "Gen. Posting Type" := LocalGLAcc."Gen. Posting Type";
                         "Gen. Bus. Posting Group" := LocalGLAcc."Gen. Bus. Posting Group";
@@ -4061,7 +4128,7 @@
             DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
 
             case true of
-                DefaultFADeprBook.FindFirst:
+                DefaultFADeprBook.FindFirst():
                     "Depreciation Book Code" := DefaultFADeprBook."Depreciation Book Code";
                 FADeprBook.Get(FANo, FASetup."Default Depr. Book"):
                     "Depreciation Book Code" := FASetup."Default Depr. Book";
@@ -4148,7 +4215,7 @@
                 else
                     Validate("Account No.", AccNo);
             end;
-            SetAmountWithCustLedgEntry;
+            SetAmountWithCustLedgEntry();
             UpdateDocumentTypeAndAppliesTo(CustLedgEntry."Document Type", CustLedgEntry."Document No.");
             OnLookUpAppliesToDocCustOnAfterUpdateDocumentTypeAndAppliesTo(Rec, CustLedgEntry);
         end;
@@ -4234,7 +4301,7 @@
                 else
                     Validate("Account No.", AccNo);
             end;
-            SetAmountWithVendLedgEntry;
+            SetAmountWithVendLedgEntry();
             UpdateDocumentTypeAndAppliesTo(VendLedgEntry."Document Type", VendLedgEntry."Document No.");
             if "Document Type" = "Document Type"::Payment then
                 if "Recipient Bank Account" = '' then
@@ -4315,7 +4382,7 @@
         ApplyEmplEntries.SetTableView(EmplLedgEntry);
         ApplyEmplEntries.SetRecord(EmplLedgEntry);
         ApplyEmplEntries.LookupMode(true);
-        if ApplyEmplEntries.RunModal = ACTION::LookupOK then begin
+        if ApplyEmplEntries.RunModal() = ACTION::LookupOK then begin
             ApplyEmplEntries.GetRecord(EmplLedgEntry);
             if AccNo = '' then begin
                 AccNo := EmplLedgEntry."Employee No.";
@@ -4324,7 +4391,7 @@
                 else
                     Validate("Account No.", AccNo);
             end;
-            SetAmountWithEmplLedgEntry;
+            SetAmountWithEmplLedgEntry();
             UpdateDocumentTypeAndAppliesTo(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.");
             OnLookUpAppliesToDocEmplOnAfterUpdateDocumentTypeAndAppliesTo(Rec, EmplLedgEntry);
         end;
@@ -4484,7 +4551,7 @@
             exit;
         end;
 
-        ReadGLSetup;
+        ReadGLSetup();
         case true of
             ("Account Type" = "Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Customer):
                 begin
@@ -4528,7 +4595,7 @@
         TestField("Posting Date");
 
         Clear(TempJobJnlLine);
-        TempJobJnlLine.DontCheckStdCost;
+        TempJobJnlLine.DontCheckStdCost();
         OnCreateTempJobJnlLimeOnBeforeValidateFields(TempJobJnlLine, Rec, XRec, CurrFieldNo);
 
         TempJobJnlLine.Validate("Job No.", "Job No.");
@@ -4941,7 +5008,7 @@
     var
         DueDate: Date;
     begin
-        DueDate := GetAppliesToDocDueDate;
+        DueDate := GetAppliesToDocDueDate();
         OverdueWarningText := '';
         if (DueDate <> 0D) and (DueDate < "Posting Date") then begin
             OverdueWarningText := DueDateMsg;
@@ -4964,7 +5031,7 @@
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJournalLine.SetRange("Data Exch. Entry No.", "Data Exch. Entry No.");
         GenJournalLine.SetFilter("Line No.", '<>%1', "Line No.");
-        if GenJournalLine.IsEmpty or DeleteHeaderEntries then
+        if GenJournalLine.IsEmpty() or DeleteHeaderEntries then
             DataExchField.DeleteRelatedRecords("Data Exch. Entry No.", 0);
     end;
 
@@ -4994,7 +5061,7 @@
             exit('');
 
         IncomingDocument.Get("Incoming Document Entry No.");
-        exit(IncomingDocument.GetURL);
+        exit(IncomingDocument.GetURL());
     end;
 
     procedure InsertPaymentFileError(Text: Text)
@@ -5063,9 +5130,9 @@
         exit(false);
     end;
 
-    local procedure UpdateDescription(Name: Text[100])
+    protected procedure UpdateDescription(Name: Text[100])
     begin
-        if not IsAdHocDescription then
+        if not IsAdHocDescription() then
             Description := Name;
     end;
 
@@ -5107,7 +5174,7 @@
             xRec."Account Type"::"IC Partner":
                 exit(ICPartner.Get(xRec."Account No.") and (ICPartner.Name <> Description));
             xRec."Account Type"::Employee:
-                exit(Employee.Get(xRec."Account No.") and (Employee.FullName <> Description));
+                exit(Employee.Get(xRec."Account No.") and (Employee.FullName() <> Description));
         end;
         exit(false);
     end;
@@ -5219,7 +5286,6 @@
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure SetJournalLineFieldsFromApplication()
     var
         AccType: Enum "Gen. Journal Account Type";
@@ -5307,7 +5373,7 @@
         CustLedgEntry.SetRange("Applies-to ID", AppliesToID);
         CustLedgEntry.SetRange(Open, true);
         OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(Rec, CustLedgEntry);
-        exit(CustLedgEntry.FindFirst)
+        exit(CustLedgEntry.FindFirst());
     end;
 
     local procedure FindFirstCustLedgEntryWithAppliesToDocNo(AccNo: Code[20]; AppliestoDocNo: Code[20]): Boolean
@@ -5319,7 +5385,7 @@
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange(Open, true);
         OnFindFirstCustLedgEntryWithAppliesToDocNoOnAfterSetFilters(Rec, AccNo, CustLedgEntry);
-        exit(CustLedgEntry.FindFirst)
+        exit(CustLedgEntry.FindFirst());
     end;
 
     local procedure FindFirstVendLedgEntryWithAppliesToID(AccNo: Code[20]; AppliesToID: Code[50]): Boolean
@@ -5330,7 +5396,7 @@
         VendLedgEntry.SetRange("Applies-to ID", AppliesToID);
         VendLedgEntry.SetRange(Open, true);
         OnFindFirstVendLedgEntryWithAppliesToIDOnAfterSetFilters(Rec, VendLedgEntry);
-        exit(VendLedgEntry.FindFirst)
+        exit(VendLedgEntry.FindFirst());
     end;
 
     local procedure FindFirstVendLedgEntryWithAppliesToDocNo(AccNo: Code[20]; AppliestoDocNo: Code[20]): Boolean
@@ -5342,7 +5408,7 @@
         VendLedgEntry.SetRange("Vendor No.", AccNo);
         VendLedgEntry.SetRange(Open, true);
         OnFindFirstVendLedgEntryWithAppliesToDocNoOnAfterSetFilters(Rec, AccNo, VendLedgEntry);
-        exit(VendLedgEntry.FindFirst)
+        exit(VendLedgEntry.FindFirst());
     end;
 
     local procedure FindFirstEmplLedgEntryWithAppliesToID(AccNo: Code[20]; AppliesToID: Code[50]): Boolean
@@ -5352,7 +5418,7 @@
         EmplLedgEntry.SetRange("Employee No.", AccNo);
         EmplLedgEntry.SetRange("Applies-to ID", AppliesToID);
         EmplLedgEntry.SetRange(Open, true);
-        exit(EmplLedgEntry.FindFirst)
+        exit(EmplLedgEntry.FindFirst());
     end;
 
     local procedure FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo: Code[20]; AppliestoDocNo: Code[20]): Boolean
@@ -5363,7 +5429,7 @@
         EmplLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
         EmplLedgEntry.SetRange("Employee No.", AccNo);
         EmplLedgEntry.SetRange(Open, true);
-        exit(EmplLedgEntry.FindFirst)
+        exit(EmplLedgEntry.FindFirst());
     end;
 
     protected procedure ClearPostingGroups()
@@ -5402,7 +5468,7 @@
         GenJnlPostViaJobQueue: Codeunit "Gen. Jnl.-Post via Job Queue";
     begin
         GenJnlPostViaJobQueue.CancelQueueEntry(Rec);
-        Reset;
+        Reset();
         FilterGroup(2);
         SetRange("Journal Template Name", "Journal Template Name");
         SetRange("Journal Batch Name", "Journal Batch Name");
@@ -5410,13 +5476,13 @@
 
     local procedure CleanLine()
     begin
-        UpdateLineBalance;
-        UpdateSource;
+        UpdateLineBalance();
+        UpdateSource();
         CreateDimFromDefaultDim(0);
         if not ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]) then
             "Recipient Bank Account" := '';
         if xRec."Account No." <> '' then begin
-            ClearPostingGroups;
+            ClearPostingGroups();
             "Tax Area Code" := '';
             "Tax Liable" := false;
             "Tax Group Code" := '';
@@ -5428,11 +5494,11 @@
 
         case "Account Type" of
             "Account Type"::"G/L Account":
-                UpdateAccountID;
+                UpdateAccountID();
             "Account Type"::Customer:
-                UpdateCustomerID;
+                UpdateCustomerID();
             "Account Type"::"Bank Account":
-                UpdateBankAccountID;
+                UpdateBankAccountID();
         end;
 
         OnAfterCleanLine(Rec, xRec);
@@ -5456,13 +5522,13 @@
         if not IsEmpty() then
             exit(false);
 
-        Reset;
+        Reset();
         if FindLast() then;
         "Line No." += 10000;
 
         "Account Type" := AccountType;
         "Account No." := AccountNo;
-        Insert;
+        Insert();
         exit(true);
     end;
 
@@ -5492,7 +5558,7 @@
 
     procedure IsExportedToPaymentFile(): Boolean
     begin
-        exit(IsPaymentJournallLineExported or IsAppliedToVendorLedgerEntryExported);
+        exit(IsPaymentJournallLineExported() or IsAppliedToVendorLedgerEntryExported());
     end;
 
     procedure IsPaymentJournallLineExported(): Boolean
@@ -5506,7 +5572,7 @@
             OldFilterGroup := FilterGroup;
             FilterGroup := 10;
             SetRange("Exported to Payment File", true);
-            HasExportedLines := not IsEmpty;
+            HasExportedLines := not IsEmpty();
             SetRange("Exported to Payment File");
             FilterGroup := OldFilterGroup;
         end;
@@ -5522,7 +5588,7 @@
 
         if GenJnlLine.FindSet() then
             repeat
-                if GenJnlLine.IsApplied then begin
+                if GenJnlLine.IsApplied() then begin
                     VendLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
                     if GenJnlLine."Applies-to Doc. No." <> '' then begin
                         VendLedgerEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
@@ -5572,8 +5638,8 @@
             exit(false);
 
         NewPostingDate := CalcDate(DateOffset, DueDate);
-        if NewPostingDate < WorkDate then begin
-            Validate("Posting Date", WorkDate);
+        if NewPostingDate < WorkDate() then begin
+            Validate("Posting Date", WorkDate());
             exit(true);
         end;
 
@@ -5594,11 +5660,11 @@
             Window.Open(CalcPostDateMsg);
             repeat
                 Evaluate(EmptyDateFormula, '<0D>');
-                GenJnlLine.SetPostingDateAsDueDate(GenJnlLine.GetAppliesToDocDueDate, EmptyDateFormula);
+                GenJnlLine.SetPostingDateAsDueDate(GenJnlLine.GetAppliesToDocDueDate(), EmptyDateFormula);
                 GenJnlLine.Modify(true);
                 Window.Update(1, GenJnlLine."Document No.");
             until GenJnlLine.Next() = 0;
-            Window.Close;
+            Window.Close();
         end;
     end;
 
@@ -5626,15 +5692,15 @@
         IsHandled := false;
         OnExportPaymentFileOnBeforeCheckDocNoOnLines(Rec, IsHandled);
         if not IsHandled then
-            CheckDocNoOnLines;
-        if IsExportedToPaymentFile then
+            CheckDocNoOnLines();
+        if IsExportedToPaymentFile() then
             if not ConfirmManagement.GetResponseOrDefault(ExportAgainQst, true) then
                 exit;
 
         OnExportPaymentFileOnBeforeRunExport(Rec);
         BankAcc.Get("Bal. Account No.");
-        if BankAcc.GetPaymentExportCodeunitID > 0 then
-            CODEUNIT.Run(BankAcc.GetPaymentExportCodeunitID, Rec)
+        if BankAcc.GetPaymentExportCodeunitID() > 0 then
+            CODEUNIT.Run(BankAcc.GetPaymentExportCodeunitID(), Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", Rec);
         OnExportPaymentFileOnAfterRunExport(Rec);
@@ -5902,6 +5968,12 @@
         "On Hold" := PurchHeader."On Hold";
         if "Account Type" = "Account Type"::Vendor then
             "Posting Group" := PurchHeader."Vendor Posting Group";
+        ReadGLSetup();
+        if GLSetup."Journal Templ. Name Mandatory" then
+            "Journal Template Name" := PurchHeader."Journal Templ. Name";
+
+        if PurchHeader."Remit-to Code" <> '' then
+            "Remit-to Code" := PurchHeader."Remit-to Code";
 
         OnAfterCopyGenJnlLineFromPurchHeader(PurchHeader, Rec);
     end;
@@ -5998,6 +6070,9 @@
         "On Hold" := SalesHeader."On Hold";
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
+        ReadGLSetup();
+        if GLSetup."Journal Templ. Name Mandatory" then
+            "Journal Template Name" := SalesHeader."Journal Templ. Name";
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -6081,6 +6156,9 @@
         "Ship-to/Order Address Code" := ServiceHeader."Ship-to Code";
         "EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
         "Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
+        ReadGLSetup();
+        if GLSetup."Journal Templ. Name Mandatory" then
+            "Journal Template Name" := ServiceHeader."Journal Templ. Name";
         if ServiceHeader."Currency Code" = '' then
             "Currency Factor" := 1
         else
@@ -6126,6 +6204,9 @@
         "System-Created Entry" := true;
         "Financial Void" := true;
         Correction := true;
+        ReadGLSetup();
+        if GLSetup."Journal Templ. Name Mandatory" then
+            "Journal Template Name" := CustLedgEntry."Journal Templ. Name";
 
         OnAfterCopyGenJnlLineFromPaymentCustLedgEntry(CustLedgEntry, Rec);
     end;
@@ -6145,6 +6226,9 @@
         "System-Created Entry" := true;
         "Financial Void" := true;
         Correction := true;
+        ReadGLSetup();
+        if GLSetup."Journal Templ. Name Mandatory" then
+            "Journal Template Name" := VendLedgEntry."Journal Templ. Name";
 
         OnAfterCopyGenJnlLineFromPaymentVendLedgEntry(VendLedgEntry, Rec);
     end;
@@ -6420,7 +6504,7 @@
         end;
         if "Bal. Account No." = '' then
             "Currency Code" := '';
-        if CopyVATSetupToJnlLines then begin
+        if CopyVATSetupToJnlLines() then begin
             "Gen. Posting Type" := GLAcc."Gen. Posting Type";
             "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
             "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
@@ -6432,7 +6516,7 @@
         "Tax Group Code" := GLAcc."Tax Group Code";
         if "Posting Date" <> 0D then
             if "Posting Date" = ClosingDate("Posting Date") then
-                ClearPostingGroups;
+                ClearPostingGroups();
         Validate("Deferral Code", GLAcc."Default Deferral Template Code");
 
         if CheckGLForeignCurrMgtPermission or (CopyStr(SerialNumber, 7, 3) = '000') then
@@ -6469,7 +6553,7 @@
             "Salespers./Purch. Code" := '';
             "Payment Terms Code" := '';
         end;
-        if CopyVATSetupToJnlLines then begin
+        if CopyVATSetupToJnlLines() then begin
             "Bal. Gen. Posting Type" := GLAcc."Gen. Posting Type";
             "Bal. Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
             "Bal. Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
@@ -6481,7 +6565,7 @@
         "Bal. Tax Group Code" := GLAcc."Tax Group Code";
         if "Posting Date" <> 0D then
             if "Posting Date" = ClosingDate("Posting Date") then
-                ClearBalancePostingGroups;
+                ClearBalancePostingGroups();
 
         if CheckGLForeignCurrMgtPermission then
             GLForeignCurrMgt.GetCurrCode("Bal. Account No.", Rec);
@@ -6507,10 +6591,10 @@
         Validate("Sell-to/Buy-from No.", "Account No.");
         if not SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
             "Currency Code" := Cust."Currency Code";
-        ClearPostingGroups;
+        ClearPostingGroups();
         CheckConfirmDifferentCustomerAndBillToCustomer(Cust, "Account No.");
         Validate("Payment Terms Code");
-        CheckPaymentTolerance;
+        CheckPaymentTolerance();
 
         OnAfterAccountNoOnValidateGetCustomerAccount(Rec, Cust, CurrFieldNo);
     end;
@@ -6528,7 +6612,7 @@
         if (Cust."Bill-to Customer No." <> '') and (Cust."Bill-to Customer No." <> AccountNo) and not HideValidationDialog then
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text014, Cust.TableCaption, Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
+                   Text014, Cust.TableCaption(), Cust."No.", Cust.FieldCaption("Bill-to Customer No."),
                    Cust."Bill-to Customer No."), true)
             then
                 Error('');
@@ -6553,10 +6637,10 @@
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := Cust."Currency Code";
         CheckSetCurrencyCodeForBankCustLine(Cust);
-        ClearBalancePostingGroups;
+        ClearBalancePostingGroups();
         CheckConfirmDifferentCustomerAndBillToCustomer(Cust, "Bal. Account No.");
         Validate("Payment Terms Code");
-        CheckPaymentTolerance;
+        CheckPaymentTolerance();
 
         OnAfterAccountNoOnValidateGetCustomerBalAccount(Rec, Cust, CurrFieldNo);
     end;
@@ -6595,10 +6679,10 @@
         Validate("Sell-to/Buy-from No.", "Account No.");
         if not SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
             "Currency Code" := Vend."Currency Code";
-        ClearPostingGroups;
+        ClearPostingGroups();
         CheckConfirmDifferentVendorAndPayToVendor(Vend, "Account No.");
         Validate("Payment Terms Code");
-        CheckPaymentTolerance;
+        CheckPaymentTolerance();
         if VendBank.Get("Account No.", Vend."Preferred Bank Account Code") then
             "Payment Fee Code" := VendBank."Payment Fee Code";
         if DTASetup.ReadPermission then
@@ -6638,7 +6722,7 @@
         "Posting Group" := Employee."Employee Posting Group";
         SetSalespersonPurchaserCode(Employee."Salespers./Purch. Code", "Salespers./Purch. Code");
         "Currency Code" := '';
-        ClearPostingGroups;
+        ClearPostingGroups();
 
         OnAfterAccountNoOnValidateGetEmployeeAccount(Rec, Employee);
     end;
@@ -6661,10 +6745,10 @@
         if ("Account No." = '') or ("Account Type" = "Account Type"::"G/L Account") then
             "Currency Code" := Vend."Currency Code";
         CheckSetCurrencyCodeForBankVendLine(Vend);
-        ClearBalancePostingGroups;
+        ClearBalancePostingGroups();
         CheckConfirmDifferentVendorAndPayToVendor(Vend, "Bal. Account No.");
         Validate("Payment Terms Code");
-        CheckPaymentTolerance;
+        CheckPaymentTolerance();
 
         OnAfterAccountNoOnValidateGetVendorBalAccount(Rec, Vend, CurrFieldNo);
     end;
@@ -6693,7 +6777,7 @@
         "Posting Group" := Employee."Employee Posting Group";
         SetSalespersonPurchaserCode(Employee."Salespers./Purch. Code", "Salespers./Purch. Code");
         "Currency Code" := '';
-        ClearBalancePostingGroups;
+        ClearBalancePostingGroups();
 
         OnAfterAccountNoOnValidateGetEmployeeBalAccount(Rec, Employee, CurrFieldNo);
     end;
@@ -6704,7 +6788,7 @@
     begin
         BankAcc.Get("Account No.");
         BankAcc.TestField(Blocked, false);
-        if ReplaceDescription then
+        if ReplaceDescription() then
             UpdateDescription(BankAcc.Name);
         if ("Bal. Account No." = '') or
            ("Bal. Account Type" in
@@ -6722,7 +6806,7 @@
                 BankAcc.TestField("Currency Code", "Currency Code")
             else
                 "Currency Code" := BankAcc."Currency Code";
-        ClearPostingGroups;
+        ClearPostingGroups();
 
         OnAfterAccountNoOnValidateGetBankAccount(Rec, BankAcc, CurrFieldNo);
     end;
@@ -6747,13 +6831,13 @@
             if "Account No." = '' then
                 "Currency Code" := ''
             else
-                ClearCurrencyCode
+                ClearCurrencyCode()
         else
             if SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
                 BankAcc.TestField("Currency Code", "Currency Code")
             else
                 "Currency Code" := BankAcc."Currency Code";
-        ClearBalancePostingGroups;
+        ClearBalancePostingGroups();
 
         OnAfterAccountNoOnValidateGetBankBalAccount(Rec, BankAcc, CurrFieldNo);
     end;
@@ -6768,8 +6852,8 @@
         FA.TestField("Budgeted Asset", false);
         UpdateDescription(FA.Description);
         GetFADeprBook("Account No.");
-        GetFAVATSetup;
-        GetFAAddCurrExchRate;
+        GetFAVATSetup();
+        GetFAAddCurrExchRate();
 
         OnAfterAccountNoOnValidateGetFAAccount(Rec, FA);
     end;
@@ -6784,8 +6868,8 @@
         FA.TestField("Budgeted Asset", false);
         UpdateDescriptionFromBalAccount(FA.Description);
         GetFADeprBook("Bal. Account No.");
-        GetFAVATSetup;
-        GetFAAddCurrExchRate;
+        GetFAVATSetup();
+        GetFAAddCurrExchRate();
 
         OnAfterAccountNoOnValidateGetFABalAccount(Rec, FA);
     end;
@@ -6795,13 +6879,13 @@
         ICPartner: Record "IC Partner";
     begin
         ICPartner.Get("Account No.");
-        ICPartner.CheckICPartner;
+        ICPartner.CheckICPartner();
         UpdateDescription(ICPartner.Name);
         if ("Bal. Account No." = '') or ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") then
             "Currency Code" := ICPartner."Currency Code";
         if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Currency Code" = '') then
             "Currency Code" := ICPartner."Currency Code";
-        ClearPostingGroups;
+        ClearPostingGroups();
         "IC Partner Code" := "Account No.";
 
         OnAfterAccountNoOnValidateGetICPartnerAccount(Rec, ICPartner);
@@ -6818,7 +6902,7 @@
             "Currency Code" := ICPartner."Currency Code";
         if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
             "Currency Code" := ICPartner."Currency Code";
-        ClearBalancePostingGroups;
+        ClearBalancePostingGroups();
         "IC Partner Code" := "Bal. Account No.";
 
         OnAfterAccountNoOnValidateGetICPartnerBalAccount(Rec, ICPartner);
@@ -6867,7 +6951,7 @@
         // Inserting additional fields in Fixed Asset line required for acquisition
         if FAPostingGr.GetPostingGroup(FAGenJournalLine."Posting Group", FAGenJournalLine."Depreciation Book Code") then begin
             LocalGLAcc.Get(FAPostingGr."Acquisition Cost Account");
-            LocalGLAcc.CheckGLAcc;
+            LocalGLAcc.CheckGLAcc();
             FAGenJournalLine.Validate("Gen. Posting Type", LocalGLAcc."Gen. Posting Type");
             FAGenJournalLine.Validate("Gen. Bus. Posting Group", LocalGLAcc."Gen. Bus. Posting Group");
             FAGenJournalLine.Validate("Gen. Prod. Posting Group", LocalGLAcc."Gen. Prod. Posting Group");
@@ -6911,10 +6995,10 @@
     var
         AccountNo: Code[20];
     begin
-        AccountNo := GetFilterAccountNo;
+        AccountNo := GetFilterAccountNo();
         if AccountNo = '' then begin
             FilterGroup(2);
-            AccountNo := GetFilterAccountNo;
+            AccountNo := GetFilterAccountNo();
             FilterGroup(0);
         end;
         if AccountNo <> '' then
@@ -7018,7 +7102,7 @@
                             if Customer."Privacy Blocked" then
                                 Error(Customer.GetPrivacyBlockedGenericErrorText(Customer));
                             if Customer.Blocked = Customer.Blocked::All then
-                                Error(BlockedErr, Customer.Blocked, Customer.TableCaption, Customer."No.");
+                                Error(BlockedErr, Customer.Blocked, Customer.TableCaption(), Customer."No.");
                         end;
                     "Account Type"::Vendor:
                         begin
@@ -7026,7 +7110,7 @@
                             if Vendor."Privacy Blocked" then
                                 Error(Vendor.GetPrivacyBlockedGenericErrorText(Vendor));
                             if Vendor.Blocked in [Vendor.Blocked::All, Vendor.Blocked::Payment] then
-                                Error(BlockedErr, Vendor.Blocked, Vendor.TableCaption, Vendor."No.");
+                                Error(BlockedErr, Vendor.Blocked, Vendor.TableCaption(), Vendor."No.");
                         end;
                     "Account Type"::Employee:
                         begin
@@ -7037,7 +7121,7 @@
                     else
                         OnCheckIfPrivacyBlockedCaseElse(Rec);
                 end;
-            until Next <= 0;
+            until Next() = 0;
         end;
     end;
 
@@ -8269,8 +8353,8 @@
 
     local procedure UpdateDescriptionWithEmployeeName(Employee: Record Employee)
     begin
-        if StrLen(Employee.FullName) <= MaxStrLen(Description) then
-            UpdateDescription(CopyStr(Employee.FullName, 1, MaxStrLen(Description)))
+        if StrLen(Employee.FullName()) <= MaxStrLen(Description) then
+            UpdateDescription(CopyStr(Employee.FullName(), 1, MaxStrLen(Description)))
         else
             UpdateDescription(Employee.Initials);
     end;
@@ -8371,7 +8455,7 @@
         GenJnlDimFilter.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlDimFilter.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlDimFilter.SetRange("Journal Line No.", "Line No.");
-        if not GenJnlDimFilter.IsEmpty then
+        if not GenJnlDimFilter.IsEmpty() then
             GenJnlDimFilter.DeleteAll();
     end;
 
@@ -8440,6 +8524,15 @@
         DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Gen. Journal Line", DefaultDimSource, TableID, No);
     end;
 #endif
+
+    procedure IsAcquisitionCost(): Boolean
+    var
+        AcquisitionCost: Boolean;
+    begin
+        AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
+        OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
+        exit(AcquisitionCost);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var GenJournalLine: Record "Gen. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
@@ -8658,6 +8751,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcquisitionCost(var GenJournalLine: Record "Gen. Journal Line"; var AcquisitionCost: Boolean);
     begin
     end;
 

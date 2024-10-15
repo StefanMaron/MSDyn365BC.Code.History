@@ -126,13 +126,13 @@ codeunit 144082 "Mandatory Fields Tests CH"
             SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
         Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesInvoice.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesInvoice.OpenNew();
         Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesOrder(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
@@ -158,13 +158,13 @@ codeunit 144082 "Mandatory Fields Tests CH"
         Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesOrder.SalesLines."Location Code".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesOrder.OpenNew();
         Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesReturnOrder(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
@@ -185,7 +185,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
             SalesReturnOrder.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo);
         Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesReturnOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesQuote(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
@@ -207,7 +207,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
           UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesQuote.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesCreditMemo(CustomerNo: Code[20]; LineType: Option; ExpectedMandatory: Boolean)
@@ -229,13 +229,13 @@ codeunit 144082 "Mandatory Fields Tests CH"
           UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueErr);
         Assert.AreEqual(ExpectedMandatory, SalesCreditMemo.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesCreditMemo.OpenNew();
         Assert.IsFalse(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueErr);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure SetExternalDocNoMandatory(ExternalDocNoMandatory: Boolean)

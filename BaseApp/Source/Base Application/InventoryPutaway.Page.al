@@ -2,7 +2,6 @@ page 7375 "Inventory Put-away"
 {
     Caption = 'Inventory Put-away';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Posting';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Warehouse Activity Header";
@@ -15,7 +14,7 @@ page 7375 "Inventory Put-away"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,7 +25,7 @@ page 7375 "Inventory Put-away"
                             CurrPage.Update();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location where the warehouse activity takes place.';
@@ -38,7 +37,7 @@ page 7375 "Inventory Put-away"
                     Lookup = false;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
@@ -46,7 +45,7 @@ page 7375 "Inventory Put-away"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         CODEUNIT.Run(CODEUNIT::"Create Inventory Put-away", Rec);
-                        CurrPage.WhseActivityLines.PAGE.UpdateForm;
+                        CurrPage.WhseActivityLines.PAGE.UpdateForm();
                     end;
 
                     trigger OnValidate()
@@ -54,7 +53,7 @@ page 7375 "Inventory Put-away"
                         SourceNoOnAfterValidate();
                     end;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 0));
@@ -69,24 +68,24 @@ page 7375 "Inventory Put-away"
                     Editable = false;
                     ToolTip = 'Specifies the name of the received items put away into storage.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity should be recorded as being posted.';
                 }
-                field("Expected Receipt Date"; "Expected Receipt Date")
+                field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 2));
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("External Document No.2"; "External Document No.2")
+                field("External Document No.2"; Rec."External Document No.2")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 3));
@@ -201,8 +200,6 @@ page 7375 "Inventory Put-away"
                     Caption = '&Get Source Document';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'Select the source document that you want to put items away for.';
 
@@ -220,7 +217,7 @@ page 7375 "Inventory Put-away"
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandle;
+                        AutofillQtyToHandle();
                     end;
                 }
                 action("Delete Qty. to Handle")
@@ -232,7 +229,7 @@ page 7375 "Inventory Put-away"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
             }
@@ -246,15 +243,12 @@ page 7375 "Inventory Put-away"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
                     begin
-                        PostPutAwayYesNo;
+                        PostPutAwayYesNo();
                     end;
                 }
                 action("Post and &Print")
@@ -263,15 +257,12 @@ page 7375 "Inventory Put-away"
                     Caption = 'Post and &Print';
                     Ellipsis = true;
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
                     begin
-                        PostAndPrint;
+                        PostAndPrint();
                     end;
                 }
             }
@@ -281,8 +272,6 @@ page 7375 "Inventory Put-away"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -298,11 +287,57 @@ page 7375 "Inventory Put-away"
                 ApplicationArea = Warehouse;
                 Caption = 'Put-away List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Put-away List";
                 ToolTip = 'View or print a detailed list of items that must be put away.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category5)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(GetSourceDocument_Promoted; GetSourceDocument)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -314,14 +349,14 @@ page 7375 "Inventory Put-away"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Location Code" := GetUserLocation;
+        "Location Code" := GetUserLocation();
     end;
 
     trigger OnOpenPage()
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard
@@ -333,27 +368,27 @@ page 7375 "Inventory Put-away"
 
     local procedure AutofillQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure PostPutAwayYesNo()
     begin
-        CurrPage.WhseActivityLines.PAGE.PostPutAwayYesNo;
+        CurrPage.WhseActivityLines.PAGE.PostPutAwayYesNo();
     end;
 
     local procedure PostAndPrint()
     begin
-        CurrPage.WhseActivityLines.PAGE.PostAndPrint;
+        CurrPage.WhseActivityLines.PAGE.PostAndPrint();
     end;
 
     local procedure SourceNoOnAfterValidate()
     begin
-        CurrPage.WhseActivityLines.PAGE.UpdateForm;
+        CurrPage.WhseActivityLines.PAGE.UpdateForm();
     end;
 }
 

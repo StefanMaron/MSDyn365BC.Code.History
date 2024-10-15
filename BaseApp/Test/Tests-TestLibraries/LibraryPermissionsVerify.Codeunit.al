@@ -183,10 +183,10 @@ codeunit 132216 "Library - Permissions Verify"
                 RelatedRecordRef.Init();
                 RelatedRecordRef.Insert();
             end;
-            RelatedRecordRef.Close;
-        until TableRelationsMetadata.Next = 0;
+            RelatedRecordRef.Close();
+        until TableRelationsMetadata.Next() = 0;
 
-        RecordRef.Close;
+        RecordRef.Close();
         Commit();
     end;
 
@@ -210,8 +210,8 @@ codeunit 132216 "Library - Permissions Verify"
                 RelatedRecordId := RelatedRecordRef.RecordId;
                 if not ExcludedTables.Contains(RelatedRecordId.TableNo) then
                     VerifyReadPermissionTrue(RelatedRecordRef.Number);
-                RelatedRecordRef.Close;
-            until TableRelationsMetadata.Next = 0;
+                RelatedRecordRef.Close();
+            until TableRelationsMetadata.Next() = 0;
     end;
 
     procedure VerifyReadPermissionTrue(TableNo: Integer)

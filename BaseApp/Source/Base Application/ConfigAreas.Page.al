@@ -14,7 +14,7 @@ page 8631 "Config. Areas"
             {
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -28,7 +28,7 @@ page 8631 "Config. Areas"
                     StyleExpr = NameEmphasize;
                     ToolTip = 'Specifies the name of the line type.';
                 }
-                field(GetNoTables; GetNoTables)
+                field(GetNoTables; GetNoTables())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Tables';
@@ -61,7 +61,7 @@ page 8631 "Config. Areas"
 
         NameEmphasize := (NameIndent = 0);
 
-        Progress := GetProgress;
+        Progress := GetProgress();
     end;
 
     var

@@ -142,7 +142,7 @@ codeunit 144023 "Sales Picking List"
                 SalesLine.FindFirst();
                 Count := 0;
             end else begin
-                SalesLine.Next;
+                SalesLine.Next();
                 Count += 1;
             end;
         until LibraryReportDataset.GetNextRow = false;

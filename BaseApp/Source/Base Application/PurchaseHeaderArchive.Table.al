@@ -516,11 +516,9 @@ table 5109 "Purchase Header Archive"
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(129; "IC Direction"; Option)
+        field(129; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';
-            OptionCaption = 'Outgoing,Incoming';
-            OptionMembers = Outgoing,Incoming;
         }
         field(130; "Prepayment No."; Code[20])
         {
@@ -604,6 +602,10 @@ table 5109 "Purchase Header Archive"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+        }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -784,6 +786,9 @@ table 5109 "Purchase Header Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", "Version No.", "Buy-from Vendor No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -830,9 +835,9 @@ table 5109 "Purchase Header Archive"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;

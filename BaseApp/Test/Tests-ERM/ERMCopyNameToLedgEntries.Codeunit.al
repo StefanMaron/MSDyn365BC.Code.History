@@ -757,7 +757,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         RecRef.Init();
         FieldRef.Value(EntryNo + 1);
         RecRef.Insert();
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure CreateItemWithEntries(var Item: Record Item)
@@ -874,7 +874,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
             LastEntryNo := FieldRef.Value;
         end;
         NextEntryNo := LastEntryNo + 1;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure MockJobScheduling(var ERMCopyNameToLedgEntries: Codeunit "ERM Copy Name To Ledg. Entries"): Guid
@@ -1066,7 +1066,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     [Scope('OnPrem')]
     procedure SetTaskID(): Guid
     begin
-        GlobalTaskID := CreateGuid;
+        GlobalTaskID := CreateGuid();
         exit(GlobalTaskID);
     end;
 

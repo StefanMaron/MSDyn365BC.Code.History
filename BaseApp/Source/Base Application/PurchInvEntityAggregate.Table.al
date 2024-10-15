@@ -18,7 +18,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateBuyFromVendorId;
+                UpdateBuyFromVendorId();
             end;
         }
         field(3; "No."; Code[20])
@@ -35,7 +35,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdatePayToVendorId;
+                UpdatePayToVendorId();
             end;
         }
         field(5; "Pay-to Name"; Text[100])
@@ -158,7 +158,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyId;
+                UpdateCurrencyId();
             end;
         }
         field(35; "Prices Including VAT"; Boolean)
@@ -180,7 +180,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateOrderId;
+                UpdateOrderId();
             end;
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
@@ -380,7 +380,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateBuyFromVendorNo;
+                UpdateBuyFromVendorNo();
             end;
         }
         field(9632; "Order Id"; Guid)
@@ -390,7 +390,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateOrderNo;
+                UpdateOrderNo();
             end;
         }
         field(9634; "Currency Id"; Guid)
@@ -401,7 +401,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateCurrencyCode;
+                UpdateCurrencyCode();
             end;
         }
         field(9638; "Pay-to Vendor Id"; Guid)
@@ -412,7 +412,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
             trigger OnValidate()
             begin
-                UpdatePayToVendorNo;
+                UpdatePayToVendorNo();
             end;
         }
     }
@@ -438,13 +438,13 @@ table 5477 "Purch. Inv. Entity Aggregate"
     trigger OnInsert()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnModify()
     begin
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     trigger OnRename()
@@ -456,7 +456,7 @@ table 5477 "Purch. Inv. Entity Aggregate"
             Error(CannotModifyPostedInvioceErr);
 
         "Last Modified Date Time" := CurrentDateTime;
-        UpdateReferencedRecordIds;
+        UpdateReferencedRecordIds();
     end;
 
     var
@@ -570,12 +570,12 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
     procedure UpdateReferencedRecordIds()
     begin
-        UpdateBuyFromVendorId;
-        UpdatePayToVendorId;
-        UpdateCurrencyId;
+        UpdateBuyFromVendorId();
+        UpdatePayToVendorId();
+        UpdateCurrencyId();
 
         if ("Order No." <> '') and IsNullGuid("Order Id") then
-            UpdateOrderId;
+            UpdateOrderId();
     end;
 
     procedure GetIsRenameAllowed(): Boolean

@@ -144,7 +144,7 @@ table 225 "Post Code"
                 end;
 
                 PostCodeRec2.Copy(PostCodeRec);
-                if UseDialog and (PostCodeRec2.Next = 1) then
+                if UseDialog and (PostCodeRec2.Next() = 1) then
                     if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                         Error('');
                 PostCode := PostCodeRec.Code;
@@ -183,7 +183,7 @@ table 225 "Post Code"
             end;
 
             PostCodeRec2.Copy(PostCodeRec);
-            if UseDialog and (PostCodeRec2.Next = 1) and GuiAllowed then begin
+            if UseDialog and (PostCodeRec2.Next() = 1) and GuiAllowed then begin
                 PostCodeRec.SetCurrentKey(Priority);
                 if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                     exit;
@@ -236,15 +236,15 @@ table 225 "Post Code"
                 "Country/Region Code" := NewCountryRegion;
             if NewCounty <> '' then
                 County := NewCounty;
-            Modify;
+            Modify();
         end else begin
-            Init;
+            Init();
 
             Code := NewPostCode;
             City := NewCity;
             "Country/Region Code" := NewCountryRegion;
             County := NewCounty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -314,7 +314,7 @@ table 225 "Post Code"
             PostCodes.SetRecord(PostCodeRec);
 
         PostCodes.LookupMode := true;
-        if PostCodes.RunModal = ACTION::LookupOK then begin
+        if PostCodes.RunModal() = ACTION::LookupOK then begin
             PostCodes.GetRecord(PostCodeRec);
             PostCode := PostCodeRec.Code;
             CityTxt := PostCodeRec.City;

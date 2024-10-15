@@ -1,4 +1,4 @@
-table 111 "Sales Shipment Line"
+﻿table 111 "Sales Shipment Line"
 {
     Caption = 'Sales Shipment Line';
     DrillDownPageID = "Posted Sales Shipment Lines";
@@ -675,14 +675,15 @@ table 111 "Sales Shipment Line"
     end;
 
     var
-        Text001: Label 'The program cannot find this Sales line.';
         Currency: Record Currency;
         SalesShptHeader: Record "Sales Shipment Header";
         PostedATOLink: Record "Posted Assemble-to-Order Link";
         DimMgt: Codeunit DimensionManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         CurrencyRead: Boolean;
+
         Text92000: Label 'Shipment No. %1 of %2:';
+        Text001: Label 'The program cannot find this Sales line.';
 
     procedure GetCurrencyCode(): Code[10]
     begin
@@ -695,7 +696,7 @@ table 111 "Sales Shipment Line"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
@@ -748,7 +749,7 @@ table 111 "Sales Shipment Line"
             SalesShptHeader.Get("Document No.");
             TranslationHelper.SetGlobalLanguageByCode(SalesInvHeader."Language Code");
             SalesLine.Description := StrSubstNo(Text92000, "Document No.", SalesShptHeader."Shipment Date");
-            TranslationHelper.RestoreGlobalLanguage;
+            TranslationHelper.RestoreGlobalLanguage();
             IsHandled := false;
             OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled, TempSalesLine, SalesInvHeader);
             if not IsHandled then begin
@@ -758,7 +759,7 @@ table 111 "Sales Shipment Line"
             end;
         end;
 
-        TransferOldExtLines.ClearLineNumbers;
+        TransferOldExtLines.ClearLineNumbers();
 
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
@@ -779,13 +780,12 @@ table 111 "Sales Shipment Line"
                           Round(
                             SalesOrderLine."Unit Price" * (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end else begin
+                end else
                     if SalesOrderHeader."Prices Including VAT" then
                         SalesOrderLine."Unit Price" :=
                           Round(
                             SalesOrderLine."Unit Price" / (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
-                end;
             end else begin
                 SalesOrderHeader.Init();
                 if ExtTextLine or (Type = Type::" ") then begin
@@ -830,16 +830,15 @@ table 111 "Sales Shipment Line"
                           Round(
                             SalesOrderLine."Line Discount Amount" *
                             (1 + SalesOrderLine."VAT %" / 100), Currency."Amount Rounding Precision");
-                end else begin
+                end else
                     if SalesOrderHeader."Prices Including VAT" then
                         SalesOrderLine."Line Discount Amount" :=
                           Round(
                             SalesOrderLine."Line Discount Amount" /
                             (1 + SalesOrderLine."VAT %" / 100), Currency."Amount Rounding Precision");
-                end;
                 SalesLine.Validate("Line Discount Amount", SalesOrderLine."Line Discount Amount");
                 SalesLine."Line Discount %" := SalesOrderLine."Line Discount %";
-                SalesLine.UpdatePrePaymentAmounts;
+                SalesLine.UpdatePrePaymentAmounts();
                 OnInsertInvLineFromShptLineOnAfterUpdatePrepaymentsAmounts(SalesLine, SalesOrderLine, Rec);
 
                 if SalesOrderLine.Quantity = 0 then
@@ -958,7 +957,7 @@ table 111 "Sales Shipment Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -988,7 +987,7 @@ table 111 "Sales Shipment Line"
         if CurrencyCode <> '' then
             Currency.Get(CurrencyCode)
         else
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         CurrencyRead := true;
     end;
 
@@ -1020,7 +1019,7 @@ table 111 "Sales Shipment Line"
 
     procedure InitFromSalesLine(SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line")
     begin
-        Init;
+        Init();
         TransferFields(SalesLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -1044,7 +1043,7 @@ table 111 "Sales Shipment Line"
         OnAfterInitFromSalesLine(SalesShptHeader, SalesLine, Rec);
     end;
 
-    local procedure ClearSalesLineValues(var SalesLine: Record "Sales Line")
+    procedure ClearSalesLineValues(var SalesLine: Record "Sales Line")
     begin
         SalesLine."Quantity (Base)" := 0;
         SalesLine.Quantity := 0;
@@ -1072,35 +1071,35 @@ table 111 "Sales Shipment Line"
         SalesLine: Record "Sales Line";
     begin
         if Type = Type::" " then
-            exit(SalesLine.FormatType);
+            exit(SalesLine.FormatType());
 
         exit(Format(Type));
     end;
 
-    local procedure CalcBaseQuantities(var SalesLine: Record "Sales Line"; QtyFactor: Decimal)
+    procedure CalcBaseQuantities(var SalesLine: Record "Sales Line"; QtyFactor: Decimal)
     begin
         SalesLine."Quantity (Base)" :=
-          Round(SalesLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. to Asm. to Order (Base)" :=
-          Round(SalesLine."Qty. to Assemble to Order" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. to Assemble to Order" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Outstanding Qty. (Base)" :=
-          Round(SalesLine."Outstanding Quantity" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Outstanding Quantity" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. to Ship (Base)" :=
-          Round(SalesLine."Qty. to Ship" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. to Ship" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. Shipped (Base)" :=
-          Round(SalesLine."Quantity Shipped" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Quantity Shipped" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. Shipped Not Invd. (Base)" :=
-          Round(SalesLine."Qty. Shipped Not Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. Shipped Not Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. to Invoice (Base)" :=
-          Round(SalesLine."Qty. to Invoice" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Qty. to Invoice" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Qty. Invoiced (Base)" :=
-          Round(SalesLine."Quantity Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Quantity Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Return Qty. to Receive (Base)" :=
-          Round(SalesLine."Return Qty. to Receive" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Return Qty. to Receive" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Return Qty. Received (Base)" :=
-          Round(SalesLine."Return Qty. Received" * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Return Qty. Received" * QtyFactor, UOMMgt.QtyRndPrecision());
         SalesLine."Ret. Qty. Rcd. Not Invd.(Base)" :=
-          Round(SalesLine."Return Qty. Rcd. Not Invd." * QtyFactor, UOMMgt.QtyRndPrecision);
+          Round(SalesLine."Return Qty. Rcd. Not Invd." * QtyFactor, UOMMgt.QtyRndPrecision());
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]
@@ -1121,7 +1120,7 @@ table 111 "Sales Shipment Line"
 
     procedure HasTypeToFillMandatoryFields(): Boolean
     begin
-        exit(Type <> Type::" ");
+        exit(not (Type in [Type::" ", Type::Title, Type::"Begin-Total", Type::"End-Total", Type::"New Page"]));
     end;
 
     local procedure UpdateDocumentId()

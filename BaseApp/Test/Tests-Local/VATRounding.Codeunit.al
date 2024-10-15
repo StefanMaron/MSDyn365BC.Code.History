@@ -245,7 +245,7 @@ codeunit 144000 "VAT Rounding"
 
         SalesInvoiceLine.FindSet();
         ExpectedAmount += SalesInvoiceLine.Amount;
-        SalesInvoiceLine.Next;
+        SalesInvoiceLine.Next();
         ExpectedAmount += SalesInvoiceLine.Amount;
 
         Assert.AreEqual(ExpectedAmount, SalesInvoiceHeader.Amount, 'Wrong amount.');
@@ -460,7 +460,7 @@ codeunit 144000 "VAT Rounding"
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Insert(true);
         LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", CopyFromDocNo, true, false);
-        SalesHeader.Find;
+        SalesHeader.Find();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 

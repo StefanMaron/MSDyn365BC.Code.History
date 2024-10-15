@@ -41,7 +41,7 @@ page 5072 "Rlshp. Mgt. Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 }
 

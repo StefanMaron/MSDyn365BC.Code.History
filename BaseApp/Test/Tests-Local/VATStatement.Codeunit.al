@@ -103,7 +103,7 @@ codeunit 144005 "VAT Statement"
         Commit();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false);
 
-        VATEntry.SetRange("Posting Date", WorkDate);
+        VATEntry.SetRange("Posting Date", WorkDate());
         VATEntry.SetRange("Document No.", SettlementDocumentNo);
         VATEntry.FindFirst();
         GLRegister.SetRange("From VAT Entry No.", VATEntry."Entry No.");
@@ -179,7 +179,7 @@ codeunit 144005 "VAT Statement"
 
         // [THEN] Error occured: "Total Revenue" must have a value
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, VATCipherSetup.FieldCaption("Total Revenue"), VATCipherSetup.TableCaption));
+          StrSubstNo(TestFieldErr, VATCipherSetup.FieldCaption("Total Revenue"), VATCipherSetup.TableCaption()));
         Assert.ExpectedErrorCode('TestField');
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -206,7 +206,7 @@ codeunit 144005 "VAT Statement"
         // [WHEN] Enter "123" to Code, "Description 456" as Description
         VATCipherCodes.Code.SetValue(NewCode);
         VATCipherCodes.Description.SetValue(NewDescription);
-        VATCipherCodes.Close;
+        VATCipherCodes.Close();
 
         // [THEN] Ner VAT Cipher Code is created with Code = "123" and Description = "Description 456"
         VATCipherCode.Get(NewCode);
@@ -485,9 +485,9 @@ codeunit 144005 "VAT Statement"
     local procedure VerifyTaxCalculationDates()
     begin
         LibraryReportDataset.AssertCurrentRowValueEquals(
-          'FromDateLbl', 'from ' + Format(CalcDate('<-CY>', WorkDate)));
+          'FromDateLbl', 'from ' + Format(CalcDate('<-CY>', WorkDate())));
         LibraryReportDataset.AssertCurrentRowValueEquals(
-          'ToDateLbl', 'to ' + Format(CalcDate('<-CY>', WorkDate) - 1));
+          'ToDateLbl', 'to ' + Format(CalcDate('<-CY>', WorkDate()) - 1));
     end;
 
     [RequestPageHandler]
@@ -509,8 +509,8 @@ codeunit 144005 "VAT Statement"
         if Format(ClosedRegisterNo) <> '' then
             SwissVATStatement.ClosedRgstrNo.SetValue(ClosedRegisterNo)
         else begin
-            SwissVATStatement.StartingDate.SetValue(WorkDate);
-            SwissVATStatement.EndingDate.SetValue(WorkDate);
+            SwissVATStatement.StartingDate.SetValue(WorkDate());
+            SwissVATStatement.EndingDate.SetValue(WorkDate());
         end;
         SwissVATStatement.Selection.SetValue('Open and Closed');
         SwissVATStatement.NormalRatePct.SetValue(NormalRate);
@@ -540,8 +540,8 @@ codeunit 144005 "VAT Statement"
         LibraryVariableStorage.Dequeue(DatesShouldbeBlank);
         DatesShouldbeBlankBool := DatesShouldbeBlank;
         if DatesShouldbeBlankBool then begin
-            SwissVATStatement.StartingDate.SetValue(WorkDate);
-            SwissVATStatement.EndingDate.SetValue(WorkDate);
+            SwissVATStatement.StartingDate.SetValue(WorkDate());
+            SwissVATStatement.EndingDate.SetValue(WorkDate());
             SwissVATStatement.ClosedRgstrNo.SetValue(GLRegister."No.");
 
             Date := SwissVATStatement.StartingDate.Value;
@@ -551,7 +551,7 @@ codeunit 144005 "VAT Statement"
             Assert.AreEqual('', Date, DatesShouldBeBlankedErr);
         end else begin
             SwissVATStatement.ClosedRgstrNo.SetValue(GLRegister."No.");
-            SwissVATStatement.StartingDate.SetValue(WorkDate);
+            SwissVATStatement.StartingDate.SetValue(WorkDate());
             Assert.AreEqual('', SwissVATStatement.ClosedRgstrNo.Value, ClosedWithRegisterNoShouldBeBlankedErr);
         end;
     end;
@@ -565,9 +565,9 @@ codeunit 144005 "VAT Statement"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         LibraryVariableStorage.Dequeue(SettlementAccountNo);
-        CalcAndPostVATSettlement.StartingDate.SetValue(WorkDate);
-        CalcAndPostVATSettlement.EndDateReq.SetValue(WorkDate);
-        CalcAndPostVATSettlement.PostingDt.SetValue(WorkDate);
+        CalcAndPostVATSettlement.StartingDate.SetValue(WorkDate());
+        CalcAndPostVATSettlement.EndDateReq.SetValue(WorkDate());
+        CalcAndPostVATSettlement.PostingDt.SetValue(WorkDate());
         CalcAndPostVATSettlement.DocumentNo.SetValue(DocumentNo);
         CalcAndPostVATSettlement.SettlementAcc.SetValue(SettlementAccountNo);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);

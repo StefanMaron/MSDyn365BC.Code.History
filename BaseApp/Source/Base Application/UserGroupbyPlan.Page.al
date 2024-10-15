@@ -4,7 +4,6 @@ page 9842 "User Group by Plan"
     Editable = false;
     LinksAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Browse';
     ShowFilter = false;
     SourceTable = "User Group";
 
@@ -127,16 +126,27 @@ page 9842 "User Group by Plan"
         area(processing)
         {
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Browse', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetUserGroupPlanParameters;
+        GetUserGroupPlanParameters();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        GetUserGroupPlanParameters;
+        GetUserGroupPlanParameters();
     end;
 
     trigger OnOpenPage()
@@ -166,16 +176,15 @@ page 9842 "User Group by Plan"
         Clear(PlanNameArray);
         Clear(IsMemberOfPlan);
 
-        if Plan.Open() then begin
+        if Plan.Open() then
             while Plan.Read() do begin
                 columnNumber += 1;
                 if PermissionPagesMgt.IsInColumnsRange(columnNumber) then begin
-                    PlanIDArray[columnNumber - PermissionPagesMgt.GetOffset] := Plan.Plan_ID;
-                    PlanNameArray[columnNumber - PermissionPagesMgt.GetOffset] := StrSubstNo('%1 %2', 'Plan', Plan.Plan_Name);
-                    IsMemberOfPlan[columnNumber - PermissionPagesMgt.GetOffset] := IsUserGroupInPlan(Code, Plan.Plan_ID);
+                    PlanIDArray[columnNumber - PermissionPagesMgt.GetOffset()] := Plan.Plan_ID;
+                    PlanNameArray[columnNumber - PermissionPagesMgt.GetOffset()] := StrSubstNo('%1 %2', 'Plan', Plan.Plan_Name);
+                    IsMemberOfPlan[columnNumber - PermissionPagesMgt.GetOffset()] := IsUserGroupInPlan(Code, Plan.Plan_ID);
                 end;
             end;
-        end;
     end;
 
     local procedure IsUserGroupInPlan(UserGroupCode: Code[20]; PlanID: Guid): Boolean

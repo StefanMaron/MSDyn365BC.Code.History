@@ -44,7 +44,7 @@ codeunit 144054 "Test CH FCY"
 
         // Setup.
         SetupFCYGLEntries(GenJournalLine,
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
@@ -86,7 +86,7 @@ codeunit 144054 "Test CH FCY"
         SaveWorkDate := WorkDate();
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         SetupFCYGLEntries(GenJournalLine,
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGenJournalLine(GenJournalLine2, GenJournalLine."Account No.", GenJournalLine."Bal. Account No.",
           CalcDate('<CM>', GenJournalLine."Posting Date"));
@@ -127,7 +127,7 @@ codeunit 144054 "Test CH FCY"
 
         // [GIVEN] Posted Sales Invoice journal line in currency 'USD'
         SetupFCYGLEntries(GenJournalLine,
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         // [GIVEN] Exchnage Rate is modified in currency 'USD'
         CurrencyExchangeRate.SetRange("Currency Code", GenJournalLine."Currency Code");
@@ -538,7 +538,7 @@ codeunit 144054 "Test CH FCY"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyCode := CreateCurrency;
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
         with CurrencyExchangeRate do begin
             Validate("Exchange Rate Amount", 1);
             Validate("Relational Exch. Rate Amount", RelExchRateAmount);
@@ -607,9 +607,9 @@ codeunit 144054 "Test CH FCY"
     local procedure CreateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchRate: Decimal)
     begin
         with CurrencyExchangeRate do begin
-            Init;
+            Init();
             Validate("Currency Code", CurrencyCode);
-            Validate("Starting Date", WorkDate);
+            Validate("Starting Date", WorkDate());
             Insert(true);
 
             Validate("Exchange Rate Amount", 100);
@@ -659,7 +659,7 @@ codeunit 144054 "Test CH FCY"
             Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
             Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
             Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -725,7 +725,7 @@ codeunit 144054 "Test CH FCY"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -746,7 +746,7 @@ codeunit 144054 "Test CH FCY"
         with GenJournalLine do begin
             Validate("Currency Code", CurrencyCode);
             Validate("External Document No.", ExtDocNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -759,7 +759,7 @@ codeunit 144054 "Test CH FCY"
             Validate("VAT Calculation Type", VATCalculationType);
             Validate("VAT %", VATPercent);
             Validate("Purchase VAT Account", GLAccountCode);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -798,7 +798,7 @@ codeunit 144054 "Test CH FCY"
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Currency Code" := CurrencyCode;
         GLAccount.Modify(true);
-        CreateGenJournalLine(GenJournalLine, Customer."No.", GLAccount."No.", WorkDate);
+        CreateGenJournalLine(GenJournalLine, Customer."No.", GLAccount."No.", WorkDate());
     end;
 
     local procedure SetupVATForFCY(var VATPostingSetup: Record "VAT Posting Setup"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; VATCalcType: Option)
@@ -989,9 +989,9 @@ codeunit 144054 "Test CH FCY"
         DocNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(DocNo);
-        AdjustExchangeRates.StartingDate.SetValue(WorkDate);
-        AdjustExchangeRates.EndingDate.SetValue(WorkDate);
-        AdjustExchangeRates.PostingDate.SetValue(WorkDate);
+        AdjustExchangeRates.StartingDate.SetValue(WorkDate());
+        AdjustExchangeRates.EndingDate.SetValue(WorkDate());
+        AdjustExchangeRates.PostingDate.SetValue(WorkDate());
         AdjustExchangeRates.DocumentNo.SetValue(DocNo);
         AdjustExchangeRates.AdjCustomers.SetValue(true);
         AdjustExchangeRates.AdjVendors.SetValue(true);

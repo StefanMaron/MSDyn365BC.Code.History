@@ -10,6 +10,7 @@ codeunit 132501 "Sales Document Posting Errors"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         LibrarySales: Codeunit "Library - Sales";
@@ -19,7 +20,6 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
-        NothingToPostErr: Label 'There is nothing to post.';
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
         CheckSalesLineMsg: Label 'Check sales document line.';
 
@@ -42,10 +42,10 @@ codeunit 132501 "Sales Document Posting Errors"
         // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in G/L Setup
         Initialize();
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.TestField("Posting Date", WorkDate);
+        SalesHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
         LibraryErrorMessage.TrapErrorMessages;
@@ -72,14 +72,14 @@ codeunit 132501 "Sales Document Posting Errors"
         GeneralLedgerSetupPage.Trap;
         LibraryErrorMessage.DrillDownOnSource;
         // [THEN] opens "General Ledger Setup" page.
-        GeneralLedgerSetupPage."Allow Posting To".AssertEquals(WorkDate - 1);
-        GeneralLedgerSetupPage.Close;
+        GeneralLedgerSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
+        GeneralLedgerSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
         SalesInvoicePage.Trap;
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Sales Invoice" page.
-        SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
+        SalesInvoicePage."Posting Date".AssertEquals(WorkDate());
     end;
 
     [Test]
@@ -96,11 +96,11 @@ codeunit 132501 "Sales Document Posting Errors"
         Initialize();
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "User Setup"
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup."Allow Posting To" := WorkDate - 1;
+        UserSetup."Allow Posting To" := WorkDate() - 1;
         UserSetup.Modify();
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.TestField("Posting Date", WorkDate);
+        SalesHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
         LibraryErrorMessage.TrapErrorMessages;
@@ -124,14 +124,14 @@ codeunit 132501 "Sales Document Posting Errors"
         UserSetupPage.Trap;
         LibraryErrorMessage.DrillDownOnSource;
         // [THEN] opens "User Setup" page.
-        UserSetupPage."Allow Posting To".AssertEquals(WorkDate - 1);
-        UserSetupPage.Close;
+        UserSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
+        UserSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
         SalesInvoicePage.Trap;
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Sales Invoice" page.
-        SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
+        SalesInvoicePage."Posting Date".AssertEquals(WorkDate());
 
         // TearDown
         UserSetup.Delete();
@@ -335,7 +335,7 @@ codeunit 132501 "Sales Document Posting Errors"
         Initialize();
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -350,7 +350,7 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 2);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Sales Header: Order, 1002'
         TempErrorMessage.FindLast();
-        TempErrorMessage.TestField(Description, NothingToPostErr);
+        TempErrorMessage.TestField(Description, DocumentErrorsMgt.GetNothingToPostErrorMsg());
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
     end;
 
@@ -371,7 +371,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibrarySales.SetPostWithJobQueue(false);
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019, and nothing to post
         CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, CustomerNo);
@@ -397,7 +397,7 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
         // [THEN] The second error for Order '1002' is 'There is nothing to post'
         TempErrorMessage.Get(2);
-        Assert.ExpectedMessage(NothingToPostErr, TempErrorMessage.Description);
+        Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage.Description);
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         TempErrorMessage.Get(3);
@@ -429,7 +429,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
         CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[1], CustomerNo);
@@ -496,7 +496,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
         CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[1], CustomerNo);
@@ -542,7 +542,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
         // to use has already been used.
         Initialize();
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate());
         LibraryErrorMessage.TrapErrorMessages();
 
         // [GIVEN] Sales credit memo where we create a Return Receipt Header record and the next Return Recipt No. already exists.
@@ -603,7 +603,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
         // to use has already been used.
         Initialize();
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate());
         LibraryErrorMessage.TrapErrorMessages();
 
         // [GIVEN] Sales invoice where we create a Sales Shipment Header record and the next Shipping No. already exists.
@@ -664,7 +664,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
         // to use has already been used.
         Initialize();
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate());
         LibraryErrorMessage.TrapErrorMessages();
 
         // [GIVEN] Sales invoice where we create a Sales Invoice Header record and the next Posting No. already exists.
@@ -714,7 +714,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Document Posting Errors");
-        LibraryErrorMessage.Clear;
+        LibraryErrorMessage.Clear();
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;

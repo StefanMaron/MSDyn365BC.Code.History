@@ -86,7 +86,7 @@ codeunit 6308 "PBI Job Chart Calc."
             Value := pValue;
             "Measure Name" := pMeasureName;
             "Measure No." := Job."No.";
-            Insert;
+            Insert();
         end;
     end;
 }

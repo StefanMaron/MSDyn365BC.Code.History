@@ -43,7 +43,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // Setup - Create an Invoice and a payment
         LibrarySales.CreateCustomer(Customer);
         PostSalesDocument(AppliesToGenJournalLine, Customer, AppliesToGenJournalLine."Document Type"::Invoice,
-          LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          LibraryRandom.RandDec(1000, 2), '', WorkDate());
         PostAppliedSalesDocument(GenJournalLine, AppliesToGenJournalLine, GenJournalLine."Document Type"::Payment,
           -LibraryRandom.RandDecInDecimalRange(1, AppliesToGenJournalLine."Amount (LCY)", 2));
 
@@ -80,7 +80,7 @@ codeunit 144032 "Test Cust Balance to Date"
               LibraryERM.CreateCurrencyWithExchangeRate(
                 WorkDate, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
             PostSalesDocument(GenJournalLine, Customer, GenJournalLine."Document Type"::Invoice,
-              LibraryRandom.RandDec(1000, 2), CurrencyCode, WorkDate);
+              LibraryRandom.RandDec(1000, 2), CurrencyCode, WorkDate());
             TotalCustLCYBalance += GenJournalLine."Amount (LCY)";
         end;
 
@@ -108,7 +108,7 @@ codeunit 144032 "Test Cust Balance to Date"
         // Setup - Create an Invoice and a payment
         LibrarySales.CreateCustomer(Customer);
         PostSalesDocument(AppliesToGenJournalLine, Customer, AppliesToGenJournalLine."Document Type"::Invoice,
-          LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          LibraryRandom.RandDec(1000, 2), '', WorkDate());
         PostAppliedSalesDocument(GenJournalLine, AppliesToGenJournalLine, GenJournalLine."Document Type"::Payment,
           -LibraryRandom.RandDecInDecimalRange(1, AppliesToGenJournalLine."Amount (LCY)", 2));
 
@@ -149,7 +149,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Commit();
 
         // [WHEN] "SR Cust. - Balance to Date" run filtered on "C1" Customer
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         REPORT.Run(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // [THEN] 3 rows generated
@@ -197,7 +197,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Commit();
 
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
         REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
 
@@ -254,7 +254,7 @@ codeunit 144032 "Test Cust Balance to Date"
         Commit();
 
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
         REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
 
@@ -323,7 +323,7 @@ codeunit 144032 "Test Cust Balance to Date"
         ApplyAndPostGenJournalLine(GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Payment, AppliedDocNo);
 
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
         REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
 
@@ -396,7 +396,7 @@ codeunit 144032 "Test Cust Balance to Date"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
-        Customer.SetRecFilter;
+        Customer.SetRecFilter();
         LibraryReportValidation.SetFileName(Customer."No.");
         LibraryVariableStorage.Enqueue(true);
         REPORT.RunModal(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
@@ -570,7 +570,7 @@ codeunit 144032 "Test Cust Balance to Date"
         LibrarySales.CreateCustomer(Customer);
         PostSalesDocument(
           AppliesToGenJournalLine, Customer, AppliesToGenJournalLine."Document Type"::Invoice,
-          LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          LibraryRandom.RandDec(1000, 2), '', WorkDate());
         Amount[1] := AppliesToGenJournalLine.Amount;
         PostAppliedSalesDocument(
           GenJournalLine, AppliesToGenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -612,7 +612,7 @@ codeunit 144032 "Test Cust Balance to Date"
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentType,
           GenJournalLine."Account Type", GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account No.", Amount);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
     end;
 
@@ -680,7 +680,7 @@ codeunit 144032 "Test Cust Balance to Date"
     [Scope('OnPrem')]
     procedure CustBalanceToDateRequestPageHandler(var SRCustBalanceToDateRequestPage: TestRequestPage "SR Cust. - Balance to Date")
     begin
-        SRCustBalanceToDateRequestPage.FixedDay.SetValue(WorkDate);
+        SRCustBalanceToDateRequestPage.FixedDay.SetValue(WorkDate());
         SRCustBalanceToDateRequestPage.PrintOnePerPage.SetValue(true);
         SRCustBalanceToDateRequestPage.CheckGLReceivables.SetValue(true);
         SRCustBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);
@@ -691,7 +691,7 @@ codeunit 144032 "Test Cust Balance to Date"
     [Scope('OnPrem')]
     procedure CustBalanceToDateRequestPageHandlerSaveAsExcel(var SRCustBalanceToDateRequestPage: TestRequestPage "SR Cust. - Balance to Date")
     begin
-        SRCustBalanceToDateRequestPage.FixedDay.SetValue(WorkDate);
+        SRCustBalanceToDateRequestPage.FixedDay.SetValue(WorkDate());
         SRCustBalanceToDateRequestPage.PrintOnePerPage.SetValue(LibraryVariableStorage.DequeueBoolean);
         SRCustBalanceToDateRequestPage.CheckGLReceivables.SetValue(true);
         SRCustBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);

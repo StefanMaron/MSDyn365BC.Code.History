@@ -19,7 +19,7 @@ page 9200 "Time Zones"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the time zone.';
                 }
-                field("Display Name"; "Display Name")
+                field("Display Name"; Rec."Display Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the full name of the time zone.';

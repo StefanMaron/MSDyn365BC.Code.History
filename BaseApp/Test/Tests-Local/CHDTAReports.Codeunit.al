@@ -60,8 +60,8 @@ codeunit 144351 "CH DTA Reports"
 
         // 1. Setup: Create and post two General Journal lines with Document Type as Invoice.
         Initialize();
-        Dates[1] := CalcDate('<+1D>', WorkDate);
-        Dates[2] := CalcDate('<+3D>', WorkDate);
+        Dates[1] := CalcDate('<+1D>', WorkDate());
+        Dates[2] := CalcDate('<+3D>', WorkDate());
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         Amounts[2] := Amounts[1] * 2;
 
@@ -69,14 +69,14 @@ codeunit 144351 "CH DTA Reports"
           Vendor, VendorBankAccount, GenJournalLineArray, GenJournalBatch, 2, Dates, Amounts, TestOption::"ESR5/15", '', '', false);
 
         // 2A. Exercise: Create Invoices and run the Suggest Vendor Payment report
-        RunDTASuggestVendorPayment(GenJournalBatch, GenJournalLineArray[1]."Account No.", WorkDate, WorkDate, CalcDate('<+1Y>', WorkDate), '');
+        RunDTASuggestVendorPayment(GenJournalBatch, GenJournalLineArray[1]."Account No.", WorkDate(), WorkDate, CalcDate('<+1Y>', WorkDate()), '');
 
         // 3A. Verify: Verify there are no lines in General Journal.
         VerifyGenJournalNoOfLines(GenJournalBatch, 0);
 
         // 2B. Exercise: Create Invoices and run the Suggest Vendor Payment report
         RunDTASuggestVendorPayment(GenJournalBatch,
-          GenJournalLineArray[1]."Account No.", CalcDate('<+1D>', Dates[1]), WorkDate, CalcDate('<+1Y>', WorkDate), '');
+          GenJournalLineArray[1]."Account No.", CalcDate('<+1D>', Dates[1]), WorkDate(), CalcDate('<+1Y>', WorkDate()), '');
 
         // 3B. Verify: Verify there is 1 line in General Journal.
         VerifyGenJournalNoOfLines(GenJournalBatch, 2);
@@ -98,8 +98,8 @@ codeunit 144351 "CH DTA Reports"
 
         // 1. Setup: Create and post two General Journal lines with Document Type as Invoice.
         Initialize();
-        Dates[1] := CalcDate('<-1Y>', WorkDate);
-        Dates[2] := WorkDate;
+        Dates[1] := CalcDate('<-1Y>', WorkDate());
+        Dates[2] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         Amounts[2] := Amounts[1] * 2;
 
@@ -136,19 +136,19 @@ codeunit 144351 "CH DTA Reports"
         // 1. Setup: Create and post two General Journal lines with Document Type as Invoice.
         Initialize();
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Amount1 := Amounts[1];
         LibraryDTA.CreateTestGenJournalLines(
           Vendor1, VendorBankAccount, GenJournalLineArray, GenJournalBatch, 1, Dates, Amounts, TestOption::"ESR5/15", '', '', true);
 
-        Dates[1] := CalcDate('<+4D>', WorkDate);
+        Dates[1] := CalcDate('<+4D>', WorkDate());
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Amount2 := Amounts[1];
         LibraryDTA.CreateTestGenJournalLines(
           Vendor2, VendorBankAccount, GenJournalLineArray, GenJournalBatch, 1, Dates, Amounts, TestOption::"ESR5/15", '', '', true);
 
-        Dates[1] := CalcDate('<+6D>', WorkDate);
+        Dates[1] := CalcDate('<+6D>', WorkDate());
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Amount3 := Amounts[1];
         LibraryDTA.CreateTestGenJournalLines(
@@ -158,7 +158,7 @@ codeunit 144351 "CH DTA Reports"
         RunDTASuggestVendorPayment(
           GenJournalBatch,
           StrSubstNo('%1|%2|%3', Vendor1."No.", Vendor2."No.", Vendor3."No."),
-          CalcDate('<+11D>', WorkDate), CalcDate('<+10D>', WorkDate), CalcDate('<+27D>', WorkDate), '');
+          CalcDate('<+11D>', WorkDate()), CalcDate('<+10D>', WorkDate()), CalcDate('<+27D>', WorkDate()), '');
 
         // 3. Verify: Verify there are 3 lines in General Journal.
         VerifyGenJournalNoOfLines(GenJournalBatch, 4);
@@ -198,7 +198,7 @@ codeunit 144351 "CH DTA Reports"
     begin
         // 1. Setup: Create and Post Purchase Order.
         Initialize();
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
 
         LibraryDTA.CreateTestPurchaseOrder(Vendor, VendorBankAccount, PurchaseHeader,
@@ -281,7 +281,7 @@ codeunit 144351 "CH DTA Reports"
     begin
         // 1. Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
         Initialize();
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         LibraryDTA.CreateTestGenJournalLines(
           Vendor, VendorBankAccount, GenJournalLineArray, GenJournalBatch, 1, Dates, Amounts, PaymentMethod, '', '', false);
@@ -376,7 +376,7 @@ codeunit 144351 "CH DTA Reports"
         Amounts: array[3] of Decimal;
     begin
         // 1. Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Initialize();
 
@@ -414,7 +414,7 @@ codeunit 144351 "CH DTA Reports"
         Amounts: array[3] of Decimal;
     begin
         // 1. Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Initialize();
 
@@ -451,7 +451,7 @@ codeunit 144351 "CH DTA Reports"
         Amounts: array[3] of Decimal;
     begin
         // 1. Setup: Create and Post Purchase Order.
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Initialize();
 
@@ -485,7 +485,7 @@ codeunit 144351 "CH DTA Reports"
         Amounts: array[3] of Decimal;
     begin
         // 1. Setup: Create and Post Purchase Order.
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := LibraryRandom.RandDecInRange(100, 300, 2);
         Initialize();
 
@@ -518,7 +518,7 @@ codeunit 144351 "CH DTA Reports"
         VerifyGenJournalNoOfLines(GenJournalBatch, 2);
 
         with GenJournalLine do begin
-            Init;
+            Init();
             SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJournalBatch.Name);
             if FindSet() then
@@ -569,7 +569,7 @@ codeunit 144351 "CH DTA Reports"
         Initialize();
         LibraryDTA.CreateDTASetup(DTASetup, 'EUR', false);
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
           GenJournalBatch, 1, Dates, Amounts, TestOption::"ESR5/15", '', DTASetup."Bank Code", false);
@@ -601,7 +601,7 @@ codeunit 144351 "CH DTA Reports"
         Initialize();
         LibraryDTA.CreateDTASetup(DTASetup, '', false);
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
           GenJournalBatch, 1, Dates, Amounts, TestOption::"SWIFT Payment Abroad", '', DTASetup."Bank Code", false);
@@ -636,7 +636,7 @@ codeunit 144351 "CH DTA Reports"
         Initialize();
         LibraryDTA.CreateDTASetup(DTASetup, CurrencyCode, false);
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
           GenJournalBatch, 1, Dates, Amounts, TestOption::"ESR5/15", '', DTASetup."Bank Code", false);
@@ -707,7 +707,7 @@ codeunit 144351 "CH DTA Reports"
         Initialize();
         LibraryDTA.CreateEZAGSetup(DTASetup, CurrencyCode);
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
           GenJournalBatch, 1, Dates, Amounts, TestOption::"ESR5/15", CurrencyCode, DTASetup."Bank Code", false);
@@ -752,7 +752,7 @@ codeunit 144351 "CH DTA Reports"
         Initialize();
         LibraryDTA.CreateDTASetup(DTASetup, '', false);
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
 
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
@@ -766,10 +766,10 @@ codeunit 144351 "CH DTA Reports"
         // 3. Assert that the invoice has the expected Document No.
         GenJournalLine.SetRange("Journal Template Name", GenJournalLineArray[1]."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLineArray[1]."Journal Batch Name");
-        if GenJournalLine.Find then begin
+        if GenJournalLine.Find() then begin
             repeat
                 Assert.AreEqual(Format(TestDocNoTxt), Format(GenJournalLine."Document No."), GenJournalLineInfoErr);
-            until GenJournalLine.Next = 0
+            until GenJournalLine.Next() = 0
         end;
     end;
 
@@ -790,8 +790,8 @@ codeunit 144351 "CH DTA Reports"
 
         // [GIVEN] Create and post two General Journal lines, non-empty "External Document No.".
         Initialize();
-        Dates[1] := CalcDate('<-1Y>', WorkDate);
-        Dates[2] := WorkDate;
+        Dates[1] := CalcDate('<-1Y>', WorkDate());
+        Dates[2] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
         Amounts[2] := Amounts[1] * 2;
 
@@ -820,7 +820,7 @@ codeunit 144351 "CH DTA Reports"
         // [FEATURE] [DTA Suggest Vendor Payments]
         // [SCENARIO 372205] DTA Suggest Vendor Payment throws an error with detailed info when Vendor Bank Account "Payment Form" is changed after posting
         Initialize();
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
 
         // [GIVEN] Vendor "V". Vendor Bank Account "VB" with "Payment Form" = "ESR"
@@ -859,7 +859,7 @@ codeunit 144351 "CH DTA Reports"
         // [FEATURE] [DTA Suggest Vendor Payments]
         // [SCENARIO 372205] DTA Suggest Vendor Payment throws an error with detailed info when Vendor Bank Account "ESR Type" is changed after posting
         Initialize();
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 300, 2);
 
         // [GIVEN] Vendor "V". Vendor Bank Account "VB" with "ESR Type" = "9/27"
@@ -906,7 +906,7 @@ codeunit 144351 "CH DTA Reports"
         for i := 1 to ArrayLen(Amounts) do begin
             LibraryDTA.CreateDTASetup(DTASetup[i], '', false);
             CreateVendorAndPostVendorInvoice(Vendor[i], Amounts[i], DTASetup[i]."Bank Code");
-            RunDTASuggestVendorPayment(GenJournalBatch, Vendor[i]."No.", WorkDate, WorkDate, WorkDate, '');
+            RunDTASuggestVendorPayment(GenJournalBatch, Vendor[i]."No.", WorkDate(), WorkDate, WorkDate(), '');
         end;
 
         // [WHEN] Run report DTA Payment Order
@@ -932,8 +932,8 @@ codeunit 144351 "CH DTA Reports"
         // [SCENARIO 380351] DTA Lines with no payment suggestions displayed when their Posting Date is later than Posting Date in the DTA Suggest batch.
 
         Initialize();
-        DateInvoice := CalcDate('<+1W>', WorkDate);
-        DateStart := CalcDate('<-1W>', WorkDate);
+        DateInvoice := CalcDate('<+1W>', WorkDate());
+        DateStart := CalcDate('<-1W>', WorkDate());
         DateEnd := CalcDate('<+3M>', DateStart);
         JournalLineAmount := -LibraryRandom.RandDecInRange(100, 10000, 2);
 
@@ -999,7 +999,7 @@ codeunit 144351 "CH DTA Reports"
         Amount := -LibraryRandom.RandDecInRange(100, 300, 2);
         LibraryDTA.CreateGeneralJournalBatch(GenJournalBatch, DummyGenJournalTemplate.Type::Purchases, false);
         LibraryDTA.CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate, Vendor."No.",
+          GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.",
           GenJournalLine."Document Type"::Invoice, Amount, VendorBankAccount.Code,
           TestOption::"Post Payment Domestic", '');
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1148,8 +1148,8 @@ codeunit 144351 "CH DTA Reports"
     begin
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(ExpectedError);
-        Assert.ExpectedError(StrSubstNo(DetailInfoMsg, Vendor.TableCaption, GenJournalLine."Account No."));
-        Assert.ExpectedError(StrSubstNo(DetailInfoMsg, VendorBankAccount.TableCaption, VendBankAccCode));
+        Assert.ExpectedError(StrSubstNo(DetailInfoMsg, Vendor.TableCaption(), GenJournalLine."Account No."));
+        Assert.ExpectedError(StrSubstNo(DetailInfoMsg, VendorBankAccount.TableCaption(), VendBankAccCode));
         Assert.ExpectedError(
           StrSubstNo(DetailInfoMsg, GenJournalLine.FieldCaption("Document Type"), GenJournalLine."Document Type"::Invoice));
         Assert.ExpectedError(
@@ -1302,7 +1302,7 @@ codeunit 144351 "CH DTA Reports"
     begin
         LibraryVariableStorage.Dequeue(BatchName);
         VendorPaymentOrder.JourName.SetValue(BatchName);
-        VendorPaymentOrder.DebitDate.SetValue(WorkDate);
+        VendorPaymentOrder.DebitDate.SetValue(WorkDate());
         VendorPaymentOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

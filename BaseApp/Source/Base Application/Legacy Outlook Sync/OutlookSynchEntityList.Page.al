@@ -27,12 +27,12 @@ page 5302 "Outlook Synch. Entity List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a short description of the synchronization entity that you create.';
                 }
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Dynamics 365 table to synchronize. The program fills in this field every time you specify a table number in the Table No. field.';
                 }
-                field("Outlook Item"; "Outlook Item")
+                field("Outlook Item"; Rec."Outlook Item")
                 {
                     ApplicationArea = Basic, Suite;
                     Lookup = false;
@@ -102,7 +102,7 @@ page 5302 "Outlook Synch. Entity List"
                         OSynchEntity: Record "Outlook Synch. Entity";
                     begin
                         OSynchEntity := Rec;
-                        OSynchEntity.SetRecFilter;
+                        OSynchEntity.SetRecFilter();
                         REPORT.Run(REPORT::"Outlook Synch. Change Log Set.", true, false, OSynchEntity);
                     end;
                 }
@@ -114,7 +114,7 @@ page 5302 "Outlook Synch. Entity List"
     var
         OutlookSynchSetupDefaults: Codeunit "Outlook Synch. Setup Defaults";
     begin
-        OutlookSynchSetupDefaults.InsertOSynchDefaults;
+        OutlookSynchSetupDefaults.InsertOSynchDefaults();
     end;
 }
 #endif

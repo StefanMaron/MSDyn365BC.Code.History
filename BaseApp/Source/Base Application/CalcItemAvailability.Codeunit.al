@@ -342,7 +342,7 @@ codeunit 5530 "Calc. Item Availability"
             ToDate := Item.GetRangeMax("Date Filter");
         end;
         if FromDate = 0D then
-            FromDate := WorkDate;
+            FromDate := WorkDate();
         if ToDate = 0D then
             ToDate := DMY2Date(30, 12, 9999);
 
@@ -474,7 +474,7 @@ codeunit 5530 "Calc. Item Availability"
     begin
         CopyOfInvtEventBuf.Copy(InvtEventBuf);
 
-        with BlanketSalesLine do begin
+        with BlanketSalesLine do
             if FindLinesWithItemToPlan(Item, "Document Type"::"Blanket Order") then
                 repeat
                     InvtEventBuf.SetRange(Type, InvtEventBuf.Type::Sale);
@@ -501,7 +501,6 @@ codeunit 5530 "Calc. Item Availability"
                     SetRange("Document No.");
                     SetRange("Line No.");
                 until Next() = 0;
-        end;
 
         InvtEventBuf.Copy(CopyOfInvtEventBuf);
     end;
@@ -529,7 +528,7 @@ codeunit 5530 "Calc. Item Availability"
                             end;
                         "Action Message"::"Change Qty.":
                             begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", -GetOriginalQtyBase, RecRef.RecordId);
+                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", -GetOriginalQtyBase(), RecRef.RecordId);
                                 InsertEntry(InvtEventBuf);
 
                                 InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", "Quantity (Base)", RecRef.RecordId);
@@ -545,7 +544,7 @@ codeunit 5530 "Calc. Item Availability"
                             end;
                         "Action Message"::"Resched. & Chg. Qty.":
                             begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Original Due Date", -GetOriginalQtyBase, RecRef.RecordId);
+                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Original Due Date", -GetOriginalQtyBase(), RecRef.RecordId);
                                 InsertEntry(InvtEventBuf);
 
                                 InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", "Quantity (Base)", RecRef.RecordId);
@@ -553,7 +552,7 @@ codeunit 5530 "Calc. Item Availability"
                             end;
                         "Action Message"::Cancel:
                             begin
-                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", -GetOriginalQtyBase, RecRef.RecordId);
+                                InvtEventBuf.TransferFromReqLine(ReqLine, "Location Code", "Due Date", -GetOriginalQtyBase(), RecRef.RecordId);
                                 InsertEntry(InvtEventBuf);
                             end;
                     end;
@@ -621,7 +620,7 @@ codeunit 5530 "Calc. Item Availability"
 
     procedure InsertEntry(var NewInvtEventBuffer: Record "Inventory Event Buffer")
     begin
-        NewInvtEventBuffer."Entry No." := NextEntryNo;
+        NewInvtEventBuffer."Entry No." := NextEntryNo();
         NewInvtEventBuffer.Insert();
     end;
 
@@ -678,7 +677,7 @@ codeunit 5530 "Calc. Item Availability"
     begin
         // Check if the parent of a component line is represented with a planning suggestion
         RecordID := InvtEventBuf."Source Line ID";
-        RecRef := RecordID.GetRecord;
+        RecRef := RecordID.GetRecord();
         RecRef.SetTable(ProdOrderComp);
         ReqLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
         ReqLine.SetRange("Ref. Order Type", ReqLine."Ref. Order Type"::"Prod. Order");
@@ -787,7 +786,7 @@ codeunit 5530 "Calc. Item Availability"
         SourceProdOrderLine := 0;
         SourceRefNo := 0;
 
-        RecRef := FromRecordID.GetRecord;
+        RecRef := FromRecordID.GetRecord();
 
         case FromRecordID.TableNo of
             DATABASE::"Item Ledger Entry":
@@ -948,7 +947,7 @@ codeunit 5530 "Calc. Item Availability"
         if Format(RecordID) = '' then
             exit;
 
-        RecRef := RecordID.GetRecord;
+        RecRef := RecordID.GetRecord();
 
         case RecordID.TableNo of
             DATABASE::"Item Ledger Entry":

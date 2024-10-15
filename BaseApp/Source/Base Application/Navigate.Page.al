@@ -3,12 +3,11 @@
     AdditionalSearchTerms = 'find,search,analyze,navigate';
     ApplicationArea = Basic, Suite, FixedAssets, Service, CostAccounting;
     Caption = 'Find entries';
-    DataCaptionExpression = GetCaptionText;
+    DataCaptionExpression = GetCaptionText();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Find By';
     SaveValues = true;
     SourceTable = "Document Entry";
     SourceTableTemporary = true;
@@ -99,7 +98,7 @@
                     begin
                         SetDocNo('');
                         SetPostingDate('');
-                        ClearTrackingInfo;
+                        ClearTrackingInfo();
                         ContactTypeOnAfterValidate();
                         FilterSelectionChanged();
                     end;
@@ -139,7 +138,7 @@
                     begin
                         SetDocNo('');
                         SetPostingDate('');
-                        ClearTrackingInfo;
+                        ClearTrackingInfo();
                         ContactNoOnAfterValidate();
                         FilterSelectionChanged();
                     end;
@@ -154,7 +153,7 @@
                     begin
                         SetDocNo('');
                         SetPostingDate('');
-                        ClearTrackingInfo;
+                        ClearTrackingInfo();
                         ExtDocNoOnAfterValidate();
                         FilterSelectionChanged();
                     end;
@@ -176,7 +175,7 @@
                         SerialNoInformationList: Page "Serial No. Information List";
                     begin
                         Clear(SerialNoInformationList);
-                        if SerialNoInformationList.RunModal = ACTION::LookupOK then begin
+                        if SerialNoInformationList.RunModal() = ACTION::LookupOK then begin
                             Text := SerialNoInformationList.GetSelectionFilter();
                             exit(true);
                         end;
@@ -200,7 +199,7 @@
                         LotNoInformationList: Page "Lot No. Information List";
                     begin
                         Clear(LotNoInformationList);
-                        if LotNoInformationList.RunModal = ACTION::LookupOK then begin
+                        if LotNoInformationList.RunModal() = ACTION::LookupOK then begin
                             Text := LotNoInformationList.GetSelectionFilter();
                             exit(true);
                         end;
@@ -312,10 +311,6 @@
                     Caption = '&Show Related Entries';
                     Enabled = ShowEnable;
                     Image = ViewDocumentLine;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'View the related entries of the type that you have chosen.';
 
                     trigger OnAction()
@@ -328,10 +323,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Fi&nd';
                     Image = Find;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Apply a filter to search on this page.';
 
                     trigger OnAction()
@@ -347,10 +338,6 @@
                     Ellipsis = true;
                     Enabled = PrintEnable;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                     trigger OnAction()
@@ -358,7 +345,7 @@
                         ItemTrackingNavigate: Report "Item Tracking Navigate";
                         DocumentEntries: Report "Document Entries";
                     begin
-                        if ItemTrackingSearch then begin
+                        if ItemTrackingSearch() then begin
                             Clear(ItemTrackingNavigate);
                             ItemTrackingNavigate.TransferDocEntries(Rec);
                             ItemTrackingNavigate.TransferRecordBuffer(TempRecordBuffer);
@@ -417,6 +404,31 @@
                         UpdateFindByGroupsVisibility();
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Show_Promoted; Show)
+                {
+                }
+                actionref(Find_Promoted; Find)
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Find By', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -484,14 +496,6 @@
         Cust: Record Customer;
         [SecurityFiltering(SecurityFilter::Filtered)]
         Vend: Record Vendor;
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        SalesShptHeader: Record "Sales Shipment Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        SalesInvHeader: Record "Sales Invoice Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ReturnRcptHeader: Record "Return Receipt Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         ServShptHeader: Record "Service Shipment Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -599,9 +603,6 @@
         SourceNo: Code[20];
         SourceName: Text[100];
         DocExists: Boolean;
-        SerialNoFilter: Text;
-        LotNoFilter: Text;
-        PackageNoFilter: Text;
         [InDataSet]
         ShowEnable: Boolean;
         [InDataSet]
@@ -627,6 +628,14 @@
         PageCaptionTxt: Label 'Selected - %1';
 
     protected var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesShptHeader: Record "Sales Shipment Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesInvHeader: Record "Sales Invoice Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ReturnRcptHeader: Record "Return Receipt Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         SQSalesHeader: Record "Sales Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -661,6 +670,9 @@
         NewDocNo: Code[20];
         NewPostingDate: Date;
         NewSourceRecVar: Variant;
+        SerialNoFilter: Text;
+        LotNoFilter: Text;
+        PackageNoFilter: Text;
 
     procedure SetDoc(PostingDate: Date; DocNo: Code[20])
     begin
@@ -695,13 +707,13 @@
                     VendLedgEntry2.SetFilter("External Document No.", ExtDocNo);
                     VendLedgEntry2.SetFilter("Vendor No.", ContactNo);
                     if VendLedgEntry2.FindSet() then begin
-                                                         repeat
-                                                             MakeExtFilter(
-                                                               DateFilter2,
-                                                               VendLedgEntry2."Posting Date",
-                                                               DocNoFilter2,
-                                                               VendLedgEntry2."Document No.");
-                                                         until VendLedgEntry2.Next() = 0;
+                        repeat
+                            MakeExtFilter(
+                              DateFilter2,
+                              VendLedgEntry2."Posting Date",
+                              DocNoFilter2,
+                              VendLedgEntry2."Document No.");
+                        until VendLedgEntry2.Next() = 0;
                         SetPostingDate(DateFilter2);
                         SetDocNo(DocNoFilter2);
                         FindRecords();
@@ -788,7 +800,7 @@
         end;
     end;
 
-    local procedure FindRecords()
+    procedure FindRecords()
     var
         DocType2: Text[100];
         DocNo2: Code[20];
@@ -803,7 +815,7 @@
         OnBeforeFindRecords(HideDialog);
         if not HideDialog then
             Window.Open(Text002);
-        Rec.Reset;
+        Rec.Reset();
         Rec.DeleteAll();
         Rec."Entry No." := 0;
 
@@ -817,7 +829,7 @@
         FindUnpostedSalesDocs(SISalesHeader."Document Type"::Invoice, SalesInvoiceTxt, SISalesHeader);
         FindUnpostedSalesDocs(SROSalesHeader."Document Type"::"Return Order", SalesReturnOrderTxt, SROSalesHeader);
         FindUnpostedSalesDocs(SCMSalesHeader."Document Type"::"Credit Memo", SalesCreditMemoTxt, SCMSalesHeader);
-        FindUnpostedGenJnlLines(CopyStr(GenJnlLine.TableCaption, 1, 100), GenJnlLine);
+        FindUnpostedGenJnlLines(CopyStr(GenJnlLine.TableCaption(), 1, 100), GenJnlLine);
 
         OnAfterNavigateFindRecords(Rec, DocNoFilter, PostingDateFilter, NewSourceRecVar);
         DocExists := Rec.FindFirst();
@@ -873,13 +885,13 @@
             PostedInvtRcptHeader.Reset();
             PostedInvtRcptHeader.SetFilter("No.", DocNoFilter);
             PostedInvtRcptHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Invt. Receipt Header", 0, PostedInvtRcptHeader.TableCaption, PostedInvtRcptHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Invt. Receipt Header", 0, PostedInvtRcptHeader.TableCaption(), PostedInvtRcptHeader.Count);
         end;
         if PostedInvtShptHeader.ReadPermission() then begin
             PostedInvtShptHeader.Reset();
             PostedInvtShptHeader.SetFilter("No.", DocNoFilter);
             PostedInvtShptHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", 0, PostedInvtShptHeader.TableCaption, PostedInvtShptHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", 0, PostedInvtShptHeader.TableCaption(), PostedInvtShptHeader.Count);
         end;
     end;
 
@@ -894,7 +906,7 @@
             CustLedgEntry.SetFilter("Document No.", DocNoFilter);
             CustLedgEntry.SetFilter("Posting Date", PostingDateFilter);
             CustLedgEntry.SetFilter("External Document No.", ExtDocNo);
-            InsertIntoDocEntry(Rec, DATABASE::"Cust. Ledger Entry", CustLedgEntry.TableCaption, CustLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Cust. Ledger Entry", CustLedgEntry.TableCaption(), CustLedgEntry.Count);
         end;
         if (DocNoFilter <> '') or (PostingDateFilter <> '') then
             if DtldCustLedgEntry.ReadPermission() then begin
@@ -902,7 +914,7 @@
                 DtldCustLedgEntry.SetCurrentKey("Document No.");
                 DtldCustLedgEntry.SetFilter("Document No.", DocNoFilter);
                 DtldCustLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-                InsertIntoDocEntry(Rec, DATABASE::"Detailed Cust. Ledg. Entry", DtldCustLedgEntry.TableCaption, DtldCustLedgEntry.Count);
+                InsertIntoDocEntry(Rec, DATABASE::"Detailed Cust. Ledg. Entry", DtldCustLedgEntry.TableCaption(), DtldCustLedgEntry.Count);
             end;
     end;
 
@@ -917,7 +929,7 @@
             VendLedgEntry.SetFilter("Document No.", DocNoFilter);
             VendLedgEntry.SetFilter("External Document No.", ExtDocNo);
             VendLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Vendor Ledger Entry", VendLedgEntry.TableCaption, VendLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Vendor Ledger Entry", VendLedgEntry.TableCaption(), VendLedgEntry.Count);
         end;
         if (DocNoFilter <> '') or (PostingDateFilter <> '') then
             if DtldVendLedgEntry.ReadPermission() then begin
@@ -925,7 +937,7 @@
                 DtldVendLedgEntry.SetCurrentKey("Document No.");
                 DtldVendLedgEntry.SetFilter("Document No.", DocNoFilter);
                 DtldVendLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-                InsertIntoDocEntry(Rec, DATABASE::"Detailed Vendor Ledg. Entry", DtldVendLedgEntry.TableCaption, DtldVendLedgEntry.Count);
+                InsertIntoDocEntry(Rec, DATABASE::"Detailed Vendor Ledg. Entry", DtldVendLedgEntry.TableCaption(), DtldVendLedgEntry.Count);
             end;
     end;
 
@@ -941,14 +953,14 @@
             BankAccLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             BankAccLedgEntry.SetFilter("Document No.", DocNoFilter);
             BankAccLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Bank Account Ledger Entry", BankAccLedgEntry.TableCaption, BankAccLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Bank Account Ledger Entry", BankAccLedgEntry.TableCaption(), BankAccLedgEntry.Count);
         end;
         if CheckLedgEntry.ReadPermission() then begin
             CheckLedgEntry.Reset();
             CheckLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             CheckLedgEntry.SetFilter("Document No.", DocNoFilter);
             CheckLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Check Ledger Entry", CheckLedgEntry.TableCaption, CheckLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Check Ledger Entry", CheckLedgEntry.TableCaption(), CheckLedgEntry.Count);
         end;
     end;
 
@@ -963,7 +975,7 @@
             GLEntry.SetFilter("Document No.", DocNoFilter);
             GLEntry.SetFilter("Posting Date", PostingDateFilter);
             GLEntry.SetFilter("External Document No.", ExtDocNo);
-            InsertIntoDocEntry(Rec, DATABASE::"G/L Entry", GLEntry.TableCaption, GLEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"G/L Entry", GLEntry.TableCaption(), GLEntry.Count);
         end;
     end;
 
@@ -977,7 +989,7 @@
             VATEntry.SetFilter("Document No.", DocNoFilter);
             VATEntry.SetFilter("Posting Date", PostingDateFilter);
             OnFindVATEntriesOnAfterVATEntrySetFilters(VATEntry, DocNoFilter, PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"VAT Entry", VATEntry.TableCaption, VATEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"VAT Entry", VATEntry.TableCaption(), VATEntry.Count);
         end;
     end;
 
@@ -990,21 +1002,21 @@
             FALedgEntry.SetCurrentKey("Document No.", "Posting Date");
             FALedgEntry.SetFilter("Document No.", DocNoFilter);
             FALedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"FA Ledger Entry", FALedgEntry.TableCaption, FALedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"FA Ledger Entry", FALedgEntry.TableCaption(), FALedgEntry.Count);
         end;
         if MaintenanceLedgEntry.ReadPermission() then begin
             MaintenanceLedgEntry.Reset();
             MaintenanceLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             MaintenanceLedgEntry.SetFilter("Document No.", DocNoFilter);
             MaintenanceLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption, MaintenanceLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption(), MaintenanceLedgEntry.Count);
         end;
         if InsuranceCovLedgEntry.ReadPermission() then begin
             InsuranceCovLedgEntry.Reset();
             InsuranceCovLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             InsuranceCovLedgEntry.SetFilter("Document No.", DocNoFilter);
             InsuranceCovLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Ins. Coverage Ledger Entry", InsuranceCovLedgEntry.TableCaption, InsuranceCovLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Ins. Coverage Ledger Entry", InsuranceCovLedgEntry.TableCaption(), InsuranceCovLedgEntry.Count);
         end;
     end;
 
@@ -1017,21 +1029,21 @@
             ItemLedgEntry.SetCurrentKey("Document No.");
             ItemLedgEntry.SetFilter("Document No.", DocNoFilter);
             ItemLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Item Ledger Entry", ItemLedgEntry.TableCaption, ItemLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Item Ledger Entry", ItemLedgEntry.TableCaption(), ItemLedgEntry.Count);
         end;
         if ValueEntry.ReadPermission() then begin
             ValueEntry.Reset();
             ValueEntry.SetCurrentKey("Document No.");
             ValueEntry.SetFilter("Document No.", DocNoFilter);
             ValueEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Value Entry", ValueEntry.TableCaption, ValueEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Value Entry", ValueEntry.TableCaption(), ValueEntry.Count);
         end;
         if PhysInvtLedgEntry.ReadPermission() then begin
             PhysInvtLedgEntry.Reset();
             PhysInvtLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             PhysInvtLedgEntry.SetFilter("Document No.", DocNoFilter);
             PhysInvtLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Phys. Inventory Ledger Entry", PhysInvtLedgEntry.TableCaption, PhysInvtLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Phys. Inventory Ledger Entry", PhysInvtLedgEntry.TableCaption(), PhysInvtLedgEntry.Count);
         end;
     end;
 
@@ -1044,7 +1056,7 @@
             ReminderEntry.SetCurrentKey(Type, "No.");
             ReminderEntry.SetFilter("No.", DocNoFilter);
             ReminderEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Reminder/Fin. Charge Entry", ReminderEntry.TableCaption, ReminderEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Reminder/Fin. Charge Entry", ReminderEntry.TableCaption(), ReminderEntry.Count);
         end;
     end;
 
@@ -1057,7 +1069,7 @@
             ResLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             ResLedgEntry.SetFilter("Document No.", DocNoFilter);
             ResLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Res. Ledger Entry", ResLedgEntry.TableCaption, ResLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Res. Ledger Entry", ResLedgEntry.TableCaption(), ResLedgEntry.Count);
         end;
     end;
 
@@ -1070,14 +1082,14 @@
             ServLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
             ServLedgerEntry.SetFilter("Document No.", DocNoFilter);
             ServLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Service Ledger Entry", ServLedgerEntry.TableCaption, ServLedgerEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Service Ledger Entry", ServLedgerEntry.TableCaption(), ServLedgerEntry.Count);
         end;
         if WarrantyLedgerEntry.ReadPermission() then begin
             WarrantyLedgerEntry.Reset();
             WarrantyLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
             WarrantyLedgerEntry.SetFilter("Document No.", DocNoFilter);
             WarrantyLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Warranty Ledger Entry", WarrantyLedgerEntry.TableCaption, WarrantyLedgerEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Warranty Ledger Entry", WarrantyLedgerEntry.TableCaption(), WarrantyLedgerEntry.Count);
         end;
     end;
 
@@ -1090,7 +1102,7 @@
             CapacityLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             CapacityLedgEntry.SetFilter("Document No.", DocNoFilter);
             CapacityLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Capacity Ledger Entry", CapacityLedgEntry.TableCaption, CapacityLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Capacity Ledger Entry", CapacityLedgEntry.TableCaption(), CapacityLedgEntry.Count);
         end;
     end;
 
@@ -1103,7 +1115,7 @@
             CostEntry.SetCurrentKey("Document No.", "Posting Date");
             CostEntry.SetFilter("Document No.", DocNoFilter);
             CostEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Cost Entry", CostEntry.TableCaption, CostEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Cost Entry", CostEntry.TableCaption(), CostEntry.Count);
         end;
     end;
 
@@ -1116,7 +1128,7 @@
             WhseEntry.SetCurrentKey("Reference No.", "Registering Date");
             WhseEntry.SetFilter("Reference No.", DocNoFilter);
             WhseEntry.SetFilter("Registering Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Warehouse Entry", WhseEntry.TableCaption, WhseEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Warehouse Entry", WhseEntry.TableCaption(), WhseEntry.Count);
         end;
     end;
 
@@ -1129,20 +1141,20 @@
             JobLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             JobLedgEntry.SetFilter("Document No.", DocNoFilter);
             JobLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Job Ledger Entry", JobLedgEntry.TableCaption, JobLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Job Ledger Entry", JobLedgEntry.TableCaption(), JobLedgEntry.Count);
         end;
         if JobWIPEntry.ReadPermission() then begin
             JobWIPEntry.Reset();
             JobWIPEntry.SetFilter("Document No.", DocNoFilter);
             JobWIPEntry.SetFilter("WIP Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Job WIP Entry", JobWIPEntry.TableCaption, JobWIPEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Job WIP Entry", JobWIPEntry.TableCaption(), JobWIPEntry.Count);
         end;
         if JobWIPGLEntry.ReadPermission() then begin
             JobWIPGLEntry.Reset();
             JobWIPGLEntry.SetCurrentKey("Document No.", "Posting Date");
             JobWIPGLEntry.SetFilter("Document No.", DocNoFilter);
             JobWIPGLEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Job WIP G/L Entry", JobWIPGLEntry.TableCaption, JobWIPGLEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Job WIP G/L Entry", JobWIPGLEntry.TableCaption(), JobWIPGLEntry.Count);
         end;
     end;
 
@@ -1155,7 +1167,7 @@
             DelivReminLedgerEntries.SetFilter("Reminder No.", DocNoFilter);
             DelivReminLedgerEntries.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(
-              Rec, DATABASE::"Delivery Reminder Ledger Entry", 0, DelivReminLedgerEntries.TableCaption, DelivReminLedgerEntries.Count);
+              Rec, DATABASE::"Delivery Reminder Ledger Entry", 0, DelivReminLedgerEntries.TableCaption(), DelivReminLedgerEntries.Count);
         end;
     end;
 
@@ -1199,7 +1211,7 @@
             IncomingDocument.Reset();
             IncomingDocument.SetFilter("Document No.", DocNoFilter);
             IncomingDocument.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Incoming Document", IncomingDocument.TableCaption, IncomingDocument.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Incoming Document", IncomingDocument.TableCaption(), IncomingDocument.Count);
         end;
     end;
 
@@ -1294,14 +1306,14 @@
             EmplLedgEntry.SetCurrentKey("Document No.");
             EmplLedgEntry.SetFilter("Document No.", DocNoFilter);
             EmplLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Employee Ledger Entry", EmplLedgEntry.TableCaption, EmplLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Employee Ledger Entry", EmplLedgEntry.TableCaption(), EmplLedgEntry.Count);
         end;
         if DtldEmplLedgEntry.ReadPermission() then begin
             DtldEmplLedgEntry.Reset();
             DtldEmplLedgEntry.SetCurrentKey("Document No.");
             DtldEmplLedgEntry.SetFilter("Document No.", DocNoFilter);
             DtldEmplLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Detailed Employee Ledger Entry", DtldEmplLedgEntry.TableCaption, DtldEmplLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Detailed Employee Ledger Entry", DtldEmplLedgEntry.TableCaption(), DtldEmplLedgEntry.Count);
         end;
     end;
 
@@ -1415,7 +1427,7 @@
             PostedWhseShptLine.SetCurrentKey("Posted Source No.", "Posting Date");
             PostedWhseShptLine.SetFilter("Posted Source No.", DocNoFilter);
             PostedWhseShptLine.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Whse. Shipment Line", PostedWhseShptLine.TableCaption, PostedWhseShptLine.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted Whse. Shipment Line", PostedWhseShptLine.TableCaption(), PostedWhseShptLine.Count);
         end;
     end;
 
@@ -1428,7 +1440,7 @@
             PostedWhseRcptLine.SetCurrentKey("Posted Source No.", "Posting Date");
             PostedWhseRcptLine.SetFilter("Posted Source No.", DocNoFilter);
             PostedWhseRcptLine.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Whse. Receipt Line", PostedWhseRcptLine.TableCaption, PostedWhseRcptLine.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted Whse. Receipt Line", PostedWhseRcptLine.TableCaption(), PostedWhseRcptLine.Count);
         end;
     end;
 
@@ -1440,7 +1452,7 @@
             PstdPhysInvtOrderHdr.Reset();
             PstdPhysInvtOrderHdr.SetFilter("No.", DocNoFilter);
             PstdPhysInvtOrderHdr.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Pstd. Phys. Invt. Order Hdr", PstdPhysInvtOrderHdr.TableCaption, PstdPhysInvtOrderHdr.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Pstd. Phys. Invt. Order Hdr", PstdPhysInvtOrderHdr.TableCaption(), PstdPhysInvtOrderHdr.Count);
         end;
     end;
 
@@ -1488,7 +1500,7 @@
             PostedInvtRcptHeader.Reset();
             PostedInvtRcptHeader.SetFilter("No.", DocNoFilter);
             PostedInvtRcptHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Invt. Receipt Header", PostedInvtRcptHeader.TableCaption, PostedInvtRcptHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Invt. Receipt Header", PostedInvtRcptHeader.TableCaption(), PostedInvtRcptHeader.Count);
         end;
     end;
 
@@ -1500,7 +1512,7 @@
             PostedInvtShptHeader.Reset();
             PostedInvtShptHeader.SetFilter("No.", DocNoFilter);
             PostedInvtShptHeader.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", PostedInvtShptHeader.TableCaption, PostedInvtShptHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Invt. Shipment Header", PostedInvtShptHeader.TableCaption(), PostedInvtShptHeader.Count);
         end;
     end;
 
@@ -1511,7 +1523,7 @@
             IssuedDeliveryReminderHeader.SetFilter("No.", DocNoFilter);
             IssuedDeliveryReminderHeader.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec,
-              DATABASE::"Issued Deliv. Reminder Header", 0, IssuedDeliveryReminderHeader.TableCaption, IssuedDeliveryReminderHeader.Count);
+              DATABASE::"Issued Deliv. Reminder Header", 0, IssuedDeliveryReminderHeader.TableCaption(), IssuedDeliveryReminderHeader.Count);
         end;
     end;
 
@@ -1772,21 +1784,21 @@
     begin
         IsHandled := false;
         OnBeforeNavigateShowRecords(
-          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch, Rec, IsHandled,
+          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch(), Rec, IsHandled,
           SalesInvHeader, SalesCrMemoHeader, PurchInvHeader, PurchCrMemoHeader, ServInvHeader, ServCrMemoHeader,
           SOSalesHeader, SISalesHeader, SCMSalesHeader, SROSalesHeader, GLEntry, VATEntry, VendLedgEntry, WarrantyLedgerEntry, NewSourceRecVar,
           SalesShptHeader, ReturnRcptHeader, ReturnShptHeader, PurchRcptHeader);
         if IsHandled then
             exit;
 
-        if ItemTrackingSearch then
+        if ItemTrackingSearch() then
             ItemTrackingNavigateMgt.Show(Rec."Table ID")
         else
             case Rec."Table ID" of
                 DATABASE::"Incoming Document":
                     PAGE.Run(PAGE::"Incoming Document", IncomingDocument);
                 DATABASE::"Sales Header":
-                    ShowSalesHeaderRecords;
+                    ShowSalesHeaderRecords();
                 DATABASE::"Purchase Header":
                     ShowPurchaseHeaderRecords();
                 DATABASE::"Gen. Journal Line":
@@ -1877,9 +1889,9 @@
                 DATABASE::"Detailed Vendor Ledg. Entry":
                     PAGE.Run(0, DtldVendLedgEntry);
                 DATABASE::"Employee Ledger Entry":
-                    ShowEmployeeLedgerEntries;
+                    ShowEmployeeLedgerEntries();
                 DATABASE::"Detailed Employee Ledger Entry":
-                    ShowDetailedEmployeeLedgerEntries;
+                    ShowDetailedEmployeeLedgerEntries();
                 DATABASE::"Item Ledger Entry":
                     PAGE.Run(0, ItemLedgEntry);
                 DATABASE::"Value Entry":
@@ -1909,7 +1921,7 @@
                 DATABASE::"Warehouse Entry":
                     PAGE.Run(0, WhseEntry);
                 DATABASE::"Service Header":
-                    ShowServiceHeaderRecords;
+                    ShowServiceHeaderRecords();
                 DATABASE::"Service Invoice Header":
                     if Rec."No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Service Invoice", ServInvHeader)
@@ -1952,7 +1964,7 @@
             end;
 
         OnAfterNavigateShowRecords(
-          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch, Rec,
+          Rec."Table ID", DocNoFilter, PostingDateFilter, ItemTrackingSearch(), Rec,
           SalesInvHeader, SalesCrMemoHeader, PurchInvHeader, PurchCrMemoHeader, ServInvHeader, ServCrMemoHeader,
           ContactType, ContactNo, ExtDocNo);
     end;
@@ -2100,7 +2112,7 @@
                     TooLongFilter();
     end;
 
-    local procedure FindPush()
+    procedure FindPush()
     begin
         if (DocNoFilter <> '') or (PostingDateFilter <> '') or (ExtDocNo <> '') then
             SearchBasedOn := SearchBasedOn::Document;
@@ -2202,7 +2214,7 @@
         InsertIntoDocEntry(Rec, DATABASE::"Service Header", DocType, DocTableName, ServHeader.Count);
     end;
 
-    local procedure FindTrackingRecords()
+    procedure FindTrackingRecords()
     var
         DocNoOfRecords: Integer;
     begin
@@ -2222,16 +2234,16 @@
         TempRecordBuffer.SetCurrentKey("Table No.", "Record Identifier");
         if TempRecordBuffer.Find('-') then
             repeat
-                    TempRecordBuffer.SetRange("Table No.", TempRecordBuffer."Table No.");
+                TempRecordBuffer.SetRange("Table No.", TempRecordBuffer."Table No.");
 
                 DocNoOfRecords := 0;
                 if TempRecordBuffer.Find('-') then
-                        repeat
-                            TempRecordBuffer.SetRange("Record Identifier", TempRecordBuffer."Record Identifier");
-                            TempRecordBuffer.Find('+');
-                            TempRecordBuffer.SetRange("Record Identifier");
-                            DocNoOfRecords += 1;
-                        until TempRecordBuffer.Next() = 0;
+                    repeat
+                        TempRecordBuffer.SetRange("Record Identifier", TempRecordBuffer."Record Identifier");
+                        TempRecordBuffer.Find('+');
+                        TempRecordBuffer.SetRange("Record Identifier");
+                        DocNoOfRecords += 1;
+                    until TempRecordBuffer.Next() = 0;
 
                 InsertIntoDocEntry(Rec, TempRecordBuffer."Table No.", TempRecordBuffer."Table Name", DocNoOfRecords);
 
@@ -2258,7 +2270,7 @@
         NewItemTrackingSetup := ItemTrackingSetup;
     end;
 
-    local procedure ItemTrackingSearch(): Boolean
+    procedure ItemTrackingSearch(): Boolean
     begin
         exit(SearchBasedOn = SearchBasedOn::"Item Reference");
     end;

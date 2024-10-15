@@ -247,7 +247,7 @@ table 950 "Time Sheet Header"
         TimeSheetCommentLine.SetRange("Time Sheet Line No.", 0);
         TimeSheetCommentLine.DeleteAll();
 
-        RemoveFromMyTimeSheets;
+        RemoveFromMyTimeSheets();
     end;
 
     trigger OnInsert()
@@ -283,8 +283,9 @@ table 950 "Time Sheet Header"
         Resource: Record Resource;
         ResourcesSetup: Record "Resources Setup";
         TimeSheetLine: Record "Time Sheet Line";
-        Text001: Label '%1 does not contain lines.';
         TimeSheetMgt: Codeunit "Time Sheet Management";
+
+        Text001: Label '%1 does not contain lines.';
         Text002: Label 'No time sheets are available. The time sheet administrator must create time sheets before you can access them in this window.';
         PrivacyBlockedErr: Label 'You cannot use resource %1 because they are marked as blocked due to privacy.', Comment = '%1=resource no.';
 
@@ -298,11 +299,11 @@ table 950 "Time Sheet Header"
     procedure Check()
     begin
         TimeSheetLine.SetRange("Time Sheet No.", "No.");
-        if TimeSheetLine.FindSet() then begin
+        if TimeSheetLine.FindSet() then
             repeat
                 CheckTimeSheetLine(TimeSheetLine);
-            until TimeSheetLine.Next() = 0;
-        end else
+            until TimeSheetLine.Next() = 0
+        else
             Error(Text001, "No.");
     end;
 
@@ -329,11 +330,11 @@ table 950 "Time Sheet Header"
 
     procedure FindLastTimeSheetNo(FilterFieldNo: Integer): Code[20]
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Resource No.", "Starting Date");
 
         TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
-        SetFilter("Starting Date", '%1..', WorkDate);
+        SetFilter("Starting Date", '%1..', WorkDate());
         if FindFirst() then
             exit("No.");
 

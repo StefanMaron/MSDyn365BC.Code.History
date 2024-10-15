@@ -15,7 +15,7 @@ page 99000761 "Machine Center List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -25,7 +25,7 @@ page 99000761 "Machine Center List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a name for the machine center.';
                 }
-                field("Work Center No."; "Work Center No.")
+                field("Work Center No."; Rec."Work Center No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the work center to assign this machine center to.';
@@ -40,60 +40,60 @@ page 99000761 "Machine Center List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the efficiency factor as a percentage of the machine center.';
                 }
-                field("Minimum Efficiency"; "Minimum Efficiency")
+                field("Minimum Efficiency"; Rec."Minimum Efficiency")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the minimum efficiency of this machine center.';
                     Visible = false;
                 }
-                field("Maximum Efficiency"; "Maximum Efficiency")
+                field("Maximum Efficiency"; Rec."Maximum Efficiency")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the maximum efficiency of this machine center.';
                     Visible = false;
                 }
-                field("Concurrent Capacities"; "Concurrent Capacities")
+                field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how much available capacity must be concurrently planned for one operation at this machine center.';
                     Visible = false;
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                     Visible = false;
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the percentage of the center''s cost that includes indirect costs, such as machine maintenance.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Overhead Rate"; "Overhead Rate")
+                field("Overhead Rate"; Rec."Overhead Rate")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the overhead rate of this machine center.';
                     Visible = false;
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the machine center card was last modified.';
                     Visible = false;
                 }
-                field("Flushing Method"; "Flushing Method")
+                field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
@@ -162,8 +162,6 @@ page 99000761 "Machine Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Machine Center Statistics";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -181,8 +179,6 @@ page 99000761 "Machine Center List"
                     ApplicationArea = Manufacturing;
                     Caption = '&Calendar';
                     Image = MachineCenterCalendar;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Machine Center Calendar";
                     ToolTip = 'Open the shop calendar, for example to see the load.';
                 }
@@ -191,8 +187,6 @@ page 99000761 "Machine Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'A&bsence';
                     Image = WorkCenterAbsence;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Capacity Absence";
                     RunPageLink = "Capacity Type" = CONST("Machine Center"),
                                   "No." = FIELD("No."),
@@ -204,8 +198,6 @@ page 99000761 "Machine Center List"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ta&sk List';
                     Image = TaskList;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Machine Center Task List";
                     RunPageLink = "No." = FIELD("No.");
                     RunPageView = SORTING(Type, "No.")
@@ -223,8 +215,6 @@ page 99000761 "Machine Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Calculate Machine Center Calendar';
                 Image = CalcWorkCenterCalendar;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Report "Calc. Machine Center Calendar";
                 ToolTip = 'Create new calendar entries for the machine center to define the available daily capacity.';
             }
@@ -236,8 +226,6 @@ page 99000761 "Machine Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Machine Center List';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Machine Center List";
                 ToolTip = 'View the list of machine centers.';
             }
@@ -246,8 +234,6 @@ page 99000761 "Machine Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Machine Center Load';
                 Image = "Report";
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Report "Machine Center Load";
                 ToolTip = 'Get an overview of availability at the machine center, such as the capacity, the allocated quantity, availability after order, and the load in percent.';
             }
@@ -256,11 +242,44 @@ page 99000761 "Machine Center List"
                 ApplicationArea = Manufacturing;
                 Caption = 'Machine Center Load/Bar';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Machine Center Load/Bar";
                 ToolTip = 'View a list of machine centers that are overloaded according to the plan. The efficiency or overloading is shown by efficiency bars.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Calculate Machine Center Calendar_Promoted"; "Calculate Machine Center Calendar")
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("&Calendar_Promoted"; "&Calendar")
+                {
+                }
+                actionref("A&bsence_Promoted"; "A&bsence")
+                {
+                }
+                actionref("Ta&sk List_Promoted"; "Ta&sk List")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Machine Center List_Promoted"; "Machine Center List")
+                {
+                }
+                actionref("Machine Center Load_Promoted"; "Machine Center Load")
+                {
+                }
             }
         }
     }

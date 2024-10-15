@@ -123,7 +123,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate,
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(),
             LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         PostInvoicesAcrossKeyDateIntervals(Customer, '<1M>', CurrencyCode, Balance);
 
@@ -151,7 +151,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         LibraryVariableStorage.Dequeue(PeriodLength);
         LibraryVariableStorage.Dequeue(Layout);
         LibraryVariableStorage.Dequeue(ShowLCY);
-        SRCustDueAmountPerPeriod.KeyDate.SetValue(WorkDate);
+        SRCustDueAmountPerPeriod.KeyDate.SetValue(WorkDate());
         SRCustDueAmountPerPeriod.PeriodLength.SetValue(PeriodLength);
         SRCustDueAmountPerPeriod.Layout.SetValue(Layout);
         SRCustDueAmountPerPeriod.ShowAmtInLCY.SetValue(ShowLCY);
@@ -183,7 +183,7 @@ codeunit 144027 "Test Cust. Due Amt. Report"
         PeriodLengthDateFormula: DateFormula;
         "count": Integer;
     begin
-        DueDate := WorkDate;
+        DueDate := WorkDate();
         Balance[1] := LibraryRandom.RandDec(1000, 2);
         PostSalesInvoiceWithGivenDate(Customer, DueDate, Balance[1], CurrencyCode);
 

@@ -260,7 +260,7 @@
     begin
         DimMgt.ShowDimensionSet(
             "Dimension Set ID",
-            CopyStr(StrSubstNo(DocumentLineTxt, TableCaption, "Document No.", "Line No."), 1, 250));
+            CopyStr(StrSubstNo(DocumentLineTxt, TableCaption(), "Document No.", "Line No."), 1, 250));
     end;
 
     procedure ShowItemTrackingLines()

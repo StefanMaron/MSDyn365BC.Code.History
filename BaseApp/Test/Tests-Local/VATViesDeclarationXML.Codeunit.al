@@ -187,7 +187,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         with VATEntry do begin
             FindLast();
             EntryNo := "Entry No.";
-            Init;
+            Init();
             "Entry No." := EntryNo + 1;
             "Posting Date" := PostingDate;
             "Document No." := Format("Entry No.");
@@ -199,7 +199,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
             "EU Service" := EUService;
             Amount := -LibraryRandom.RandDecInRange(10, 1000, 2);
             Base := -LibraryRandom.RandDecInRange(10, 1000, 2);
-            Insert;
+            Insert();
         end
     end;
 
@@ -245,10 +245,10 @@ codeunit 142077 "VAT - Vies Declaration XML"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             OldCompanyName := Name;
             Validate(Name, CompanyName);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -257,9 +257,9 @@ codeunit 142077 "VAT - Vies Declaration XML"
         VATReportSetup: Record "VAT Report Setup";
     begin
         with VATReportSetup do begin
-            Get;
+            Get();
             Validate("Company Name", CompanyName);
-            Modify;
+            Modify();
         end;
     end;
 

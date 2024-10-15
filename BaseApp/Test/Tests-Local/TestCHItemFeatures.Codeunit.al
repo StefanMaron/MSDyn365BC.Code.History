@@ -175,7 +175,7 @@ codeunit 144047 "Test CH Item Features"
         LibrarySales.CreateCustomer(Customer);
         Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Customer.Validate("Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
         Customer.Modify(true);
 
         LibrarySales.CreateSalesperson(SalespersonPurchaser);

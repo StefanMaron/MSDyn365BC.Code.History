@@ -16,7 +16,7 @@ report 5611 "FA Posting Group - Net Change"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FADeprBookBookFilter; TableCaption + ': ' + FADeprBookFilter)
@@ -39,7 +39,7 @@ report 5611 "FA Posting Group - Net Change"
                     Counter := Type::BalC2;
                     CalcFields("Gain/Loss");
                     SoldWithGain := ("Gain/Loss" <= 0);
-                    NetDisposalMethod := CalcNetDisposalMethod;
+                    NetDisposalMethod := CalcNetDisposalMethod();
                 end else
                     Counter := Type::Maint;
                 I := 0;
@@ -57,22 +57,22 @@ report 5611 "FA Posting Group - Net Change"
             column(OnlyTotals; OnlyTotals)
             {
             }
-            column(FAPostGrp_FAPostGrBuffer1; FAPostGroupBuffer[1]."FA Posting Group")
+            column(FAPostGrp_FAPostGrBuffer1; TempFAPostGroupBuffer[1]."FA Posting Group")
             {
             }
-            column(FAFieldCapt_FAPostGrpBuff; FAPostGroupBuffer[1]."FA FieldCaption")
+            column(FAFieldCapt_FAPostGrpBuff; TempFAPostGroupBuffer[1]."FA FieldCaption")
             {
             }
-            column(AccNo_FAPostGrpBuffer1; FAPostGroupBuffer[1]."Account No.")
+            column(AccNo_FAPostGrpBuffer1; TempFAPostGroupBuffer[1]."Account No.")
             {
             }
-            column(Amt_FAPostGroupBuffer1; FAPostGroupBuffer[1].Amount)
+            column(Amt_FAPostGroupBuffer1; TempFAPostGroupBuffer[1].Amount)
             {
             }
-            column(AccName_FAPostGrpBuff1; FAPostGroupBuffer[1]."Account Name")
+            column(AccName_FAPostGrpBuff1; TempFAPostGroupBuffer[1]."Account Name")
             {
             }
-            column(IntBody2Cond; not OnlyTotals and (FAPostGroupBuffer[1].Amount <> 0))
+            column(IntBody2Cond; not OnlyTotals and (TempFAPostGroupBuffer[1].Amount <> 0))
             {
             }
             column(AccountNoCaption; AccountNoCaptionLbl)
@@ -88,10 +88,10 @@ report 5611 "FA Posting Group - Net Change"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not FAPostGroupBuffer[1].Find('-') then
+                    if not TempFAPostGroupBuffer[1].Find('-') then
                         CurrReport.Break();
                 end else
-                    if FAPostGroupBuffer[1].Next() = 0 then
+                    if TempFAPostGroupBuffer[1].Next() = 0 then
                         CurrReport.Break();
             end;
         }
@@ -101,20 +101,20 @@ report 5611 "FA Posting Group - Net Change"
 
             trigger OnAfterGetRecord()
             begin
-                FAPostGroupBuffer[1].SetCurrentKey("Account No.");
-                FAPostGroupBuffer2.SetCurrentKey("Account No.");
+                TempFAPostGroupBuffer[1].SetCurrentKey("Account No.");
+                TempFAPostGroupBuffer2.SetCurrentKey("Account No.");
                 OldAccNo := '';
-                while FAPostGroupBuffer[1].Find('-') do begin
-                    FAPostGroupBuffer2 := FAPostGroupBuffer[1];
-                    if OldAccNo <> FAPostGroupBuffer2."Account No." then begin
-                        FAPostGroupBuffer[1].SetRange("Account No.", FAPostGroupBuffer2."Account No.");
-                        FAPostGroupBuffer[1].CalcSums(Amount);
-                        FAPostGroupBuffer2.Amount := FAPostGroupBuffer[1].Amount;
-                        FAPostGroupBuffer2.Insert();
-                        FAPostGroupBuffer[1].DeleteAll();
-                        FAPostGroupBuffer[1].SetRange("Account No.");
+                while TempFAPostGroupBuffer[1].Find('-') do begin
+                    TempFAPostGroupBuffer2 := TempFAPostGroupBuffer[1];
+                    if OldAccNo <> TempFAPostGroupBuffer2."Account No." then begin
+                        TempFAPostGroupBuffer[1].SetRange("Account No.", TempFAPostGroupBuffer2."Account No.");
+                        TempFAPostGroupBuffer[1].CalcSums(Amount);
+                        TempFAPostGroupBuffer2.Amount := TempFAPostGroupBuffer[1].Amount;
+                        TempFAPostGroupBuffer2.Insert();
+                        TempFAPostGroupBuffer[1].DeleteAll();
+                        TempFAPostGroupBuffer[1].SetRange("Account No.");
                     end;
-                    OldAccNo := FAPostGroupBuffer2."Account No.";
+                    OldAccNo := TempFAPostGroupBuffer2."Account No.";
                 end;
             end;
         }
@@ -124,22 +124,22 @@ report 5611 "FA Posting Group - Net Change"
             column(FirstTotalHeader; FirstTotalHeader)
             {
             }
-            column(AccNo_FAPostGrpBuffer2; FAPostGroupBuffer2."Account No.")
+            column(AccNo_FAPostGrpBuffer2; TempFAPostGroupBuffer2."Account No.")
             {
             }
-            column(AccName_FAPostGrpBuff2; FAPostGroupBuffer2."Account Name")
+            column(AccName_FAPostGrpBuff2; TempFAPostGroupBuffer2."Account Name")
             {
             }
-            column(Amt_FAPostGrpBuffer2; FAPostGroupBuffer2.Amount)
+            column(Amt_FAPostGrpBuffer2; TempFAPostGroupBuffer2.Amount)
             {
             }
             column(GLAccNetChange; GLAcc."Net Change")
             {
             }
-            column(GLAccChngFAPostBuffAmt; GLAcc."Net Change" - FAPostGroupBuffer2.Amount)
+            column(GLAccChngFAPostBuffAmt; GLAcc."Net Change" - TempFAPostGroupBuffer2.Amount)
             {
             }
-            column(TotalBody3Cond; (GLAcc."Net Change" <> 0) or (FAPostGroupBuffer2.Amount <> 0))
+            column(TotalBody3Cond; (GLAcc."Net Change" <> 0) or (TempFAPostGroupBuffer2.Amount <> 0))
             {
             }
             column(TotalperGLAccountCaption; TotalperGLAccountCaptionLbl)
@@ -158,13 +158,13 @@ report 5611 "FA Posting Group - Net Change"
             trigger OnAfterGetRecord()
             begin
                 if Number = 1 then begin
-                    if not FAPostGroupBuffer2.Find('-') then
+                    if not TempFAPostGroupBuffer2.Find('-') then
                         CurrReport.Break();
                 end else
-                    if FAPostGroupBuffer2.Next() = 0 then
+                    if TempFAPostGroupBuffer2.Next() = 0 then
                         CurrReport.Break();
                 Clear(GLAcc);
-                if GLAcc.Get(FAPostGroupBuffer2."Account No.") then begin
+                if GLAcc.Get(TempFAPostGroupBuffer2."Account No.") then begin
                     GLAcc.SetRange("Date Filter", StartingDate, EndingDate);
                     GLAcc.CalcFields("Net Change");
                 end;
@@ -218,10 +218,10 @@ report 5611 "FA Posting Group - Net Change"
 
     trigger OnPreReport()
     begin
-        FAPostGroupBuffer[1].DeleteAll();
-        FAPostGroupBuffer2.DeleteAll();
+        TempFAPostGroupBuffer[1].DeleteAll();
+        TempFAPostGroupBuffer2.DeleteAll();
         FAGenReport.ValidateDates(StartingDate, EndingDate);
-        FADeprBookFilter := "FA Depreciation Book".GetFilters;
+        FADeprBookFilter := "FA Depreciation Book".GetFilters();
         FAGenReport.AppendPostingDateFilter(FADeprBookFilter, StartingDate, EndingDate);
         FirstTotalHeader := true;
     end;
@@ -229,8 +229,8 @@ report 5611 "FA Posting Group - Net Change"
     var
         GLAcc: Record "G/L Account";
         FAPostingGr: Record "FA Posting Group";
-        FAPostGroupBuffer: array[2] of Record "FA Posting Group Buffer" temporary;
-        FAPostGroupBuffer2: Record "FA Posting Group Buffer" temporary;
+        TempFAPostGroupBuffer: array[2] of Record "FA Posting Group Buffer" temporary;
+        TempFAPostGroupBuffer2: Record "FA Posting Group Buffer" temporary;
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
         FAGenReport: Codeunit "FA General Report";
         DeprCalc: Codeunit "Depreciation Calculation";
@@ -264,20 +264,20 @@ report 5611 "FA Posting Group - Net Change"
     begin
         if SkipInsertAmount(FAPostingGrCode, AccNo, PostAmount) then
             exit;
-        Clear(FAPostGroupBuffer[1]);
-        FAPostGroupBuffer[1]."FA Posting Group" := FAPostingGrCode;
-        FAPostGroupBuffer[1]."Posting Type" := Type;
-        FAPostGroupBuffer[1]."FA FieldCaption" := CopyStr(FieldCaptionText, 1, MaxStrLen(FAPostGroupBuffer[1]."FA FieldCaption"));
-        FAPostGroupBuffer[1]."Account No." := AccNo;
-        FAPostGroupBuffer[1].Amount := PostAmount;
+        Clear(TempFAPostGroupBuffer[1]);
+        TempFAPostGroupBuffer[1]."FA Posting Group" := FAPostingGrCode;
+        TempFAPostGroupBuffer[1]."Posting Type" := Type;
+        TempFAPostGroupBuffer[1]."FA FieldCaption" := CopyStr(FieldCaptionText, 1, MaxStrLen(TempFAPostGroupBuffer[1]."FA FieldCaption"));
+        TempFAPostGroupBuffer[1]."Account No." := AccNo;
+        TempFAPostGroupBuffer[1].Amount := PostAmount;
         if GLAcc.Get(AccNo) then
-            FAPostGroupBuffer[1]."Account Name" := GLAcc.Name;
-        FAPostGroupBuffer[2] := FAPostGroupBuffer[1];
-        if FAPostGroupBuffer[2].Find then begin
-            FAPostGroupBuffer[2].Amount := FAPostGroupBuffer[2].Amount + FAPostGroupBuffer[1].Amount;
-            FAPostGroupBuffer[2].Modify();
+            TempFAPostGroupBuffer[1]."Account Name" := GLAcc.Name;
+        TempFAPostGroupBuffer[2] := TempFAPostGroupBuffer[1];
+        if TempFAPostGroupBuffer[2].Find() then begin
+            TempFAPostGroupBuffer[2].Amount := TempFAPostGroupBuffer[2].Amount + TempFAPostGroupBuffer[1].Amount;
+            TempFAPostGroupBuffer[2].Modify();
         end else
-            FAPostGroupBuffer[1].Insert();
+            TempFAPostGroupBuffer[1].Insert();
     end;
 
     local procedure CalculateAccount(FAPostingGrCode: Code[20]; var FieldCaptionText: Text[50]; var AccNo: Code[20]; var PostAmount: Decimal)
@@ -329,7 +329,7 @@ report 5611 "FA Posting Group - Net Change"
                 begin
                     FieldCaptionText := FAPostingGr.FieldCaption("Maintenance Expense Account");
                     AccNo := FAPostingGr."Maintenance Expense Account";
-                    PostAmount := CalculateMaintenance;
+                    PostAmount := CalculateMaintenance();
                 end;
             Type::Disp:
                 begin
@@ -467,7 +467,7 @@ report 5611 "FA Posting Group - Net Change"
     begin
         exit(
           FAGenReport.CalcGLPostedAmount(
-            FANo, GetFieldNo, Period, StartingDate, EndingDate, DeprBookCode));
+            FANo, GetFieldNo(), Period, StartingDate, EndingDate, DeprBookCode));
     end;
 
     local procedure GetFieldNo(): Integer

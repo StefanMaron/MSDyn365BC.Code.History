@@ -39,7 +39,7 @@ codeunit 144544 "ERM G/L Account Where-Used CH"
 
         // [THEN] Vendor Bank Account is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          VendorBankAccount.TableCaption,
+          VendorBankAccount.TableCaption(),
           VendorBankAccount.FieldCaption("Balance Account No."),
           StrSubstNo(
             '%1=%2, %3=%4',

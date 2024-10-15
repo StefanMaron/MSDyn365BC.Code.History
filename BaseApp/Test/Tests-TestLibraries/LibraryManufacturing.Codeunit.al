@@ -23,7 +23,7 @@ codeunit 132202 "Library - Manufacturing"
         CalcConsumption: Report "Calc. Consumption";
         CalcBasedOn: Option "Actual Output","Expected Output";
     begin
-        CalcConsumption.InitializeRequest(WorkDate, CalcBasedOn::"Expected Output");
+        CalcConsumption.InitializeRequest(WorkDate(), CalcBasedOn::"Expected Output");
         CalcConsumption.SetTemplateAndBatchName(ItemJournalTemplateName, ItemJournalBatchName);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("No.", ProductionOrderNo);
@@ -180,11 +180,11 @@ codeunit 132202 "Library - Manufacturing"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst();
-        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
         exit(ProductionOrder."No.");
     end;
 
@@ -193,7 +193,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
-        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
     end;
 
     procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]; FromStatus: Enum "Production Order Status"; ToStatus: Enum "Production Order Status"): Code[20]
@@ -201,7 +201,7 @@ codeunit 132202 "Library - Manufacturing"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.Get(FromStatus, ProductionOrderNo);
-        ChangeProdOrderStatus(ProductionOrder, ToStatus, WorkDate, true);
+        ChangeProdOrderStatus(ProductionOrder, ToStatus, WorkDate(), true);
         ProductionOrder.SetRange(Status, ToStatus);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst();
@@ -341,7 +341,7 @@ codeunit 132202 "Library - Manufacturing"
     procedure CreateMachineCenterWithCalendar(var MachineCenter: Record "Machine Center"; WorkCenterNo: Code[20]; Capacity: Decimal)
     begin
         CreateMachineCenter(MachineCenter, WorkCenterNo, Capacity);
-        CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
     procedure CreateOutputJournal(var ItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ProductionOrderNo: Code[20])
@@ -363,7 +363,7 @@ codeunit 132202 "Library - Manufacturing"
     procedure CreateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
         with ProdOrderLine do begin
-            Init;
+            Init();
             Validate(Status, ProdOrderStatus);
             Validate("Prod. Order No.", ProdOrderNo);
             Validate("Line No.", LibraryUtility.GetNewRecNo(ProdOrderLine, FieldNo("Line No.")));
@@ -547,7 +547,7 @@ codeunit 132202 "Library - Manufacturing"
             CreateProdOrderFromSale.CreateProductionOrder(SalesLine, ProdOrderStatus, OrderType);
             if OrderType = OrderType::ProjectOrder then
                 EndLoop := true;
-        until (SalesLine.Next = 0) or EndLoop;
+        until (SalesLine.Next() = 0) or EndLoop;
     end;
 
     procedure CreateRegisteredAbsence(var RegisteredAbsence: Record "Registered Absence"; CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time)
@@ -707,7 +707,7 @@ codeunit 132202 "Library - Manufacturing"
     procedure CreateWorkCenterWithCalendar(var WorkCenter: Record "Work Center")
     begin
         CreateWorkCenter(WorkCenter);
-        CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));
+        CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CreateWorkCenterWithoutShopCalendar(var WorkCenter: Record "Work Center")
@@ -926,7 +926,7 @@ codeunit 132202 "Library - Manufacturing"
             ItemJournalLine.Validate("Setup Time", ProdOrderRoutingLine."Setup Time");
             ItemJournalLine.Validate("Run Time", ProdOrderRoutingLine."Run Time");
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     procedure UpdateProductionBOMStatus(var ProductionBOMHeader: Record "Production BOM Header"; NewStatus: Enum "Production Order Status")

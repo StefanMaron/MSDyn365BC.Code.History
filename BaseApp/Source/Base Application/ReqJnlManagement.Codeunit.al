@@ -1,4 +1,4 @@
-﻿codeunit 330 ReqJnlManagement
+codeunit 330 ReqJnlManagement
 {
     Permissions = TableData "Req. Wksh. Template" = imd,
                   TableData "Requisition Wksh. Name" = imd;
@@ -8,13 +8,14 @@
     end;
 
     var
+        LastReqLine: Record "Requisition Line";
+        OpenFromBatch: Boolean;
+
         Text002: Label 'RECURRING';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
         Text99000000: Label '%1 Worksheet';
         Text99000001: Label 'Recurring Worksheet';
-        LastReqLine: Record "Requisition Line";
-        OpenFromBatch: Boolean;
 
 #if not CLEAN20
     [Obsolete('Replaced by procedure WkshTemplateSelection()', '20.0')]
@@ -235,12 +236,11 @@
         if ReqLine."Vendor No." = '' then
             BuyFromVendorName := ''
         else
-            if ReqLine."Vendor No." <> LastReqLine."Vendor No." then begin
+            if ReqLine."Vendor No." <> LastReqLine."Vendor No." then
                 if Vend.Get(ReqLine."Vendor No.") then
                     BuyFromVendorName := Vend.Name
                 else
                     BuyFromVendorName := '';
-            end;
 
         LastReqLine := ReqLine;
         OnAfterGetDescriptionAndRcptName(ReqLine, Description, BuyFromVendorName, LastReqLine);

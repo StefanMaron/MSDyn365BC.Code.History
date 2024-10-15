@@ -61,7 +61,7 @@ codeunit 142082 "ERM Excel Reports DACH"
           ReminderTextEnding[2].Position::Ending,
           LibraryUtility.GenerateGUID());
 
-        ReminderHeader.InsertLines;
+        ReminderHeader.InsertLines();
 
         // [WHEN] Printing "Reminder - Test" Report
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());

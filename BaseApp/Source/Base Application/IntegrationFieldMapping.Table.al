@@ -99,7 +99,7 @@ table 5336 "Integration Field Mapping"
             trigger OnValidate()
             begin
                 TestField("Clear Value on Failed Sync", false);
-                if not IsGUIDField then
+                if not IsGUIDField() then
                     Error(NotNullIsApplicableForGUIDErr);
             end;
         }
@@ -168,7 +168,7 @@ table 5336 "Integration Field Mapping"
 
     procedure CreateRecord(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
     begin
-        Init;
+        Init();
         "No." := 0;
         "Integration Table Mapping Name" := IntegrationTableMappingName;
         "Field No." := TableFieldNo;
@@ -177,7 +177,7 @@ table 5336 "Integration Field Mapping"
         "Constant Value" := CopyStr(ConstValue, 1, MaxStrLen("Constant Value"));
         "Validate Field" := ValidateField;
         "Validate Integration Table Fld" := ValidateIntegrationTableField;
-        Insert;
+        Insert();
     end;
 
     local procedure IsGUIDField(): Boolean

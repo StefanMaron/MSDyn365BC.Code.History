@@ -64,7 +64,7 @@ codeunit 132215 "Library - Error Message"
                 TempErrorMessage."Support Url" := ErrorMessages."Support Url".Value;
                 TempErrorMessage.SetErrorCallStack(ErrorMessages.CallStack.Value);
                 TempErrorMessage.Insert();
-            until not ErrorMessages.Next;
+            until not ErrorMessages.Next();
     end;
 
     procedure GetErrorMessages(var TempErrorMessageBuf: Record "Error Message" temporary)

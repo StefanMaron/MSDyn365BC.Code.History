@@ -72,7 +72,7 @@ codeunit 144025 "SR Cust. Orders per Period"
         Evaluate(PeriodLength, PeriodLengthText);
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(ShowAmtInLCY);
-        WorkDate := CalcDate(PeriodLength, WorkDate);
+        WorkDate := CalcDate(PeriodLength, WorkDate());
         Commit();
         Customer.SetRange("No.", Customer."No.");
         REPORT.Run(REPORT::"SR Cust. Orders per Period", true, false, Customer);
@@ -103,7 +103,7 @@ codeunit 144025 "SR Cust. Orders per Period"
         Index: Integer;
     begin
         Evaluate(PeriodLengthDateFormula, PeriodLength);
-        ShipmentDate := WorkDate;
+        ShipmentDate := WorkDate();
         for Index := 1 to NumberOfSalesQuotes do begin
             CreateSalesOrder(Customer, ShipmentDate, ExpectedSaleAmtInOrderLCY[Index]);
             ShipmentDate := CalcDate(PeriodLengthDateFormula, ShipmentDate);

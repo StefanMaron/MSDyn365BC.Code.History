@@ -143,7 +143,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             SetVendorAsRecipient(Vendor, VendorBankAccount);
@@ -168,7 +168,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             SetVendorAsRecipient(Vendor, VendorBankAccount);
@@ -220,7 +220,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             SetVendorAsRecipient(Vendor, VendorBankAccount);
@@ -272,7 +272,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             SetVendorAsRecipient(Vendor, VendorBankAccount);
@@ -297,7 +297,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetForeignCurrency;
@@ -323,7 +323,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         Vendor.Get(VendorBankAccount."Vendor No.");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetEURCurrency;
@@ -349,7 +349,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetForeignCurrency;
@@ -375,7 +375,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         Vendor.Get(VendorBankAccount."Vendor No.");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetForeignCurrency;
@@ -404,7 +404,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         Vendor.Get(VendorBankAccount."Vendor No.");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetForeignCurrency;
@@ -430,7 +430,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         Vendor.Get(VendorBankAccount."Vendor No.");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetForeignCurrency;
@@ -454,7 +454,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [FEATURE] [UT]
         // [SCENARIO 220991] TAB 288 "Vendor Bank Account".GetBankAccountNo() returns correct value
         with VendorBankAccount do begin
-            Init;
+            Init();
             "SWIFT Code" := LibraryUtility.GenerateGUID();
             "ESR Account No." := LibraryUtility.GenerateGUID();
             "Giro Account No." := LibraryUtility.GenerateGUID();
@@ -1404,7 +1404,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         // [SCENARIO 220991] GetBankAccountNo from Vendor Bank Account removes dashes from ESR Account No.
         Initialize();
         with VendorBankAccount do begin
-            Init;
+            Init();
             "Payment Form" := "Payment Form"::ESR;
             "ESR Account No." := '11-2222-33';
             Assert.AreEqual('11222233', GetBankAccountNo, '');
@@ -1440,7 +1440,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyPaymentJnlExportErrorText(
             GenJournalLine,
             StrSubstNo(
-                FieldKeyBlankErr, BankAccount.TableCaption, GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
+                FieldKeyBlankErr, BankAccount.TableCaption(), GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
     end;
 
     [Test]
@@ -1471,7 +1471,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyPaymentJnlExportErrorText(
           GenJournalLine,
           StrSubstNo(
-            FieldKeyBlankErr, BankAccount.TableCaption, GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
+            FieldKeyBlankErr, BankAccount.TableCaption(), GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
     end;
 
     [Test]
@@ -1504,7 +1504,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyPaymentJnlExportErrorText(
           GenJournalLine,
           StrSubstNo(
-            FieldKeyBlankErr, BankAccount.TableCaption, GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
+            FieldKeyBlankErr, BankAccount.TableCaption(), GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
     end;
 
     [Test]
@@ -1811,7 +1811,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         PaymentJnlExportErrorText.DeleteAll();
 
         // [WHEN] Invoke "SEPA CT Fill Export Buffer"."FillExportBuffer"
-        GenJournalLine.SetRecFilter;
+        GenJournalLine.SetRecFilter();
         SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, PaymentExportData);
 
         // [THEN] "Payment Jnl. Export Error Text" has no errors.
@@ -1950,7 +1950,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         CustomerBankAccount.Get(Customer."No.", Customer."Preferred Bank Account Code");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetCurrencyCode('');
@@ -1977,7 +1977,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         Customer.Get(CustomerBankAccount."Customer No.");
 
         with PaymentExportData do begin
-            Init;
+            Init();
 
             SetSwissExport(true);
             "Currency Code" := GetForeignCurrency;
@@ -2150,7 +2150,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyPaymentJnlExportErrorText(
           GenJournalLine,
           StrSubstNo(
-            FieldKeyBlankErr, BankAccount.TableCaption, GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
+            FieldKeyBlankErr, BankAccount.TableCaption(), GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
     end;
 
     [Test]
@@ -2182,7 +2182,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         VerifyPaymentJnlExportErrorText(
           GenJournalLine,
           StrSubstNo(
-            FieldKeyBlankErr, CustomerBankAccount.TableCaption, CustomerBankAccount.Code, CustomerBankAccount.FieldCaption(IBAN)));
+            FieldKeyBlankErr, CustomerBankAccount.TableCaption(), CustomerBankAccount.Code, CustomerBankAccount.FieldCaption(IBAN)));
     end;
 
     [Test]
@@ -2834,7 +2834,7 @@ codeunit 144352 "Swiss SEPA CT Export"
             Validate("Reference No.", ReferenceNo);
             Validate("Message to Recipient", LibraryUtility.GenerateGUID());
             Modify(true);
-            SetRecFilter;
+            SetRecFilter();
         end;
     end;
 
@@ -3188,7 +3188,7 @@ codeunit 144352 "Swiss SEPA CT Export"
     local procedure GenJournalLine_XMLExport(var GenJournalLine: Record "Gen. Journal Line") FileName: Text
     begin
         FileName := SwissSEPACTExportFile(GenJournalLine);
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         Assert.IsTrue(GenJournalLine."Exported to Payment File", '');
         Commit(); // Prevent roll back in LibraryXMLRead.VerifyElementAbsenceInSubtree()
     end;
@@ -3198,7 +3198,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Name := LibraryUtility.GenerateGUID();
             "VAT Registration No." := LibraryUtility.GenerateGUID();
             Modify(true);
@@ -3419,7 +3419,7 @@ codeunit 144352 "Swiss SEPA CT Export"
         GenJournalBatch.Modify();
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest2(
-          WorkDate, false, 0, false, WorkDate, LibraryUtility.GenerateGUID, SummarizePerVendor,
+          WorkDate, false, 0, false, WorkDate(), LibraryUtility.GenerateGUID, SummarizePerVendor,
           GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 0, ExcludeCreditMemos);
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
@@ -3525,7 +3525,7 @@ codeunit 144352 "Swiss SEPA CT Export"
           GenJournalLine,
           StrSubstNo(
             FieldKeyBlankErr,
-            VendorBankAccount.TableCaption, GenJournalLine."Recipient Bank Account", VendorBankAccountFieldCaption));
+            VendorBankAccount.TableCaption(), GenJournalLine."Recipient Bank Account", VendorBankAccountFieldCaption));
     end;
 
     local procedure VerifyRecipienBankAccountOnPaymentLine(VendorNo: Code[20]; VendorBankAccCode: Code[20])
@@ -3845,9 +3845,9 @@ codeunit 144352 "Swiss SEPA CT Export"
     [Scope('OnPrem')]
     procedure DTASuggest_RPH(var DTASuggestVendorPayments: TestRequestPage "DTA Suggest Vendor Payments")
     begin
-        DTASuggestVendorPayments."Posting Date".SetValue(WorkDate);
-        DTASuggestVendorPayments."Due Date from".SetValue(WorkDate);
-        DTASuggestVendorPayments."Due Date to".SetValue(WorkDate);
+        DTASuggestVendorPayments."Posting Date".SetValue(WorkDate());
+        DTASuggestVendorPayments."Due Date from".SetValue(WorkDate());
+        DTASuggestVendorPayments."Due Date to".SetValue(WorkDate());
         DTASuggestVendorPayments.InsertBankBalanceAccount.SetValue(LibraryVariableStorage.DequeueBoolean);
         DTASuggestVendorPayments.OK.Invoke;
     end;

@@ -2,6 +2,7 @@ table 5557 "Permission Conflicts"
 {
     Access = Internal;
     Extensible = false;
+    ReplicateData = false;
 
     fields
     {

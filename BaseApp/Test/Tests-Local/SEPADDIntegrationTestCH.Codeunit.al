@@ -101,7 +101,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
 
         // Verify
         Assert.ExpectedError(
-          StrSubstNo(FilterRangeErr, DirectDebitCollectionEntry.FieldCaption("Direct Debit Collection No."), DirectDebitCollectionEntry.TableCaption));
+          StrSubstNo(FilterRangeErr, DirectDebitCollectionEntry.FieldCaption("Direct Debit Collection No."), DirectDebitCollectionEntry.TableCaption()));
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         asserterror LSVJnl.CreateDirectDebitFile;
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, BankAcc.FieldCaption("SEPA Direct Debit Exp. Format"), BankAcc.TableCaption));
+        Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, BankAcc.FieldCaption("SEPA Direct Debit Exp. Format"), BankAcc.TableCaption()));
     end;
 
     [Test]
@@ -150,7 +150,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         asserterror WriteSEPAFile(LSVJnl);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, BankAcc.FieldCaption(IBAN), BankAcc.TableCaption));
+        Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, BankAcc.FieldCaption(IBAN), BankAcc.TableCaption()));
     end;
 
     [Test]
@@ -307,8 +307,8 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     [Scope('OnPrem')]
     procedure LSVSuggestCollectionReqPageHandler(var LSVSuggestCollection: TestRequestPage "LSV Suggest Collection")
     begin
-        LSVSuggestCollection.FromDueDate.SetValue(WorkDate);
-        LSVSuggestCollection.ToDueDate.SetValue(WorkDate);
+        LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
+        LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
         LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
         LSVSuggestCollection.OK.Invoke;
     end;
@@ -349,7 +349,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         repeat
             LSVJnlLine.Validate("Direct Debit Mandate ID", MandateID);
             LSVJnlLine.Modify(true);
-        until LSVJnlLine.Next = 0;
+        until LSVJnlLine.Next() = 0;
     end;
 
     local procedure ValidateCountOfDebitCollectionEntries(LSVJnlNo: Integer; DirectDebitCollectionNo: Integer)
@@ -359,8 +359,8 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     begin
         LSVJnlLine.SetRange("LSV Journal No.", LSVJnlNo);
         DirectDebitCollEntry.SetRange("Direct Debit Collection No.", DirectDebitCollectionNo);
-        Assert.IsFalse(DirectDebitCollEntry.IsEmpty, StrSubstNo(RecordWithinFilterNotFoundErr, DirectDebitCollEntry.TableCaption));
-        Assert.AreEqual(LSVJnlLine.Count, DirectDebitCollEntry.Count, StrSubstNo(CountOfRecordsErr, DirectDebitCollEntry.TableCaption));
+        Assert.IsFalse(DirectDebitCollEntry.IsEmpty, StrSubstNo(RecordWithinFilterNotFoundErr, DirectDebitCollEntry.TableCaption()));
+        Assert.AreEqual(LSVJnlLine.Count, DirectDebitCollEntry.Count, StrSubstNo(CountOfRecordsErr, DirectDebitCollEntry.TableCaption()));
     end;
 
     local procedure ValidateDirectDebitCollectionEntries(LSVJnlNo: Integer; DirectDebitCollectionNo: Integer)
@@ -383,7 +383,7 @@ codeunit 144002 "SEPA DD Integration Test - CH"
                 SetRange("Mandate ID", LSVJnlLine."Direct Debit Mandate ID");
                 Assert.IsFalse(IsEmpty, StrSubstNo(RecordWithinFilterNotFoundErr, TableCaption));
             end;
-        until LSVJnlLine.Next = 0;
+        until LSVJnlLine.Next() = 0;
     end;
 
     local procedure SpecifyBankAccountDetails(var BankAcc: Record "Bank Account")
@@ -441,8 +441,8 @@ codeunit 144002 "SEPA DD Integration Test - CH"
     begin
         repeat
             LSVJnlLine.SetRange("Direct Debit Mandate ID", CustLedgEntry."Direct Debit Mandate ID");
-            Assert.IsFalse(LSVJnlLine.IsEmpty, StrSubstNo(RecordNotFoundErr, LSVJnlLine.TableCaption));
-        until CustLedgEntry.Next = 0;
+            Assert.IsFalse(LSVJnlLine.IsEmpty, StrSubstNo(RecordNotFoundErr, LSVJnlLine.TableCaption()));
+        until CustLedgEntry.Next() = 0;
     end;
 }
 

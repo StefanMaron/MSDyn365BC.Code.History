@@ -8,7 +8,7 @@ page 917 "Component - Item FactBox"
     {
         area(content)
         {
-            field("Item No."; ShowNo)
+            field("Item No."; ShowNo())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Item No.';
@@ -19,7 +19,7 @@ page 917 "Component - Item FactBox"
                     AssemblyInfoPaneManagement.LookupItem(Rec);
                 end;
             }
-            field("Required Quantity"; ShowRequiredQty)
+            field("Required Quantity"; ShowRequiredQty())
             {
                 ApplicationArea = Assembly;
                 BlankZero = true;
@@ -30,7 +30,7 @@ page 917 "Component - Item FactBox"
             group(Availability)
             {
                 Caption = 'Availability';
-                field("Due Date"; ShowDueDate)
+                field("Due Date"; ShowDueDate())
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Due Date';
@@ -46,7 +46,7 @@ page 917 "Component - Item FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByEvent);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByEvent());
                         Clear(ItemAvailFormsMgt);
                     end;
                 }
@@ -94,19 +94,19 @@ page 917 "Component - Item FactBox"
             group(Item)
             {
                 Caption = 'Item';
-                field("Base Unit of Measure"; ShowBaseUoM)
+                field("Base Unit of Measure"; ShowBaseUoM())
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Base Unit of Measure';
                     ToolTip = 'Specifies the base unit of measurement of the component.';
                 }
-                field("Unit of Measure Code"; ShowUoM)
+                field("Unit of Measure Code"; ShowUoM())
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Unit of Measure Code';
                     ToolTip = 'Specifies the unit of measure that the item is shown in.';
                 }
-                field("Qty. per Unit of Measure"; ShowQtyPerUoM)
+                field("Qty. per Unit of Measure"; ShowQtyPerUoM())
                 {
                     ApplicationArea = Assembly;
                     BlankZero = true;
@@ -141,13 +141,13 @@ page 917 "Component - Item FactBox"
                     Caption = 'No. of Substitutes';
                     ToolTip = 'Specifies the number of substitutions that have been registered for the item.';
                 }
-                field("Replenishment System"; ShowReplenishmentSystem)
+                field("Replenishment System"; ShowReplenishmentSystem())
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Replenishment System';
                     ToolTip = 'Specifies the type of supply order that is created by the planning system when the item needs to be replenished.';
                 }
-                field("Vendor No."; ShowVendorNo)
+                field("Vendor No."; ShowVendorNo())
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Vendor No.';

@@ -95,7 +95,7 @@ codeunit 144010 "Import Post Codes"
         File.Create(TempFileName);
         File.CreateOutStream(Outstream);
         Outstream.WriteText(NewPostCode + ';' + NewCity + ';' + NewCounty + ';;;' + ' ');
-        File.Close;
+        File.Close();
     end;
 
     local procedure GetNumericPostCodesCount(): Integer

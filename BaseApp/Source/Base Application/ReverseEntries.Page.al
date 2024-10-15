@@ -1,7 +1,7 @@
 page 179 "Reverse Entries"
 {
     Caption = 'Reverse Entries';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -14,40 +14,40 @@ page 179 "Reverse Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Transaction No."; "Transaction No.")
+                field("Transaction No."; Rec."Transaction No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the transaction that was reversed.';
                 }
-                field(EntryTypeText; GetEntryTypeText)
+                field(EntryTypeText; GetEntryTypeText())
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = FieldCaption("Entry Type");
                     Editable = false;
                     ShowCaption = false;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the account number that the reversal was posted to.';
                 }
-                field("Account Name"; "Account Name")
+                field("Account Name"; Rec."Account Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies erroneous postings that you want to undo by using the Reverse function.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     Editable = false;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ClosingDates = true;
@@ -60,89 +60,89 @@ page 179 "Reverse Entries"
                     Editable = DescriptionEditable;
                     ToolTip = 'Specifies a description of the record.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document type that the entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the document number of the transaction that created the entry.';
                 }
-                field("Amount (LCY)"; "Amount (LCY)")
+                field("Amount (LCY)"; Rec."Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                 }
-                field("Debit Amount (LCY)"; "Debit Amount (LCY)")
+                field("Debit Amount (LCY)"; Rec."Debit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
                     Visible = false;
                 }
-                field("Credit Amount (LCY)"; "Credit Amount (LCY)")
+                field("Credit Amount (LCY)"; Rec."Credit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
                     Visible = false;
                 }
-                field("G/L Register No."; "G/L Register No.")
+                field("G/L Register No."; Rec."G/L Register No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger register, where the general ledger entry in this record was posted.';
                     Visible = false;
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source type that applies to the source number that is shown in the Source No. field.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies where the entry originated.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -155,27 +155,27 @@ page 179 "Reverse Entries"
                     ToolTip = 'Specifies the amount on the entry to be reversed.';
                     Visible = false;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("FA Posting Category"; "FA Posting Category")
+                field("FA Posting Category"; Rec."FA Posting Category")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posting category that is used for fixed assets.';
                 }
-                field("FA Posting Type"; "FA Posting Type")
+                field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -215,7 +215,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowGLEntries;
+                        ReversalEntry.ShowGLEntries();
                     end;
                 }
                 action("Customer Ledger")
@@ -227,7 +227,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowCustLedgEntries;
+                        ReversalEntry.ShowCustLedgEntries();
                     end;
                 }
                 action("Vendor Ledger")
@@ -239,7 +239,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowVendLedgEntries;
+                        ReversalEntry.ShowVendLedgEntries();
                     end;
                 }
                 action("Bank Account Ledger")
@@ -251,7 +251,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowBankAccLedgEntries;
+                        ReversalEntry.ShowBankAccLedgEntries();
                     end;
                 }
                 action("Fixed Asset Ledger")
@@ -263,7 +263,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowFALedgEntries;
+                        ReversalEntry.ShowFALedgEntries();
                     end;
                 }
                 action("Maintenance Ledger")
@@ -275,7 +275,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowMaintenanceLedgEntries;
+                        ReversalEntry.ShowMaintenanceLedgEntries();
                     end;
                 }
                 action("VAT Ledger")
@@ -287,7 +287,7 @@ page 179 "Reverse Entries"
 
                     trigger OnAction()
                     begin
-                        ReversalEntry.ShowVATEntries;
+                        ReversalEntry.ShowVATEntries();
                     end;
                 }
             }
@@ -303,9 +303,6 @@ page 179 "Reverse Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reverse';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Reverse selected entries.';
 
@@ -319,9 +316,6 @@ page 179 "Reverse Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reverse and &Print';
                     Image = Undo;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Reverse and print selected entries.';
 
@@ -329,6 +323,20 @@ page 179 "Reverse Entries"
                     begin
                         Post(true);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Reverse_Promoted; Reverse)
+                {
+                }
+                actionref("Reverse and &Print_Promoted"; "Reverse and &Print")
+                {
                 }
             }
         }
@@ -346,15 +354,16 @@ page 179 "Reverse Entries"
 
     trigger OnOpenPage()
     begin
-        InitializeFilter;
+        InitializeFilter();
     end;
 
     var
-        Text000: Label 'Reverse Transaction Entries';
-        Text001: Label 'Reverse Register Entries';
         ReversalEntry: Record "Reversal Entry";
         [InDataSet]
         DescriptionEditable: Boolean;
+
+        Text000: Label 'Reverse Transaction Entries';
+        Text001: Label 'Reverse Register Entries';
 
     local procedure Post(PrintRegister: Boolean)
     var
@@ -363,7 +372,7 @@ page 179 "Reverse Entries"
         ReversalPost.SetPrint(PrintRegister);
         ReversalPost.Run(Rec);
         CurrPage.Update(false);
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure GetEntryTypeText() EntryTypeText: Text
@@ -385,21 +394,21 @@ page 179 "Reverse Entries"
 
         case "Entry Type" of
             "Entry Type"::"G/L Account":
-                exit(GLEntry.TableCaption);
+                exit(GLEntry.TableCaption());
             "Entry Type"::Customer:
-                exit(CustLedgEntry.TableCaption);
+                exit(CustLedgEntry.TableCaption());
             "Entry Type"::Vendor:
-                exit(VendLedgEntry.TableCaption);
+                exit(VendLedgEntry.TableCaption());
             "Entry Type"::Employee:
-                exit(EmployeeLedgerEntry.TableCaption);
+                exit(EmployeeLedgerEntry.TableCaption());
             "Entry Type"::"Bank Account":
-                exit(BankAccLedgEntry.TableCaption);
+                exit(BankAccLedgEntry.TableCaption());
             "Entry Type"::"Fixed Asset":
-                exit(FALedgEntry.TableCaption);
+                exit(FALedgEntry.TableCaption());
             "Entry Type"::Maintenance:
-                exit(MaintenanceLedgEntry.TableCaption);
+                exit(MaintenanceLedgEntry.TableCaption());
             "Entry Type"::VAT:
-                exit(VATEntry.TableCaption);
+                exit(VATEntry.TableCaption());
             else
                 exit(Format("Entry Type"));
         end;

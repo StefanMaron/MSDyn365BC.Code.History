@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2306 "BC O365 Cust. Stats FactBox"
 {
     Caption = 'Customer statistics';
     PageType = CardPart;
     SourceTable = Customer;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -10,7 +14,7 @@ page 2306 "BC O365 Cust. Stats FactBox"
         {
             field(Name; Name)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Customer name';
                 ToolTip = 'Specifies the name of the customer that the FactBox refers to.';
 
@@ -22,9 +26,9 @@ page 2306 "BC O365 Cust. Stats FactBox"
             group(Sales)
             {
                 Caption = 'Sales';
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Outstanding';
@@ -34,7 +38,7 @@ page 2306 "BC O365 Cust. Stats FactBox"
                 }
                 field(OverdueBalance; OverdueBalance)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Overdue';
@@ -45,9 +49,9 @@ page 2306 "BC O365 Cust. Stats FactBox"
                     StyleExpr = OverdueBalance > 0;
                     ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
                 }
-                field("Sales (LCY)"; "Sales (LCY)")
+                field("Sales (LCY)"; Rec."Sales (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Total Sales (Excl. VAT)';
@@ -65,10 +69,10 @@ page 2306 "BC O365 Cust. Stats FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        OverdueBalance := CalcOverdueBalance;
+        OverdueBalance := CalcOverdueBalance();
     end;
 
     var
         OverdueBalance: Decimal;
 }
-
+#endif

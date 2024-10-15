@@ -4,7 +4,7 @@ codeunit 1233 "SEPA DD-Check Line"
 
     trigger OnRun()
     begin
-        DeletePaymentFileErrors;
+        DeletePaymentFileErrors();
         CheckCollectionEntry(Rec);
     end;
 
@@ -56,7 +56,7 @@ codeunit 1233 "SEPA DD-Check Line"
             end;
 
             if Customer.Name = '' then
-                AddFieldEmptyError(DirectDebitCollectionEntry, Customer.TableCaption, Customer.FieldCaption(Name), "Customer No.");
+                AddFieldEmptyError(DirectDebitCollectionEntry, Customer.TableCaption(), Customer.FieldCaption(Name), "Customer No.");
 
             DirectDebitCollection.Get("Direct Debit Collection No.");
             if Customer."Partner Type" <> DirectDebitCollection."Partner Type" then
@@ -72,25 +72,25 @@ codeunit 1233 "SEPA DD-Check Line"
                 SEPADirectDebitMandate.Get("Mandate ID");
                 if SEPADirectDebitMandate."Date of Signature" = 0D then
                     AddFieldEmptyError(
-                      DirectDebitCollectionEntry, SEPADirectDebitMandate.TableCaption, SEPADirectDebitMandate.FieldCaption("Date of Signature"),
+                      DirectDebitCollectionEntry, SEPADirectDebitMandate.TableCaption(), SEPADirectDebitMandate.FieldCaption("Date of Signature"),
                       "Mandate ID");
                 if not SEPADirectDebitMandate.IsMandateActive("Transfer Date") then
                     InsertPaymentFileError(StrSubstNo(NotActiveMandateErr, "Mandate ID"));
 
                 if SEPADirectDebitMandate."Customer Bank Account Code" = '' then
                     AddFieldEmptyError(
-                      DirectDebitCollectionEntry, SEPADirectDebitMandate.TableCaption,
+                      DirectDebitCollectionEntry, SEPADirectDebitMandate.TableCaption(),
                       SEPADirectDebitMandate.FieldCaption("Customer Bank Account Code"), SEPADirectDebitMandate.ID)
                 else begin
                     CustomerBankAccount.Get(Customer."No.", SEPADirectDebitMandate."Customer Bank Account Code");
                     if not GLSetup."SEPA Export w/o Bank Acc. Data" then begin
                         if CustomerBankAccount."SWIFT Code" = '' then
                             AddFieldEmptyError(
-                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption("SWIFT Code"),
+                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption(), CustomerBankAccount.FieldCaption("SWIFT Code"),
                               CustomerBankAccount.Code);
                         if CustomerBankAccount.IBAN = '' then
                             AddFieldEmptyError(
-                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption(IBAN),
+                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption(), CustomerBankAccount.FieldCaption(IBAN),
                               CustomerBankAccount.Code);
                     end else
                         if (CustomerBankAccount."Bank Account No." = '') or (CustomerBankAccount."Bank Branch No." = '') then
@@ -102,14 +102,14 @@ codeunit 1233 "SEPA DD-Check Line"
         end;
     end;
 
-    local procedure AddFieldEmptyError(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; TableCaption: Text; FieldCaption: Text; KeyValue: Text)
+    local procedure AddFieldEmptyError(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; TableCaption2: Text; FieldCaption: Text; KeyValue: Text)
     var
         ErrorText: Text;
     begin
         if KeyValue = '' then
-            ErrorText := StrSubstNo(FieldBlankErr, FieldCaption, TableCaption)
+            ErrorText := StrSubstNo(FieldBlankErr, FieldCaption, TableCaption2)
         else
-            ErrorText := StrSubstNo(FieldKeyBlankErr, FieldCaption, TableCaption, KeyValue);
+            ErrorText := StrSubstNo(FieldKeyBlankErr, FieldCaption, TableCaption2, KeyValue);
         DirectDebitCollectionEntry.InsertPaymentFileError(ErrorText);
     end;
 

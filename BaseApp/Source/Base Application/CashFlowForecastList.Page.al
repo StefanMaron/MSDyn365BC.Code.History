@@ -16,12 +16,12 @@ page 849 "Cash Flow Forecast List"
             repeater(Control1000)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Search Name"; "Search Name")
+                field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an alternate name that you can use to search for the record in question when you cannot remember the value in the Name field.';
@@ -32,33 +32,33 @@ page 849 "Cash Flow Forecast List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the cash flow forecast.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an additional description of a forecast.';
                 }
-                field(ShowInChart; GetShowInChart)
+                field(ShowInChart; GetShowInChart())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show In Chart on Role Center';
                     ToolTip = 'Specifies the cash flow forecast chart on the Role Center page.';
                 }
-                field("Consider Discount"; "Consider Discount")
+                field("Consider Discount"; Rec."Consider Discount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to include the cash discounts that are assigned in entries and documents in cash flow forecast.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the forecast was created.';
                 }
-                field("Created By"; "Created By")
+                field("Created By"; Rec."Created By")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user who created the forecast.';
                 }
-                field("Manual Payments To"; "Manual Payments To")
+                field("Manual Payments To"; Rec."Manual Payments To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a starting date to which manual payments should be included in cash flow forecast.';
@@ -70,43 +70,43 @@ page 849 "Cash Flow Forecast List"
                     ToolTip = 'Specifies the comment for the record.';
                     Visible = false;
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                     Visible = false;
                 }
-                field("Manual Payments From"; "Manual Payments From")
+                field("Manual Payments From"; Rec."Manual Payments From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a starting date from which manual payments should be included in cash flow forecast.';
                     Visible = false;
                 }
-                field("G/L Budget From"; "G/L Budget From")
+                field("G/L Budget From"; Rec."G/L Budget From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the starting date from which you want to use the budget values from the general ledger in the cash flow forecast.';
                     Visible = false;
                 }
-                field("G/L Budget To"; "G/L Budget To")
+                field("G/L Budget To"; Rec."G/L Budget To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date to which you want to use the budget values from the general ledger in the cash flow forecast.';
                     Visible = false;
                 }
-                field("Consider CF Payment Terms"; "Consider CF Payment Terms")
+                field("Consider CF Payment Terms"; Rec."Consider CF Payment Terms")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to use cash flow payment terms for cash flow forecast. Cash flow payment terms overrule the standard payment terms that you have defined for customers, vendors, and orders. They also overrule the payment terms that you have manually entered on entries or documents.';
                     Visible = false;
                 }
-                field("Consider Pmt. Disc. Tol. Date"; "Consider Pmt. Disc. Tol. Date")
+                field("Consider Pmt. Disc. Tol. Date"; Rec."Consider Pmt. Disc. Tol. Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment discount tolerance date is considered when the cash flow date is calculated. If the check box is cleared, the due date or payment discount date from the customer and vendor ledger entries and the sales order or purchase order are used.';
                     Visible = false;
                 }
-                field("Consider Pmt. Tol. Amount"; "Consider Pmt. Tol. Amount")
+                field("Consider Pmt. Tol. Amount"; Rec."Consider Pmt. Tol. Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the payment tolerance amounts from the posted customer and vendor ledger entries are used in the cash flow forecast. If the check box is cleared, the amount without any payment tolerance amount from the customer and vendor ledger entries are used.';
@@ -148,8 +148,6 @@ page 849 "Cash Flow Forecast List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Cash Flow Forecast Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -187,8 +185,6 @@ page 849 "Cash Flow Forecast List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cash Flow Worksheet';
                 Image = Worksheet2;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Cash Flow Worksheet";
                 ToolTip = 'Get an overview of cash inflows and outflows and create a short-term forecast that predicts how and when you expect money to be received and paid out by your business.';
             }
@@ -202,8 +198,6 @@ page 849 "Cash Flow Forecast List"
                     Caption = 'Cash Flow &Date List';
                     Ellipsis = true;
                     Image = "Report";
-                    Promoted = true;
-                    PromotedCategory = "Report";
                     ToolTip = 'View forecast entries for a period of time that you specify. The registered cash flow forecast entries are organized by source types, such as receivables, sales orders, payables, and purchase orders. You specify the number of periods and their length.';
 
                     trigger OnAction()
@@ -211,8 +205,30 @@ page 849 "Cash Flow Forecast List"
                         CashFlowForecast: Record "Cash Flow Forecast";
                     begin
                         CurrPage.SetSelectionFilter(CashFlowForecast);
-                        CashFlowForecast.PrintRecords;
+                        CashFlowForecast.PrintRecords();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CashFlowWorksheet_Promoted; CashFlowWorksheet)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(CashFlowDateList_Promoted; CashFlowDateList)
+                {
                 }
             }
         }

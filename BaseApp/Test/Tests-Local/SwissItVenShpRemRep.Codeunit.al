@@ -42,7 +42,7 @@ codeunit 144021 "Swiss  It. Ven. Shp. Rem. Rep."
         OnlyDueEntries: Variant;
     begin
         LibraryVariableStorage.Dequeue(OnlyDueEntries);
-        RequestPageHandler.KeyDate.SetValue(WorkDate);
+        RequestPageHandler.KeyDate.SetValue(WorkDate());
         RequestPageHandler.OnlyDueEntries.SetValue(OnlyDueEntries);
         RequestPageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

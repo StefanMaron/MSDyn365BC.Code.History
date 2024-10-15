@@ -34,11 +34,11 @@ table 5406 "Prod. Order Line"
                 TestField("Reserved Quantity", 0);
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
                 if ("Item No." <> xRec."Item No.") and ("Line No." <> 0) then begin
-                    DeleteRelations;
+                    DeleteRelations();
                     "Variant Code" := '';
                 end;
                 if "Item No." = '' then
-                    Init
+                    Init()
                 else begin
                     ProdOrder.Get(Status, "Prod. Order No.");
                     "Starting Date" := ProdOrder."Starting Date";
@@ -49,7 +49,7 @@ table 5406 "Prod. Order Line"
                     "Location Code" := ProdOrder."Location Code";
                     "Bin Code" := ProdOrder."Bin Code";
 
-                    GetItem;
+                    GetItem();
                     Item.TestField("Inventory Posting Group");
                     "Inventory Posting Group" := Item."Inventory Posting Group";
 
@@ -82,7 +82,7 @@ table 5406 "Prod. Order Line"
                 end;
                 if "Item No." <> xRec."Item No." then
                     Validate(Quantity);
-                GetUpdateFromSKU;
+                GetUpdateFromSKU();
 
                 CreateDimFromDefaultDim();
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -200,7 +200,7 @@ table 5406 "Prod. Order Line"
                       FieldCaption("Bin Code"),
                       "Location Code",
                       "Bin Code", 0);
-                    CheckBin;
+                    CheckBin();
                 end;
             end;
         }
@@ -288,7 +288,7 @@ table 5406 "Prod. Order Line"
                 ProdOrderLine: Record "Prod. Order Line";
             begin
                 if ProdOrderLine.Get(Status, "Prod. Order No.", "Line No.") then begin
-                    Modify;
+                    Modify();
 
                     CalcProdOrder.Recalculate(Rec, 0, true);
 
@@ -299,7 +299,7 @@ table 5406 "Prod. Order Line"
                 if CurrFieldNo <> 0 then
                     Validate("Due Date");
 
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(50; "Ending Date"; Date)
@@ -320,7 +320,7 @@ table 5406 "Prod. Order Line"
                 ProdOrderLine: Record "Prod. Order Line";
             begin
                 if ProdOrderLine.Get(Status, "Prod. Order No.", "Line No.") then begin
-                    Modify;
+                    Modify();
 
                     CalcProdOrder.Recalculate(Rec, 1, true);
 
@@ -331,7 +331,7 @@ table 5406 "Prod. Order Line"
                 if CurrFieldNo <> 0 then
                     Validate("Due Date");
 
-                UpdateDatetime;
+                UpdateDatetime();
             end;
         }
         field(52; "Planning Level Code"; Integer)
@@ -385,21 +385,21 @@ table 5406 "Prod. Order Line"
 
                 if "Routing No." <> xRec."Routing No." then begin
                     if Status = Status::Released then begin
-                        if CheckCapLedgEntry then
+                        if CheckCapLedgEntry() then
                             Error(
                               Text99000004Err,
-                              FieldCaption("Routing No."), xRec."Routing No.", CapLedgEntry.TableCaption);
+                              FieldCaption("Routing No."), xRec."Routing No.", CapLedgEntry.TableCaption());
 
-                        if CheckSubcontractPurchOrder then
+                        if CheckSubcontractPurchOrder() then
                             Error(
                               Text99000004Err,
-                              FieldCaption("Routing No."), xRec."Routing No.", PurchLine.TableCaption);
+                              FieldCaption("Routing No."), xRec."Routing No.", PurchLine.TableCaption());
                     end;
 
                     ModifyRecord := false;
                     OnBeforeDeleteProdOrderRtngLines(Rec, ModifyRecord);
                     if ModifyRecord then
-                        Modify;
+                        Modify();
 
                     ProdOrderRoutingLine.SetRange(Status, Status);
                     ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
@@ -438,7 +438,7 @@ table 5406 "Prod. Order Line"
             trigger OnValidate()
             begin
                 TestField("Item No.");
-                GetItem;
+                GetItem();
                 Item.TestField("Inventory Value Zero", false);
                 if Item."Costing Method" = Item."Costing Method"::Standard then begin
                     if CurrFieldNo = FieldNo("Unit Cost") then
@@ -520,7 +520,7 @@ table 5406 "Prod. Order Line"
 
             trigger OnValidate()
             begin
-                GetItem;
+                GetItem();
                 GetGLSetup();
                 WhseValidateSourceLine.ProdOrderLineVerifyChange(Rec, xRec);
                 "Unit Cost" := Item."Unit Cost";
@@ -822,17 +822,17 @@ table 5406 "Prod. Order Line"
             if not ItemLedgEntry.IsEmpty() then
                 Error(
                   Text99000000,
-                  TableCaption, "Line No.", ItemLedgEntry.TableCaption);
+                  TableCaption, "Line No.", ItemLedgEntry.TableCaption());
 
-            if CheckCapLedgEntry then
+            if CheckCapLedgEntry() then
                 Error(
                   Text99000000,
-                  TableCaption, "Line No.", CapLedgEntry.TableCaption);
+                  TableCaption, "Line No.", CapLedgEntry.TableCaption());
 
-            if CheckSubcontractPurchOrder then
+            if CheckSubcontractPurchOrder() then
                 Error(
                   Text99000000,
-                  TableCaption, "Line No.", PurchLine.TableCaption);
+                  TableCaption, "Line No.", PurchLine.TableCaption());
         end;
 
         ProdOrderLineReserve.DeleteLine(Rec);
@@ -841,7 +841,7 @@ table 5406 "Prod. Order Line"
         TestField("Reserved Qty. (Base)", 0);
         WhseValidateSourceLine.ProdOrderLineDelete(Rec);
 
-        DeleteRelations;
+        DeleteRelations();
 
         RefreshRecord := false;
         OnAfterOnDelete(Rec, RefreshRecord);
@@ -935,6 +935,7 @@ table 5406 "Prod. Order Line"
             ProdOrderComp.SetRange("Prod. Order Line No.");
             ProdOrderComp.SetRange("Supplied-by Line No.", "Line No.");
             OnDeleteRelationsNotCalledFromComponentFilter(Rec, ProdOrderComp);
+            ProdOrderComp.SetLoadFields("Planning Level Code");
             if ProdOrderComp.Find('-') then
                 repeat
                     ProdOrderComp."Supplied-by Line No." := 0;
@@ -1057,8 +1058,8 @@ table 5406 "Prod. Order Line"
         OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if ProdOrderCompExist then
+            Modify();
+            if ProdOrderCompExist() then
                 UpdateProdOrderCompDim("Dimension Set ID", OldDimSetID);
         end;
 
@@ -1160,8 +1161,8 @@ table 5406 "Prod. Order Line"
             Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
-            Modify;
-            if ProdOrderCompExist then
+            Modify();
+            if ProdOrderCompExist() then
                 UpdateProdOrderCompDim("Dimension Set ID", OldDimSetID);
         end;
     end;
@@ -1241,7 +1242,7 @@ table 5406 "Prod. Order Line"
 
     procedure GetSourceCaption(): Text
     begin
-        exit(StrSubstNo('%1 %2 %3 %4', Status, TableCaption, "Prod. Order No.", "Item No."));
+        exit(StrSubstNo('%1 %2 %3 %4', Status, TableCaption(), "Prod. Order No.", "Item No."));
     end;
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
@@ -1298,7 +1299,7 @@ table 5406 "Prod. Order Line"
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; IncludeFirmPlanned: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Variant Code", "Location Code", Status, "Due Date");
         if IncludeFirmPlanned then
             SetRange(Status, Status::Planned, Status::Released)
@@ -1329,7 +1330,7 @@ table 5406 "Prod. Order Line"
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code", "Due Date");
         SetRange(Status, NewStatus);
         SetRange("Item No.", ReservationEntry."Item No.");
@@ -1377,7 +1378,7 @@ table 5406 "Prod. Order Line"
             ModifyRecord := false;
             OnUpdateProdOrderCompOnAfterFind(Rec, ModifyRecord);
             if ModifyRecord then
-                Modify;
+                Modify();
             repeat
                 if QtyPerUnitOfMeasure <> 0 then
                     ProdOrderComp.Validate(
@@ -1482,7 +1483,7 @@ table 5406 "Prod. Order Line"
 
     procedure SetFilterByReleasedOrderNo(OrderNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetCurrentKey(Status, "Prod. Order No.", "Line No.", "Item No.");
         SetRange(Status, Status::Released);
         SetRange("Prod. Order No.", OrderNo);

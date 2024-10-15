@@ -2,7 +2,6 @@ page 241 "Business Unit Card"
 {
     Caption = 'Business Unit Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Exch. Rates';
     SourceTable = "Business Unit";
 
     layout
@@ -22,17 +21,17 @@ page 241 "Business Unit Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the business unit in the consolidated company.';
                 }
-                field("Company Name"; "Company Name")
+                field("Company Name"; Rec."Company Name")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the company that will become a business unit in the consolidated company.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency to use for this business unit during consolidation.';
                 }
-                field("Currency Exchange Rate Table"; "Currency Exchange Rate Table")
+                field("Currency Exchange Rate Table"; Rec."Currency Exchange Rate Table")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies where to get currency exchange rates from when importing consolidation data. If you choose Local, the currency exchange rate table in the current (local) company is used. If you choose Business Unit, the currency exchange rate table in the business unit is used.';
@@ -42,32 +41,32 @@ page 241 "Business Unit Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether to include the business unit in the Consolidation report.';
                 }
-                field("Consolidation %"; "Consolidation %")
+                field("Consolidation %"; Rec."Consolidation %")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the percentage of each transaction for the business unit to include in the consolidation. For example, if a sales invoice is for $1000, and you specify 70%, consolidation will include $700 for the invoice. This is useful when you own only a percentage of a business unit.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the starting date of the fiscal year that the business unit uses. Enter a date only if the business unit and consolidated company have different fiscal years.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ending date of the business unit''s fiscal year. Enter a date only if the business unit and the consolidated company have different fiscal years.';
                 }
-                field("Data Source"; "Data Source")
+                field("Data Source"; Rec."Data Source")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether data is retrieved in the local currency (LCY) or the additional reporting currency (ACY) from the business unit.';
                 }
-                field("File Format"; "File Format")
+                field("File Format"; Rec."File Format")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the file format to use for the business unit data. If the business unit has version 3.70 or earlier, it must submit a .txt file. If the version is 4.00 or later, it must use an XML file.';
                 }
-                field("Last Run"; "Last Run")
+                field("Last Run"; Rec."Last Run")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date on which consolidation was run.';
@@ -76,47 +75,47 @@ page 241 "Business Unit Card"
             group("G/L Accounts")
             {
                 Caption = 'G/L Accounts';
-                field("Exch. Rate Gains Acc."; "Exch. Rate Gains Acc.")
+                field("Exch. Rate Gains Acc."; Rec."Exch. Rate Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account that revenue gained from exchange rates during consolidation is posted to.';
                 }
-                field("Exch. Rate Losses Acc."; "Exch. Rate Losses Acc.")
+                field("Exch. Rate Losses Acc."; Rec."Exch. Rate Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account that revenue losses due to exchange rates during consolidation are posted.';
                 }
-                field("Comp. Exch. Rate Gains Acc."; "Comp. Exch. Rate Gains Acc.")
+                field("Comp. Exch. Rate Gains Acc."; Rec."Comp. Exch. Rate Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account where gains from exchange rates during consolidation are posted for accounts that use the Composite Rate in the Consol. Translation Method field.';
                 }
-                field("Comp. Exch. Rate Losses Acc."; "Comp. Exch. Rate Losses Acc.")
+                field("Comp. Exch. Rate Losses Acc."; Rec."Comp. Exch. Rate Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account where losses due to exchange rates during consolidation are posted for accounts that use the Composite Rate in the Consol. Translation Method field.';
                 }
-                field("Equity Exch. Rate Gains Acc."; "Equity Exch. Rate Gains Acc.")
+                field("Equity Exch. Rate Gains Acc."; Rec."Equity Exch. Rate Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account for gains from exchange rates during consolidation are posted to for accounts that use the Equity Rate. If this field is blank, the account in the Exch. Rate Gains Acc. field is used.';
                 }
-                field("Equity Exch. Rate Losses Acc."; "Equity Exch. Rate Losses Acc.")
+                field("Equity Exch. Rate Losses Acc."; Rec."Equity Exch. Rate Losses Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account where losses due to exchange rates during consolidation are posted for accounts that use the Equity Rate. If this field is blank, the account in the Exch. Rate Losses Acc. field is used.';
                 }
-                field("Residual Account"; "Residual Account")
+                field("Residual Account"; Rec."Residual Account")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account for residual amounts that occur during consolidation.';
                 }
-                field("Minority Exch. Rate Gains Acc."; "Minority Exch. Rate Gains Acc.")
+                field("Minority Exch. Rate Gains Acc."; Rec."Minority Exch. Rate Gains Acc.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account where gains from exchange rates during consolidation are posted for business units that you do not own 100%. If this field is blank, the account in the Exch. Rate Gains Acc. field is used.';
                 }
-                field("Minority Exch. Rate Losses Acc"; "Minority Exch. Rate Losses Acc")
+                field("Minority Exch. Rate Losses Acc"; Rec."Minority Exch. Rate Losses Acc")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account that losses due to exchange rates during consolidation are posted to for business units that you do not own 100%. If this field is blank, the account in the Exch. Rate Losses Acc. field is used.';
@@ -152,17 +151,15 @@ page 241 "Business Unit Card"
                     Caption = 'Average Rate (Manual)';
                     Ellipsis = true;
                     Image = ManualExchangeRate;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Manage exchange rate calculations.';
 
                     trigger OnAction()
                     begin
                         ChangeExchangeRate.SetCaption(Text000);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Income Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            "Income Currency Factor" := ChangeExchangeRate.GetParameter;
-                            Modify;
+                        ChangeExchangeRate.SetParameter("Currency Code", "Income Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            "Income Currency Factor" := ChangeExchangeRate.GetParameter();
+                            Modify();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -173,17 +170,15 @@ page 241 "Business Unit Card"
                     Caption = 'Closing Rate';
                     Ellipsis = true;
                     Image = Close;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'The currency exchange rate that is valid on the date that the balance sheet or income statement is prepared.';
 
                     trigger OnAction()
                     begin
                         ChangeExchangeRate.SetCaption(Text001);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Balance Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            "Balance Currency Factor" := ChangeExchangeRate.GetParameter;
-                            Modify;
+                        ChangeExchangeRate.SetParameter("Currency Code", "Balance Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            "Balance Currency Factor" := ChangeExchangeRate.GetParameter();
+                            Modify();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -193,17 +188,15 @@ page 241 "Business Unit Card"
                     ApplicationArea = Suite;
                     Caption = 'Last Closing Rate';
                     Image = Close;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'The rate that was used in the last balance sheet closing.';
 
                     trigger OnAction()
                     begin
                         ChangeExchangeRate.SetCaption(Text002);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Last Balance Currency Factor", WorkDate);
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            "Last Balance Currency Factor" := ChangeExchangeRate.GetParameter;
-                            Modify;
+                        ChangeExchangeRate.SetParameter("Currency Code", "Last Balance Currency Factor", WorkDate());
+                        if ChangeExchangeRate.RunModal() = ACTION::OK then begin
+                            "Last Balance Currency Factor" := ChangeExchangeRate.GetParameter();
+                            Modify();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -294,6 +287,27 @@ page 241 "Business Unit Card"
                     Image = Export;
                     RunObject = Report "Export Consolidation";
                     ToolTip = 'Export transactions from the business units to a file.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Exch. Rates', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Average Rate (Manual)_Promoted"; "Average Rate (Manual)")
+                {
+                }
+                actionref("Closing Rate_Promoted"; "Closing Rate")
+                {
+                }
+                actionref("Last Closing Rate_Promoted"; "Last Closing Rate")
+                {
                 }
             }
         }

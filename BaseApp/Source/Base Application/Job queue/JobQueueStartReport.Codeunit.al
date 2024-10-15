@@ -1,6 +1,5 @@
 codeunit 487 "Job Queue Start Report"
 {
-    Access = Internal;
     TableNo = "Job Queue Entry";
 
     trigger OnRun()

@@ -274,7 +274,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.Modify(true);
         LibraryERM.CreateCurrency(Currency);
-        PostFCYJournal(GLAccount, WorkDate, GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccount."No.");
+        PostFCYJournal(GLAccount, WorkDate(), GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccount."No.");
 
         // Exercise.
         asserterror GLAccount.Validate("Currency Code", Currency.Code);
@@ -297,9 +297,9 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         CreateAccountWithCurrency(GLAccount);
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code",
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
         BankAccount.Modify(true);
-        CreateFCYJournal(GenJournalLine, GLAccount."No.", WorkDate, GenJournalLine."Bal. Account Type"::"Bank Account",
+        CreateFCYJournal(GenJournalLine, GLAccount."No.", WorkDate(), GenJournalLine."Bal. Account Type"::"Bank Account",
           BankAccount."No.", BankAccount."Currency Code");
 
         // Exercise.
@@ -325,9 +325,9 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         LibrarySales.CreateCustomer(Customer);
         GetReceivablesAccForCustomer(RecGLAccount, Customer);
         RecGLAccount."Currency Code" :=
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         RecGLAccount.Modify(true);
-        CreateFCYJournal(GenJournalLine, GLAccount."No.", WorkDate, GenJournalLine."Bal. Account Type"::Customer,
+        CreateFCYJournal(GenJournalLine, GLAccount."No.", WorkDate(), GenJournalLine."Bal. Account Type"::Customer,
           Customer."No.", GLAccount."Currency Code");
 
         // Exercise.
@@ -402,7 +402,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
         Currency.Validate("Realized Gains Acc.", GainsGLAccount."No.");
         Currency.Validate("Realized Losses Acc.", LossesGLAccount."No.");
         Currency.Modify(true);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate,
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(),
           LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
 
         GLAccount."Currency Code" := Currency.Code;
@@ -453,7 +453,7 @@ codeunit 144221 "Adjust Exchange Rates For G/L"
               GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.");
             PostFCYJournal(GLAccount, CurrencyExchangeRate."Starting Date", GenJournalLine."Bal. Account Type"::Customer, Customer."No.");
             PostFCYJournal(GLAccount, CurrencyExchangeRate."Starting Date", GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
-        until CurrencyExchangeRate.Next = 0;
+        until CurrencyExchangeRate.Next() = 0;
     end;
 
     local procedure VerifyCorrectionLineCount(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GLAccount: Record "G/L Account"; ExpCount: Integer)

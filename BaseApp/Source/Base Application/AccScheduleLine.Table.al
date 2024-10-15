@@ -43,7 +43,7 @@ table 85 "Acc. Schedule Line"
 
             trigger OnLookup()
             begin
-                LookupTotaling;
+                LookupTotaling();
             end;
 
             trigger OnValidate()
@@ -303,6 +303,14 @@ table 85 "Acc. Schedule Line"
     end;
 
     var
+        AccSchedName: Record "Acc. Schedule Name";
+        GLAcc: Record "G/L Account";
+        CFAccount: Record "Cash Flow Account";
+        AnalysisView: Record "Analysis View";
+        GLSetup: Record "General Ledger Setup";
+        CostType: Record "Cost Type";
+        HasGLSetup: Boolean;
+
         ForceUnderLineMsg: Label '%1 will be set to false.', Comment = '%1= Field underline ';
         Text000: Label 'Default Schedule';
         Text001: Label 'The parenthesis at position %1 is misplaced.';
@@ -319,13 +327,6 @@ table 85 "Acc. Schedule Line"
         Text012: Label '1,5,,Dimension 2 Totaling';
         Text013: Label '1,5,,Dimension 3 Totaling';
         Text014: Label '1,5,,Dimension 4 Totaling';
-        AccSchedName: Record "Acc. Schedule Name";
-        GLAcc: Record "G/L Account";
-        CFAccount: Record "Cash Flow Account";
-        AnalysisView: Record "Analysis View";
-        GLSetup: Record "General Ledger Setup";
-        CostType: Record "Cost Type";
-        HasGLSetup: Boolean;
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
 
     procedure LookUpDimFilter(DimNo: Integer; var Text: Text) Result: Boolean
@@ -334,7 +335,7 @@ table 85 "Acc. Schedule Line"
         DimValList: Page "Dimension Value List";
         IsHandled: Boolean;
     begin
-        GetAccSchedSetup;
+        GetAccSchedSetup();
 
         IsHandled := false;
         OnBeforeLookUpDimFilter(Rec, DimNo, Text, AccSchedName, Result, IsHandled);
@@ -354,9 +355,9 @@ table 85 "Acc. Schedule Line"
 
         DimValList.LookupMode(true);
         DimValList.SetTableView(DimVal);
-        if DimValList.RunModal = ACTION::LookupOK then begin
+        if DimValList.RunModal() = ACTION::LookupOK then begin
             DimValList.GetRecord(DimVal);
-            Text := DimValList.GetSelectionFilter;
+            Text := DimValList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -404,7 +405,7 @@ table 85 "Acc. Schedule Line"
     var
         IsHandled: Boolean;
     begin
-        GetAccSchedSetup;
+        GetAccSchedSetup();
 
         IsHandled := false;
         OnBeforeGetCaptionClass(Rec, AccSchedName, AnalysisViewDimType, Result, IsHandled);
@@ -480,8 +481,8 @@ table 85 "Acc. Schedule Line"
                 if not AnalysisView.Get(AccSchedName."Analysis View Name") then begin
                     Message(
                       Text015,
-                      AccSchedName.TableCaption, AnalysisView.TableCaption, AccSchedName."Analysis View Name",
-                      AccSchedName.FieldCaption("Analysis View Name"), AccSchedName.TableCaption);
+                      AccSchedName.TableCaption(), AnalysisView.TableCaption(), AccSchedName."Analysis View Name",
+                      AccSchedName.FieldCaption("Analysis View Name"), AccSchedName.TableCaption());
                     AccSchedName."Analysis View Name" := '';
                     AccSchedName.Modify();
                 end;
@@ -518,21 +519,21 @@ table 85 "Acc. Schedule Line"
                 begin
                     GLAccList.LookupMode(true);
                     if GLAccList.RunModal() = ACTION::LookupOK then
-                        Validate(Totaling, GLAccList.GetSelectionFilter);
+                        Validate(Totaling, GLAccList.GetSelectionFilter());
                 end;
             "Totaling Type"::"Cost Type",
             "Totaling Type"::"Cost Type Total":
                 begin
                     CostTypeList.LookupMode(true);
-                    if CostTypeList.RunModal = ACTION::LookupOK then
-                        Validate(Totaling, CostTypeList.GetSelectionFilter);
+                    if CostTypeList.RunModal() = ACTION::LookupOK then
+                        Validate(Totaling, CostTypeList.GetSelectionFilter());
                 end;
             "Totaling Type"::"Cash Flow Entry Accounts",
             "Totaling Type"::"Cash Flow Total Accounts":
                 begin
                     CFAccList.LookupMode(true);
-                    if CFAccList.RunModal = ACTION::LookupOK then
-                        Validate(Totaling, CFAccList.GetSelectionFilter);
+                    if CFAccList.RunModal() = ACTION::LookupOK then
+                        Validate(Totaling, CFAccList.GetSelectionFilter());
                 end;
             "Totaling Type"::"Account Category":
                 begin
@@ -550,7 +551,7 @@ table 85 "Acc. Schedule Line"
         GLBudgetNames: Page "G/L Budget Names";
     begin
         GLBudgetNames.LookupMode(true);
-        if GLBudgetNames.RunModal = ACTION::LookupOK then begin
+        if GLBudgetNames.RunModal() = ACTION::LookupOK then begin
             Text := GLBudgetNames.GetSelectionFilter();
             exit(true);
         end;
@@ -562,8 +563,8 @@ table 85 "Acc. Schedule Line"
         CostBudgetNames: Page "Cost Budget Names";
     begin
         CostBudgetNames.LookupMode(true);
-        if CostBudgetNames.RunModal = ACTION::LookupOK then begin
-            Text := CostBudgetNames.GetSelectionFilter;
+        if CostBudgetNames.RunModal() = ACTION::LookupOK then begin
+            Text := CostBudgetNames.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

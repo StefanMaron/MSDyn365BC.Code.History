@@ -124,7 +124,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ModifyFieldError, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption,
+            ModifyFieldError, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption(),
             SalesLine.FieldCaption("Document Type"), SalesLine."Document Type", SalesLine.FieldCaption("Document No."),
             SalesLine."Document No.",
             SalesLine.FieldCaption("Line No."), SalesLine."Line No.", -ServiceLine.Quantity));
@@ -155,7 +155,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            FieldChangedError, SalesLine.FieldCaption("Variant Code"), SalesLine.TableCaption, SalesLine.FieldCaption("Document Type"),
+            FieldChangedError, SalesLine.FieldCaption("Variant Code"), SalesLine.TableCaption(), SalesLine.FieldCaption("Document Type"),
             SalesLine."Document Type", SalesLine.FieldCaption("Document No."), SalesLine."Document No.",
             SalesLine.FieldCaption("Line No."), SalesLine."Line No."));
     end;
@@ -185,7 +185,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ModifyFieldError, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption,
+            ModifyFieldError, SalesLine.FieldCaption("Reserved Qty. (Base)"), SalesLine.TableCaption(),
             SalesLine.FieldCaption("Document Type"), SalesLine."Document Type", SalesLine.FieldCaption("Document No."),
             SalesLine."Document No.",
             SalesLine.FieldCaption("Line No."), SalesLine."Line No.", -ServiceLine.Quantity));
@@ -215,7 +215,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            FieldChangedError, ServiceLine.FieldCaption("No."), ServiceLine.TableCaption, ServiceLine.FieldCaption("Document Type"),
+            FieldChangedError, ServiceLine.FieldCaption("No."), ServiceLine.TableCaption(), ServiceLine.FieldCaption("Document Type"),
             ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."), ServiceLine."Document No.",
             ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."));
     end;
@@ -245,7 +245,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            FieldChangedError, ServiceLine.FieldCaption("Variant Code"), ServiceLine.TableCaption,
+            FieldChangedError, ServiceLine.FieldCaption("Variant Code"), ServiceLine.TableCaption(),
             ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
             ServiceLine."Document No.",
             ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."));
@@ -276,7 +276,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            FieldChangedError, ServiceLine.FieldCaption("Location Code"), ServiceLine.TableCaption,
+            FieldChangedError, ServiceLine.FieldCaption("Location Code"), ServiceLine.TableCaption(),
             ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
             ServiceLine."Document No.",
             ServiceLine.FieldCaption("Line No."), ServiceLine."Line No."));
@@ -332,7 +332,7 @@ codeunit 136143 "Service Reservation II"
         // 3. Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ModifyFieldError, ServiceLine.FieldCaption("Reserved Qty. (Base)"), ServiceLine.TableCaption,
+            ModifyFieldError, ServiceLine.FieldCaption("Reserved Qty. (Base)"), ServiceLine.TableCaption(),
             ServiceLine.FieldCaption("Document Type"), ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."),
             ServiceLine."Document No.",
             ServiceLine.FieldCaption("Line No."), ServiceLine."Line No.", ServiceLine.Quantity));
@@ -448,7 +448,7 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.ShowReservation();
 
         // [WHEN] Change "Planning Delivery Date" of Service Order to 01.01
-        ServiceLine.Find;
+        ServiceLine.Find();
         asserterror ServiceLine.Validate("Planned Delivery Date", LibraryRandom.RandDate(-5));
 
         // [THEN] Error message "The change leads to a date conflict with existing reservations" is raised
@@ -500,7 +500,7 @@ codeunit 136143 "Service Reservation II"
 
         // [GIVEN] Create sales order for 1 pc. Assign serial no. "S1" and post the order.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate());
         LibraryVariableStorage.Enqueue(ItemTrackingOption::SelectEntries);
         SalesLine.OpenItemTrackingLines();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);

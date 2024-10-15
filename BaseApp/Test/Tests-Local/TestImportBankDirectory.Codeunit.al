@@ -73,7 +73,7 @@ codeunit 144016 "Test Import Bank Directory"
         // Exercise
         BankDirectoryPage.OpenView;
         BankDirectoryPage."Import Bank Directory".Invoke;
-        BankDirectoryPage.Close;
+        BankDirectoryPage.Close();
 
         // Verify
         Assert.AreEqual(0, BankDirectory.Count,
@@ -186,9 +186,9 @@ codeunit 144016 "Test Import Bank Directory"
         ImportBankDirectoryWithClearingNumbers(BranchNo1, BranchNo2, BranchNo3);
 
         // Verify
-        CustomerBankAccount1.Find;
-        CustomerBankAccount2.Find;
-        CustomerBankAccount3.Find;
+        CustomerBankAccount1.Find();
+        CustomerBankAccount2.Find();
+        CustomerBankAccount3.Find();
 
         // Verify that the customer bank account branch number is updated when there is a new clearing number in the imported directory
         if UpdateClearingNumbers then
@@ -229,9 +229,9 @@ codeunit 144016 "Test Import Bank Directory"
 
         ImportBankDirectoryWithClearingNumbers(BranchNo1, BranchNo2, BranchNo3);
 
-        VendorBankAccount1.Find;
-        VendorBankAccount2.Find;
-        VendorBankAccount3.Find;
+        VendorBankAccount1.Find();
+        VendorBankAccount2.Find();
+        VendorBankAccount3.Find();
 
         // Verify that the original Vendor bank account 1 is not modified
         Assert.AreEqual(BranchNo1, VendorBankAccount1."Clearing No.", 'Vendor Bank Account 1 Branch No should be modified');
@@ -373,7 +373,7 @@ codeunit 144016 "Test Import Bank Directory"
           'Paradeplatz 8                      Postfach 100                       ' +
           '8070      Zürich                             044 333 99 11     044 332 55 55            80-500-4    CRESCHZZ80A   ');
 
-        FileHdl.Close;
+        FileHdl.Close();
     end;
 
     local procedure WriteLine(TmpStream: OutStream; Text: Text)
@@ -406,7 +406,7 @@ codeunit 144016 "Test Import Bank Directory"
           'Börsenstrasse 15                   Postfach 2800                      ' +
           '8022      Zürich                             044 631 31 11                              30-5-5      SNBZCHZZXXX   ');
 
-        FileHdl.Close;
+        FileHdl.Close();
         RecordCount := 3;
     end;
 
@@ -452,7 +452,7 @@ codeunit 144016 "Test Import Bank Directory"
         // Create a vendor with Bank Account
         LibraryPurchase.CreateVendor(Vendor);
         with VendorBankAccount do begin
-            Init;
+            Init();
             Validate("Vendor No.", Vendor."No.");
             Validate(Code, CopyStr(LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account"), 1, 5));
             "Clearing No." := Format(LibraryRandom.RandIntInRange(11111, 99999));

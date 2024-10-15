@@ -93,7 +93,7 @@ codeunit 144063 "Test ROUND Purchase"
         VATAmount2: Decimal;
         VATAmount: Decimal;
     begin
-        Init;
+        Init();
 
         // Create and post a purchase credit memo
         CreatePurchaseDocument(PurchaseHeader1, PurchaseLine1, DocumentType, PurchaseLine1.Type::"G/L Account");

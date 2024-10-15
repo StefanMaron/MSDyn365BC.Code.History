@@ -85,7 +85,7 @@ table 5715 "Item Substitution"
                 if "Substitute Variant Code" <> xRec."Substitute Variant Code" then
                     RecreateSubstEntry("Variant Code", xRec."Substitute Variant Code");
 
-                Description := GetItemVariantDescription;
+                Description := GetItemVariantDescription();
             end;
         }
         field(5; Description; Text[100])
@@ -109,7 +109,7 @@ table 5715 "Item Substitution"
                 if not Interchangeable then
                     DeleteInterchangeableItem(Type, "No.", "Variant Code", "Substitute Type", "Substitute No.", "Substitute Variant Code")
                 else
-                    CreateInterchangeableItem;
+                    CreateInterchangeableItem();
             end;
         }
         field(8; Condition; Boolean)
@@ -246,15 +246,16 @@ table 5715 "Item Substitution"
     end;
 
     var
-        Text000: Label 'You can not set up an item to be substituted by itself.';
-        Text001: Label 'This substitute is interchangeable. \';
-        Text002: Label 'Do you want to delete the corresponding substitute?';
         SubCondition: Record "Substitution Condition";
         ItemVariant: Record "Item Variant";
 
+        Text000: Label 'You can not set up an item to be substituted by itself.';
+        Text001: Label 'This substitute is interchangeable. \';
+        Text002: Label 'Do you want to delete the corresponding substitute?';
+
     local procedure CreateSubstitution(ItemNo1: Code[20]; Variant1: Code[10]; ItemNo2: Code[20]; Variant2: Code[10]; Substitutable: Boolean)
     begin
-        Init;
+        Init();
         Type := Type::Item;
         "No." := ItemNo1;
         "Variant Code" := Variant1;
@@ -268,7 +269,7 @@ table 5715 "Item Substitution"
     procedure CreateSubstitutionItem2Item(ItemNo1: Code[20]; Variant1: Code[10]; ItemNo2: Code[20]; Variant2: Code[10]; Substitutable: Boolean)
     begin
         CreateSubstitution(ItemNo1, Variant1, ItemNo2, Variant2, Substitutable);
-        Insert;
+        Insert();
         if Substitutable then
             CreateSubstitution(ItemNo2, Variant2, ItemNo1, Variant1, Substitutable);
     end;
@@ -285,8 +286,8 @@ table 5715 "Item Substitution"
         ItemSubstitution."Substitute Variant Code" := "Variant Code";
         SetDescription(Type.AsInteger(), "No.", ItemSubstitution.Description);
         ItemSubstitution.Interchangeable := true;
-        if ItemSubstitution.Find then
-            ItemSubstitution.Modify
+        if ItemSubstitution.Find() then
+            ItemSubstitution.Modify()
         else
             ItemSubstitution.Insert();
     end;
@@ -301,7 +302,7 @@ table 5715 "Item Substitution"
         ItemSubstitution."Substitute Type" := XType;
         ItemSubstitution."Substitute No." := XNo;
         ItemSubstitution."Substitute Variant Code" := XVariantCode;
-        if ItemSubstitution.Find then begin
+        if ItemSubstitution.Find() then begin
             ItemSubstitution.CalcFields(Condition);
             if ItemSubstitution.Condition then begin
                 SubCondition.SetRange(Type, XType);

@@ -14,17 +14,17 @@ page 9186 "Generic Chart Query Columns"
         {
             repeater(Group)
             {
-                field("Query No."; "Query No.")
+                field("Query No."; Rec."Query No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the query that is used to generate column data in the chart.';
                 }
-                field("Query Column No."; "Query Column No.")
+                field("Query Column No."; Rec."Query Column No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the query column that is used to generate column data in the chart.';
                 }
-                field("Column Name"; "Column Name")
+                field("Column Name"; Rec."Column Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the query that is used to generate column data in the chart.';

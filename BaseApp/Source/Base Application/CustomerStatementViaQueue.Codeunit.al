@@ -15,7 +15,7 @@ codeunit 8811 "Customer Statement via Queue"
         ErrorMessageManagement.Activate(ErrorMessageHandler);
         ErrorMessageManagement.PushContext(ErrorContextElement, RecordId, 0, "Object Caption to Run");
 
-        XmlContent := GetXmlContent;
+        XmlContent := GetXmlContent();
         if XmlContent = '' then
             ErrorMessageManagement.LogErrorMessage(0, RequestParametersHasNotBeenSetErr, Rec, FieldNo(XML), '')
         else

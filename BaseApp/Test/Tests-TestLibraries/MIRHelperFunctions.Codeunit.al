@@ -109,7 +109,7 @@ codeunit 132477 "MIR - Helper Functions"
             CustLedgerEntry.CalcFields("Remaining Amount");
             FinanceChargeMemoLine.TestField("Remaining Amount", CustLedgerEntry."Remaining Amount");
             FinanceChargeMemoLine.TestField("Posting Date", SalesHeader."Posting Date");
-            if SecondFinanceChargeMemoLine.Next <> 0 then
+            if SecondFinanceChargeMemoLine.Next() <> 0 then
                 DaysOverdue := SecondFinanceChargeMemoLine."Due Date" - FinanceChargeMemoLine."Due Date"
             else
                 DaysOverdue := (FinanceChargeMemoHeader."Document Date" - FinanceChargeMemoLine."Due Date") + 1;
@@ -121,9 +121,9 @@ codeunit 132477 "MIR - Helper Functions"
 
             // Validate Interest Amount and Posting Date on Finance Charge Memo Lines.
             FinanceChargeMemoLine.TestField(Amount, InterestAmount);
-            FinanceChargeInterestRate.Next;
+            FinanceChargeInterestRate.Next();
             TotalInterestAmountOnHeader += InterestAmount;
-        until FinanceChargeMemoLine.Next = 0;
+        until FinanceChargeMemoLine.Next() = 0;
 
         // Validate Total Interest Amount, Posting Date, Due Date and Remaining Amount on Finance Charge Memo Lines for Header Line.
         FinanceChargeMemoLine.Reset();

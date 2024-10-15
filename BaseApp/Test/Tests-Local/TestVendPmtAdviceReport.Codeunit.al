@@ -55,8 +55,8 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         VendorBankAccount.Modify(true);
         CreateAdditionalVendorPayment(GenJournalLine1, GenJournalLine, VendorBankAccount.Code);
 
-        Responsible := CreateGuid;
-        Advice := CreateGuid;
+        Responsible := CreateGuid();
+        Advice := CreateGuid();
 
         // Exercise.
         Commit();
@@ -92,8 +92,8 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         CreateAppliedVendorPayment(GenJournalLine, InvoiceGenJournalLine, VendorBankAccount.Code);
         CreateAdditionalVendorPayment(GenJournalLine1, GenJournalLine, VendorBankAccount.Code);
 
-        Responsible := CreateGuid;
-        Advice := CreateGuid;
+        Responsible := CreateGuid();
+        Advice := CreateGuid();
 
         // Exercise.
         Commit();
@@ -127,8 +127,8 @@ codeunit 144029 "Test Vend. Pmt. Advice Report"
         PostPurchaseDocument(
           InvoiceGenJournalLine, InvoiceGenJournalLine."Document Type"::Invoice, Vendor, LibraryRandom.RandDec(1000, 2));
         CreateAppliedVendorPayment(GenJournalLine, InvoiceGenJournalLine, VendorBankAccount.Code);
-        Responsible := CreateGuid;
-        Advice := CreateGuid;
+        Responsible := CreateGuid();
+        Advice := CreateGuid();
 
         // Exercise.
         Commit();

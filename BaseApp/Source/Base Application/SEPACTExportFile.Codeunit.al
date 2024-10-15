@@ -10,7 +10,7 @@
     begin
         LockTable();
         BankAccount.Get("Bal. Account No.");
-        if Export(Rec, BankAccount.GetPaymentExportXMLPortID) then
+        if Export(Rec, BankAccount.GetPaymentExportXMLPortID()) then
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
     end;
 

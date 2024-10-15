@@ -12,52 +12,52 @@ page 483 "Currency Exchange Rates"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date on which the exchange rate on this line comes into effect.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the foreign currency on this line.';
                 }
-                field("Relational Currency Code"; "Relational Currency Code")
+                field("Relational Currency Code"; Rec."Relational Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how you want to set up the two currencies, one of the currencies can be LCY, for which you want to register exchange rates.';
                 }
-                field("Exchange Rate Amount"; "Exchange Rate Amount")
+                field("Exchange Rate Amount"; Rec."Exchange Rate Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amounts that are used to calculate exchange rates for the foreign currency on this line.';
                 }
-                field("Relational Exch. Rate Amount"; "Relational Exch. Rate Amount")
+                field("Relational Exch. Rate Amount"; Rec."Relational Exch. Rate Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amounts that are used to calculate exchange rates for the foreign currency on this line.';
                 }
-                field("Adjustment Exch. Rate Amount"; "Adjustment Exch. Rate Amount")
+                field("Adjustment Exch. Rate Amount"; Rec."Adjustment Exch. Rate Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amounts that are used to calculate exchange rates that will be used by the Adjust Exchange Rates batch job.';
                 }
-                field("Relational Adjmt Exch Rate Amt"; "Relational Adjmt Exch Rate Amt")
+                field("Relational Adjmt Exch Rate Amt"; Rec."Relational Adjmt Exch Rate Amt")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amounts that are used to calculate exchange rates that will be used by the Adjust Exchange Rates batch job.';
                 }
-                field("VAT Exch. Rate Amount"; "VAT Exch. Rate Amount")
+                field("VAT Exch. Rate Amount"; Rec."VAT Exch. Rate Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount based on the official rates of the Federal Tax Administration.';
                 }
-                field("Relational VAT Exch. Rate Amt"; "Relational VAT Exch. Rate Amt")
+                field("Relational VAT Exch. Rate Amt"; Rec."Relational VAT Exch. Rate Amt")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount based on the official rates of the Federal Tax Administration.';
                 }
-                field("Fix Exchange Rate Amount"; "Fix Exchange Rate Amount")
+                field("Fix Exchange Rate Amount"; Rec."Fix Exchange Rate Amount")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the currency''s exchange rate can be changed on invoices and journal lines.';

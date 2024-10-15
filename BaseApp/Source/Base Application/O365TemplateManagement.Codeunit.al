@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2142 "O365 Template Management"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -12,7 +16,7 @@ codeunit 2142 "O365 Template Management"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         DummyCustomer: Record Customer;
     begin
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit;
 
         if not ConfigTemplateLine.GetLine(ConfigTemplateLine, O365SalesInitialSetup."Default Customer Template",
@@ -33,7 +37,7 @@ codeunit 2142 "O365 Template Management"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         DummyItem: Record Item;
     begin
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit;
 
         if not ConfigTemplateLine.GetLine(ConfigTemplateLine, O365SalesInitialSetup."Default Item Template",
@@ -53,7 +57,7 @@ codeunit 2142 "O365 Template Management"
         DummyItem: Record Item;
         ConfigTemplateManagement: Codeunit "Config. Template Management";
     begin
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit;
 
         ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
@@ -67,7 +71,7 @@ codeunit 2142 "O365 Template Management"
         UnitOfMeasure: Record "Unit of Measure";
         DummyItem: Record Item;
     begin
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit;
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Item Template");
@@ -81,4 +85,4 @@ codeunit 2142 "O365 Template Management"
         exit(UnitOfMeasure.Code);
     end;
 }
-
+#endif

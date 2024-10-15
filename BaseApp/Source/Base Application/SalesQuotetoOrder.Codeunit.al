@@ -37,7 +37,7 @@ codeunit 86 "Sales-Quote to Order"
 
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
-        CheckForBlockedLines;
+        CheckForBlockedLines();
 
         CheckInProgressOpportunities(Rec);
 
@@ -68,8 +68,8 @@ codeunit 86 "Sales-Quote to Order"
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
-            DeleteLinks;
-            Delete;
+            DeleteLinks();
+            Delete();
             SalesQuoteLine.DeleteAll();
         end;
 
@@ -80,13 +80,14 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     var
-        Text000: Label 'An open %1 is linked to this %2. The %1 has to be closed before the %2 can be converted to an %3. Do you want to close the %1 now and continue the conversion?', Comment = 'An open Opportunity is linked to this Quote. The Opportunity has to be closed before the Quote can be converted to an Order. Do you want to close the Opportunity now and continue the conversion?';
-        Text001: Label 'An open %1 is still linked to this %2. The conversion to an %3 was aborted.', Comment = 'An open Opportunity is still linked to this Quote. The conversion to an Order was aborted.';
         SalesQuoteLine: Record "Sales Line";
         SalesOrderHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
         Text90800: Label 'Variant lines cannot be transferred to an order. Delete the variant lines before creating the order.';
+
+        Text000: Label 'An open %1 is linked to this %2. The %1 has to be closed before the %2 can be converted to an %3. Do you want to close the %1 now and continue the conversion?', Comment = 'An open Opportunity is linked to this Quote. The Opportunity has to be closed before the Quote can be converted to an Order. Do you want to close the Opportunity now and continue the conversion?';
+        Text001: Label 'An open %1 is still linked to this %2. The conversion to an %3 was aborted.', Comment = 'An open Opportunity is still linked to this Quote. The conversion to an Order was aborted.';
 
     local procedure CopyApprovalEntryQuoteToOrder(SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
     var
@@ -100,6 +101,8 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
+    var
+        GlSetup: Record "General Ledger Setup";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
 
@@ -126,7 +129,9 @@ codeunit 86 "Sales-Quote to Order"
 
             SalesOrderHeader."Prepayment %" := PrepmtPercent;
             if SalesOrderHeader."Posting Date" = 0D then
-                SalesOrderHeader."Posting Date" := WorkDate;
+                SalesOrderHeader."Posting Date" := WorkDate();
+
+            SalesOrderHeader."VAT Reporting Date" := GlSetup.GetVATDate(SalesOrderHeader."Posting Date", SalesOrderHeader."Document Date");
 
             CalcFields("Work Description");
             SalesOrderHeader."Work Description" := "Work Description";
@@ -215,7 +220,7 @@ codeunit 86 "Sales-Quote to Order"
         if Opp.FindFirst() then begin
             if not ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(
-                   Text000, Opp.TableCaption, Opp."Sales Document Type"::Quote,
+                   Text000, Opp.TableCaption(), Opp."Sales Document Type"::Quote,
                    Opp."Sales Document Type"::Order), true)
             then
                 Error('');
@@ -246,7 +251,7 @@ codeunit 86 "Sales-Quote to Order"
             Opp.SetRange("Sales Document No.", SalesHeader."No.");
             Opp.SetRange(Status, Opp.Status::"In Progress");
             if Opp.FindFirst() then
-                Error(Text001, Opp.TableCaption, Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
+                Error(Text001, Opp.TableCaption(), Opp."Sales Document Type"::Quote, Opp."Sales Document Type"::Order);
             Commit();
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         end;
@@ -312,7 +317,7 @@ codeunit 86 "Sales-Quote to Order"
                     PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");
                     SalesOrderLine.Validate("Prepayment %");
                     if SalesOrderLine."No." <> '' then
-                        SalesOrderLine.DefaultDeferralCode;
+                        SalesOrderLine.DefaultDeferralCode();
                     OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
                     SalesOrderLine.Insert();
                     OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);

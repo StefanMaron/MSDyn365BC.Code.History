@@ -1846,7 +1846,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
             DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
             if not DataExchMapping.IsEmpty() then
                 exit(DataExchLineDef."Data Exch. Def Code");
-        until DataExchLineDef.Next = 0;
+        until DataExchLineDef.Next() = 0;
         Assert.Fail('Data Exchange Definition is not found');
     end;
 
@@ -1905,12 +1905,12 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
     local procedure GetDate(): Text
     begin
-        exit(StrSubstNo('%1-05-05', Format(Date2DMY(WorkDate, 3))));
+        exit(StrSubstNo('%1-05-05', Format(Date2DMY(WorkDate(), 3))));
     end;
 
     local procedure GetDateTime(): Text
     begin
-        exit(StrSubstNo('%1-05-05T09:00:00+01:00', Format(Date2DMY(WorkDate, 3))));
+        exit(StrSubstNo('%1-05-05T09:00:00+01:00', Format(Date2DMY(WorkDate(), 3))));
     end;
 
     local procedure GetAmountText(Amount: Decimal): Text
@@ -2478,9 +2478,11 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         BankAccReconciliationLine.Validate("Transaction Text", TransactionText);
         BankAccReconciliationLine.Validate("Additional Transaction Info", AdditionalTransactionInfo);
         BankAccReconciliationLine.Validate("ESR Reference No.", ESRReferenceNo);
-        BankAccReconciliationLine.Validate("Transaction Date", WorkDate);
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
+#if not CLEAN21
         BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
+#endif
         BankAccReconciliationLine.Modify(true);
     end;
 
@@ -2582,7 +2584,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     local procedure VerifyBankAccRecLineWithDataExchField(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DataExchDefCode: Code[20]; BankAccRecLineCount: Integer; DataExchFieldCount: Integer)
     begin
         Assert.RecordCount(BankAccReconciliationLine, BankAccRecLineCount);
-        BankAccReconciliationLine.Find;
+        BankAccReconciliationLine.Find();
         VerifyDefExchField(DataExchDefCode, BankAccReconciliationLine."Data Exch. Entry No.", DataExchFieldCount);
     end;
 
@@ -2646,7 +2648,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         VerifyImportCAMT054_PmtCurrency(DataExchField, PmtCurrency);
 
         VerifyImportCAMT054_InvRef(DataExchField, InvRef[1]);
-        DataExchField.Next;
+        DataExchField.Next();
         DataExchField.TestField(Value, InvRef[2]);
         Assert.RecordCount(DataExchField, 2);
     end;
@@ -2695,7 +2697,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         VerifyImportCAMT054_PmtCount(BankAccReconciliationLine, 2);
         for i := 1 to ArrayLen(Currency) do begin
             VerifyImportCAMT054_PmtWithDetails(BankAccReconciliationLine, Currency[i], Amount[i], InvDbtrName[i], InvRefTxt[i]);
-            BankAccReconciliationLine.Next;
+            BankAccReconciliationLine.Next();
         end;
     end;
 
@@ -2706,7 +2708,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         VerifyImportCAMT054_PmtCount(BankAccReconciliationLine, 4);
         for i := 1 to ArrayLen(Currency) do begin
             VerifyImportCAMT054_PmtWithDetails(BankAccReconciliationLine, Currency[i], Amount[i], InvDbtrName[i], InvRefTxt[i]);
-            BankAccReconciliationLine.Next;
+            BankAccReconciliationLine.Next();
         end;
     end;
 
@@ -2724,7 +2726,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
         Copy4DimBufTo2DimBuf(TempInvCurrency, TempInvAmount, TempInvDbtrName, TempInvRefTxt, InvCurrency, InvAmount, InvDbtrName, InvRefTxt, 2);
         for i := 1 to ArrayLen(TempInvCurrency) do begin
-            BankAccReconciliationLine.Next;
+            BankAccReconciliationLine.Next();
             VerifyImportCAMT054_PmtWithDetails(
               BankAccReconciliationLine, TempInvCurrency[i], TempInvAmount[i], TempInvDbtrName[i], TempInvRefTxt[i]);
         end;
@@ -2743,7 +2745,7 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
         for i := 1 to ArrayLen(TempInvCurrency) do begin
             VerifyImportCAMT054_PmtWithDetails(
               BankAccReconciliationLine, TempInvCurrency[i], TempInvAmount[i], TempInvDbtrName[i], TempInvRefTxt[i]);
-            BankAccReconciliationLine.Next;
+            BankAccReconciliationLine.Next();
         end;
 
         Copy4DimBufTo2DimBuf(TempInvCurrency, TempInvAmount, TempInvDbtrName, TempInvRefTxt, InvCurrency, InvAmount, InvDbtrName, InvRefTxt, 2);

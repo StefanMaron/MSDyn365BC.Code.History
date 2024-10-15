@@ -11,7 +11,7 @@ codeunit 1240 "Read Data Exch. from File"
     begin
         OnBeforeFileImport(TempBlob, "File Name");
 
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             "File Name" := CopyStr(
                 FileMgt.BLOBImportWithFilter(TempBlob, ImportBankStmtTxt, '', FileFilterTxt, FileFilterExtensionTxt), 1, 250);
 
@@ -77,11 +77,11 @@ codeunit 1240 "Read Data Exch. from File"
         AmountNodeName := 'Amt';
         CurrencyAttributeName := 'Ccy';
 
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
 
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        OrigXmlDocument := OrigXmlDocument.XmlDocument;
+        OrigXmlDocument := OrigXmlDocument.XmlDocument();
         OrigXmlDocument.Load(InStream);
         if IsNull(OrigXmlDocument) then
             exit;
@@ -89,7 +89,7 @@ codeunit 1240 "Read Data Exch. from File"
             exit;
 
         // Create a new xml document: duplicate the old one and remove all payment nodes
-        NewXmlDocument := OrigXmlDocument.Clone;
+        NewXmlDocument := OrigXmlDocument.Clone();
         XMLRemoveAllChildNodes(NewXmlDocument, PaymentNodeName);
         if not XMLFindFirstChild(NewPmtParentXMLNode, NewXmlDocument, PmtParentNodeName) then
             exit;
@@ -99,7 +99,7 @@ codeunit 1240 "Read Data Exch. from File"
         for PaymentIndex := 0 to OrigPaymentXMLNodeList.Count - 1 do begin
             // Read next payment info
             OrigPmtXmlDocument := OrigPaymentXMLNodeList.Item(PaymentIndex);
-            NewPmtTemplateXMLNode := OrigPmtXmlDocument.Clone;
+            NewPmtTemplateXMLNode := OrigPmtXmlDocument.Clone();
             OrigInvoiceXMLNodeList := OrigPmtXmlDocument.GetElementsByTagName(InvoiceNodeName);
             InvoiceCount := OrigInvoiceXMLNodeList.Count();
             ValidPmtInfo :=
@@ -119,11 +119,11 @@ codeunit 1240 "Read Data Exch. from File"
                 for InvoiceIndex := 0 to InvoiceCount - 1 do begin
                     // Read next invoice info
                     OrigInvoiceXMLNode := OrigInvoiceXMLNodeList.Item(InvoiceIndex);
-                    NewInvoiceXMLNode := OrigInvoiceXMLNode.Clone;
+                    NewInvoiceXMLNode := OrigInvoiceXMLNode.Clone();
                     XMLReadAmountNodeWithAttributeText(
                       InvoiceAmount, InvoiceCurrency, OrigInvoiceXMLNode, AmountNodeName, CurrencyAttributeName);
                     // Prepare a new payment node from payment template and insert current invoice into it
-                    NewPmtXMLNode := NewPmtTemplateXMLNode.Clone;
+                    NewPmtXMLNode := NewPmtTemplateXMLNode.Clone();
                     if not XMLWriteAmountNode(NewPmtXMLNode, AmountNodeName, InvoiceAmount) then
                         exit;
                     if not XMLFindFirstChild(NewInvParentXMLNode, NewPmtXMLNode, InvParentNodeName) then

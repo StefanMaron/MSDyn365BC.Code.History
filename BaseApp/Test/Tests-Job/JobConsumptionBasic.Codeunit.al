@@ -46,7 +46,7 @@ codeunit 136300 "Job Consumption Basic"
 
     local procedure Initialize()
     var
-#if not CLEAN19
+#if not CLEAN21
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
 #endif
@@ -60,7 +60,7 @@ codeunit 136300 "Job Consumption Basic"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
-#if not CLEAN19
+#if not CLEAN21
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -516,7 +516,7 @@ codeunit 136300 "Job Consumption Basic"
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
             ItemLedgerEntry.TestField("Cost Amount (Actual)", Item."Unit Cost" * ItemLedgerEntry.Quantity);
             ItemLedgerEntry.TestField("Cost Amount (Expected)", 0);
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure JobGLJournalConsumption(JobLineType: Enum "Job Line Type")
@@ -751,7 +751,7 @@ codeunit 136300 "Job Consumption Basic"
             LibraryVariableStorage.Enqueue(PurchRcptLine."Document No.");
             LibraryVariableStorage.Enqueue(PurchRcptLine."Line No.");
             LibraryPurchase.GetPurchaseReceiptLine(PurchaseLine);
-        until PurchRcptLine.Next = 0;
+        until PurchRcptLine.Next() = 0;
     end;
 
     local procedure PostPurchaseReceiptWithJob(VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal; JobTask: Record "Job Task")
@@ -856,7 +856,7 @@ codeunit 136300 "Job Consumption Basic"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Max. VAT Difference Allowed", MaxVATDiffAmt);
             Modify(true);
         end;

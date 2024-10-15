@@ -17,7 +17,7 @@ codeunit 1660 "Payroll Management"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit(true);
         exit(false);
     end;
@@ -32,12 +32,11 @@ codeunit 1660 "Payroll Management"
         if TempServiceConnection.IsEmpty() then
             Error(PayrollServiceNotFoundErr);
 
-        if not EnabledPayrollServiceExists(TempServiceConnection) then begin
+        if not EnabledPayrollServiceExists(TempServiceConnection) then
             if Confirm(EnablePayrollServicesQst) then
                 EnablePayrollService(TempServiceConnection)
             else
                 exit;
-        end;
 
         if EnabledPayrollServiceExists(TempServiceConnection) then
             if SelectPayrollService(TempServiceConnection, SelectPayrollServiceToUseTxt) then
@@ -48,7 +47,7 @@ codeunit 1660 "Payroll Management"
     begin
         TempServiceConnection.SetFilter(
           Status, StrSubstNo('%1|%2', TempServiceConnection.Status::Enabled, TempServiceConnection.Status::Connected));
-        exit(TempServiceConnection.FindSet);
+        exit(TempServiceConnection.FindSet());
     end;
 
     local procedure EnablePayrollService(var TempServiceConnection: Record "Service Connection" temporary)
@@ -78,7 +77,7 @@ codeunit 1660 "Payroll Management"
         SelectedServiceIndex: Integer;
     begin
         if TempServiceConnection.Count < 2 then
-            exit(TempServiceConnection.FindFirst);
+            exit(TempServiceConnection.FindFirst());
 
         TempServiceConnection.SetCurrentKey(Name);
         TempServiceConnection.SetAscending(Name, true);

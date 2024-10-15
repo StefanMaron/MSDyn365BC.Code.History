@@ -6,6 +6,10 @@ codeunit 1652 "Add-in Manifest Management"
     end;
 
     var
+        EnvironmentInfo: Codeunit "Environment Information";
+        NodeType: Option Version,ProviderName,DefaultLocale,DisplayName,Description,DesktopSourceLoc,TabletSourceLoc,PhoneSourceLoc,AppDomain,IconUrl,HighResolutionIconUrl;
+        TestMode: Boolean;
+
         RuleCollectionXPathTxt: Label 'x:Rule[@xsi:type="RuleCollection" and @Mode="And"]/x:Rule[@xsi:type="RuleCollection" and @Mode="Or"]', Locked = true;
         OverridesExtensionPointXPathTxt: Label 'o10:VersionOverrides/o11:VersionOverrides/o11:Hosts/o11:Host[1]/o11:DesktopFormFactor/o11:ExtensionPoint', Locked = true;
         MissingNodeErr: Label 'Cannot find an XML node that matches %1.', Comment = '%1=XML node name';
@@ -13,9 +17,6 @@ codeunit 1652 "Add-in Manifest Management"
         RuleXPathTxt: Label 'x:Rule[@xsi:type="RuleCollection" and @Mode="Or"]/x:Rule[@xsi:type="RuleCollection" and @Mode="And"]/x:Rule[@xsi:type="ItemHasRegularExpressionMatch"]', Locked = true;
         WebClientHttpsErr: Label 'Cannot set up the add-in because the %1 Server instance is not configured to use Secure Sockets Layer (SSL), or the Web Client Base URL is not defined in the server configuration.', Comment = '%1=product name';
         MicrosoftTxt: Label 'Microsoft';
-        EnvironmentInfo: Codeunit "Environment Information";
-        NodeType: Option Version,ProviderName,DefaultLocale,DisplayName,Description,DesktopSourceLoc,TabletSourceLoc,PhoneSourceLoc,AppDomain,IconUrl,HighResolutionIconUrl;
-        TestMode: Boolean;
         BrandingFolderTxt: Label 'ProjectMadeira/', Locked = true;
         ManifestFileNameTxt: Label '%1.xml', Locked = true;
         ManifestZipFileNameTxt: Label 'OutlookAddins.zip', Comment = 'Name of the zip file containing Outlook Addin manifest files.';
@@ -79,7 +80,7 @@ codeunit 1652 "Add-in Manifest Management"
             // Set the AppID from the manifest
             "Application ID" := GetAppID(ManifestText);
             if IsNullGuid("Application ID") then
-                "Application ID" := CreateGuid;
+                "Application ID" := CreateGuid();
             if Name = '' then
                 Name := GetAppName(ManifestText);
             if Description = '' then
@@ -106,11 +107,11 @@ codeunit 1652 "Add-in Manifest Management"
     procedure GenerateManifest(OfficeAddin: Record "Office Add-in"; var ManifestText: Text)
     begin
         // Uses the current value of Manifest and updates XML nodes to reflect the current values
-        VerifyHttps;
+        VerifyHttps();
         if OfficeAddin."Manifest Codeunit" <> 0 then
             OnGenerateManifest(OfficeAddin, ManifestText, OfficeAddin."Manifest Codeunit")
         else begin
-            ManifestText := OfficeAddin.GetDefaultManifestText;
+            ManifestText := OfficeAddin.GetDefaultManifestText();
             SetCommonManifestItems(ManifestText);
         end;
     end;
@@ -126,7 +127,7 @@ codeunit 1652 "Add-in Manifest Management"
         SetNodeValue(ManifestText, GetUrl(CLIENTTYPE::Web), NodeType::AppDomain, 0);
         SetNodeValue(ManifestText, GetAppName(ManifestText), NodeType::DisplayName, 0);
         SetNodeValue(ManifestText, XMLEncode(GetAppDescription(ManifestText)), NodeType::Description, 0);
-        if EnvironmentInfo.IsSaaS then begin
+        if EnvironmentInfo.IsSaaS() then begin
             SetNodeValue(ManifestText, GetImageUrl(BrandingFolderTxt + 'OfficeAddin_64x.png'), NodeType::IconUrl, 0);
             SetNodeValue(ManifestText, GetImageUrl(BrandingFolderTxt + 'OfficeAddin_80x.png'), NodeType::HighResolutionIconUrl, 0);
         end else begin
@@ -477,7 +478,7 @@ codeunit 1652 "Add-in Manifest Management"
     begin
         WebClientUrl := ConstructURL('', '', '');
         if (not TestMode) and (LowerCase(CopyStr(WebClientUrl, 1, 5)) <> 'https') then
-            Error(WebClientHttpsErr, PRODUCTNAME.Short);
+            Error(WebClientHttpsErr, PRODUCTNAME.Short());
     end;
 
     local procedure SetNodeLocationValue(NodeLocation: Text; Id: Text[32]; var Value: Text; Type: Option Image,Url,ShortString,LongString; var FoundXMLNodeList: DotNet XmlNodeList; var XMLRootNode: DotNet XmlNode; XMLNamespaceMgr: DotNet XmlNamespaceManager): Boolean
@@ -515,7 +516,7 @@ codeunit 1652 "Add-in Manifest Management"
     var
         SystemWebHttpUtility: DotNet HttpUtility;
     begin
-        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility;
+        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility();
         Encoded := SystemWebHttpUtility.HtmlEncode(Value);
     end;
 

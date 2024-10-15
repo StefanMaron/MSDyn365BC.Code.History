@@ -67,7 +67,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     begin
         Initialize();
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
 
         LibraryDTA.CreateDTASetup(DTASetup, '', false);
@@ -200,7 +200,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
 
         // [GIVEN] DTA Setup
         TestOption := TestOption::"Bank Payment Abroad";
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
         LibraryDTA.CreateDTASetup(DTASetup, '', false);
 
@@ -247,7 +247,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         DTASetup.Modify();
 
         // [GIVEN] Payment posted
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
           GenJournalBatch, 1, Dates, Amounts, TestOption::"Bank Payment Abroad", '', '', false);
@@ -281,7 +281,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
 
         // [GIVEN] Posted payment for vendor which has address with country specific symbols
         LibraryDTA.CreateEZAGSetup(DTASetup, '');
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
         LibraryDTA.CreateTestGenJournalLines(Vendor, VendorBankAccount, GenJournalLineArray,
           GenJournalBatch, 1, Dates, Amounts, TestOption::"Bank Payment Domestic", '', '', false);
@@ -366,7 +366,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         // Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
         Initialize();
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
         LibraryDTA.CreateDTASetup(DTASetup, '', Backup);
 
@@ -399,7 +399,7 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         // Setup: Create and Post General Journal Line for Payment and Suggest Vendor Payment.
         Initialize();
 
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Amounts[1] := -LibraryRandom.RandDecInRange(100, 1000, 2);
         LibraryDTA.CreateEZAGSetup(DTASetup, '');
 
@@ -421,15 +421,15 @@ codeunit 144350 "CH DTA/EZAG File Reports"
         Currency: Record Currency;
     begin
         with Currency do begin
-            Init;
+            Init();
             repeat
                 Code := CopyStr(LibraryUtility.GenerateRandomText(3), 1, 3);
-            until Insert;
+            until Insert();
             "ISO Code" := CopyStr(Code, 1, 3);
-            Modify;
+            Modify();
 
             LibraryERM.CreateExchangeRate(
-              Code, WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+              Code, WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
             exit(Code);
         end;
     end;

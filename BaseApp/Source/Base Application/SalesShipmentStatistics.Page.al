@@ -58,7 +58,7 @@ page 396 "Sales Shipment Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         CalculateTotals();
     end;

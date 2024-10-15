@@ -8,7 +8,6 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     var
-        Text004: Label 'Counting records...';
         TempGlobalReservEntry: Record "Reservation Entry" temporary;
         TempGlobalAdjustEntry: Record "Reservation Entry" temporary;
         TempGlobalEntrySummary: Record "Entry Summary" temporary;
@@ -19,16 +18,18 @@ codeunit 6501 "Item Tracking Data Collection"
         LastSummaryEntryNo: Integer;
         LastReservEntryNo: Integer;
         FullGlobalDataSetExists: Boolean;
+        SkipLot: Boolean;
+        DirectTransfer: Boolean;
+        HideValidationDialog: Boolean;
+
+        Text004: Label 'Counting records...';
         AvailabilityWarningsMsg: Label 'The data used for availability calculation has been updated.\There are availability warnings on one or more lines.';
         NoAvailabilityWarningsMsg: Label 'The data used for availability calculation has been updated.\There are no availability warnings.';
         ListTxt: Label '%1 List', Comment = '%1 - field caption';
         AvailabilityText: Label '%1 %2 - Availability', Comment = '%1 - tracking field caption, %2 - field value';
         Text011: Label 'Item Tracking - Select Entries';
         PartialGlobalDataSetExists: Boolean;
-        SkipLot: Boolean;
         Text013: Label 'Neutralize consumption/output';
-        DirectTransfer: Boolean;
-        HideValidationDialog: Boolean;
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number %1.', Comment = '%1 - serial number.';
 
     procedure AssistEditTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Enum "Item Tracking Type"; MaxQuantity: Decimal)
@@ -86,7 +87,7 @@ codeunit 6501 "Item Tracking Data Collection"
         Window.Close();
 
         OnAssistEditTrackingNoOnBeforeItemTrackingSummaryRunModal(TempTrackingSpecification);
-        if ItemTrackingSummaryForm.RunModal = ACTION::LookupOK then begin
+        if ItemTrackingSummaryForm.RunModal() = ACTION::LookupOK then begin
             ItemTrackingSummaryForm.GetRecord(TempGlobalEntrySummary);
 
             if TempGlobalEntrySummary."Bin Active" then
@@ -123,7 +124,7 @@ codeunit 6501 "Item Tracking Data Collection"
             OnAssistEditTrackingNoOnAfterAssignTrackingToSpec(TempTrackingSpecification, TempGlobalEntrySummary);
 
             TransferExpDateFromSummary(TempTrackingSpecification, TempGlobalEntrySummary);
-            if TempTrackingSpecification.IsReclass or DirectTransfer then
+            if TempTrackingSpecification.IsReclass() or DirectTransfer then
                 TempTrackingSpecification.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
             OnAssistEditTrackingNoOnAfterCopyNewTrackingFromTrackingSpec(TempTrackingSpecification, DirectTransfer);
 
@@ -227,7 +228,7 @@ codeunit 6501 "Item Tracking Data Collection"
         Window.Close();
 
         if not HideValidationDialog then
-            if not (ItemTrackingSummaryForm.RunModal = ACTION::LookupOK) then
+            if not (ItemTrackingSummaryForm.RunModal() = ACTION::LookupOK) then
                 exit;
 
         ItemTrackingSummaryForm.GetSelected(TempEntrySummary);
@@ -317,11 +318,11 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemLedgEntry: Record "Item Ledger Entry";
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
-        xTrackingSpecification: Record "Tracking Specification" temporary;
+        TempTrackingSpecification2: Record "Tracking Specification" temporary;
     begin
         LastSummaryEntryNo := 0;
         LastReservEntryNo := 2147483647;
-        xTrackingSpecification := TempTrackingSpecification;
+        TempTrackingSpecification2 := TempTrackingSpecification;
         TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.DeleteAll();
         TempGlobalEntrySummary.Reset();
@@ -355,7 +356,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if FullDataSet then begin
             TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
             TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
-        end else begin
+        end else
             if TempTrackingSpecification.FindSet() then
                 repeat
                     ItemLedgEntry.ClearTrackingFilter();
@@ -377,17 +378,17 @@ codeunit 6501 "Item Tracking Data Collection"
                         TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
                     end;
                 until TempTrackingSpecification.Next() = 0;
-        end;
 
         OnRetrieveLookupDataOnAfterTransferToTempRec(TempGlobalEntrySummary, TempTrackingSpecification, ItemLedgEntry, LastSummaryEntryNo);
 
         TempGlobalEntrySummary.Reset();
         UpdateCurrentPendingQty();
-        TempTrackingSpecification := xTrackingSpecification;
+        TempTrackingSpecification := TempTrackingSpecification2;
 
         PartialGlobalDataSetExists := true;
         FullGlobalDataSetExists := FullDataSet;
-        AdjustForDoubleEntries();
+        AdjustForDoubleEntriesForManufacturing();
+        AdjustForDoubleEntriesForJobs();
 
         OnAfterRetrieveLookupData(TempTrackingSpecification, FullDataSet, TempGlobalReservEntry, TempGlobalEntrySummary);
     end;
@@ -608,7 +609,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 TempTrackingSpecification.CopyTrackingFromEntrySummary(TempEntrySummary);
                 TempTrackingSpecification."Buffer Status" := TempTrackingSpecification."Buffer Status"::INSERT;
                 TransferExpDateFromSummary(TempTrackingSpecification, TempEntrySummary);
-                if TempTrackingSpecification.IsReclass then
+                if TempTrackingSpecification.IsReclass() then
                     TempTrackingSpecification.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
                 OnAddSelectedTrackingToDataSetOnAfterCopyNewTrackingFromTrackingSpec(TempTrackingSpecification, ChangeType);
                 TempTrackingSpecification.Validate("Quantity (Base)", TempEntrySummary."Selected Quantity");
@@ -659,7 +660,7 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup);
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         if CheckJobInPurchLine(TempTrackingSpecification) then
-            exit(TempGlobalEntrySummary.FindFirst);
+            exit(TempGlobalEntrySummary.FindFirst());
         exit(TempGlobalEntrySummary."Total Available Quantity" >= 0);
     end;
 
@@ -830,6 +831,7 @@ codeunit 6501 "Item Tracking Data Collection"
         TempTrackingSpecification.SetTrackingKey();
         TempTrackingSpecification.Find('-');
         LookupMode := LookupMode::"Serial No.";
+        PreviousLotNo := '';
         repeat
             if TempTrackingSpecification."Lot No." <> PreviousLotNo then begin
                 PreviousLotNo := TempTrackingSpecification."Lot No.";
@@ -924,7 +926,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if TempEntrySummary."Total Quantity" <> 0 then begin
             TrackingSpecification."Buffer Status2" := TrackingSpecification."Buffer Status2"::"ExpDate blocked";
             TrackingSpecification."Expiration Date" := TempEntrySummary."Expiration Date";
-            if TrackingSpecification.IsReclass then
+            if TrackingSpecification.IsReclass() then
                 TrackingSpecification."New Expiration Date" := TrackingSpecification."Expiration Date"
             else
                 TrackingSpecification."New Expiration Date" := 0D;
@@ -937,7 +939,7 @@ codeunit 6501 "Item Tracking Data Collection"
         OnAfterTransferExpDateFromSummary(TrackingSpecification, TempEntrySummary);
     end;
 
-    local procedure AdjustForDoubleEntries()
+    local procedure AdjustForDoubleEntriesForManufacturing()
     begin
         TempGlobalAdjustEntry.Reset();
         TempGlobalAdjustEntry.DeleteAll();
@@ -986,7 +988,48 @@ codeunit 6501 "Item Tracking Data Collection"
                 RelateJnlLineToTempTrkgSpec(TempGlobalReservEntry, TempGlobalTrackingSpec);
             until TempGlobalReservEntry.Next() = 0;
 
-        InsertAdjustmentEntries;
+        InsertAdjustmentEntries();
+    end;
+
+    local procedure AdjustForDoubleEntriesForJobs()
+    begin
+        TempGlobalAdjustEntry.Reset();
+        TempGlobalAdjustEntry.DeleteAll();
+
+        TempGlobalTrackingSpec.Reset();
+        TempGlobalTrackingSpec.DeleteAll();
+
+        TempGlobalReservEntry.Reset();
+        TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
+        TempGlobalReservEntry.SetRange("Reservation Status", TempGlobalReservEntry."Reservation Status"::Prospect);
+        TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Job Journal Line");
+        TempGlobalReservEntry.SetRange("Source Subtype", 0); // Job Journal
+        if TempGlobalReservEntry.IsEmpty() then  // No journal lines with reservation exists
+            exit;
+
+        TempGlobalReservEntry.Reset();
+        TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
+        TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
+        TempGlobalReservEntry.SetRange("Source Subtype", 2);
+        if TempGlobalReservEntry.FindSet() then
+            repeat
+                // Sum up per job planning line per lot/sn
+                SumUpTempTrkgSpec(TempGlobalTrackingSpec, TempGlobalReservEntry);
+            until TempGlobalReservEntry.Next() = 0;
+
+        TempGlobalReservEntry.Reset();
+        TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
+        TempGlobalReservEntry.SetRange("Reservation Status", TempGlobalReservEntry."Reservation Status"::Prospect);
+        TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Job Journal Line");
+        TempGlobalReservEntry.SetRange("Source Subtype", 0);
+
+        if TempGlobalReservEntry.FindSet() then
+            repeat
+                // Sum up per qty. line per lot/sn
+                RelateJobJnlLineToTempTrkgSpec(TempGlobalReservEntry, TempGlobalTrackingSpec);
+            until TempGlobalReservEntry.Next() = 0;
+
+        InsertAdjustmentEntries();
     end;
 
     procedure SumUpTempTrkgSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
@@ -1045,12 +1088,11 @@ codeunit 6501 "Item Tracking Data Collection"
             ReservEntry."Transferred from Entry No." := Abs(TempTrackingSpecification."Entry No.");
             ReservEntry.Modify();
 
-            if (RemainingQty <> 0) and (RemainingQty * QtyOnJnlLine > 0) then begin
+            if (RemainingQty <> 0) and (RemainingQty * QtyOnJnlLine > 0) then
                 if Abs(QtyOnJnlLine) <= Abs(RemainingQty) then
                     AdjustQty := -QtyOnJnlLine
                 else
                     AdjustQty := -RemainingQty;
-            end;
 
             TempTrackingSpecification."Buffer Value1" += QtyOnJnlLine;
             TempTrackingSpecification."Buffer Value2" += AdjustQty;
@@ -1080,7 +1122,62 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
         TempTrackingSpecification.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
         OnFindRelatedParentTrkgSpecOnAfterSetFilters(TempTrackingSpecification, ItemJnlLine);
-        exit(TempTrackingSpecification.FindFirst);
+        exit(TempTrackingSpecification.FindFirst());
+    end;
+
+    procedure RelateJobJnlLineToTempTrkgSpec(var ReservEntry: Record "Reservation Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    var
+        JobJnlLine: Record "Job Journal Line";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        RemainingQty: Decimal;
+        AdjustQty: Decimal;
+        QtyOnJnlLine: Decimal;
+    begin
+        // Pre-check
+        ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Prospect);
+        ReservEntry.TestField("Source Type", DATABASE::"Job Journal Line");
+        if not (ReservEntry."Source Subtype" = 0) then
+            ReservEntry.FieldError("Source Subtype");
+
+        if not JobJnlLine.Get(ReservEntry."Source ID",
+             ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.")
+        then
+            exit;
+
+        // Buffer fields are used as follows:
+        // "Buffer Value1" : Summed up quantity on journal line(s)
+        // "Buffer Value2" : Adjustment needed to neutralize double entries
+
+        ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+        if FindRelatedParentTrkgSpec(JobJnlLine, TempTrackingSpecification, ItemTrackingSetup) then begin
+            RemainingQty := TempTrackingSpecification."Quantity (Base)" + TempTrackingSpecification."Buffer Value2";
+            QtyOnJnlLine := ReservEntry."Quantity (Base)";
+            ReservEntry."Transferred from Entry No." := Abs(TempTrackingSpecification."Entry No.");
+            ReservEntry.Modify();
+
+            if (RemainingQty <> 0) and (RemainingQty * QtyOnJnlLine > 0) then
+                if Abs(QtyOnJnlLine) <= Abs(RemainingQty) then
+                    AdjustQty := -QtyOnJnlLine
+                else
+                    AdjustQty := -RemainingQty;
+            TempTrackingSpecification."Buffer Value1" += QtyOnJnlLine;
+            TempTrackingSpecification."Buffer Value2" += AdjustQty;
+            TempTrackingSpecification.Modify();
+            AddToAdjustmentEntryDataSet(ReservEntry, AdjustQty);
+        end;
+    end;
+
+    local procedure FindRelatedParentTrkgSpec(JobJnlLine: Record "Job Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        TempTrackingSpecification.Reset();
+        JobPlanningLine.Get(JobJnlLine."Job No.", JobJnlLine."Job Task No.", JobJnlLine."Job Planning Line No.");
+        TempTrackingSpecification.SetSourceFilter(
+          DATABASE::"Job Planning Line", 2, JobJnlLine."Job No.", JobPlanningLine."Job Contract Entry No.", false);
+        TempTrackingSpecification.SetSourceFilter('', 0);
+        TempTrackingSpecification.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
+        exit(TempTrackingSpecification.FindFirst());
     end;
 
     local procedure AddToAdjustmentEntryDataSet(var ReservEntry: Record "Reservation Entry"; AdjustQty: Decimal)

@@ -182,7 +182,7 @@ table 289 "Payment Method"
 
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Direct Posting", true);
         end;
     end;
@@ -200,7 +200,7 @@ table 289 "Payment Method"
         PaymentMethodTranslation: Record "Payment Method Translation";
         Language: Codeunit Language;
     begin
-        if PaymentMethodTranslation.Get(Code, Language.GetUserLanguageCode) then
+        if PaymentMethodTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(PaymentMethodTranslation.Description);
 
         exit(Description);

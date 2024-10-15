@@ -43,7 +43,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
         Customer.Get(CreateCustomer(CurrencyCode));
 
         // Exercise: Create General Invoices with GL Account and Customer.
@@ -79,7 +79,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
         Customer.Get(CreateCustomer(CurrencyCode));
         CreateAndPostGenLines(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", AmountLCY, -Amount);
@@ -114,11 +114,11 @@ codeunit 134091 "ERM Additional Currency II"
         Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate()));
 
         // Exercise.
         LineAmount := CreateAndPostSalesInvoice(SalesHeader, AmountLCY, CurrencyCode);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(LineAmount, CurrencyCode, '', WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(LineAmount, CurrencyCode, '', WorkDate()));
 
         // Verify: Verify GL Entry for Additional Currency Amount after Posting Sales Invoice.
         GeneralLedgerSetup.Get();
@@ -130,10 +130,10 @@ codeunit 134091 "ERM Additional Currency II"
         VerifyGLEntry(DocumentNo, CustomerPostingGroup."Receivables Account", LineAmount);
         Assert.AreNearlyEqual(
           AmountLCY, CustLedgerEntry."Original Amt. (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Original Amt. (LCY)"), AmountLCY, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Original Amt. (LCY)"), AmountLCY, CustLedgerEntry.TableCaption()));
         Assert.AreNearlyEqual(
           AmountLCY, CustLedgerEntry."Remaining Amt. (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), AmountLCY, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), AmountLCY, CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -236,7 +236,7 @@ codeunit 134091 "ERM Additional Currency II"
 #if not CLEAN20
             RunAdjustExchangeRates(CurrencyCode);
 #else
-            LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+            LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
 #endif
 
         InvoiceDocNo := FindSalesInvoiceHeader(SalesHeader."Sell-to Customer No.");
@@ -270,7 +270,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
         Vendor.Get(CreateVendor(CurrencyCode));
 
         // Exercise: Create General Invoices with GL Account.
@@ -304,7 +304,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
         Vendor.Get(CreateVendor(CurrencyCode));
 
         // Exercise: Create and Post Invoice and Payment General.
@@ -339,13 +339,13 @@ codeunit 134091 "ERM Additional Currency II"
         Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate()));
 
         // Exercise.
         LineAmount := CreateAndPostPurchaseInvoice(PurchaseHeader, DocumentNo, AmountLCY, CurrencyCode);
 
         // Verify: Verify GL Entry for Additional Currency Amount after Posting Purchase Invoice.
-        AmountLCY := Round(LibraryERM.ConvertCurrency(LineAmount, CurrencyCode, '', WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(LineAmount, CurrencyCode, '', WorkDate()));
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         VerifyGLEntry(DocumentNo, VendorPostingGroup."Payables Account", -LineAmount);
 
@@ -354,10 +354,10 @@ codeunit 134091 "ERM Additional Currency II"
         VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)", "Original Amt. (LCY)");
         Assert.AreNearlyEqual(
           -AmountLCY, VendorLedgerEntry."Original Amt. (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Original Amt. (LCY)"), -AmountLCY, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Original Amt. (LCY)"), -AmountLCY, VendorLedgerEntry.TableCaption()));
         Assert.AreNearlyEqual(
           -AmountLCY, VendorLedgerEntry."Remaining Amt. (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), -AmountLCY, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), -AmountLCY, VendorLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -457,7 +457,7 @@ codeunit 134091 "ERM Additional Currency II"
 #if not CLEAN20
             RunAdjustExchangeRates(CurrencyCode);
 #else
-            LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+            LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
 #endif
         CreatePostGenJnlLineAndApplyToDoc(
           GenJournalLine."Account Type"::Vendor, PurchHeader."Buy-from Vendor No.",
@@ -561,7 +561,7 @@ codeunit 134091 "ERM Additional Currency II"
     var
         i: Integer;
     begin
-        Dates[1] := WorkDate;
+        Dates[1] := WorkDate();
         Dates[2] := CalcDate('<1M>', Dates[1]);
         Amounts[1] := -9858.77;
         Amounts[2] := 5338.86;
@@ -739,7 +739,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyCode := CreateCurrencyAndExchangeRate;
 
         Amount := LibraryRandom.RandDec(100, 2);
-        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()));
 
         BankAccountNo := CreateBankAccount('');
 
@@ -772,7 +772,7 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -815,14 +815,14 @@ codeunit 134091 "ERM Additional Currency II"
         CurrExchRate: Record "Currency Exchange Rate";
     begin
         with CurrExchRate do begin
-            Init;
+            Init();
             "Starting Date" := StartingDate;
             "Currency Code" := CurrencyCode;
             "Exchange Rate Amount" := ExhRateAmt;
             "Adjustment Exch. Rate Amount" := 1;
             "Relational Exch. Rate Amount" := 1;
             "Relational Adjmt Exch Rate Amt" := 1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1010,7 +1010,7 @@ codeunit 134091 "ERM Additional Currency II"
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
         AdjustExchangeRates.InitializeRequest2(
-          WorkDate, WorkDate, 'Test', WorkDate,
+          WorkDate, WorkDate(), 'Test', WorkDate(),
           LibraryUtility.GenerateGUID, true, false);
         Commit();
         AdjustExchangeRates.Run();
@@ -1099,13 +1099,13 @@ codeunit 134091 "ERM Additional Currency II"
         CustLedgerEntry.CalcFields("Original Amount", Amount, "Remaining Amount");
         Assert.AreEqual(
           Amount, CustLedgerEntry."Original Amount",
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Original Amount"), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Original Amount"), Amount, CustLedgerEntry.TableCaption()));
         Assert.AreEqual(
           Amount, CustLedgerEntry.Amount,
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption()));
         Assert.AreEqual(
           Amount, CustLedgerEntry."Remaining Amount",
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), Amount, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), Amount, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyBankAccountLedgerEntry(DocumentNo: Code[20]; BankAccountNo: Code[20]; ExpectedAmount: Decimal)
@@ -1133,7 +1133,7 @@ codeunit 134091 "ERM Additional Currency II"
         CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
         Assert.AreEqual(
           0, CustLedgerEntry."Remaining Amt. (LCY)",
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), 0, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), 0, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyCustRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmt: Decimal)
@@ -1144,7 +1144,7 @@ codeunit 134091 "ERM Additional Currency II"
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreEqual(
           ExpectedAmt, CustLedgerEntry."Remaining Amount",
-          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), ExpectedAmt, CustLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, CustLedgerEntry.FieldCaption("Remaining Amount"), ExpectedAmt, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1155,13 +1155,13 @@ codeunit 134091 "ERM Additional Currency II"
         VendorLedgerEntry.CalcFields("Original Amount", Amount, "Remaining Amount");
         Assert.AreEqual(
           -Amount, VendorLedgerEntry."Original Amount",
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Original Amount"), -Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Original Amount"), -Amount, VendorLedgerEntry.TableCaption()));
         Assert.AreEqual(
           -Amount, VendorLedgerEntry.Amount,
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption(Amount), -Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption(Amount), -Amount, VendorLedgerEntry.TableCaption()));
         Assert.AreEqual(
           -Amount, VendorLedgerEntry."Remaining Amount",
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), -Amount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), -Amount, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyZeroVendRemainingAmountLCY(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1172,7 +1172,7 @@ codeunit 134091 "ERM Additional Currency II"
         VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
         Assert.AreEqual(
           0, VendorLedgerEntry."Remaining Amt. (LCY)",
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), 0, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amt. (LCY)"), 0, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyVendRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedAmt: Decimal)
@@ -1183,7 +1183,7 @@ codeunit 134091 "ERM Additional Currency II"
         VendorLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreEqual(
           ExpectedAmt, VendorLedgerEntry."Remaining Amount",
-          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), ExpectedAmt, VendorLedgerEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, VendorLedgerEntry.FieldCaption("Remaining Amount"), ExpectedAmt, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
@@ -1195,7 +1195,7 @@ codeunit 134091 "ERM Additional Currency II"
         GLEntry.FindFirst();
         Assert.AreEqual(
           Amount, GLEntry."Additional-Currency Amount",
-          StrSubstNo(WrongAmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), Amount, GLEntry.TableCaption));
+          StrSubstNo(WrongAmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyZeroAddCurrAmountInGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20])

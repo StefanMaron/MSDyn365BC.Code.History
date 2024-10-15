@@ -11,14 +11,14 @@ codeunit 1291 "DotNet Exception Handler"
     [Scope('OnPrem')]
     procedure Catch(var Exception: DotNet Exception; Type: DotNet Type)
     begin
-        Collect;
+        Collect();
         if not CastToType(Exception, Type) then
-            Rethrow;
+            Rethrow();
     end;
 
     procedure Collect()
     begin
-        OuterException := GetLastErrorObject;
+        OuterException := GetLastErrorObject();
     end;
 
     local procedure IsCollected(): Boolean
@@ -37,14 +37,14 @@ codeunit 1291 "DotNet Exception Handler"
     [Scope('OnPrem')]
     procedure CastToType(var Exception: DotNet Exception; Type: DotNet Type): Boolean
     begin
-        if not IsCollected then
+        if not IsCollected() then
             exit(false);
 
-        Exception := OuterException.GetBaseException;
+        Exception := OuterException.GetBaseException();
         if IsNull(Exception) then
             exit(false);
 
-        if Type.Equals(Exception.GetType) then
+        if Type.Equals(Exception.GetType()) then
             exit(true);
 
         exit(false);
@@ -54,10 +54,10 @@ codeunit 1291 "DotNet Exception Handler"
     var
         Exception: DotNet Exception;
     begin
-        if not IsCollected then
+        if not IsCollected() then
             exit;
 
-        Exception := OuterException.GetBaseException;
+        Exception := OuterException.GetBaseException();
         if IsNull(Exception) then
             exit;
 
@@ -68,7 +68,7 @@ codeunit 1291 "DotNet Exception Handler"
     var
         RootCauseMessage: Text;
     begin
-        RootCauseMessage := GetMessage;
+        RootCauseMessage := GetMessage();
 
         if RootCauseMessage <> '' then
             Error(RootCauseMessage);

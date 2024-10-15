@@ -1,4 +1,4 @@
-codeunit 134600 "Report Layout Test"
+﻿codeunit 134600 "Report Layout Test"
 {
     // SaveAsPDF is not tested for Word scenarios as it currently requires Windows client and an installed Word.
 
@@ -386,14 +386,14 @@ codeunit 134600 "Report Layout Test"
         ReportLayoutSelection.Insert(true);
 
         if SalesInvoiceHeader.FindFirst() then
-            SalesInvoiceHeader.SetRecFilter;
+            SalesInvoiceHeader.SetRecFilter();
         REPORT.SaveAsXml(StandardSalesInvoiceReportID, FileNameXml, SalesInvoiceHeader);
         FileXml.Open(FileNameXml, TEXTENCODING::UTF16);
         FileXml.CreateInStream(InStr);
         DocumentReportMgt.MergeWordLayout(StandardSalesInvoiceReportID, 1, InStr, FileNameDocx, OutStream);
         Assert.IsTrue(Exists(FileNameDocx), '');
 
-        FileXml.Close;
+        FileXml.Close();
         Erase(FileNameXml);
         Erase(FileNameDocx);
     end;
@@ -437,8 +437,8 @@ codeunit 134600 "Report Layout Test"
         File2.Create(TemporaryPath + 'CustomRdlc.xml', TEXTENCODING::UTF8);
         File1.Write(BuiltInRdlcTxt);
         File2.Write(CustomRdlcTxt);
-        File1.Close;
-        File2.Close;
+        File1.Close();
+        File2.Close();
 
         Assert.AreNotEqual('', CustomRdlcTxt, '');
         Assert.AreNotEqual('', CustomRdlcTxt, '');
@@ -461,7 +461,7 @@ codeunit 134600 "Report Layout Test"
         Initialize();
         if not SalesInvoiceHeader.FindFirst() then
             exit;
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         InitCompanySetup;
         FileNameXml := FileManagement.ServerTempFileName('xml');
         REPORT.SaveAsXml(REPORT::"Standard Sales - Invoice", FileNameXml, SalesInvoiceHeader);
@@ -854,7 +854,7 @@ codeunit 134600 "Report Layout Test"
         CompanyInformation.Modify();
         Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
         Assert.AreEqual(
-          CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
+          CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
     end;
 
     [Test]
@@ -1001,7 +1001,7 @@ codeunit 134600 "Report Layout Test"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         with CustomReportLayout do begin
-            Init;
+            Init();
             "Report ID" := REPORT::"Standard Sales - Order Conf.";
             Insert(true);
             exit(Code);
@@ -1022,7 +1022,7 @@ codeunit 134600 "Report Layout Test"
         CustomReportSelection: Record "Custom Report Selection";
     begin
         with CustomReportSelection do begin
-            Init;
+            Init();
             "Source Type" := DATABASE::Customer;
             "Source No." := CustomerNo;
             Usage := NewUsage;
@@ -1063,7 +1063,7 @@ codeunit 134600 "Report Layout Test"
         InStr.ReadText(Line);
         InStr.ReadText(Line);
         Assert.IsFalse(InStr.EOS, 'should not be end of file');
-        File.Close;
+        File.Close();
         Assert.AreEqual(ExpectedLine, Line, 'Wrong line in the file');
     end;
 

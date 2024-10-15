@@ -72,7 +72,7 @@ codeunit 144037 "SR Vendor Orders per Period"
         Evaluate(PeriodLength, PeriodLengthText);
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(ShowAmtInLCY);
-        WorkDate := CalcDate(PeriodLength, WorkDate);
+        WorkDate := CalcDate(PeriodLength, WorkDate());
         Commit();
         Vendor.SetRange("No.", Vendor."No.");
         REPORT.Run(REPORT::"SR Vendor Orders per Period", true, false, Vendor);
@@ -103,7 +103,7 @@ codeunit 144037 "SR Vendor Orders per Period"
         Index: Integer;
     begin
         Evaluate(PeriodLengthDateFormula, PeriodLength);
-        ReceiptDate := WorkDate;
+        ReceiptDate := WorkDate();
         for Index := 1 to NumberOfPurchaseOrders do begin
             CreatePurchaseOrder(Vendor, ReceiptDate, ExpectedPurchAmtInOrderLCY[Index]);
             ReceiptDate := CalcDate(PeriodLengthDateFormula, ReceiptDate);

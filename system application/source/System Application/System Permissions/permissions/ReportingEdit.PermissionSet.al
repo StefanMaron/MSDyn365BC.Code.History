@@ -10,6 +10,6 @@ permissionset 99 "Reporting - Edit"
 
     Permissions = tabledata "Report Layout" = RIMD,
                   tabledata "Report Layout Definition" = R,
-                  tabledata "Tenant Report Layout" = R,
+                  tabledata "Tenant Report Layout" = RIMD,
                   tabledata "Tenant Report Layout Selection" = RIMD;
 }

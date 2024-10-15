@@ -1,4 +1,4 @@
-codeunit 134645 "Option Lookup Buffer Test"
+﻿codeunit 134645 "Option Lookup Buffer Test"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -13,6 +13,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -36,7 +37,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         Assert.RecordCount(TempOptionLookupBuffer, 10);
 
         // [THEN] Buffer table has entry for 'Comment'
-        TempOptionLookupBuffer.Get(SalesLine.FormatType);
+        TempOptionLookupBuffer.Get(SalesLine.FormatType());
 
         // [THEN] Buffer table has entry for 'G/L Account'
         TempOptionLookupBuffer.Get(Format(SalesLine.Type::"G/L Account"));
@@ -67,7 +68,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         Assert.RecordCount(TempOptionLookupBuffer, 11);
 
         // [THEN] Buffer table has entry for 'Comment'
-        TempOptionLookupBuffer.Get(SalesLine.FormatType);
+        TempOptionLookupBuffer.Get(SalesLine.FormatType());
 
         // [THEN] Buffer table has entry for 'G/L Account'
         TempOptionLookupBuffer.Get(Format(SalesLine.Type::"G/L Account"));
@@ -113,7 +114,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         Assert.RecordCount(TempOptionLookupBuffer, 6);
 
         // [THEN] Buffer table has entry for 'Comment'
-        TempOptionLookupBuffer.Get(PurchaseLine.FormatType);
+        TempOptionLookupBuffer.Get(PurchaseLine.FormatType());
 
         // [THEN] Buffer table has entry for 'G/L Account'
         TempOptionLookupBuffer.Get(Format(PurchaseLine.Type::"G/L Account"));
@@ -148,7 +149,7 @@ codeunit 134645 "Option Lookup Buffer Test"
 
             // [THEN] The correct option is returned
             Assert.AreEqual(ExpectedText, InputText, 'AutoCompleteOption returned incorrect value');
-        until TempReferenceOptionLookupBuffer.Next = 0;
+        until TempReferenceOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -169,7 +170,7 @@ codeunit 134645 "Option Lookup Buffer Test"
             // [WHEN] Trying to validate an existing option
             // [THEN] No error is thrown
             TempOptionLookupBuffer.ValidateOption(TempReferenceOptionLookupBuffer."Option Caption");
-        until TempReferenceOptionLookupBuffer.Next = 0;
+        until TempReferenceOptionLookupBuffer.Next() = 0;
 
         // [WHEN] Trying to validate an invalid option
         asserterror TempOptionLookupBuffer.ValidateOption(LibraryUtility.GenerateGUID());
@@ -241,7 +242,7 @@ codeunit 134645 "Option Lookup Buffer Test"
 
             // [THEN] The Subtype is set to service
             SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -280,7 +281,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         // [WHEN] Setting the Subtype on the Sales Line to co
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType, 1, 2));
         // [THEN] The Subtype is set to Comment
-        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -299,12 +300,12 @@ codeunit 134645 "Option Lookup Buffer Test"
         // [WHEN] Setting the Subtype on the Sales Line to ' '
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
 
         // [WHEN] Setting the Subtype on the Sales Line to ''
         SalesInvoice.SalesLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -365,6 +366,169 @@ codeunit 134645 "Option Lookup Buffer Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure SalesOrderTypeFieldEditability()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO] In View mode the field is not editable
+        Initialize();
+
+        // [GIVEN] A SaaS environment and a Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+
+        // [WHEN] Opening a Sales Order in EDIT
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+
+        // [THEN] The Subtype field is editable
+        Assert.IsTrue(SalesOrder.SalesLines.FilteredTypeField.Editable, 'Subtype field should be editable');
+
+        // [WHEN] Switching to VIEW
+        SalesOrder.View.Invoke;
+
+        // [THEN] The Subtype field is NOT editable
+        Assert.IsFalse(SalesOrder.SalesLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoTypeFieldEditability()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [SCENARIO] In View mode the field is not editable
+        Initialize();
+
+        // [GIVEN] A SaaS environment and a Sales Credit Memo
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+
+        // [WHEN] Opening a Sales Credit Memo in EDIT
+        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.GotoRecord(SalesHeader);
+
+        // [THEN] The Subtype field is editable
+        Assert.IsTrue(SalesCreditMemo.SalesLines.FilteredTypeField.Editable, 'Subtype field should be editable');
+
+        // [WHEN] Switching to VIEW
+        SalesCreditMemo.View.Invoke;
+
+        // [THEN] The Subtype field is NOT editable
+        Assert.IsFalse(SalesCreditMemo.SalesLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderTypeFieldEditability()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [SCENARIO] In View mode the field is not editable
+        Initialize();
+
+        // [GIVEN] A SaaS environment and a Sales Return Order
+        LibrarySales.CreateSalesReturnOrder(SalesHeader);
+
+        // [WHEN] Opening a Sales Return Order in EDIT
+        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.GotoRecord(SalesHeader);
+
+        // [THEN] The Subtype field is editable
+        Assert.IsTrue(SalesReturnOrder.SalesLines.FilteredTypeField.Editable, 'Subtype field should be editable');
+
+        // [WHEN] Switching to VIEW
+        SalesReturnOrder.View.Invoke;
+
+        // [THEN] The Subtype field is NOT editable
+        Assert.IsFalse(SalesReturnOrder.SalesLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceTypeFieldEditability()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO] In View mode the field is not editable
+        Initialize();
+
+        // [GIVEN] A SaaS environment and a Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [WHEN] Opening a Purchase Invoice in EDIT
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
+
+        // [THEN] The Subtype field is editable
+        Assert.IsTrue(PurchaseInvoice.PurchLines.FilteredTypeField.Editable, 'Subtype field should be editable');
+
+        // [WHEN] Switching to VIEW
+        PurchaseInvoice.View.Invoke;
+
+        // [THEN] The Subtype field is NOT editable
+        Assert.IsFalse(PurchaseInvoice.PurchLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderTypeFieldEditability()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO] In View mode the field is not editable
+        Initialize();
+
+        // [GIVEN] A SaaS environment and a Purchase Order
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        // [WHEN] Opening a Purchase Order in EDIT
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        // [THEN] The Subtype field is editable
+        Assert.IsTrue(PurchaseOrder.PurchLines.FilteredTypeField.Editable, 'Subtype field should be editable');
+
+        // [WHEN] Switching to VIEW
+        PurchaseOrder.View.Invoke;
+
+        // [THEN] The Subtype field is NOT editable
+        Assert.IsFalse(PurchaseOrder.PurchLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoTypeFieldEditability()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [SCENARIO] In View mode the field is not editable
+        Initialize();
+
+        // [GIVEN] A SaaS environment and a Purchase Credit Memo
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+
+        // [WHEN] Opening a Purchase Credit Memo in EDIT
+        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.GotoRecord(PurchaseHeader);
+
+        // [THEN] The Subtype field is editable
+        Assert.IsTrue(PurchaseCreditMemo.PurchLines.FilteredTypeField.Editable, 'Subtype field should be editable');
+
+        // [WHEN] Switching to VIEW
+        PurchaseCreditMemo.View.Invoke;
+
+        // [THEN] The Subtype field is NOT editable
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PurchaseOrderLineSubtypeAutoComplete()
     var
         PurchaseLine: Record "Purchase Line";
@@ -408,7 +572,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

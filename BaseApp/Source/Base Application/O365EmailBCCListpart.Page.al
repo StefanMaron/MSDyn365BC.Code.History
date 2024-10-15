@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2127 "O365 Email BCC Listpart"
 {
     Caption = 'BCC';
@@ -9,6 +10,9 @@ page 2127 "O365 Email BCC Listpart"
     PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "O365 Email Setup";
     SourceTableView = WHERE(RecipientType = CONST(BCC));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,7 +22,7 @@ page 2127 "O365 Email BCC Listpart"
             {
                 field(Email; Email)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the BCC recipient address on all new invoices';
                 }
@@ -32,7 +36,7 @@ page 2127 "O365 Email BCC Listpart"
         {
             action(DeleteLine)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete Line';
                 Gesture = RightSwipe;
                 Image = Delete;
@@ -51,7 +55,7 @@ page 2127 "O365 Email BCC Listpart"
             }
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 RunObject = Page "O365 Email CC/BCC Card";
@@ -72,4 +76,4 @@ page 2127 "O365 Email BCC Listpart"
     var
         DeleteQst: Label 'Are you sure?';
 }
-
+#endif

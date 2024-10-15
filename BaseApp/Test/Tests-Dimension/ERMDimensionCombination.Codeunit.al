@@ -55,7 +55,7 @@ codeunit 134479 "ERM Dimension Combination"
         // [THEN] Verify error occurs "Dimension Combination Blocked" on Posting General Journal.
         Assert.ExpectedError(
           StrSubstNo(
-            DimensionCombinationError, GenJournalLine.TableCaption, GenJournalLine."Journal Template Name",
+            DimensionCombinationError, GenJournalLine.TableCaption(), GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
@@ -275,7 +275,7 @@ codeunit 134479 "ERM Dimension Combination"
         // [THEN] The posting fails. An error is thrown reading that the combinations of dimension values is blocked.
         Assert.ExpectedError(
           StrSubstNo(
-            DimensionValueCombinationErr, GenJournalLine.TableCaption, GenJournalLine."Journal Template Name",
+            DimensionValueCombinationErr, GenJournalLine.TableCaption(), GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name", GenJournalLine."Line No.", DefaultDimension."Dimension Code",
             DefaultDimension."Dimension Value Code", DimensionValue."Dimension Code", DimensionValue.Code));
     end;
@@ -421,7 +421,7 @@ codeunit 134479 "ERM Dimension Combination"
         GenJournalLine.Validate("Account No.", AccountNo);
         GenJournalLine.Validate("Dimension Set ID",
           LibraryDimension.CreateDimSet(GenJournalLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Document No." :=
           LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line");
         GenJournalLine.Amount := LibraryRandom.RandDec(1000, 2);
@@ -463,7 +463,7 @@ codeunit 134479 "ERM Dimension Combination"
         end;
         GLBudgetEntry.Init();
         LibraryERM.CreateGLAccount(GLAccount);
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, GLAccount."No.", GLBudgetName.Name);
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), GLAccount."No.", GLBudgetName.Name);
     end;
 
     local procedure FindJournalBatchAndTemplate(var GenJournalBatch: Record "Gen. Journal Batch")

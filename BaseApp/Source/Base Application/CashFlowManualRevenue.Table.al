@@ -58,7 +58,7 @@ table 849 "Cash Flow Manual Revenue"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(1, "Global Dimension 1 Code");
-                Modify;
+                Modify();
             end;
         }
         field(10; "Global Dimension 2 Code"; Code[20])
@@ -71,7 +71,7 @@ table 849 "Cash Flow Manual Revenue"
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
-                Modify;
+                Modify();
             end;
         }
     }
@@ -149,7 +149,7 @@ table 849 "Cash Flow Manual Revenue"
 
         Code := CashFlowCode;
         "Cash Flow Account No." := CashFlowAccount."No.";
-        "Starting Date" := WorkDate;
+        "Starting Date" := WorkDate();
         "Ending Date" := 0D;
     end;
 

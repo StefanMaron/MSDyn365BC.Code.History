@@ -25,7 +25,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     procedure Initialize(CreationDateTime: DateTime)
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             TestField("Registration No.");
             TestField(Area);
             TestField("Agency No.");
@@ -37,7 +37,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         end;
         IntrastatSetup.Get();
         IntrastatSetup.TestField("Intrastat Contact Type");
-        CheckIntrastatContactMandatoryFields;
+        CheckIntrastatContactMandatoryFields();
 
         VATIDNo :=
           Format(CompanyInformation.Area, 2) +
@@ -66,15 +66,15 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             EndOfFile[1] := 26;
             ASCIIFileBodyText += EndOfFile;
             IntraFile.Write(ASCIIFileBodyText);
-            IntraFile.Close;
+            IntraFile.Close();
             IntraFile.Open(ServerFileName);
             IntraFile.Seek(IntraFile.Len - 2);
-            IntraFile.Trunc;
-            IntraFile.Close;
+            IntraFile.Trunc();
+            IntraFile.Close();
         end else begin
             IntraFile.CreateOutStream(OutStream);
             XMLDocument.Save(OutStream);
-            IntraFile.Close;
+            IntraFile.Close();
         end;
     end;
 
@@ -106,9 +106,9 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         ServerZipArchiveName := FileMgt.ServerTempFileName('zip');
         ServerZipArchive.Create(ServerZipArchiveName);
         ServerZipArchive.CreateOutStream(ServerZipArchiveOutStream);
-        DataCompression.CreateZipArchive;
+        DataCompression.CreateZipArchive();
         if FormatType = FormatType::ASCII then begin
-            VerifyCompanyInformation;
+            VerifyCompanyInformation();
             if ReceiptsFileExists then begin
                 FileMgt.BLOBImportFromServerFile(ServerReceiptsTempBlob, ServerFileReceipts);
                 ServerReceiptsTempBlob.CreateInStream(ServerReceiptsInStream);
@@ -125,8 +125,8 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             DataCompression.AddEntry(ServerShipmentsInStream, MessageID + '.XML');
         end;
         DataCompression.SaveZipArchive(ServerZipArchiveOutStream);
-        DataCompression.CloseZipArchive;
-        ServerZipArchive.Close;
+        DataCompression.CloseZipArchive();
+        ServerZipArchive.Close();
 
         if ZipFileName = '' then begin
             if FormatType = FormatType::ASCII then
@@ -228,7 +228,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         TestIndicator := NewTestIndicator;
         Clear(XMLDocument);
 
-        XMLDocument := XMLDocument.XmlDocument;
+        XMLDocument := XMLDocument.XmlDocument();
         XMLDOMMgt.AddRootElement(XMLDocument, 'INSTAT', XMLNode);
         XMLDOMMgt.AddAttributeWithPrefix(
           XMLNode, 'noNamespaceSchemaLocation', 'xsi', 'http://www.w3.org/2001/XMLSchema-instance', 'instat62.xsd');
@@ -241,7 +241,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         WriteXMLPartyReceiver(XMLNode);
         if TestIndicator then
             XMLDOMMgt.AddElement(XMLNode, 'testIndicator', 'true', '', XMLNode2);
-        XMLDOMMgt.AddElement(XMLNode, 'softwareUsed', PRODUCTNAME.Full, '', XMLNode2);
+        XMLDOMMgt.AddElement(XMLNode, 'softwareUsed', PRODUCTNAME.Full(), '', XMLNode2);
     end;
 
     [Scope('OnPrem')]
@@ -310,7 +310,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     begin
         with CompanyInformation do
             WriteXMLParty(
-              XMLNode, 'PSI', 'sender', VATIDNo, Name, GetMaterialNumber,
+              XMLNode, 'PSI', 'sender', VATIDNo, Name, GetMaterialNumber(),
               Address, "Post Code", City, GetCountryName("Country/Region Code"), "Phone No.", "Fax No.", "E-Mail");
     end;
 
@@ -445,7 +445,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     local procedure GetMessageID(StartDate: Date): Text
     begin
         exit(
-          GetMaterialNumber + '-' +
+          GetMaterialNumber() + '-' +
           Format(StartDate, 0, '<Year4><Month,2>') + '-' +
           Format(CreationDate, 0, '<Year4><Month,2><Day,2>') + '-' +
           Format(CreationTime, 0, '<Hours2><Minutes>'));
@@ -534,7 +534,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
     local procedure VerifyCompanyInformation()
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             TestField("Sales Authorized No.");
             TestField("Purch. Authorized No.");
         end;

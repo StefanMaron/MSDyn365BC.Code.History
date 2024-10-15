@@ -14,7 +14,7 @@ page 426 "Vendor Bank Account List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor.';
@@ -37,52 +37,52 @@ page 426 "Vendor Bank Account List"
                     Caption = 'Vendor City';
                     ToolTip = 'Specifies the city of the vendor''s address.';
                 }
-                field("Payment Form"; "Payment Form")
+                field("Payment Form"; Rec."Payment Form")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how payments are made. The different payment forms are used for different types of payment.';
                 }
-                field("ESR Type"; "ESR Type")
+                field("ESR Type"; Rec."ESR Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format of account numbers and reference numbers for this vendor. The account number can have 5 or 9 digits, the reference number can have 15, 16, or 27 digits.';
                 }
-                field("ESR Account No."; "ESR Account No.")
+                field("ESR Account No."; Rec."ESR Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s ESR account number.';
                 }
-                field("Balance Account No."; "Balance Account No.")
+                field("Balance Account No."; Rec."Balance Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that when processing an invoice, for this bank account, the balance account you enter here will be suggested.';
                 }
-                field("Invoice No. Startposition"; "Invoice No. Startposition")
+                field("Invoice No. Startposition"; Rec."Invoice No. Startposition")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the position of the invoice number within the reference number.';
                 }
-                field("Invoice No. Length"; "Invoice No. Length")
+                field("Invoice No. Length"; Rec."Invoice No. Length")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the length of the invoice number in the reference number.';
                 }
-                field("Clearing No."; "Clearing No.")
+                field("Clearing No."; Rec."Clearing No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the clearing number for the supplier''s bank.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account.';
                 }
-                field("Giro Account No."; "Giro Account No.")
+                field("Giro Account No."; Rec."Giro Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s giro account no.';
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the international bank identifier code (SWIFT) of the bank where you have the account.';
@@ -92,7 +92,7 @@ page 426 "Vendor Bank Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s international bank account number.';
                 }
-                field("Bank Identifier Code"; "Bank Identifier Code")
+                field("Bank Identifier Code"; Rec."Bank Identifier Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this is used if a payment is made to a foreign bank.';
@@ -102,24 +102,24 @@ page 426 "Vendor Bank Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank where the vendor has this bank account.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                     Visible = false;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number of the bank where the vendor has the bank account.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fax number associated with the address.';

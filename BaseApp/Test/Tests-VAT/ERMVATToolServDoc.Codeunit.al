@@ -276,7 +276,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
         // SETUP: Ship (Partially) and Invoice.
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ERMVATToolHelper.UpdateQtyToShipService(ServiceHeader);
         ERMVATToolHelper.UpdateQtyToConsumeInvoice(ServiceHeader, false, true);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -592,7 +592,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         // [GIVEN] Service Order with release status "Released To Ship".
         CreateServiceOrder(ServiceHeader, 1);
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
         // [GIVEN] Table "VAT Rate Change Setup" is set up for Service Documents conversion, "Ignore Status on Service Docs." is set.
@@ -622,7 +622,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         // [GIVEN] Service Order with release status "Released To Ship".
         CreateServiceOrder(ServiceHeader, 1);
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
         // [GIVEN] Table "VAT Rate Change Setup" is set up for Service Documents conversion, "Ignore Status on Service Docs." is cleared.
@@ -654,7 +654,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         ServiceHeader.Validate("Order Date", Today);
 
-        ServiceLine.Find;
+        ServiceLine.Find();
         ServiceLine.TestField("Order Date", ServiceHeader."Order Date");
     end;
 
@@ -941,7 +941,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
             DimensionSetID := LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue."Dimension Code", DimensionValue.Code);
             ServiceLine.Validate("Dimension Set ID", DimensionSetID);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure AddLineWithNextLineNo(ServiceHeader: Record "Service Header")
@@ -953,7 +953,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLine3.FindLast();
 
         with ServiceLine do begin
-            Init;
+            Init();
             Validate("Document Type", ServiceHeader."Document Type");
             Validate("Document No.", ServiceHeader."No.");
             Validate("Line No.", ServiceLine3."Line No." + 1);
@@ -976,7 +976,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         if ServiceLine.FindSet() then
             repeat
                 LibraryService.AutoReserveServiceLine(ServiceLine);
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
     end;
 
     local procedure CopyServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ServiceLine3: Record "Service Line"; ServiceItemLineNo: Integer)
@@ -1078,7 +1078,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
     local procedure GetServiceLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
-        ServiceHeader.Find;
+        ServiceHeader.Find();
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindSet();
@@ -1159,11 +1159,11 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         // SETTABLE call required for each record of the temporary table.
         TempRecRef.Reset();
         if TempRecRef.FindSet() then begin
-            TempServiceLn.SetView(TempRecRef.GetView);
+            TempServiceLn.SetView(TempRecRef.GetView());
             repeat
                 TempRecRef.SetTable(TempServiceLn);
                 TempServiceLn.Insert(false);
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
         end;
     end;
 
@@ -1173,7 +1173,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         VATRateChangeSetup.OpenEdit;
         VATRateChangeSetup."Ignore Status on Service Docs.".SetValue(State);
-        VATRateChangeSetup.Close;
+        VATRateChangeSetup.Close();
     end;
 
     local procedure SetFieldStateIgnoreStatusOnServiceDocs(State: Boolean)
@@ -1279,7 +1279,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         repeat
             CopyServiceLine(ServiceHeader3, ServiceLine3, ServiceLine, ServiceItemLine3."Line No.");
             VerifyServiceLineAmount(ServiceLine, ServiceLine3);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLineAmount(ServiceLine: Record "Service Line"; ServiceLine3: Record "Service Line")
@@ -1309,7 +1309,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
             else
                 Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
 
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
 
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup,
           GenProdPostingGroup);
@@ -1321,7 +1321,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         repeat
             ERMVATToolHelper.GetReservationEntryService(ReservationEntry, ServiceLine);
             Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceLnPartShipped(TempRecRef: RecordRef)
@@ -1355,8 +1355,8 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
                 VerifySplitNewLineService(TempServiceLn, ServiceLn, VATProdPostingGroupNew, GenProdPostingGroupNew)
             else
                 VerifySplitOldLineService(TempServiceLn, ServiceLn);
-            ServiceLn.Next;
-        until TempServiceLn.Next = 0;
+            ServiceLn.Next();
+        until TempServiceLn.Next() = 0;
     end;
 
     local procedure VerifySplitOldLineService(var ServiceLn1: Record "Service Line"; ServiceLn2: Record "Service Line")

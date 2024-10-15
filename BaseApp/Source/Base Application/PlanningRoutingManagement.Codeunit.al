@@ -26,7 +26,7 @@ codeunit 99000808 PlanningRoutingManagement
         PlanningRtngLine.SetRange("Worksheet Line No.", LineNo);
         PlanningRtngLine.SetRange(Recalculate, true);
 
-        exit(PlanningRtngLine.FindFirst);
+        exit(PlanningRtngLine.FindFirst());
     end;
 
     local procedure ErrorInRouting(LineNo: Integer; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
@@ -72,10 +72,9 @@ codeunit 99000808 PlanningRoutingManagement
                         if TotalCalculation then begin
                             if (PlanningRtngLine2."Sequence No.(Backward)" + 1) > PlanningRtngLine."Sequence No.(Backward)" then
                                 PlanningRtngLine."Sequence No.(Backward)" := PlanningRtngLine2."Sequence No.(Backward)" + 1;
-                        end else begin
+                        end else
                             if (PlanningRtngLine2."Sequence No. (Actual)" + 1) > PlanningRtngLine."Sequence No. (Actual)" then
                                 PlanningRtngLine."Sequence No. (Actual)" := PlanningRtngLine2."Sequence No. (Actual)" + 1;
-                        end;
                     until PlanningRtngLine2.Next() = 0;
             end;
             PlanningRtngLine.Modify();
@@ -98,7 +97,7 @@ codeunit 99000808 PlanningRoutingManagement
             PlanningRtngLine2.SetRange("Worksheet Template Name", PlanningRtngLine."Worksheet Template Name");
             PlanningRtngLine2.SetRange("Worksheet Batch Name", PlanningRtngLine."Worksheet Batch Name");
             PlanningRtngLine2.SetRange("Worksheet Line No.", PlanningRtngLine."Worksheet Line No.");
-            if PlanningRtngLine2.Find then
+            if PlanningRtngLine2.Find() then
                 repeat
                     if TotalCalculation then
                         PlanningRtngLine2."Sequence No.(Backward)" := SequenceNo
@@ -135,10 +134,9 @@ codeunit 99000808 PlanningRoutingManagement
                         if TotalCalculation then begin
                             if (PlanningRtngLine2."Sequence No.(Forward)" + 1) > PlanningRtngLine."Sequence No.(Forward)" then
                                 PlanningRtngLine."Sequence No.(Forward)" := PlanningRtngLine2."Sequence No.(Forward)" + 1;
-                        end else begin
+                        end else
                             if (PlanningRtngLine2."Sequence No. (Actual)" + 1) > PlanningRtngLine."Sequence No. (Actual)" then
                                 PlanningRtngLine."Sequence No. (Actual)" := PlanningRtngLine2."Sequence No. (Actual)" + 1;
-                        end;
                     until PlanningRtngLine2.Next() = 0;
             end;
             PlanningRtngLine.Modify();
@@ -161,7 +159,7 @@ codeunit 99000808 PlanningRoutingManagement
             PlanningRtngLine2.SetRange("Worksheet Template Name", PlanningRtngLine."Worksheet Template Name");
             PlanningRtngLine2.SetRange("Worksheet Batch Name", PlanningRtngLine."Worksheet Batch Name");
             PlanningRtngLine2.SetRange("Worksheet Line No.", PlanningRtngLine."Worksheet Line No.");
-            if PlanningRtngLine2.Find then
+            if PlanningRtngLine2.Find() then
                 repeat
                     if TotalCalculation then
                         PlanningRtngLine2."Sequence No.(Forward)" := SequenceNo
@@ -281,10 +279,10 @@ codeunit 99000808 PlanningRoutingManagement
                     if PlanningRtngLine."Scrap Factor %" <> 0 then
                         CalcScrapFactor :=
                           Round((1 + CalcScrapFactor) *
-                            (1 + PlanningRtngLine."Scrap Factor %" / 100), UOMMgt.QtyRndPrecision) - 1;
+                            (1 + PlanningRtngLine."Scrap Factor %" / 100), UOMMgt.QtyRndPrecision()) - 1;
                 end else
                     CalcScrapFactor :=
-                      Round(1 + PlanningRtngLine."Scrap Factor %" / 100, UOMMgt.QtyRndPrecision) - 1;
+                      Round(1 + PlanningRtngLine."Scrap Factor %" / 100, UOMMgt.QtyRndPrecision()) - 1;
                 CalcScrapQty := CalcScrapQty + PlanningRtngLine."Fixed Scrap Quantity";
                 PlanningRtngLine."Fixed Scrap Qty. (Accum.)" := CalcScrapQty;
                 PlanningRtngLine."Scrap Factor % (Accumulated)" := CalcScrapFactor;

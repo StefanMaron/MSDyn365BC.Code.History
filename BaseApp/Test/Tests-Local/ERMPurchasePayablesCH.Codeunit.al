@@ -42,7 +42,7 @@ codeunit 144049 "ERM Purchase Payables CH"
         // [THEN] Purchase Line has the following values
         // [THEN] "VAT %" = 20
         // [THEN] "Amount Including VAT" = 120
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.TestField("VAT %", ExpectedVATPercent);
         PurchaseLine.TestField("Amount Including VAT", ExpectedAmountInclVAT);
     end;

@@ -139,7 +139,7 @@ codeunit 144065 "Test CH VATSTAT"
         Quantity: Integer;
         ForeignCurrencyCode: Code[10];
     begin
-        Date := WorkDate;
+        Date := WorkDate();
         CurrencyCode := CreateCurrency(Date);
         CustomerNumber := CreateCustomer(VATBusPostingGroup, CurrencyCode);
         UnitAmount := LibraryRandom.RandDec(10000, 2);
@@ -334,8 +334,8 @@ codeunit 144065 "Test CH VATSTAT"
 
     local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Enum "VAT Statement Report Period Selection"; EntrySelection: Enum "VAT Statement Report Selection"; UseAmtsInAddCurr: Boolean)
     begin
-        GLVATReconciliation.StartDate.SetValue(WorkDate);
-        GLVATReconciliation.EndDateReq.SetValue(WorkDate);
+        GLVATReconciliation.StartDate.SetValue(WorkDate());
+        GLVATReconciliation.EndDateReq.SetValue(WorkDate());
         GLVATReconciliation.UseAmtsInAddCurr.SetValue(UseAmtsInAddCurr);
         GLVATReconciliation.PeriodSelection.SetValue(PeriodSelection);
         GLVATReconciliation.Selection.SetValue(EntrySelection);

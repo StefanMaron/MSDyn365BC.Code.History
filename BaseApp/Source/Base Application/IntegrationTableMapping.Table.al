@@ -201,7 +201,7 @@ table 5335 "Integration Table Mapping"
                 if xRec.Get(Name) then;
                 if (not xRec."Full Sync is Running") and "Full Sync is Running" then begin
                     "Last Full Sync Start DateTime" := CurrentDateTime;
-                    "Full Sync Session ID" := SessionId;
+                    "Full Sync Session ID" := SessionId();
                 end;
                 if not "Full Sync is Running" then
                     "Full Sync Session ID" := 0;
@@ -259,7 +259,7 @@ table 5335 "Integration Table Mapping"
         if not ("Table ID" in [Database::Contact, Database::Customer, Database::Item, Database::Vendor,
                                 Database::Resource, Database::Opportunity, Database::Currency, Database::"Customer Price Group",
                                 Database::"Sales Invoice Header", Database::"Sales Invoice Line",
-#if not CLEAN19
+#if not CLEAN21
                                 Database::"Sales Price",
 #endif
                                 Database::"Unit of Measure", Database::"Payment Terms", Database::"Shipment Method", Database::"Shipping Agent", DATABASE::"Salesperson/Purchaser"]) then
@@ -285,9 +285,9 @@ table 5335 "Integration Table Mapping"
             SetRecordRefFilter(TempRecRef)
         else
             SetIntRecordRefFilter(TempRecRef);
-        Found := TempRecRef.Find;
+        Found := TempRecRef.Find();
         OutOfMapFilter := not Found;
-        TempRecRef.Close;
+        TempRecRef.Close();
     end;
 
     [Scope('Cloud')]
@@ -298,25 +298,6 @@ table 5335 "Integration Table Mapping"
         SetRange("Delete After Synchronization", false);
         exit(FindFirst());
     end;
-
-#if not CLEAN18
-    [Obsolete('Use another implementation of FindMapping', '18.0')]
-    procedure FindMapping(TableNo: Integer; PrimaryKey: Variant): Boolean
-    begin
-        if PrimaryKey.IsRecordId then
-            exit(FindMappingForTable(TableNo));
-        if PrimaryKey.IsGuid then
-            exit(FindMappingForIntegrationTable(TableNo));
-    end;
-
-    [Obsolete('Use FindMapping', '18.0')]
-    local procedure FindMappingForIntegrationTable(TableId: Integer): Boolean
-    begin
-        SetRange("Integration Table ID", TableId);
-        SetRange("Delete After Synchronization", false);
-        exit(FindFirst());
-    end;
-#endif
 
     procedure FindMappingForTable(TableId: Integer): Boolean
     begin
@@ -342,7 +323,7 @@ table 5335 "Integration Table Mapping"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        IntegrationTableMapping.Get(GetName);
+        IntegrationTableMapping.Get(GetName());
         exit(IntegrationTableMapping.Direction);
     end;
 
@@ -599,7 +580,7 @@ table 5335 "Integration Table Mapping"
         if ResetLastSynchModifiedOnDateTime then begin
             Clear("Synch. Modified On Filter");
             Clear("Synch. Int. Tbl. Mod. On Fltr.");
-            Modify;
+            Modify();
         end;
         if ResetSynchonizationTimestampOnRecords then begin
             CRMIntegrationManagement.RepairBrokenCouplings(true);
@@ -625,7 +606,7 @@ table 5335 "Integration Table Mapping"
         if ResetLastSynchModifiedOnDateTime then begin
             Clear("Synch. Modified On Filter");
             Clear("Synch. Int. Tbl. Mod. On Fltr.");
-            Modify;
+            Modify();
         end;
         if ResetSynchonizationTimestampOnRecords then begin
             CRMOptionMapping.SetRange("Table ID", "Table ID");
@@ -643,12 +624,12 @@ table 5335 "Integration Table Mapping"
         RecordID: RecordID;
         TextKey: Text;
     begin
-        IntegrationRecordRef.Close;
+        IntegrationRecordRef.Close();
         if ID.IsGuid then begin
             IntegrationRecordRef.Open("Integration Table ID");
             IDFieldRef := IntegrationRecordRef.Field("Integration Table UID Fld. No.");
             IDFieldRef.SetFilter(ID);
-            exit(IntegrationRecordRef.FindFirst);
+            exit(IntegrationRecordRef.FindFirst());
         end;
 
         if ID.IsRecordId then begin
@@ -662,7 +643,7 @@ table 5335 "Integration Table Mapping"
             IDFieldRef := IntegrationRecordRef.Field("Integration Table UID Fld. No.");
             TextKey := ID;
             IDFieldRef.SetFilter('%1', TextKey);
-            exit(IntegrationRecordRef.FindFirst);
+            exit(IntegrationRecordRef.FindFirst());
         end;
     end;
 
@@ -671,7 +652,7 @@ table 5335 "Integration Table Mapping"
         ModifiedOnFieldRef: FieldRef;
         TableFilter: Text;
     begin
-        TableFilter := GetIntegrationTableFilter;
+        TableFilter := GetIntegrationTableFilter();
         if TableFilter <> '' then
             IntRecordRef.SetView(TableFilter);
 
@@ -685,7 +666,7 @@ table 5335 "Integration Table Mapping"
     var
         TableFilter: Text;
     begin
-        TableFilter := GetTableFilter;
+        TableFilter := GetTableFilter();
         if TableFilter <> '' then
             RecordRef.SetView(TableFilter);
     end;
@@ -694,7 +675,7 @@ table 5335 "Integration Table Mapping"
     begin
         "Synch. Modified On Filter" := FromIntegrationTableMapping."Synch. Modified On Filter";
         "Synch. Int. Tbl. Mod. On Fltr." := FromIntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.";
-        Modify;
+        Modify();
     end;
 
     [Scope('Cloud')]
@@ -719,7 +700,7 @@ table 5335 "Integration Table Mapping"
     begin
         if Get(MappingName) then
             Delete(true);
-        Init;
+        Init();
         Name := MappingName;
         "Table ID" := TableNo;
         "Integration Table ID" := IntegrationTableNo;
@@ -764,7 +745,7 @@ table 5335 "Integration Table Mapping"
     procedure SetFullSyncStartAndCommit()
     begin
         Validate("Full Sync is Running", true);
-        Modify;
+        Modify();
         Commit();
         Get(Name);
     end;
@@ -772,7 +753,7 @@ table 5335 "Integration Table Mapping"
     procedure SetFullSyncEndAndCommit()
     begin
         Validate("Full Sync is Running", false);
-        Modify;
+        Modify();
         Commit();
         Get(Name);
     end;
@@ -787,7 +768,7 @@ table 5335 "Integration Table Mapping"
             SetFullSyncEndAndCommit();
             exit(true);
         end;
-        if Abs(CurrentDateTime - "Last Full Sync Start DateTime") >= OneDayInMiliseconds then
+        if Abs(CurrentDateTime - "Last Full Sync Start DateTime") >= OneDayInMiliseconds() then
             exit(true);
         exit(false)
     end;

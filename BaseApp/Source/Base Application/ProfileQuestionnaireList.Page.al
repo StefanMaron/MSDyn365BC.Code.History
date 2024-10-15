@@ -22,12 +22,12 @@ page 5111 "Profile Questionnaire List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the profile questionnaire.';
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the type of contact you want to use this profile questionnaire for.';
                 }
-                field("Business Relation Code"; "Business Relation Code")
+                field("Business Relation Code"; Rec."Business Relation Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the business relation to which the profile questionnaire applies.';

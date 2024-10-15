@@ -21,7 +21,7 @@ table 9152 "My Item"
 
             trigger OnValidate()
             begin
-                SetItemFields;
+                SetItemFields();
             end;
         }
         field(3; Description; Text[100])
@@ -36,7 +36,7 @@ table 9152 "My Item"
         }
         field(5; Inventory; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No.")));
+            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No.")));
             Caption = 'Inventory';
             Editable = false;
             FieldClass = FlowField;

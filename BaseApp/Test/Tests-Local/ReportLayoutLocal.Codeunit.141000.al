@@ -74,7 +74,7 @@ codeunit 141000 "Report Layout - Local"
         CustNo: Code[20];
         LinesCount: Integer;
     begin
-        Init;
+        Init();
 
         CustNo := CreateCustomer;
         LinesCount := LibraryRandom.RandInt(10);
@@ -91,7 +91,7 @@ codeunit 141000 "Report Layout - Local"
         VendNo: Code[20];
         LinesCount: Integer;
     begin
-        Init;
+        Init();
 
         VendNo := CreateVendor;
         LinesCount := LibraryRandom.RandInt(10);
@@ -104,7 +104,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHCustOrdersPeriod(var CustOrdersPeriod: TestRequestPage "SR Cust. Orders per Period")
     begin
-        CustOrdersPeriod."Start Date".SetValue(WorkDate);
+        CustOrdersPeriod."Start Date".SetValue(WorkDate());
         CustOrdersPeriod."Period Length".SetValue(GetPeriodLength);
         ReportFilePath := FormatFileName(CustOrdersPeriod.Caption);
         if Exists(ReportFilePath) then
@@ -116,7 +116,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHVenDueAmountPeriod(var VenDueAmountPeriod: TestRequestPage "SR Ven. Due Amount per Period")
     begin
-        VenDueAmountPeriod."Key Date".SetValue(WorkDate);
+        VenDueAmountPeriod."Key Date".SetValue(WorkDate());
         VenDueAmountPeriod."Period Length".SetValue(GetPeriodLength);
         ReportFilePath := FormatFileName(VenDueAmountPeriod.Caption);
         if Exists(ReportFilePath) then
@@ -128,7 +128,7 @@ codeunit 141000 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHVendorOrderPeriod(var VendorOderPeriod: TestRequestPage "SR Vendor Orders per Period")
     begin
-        VendorOderPeriod."Start Date".SetValue(WorkDate);
+        VendorOderPeriod."Start Date".SetValue(WorkDate());
         VendorOderPeriod."Period Length".SetValue(GetPeriodLength);
         ReportFilePath := FormatFileName(VendorOderPeriod.Caption);
         if Exists(ReportFilePath) then
@@ -189,7 +189,7 @@ codeunit 141000 "Report Layout - Local"
                 Validate(Type, Type::"Cash Receipts")
             else
                 Validate(Type, Type::Payments);
-            Modify;
+            Modify();
             exit(Name);
         end;
     end;
@@ -214,12 +214,12 @@ codeunit 141000 "Report Layout - Local"
         RecRef: RecordRef;
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             "Journal Template Name" := GenJnlBatch."Journal Template Name";
             "Journal Batch Name" := GenJnlBatch.Name;
             RecRef.GetTable(GenJnlLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDec(100, 2);
             "Document Type" := "Document Type"::Payment;
             if IsCust then
@@ -227,7 +227,7 @@ codeunit 141000 "Report Layout - Local"
             else
                 "Account Type" := "Account Type"::Vendor;
             "Account No." := CVNo;
-            Insert;
+            Insert();
         end;
     end;
 

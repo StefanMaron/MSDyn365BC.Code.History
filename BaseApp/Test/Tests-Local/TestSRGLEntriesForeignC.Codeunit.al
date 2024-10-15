@@ -103,7 +103,7 @@ codeunit 144026 "Test SR G/L Entries Foreign C."
         // Create new Currency
         ExchangeRate := LibraryRandom.RandDec(10, 2);
         AdjustmentExchangeRate := LibraryRandom.RandDec(10, 2);
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate - 1, ExchangeRate, AdjustmentExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, ExchangeRate, AdjustmentExchangeRate);
 
         // Create General and VAT Posting setup
         LibraryERMCountryData.UpdateGeneralLedgerSetup();

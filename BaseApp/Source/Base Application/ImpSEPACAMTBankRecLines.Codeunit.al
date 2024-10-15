@@ -8,8 +8,8 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         ProcessDataExch: Codeunit "Process Data Exch.";
         RecRef: RecordRef;
     begin
-        InitNodeText;
-        InitBalTypeDescriptor;
+        InitNodeText();
+        InitBalTypeDescriptor();
         DataExch.Get("Data Exch. Entry No.");
         RecRef.GetTable(Rec);
         RunPreProcess(Rec);

@@ -108,7 +108,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                               IsLastOperation);
                             OnRunOnAfterInsertOutputJnlLineWithRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
                             if IsLastOperation then
-                                ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
+                                ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1(), LastItemJnlLine.RowID1(), false);
                             OnAfterCopyItemTracking(LastItemJnlLine, IsLastOperation, NextLineNo);
                         end;
                     end;
@@ -129,7 +129,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
                       ProdOrderLine."Remaining Quantity",
                       true);
                     OnAfterInsertOutputJnlLineWithoutRtngLine(ItemJnlLine, ProdOrderLine, ProdOrderRtngLine, NextLineNo);
-                    ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1, LastItemJnlLine.RowID1, false);
+                    ItemTrackingMgt.CopyItemTracking(ProdOrderLine.RowID1(), LastItemJnlLine.RowID1(), false);
                     OnAfterCopyItemTracking(LastItemJnlLine, IsLastOperation, NextLineNo);
                 end;
         until ProdOrderLine.Next() = 0;
@@ -137,7 +137,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         ItemJnlLineReserve.DeleteLine(Rec);
 
         OnBeforeDeleteItemJnlLine(Rec);
-        Delete;
+        Delete();
     end;
 
     var
@@ -168,7 +168,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         ItemJnlLine.Validate("Run Time", 0);
         if (LocationCode <> '') and LastOperation then
             ItemJnlLine.CheckWhse(LocationCode, QtyToPost);
-        if ItemJnlLine.SubcontractingWorkCenterUsed then
+        if ItemJnlLine.SubcontractingWorkCenterUsed() then
             ItemJnlLine.Validate("Output Quantity", 0)
         else
             ItemJnlLine.Validate("Output Quantity", QtyToPost);

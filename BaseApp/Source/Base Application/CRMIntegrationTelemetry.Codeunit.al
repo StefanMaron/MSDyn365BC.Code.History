@@ -6,15 +6,16 @@ codeunit 5333 "CRM Integration Telemetry"
 
     trigger OnRun()
     begin
-        SendIntegrationStatsTelemetry;
+        SendIntegrationStatsTelemetry();
     end;
 
     var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+
         CRMConnectionCategoryTxt: Label 'AL CRM Connection', Locked = true;
         CRMIntegrationCategoryTxt: Label 'AL CRM Integration', Locked = true;
         EnabledConnectionTelemetryTxt: Label '{"Enabled": "Yes", "AuthenticationType": "%1", "CRMVersion": "%2", "ProxyVersion": "%3", "CRMSolutionInstalled": "%4", "SOIntegration": "%5", "AutoCreateSO": "%6", "AutoProcessSQ": "%7", "ItemAvailablityEnabled": "%8"}', Locked = true;
         DisabledConnectionTelemetryTxt: Label '{"Enabled": "No", "DisableReason": "%1","AuthenticationType": "%2", "ProxyVersion": "%3", "AutoCreateSO": "%4"}', Locked = true;
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IntegrationTableStatsTxt: Label '{"IntegrationName": "%1", "TableID": "%2", "IntTableID": "%3", "TableName": "%4", "IntegrationTableName": "%5", Direction": "%6", "SyncCoupledOnly": "%7", "SyncJobsTotal": "%8", "TotalRecords": "%9", "CoupledRecords": "%10", "CoupledErrors": "%11"}', Locked = true;
         NoPermissionTxt: Label '{"READPERMISSION": "No"}', Locked = true;
         UserOpenedSetupPageTxt: Label 'User is attempting to set up the connection via %1 page.', Locked = true;
@@ -29,7 +30,7 @@ codeunit 5333 "CRM Integration Telemetry"
                 EnabledConnectionTelemetryTxt,
                 Format("Authentication Type"), "CRM Version", "Proxy Version", "Is CRM Solution Installed",
                 "Is S.Order Integration Enabled", "Auto Create Sales Orders", "Auto Process Sales Quotes",
-                CRMIntegrationManagement.IsItemAvailabilityEnabled));
+                CRMIntegrationManagement.IsItemAvailabilityEnabled()));
     end;
 
     local procedure GetDisabledConnectionTelemetryData(CRMConnectionSetup: Record "CRM Connection Setup"): Text
@@ -90,7 +91,7 @@ codeunit 5333 "CRM Integration Telemetry"
             Result := RecRef.Count
         else
             Result := -1;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetCoupledRecords(TableID: Integer): Integer
@@ -125,7 +126,7 @@ codeunit 5333 "CRM Integration Telemetry"
 
     local procedure SendIntegrationStatsTelemetry()
     begin
-        Session.LogMessage('000024Z', GetIntegrationStatsTelemetryData, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMIntegrationCategoryTxt);
+        Session.LogMessage('000024Z', GetIntegrationStatsTelemetryData(), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMIntegrationCategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"CRM Connection Setup", 'OnAfterInsertEvent', '', false, false)]
@@ -153,7 +154,7 @@ codeunit 5333 "CRM Integration Telemetry"
     var
         CRMProductName: Codeunit "CRM Product Name";
     begin
-        Session.LogMessage('00008A0', StrSubstNo(UserDisabledConnectionTxt, CRMProductName.SHORT), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
+        Session.LogMessage('00008A0', StrSubstNo(UserDisabledConnectionTxt, CRMProductName.SHORT()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CRMConnectionCategoryTxt)
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"CRM Connection Setup", 'OnOpenPageEvent', '', false, false)]

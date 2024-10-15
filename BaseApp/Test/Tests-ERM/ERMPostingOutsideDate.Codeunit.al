@@ -37,7 +37,7 @@ codeunit 134342 "ERM Posting Outside Date"
 
         // [GIVEN] Current work date is 05.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 05.01.2017
-        CreateGenJnlLine(GenJnlLine, WorkDate);
+        CreateGenJnlLine(GenJnlLine, WorkDate());
 
         // [WHEN] Post General Journal Line
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -129,7 +129,7 @@ codeunit 134342 "ERM Posting Outside Date"
 
         // [THEN] General Journal Line is not posted and error message "You cannot post when one or more dates is After the working date" is thrown
         Assert.ExpectedError(NotAllowedToPostAfterWorkingDateErr);
-        GenJnlLine.Find;
+        GenJnlLine.Find();
         VerfifyGLEntryDoesNotExist(GenJnlLine."Posting Date", GenJnlLine."Document No.");
 
         // Tear Down

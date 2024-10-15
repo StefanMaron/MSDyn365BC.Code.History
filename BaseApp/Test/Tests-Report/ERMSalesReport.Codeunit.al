@@ -1,4 +1,4 @@
-codeunit 134976 "ERM Sales Report"
+﻿codeunit 134976 "ERM Sales Report"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -135,7 +135,7 @@ codeunit 134976 "ERM Sales Report"
         // Setup.
         Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, CreateCurrency, CreateCustomer);
-        LineAmount := Round(LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', WorkDate));
+        LineAmount := Round(LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', WorkDate()));
 
         // Exercise: Generate the Customer Order Detail Report.
         RunCustomerOrderDetailReport(SalesLine."Sell-to Customer No.", true);
@@ -224,13 +224,13 @@ codeunit 134976 "ERM Sales Report"
         LibrarySales.CreateCustomer(Customer);
         NoOfDays := 30 * LibraryRandom.RandInt(4);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', InvoiceAmount, WorkDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', InvoiceAmount, WorkDate());
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', InvoiceAmount,
-          CalcDate('<' + Format(-NoOfDays) + 'D>', WorkDate));
+          CalcDate('<' + Format(-NoOfDays) + 'D>', WorkDate()));
 
         // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(Customer."No.");
         REPORT.Run(REPORT::"Customer - Summary Aging Simp.");
 
@@ -257,7 +257,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         SalesLCY := GetCustomerSalesLCY + LibraryRandom.RandDec(100, 2);
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', SalesLCY, WorkDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', SalesLCY, WorkDate());
 
         // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
         LibraryVariableStorage.Enqueue(ShowType::"Sales (LCY)");
@@ -286,7 +286,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         BalanceLCY := GetCustomerBalanceLCY + LibraryRandom.RandDec(100, 2);
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', BalanceLCY, WorkDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', BalanceLCY, WorkDate());
 
         // Exercise: Generate Customer Summary Aging Simp Report as Output file and save as XML.
         LibraryVariableStorage.Enqueue(ShowType::"Balance (LCY)");
@@ -378,7 +378,7 @@ codeunit 134976 "ERM Sales Report"
         // Setup: Create a Customer and Post General Journal Line with Invoice.
         Initialize();
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Excercise: Generate the Customer Register report and Verify Data on it without LCY Amount.
         CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
@@ -431,7 +431,7 @@ codeunit 134976 "ERM Sales Report"
         // Setup: Create a Customer and Post General Journal Line with Invoice.
         Initialize();
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Exercise: Generate the Customer Detail Trial Balance Report.
         LibraryVariableStorage.Enqueue(false);
@@ -483,7 +483,7 @@ codeunit 134976 "ERM Sales Report"
         // Setup: Create a Customer and Post General Journal Line with Invoice.
         Initialize();
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Generate the Customer Summary Aging Report and Verify without LCY Amount.
         RunAndVerifyCustSummaryAging(GenJournalLine."Account No.", false, GenJournalLine.Amount);
@@ -530,7 +530,7 @@ codeunit 134976 "ERM Sales Report"
         LibrarySales.CreateCustomer(Customer);
         PaymentTerms.Get(Customer."Payment Terms Code");  // Added fix to make test world ready.
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Exercise: Generate the Customer Detailed Aging Report.
         RunCustomerDetailedAging(GenJournalLine);
@@ -687,7 +687,7 @@ codeunit 134976 "ERM Sales Report"
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
         // Exercise: Save Statement Report for the Customer Created.
-        SaveStatementReport(GenJournalLine."Account No.", WorkDate, true, false, false, false, PeriodLength);
+        SaveStatementReport(GenJournalLine."Account No.", WorkDate(), true, false, false, false, PeriodLength);
 
         // Verify Remaining Amount in Statement Report in Overdue Entries.
         LibraryReportDataset.LoadDataSetFile;
@@ -739,7 +739,7 @@ codeunit 134976 "ERM Sales Report"
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
         // Exercise: Save Statement Report for the Customer Created.
-        SaveStatementReport(GenJournalLine."Account No.", WorkDate, false, false, true, false, PeriodLength);
+        SaveStatementReport(GenJournalLine."Account No.", WorkDate(), false, false, true, false, PeriodLength);
 
         // Verify: Verify Remaining Amount in Statement Report after Entries has been Unapplied.
         LibraryReportDataset.LoadDataSetFile;
@@ -762,11 +762,11 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         Amount := LibraryRandom.RandDec(1000, 2);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
-        PostingDate := CalcDate(PeriodLength, WorkDate);
+        PostingDate := CalcDate(PeriodLength, WorkDate());
         CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', Amount, PostingDate);
 
         // Exercise: Save Statement Report for the Customer Created.
-        SaveStatementReport(GenJournalLine."Account No.", WorkDate, false, false, false, true, PeriodLength);
+        SaveStatementReport(GenJournalLine."Account No.", WorkDate(), false, false, false, true, PeriodLength);
 
         // Verify Remaining Amount in Statement Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -790,14 +790,14 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
-        PostingDate := CalcDate(PeriodLength, WorkDate);
+        PostingDate := CalcDate(PeriodLength, WorkDate());
         CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', Amount, PostingDate);
         ReverseTransaction(FindGLEntry(GenJournalLine."Document No."));
         PostJournalLines(GenJournalLine, GenJournalLine."Account No.", Amount, -Amount);
         UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
 
         // Exercise: Save Statement Report for the Customer Created.
-        SaveStatementReport(GenJournalLine."Account No.", WorkDate, true, true, true, true, PeriodLength);
+        SaveStatementReport(GenJournalLine."Account No.", WorkDate(), true, true, true, true, PeriodLength);
 
         // Verify: Verify Amount in Statement Report in Overdue Entries and Amount after Unapplied Entries.
         LibraryReportDataset.LoadDataSetFile;
@@ -859,7 +859,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."Currency Code", Customer."No.");
 
         // Exercise: Run Customer Order Summary Report with currency filter blank and Show Amount LCY is FALSE.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(false);
         RunCustomerOrderSummaryReport(Customer);
 
@@ -886,7 +886,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesOrder(SalesHeader, SalesLine, Customer."Currency Code", Customer."No.");
 
         // Exercise: Run Customer Order Summary Report with currency filter not blank and Show Amount LCY is FALSE.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(false);
         Customer.SetRange("Currency Filter", SalesHeader."Currency Code");
         RunCustomerOrderSummaryReport(Customer);
@@ -913,10 +913,10 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate());
         CreatePostGeneralJournalLine(
           GenJournalLinePayment, GenJournalLinePayment."Document Type"::Payment, GenJournalLine."Account No.", '',
-          2 * -LibraryRandom.RandDec(100, 2), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          2 * -LibraryRandom.RandDec(100, 2), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // Exercise: Run Customer Detailed Aging Report.
         RunCustomerDetailedAging(GenJournalLinePayment);
@@ -942,10 +942,10 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate());
         CreatePostGeneralJournalLine(
           GenJournalLinePayment, GenJournalLinePayment."Document Type"::Payment, GenJournalLine."Account No.", '',
-          2 * -LibraryRandom.RandDec(100, 2), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+          2 * -LibraryRandom.RandDec(100, 2), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         RunCustomerDetailedAging(GenJournalLinePayment);
         LibraryReportDataset.SetRange(DocumentNoLbl, '');
         LibraryReportDataset.GetNextRow;
@@ -971,7 +971,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
         Customer.Get(CreateCustomer);
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // Exercise: Run Customer Detailed Aging Report.
         RunCustomerDetailedAging(GenJournalLine);
@@ -1358,7 +1358,7 @@ codeunit 134976 "ERM Sales Report"
         Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Report dataset contains "External Doc No.".
@@ -1386,7 +1386,7 @@ codeunit 134976 "ERM Sales Report"
         Commit();
 
         // [WHEN] Print report "Standard Sales - Draft Invoice" as Excel.
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Saved Excel file contains "External Doc No.".
@@ -1416,7 +1416,7 @@ codeunit 134976 "ERM Sales Report"
         Commit();
 
         // [WHEN] Run "Save as Xml" for "Standard Sales - Invoice" with option "Show Shipments"
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] "Quantity_ShipmentLine" xml node exists in exported file
@@ -1449,7 +1449,7 @@ codeunit 134976 "ERM Sales Report"
         Commit();
 
         // [WHEN] Run "Save as Xml" for "Standard Sales - Credit Memo" with option "Show Shipments"
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // [THEN] "Quantity_ShipmentLine" xml node exists in exported file
@@ -1473,7 +1473,7 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Create and Post General Journal Line with External Document No.
         Initialize();
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateCustomer, '', LibraryRandom.RandDec(100, 2), WorkDate());
         GenJournalLine.Validate("External Document No.", CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1, 35));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1511,7 +1511,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Quote".
         Commit();
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // [THEN] Saved Excel file has only one sheet.
@@ -1537,7 +1537,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
         Commit();
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
 
         // [THEN] Saved Excel file has only one sheet.
@@ -1565,7 +1565,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Invoice".
         Commit();
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Saved Excel file has only one sheet.
@@ -1596,7 +1596,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Quote".
         Commit();
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // [THEN] Saved Excel file has only one sheet.
@@ -1627,7 +1627,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Invoice".
         Commit();
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Report title is 'Invoice'
@@ -1660,7 +1660,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesDocumentWithPaymentMethod(
           SalesHeader, SalesHeader."Document Type"::Invoice, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice"
@@ -1695,7 +1695,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesDocumentWithPaymentMethod(
           SalesHeader, SalesHeader."Document Type"::Quote, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Standard Sales - Quote"
@@ -1730,7 +1730,7 @@ codeunit 134976 "ERM Sales Report"
         CreateSalesDocumentWithPaymentMethod(
           SalesHeader, SalesHeader."Document Type"::Order, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Standard Sales - Order Conf."
@@ -1767,7 +1767,7 @@ codeunit 134976 "ERM Sales Report"
           SalesHeader, SalesHeader."Document Type"::Invoice, PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run report "Standard Sales - Invoice"
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
@@ -1803,7 +1803,7 @@ codeunit 134976 "ERM Sales Report"
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", PaymentMethod.Code,
           CreateCustomerWithLanguageCode(PaymentMethodTranslation."Language Code"));
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
 
         // [WHEN] Run report "Standard Sales - Credit Memo"
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
@@ -1836,7 +1836,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
@@ -1866,17 +1866,17 @@ codeunit 134976 "ERM Sales Report"
         // [GIVEN] Post two invoices with currency and amount = 1 (LCY Amount = 0.33)
         CustNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 2 do
-            CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CustNo, CurrencyCode, 1, WorkDate);
+            CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, CustNo, CurrencyCode, 1, WorkDate());
 
         // [GIVEN] Post payment with currency and amount = 2 (LCY Amount = 0.67)
-        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, CustNo, CurrencyCode, -2, WorkDate);
+        CreatePostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, CustNo, CurrencyCode, -2, WorkDate());
 
         // [GIVEN] Applied payment to both invoices
         ApplyPaymentToAllOpenInvoices(GenJournalLine."Document No.", CustNo);
 
         // [GIVEN] Post invoice with currency and amount = 400 (LCY Amount = 133.33)
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, CustNo, CurrencyCode, LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, CustNo, CurrencyCode, LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [WHEN] Generate the Customer Detail Trial Balance Report.
         RunDtldCustTrialBalanceReportWithDateFilter(GenJournalLine."Account No.");
@@ -1906,7 +1906,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] Sales Invoice with 3 lines where Line1 has VATPostingSetup[1], Line2 has VATPostingSetup[2], Line3 has VATPostingSetup[3]
         CreateSalesInvoiceWithThreeLinesWithVATBusPostingSetup(SalesHeader, VATPostingSetup);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         Commit();
 
         // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
@@ -1975,7 +1975,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] Posted Sales Invoice
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
@@ -2005,7 +2005,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] A Sales Order for this Customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         Commit();
 
@@ -2077,7 +2077,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Report Standard Sales - Invoice is run for Posted Sales Invoice.
         SalesInvoiceHeader.Get(PostedSalesInvoiceNo);
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Payment Terms Description "X" is shown in report.
@@ -2113,7 +2113,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Report Standard Sales - Invoice is run for Posted Sales Invoice.
         SalesInvoiceHeader.Get(PostedSalesInvoiceNo);
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] Shipment Method Description "X" is shown in report.
@@ -2145,7 +2145,7 @@ codeunit 134976 "ERM Sales Report"
         SalesLine.Modify(true);
 
         // [WHEN] Customer - Order Summary is run.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(false);
         Commit();
         REPORT.Run(REPORT::"Customer - Order Summary", true, false, Customer);
@@ -2291,7 +2291,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run "Standard Sales - Credit Memo" Report
         Commit;
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -2327,7 +2327,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Quote".
         Commit;
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -2362,7 +2362,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [WHEN] Run report "Standard Sales - Draft Invoice".
         Commit;
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -2390,7 +2390,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [GIVEN] An invoice was posted for the Customer
         CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [WHEN] The Customer Detailed Aging report is ran with a filter
         RunCustomerDetailedAging(GenJournalLine);
@@ -2399,7 +2399,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Resulting dataset has Customer table caption in it
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Customer_TABLECAPTION_CustFilter',
-          StrSubstNo('%1: %2: %3', Customer.TableCaption, Customer.FieldCaption("No."), Customer."No."));
+          StrSubstNo('%1: %2: %3', Customer.TableCaption(), Customer.FieldCaption("No."), Customer."No."));
     end;
 
     [Test]
@@ -2499,7 +2499,7 @@ codeunit 134976 "ERM Sales Report"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Ending Date = 20/7/2022
-        Year := Date2DMY(WorkDate, 3) + LibraryRandom.RandInt(5);
+        Year := Date2DMY(WorkDate(), 3) + LibraryRandom.RandInt(5);
         Month := LibraryRandom.RandIntInRange(5, 10);
         Day := LibraryRandom.RandIntInRange(10, 25);
         EndingDate := DMY2Date(Day, Month, Year);
@@ -2520,7 +2520,7 @@ codeunit 134976 "ERM Sales Report"
         for i := 1 to ArrayLen(GenJournalLine) do
             CreatePostGeneralJournalLineWithDueDate(
               GenJournalLine[i], GenJournalLine[i]."Document Type"::Invoice,
-              Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate, DueDate[i]);
+              Customer."No.", '', LibraryRandom.RandDec(100, 2), WorkDate(), DueDate[i]);
 
         // [WHEN] The Customer Detailed Aging report is ran for customer with Ending Date
         LibraryVariableStorage.Enqueue(EndingDate);
@@ -2969,7 +2969,7 @@ codeunit 134976 "ERM Sales Report"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Print VAT specification in LCY" := VATSpecificationInLCY;
             Modify(true);
         end;
@@ -3091,14 +3091,14 @@ codeunit 134976 "ERM Sales Report"
         VATPercent := 10;
 
         // Init setups
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate);
 
         // Cteare and post document
         CreateVATPostingGroup(VATPostingSetup, VATPercent);
         LibrarySales.CreateSalesHeader(
           SalesHeader, DocumentType, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         with SalesHeader do begin
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Currency Code", CurrencyCode);
             Modify(true);
         end;
@@ -3185,7 +3185,7 @@ codeunit 134976 "ERM Sales Report"
         ItemTranslation: Record "Item Translation";
     begin
         with ItemTranslation do begin
-            Init;
+            Init();
             Validate("Item No.", ItemNo);
             Validate("Language Code", LanguageCode);
             Validate(Description, ItemNo + LanguageCode);
@@ -3425,7 +3425,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
         with VATPostingSetup do begin
-            Init;
+            Init();
             Validate("VAT Identifier", 'VAT' + Format(VATPercent));
             Validate("VAT %", VATPercent);
             Validate("Sales VAT Account", GLAccount."No.");
@@ -3533,7 +3533,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelExchRateAmount);
@@ -3545,7 +3545,7 @@ codeunit 134976 "ERM Sales Report"
     local procedure CreateShipmentMethod(var ShipmentMethod: Record "Shipment Method")
     begin
         with ShipmentMethod do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Shipment Method");
             Description := LibraryUtility.GenerateGUID();
             Insert(true);
@@ -3562,7 +3562,7 @@ codeunit 134976 "ERM Sales Report"
 
     local procedure ConvertCurrency(Amount: Decimal; CurrencyCode: Code[10]): Decimal
     begin
-        exit(Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate)));
+        exit(Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate())));
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -3627,7 +3627,7 @@ codeunit 134976 "ERM Sales Report"
         DateComprRegister.SetRange("Table ID", DATABASE::"G/L Entry");
         if DateComprRegister.FindLast() then
             exit(CalcDate('<1D>', DateComprRegister."Ending Date")); // Next Day
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     local procedure LanguageCodeForAssemblyItemsSetup(var Customer: Record Customer; var ParentItem: Record Item): Text[50]
@@ -3797,7 +3797,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         Customer.SetRange("No.", CustomerNo);
         CustomerSummaryAging.SetTableView(Customer);
-        CustomerSummaryAging.InitializeRequest(WorkDate, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountInLCY);
+        CustomerSummaryAging.InitializeRequest(WorkDate(), StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountInLCY);
         Commit();
         CustomerSummaryAging.RunModal();
     end;
@@ -3808,7 +3808,7 @@ codeunit 134976 "ERM Sales Report"
         CustomerSummaryAging: Report "Customer - Summary Aging";
     begin
         CustomerSummaryAging.SetTableView(Customer);
-        CustomerSummaryAging.InitializeRequest(WorkDate, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountInLCY);
+        CustomerSummaryAging.InitializeRequest(WorkDate(), StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), ShowAmountInLCY);
         Commit();
         CustomerSummaryAging.RunModal();
     end;
@@ -3850,7 +3850,7 @@ codeunit 134976 "ERM Sales Report"
     var
         Customer: Record Customer;
     begin
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(ShowAmountLCY);
         Customer.SetRange("No.", SellToCustomerNo);
         Commit();  // Due to limitation in page testability, commit is needed in this test case.
@@ -3875,7 +3875,7 @@ codeunit 134976 "ERM Sales Report"
         Customer: Record Customer;
     begin
         Customer.SetRange("No.", CustomerNo);
-        Customer.SetRange("Date Filter", CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
+        Customer.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
         Customer.SetFilter("Global Dimension 1 Filter", Dim1Filter);
         Customer.SetFilter("Global Dimension 2 Filter", Dim2Filter);
         REPORT.Run(REPORT::"Customer - Trial Balance", true, false, Customer);
@@ -3935,8 +3935,8 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.Enqueue(CustNo);
         Commit();
         Customer.Get(CustNo);
-        Customer.SetRecFilter;
-        Customer.SetFilter("Date Filter", '%1..', WorkDate);
+        Customer.SetRecFilter();
+        Customer.SetFilter("Date Filter", '%1..', WorkDate());
         REPORT.Run(REPORT::"Customer - Detail Trial Bal.", true, false, Customer);
     end;
 
@@ -4025,7 +4025,7 @@ codeunit 134976 "ERM Sales Report"
         Currency: Record Currency;
         CurrencyCode: Code[10];
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
         Currency.Get(CurrencyCode);
         Currency.Validate("Amount Decimal Places", '3:3');
         Currency.Validate("Amount Rounding Precision", 0.001);
@@ -4152,7 +4152,7 @@ codeunit 134976 "ERM Sales Report"
                 Error(StrSubstNo(RowNotFoundErr, 'No_Customer', CustomerNo));
             AssertCurrentRowValueEquals('SalesOrderAmount', SalesLine.Amount);
             GetNextRow;
-            SalesLine.Next;
+            SalesLine.Next();
             AssertCurrentRowValueEquals('SalesOrderAmount', SalesLine.Amount);
             AssertElementWithValueExists('TotalAmt_CurrTotalBuff', ExpectedTotal);
         end;
@@ -4199,7 +4199,7 @@ codeunit 134976 "ERM Sales Report"
         ExpectedAmount: Decimal;
     begin
         ExpectedAmount := CurrencyExchangeRate.ExchangeAmtFCYToLCY(
-            WorkDate, SalesLine."Currency Code", SalesLine."Unit Price", SalesHeader."Currency Factor");
+            WorkDate(), SalesLine."Currency Code", SalesLine."Unit Price", SalesHeader."Currency Factor");
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Cust', SalesHeader."Sell-to Customer No.");
@@ -4291,11 +4291,11 @@ codeunit 134976 "ERM Sales Report"
     procedure CustomerSummaryAgingSimpRequestPageHandler(var CustomerSummaryAgingSimp: TestRequestPage "Customer - Summary Aging Simp.")
     var
         CustomerNo: Variant;
-        WorkDate: Variant;
+        WorkingDate: Variant;
     begin
-        LibraryVariableStorage.Dequeue(WorkDate);
+        LibraryVariableStorage.Dequeue(WorkingDate);
         LibraryVariableStorage.Dequeue(CustomerNo);
-        CustomerSummaryAgingSimp.StartingDate.SetValue(WorkDate);
+        CustomerSummaryAgingSimp.StartingDate.SetValue(WorkingDate);
         CustomerSummaryAgingSimp.Customer.SetFilter("No.", CustomerNo);
         CustomerSummaryAgingSimp.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

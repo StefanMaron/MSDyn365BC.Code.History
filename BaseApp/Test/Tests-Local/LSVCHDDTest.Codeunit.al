@@ -166,7 +166,7 @@ codeunit 144001 "LSV CH DD Test"
             GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
             LibraryERM.FindGLAccount(GLAccount);
             "Bal. Account No." := GLAccount."No.";
-            Modify;
+            Modify();
         end;
         LibraryLSV.CreateLSVJournal(LSVJnl, LSVSetup);
         LibraryLSV.CreateLSVCustomer(Customer, '');
@@ -185,7 +185,7 @@ codeunit 144001 "LSV CH DD Test"
             Get(LSVBankCode);
             Result := "DebitDirect Import Filename";
             "DebitDirect Import Filename" := DDImportFileName;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -248,8 +248,8 @@ codeunit 144001 "LSV CH DD Test"
     [Scope('OnPrem')]
     procedure LSVSuggestCollectionReqPageHandler(var LSVSuggestCollection: TestRequestPage "LSV Suggest Collection")
     begin
-        LSVSuggestCollection.FromDueDate.SetValue(WorkDate);
-        LSVSuggestCollection.ToDueDate.SetValue(WorkDate);
+        LSVSuggestCollection.FromDueDate.SetValue(WorkDate());
+        LSVSuggestCollection.ToDueDate.SetValue(WorkDate());
         LSVSuggestCollection.Customer.SetFilter("No.", RetrieveLSVCustomerForCollection);
         LSVSuggestCollection.OK.Invoke;
     end;
@@ -305,7 +305,7 @@ codeunit 144001 "LSV CH DD Test"
                 CustLedgEntry.CalcFields(Amount);
                 SetRange("Remaining Amount", CustLedgEntry.Amount);
                 Assert.IsFalse(IsEmpty, StrSubstNo(RecordNotFoundErr, TableCaption));
-            until CustLedgEntry.Next = 0;
+            until CustLedgEntry.Next() = 0;
 
         LSVJournal.Get(LSVJnlLine."LSV Journal No.");
         LSVJournal.CalcFields("No. Of Entries Plus");
@@ -372,8 +372,8 @@ codeunit 144001 "LSV CH DD Test"
                 OutStr.WriteText;
             end;
         end;
-        InFile.Close;
-        OutFile.Close;
+        InFile.Close();
+        OutFile.Close();
     end;
 
     local procedure ModifyLineForImport(Line: Text[1024]; SetRejected: Boolean): Text[1024]

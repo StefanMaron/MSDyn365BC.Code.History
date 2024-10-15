@@ -13,7 +13,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Date Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(GLAccountTableCaption; TableCaption + ': ' + GLFilter)
@@ -71,7 +71,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 column(AccountType; AccountType)
                 {
                 }
-                column(GetTableName; GetTableName)
+                column(GetTableName; GetTableName())
                 {
                 }
                 column(ReconCustVendBufferPostingGroup; ReconCustVendBuffer."Posting Group")
@@ -98,7 +98,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                         if Number = 1 then
                             Found := Find('-')
                         else
-                            Found := Next <> 0;
+                            Found := Next() <> 0;
 
                         if not Found then
                             CurrReport.Break();
@@ -432,15 +432,11 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var
-        ReconCustVendBuffer: Record "Reconcile CV Acc Buffer" temporary;
         GLFilter: Text;
-        Amount: Decimal;
-        AmountTotal: Decimal;
-        AccountType: Text[1024];
         ReconcileCustVendAccCaptionLbl: Label 'Reconcile Customer and Vendor Accounts';
         PageNoCaptionLbl: Label 'Page';
         NetChange_GLAccountCaptionLbl: Label 'G/L Account Net Change';
@@ -451,6 +447,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
         NameCaptionLbl: Label 'Name';
         No_GLAccountCaptionLbl: Label 'Account No.';
         DifferenceCaptionLbl: Label 'Difference';
+
+    protected var
+        ReconCustVendBuffer: Record "Reconcile CV Acc Buffer" temporary;
+        Amount: Decimal;
+        AmountTotal: Decimal;
+        AccountType: Text[1024];
 
     local procedure CalcCustAccAmount(PostingGr: Code[20]): Decimal
     var

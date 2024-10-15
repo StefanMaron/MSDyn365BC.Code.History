@@ -24,7 +24,7 @@ page 367 "Post Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city linked to the postal code in the Code field.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
@@ -74,11 +74,19 @@ page 367 "Post Codes"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import Post Codes';
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Report "Import Post Codes";
                     ToolTip = 'Update the postal code directory with information from the Swiss Post website. All postal codes in the range 1000 to 9999 will be deleted before import. International postal codes, which include a country/region code, such as DE-60000, are retained.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Import Post Codes_Promoted"; "Import Post Codes")
+                {
                 }
             }
         }

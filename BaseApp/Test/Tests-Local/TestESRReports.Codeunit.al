@@ -282,7 +282,7 @@ codeunit 144353 "Test ESR Reports"
         // [WHEN] Post Service Order
         LibraryERM.CreateCurrency(Currency);
         ExchRate := LibraryRandom.RandDec(10, 2);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, ExchRate, ExchRate);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), ExchRate, ExchRate);
         CreateAndPostServiceInvoiceWithCurrency(ServiceInvoiceHeader, ServiceHeader, Currency.Code, ExchRate);
 
         // [THEN] Created VAT Entry has "Currency Factor" = 5.5

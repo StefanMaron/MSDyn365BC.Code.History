@@ -44,12 +44,12 @@ table 63 "Account Use Buffer"
                 if AccNo <> '' then
                     if Get(AccNo) then begin
                         "No. of Use" += 1;
-                        Modify;
+                        Modify();
                     end else begin
-                        Init;
+                        Init();
                         "Account No." := AccNo;
                         "No. of Use" += 1;
-                        Insert;
+                        Insert();
                     end;
             until RecRef.Next() = 0;
     end;

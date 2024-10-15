@@ -29,14 +29,14 @@ page 7370 "Bin Creation Wksh. Templates"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies which type of bin creation will be used with this warehouse worksheet template.';
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = Warehouse;
                     DrillDown = false;

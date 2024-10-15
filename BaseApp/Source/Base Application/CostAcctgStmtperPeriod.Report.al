@@ -12,7 +12,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", Type, "Date Filter", "Cost Center Filter", "Cost Object Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FilterTxt; FilterTxt)
@@ -136,7 +136,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
                     Error(Text001);
 
                 if GetFilters <> '' then
-                    FilterTxt := Text002 + ' ' + GetFilters;
+                    FilterTxt := Text002 + ' ' + GetFilters();
 
                 // Col header for balance or movement
                 if AmtType = AmtType::Balance then begin
@@ -173,7 +173,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
                         trigger OnValidate()
                         begin
-                            ComparisonTypeOnAfterValidate;
+                            ComparisonTypeOnAfterValidate();
                         end;
                     }
                     group("Current Period")
@@ -187,7 +187,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
                             trigger OnValidate()
                             begin
-                                StartDateOnAfterValidate;
+                                StartDateOnAfterValidate();
                             end;
                         }
                         field(EndingDate; EndDate)
@@ -198,7 +198,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
                             trigger OnValidate()
                             begin
-                                EndDateOnAfterValidate;
+                                EndDateOnAfterValidate();
                             end;
                         }
                     }
@@ -213,7 +213,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
                             trigger OnValidate()
                             begin
-                                FromCompareDateOnAfterValidate;
+                                FromCompareDateOnAfterValidate();
                             end;
                         }
                         field(ToCompareDate; ToCompareDate)
@@ -224,7 +224,7 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
                             trigger OnValidate()
                             begin
-                                ToCompareDateOnAfterValidate;
+                                ToCompareDateOnAfterValidate();
                             end;
                         }
                     }
@@ -261,12 +261,6 @@ report 1123 "Cost Acctg. Stmt. per Period"
     }
 
     var
-        Text000: Label 'Starting date and ending date for the current period and comparison period must be defined.';
-        Text001: Label 'Ending date must not be before starting date.';
-        Text002: Label 'Filter:';
-        Text003: Label 'Balance at %1';
-        Text004: Label 'Movement  %1 - %2', Comment = '%1 = Start Date, %2 = End Date';
-        FreeCompTypeErr: Label 'You cannot change the date because the Comparison Type is not set to Free Comparison.';
         GLSetup: Record "General Ledger Setup";
         StartDate: Date;
         EndDate: Date;
@@ -287,6 +281,13 @@ report 1123 "Cost Acctg. Stmt. per Period"
         PageGroupNo: Integer;
         NewPage: Boolean;
         LineTypeInt: Integer;
+
+        Text000: Label 'Starting date and ending date for the current period and comparison period must be defined.';
+        Text001: Label 'Ending date must not be before starting date.';
+        Text002: Label 'Filter:';
+        Text003: Label 'Balance at %1';
+        Text004: Label 'Movement  %1 - %2', Comment = '%1 = Start Date, %2 = End Date';
+        FreeCompTypeErr: Label 'You cannot change the date because the Comparison Type is not set to Free Comparison.';
         FreeCompSamePeriodTypeErr: Label 'You cannot change the date because the Comparison Type is not set to Free Comparison or Same Period Last Year.';
         AllAmountareLbl: Label 'All amounts are in';
         CostAcctgStmtperPeriodCaptionLbl: Label 'Cost Acctg. Stmt. per Period';
@@ -367,12 +368,12 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
     local procedure StartDateOnAfterValidate()
     begin
-        CalcPeriod;
+        CalcPeriod();
     end;
 
     local procedure ComparisonTypeOnAfterValidate()
     begin
-        CalcPeriod;
+        CalcPeriod();
     end;
 
     local procedure CalcAmount(CostType: Record "Cost Type"; FromDate: Date; ToDate: Date; AmountType: Option): Decimal

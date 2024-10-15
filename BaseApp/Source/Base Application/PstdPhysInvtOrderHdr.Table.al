@@ -176,7 +176,7 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
 
     procedure ShowDimensions()
     begin
-        DimManagement.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimManagement.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 }
 

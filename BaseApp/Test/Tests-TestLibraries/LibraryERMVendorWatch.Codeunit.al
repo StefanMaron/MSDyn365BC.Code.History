@@ -30,7 +30,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     local procedure WatchVendorEntry(VendorNo: Code[20]; WatchLETotal: Boolean; WatchDtldLETotal: Boolean; LECompareMethod: Option; DtldLECompareMethod: Option)
     begin
         with WatchVendor do begin
-            Init;
+            Init();
             "Line No." := NextLineNo;
             "Vendor No." := VendorNo;
 
@@ -73,7 +73,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     procedure WatchLedgerEntries(VendorNo: Code[20]; EntryType: Option; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
         with WatchVendorLedgerEntry do begin
-            Init;
+            Init();
             "Line No." := NextLELineNo;
             "Vendor No." := VendorNo;
             "Line Level" := "Line Level"::"Ledger Entry";
@@ -118,7 +118,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
     procedure WatchDtldLedgerEntries(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
         with WatchVendorLedgerEntry do begin
-            Init;
+            Init();
             "Line No." := NextLELineNo;
             "Vendor No." := VendorNo;
             "Line Level" := "Line Level"::"Detailed Ledger Entry";
@@ -219,7 +219,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         TotalDtldLEDelta := 0;
 
         with WatchVendorLedgerEntry do begin
-            Reset;
+            Reset();
 
             if FindSet() then
                 repeat
@@ -234,7 +234,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         end;
 
         with WatchVendor do begin
-            Reset;
+            Reset();
             if FindFirst() then begin
                 // Check that all ledger entries are accounted for
                 if "Watch LE" then
@@ -319,7 +319,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
             repeat
                 VendorLedgerEntry.CalcFields(Amount);
                 Sum += VendorLedgerEntry.Amount;
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
 
         exit(Sum);
     end;
@@ -346,7 +346,7 @@ codeunit 131320 "Library - ERM Vendor Watch"
         if DtldVendorLedgEntry.FindSet() then
             repeat
                 Sum += DtldVendorLedgEntry.Amount;
-            until DtldVendorLedgEntry.Next = 0;
+            until DtldVendorLedgEntry.Next() = 0;
 
         exit(Sum);
     end;

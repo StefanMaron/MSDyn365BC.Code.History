@@ -63,7 +63,7 @@ report 98 "Date Compress General Ledger"
                           0, false, DimEntryNo);
                         ComprDimEntryNo := DimEntryNo;
                         SummarizeEntry(NewGLEntry, GLEntry2);
-                        while Next <> 0 do begin
+                        while Next() <> 0 do begin
                             DimBufMgt.CollectDimEntryNo(
                               TempSelectedDim, "Dimension Set ID", "Entry No.",
                               ComprDimEntryNo, true, DimEntryNo);
@@ -73,7 +73,7 @@ report 98 "Date Compress General Ledger"
 
                         InsertNewEntry(NewGLEntry, ComprDimEntryNo);
 
-                        ComprCollectedEntries;
+                        ComprCollectedEntries();
 
                         CopyFilters("G/L Entry");
                         SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
@@ -92,7 +92,7 @@ report 98 "Date Compress General Ledger"
                     InsertRegisters(GLReg, DateComprReg);
 
                 if AnalysisView.FindFirst() then
-                    AnalysisView.UpdateLastEntryNo;
+                    AnalysisView.UpdateLastEntryNo();
 
                 if UseDataArchive then
                     DataArchive.Save();
@@ -108,7 +108,7 @@ report 98 "Date Compress General Ledger"
                 if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Compress General Ledger", false);
                     if not SkipAnalysisViewUpdateCheck then
-                        AnalysisView.CheckViewsAreUpdated;
+                        AnalysisView.CheckViewsAreUpdated();
                     Commit();
                 end;
 
@@ -140,7 +140,7 @@ report 98 "Date Compress General Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress General Ledger"));
@@ -306,14 +306,6 @@ report 98 "Date Compress General Ledger"
     end;
 
     var
-        Text003: Label '%1 must be specified.';
-        Text004: Label 'Date compressing G/L entries...\\';
-        Text005: Label 'G/L Account No.      #1##########\';
-        Text006: Label 'Date                 #2######\\';
-        Text007: Label 'No. of new entries   #3######\';
-        Text008: Label 'No. of entries del.  #4######';
-        Text009: Label 'Date Compressed';
-        Text010: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -341,8 +333,17 @@ report 98 "Date Compress General Ledger"
         UseDataArchive: Boolean;
         [InDataSet]
         DataArchiveProviderExists: Boolean;
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         SkipAnalysisViewUpdateCheck: Boolean;
+
+        Text003: Label '%1 must be specified.';
+        Text004: Label 'Date compressing G/L entries...\\';
+        Text005: Label 'G/L Account No.      #1##########\';
+        Text006: Label 'Date                 #2######\\';
+        Text007: Label 'No. of new entries   #3######\';
+        Text008: Label 'No. of entries del.  #4######';
+        Text009: Label 'Date Compressed';
+        Text010: Label 'Retain Dimensions';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -442,7 +443,7 @@ report 98 "Date Compress General Ledger"
             if DateComprRetainFields."Retain Quantity" then
                 NewGLEntry.Quantity := NewGLEntry.Quantity + Quantity;
             OnSummarizeEntryOnBeforeGLEntryDelete(NewGLEntry, GLEntry);
-            Delete;
+            Delete();
 
             GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
             GLItemLedgRelation.DeleteAll();
@@ -486,7 +487,7 @@ report 98 "Date Compress General Ledger"
                 OldDimEntryNo := DimEntryNo;
             until not Found;
         end;
-        DimBufMgt.DeleteAllDimEntryNo;
+        DimBufMgt.DeleteAllDimEntryNo();
     end;
 
     procedure InitNewEntry(var NewGLEntry: Record "G/L Entry")

@@ -154,7 +154,7 @@ codeunit 144048 "Sales Document VAT Amount"
         // [THEN] Sales Line has the following values
         // [THEN] "VAT %" = 20
         // [THEN] "Amount Including VAT" = 120
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("VAT %", ExpectedVATPercent);
         SalesLine.TestField("Amount Including VAT", ExpectedAmountInclVAT);
     end;
@@ -300,7 +300,7 @@ codeunit 144048 "Sales Document VAT Amount"
         ExchangeRate: Decimal;
     begin
         ExchangeRate := 1.284;
-        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate));
+        exit(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchangeRate, ExchangeRate));
     end;
 
     local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; SalesLineType: Option; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal; VatPostingGroup: Code[20])

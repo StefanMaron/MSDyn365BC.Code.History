@@ -363,7 +363,7 @@ codeunit 131305 "Library - ERM Country Data"
     local procedure PrepareNormalGenPostingSetup(var GenPostingSetup: Record "General Posting Setup")
     begin
         with GenPostingSetup do begin
-            Reset;
+            Reset();
             SetFilter("Gen. Bus. Posting Group", '<>%1', '');
             SetFilter("Gen. Prod. Posting Group", '<>%1', '');
             SetFilter("COGS Account", '<>%1', '');
@@ -388,8 +388,8 @@ codeunit 131305 "Library - ERM Country Data"
             VATProdPostingGroup.FindSet();
             repeat
                 CreateVATPostingSetup(VATBusPostingGroup.Code, VATProdPostingGroup.Code);
-            until VATProdPostingGroup.Next = 0;
-        until VATBusPostingGroup.Next = 0
+            until VATProdPostingGroup.Next() = 0;
+        until VATBusPostingGroup.Next() = 0
     end;
 
     local procedure CreateVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
@@ -452,9 +452,9 @@ codeunit 131305 "Library - ERM Country Data"
             GenBusPostGroup.FindSet();
             repeat
                 CreateGeneralPostingSetup(GenBusPostGroup.Code, GenProdPostingGroup.Code, NormalGeneralPostingSetup);
-            until GenBusPostGroup.Next = 0;
+            until GenBusPostGroup.Next() = 0;
             CreateGeneralPostingSetup('', GenProdPostingGroup.Code, NormalGeneralPostingSetup);
-        until GenProdPostingGroup.Next = 0;
+        until GenProdPostingGroup.Next() = 0;
     end;
 
     local procedure CreateGeneralPostingSetup(GenBusPostGroupCode: Code[20]; GenProdPostGroupCode: Code[20]; NormalGeneralPostingSetup: Record "General Posting Setup")

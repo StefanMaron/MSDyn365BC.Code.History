@@ -23,7 +23,7 @@ codeunit 143002 "Library - DTA"
         BankCode := LibraryUtility.GenerateRandomCode(DTASetup.FieldNo("Bank Code"), DATABASE::"DTA Setup");
 
         with DTASetup do begin
-            Init;
+            Init();
             Validate("Bank Code", BankCode);
             Validate("DTA/EZAG", "DTA/EZAG"::DTA);
 
@@ -65,7 +65,7 @@ codeunit 143002 "Library - DTA"
         BankCode := LibraryUtility.GenerateRandomCode(DTASetup.FieldNo("Bank Code"), DATABASE::"DTA Setup");
 
         with DTASetup do begin
-            Init;
+            Init();
 
             Validate("Bank Code", BankCode);
             Validate("DTA/EZAG", "DTA/EZAG"::EZAG);
@@ -100,7 +100,7 @@ codeunit 143002 "Library - DTA"
             Validate("EZAG File Folder", 'C:\Windows\Temp\');
             Validate("DTA Filename", LibraryUtility.GenerateGUID());
 
-            Insert;
+            Insert();
         end;
     end;
 

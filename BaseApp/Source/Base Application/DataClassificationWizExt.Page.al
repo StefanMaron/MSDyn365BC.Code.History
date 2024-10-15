@@ -76,7 +76,7 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
             StepValues::Apply:
                 ApplyStep();
             StepValues::"Set Rules":
-                SetRulesStep;
+                SetRulesStep();
             else
                 NextStep(false);
         end;
@@ -92,11 +92,11 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
     begin
         if IsImportModeSelected() then begin
             DataClassifImportExport.ImportExcelSheet();
-            SetStepToFinishAndResetControls;
+            SetStepToFinishAndResetControls();
         end;
         if IsExportModeSelected() then begin
             DataClassifImportExport.ExportToExcelSheet();
-            SetStepToFinishAndResetControls;
+            SetStepToFinishAndResetControls();
         end;
         if IsExpertModeSelected() then begin
             DataSensitivity.SetRange("Company Name", CompanyName);

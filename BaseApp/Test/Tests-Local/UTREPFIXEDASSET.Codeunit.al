@@ -301,7 +301,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         // Setup.
         Initialize();
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
-        FADepreciationBook."Disposal Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        FADepreciationBook."Disposal Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         FADepreciationBook.Modify();
         FALedgerEntryAmount := CreateFALedgerEntry(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", FALedgerEntry."FA Posting Type"::Depreciation);
 
@@ -387,7 +387,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         CreateFixedAssetWithDepreciationBookSetup(FADepreciationBook);
         FALedgerEntryAmount := CreateFALedgerEntry(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code", FALedgerEntry."FA Posting Type"::"Custom 1");
         FilterFALedgerEntry(FALedgerEntry, FADepreciationBook."Depreciation Book Code", FADepreciationBook."FA No.");
-        FALedgerEntry."FA Posting Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        FALedgerEntry."FA Posting Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         FALedgerEntry.Modify();
 
         // Exercise.
@@ -612,12 +612,12 @@ codeunit 142059 "UT REP FIXEDASSET"
         FADepreciationBook."Depreciation Book Code" := DepreciationBookCode;
         FADepreciationBook."FA No." := FANo;
         FADepreciationBook."FA Posting Group" := FAPostingGroup;
-        FADepreciationBook."Depreciation Starting Date" := WorkDate;
+        FADepreciationBook."Depreciation Starting Date" := WorkDate();
 
         // Depreciation Ending Date greater than Depreciation Starting Date.
-        FADepreciationBook."Depreciation Ending Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        FADepreciationBook."Acquisition Date" := WorkDate;
-        FADepreciationBook."Disposal Date" := WorkDate;
+        FADepreciationBook."Depreciation Ending Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
+        FADepreciationBook."Acquisition Date" := WorkDate();
+        FADepreciationBook."Disposal Date" := WorkDate();
         FADepreciationBook.Insert();
     end;
 
@@ -626,9 +626,9 @@ codeunit 142059 "UT REP FIXEDASSET"
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         with FADepreciationBook do begin
             Validate("FA Posting Group", FAPostingGroup);
-            Validate("Depreciation Starting Date", WorkDate);
+            Validate("Depreciation Starting Date", WorkDate());
             Validate(
-              "Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+              "Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
             Modify(true);
         end;
     end;
@@ -642,7 +642,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         FALedgerEntry."Entry No." := FALedgerEntry2."Entry No." + 1;
         FALedgerEntry."FA No." := FANo;
         FALedgerEntry."Depreciation Book Code" := DepreciationBookCode;
-        FALedgerEntry."FA Posting Date" := WorkDate;
+        FALedgerEntry."FA Posting Date" := WorkDate();
         FALedgerEntry."FA Posting Type" := FAPostingType;
         FALedgerEntry."Part of Book Value" := true;
         FALedgerEntry.Amount := 1;
@@ -762,7 +762,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         FAJournalSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
         FAJournalSetup.FindFirst();
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
         with GenJournalLine do begin
             SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
             SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
@@ -770,7 +770,7 @@ codeunit 142059 "UT REP FIXEDASSET"
             repeat
                 GenJournalLine.Validate("Document No.", DocumentNo);
                 GenJournalLine.Modify(true);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -805,7 +805,7 @@ codeunit 142059 "UT REP FIXEDASSET"
 
     local procedure UpdateFAReclassJournalLine(var FAReclassJournalLine: Record "FA Reclass. Journal Line"; FANo: Code[20]; NewFANo: Code[20]; AcqCostPercent: Decimal)
     begin
-        FAReclassJournalLine.Validate("FA Posting Date", WorkDate);
+        FAReclassJournalLine.Validate("FA Posting Date", WorkDate());
         FAReclassJournalLine.Validate(
           "Document No.",
           CopyStr(
@@ -874,7 +874,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"FA Class", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"FA Class", false, false);
     end;
 
     [RequestPageHandler]
@@ -883,7 +883,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"FA Subclass", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"FA Subclass", false, false);
     end;
 
     [RequestPageHandler]
@@ -892,7 +892,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"FA Location", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"FA Location", false, false);
     end;
 
     [RequestPageHandler]
@@ -901,7 +901,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"Global Dimension 1", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"Global Dimension 1", false, false);
     end;
 
     [RequestPageHandler]
@@ -910,7 +910,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"Global Dimension 2", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"Global Dimension 2", false, false);
     end;
 
     [RequestPageHandler]
@@ -919,7 +919,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"FA Posting Group", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"FA Posting Group", false, false);
     end;
 
     [RequestPageHandler]
@@ -928,7 +928,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"Main Asset", false, false);
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"Main Asset", false, false);
     end;
 
     [RequestPageHandler]
@@ -937,7 +937,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals::"FA Class", true, false);  // TRUE for Budget Report.
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals::"FA Class", true, false);  // TRUE for Budget Report.
     end;
 
     [RequestPageHandler]
@@ -946,7 +946,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, WorkDate, GroupTotals, false, true);  // TRUE for Print Details.
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), WorkDate, GroupTotals, false, true);  // TRUE for Print Details.
     end;
 
     [RequestPageHandler]
@@ -956,7 +956,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
         UpdateFixedAssetBookValue03ReportRequestPage(
-          FixedAssetBookValue03, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), WorkDate, GroupTotals, false, false);  // Starting Date later than Ending Date.
+          FixedAssetBookValue03, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()), WorkDate(), GroupTotals, false, false);  // Starting Date later than Ending Date.
     end;
 
     [RequestPageHandler]
@@ -965,7 +965,7 @@ codeunit 142059 "UT REP FIXEDASSET"
     var
         GroupTotals: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate, 0D, GroupTotals, false, false);  // Blank Ending Date.
+        UpdateFixedAssetBookValue03ReportRequestPage(FixedAssetBookValue03, WorkDate(), 0D, GroupTotals, false, false);  // Blank Ending Date.
     end;
 }
 

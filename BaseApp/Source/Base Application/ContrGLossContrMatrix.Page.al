@@ -23,13 +23,13 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Service;
                     Caption = 'Period Name';
@@ -449,16 +449,16 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetDateFilter;
-        CalculateTotals;
+        SetDateFilter();
+        CalculateTotals();
     end;
 
     trigger OnAfterGetRecord()
     var
         MATRIX_CurrentColumnOrdinal: Integer;
     begin
-        SetDateFilter;
-        CalculateTotals;
+        SetDateFilter();
+        CalculateTotals();
         MATRIX_CurrentColumnOrdinal := 0;
         while MATRIX_CurrentColumnOrdinal < CurrentNoOfMatrixColumn do begin
             MATRIX_CurrentColumnOrdinal := MATRIX_CurrentColumnOrdinal + 1;
@@ -610,7 +610,7 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
     local procedure CalculateMovement("Code": Code[10]): Decimal
     begin
         if ServiceContract.Get(ServiceContract."Contract Type"::Contract, Code) then begin
-            SetDateFilter;
+            SetDateFilter();
             ServiceContract.CalcFields("Contract Gain/Loss Amount");
             exit(ServiceContract."Contract Gain/Loss Amount");
         end;
@@ -676,7 +676,7 @@ page 9267 "Contr. G/Loss (Contr.) Matrix"
         else
             MATRIX_CellData[Ordinal] := Format(Amount, 0, Text000);
 
-        SetVisible;
+        SetVisible();
     end;
 
     procedure SetVisible()

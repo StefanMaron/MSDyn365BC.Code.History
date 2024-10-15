@@ -6,10 +6,11 @@ codeunit 229 "Document-Print"
     end;
 
     var
-        Text001: Label '%1 is missing for %2 %3.';
-        Text002: Label '%1 for %2 is missing in %3.';
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
+
+        Text001: Label '%1 is missing for %2 %3.';
+        Text002: Label '%1 for %2 is missing in %3.';
 
     procedure EmailSalesHeader(SalesHeader: Record "Sales Header")
     begin
@@ -163,7 +164,7 @@ codeunit 229 "Document-Print"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         CalcSalesDisc(SalesHeader);
 
-        if CheckQuoteMgtPermission then
+        if CheckQuoteMgtPermission() then
             QuoteMgt.RecalcDocOnPrinting(SalesHeader);
 
         OnBeforeDoPrintSalesHeader(SalesHeader, ReportUsage.AsInteger(), SendAsEmail, IsPrinted);
@@ -172,7 +173,7 @@ codeunit 229 "Document-Print"
 
         if SendAsEmail then
             ReportSelections.SendEmailToCust(
-                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt, true, SalesHeader.GetBillToNo, 0)
+                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), true, SalesHeader.GetBillToNo())
         else
             ReportSelections.PrintForCust(ReportUsage, SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
@@ -223,7 +224,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        BankAccStmt.SetRecFilter;
+        BankAccStmt.SetRecFilter();
         OnBeforePrintBankAccStmt(BankAccStmt, IsPrinted);
         if IsPrinted then
             exit;
@@ -236,7 +237,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        PostedPaymentReconHdr.SetRecFilter;
+        PostedPaymentReconHdr.SetRecFilter();
         OnBeforePrintPostedPaymentReconciliation(PostedPaymentReconHdr, IsPrinted);
         if IsPrinted then
             exit;
@@ -256,7 +257,7 @@ codeunit 229 "Document-Print"
             exit;
 
         GenJnlLine.Copy(NewGenJnlLine);
-        GenJnlLine.OnCheckGenJournalLinePrintCheckRestrictions;
+        GenJnlLine.OnCheckGenJournalLinePrintCheckRestrictions();
         IsPrinted := false;
         OnBeforePrintCheck(GenJnlLine, IsPrinted);
         if IsPrinted then
@@ -294,7 +295,7 @@ codeunit 229 "Document-Print"
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty() then
-            Error(Text001, ReportSelection.TableCaption, Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
+            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
 
         ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
     end;
@@ -316,7 +317,7 @@ codeunit 229 "Document-Print"
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty() then
-            Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption, ReportSelection.TableCaption);
+            Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption(), ReportSelection.TableCaption());
 
         ReportSelection.PrintForCust(ReportUsage, ServiceHeader, ServiceHeader.FieldNo("Customer No."));
     end;
@@ -398,7 +399,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         OnBeforePrintProformaSalesInvoice(SalesHeader, ReportSelections.Usage::"Pro Forma S. Invoice".AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
@@ -526,7 +527,7 @@ codeunit 229 "Document-Print"
     var
         DACHReportSelection: Record "DACH Report Selections";
     begin
-        VATStatementName.SetRecFilter;
+        VATStatementName.SetRecFilter();
         DACHReportSelection.SetRange(Usage, DACHReportSelection.Usage::"Sales VAT Acc. Proof");
         DACHReportSelection.SetFilter("Report ID", '<>0');
         DACHReportSelection.Find('-');
@@ -540,7 +541,7 @@ codeunit 229 "Document-Print"
     var
         DACHReportSelection: Record "DACH Report Selections";
     begin
-        VATStatementName.SetRecFilter;
+        VATStatementName.SetRecFilter();
         DACHReportSelection.SetRange(Usage, DACHReportSelection.Usage::"VAT Statement Schedule");
         DACHReportSelection.SetFilter("Report ID", '<>0');
         DACHReportSelection.Find('-');

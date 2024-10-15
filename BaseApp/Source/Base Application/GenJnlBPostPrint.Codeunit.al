@@ -5,16 +5,11 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
     trigger OnRun()
     begin
         GenJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Rec := GenJnlBatch;
     end;
 
     var
-        Text000: Label 'Do you want to post the journals and print the report(s)?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
-        JournalsScheduledMsg: Label 'Journals have been scheduled for posting.';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
@@ -26,6 +21,12 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
         RecRefToPrint: RecordRef;
         GenJnlsScheduled: Boolean;
         JnlWithErrors: Boolean;
+
+        JournalsScheduledMsg: Label 'Journals have been scheduled for posting.';
+        Text000: Label 'Do you want to post the journals?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     var
@@ -96,7 +97,7 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
                       Text003);
 
             if not Find('=><') or GeneralLedgerSetup."Post & Print with Job Queue" then begin
-                Reset;
+                Reset();
                 Name := '';
             end;
         end;

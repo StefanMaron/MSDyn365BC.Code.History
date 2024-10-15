@@ -12,8 +12,8 @@ codeunit 104151 "ISO Code UPG.CH"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        MoveCurrencyISOCode;
+
+        MoveCurrencyISOCode();
     end;
 
     local procedure MoveCurrencyISOCode()
@@ -22,7 +22,7 @@ codeunit 104151 "ISO Code UPG.CH"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag()) THEN
             EXIT;
 
         WITH Currency DO BEGIN
@@ -30,11 +30,11 @@ codeunit 104151 "ISO Code UPG.CH"
             IF FindSet() then
                 REPEAT
                     "ISO Code" := "ISO Currency Code";
-                    MODIFY;
+                    Modify();
                 UNTIL Next() = 0;
         END;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveCurrencyISOCodeTag());
     end;
 }
 

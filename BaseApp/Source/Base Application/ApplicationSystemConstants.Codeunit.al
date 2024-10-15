@@ -11,12 +11,12 @@ codeunit 9015 "Application System Constants"
     procedure OriginalApplicationVersion() ApplicationVersion: Text[248]
     begin
         // Should be 'Build Version' with ! on both sides.
-        ApplicationVersion := 'CH Business Central 20.5';
+        ApplicationVersion := 'CH Business Central 21.0';
     end;
 
     procedure ApplicationVersion() ApplicationVersion: Text[248]
     begin
-        ApplicationVersion := OriginalApplicationVersion;
+        ApplicationVersion := OriginalApplicationVersion();
         OnAfterGetApplicationVersion(ApplicationVersion);
     end;
 
@@ -47,34 +47,34 @@ codeunit 9015 "Application System Constants"
     begin
         // Should be 'Build branch' with ! on both sides.
         // Will return a string representing the name of the internal branch that generated the build.
-        exit('NAV205');
+        exit('NAV210');
     end;
 
     procedure PlatformProductVersion(): Text[80]
     begin
         // Should be 'Platform Product Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('20.0.45448.45882');
+        exit('21.0.46384.46844');
     end;
 
     procedure PlatformFileVersion(): Text[80]
     begin
         // Should be 'Platform File Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('20.0.45448.45882');
+        exit('21.0.46384.46844');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationVersion', '', false, false)]
     local procedure GetApplicationVersion(var Version: Text[248])
     begin
-        Version := ApplicationVersion;
+        Version := ApplicationVersion();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Version Triggers", 'GetApplicationBuild', '', false, false)]
     local procedure GetApplicationBuild(var Build: Text[80])
     begin
         // Must ever only be the build number of the server building the app.
-        Build := ApplicationBuild
+        Build := ApplicationBuild();
     end;
 
     [IntegrationEvent(false, false)]

@@ -274,7 +274,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate,
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate,
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(),
             LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)), 0);
 
         // Exercise.
@@ -427,7 +427,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
         // Setup. Posted and provisional balance.
         SetupGLAccWithProvBalance(GLAccount, GenJournalTemplate,
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate,
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(),
             LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)), 0);
 
         // Exercise.
@@ -1057,7 +1057,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SetupVAT(GLAccount, VATPercentage);
 
         GLAccount.SetRange("No.", GLAccount."No.");
-        GLAccount.SetRange("Date Filter", WorkDate, WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate(), WorkDate());
 
         LibraryERM.CreateGLAccount(BalGLAccount);
         SetupVAT(GLAccount, VATPercentage);
@@ -1088,7 +1088,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
     begin
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" :=
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2),
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(100, 2),
             LibraryRandom.RandDec(100, 2));
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1124,8 +1124,8 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
         FAJournalLine.Validate("Document No.", FAJournalLine."Journal Batch Name" + Format(FAJournalLine."Line No."));
-        FAJournalLine.Validate("Posting Date", WorkDate);
-        FAJournalLine.Validate("FA Posting Date", WorkDate);
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA Posting Type", FAPostingType);
         FAJournalLine.Validate("FA No.", FANo);
         FAJournalLine.Validate(Amount, Amount);
@@ -1159,9 +1159,9 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBookCode);
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
         FADepreciationBook.Modify(true);
     end;
@@ -1191,7 +1191,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate('<1D>', WorkDate()));
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
@@ -1248,7 +1248,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
 
         CalculateDepreciation.SetTableView(FixedAsset);
         CalculateDepreciation.InitializeRequest(
-          DepreciationBookCode, CalcDate('<1D>', WorkDate), false, 0, CalcDate('<1D>', WorkDate), FixedAssetNo, FixedAsset.Description, false);
+          DepreciationBookCode, CalcDate('<1D>', WorkDate()), false, 0, CalcDate('<1D>', WorkDate()), FixedAssetNo, FixedAsset.Description, false);
         CalculateDepreciation.UseRequestPage(false);
         CalculateDepreciation.Run();
     end;
@@ -1303,7 +1303,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_GLEntry', GLEntry.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('GlBalance', GLAccount.Balance);
             LibraryReportDataset.AssertCurrentRowValueEquals('Name_GLAccount', GLAccount.Name);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
@@ -1341,7 +1341,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyBalance', GLAccount."Balance (FCY)");
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryFcyAcyBalance', GLAccount."Balance (FCY)");
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyAmt', GLEntry."Amount (FCY)");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
@@ -1380,7 +1380,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyBalance', GLAccount."Additional-Currency Balance");
             LibraryReportDataset.AssertCurrentRowValueEquals('GLEntryFcyAcyBalance', GLAccount."Additional-Currency Net Change");
             LibraryReportDataset.AssertCurrentRowValueEquals('FcyAcyAmt', GLAccount."Additional-Currency Net Change");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
@@ -1419,7 +1419,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
             LibraryReportDataset.AssertCurrentRowValueEquals('SourceCode_GLEntry', GLEntry."Source Code");
             LibraryReportDataset.AssertCurrentRowValueEquals('SystemExclCreatedEntry', GLEntry."System-Created Entry");
             LibraryReportDataset.AssertCurrentRowValueEquals('PriorExclYearEntry', GLEntry."Prior-Year Entry");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
@@ -1459,7 +1459,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
             VATPostingSetup.Get(GLEntry."VAT Bus. Posting Group", GLEntry."VAT Prod. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATPercent', VATPostingSetup."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount_GLEntry', GLEntry."VAT Amount");
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         GenJournalLine.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.SetRange("Bal. Account No.", GLAccount."No.");
@@ -1486,7 +1486,7 @@ codeunit 144035 "Test G/L Acc Sheet Reports"
                 LibraryReportDataset.AssertCurrentRowValueEquals(JnlBatchNameTag, GenJournalLine."Journal Batch Name");
                 LibraryReportDataset.AssertCurrentRowValueEquals(GLAccountNameTag, GLAccount.Name);
                 VerifySpecificTags(GenJournalLine, ReportID, GenJournalLine."Bal. Account No." = GLAccount."No.")
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifySpecificTags(GenJournalLine: Record "Gen. Journal Line"; ReportID: Integer; GlAccIsBalAcc: Boolean)

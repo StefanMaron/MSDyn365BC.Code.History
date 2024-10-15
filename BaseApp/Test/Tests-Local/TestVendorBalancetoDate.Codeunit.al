@@ -44,7 +44,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // Setup - Create an Invoice and a payment
         LibraryPurchase.CreateVendor(Vendor);
         PostPurchaseDocument(AppliesToGenJournalLine, Vendor, AppliesToGenJournalLine."Document Type"::Invoice,
-          -LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          -LibraryRandom.RandDec(1000, 2), '', WorkDate());
         PostAppliedPurchaseDocument(GenJournalLine, AppliesToGenJournalLine, GenJournalLine."Document Type"::Payment,
           LibraryRandom.RandDecInDecimalRange(1, AppliesToGenJournalLine."Amount (LCY)", 2));
 
@@ -79,7 +79,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         // Setup - Create an Invoice and a payment
         LibraryPurchase.CreateVendor(Vendor);
         PostPurchaseDocument(AppliesToGenJournalLine, Vendor, AppliesToGenJournalLine."Document Type"::Invoice,
-          -LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          -LibraryRandom.RandDec(1000, 2), '', WorkDate());
         PostAppliedPurchaseDocument(GenJournalLine, AppliesToGenJournalLine, GenJournalLine."Document Type"::Payment,
           LibraryRandom.RandDecInDecimalRange(1, AppliesToGenJournalLine."Amount (LCY)", 2));
 
@@ -123,7 +123,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         Commit();
 
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         REPORT.Run(REPORT::"SR Vendor - Balance to Date", true, false, Vendor);
 
         // [THEN] 3 rows generated
@@ -171,7 +171,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         Commit();
 
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor and saved as excel
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         LibraryReportValidation.SetFileName(Vendor."No.");
         REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
 
@@ -227,7 +227,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         Commit();
 
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor and saved as excel
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         LibraryReportValidation.SetFileName(Vendor."No.");
         REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
 
@@ -295,7 +295,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         ApplyAndPostGenJournalLine(GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Payment, AppliedDocNo);
 
         // [WHEN] "SR Vendor - Balance to Date" run filtered on "V1" Vendor and saved as excel
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         LibraryReportValidation.SetFileName(Vendor."No.");
         REPORT.SaveAsExcel(REPORT::"SR Vendor - Balance to Date", LibraryReportValidation.GetFileName, Vendor);
 
@@ -542,7 +542,7 @@ codeunit 144033 "Test Vendor Balance to Date"
         LibraryPurchase.CreateVendor(Vendor);
         PostPurchaseDocument(
           AppliesToGenJournalLine, Vendor, AppliesToGenJournalLine."Document Type"::Invoice,
-          -LibraryRandom.RandDec(1000, 2), '', WorkDate);
+          -LibraryRandom.RandDec(1000, 2), '', WorkDate());
         Amount[1] := AppliesToGenJournalLine.Amount;
         PostAppliedPurchaseDocument(
           GenJournalLine, AppliesToGenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -584,7 +584,7 @@ codeunit 144033 "Test Vendor Balance to Date"
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentType,
           GenJournalLine."Account Type", GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account No.", Amount);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
     end;
 
@@ -655,7 +655,7 @@ codeunit 144033 "Test Vendor Balance to Date"
     [Scope('OnPrem')]
     procedure VendorBalanceToDateRequestPageHandler(var SRVendorBalanceToDateRequestPage: TestRequestPage "SR Vendor - Balance to Date")
     begin
-        SRVendorBalanceToDateRequestPage.FixedDay.SetValue(WorkDate);
+        SRVendorBalanceToDateRequestPage.FixedDay.SetValue(WorkDate());
         SRVendorBalanceToDateRequestPage.PrintOnePerPage.SetValue(true);
         SRVendorBalanceToDateRequestPage.CheckGLPayables.SetValue(true);
         SRVendorBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);
@@ -666,7 +666,7 @@ codeunit 144033 "Test Vendor Balance to Date"
     [Scope('OnPrem')]
     procedure VendorBalanceToDateRequestPageHandlerSaveAsExcel(var SRVendorBalanceToDateRequestPage: TestRequestPage "SR Vendor - Balance to Date")
     begin
-        SRVendorBalanceToDateRequestPage.FixedDay.SetValue(WorkDate);
+        SRVendorBalanceToDateRequestPage.FixedDay.SetValue(WorkDate());
         SRVendorBalanceToDateRequestPage.PrintOnePerPage.SetValue(LibraryVariableStorage.DequeueBoolean);
         SRVendorBalanceToDateRequestPage.CheckGLPayables.SetValue(true);
         SRVendorBalanceToDateRequestPage.PrintUnappliedEntries.SetValue(true);

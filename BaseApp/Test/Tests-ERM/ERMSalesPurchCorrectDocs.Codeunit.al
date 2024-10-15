@@ -27,8 +27,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         CancelQtyErr: Label '%1 is wrong after cancel';
         CannotCancelSalesInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted sales invoice because the posting inventory period is already closed.';
         CannotCancelPurchInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted purchase invoice because the posting inventory period is already closed.';
-        SalesBlockedGLAccountErr: Label 'You cannot correct this posted sales invoice because %1 G/L ACCOUNT is blocked.';
-        PurchaseBlockedGLAccountErr: Label 'You cannot correct this posted purchase invoice because %1 G/L ACCOUNT is blocked.';
+        SalesBlockedGLAccountErr: Label 'You cannot correct this posted sales invoice because G/L Account %1 is blocked.';
+        PurchaseBlockedGLAccountErr: Label 'You cannot correct this posted purchase invoice because G/L Account %1 is blocked.';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required';
 
     [Test]

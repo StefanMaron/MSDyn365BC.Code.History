@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138926 "Graph Mail Tests"
 {
     Subtype = Test;
@@ -271,10 +272,10 @@ codeunit 138926 "Graph Mail Tests"
         MockAzureKeyVaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
         TestSecret: Text;
     begin
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
 
-        if AzureADMgtSetup.Delete then;
-        if GraphMailSetup.Delete then;
+        if AzureADMgtSetup.Delete() then;
+        if GraphMailSetup.Delete() then;
 
         MockAzureKeyVaultSecretProvider := MockAzureKeyVaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyVaultSecretProvider.AddSecretMapping('AllowedApplicationSecrets', SecretNameTxt + ',SmtpSetup');
@@ -288,7 +289,7 @@ codeunit 138926 "Graph Mail Tests"
         if IsInitialized then
             exit;
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -327,4 +328,4 @@ codeunit 138926 "Graph Mail Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

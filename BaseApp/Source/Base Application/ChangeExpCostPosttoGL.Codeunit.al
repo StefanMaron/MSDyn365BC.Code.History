@@ -30,14 +30,14 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
              StrSubstNo(
                Text000 + Text001 + Text002,
                InvtSetup.FieldCaption("Expected Cost Posting to G/L"),
-               PostValueEntryToGL.TableCaption), false)
+               PostValueEntryToGL.TableCaption()), false)
         then
             Error(Text003);
 
         if ExpCostPostingToGL then
-            EnableExpCostPostingToGL
+            EnableExpCostPostingToGL()
         else
-            DisableExpCostPostingToGL;
+            DisableExpCostPostingToGL();
 
         UpdateInvtSetup(InvtSetup, ExpCostPostingToGL)
     end;
@@ -69,6 +69,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
             SetCurrentKey("Item No.", "Entry Type");
             SetFilter("Entry Type", '%1|%2|%3', "Entry Type"::Sale, "Entry Type"::Purchase, "Entry Type"::Output);
             NoOfRecords := Count;
+            OldItemNo := '';
             if Find('-') then
                 repeat
                     RecordNo := RecordNo + 1;
@@ -89,7 +90,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                 until Next() = 0;
         end;
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure UpdatePostValueEntryToGL(ItemLedgEntryNo: Integer)
@@ -129,11 +130,11 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                 repeat
                     ValueEntry.Get("Value Entry No.");
                     if ValueEntry."Expected Cost" then
-                        Delete;
+                        Delete();
 
                 until Next() = 0;
         end;
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure UpdateInvtSetup(var InvtSetup: Record "Inventory Setup"; ExpCostPostingToGL: Boolean)
@@ -142,7 +143,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
     begin
         with InvtSetup do begin
             "Expected Cost Posting to G/L" := ExpCostPostingToGL;
-            Modify;
+            Modify();
             if EntriesModified then
                 Message(
                   Text007, FieldCaption("Expected Cost Posting to G/L"), "Expected Cost Posting to G/L",

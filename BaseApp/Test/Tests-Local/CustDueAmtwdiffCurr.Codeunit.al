@@ -39,11 +39,11 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
         LibrarySales.CreateCustomer(Customer);
 
         // Create different Posting Dates for the 5 different columns in the Report
-        ColumnDate[1] := CalcDate('<-4M>', WorkDate);
-        ColumnDate[2] := CalcDate('<-2M>', WorkDate);
-        ColumnDate[3] := CalcDate('<-1M>', WorkDate);
-        ColumnDate[4] := WorkDate;
-        ColumnDate[5] := CalcDate('<+2M>', WorkDate);
+        ColumnDate[1] := CalcDate('<-4M>', WorkDate());
+        ColumnDate[2] := CalcDate('<-2M>', WorkDate());
+        ColumnDate[3] := CalcDate('<-1M>', WorkDate());
+        ColumnDate[4] := WorkDate();
+        ColumnDate[5] := CalcDate('<+2M>', WorkDate());
 
         // Create Currencies with Exchange Rates
         Currency1 := CreateCurrency(ColumnDate[1]);
@@ -118,7 +118,7 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
     [Scope('OnPrem')]
     procedure ReportRequestPageHandler(var SRCustDueAmountperPeriod: TestRequestPage "SR Cust. Due Amount per Period")
     begin
-        SRCustDueAmountperPeriod.KeyDate.SetValue(WorkDate);
+        SRCustDueAmountperPeriod.KeyDate.SetValue(WorkDate());
         SRCustDueAmountperPeriod.PeriodLength.SetValue('<1M>');
         SRCustDueAmountperPeriod.Layout.SetValue(0);
         SRCustDueAmountperPeriod.ShowAmtInLCY.SetValue(false);
@@ -146,7 +146,7 @@ codeunit 144062 "Cust. Due Amt. w diff. Curr."
             if DetailedCustLedgEntry.FindSet() then
                 repeat
                     TotalAmountLCY[Count] += DetailedCustLedgEntry."Amount (LCY)";
-                until DetailedCustLedgEntry.Next = 0;
+                until DetailedCustLedgEntry.Next() = 0;
 
             // Verify Total for each column
             Assert.AreEqual(LibraryReportDataset.Sum('CustBalanceDueLCY' + Format(Count)), TotalAmountLCY[Count], TotalAmountErr);

@@ -63,7 +63,7 @@ codeunit 144018 QuoteManagement
         // Else we would get a division by zero error. (TFS 91065)
         SalesOrder.Trap;
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader1);
-        SalesOrder.Close;
+        SalesOrder.Close();
         // Create Sales quote 2
         CreateSalesQuote(SalesHeader2, Customer."No.", SalespersonPurchaserCode, Item."No.");
 
@@ -108,7 +108,7 @@ codeunit 144018 QuoteManagement
         Assert.IsTrue(SalesLine.Find('-'), ExpectRecTxt);
         repeat
             VerifyTextStartsWith(TotalTxt, SalesLine.Description, TotalErr);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 144018 QuoteManagement
         Assert.IsTrue(SalesInvoiceLine.Find('-'), ExpectRecTxt);
         repeat
             VerifyTextStartsWith(TotalTxt, SalesInvoiceLine.Description, TotalErr);
-        until SalesInvoiceLine.Next = 0;
+        until SalesInvoiceLine.Next() = 0;
     end;
 
     [Test]
@@ -154,7 +154,7 @@ codeunit 144018 QuoteManagement
         Assert.IsTrue(SalesCrMemoLine.Find('-'), ExpectRecTxt);
         repeat
             VerifyTextStartsWith(TotalTxt, SalesCrMemoLine.Description, TotalErr);
-        until SalesCrMemoLine.Next = 0;
+        until SalesCrMemoLine.Next() = 0;
     end;
 
     [Test]
@@ -536,7 +536,7 @@ codeunit 144018 QuoteManagement
         SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDecInRange(10, 20, 2));
         SalesInvoice.SalesLines."Unit Price".SetValue(LibraryRandom.RandDecInRange(100, 200, 2));
-        SalesInvoice.SalesLines.Next;
+        SalesInvoice.SalesLines.Next();
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
@@ -608,7 +608,7 @@ codeunit 144018 QuoteManagement
             RecRef.GetTable(SalesInvoiceLine);
             SalesInvoiceLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesInvoiceLine.FieldNo("Line No.")));
             SalesInvoiceLine.Insert();
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure CreateSalesMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -634,7 +634,7 @@ codeunit 144018 QuoteManagement
             RecRef.GetTable(SalesCrMemoLine);
             SalesCrMemoLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, SalesCrMemoLine.FieldNo("Line No.")));
             SalesCrMemoLine.Insert();
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure FindArchivedSalesDoc(var SalesHeaderArchive: Record "Sales Header Archive"; SalesHeader: Record "Sales Header")

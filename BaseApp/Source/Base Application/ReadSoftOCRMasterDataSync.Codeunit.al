@@ -521,7 +521,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
     begin
         OnGetPortionSize(PortionSize, Handled);
         DefaultPortionSize := MaxPortionSize();
-        if (not Handled) or (PortionSize <= 0) or (PortionSize > MaxPortionSize) then
+        if (not Handled) or (PortionSize <= 0) or (PortionSize > MaxPortionSize()) then
             PortionSize := DefaultPortionSize;
         exit(PortionSize);
     end;

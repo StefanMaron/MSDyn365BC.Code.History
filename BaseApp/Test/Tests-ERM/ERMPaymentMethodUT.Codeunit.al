@@ -122,7 +122,7 @@ codeunit 134405 "ERM Payment Method UT"
 
         // Verify
         Assert.ExpectedError(StrSubstNo(TestFieldErr, PaymentMethod.FieldCaption("Bal. Account No."), '',
-            PaymentMethod.TableCaption, PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
+            PaymentMethod.TableCaption(), PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
     end;
 
     [Test]
@@ -144,7 +144,7 @@ codeunit 134405 "ERM Payment Method UT"
 
         // Verify
         Assert.ExpectedError(StrSubstNo(TestFieldErr, PaymentMethod.FieldCaption("Direct Debit"), true,
-            PaymentMethod.TableCaption, PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
+            PaymentMethod.TableCaption(), PaymentMethod.FieldCaption(Code), PaymentMethod.Code));
     end;
 
     [Test]

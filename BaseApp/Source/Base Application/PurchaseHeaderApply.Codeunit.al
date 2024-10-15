@@ -21,7 +21,7 @@ codeunit 402 "Purchase Header Apply"
             ApplyVendEntries.SetRecord(VendLedgEntry);
             ApplyVendEntries.SetTableView(VendLedgEntry);
             ApplyVendEntries.LookupMode(true);
-            OK := ApplyVendEntries.RunModal = ACTION::LookupOK;
+            OK := ApplyVendEntries.RunModal() = ACTION::LookupOK;
             Clear(ApplyVendEntries);
             if not OK then
                 exit;
@@ -37,7 +37,7 @@ codeunit 402 "Purchase Header Apply"
             end else
                 "Applies-to ID" := '';
 
-            Modify;
+            Modify();
         end;
 
         OnAfterOnRun(PurchHeader);

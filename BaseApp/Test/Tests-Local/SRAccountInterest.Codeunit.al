@@ -170,9 +170,9 @@ codeunit 144036 "SR Account Interest"
 
         SRAccountInterest."Account Type".SetValue(AccountType);
         SRAccountInterest."Account No.".SetValue(AccountNo);
-        SRAccountInterest."From Date".SetValue(WorkDate);
-        SRAccountInterest.EndDate.SetValue(WorkDate); // To Date
-        SRAccountInterest."Interest Date".SetValue(WorkDate);
+        SRAccountInterest."From Date".SetValue(WorkDate());
+        SRAccountInterest.EndDate.SetValue(WorkDate()); // To Date
+        SRAccountInterest."Interest Date".SetValue(WorkDate());
         SRAccountInterest."Interest Rate %".SetValue(5);
         SRAccountInterest."No of Days per Year".SetValue(LengthOfYear::"360 Days");
         SRAccountInterest."With Start Balance".SetValue(false);
@@ -215,7 +215,7 @@ codeunit 144036 "SR Account Interest"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           AccountType, AccountNo, Amount);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", '1000'); // Cash Account
         GenJournalLine.Modify();

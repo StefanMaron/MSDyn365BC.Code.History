@@ -17,7 +17,7 @@ report 5988 "Contr. Serv. Orders - Test"
             column(USERID; UserId)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(StartDate; Format(StartDate))
@@ -145,12 +145,11 @@ report 5988 "Contr. Serv. Orders - Test"
                     if EndDate < StartDate then
                         Error(Text001);
 
-                    if StartDate <> 0D then begin
+                    if StartDate <> 0D then
                         if EndDate - StartDate + 1 > ServMgtSetup."Contract Serv. Ord.  Max. Days" then
                             Error(
                               Text002,
-                              ServMgtSetup.TableCaption);
-                    end;
+                              ServMgtSetup.TableCaption());
 
                     if GetFilter("Contract No.") = '' then
                         SetFilter("Contract No.", '<>%1', '');
@@ -211,13 +210,10 @@ report 5988 "Contr. Serv. Orders - Test"
 
     trigger OnPreReport()
     begin
-        ServContractFilters := "Service Contract Header".GetFilters;
+        ServContractFilters := "Service Contract Header".GetFilters();
     end;
 
     var
-        Text000: Label 'You must fill in the ending date field.';
-        Text001: Label 'Starting Date is greater than Ending Date.';
-        Text002: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
         Cust: Record Customer;
@@ -227,6 +223,10 @@ report 5988 "Contr. Serv. Orders - Test"
         EndDate: Date;
         ServContractFilters: Text;
         ShowFullBody: Boolean;
+
+        Text000: Label 'You must fill in the ending date field.';
+        Text001: Label 'Starting Date is greater than Ending Date.';
+        Text002: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Contract_Service_Orders___TestCaptionLbl: Label 'Contract Service Orders - Test';
         StartDateCaptionLbl: Label 'Starting Date';

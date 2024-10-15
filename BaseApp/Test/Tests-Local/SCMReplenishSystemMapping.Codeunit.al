@@ -252,7 +252,7 @@ codeunit 144004 "SCM Replenish. System Mapping"
     begin
         Location.Get(CreateLocation);
         Item.SetRange("Location Filter", Location.Code);
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         REPORT.Run(REPORT::"Create Stockkeeping Unit", false, false, Item);
         StockkeepingUnit.SetRange("Location Code", Location.Code);
         StockkeepingUnit.SetRange("Item No.", Item."No.");

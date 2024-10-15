@@ -16,7 +16,7 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify this vendor bank account.';
                 }
-                field("Payment Form"; "Payment Form")
+                field("Payment Form"; Rec."Payment Form")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how payments are made. The different payment forms are used for different types of payment.';
@@ -24,8 +24,8 @@ page 425 "Vendor Bank Account Card"
                     trigger OnValidate()
                     begin
                         TestField(Code);
-                        CurrPage.SaveRecord;
-                        UpdateView;
+                        CurrPage.SaveRecord();
+                        UpdateView();
                     end;
                 }
                 field(Name; Name)
@@ -36,7 +36,7 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
                 field(Address; Address)
@@ -47,16 +47,16 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = Address2Enable;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = PostCodeEnable;
@@ -64,10 +64,10 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = CountryRegionCodeEnable;
@@ -75,10 +75,10 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = PhoneNoEnable;
@@ -100,12 +100,12 @@ page 425 "Vendor Bank Account Card"
             group(Communication)
             {
                 Caption = 'Communication';
-                field("Bank Branch No."; "Bank Branch No.")
+                field("Bank Branch No."; Rec."Bank Branch No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank branch.';
                 }
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = BankAccountNoEnable;
@@ -113,29 +113,29 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateView;
+                        UpdateView();
                     end;
                 }
-                field("Transit No."; "Transit No.")
+                field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a bank identification number of your own choice.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = FaxNoEnable;
                     Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where the vendor has the bank account.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = EMailEnable;
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email address associated with the bank account.';
                 }
-                field("Home Page"; "Home Page")
+                field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = HomePageEnable;
@@ -153,11 +153,11 @@ page 425 "Vendor Bank Account Card"
                     trigger OnValidate()
                     begin
                         TestField(Code);
-                        CurrPage.SaveRecord;
-                        UpdateView;
+                        CurrPage.SaveRecord();
+                        UpdateView();
                     end;
                 }
-                field("SWIFT Code"; "SWIFT Code")
+                field("SWIFT Code"; Rec."SWIFT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = SWIFTCodeEnable;
@@ -165,10 +165,10 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("Clearing No."; "Clearing No.")
+                field("Clearing No."; Rec."Clearing No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = ClearingNoEnable;
@@ -176,10 +176,10 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateView;
+                        UpdateView();
                     end;
                 }
-                field("Giro Account No."; "Giro Account No.")
+                field("Giro Account No."; Rec."Giro Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = GiroAccountNoEnable;
@@ -187,16 +187,16 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("ESR Type"; "ESR Type")
+                field("ESR Type"; Rec."ESR Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = ESRTypeEnable;
                     ToolTip = 'Specifies, for ESR and ESR+, you can define the format of account numbers and reference numbers for this vendor.';
                 }
-                field("ESR Account No."; "ESR Account No.")
+                field("ESR Account No."; Rec."ESR Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = ESRAccountNoEnable;
@@ -204,32 +204,32 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("Invoice No. Startposition"; "Invoice No. Startposition")
+                field("Invoice No. Startposition"; Rec."Invoice No. Startposition")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = InvoiceNoStartpositionEnable;
                     ToolTip = 'Specifies the position of the invoice number within the reference number.';
                 }
-                field("Invoice No. Length"; "Invoice No. Length")
+                field("Invoice No. Length"; Rec."Invoice No. Length")
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = InvoiceNoLengthEnable;
                     ToolTip = 'Specifies the length of the invoice number in the reference number.';
                 }
-                field("Balance Account No."; "Balance Account No.")
+                field("Balance Account No."; Rec."Balance Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that when processing an invoice, for this bank account, the balance account you enter here will be suggested.';
                 }
-                field("Debit Bank"; "Debit Bank")
+                field("Debit Bank"; Rec."Debit Bank")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a debit bank can be predefined, which should be used for this vendor bank.';
                 }
-                field("Bank Identifier Code"; "Bank Identifier Code")
+                field("Bank Identifier Code"; Rec."Bank Identifier Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies this is used if a payment is made to a foreign bank.';
@@ -243,30 +243,30 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
-                        UpdateView;
+                        UpdateView();
                     end;
                 }
-                field("Payment Fee Code"; "Payment Fee Code")
+                field("Payment Fee Code"; Rec."Payment Fee Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment fee code to be used for this vendor bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
 
                     trigger OnValidate()
                     begin
-                        UpdateSuggestedSwissPaymentType;
+                        UpdateSuggestedSwissPaymentType();
                     end;
                 }
-                field("Bank Clearing Standard"; "Bank Clearing Standard")
+                field("Bank Clearing Standard"; Rec."Bank Clearing Standard")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the format standard to be used in bank transfers if you use the Bank Clearing Code field to identify you as the sender.';
                 }
-                field("Bank Clearing Code"; "Bank Clearing Code")
+                field("Bank Clearing Code"; Rec."Bank Clearing Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
@@ -301,7 +301,7 @@ page 425 "Vendor Bank Account Card"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateView;
+        UpdateView();
     end;
 
     trigger OnInit()
@@ -331,12 +331,12 @@ page 425 "Vendor Bank Account Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateView;
+        UpdateView();
     end;
 
     trigger OnOpenPage()
     begin
-        UpdateView;
+        UpdateView();
     end;
 
     var
@@ -430,7 +430,7 @@ page 425 "Vendor Bank Account Card"
                     PostCodeEnable := false;
                     CityEnable := false;
 
-                    IBANCheck;
+                    IBANCheck();
 
                     CountryRegionCodeEnable := false;
                     PhoneNoEnable := true;
@@ -450,7 +450,7 @@ page 425 "Vendor Bank Account Card"
                     BankAccountNoEnable := true;
                     SWIFTCodeEnable := true;
 
-                    IBANCheck;
+                    IBANCheck();
 
                     CountryRegionCodeEnable := true;
                     PhoneNoEnable := true;
@@ -471,7 +471,7 @@ page 425 "Vendor Bank Account Card"
                     BankAccountNoEnable := true;
                     SWIFTCodeEnable := true;
 
-                    IBANCheck;
+                    IBANCheck();
 
                     CountryRegionCodeEnable := true;
                     PhoneNoEnable := true;
@@ -492,12 +492,12 @@ page 425 "Vendor Bank Account Card"
                     CountryRegionCodeEnable := true;
                     BankAccountNoEnable := true;
 
-                    IBANCheck;
+                    IBANCheck();
                 end;
             "Payment Form"::"Cash Outpayment Order Abroad":
                 ;
         end;
-        UpdateSuggestedSwissPaymentType;
+        UpdateSuggestedSwissPaymentType();
     end;
 
     local procedure IBANCheck()

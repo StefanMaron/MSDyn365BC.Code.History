@@ -22,7 +22,7 @@ page 414 "G/L Balance"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        ClosingEntryFilterOnAfterValid;
+                        ClosingEntryFilterOnAfterValid();
                     end;
                 }
                 field(DebitCreditTotals; DebitCreditTotals)
@@ -33,7 +33,7 @@ page 414 "G/L Balance"
 
                     trigger OnValidate()
                     begin
-                        DebitCreditTotalsOnAfterValida;
+                        DebitCreditTotalsOnAfterValida();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -45,17 +45,17 @@ page 414 "G/L Balance"
                     trigger OnValidate()
                     begin
                         if PeriodType = PeriodType::"Accounting Period" then
-                            AccountingPerioPeriodTypeOnVal;
+                            AccountingPerioPeriodTypeOnVal();
                         if PeriodType = PeriodType::Year then
-                            YearPeriodTypeOnValidate;
+                            YearPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Quarter then
-                            QuarterPeriodTypeOnValidate;
+                            QuarterPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Month then
-                            MonthPeriodTypeOnValidate;
+                            MonthPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Week then
-                            WeekPeriodTypeOnValidate;
+                            WeekPeriodTypeOnValidate();
                         if PeriodType = PeriodType::Day then
-                            DayPeriodTypeOnValidate;
+                            DayPeriodTypeOnValidate();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -67,9 +67,9 @@ page 414 "G/L Balance"
                     trigger OnValidate()
                     begin
                         if AmountType = AmountType::"Balance at Date" then
-                            BalanceatDateAmountTypeOnValid;
+                            BalanceatDateAmountTypeOnValid();
                         if AmountType = AmountType::"Net Change" then
-                            NetChangeAmountTypeOnValidate;
+                            NetChangeAmountTypeOnValidate();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -95,7 +95,7 @@ page 414 "G/L Balance"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -109,14 +109,14 @@ page 414 "G/L Balance"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the general ledger account.';
                 }
-                field("Income/Balance"; "Income/Balance")
+                field("Income/Balance"; Rec."Income/Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies whether a general ledger account is an income statement account or a balance sheet account.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankNumbers = BlankZero;
@@ -124,7 +124,7 @@ page 414 "G/L Balance"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankNumbers = BlankZero;
@@ -132,7 +132,7 @@ page 414 "G/L Balance"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
@@ -186,7 +186,6 @@ page 414 "G/L Balance"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = GLRegisters;
-                    Promoted = false;
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = FIELD("No.");
                     RunPageView = SORTING("G/L Account No.");
@@ -242,8 +241,6 @@ page 414 "G/L Balance"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -256,14 +253,26 @@ page 414 "G/L Balance"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
                 begin
                     FindPeriod('>=');
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Period_Promoted"; "Previous Period")
+                {
+                }
+                actionref("Next Period_Promoted"; "Next Period")
+                {
+                }
             }
         }
     }
@@ -283,7 +292,7 @@ page 414 "G/L Balance"
                 "Credit Amount" := -"Net Change"
             end
         end;
-        FormatLine;
+        FormatLine();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -332,7 +341,7 @@ page 414 "G/L Balance"
             AccountingPeriod.SetRange("New Fiscal Year", true);
             if GetRangeMin("Date Filter") = 0D then
                 AccountingPeriod.SetRange("Starting Date", 0D, GetRangeMax("Date Filter"))
-            else begin
+            else
                 if not (GetRangeMin("Date Filter") = NormalDate(GetRangeMin("Date Filter"))) then
                     AccountingPeriod.SetRange(
                       "Starting Date",
@@ -342,7 +351,6 @@ page 414 "G/L Balance"
                     AccountingPeriod.SetRange(
                       "Starting Date", 0D,
                       GetRangeMin("Date Filter") + 1);
-            end;
             if AccountingPeriod.Find('-') then
                 repeat
                     SetFilter(
@@ -415,42 +423,42 @@ page 414 "G/L Balance"
 
     local procedure DayPeriodTypeOnValidate()
     begin
-        DayPeriodTypeOnPush;
+        DayPeriodTypeOnPush();
     end;
 
     local procedure WeekPeriodTypeOnValidate()
     begin
-        WeekPeriodTypeOnPush;
+        WeekPeriodTypeOnPush();
     end;
 
     local procedure MonthPeriodTypeOnValidate()
     begin
-        MonthPeriodTypeOnPush;
+        MonthPeriodTypeOnPush();
     end;
 
     local procedure QuarterPeriodTypeOnValidate()
     begin
-        QuarterPeriodTypeOnPush;
+        QuarterPeriodTypeOnPush();
     end;
 
     local procedure YearPeriodTypeOnValidate()
     begin
-        YearPeriodTypeOnPush;
+        YearPeriodTypeOnPush();
     end;
 
     local procedure AccountingPerioPeriodTypeOnVal()
     begin
-        AccountingPerioPeriodTypOnPush;
+        AccountingPerioPeriodTypOnPush();
     end;
 
     local procedure NetChangeAmountTypeOnValidate()
     begin
-        NetChangeAmountTypeOnPush;
+        NetChangeAmountTypeOnPush();
     end;
 
     local procedure BalanceatDateAmountTypeOnValid()
     begin
-        BalanceatDateAmountTypeOnPush;
+        BalanceatDateAmountTypeOnPush();
     end;
 }
 

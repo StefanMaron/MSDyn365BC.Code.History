@@ -14,12 +14,12 @@ page 9846 "Changed Permission Set List"
         {
             repeater(Group)
             {
-                field("Permission Set ID"; "Permission Set ID")
+                field("Permission Set ID"; Rec."Permission Set ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';
                 }
-                field("Linked Permission Set ID"; "Linked Permission Set ID")
+                field("Linked Permission Set ID"; Rec."Linked Permission Set ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Copied Permission Set';

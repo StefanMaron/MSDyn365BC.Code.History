@@ -25,7 +25,7 @@ codeunit 142080 "Test ServiceRep"
 
         // Excercise
         LibraryVariableStorage.Enqueue(Selection::Countries);
-        VATEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        VATEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         REPORT.Run(REPORT::"Crossborder Services", true, false, VATEntry);
 
         // Verify Report
@@ -44,7 +44,7 @@ codeunit 142080 "Test ServiceRep"
 
         // Excercise
         LibraryVariableStorage.Enqueue(Selection::"Type of Services");
-        VATEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        VATEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         REPORT.Run(REPORT::"Crossborder Services", true, false, VATEntry);
 
         // Verify Report
@@ -63,7 +63,7 @@ codeunit 142080 "Test ServiceRep"
 
         // Excercise
         LibraryVariableStorage.Enqueue(Selection::Both);
-        VATEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        VATEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
         REPORT.Run(REPORT::"Crossborder Services", true, false, VATEntry);
 
         // Verify Report
@@ -91,7 +91,7 @@ codeunit 142080 "Test ServiceRep"
                     else
                         Assert.Fail('Only Sales and Purchase expected');
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
             VATEntry.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
             VATEntry.SetCurrentKey("Gen. Prod. Posting Group");
@@ -110,7 +110,7 @@ codeunit 142080 "Test ServiceRep"
                     else
                         Assert.Fail('Only Sales and Purchase expected');
                 end;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
             Assert.IsFalse(GetNextRow, 'No more rows should exist');
         end;
     end;

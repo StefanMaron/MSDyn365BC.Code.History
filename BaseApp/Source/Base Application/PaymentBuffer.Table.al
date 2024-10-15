@@ -2,6 +2,13 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
+#if CLEAN21
+    TableType = Temporary;
+#else
+    ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -99,6 +106,12 @@ table 372 "Payment Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
             TableRelation = "Dimension Set Entry";
+        }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            DataClassification = SystemMetadata;
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
         }
         field(3010541; "Reference No."; Code[35])
         {

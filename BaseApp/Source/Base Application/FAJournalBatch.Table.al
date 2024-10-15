@@ -32,7 +32,7 @@ table 5620 "FA Journal Batch"
                     FAJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                     FAJnlLine.SetRange("Journal Batch Name", Name);
                     FAJnlLine.ModifyAll("Reason Code", "Reason Code");
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -66,12 +66,12 @@ table 5620 "FA Journal Batch"
                 FAJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 FAJnlLine.SetRange("Journal Batch Name", Name);
                 FAJnlLine.ModifyAll("Posting No. Series", "Posting No. Series");
-                Modify;
+                Modify();
             end;
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup ("FA Journal Template".Recurring WHERE(Name = FIELD("Journal Template Name")));
+            CalcFormula = Lookup("FA Journal Template".Recurring WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;
@@ -107,15 +107,16 @@ table 5620 "FA Journal Batch"
     begin
         FAJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         FAJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while FAJnlLine.FindFirst do
+        while FAJnlLine.FindFirst() do
             FAJnlLine.Rename("Journal Template Name", Name, FAJnlLine."Line No.");
     end;
 
     var
-        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
-        Text001: Label 'must not be %1';
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlLine: Record "FA Journal Line";
+
+        Text000: Label 'Only the %1 field can be filled in on recurring journals.';
+        Text001: Label 'must not be %1';
 
     procedure SetupNewBatch()
     begin

@@ -194,7 +194,7 @@ codeunit 144012 "Old Swiss VAT Statement"
     [Scope('OnPrem')]
     procedure SwissOldVATStatementReportRequestPageHandler(var OldSwissVATStatement: TestRequestPage "Old Swiss VAT Statement")
     begin
-        OldSwissVATStatement.OpenTillDate.SetValue(WorkDate);
+        OldSwissVATStatement.OpenTillDate.SetValue(WorkDate());
         OldSwissVATStatement.NormalRatePerc.SetValue(LibraryRandom.RandInt(10));
         OldSwissVATStatement.ReducedRatePerc.SetValue(LibraryRandom.RandInt(10));
         OldSwissVATStatement.SpecialRatePerc.SetValue(LibraryRandom.RandInt(10));

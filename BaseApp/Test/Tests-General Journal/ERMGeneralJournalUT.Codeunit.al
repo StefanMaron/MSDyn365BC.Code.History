@@ -1,4 +1,4 @@
-﻿codeunit 134920 "ERM General Journal UT"
+codeunit 134920 "ERM General Journal UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -34,7 +34,7 @@
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';
         GenJournalBatchFromGenJournalLineErr: Label 'General Journal must be opened with a Journal Batch that is equal to GenJournalLine."Journal Batch Name"';
         MustSelectAndEmailBodyOrAttahmentErr: Label 'You must select an email body or attachment in report selection';
-        GenJournalLineDoesNotExistErr: Label 'There is no Gen. Journal Line within the filter.';
+        RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted.';
 
     [Test]
     [Scope('OnPrem')]
@@ -437,13 +437,13 @@
 
         // Setup
         BankExportImportSetup.Init();
-        BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, MaxStrLen(BankExportImportSetup.Code));
+        BankExportImportSetup.Code := CopyStr(Format(CreateGuid()), 1, MaxStrLen(BankExportImportSetup.Code));
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Import;
         if not BankExportImportSetup.Insert() then
             BankExportImportSetup.Modify();
         GenJournalBatch.Init();
         GenJournalBatch."Bank Statement Import Format" := BankExportImportSetup.Code;
-        GenJournalBatch."Bal. Account No." := CopyStr(Format(CreateGuid), 1, MaxStrLen(GenJournalBatch."Bal. Account No."));
+        GenJournalBatch."Bal. Account No." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(GenJournalBatch."Bal. Account No."));
 
         // Execute
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
@@ -453,7 +453,7 @@
         GenJournalBatch.TestField("Bal. Account No.", '');
         asserterror GenJournalBatch.Validate("Bank Statement Import Format", BankExportImportSetup.Code);
         asserterror GenJournalBatch.Validate(
-            "Bank Statement Import Format", CopyStr(Format(CreateGuid), 1, MaxStrLen(BankExportImportSetup.Code)));
+            "Bank Statement Import Format", CopyStr(Format(CreateGuid()), 1, MaxStrLen(BankExportImportSetup.Code)));
     end;
 
     [Test]
@@ -467,7 +467,7 @@
 
         // Setup
         BankExportImportSetup.Init();
-        BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, MaxStrLen(BankExportImportSetup.Code));
+        BankExportImportSetup.Code := CopyStr(Format(CreateGuid()), 1, MaxStrLen(BankExportImportSetup.Code));
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
         if not BankExportImportSetup.Insert() then
             BankExportImportSetup.Modify();
@@ -567,7 +567,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -609,7 +609,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -652,7 +652,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           20000, NewDocNo); // line 20000 is now first doc
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -744,7 +744,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, 10000, EntryNo, NewDocNo);
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, 20000, EntryNo + 1, IncStr(NewDocNo));
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, 30000, EntryNo + 2, IncStr(IncStr(NewDocNo)));
@@ -804,7 +804,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, 10000, EntryNo, NewDocNo);
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, 20000, EntryNo + 1, IncStr(NewDocNo));
         VerifyGenJnlDocNoAndAppliesToIDCust(GenJournalLine, 30000, EntryNo + 2, IncStr(IncStr(NewDocNo)));
@@ -841,7 +841,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 10000,
           NewDocNo);
         VerifyGenJnlLineDocNoAndAppliesToDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 20000,
@@ -882,7 +882,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false); // GU00000000
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false); // GU00000000
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 10000,
           NewDocNo);
 
@@ -937,7 +937,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           20000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -980,7 +980,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // Verify
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -1029,7 +1029,7 @@
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", LastLineNo);
         GenJournalLine.RenumberDocumentNo;
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
 
         VerifyGenJnlDocNoAndAppliesToIDVend(GenJournalLine, LastLineNo, EntryNo + 2, IncStr(NewDocNo));
     end;
@@ -1439,7 +1439,7 @@
         Commit();
         GenJournalLine[1].RenumberDocumentNo;
         for i := 1 to 4 do
-            GenJournalLine[i].Find;
+            GenJournalLine[i].Find();
 
         // [THEN] Lines 1 and 2 have different document number
         Assert.AreNotEqual(GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.", '');
@@ -1528,7 +1528,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column - visible
         VerifyGenJnlLinePageDebitCreditAmtFieldsVisibility(GeneralJournal, false, false, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Reset general journal page to simple mode or 'show less columns'.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"General Journal");
@@ -1557,7 +1557,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" and "Amount" columns are visible on Payment Journal page.
         VerifyPaymentJnlLinePageDebitCreditAmtFieldsVisibility(PaymentJournal, true, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -1583,7 +1583,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" column is not visible on Payment Journal page.
         VerifyPaymentJnlLinePageDebitCreditAmtFieldsVisibility(PaymentJournal, true, true, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -1609,7 +1609,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column is visible on Payment Journal page.
         VerifyPaymentJnlLinePageDebitCreditAmtFieldsVisibility(PaymentJournal, false, false, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -1896,7 +1896,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are visible on Job G/L Journal page.
         VerifyJobGLJnlPageDebitCreditAmtFieldsVisibility(JobGLJournal, true, true, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -1923,7 +1923,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Job G/L Journal page.
         VerifyJobGLJnlPageDebitCreditAmtFieldsVisibility(JobGLJournal, true, true, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -1950,7 +1950,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Job G/L Journal page.
         VerifyJobGLJnlPageDebitCreditAmtFieldsVisibility(JobGLJournal, false, false, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2169,7 +2169,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are visible on Sales Journal page in "Show More Columns" mode.
         VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal, true, true, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Resetting the mode to "Show Fewer Columns" as the default view.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Sales Journal");
@@ -2202,7 +2202,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Sales Journal page in "Show More Columns" mode.
         VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal, true, true, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Resetting the mode to "Show Fewer Columns" as the default view.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Sales Journal");
@@ -2235,7 +2235,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Sales Journal page in "Show More Columns" mode.
         VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal, false, false, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Resetting the mode to "Show Fewer Columns" as the default view.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Sales Journal");
@@ -2265,7 +2265,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are not visible on Sales Journal page in "Show Fewer Columns" mode.
         VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal, false, false, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2292,7 +2292,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are not visible on Sales Journal page in "Show Fewer Columns" mode.
         VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal, false, false, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2319,7 +2319,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are not visible on Sales Journal page in "Show Fewer Columns" mode.
         VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal, false, false, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2349,7 +2349,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are visible on Purchase Journal page in "Show More Columns" mode.
         VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal, true, true, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Resetting the mode to "Show Fewer Columns" as the default view.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Purchase Journal");
@@ -2382,7 +2382,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Purchase Journal page in "Show More Columns" mode.
         VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal, true, true, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Resetting the mode to "Show Fewer Columns" as the default view.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Purchase Journal");
@@ -2415,7 +2415,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Purchase Journal page in "Show More Columns" mode.
         VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal, false, false, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
 
         // Resetting the mode to "Show Fewer Columns" as the default view.
         GenJnlManagement.SetJournalSimplePageModePreference(true, PAGE::"Purchase Journal");
@@ -2445,7 +2445,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are not visible on Purchase Journal page in "Show Fewer Columns" mode.
         VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal, false, false, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2472,7 +2472,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are not visible on Purchase Journal page in "Show Fewer Columns" mode.
         VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal, false, false, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2499,7 +2499,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are not visible on Purchase Journal page in "Show Fewer Columns" mode.
         VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal, false, false, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2526,7 +2526,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are visible on Cash Receipt Journal page.
         VerifyCashReceiptJnlPageDebitCreditAmtFieldsVisibility(CashReceiptJournal, true, true, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2553,7 +2553,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Cash Receipt Journal page.
         VerifyCashReceiptJnlPageDebitCreditAmtFieldsVisibility(CashReceiptJournal, true, true, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2580,7 +2580,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Cash Receipt Journal page.
         VerifyCashReceiptJnlPageDebitCreditAmtFieldsVisibility(CashReceiptJournal, false, false, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2607,7 +2607,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount", "Amount" and "Amount (LCY)" columns are visible on Recurring General Journal page.
         VerifyRecurringGeneralJnlPageDebitCreditAmtFieldsVisibility(RecurringGeneralJournal, true, true, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2634,7 +2634,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" and "Amount (LCY)" column are not visible on Recurring General Journal page.
         VerifyRecurringGeneralJnlPageDebitCreditAmtFieldsVisibility(RecurringGeneralJournal, true, true, false, false);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -2661,7 +2661,7 @@
 
         // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" and "Amount (LCY)" column are visible on Recurring General Journal page.
         VerifyRecurringGeneralJnlPageDebitCreditAmtFieldsVisibility(RecurringGeneralJournal, false, false, true, true);
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -3654,7 +3654,7 @@
     begin
         // Verify journal lines are scheduled and correct messages are shown
         Initialize();
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -3696,7 +3696,7 @@
     begin
         // Verify journal lines are scheduled and correct messages are shown
         Initialize();
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -3740,7 +3740,7 @@
     begin
         // Verify journal lines are scheduled and correct messages are shown
         Initialize();
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -3791,7 +3791,7 @@
     begin
         // Verify journal lines are scheduled and correct messages are shown
         Initialize();
-        LibraryVariableStorageCounter.Clear;
+        LibraryVariableStorageCounter.Clear();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -3851,7 +3851,7 @@
         RunEditJournalActionOnGeneralJournalPage(GeneralJournal, GeneralJournalBatches);
 
         // Verify scenario 1 / 2
-        Assert.AreEqual(WorkDate, GeneralJournal."<CurrentPostingDate>".AsDate, 'Current posting date NOT equal to WORKDATE.');
+        Assert.AreEqual(WorkDate(), GeneralJournal."<CurrentPostingDate>".AsDate, 'Current posting date NOT equal to WORKDATE.');
         Assert.AreEqual(
           GenJournalBatch.Name, GeneralJournal.CurrentJnlBatchName.Value,
           'Current journal batch name not equal to batch that was opened.');
@@ -3893,7 +3893,7 @@
         // Set doc no. on page
         GeneralJournal."<Document No. Simple Page>".SetValue(DocNoToSet);
         GeneralJournal."Account No.".SetValue(GLAccount."No.");
-        GeneralJournal.Next;
+        GeneralJournal.Next();
         GeneralJournal."Account No.".SetValue(GLAccount."No.");
 
         // Verify scenario 1 / 2 / 3
@@ -3903,9 +3903,9 @@
         if GenJournalLine.Find('-') then
             repeat
                 Count := Count + 1;
-                Assert.AreEqual(WorkDate, GenJournalLine."Posting Date", 'Unexpected value for posting date.');
+                Assert.AreEqual(WorkDate(), GenJournalLine."Posting Date", 'Unexpected value for posting date.');
                 Assert.AreEqual(GenJournalBatch.Name, GenJournalLine."Journal Batch Name", 'Unexpected value for journal batch name.');
-            until GenJournalLine.Next <= 0;
+            until GenJournalLine.Next() <= 0;
 
         Assert.AreEqual(2, Count, 'General journal lines count does not match.');
     end;
@@ -3991,7 +3991,7 @@
 
         // Verify 1 (should be next doc number)
         Assert.AreEqual('U0002', GeneralJournal."<Document No. Simple Page>".Value, 'Document number does not match.');
-        Assert.AreEqual(WorkDate, GeneralJournal."<CurrentPostingDate>".AsDate, 'Current posting date NOT equal to WORKDATE.');
+        Assert.AreEqual(WorkDate(), GeneralJournal."<CurrentPostingDate>".AsDate, 'Current posting date NOT equal to WORKDATE.');
         Assert.AreEqual(
           GenJournalBatch.Name, GeneralJournal.CurrentJnlBatchName.Value,
           'Current journal batch name not equal to batch that was opened.');
@@ -4021,7 +4021,7 @@
         CreateGenJournalLineWithDocNo(GenJournalLine, DocNoToSet);
 
         // Verify 1
-        Assert.AreEqual(WorkDate, GenJournalLine."Posting Date", 'Posting date for newly created GL line is not equal to WORKDATE.');
+        Assert.AreEqual(WorkDate(), GenJournalLine."Posting Date", 'Posting date for newly created GL line is not equal to WORKDATE.');
 
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         PrepareGeneralJournalBatchesPage(GeneralJournalBatches, GenJournalBatch);
@@ -4267,7 +4267,7 @@
 
         // [THEN] "Document No." reset to blank
         GeneralJournal."<Document No. Simple Page>".AssertEquals('');
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -4316,7 +4316,7 @@
 
         // [THEN] "Document No." reset to blank
         GeneralJournal."<Document No. Simple Page>".AssertEquals('');
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     [Test]
@@ -4345,8 +4345,8 @@
 
         // [THEN] Shortcut dimension columns are visible on Payment Journal page.
         VerifyShortcutDimCodesVisibilityOnPaymentJournalPage(PaymentJournal);
-        PaymentJournal.Close;
-        GeneralJournalBatches.Close;
+        PaymentJournal.Close();
+        GeneralJournalBatches.Close();
     end;
 
     [Test]
@@ -4586,11 +4586,11 @@
 
         // [THEN] GJL1 has "Doc No." from "GU1.." No. Series, GJL2 has "Doc No." from "GU2.." No. Series
         Clear(NoSeriesManagement);
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         Clear(NoSeriesManagement);
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode2, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode2, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine2."Journal Template Name", GenJournalLine2."Journal Batch Name",
           10000, NewDocNo);
     end;
@@ -4759,19 +4759,19 @@
         CreateGenJournalLine1(
             GenJournalLine[1], GenJournalBatch.Name, GenJournalTemplate.Name,
             GenJournalLine[1]."Account Type"::"G/L Account", GLAccount."No.",
-            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
 
         // [GIVEN] Gen. Journal Line "2" with Document No. = "2" and Amount = 200
         CreateGenJournalLine1(
             GenJournalLine[2], GenJournalBatch.Name, GenJournalTemplate.Name,
             GenJournalLine[2]."Account Type"::"G/L Account", GLAccount."No.",
-            200, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+            200, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
 
         // [GIVEN] Gen. Journal Line "3" with Document No. = "3" and Amount = 100
         CreateGenJournalLine1(
             GenJournalLine[3], GenJournalBatch.Name, GenJournalTemplate.Name,
             GenJournalLine[3]."Account Type"::"G/L Account", GLAccount."No.",
-            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
+            100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
 
         For i := 1 to ArrayLen(DocNos) do
             DocNos[i] := GenJournalLine[i]."Document No.";
@@ -4847,7 +4847,7 @@
         asserterror LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(GenJournalLine.RecordId);
 
         // [THEN] "GJL2" did NOT pass validation because it replaced the original "GJL"
-        Assert.ExpectedError(GenJournalLineDoesNotExistErr);
+        Assert.ExpectedError(RecordDoesNotMatchErr);
     end;
 
     [Test]
@@ -4946,7 +4946,7 @@
         GenJournalLine.RenumberDocumentNo;
 
         // [THEN] 3 General Journal lines exist with Document No. = '0000', '0001', '0002'
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
@@ -4983,7 +4983,7 @@
         GenJournalBatch.Modify();
 
         for i := 1 to 3 do
-            DocNos[i] := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+            DocNos[i] := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
 
         // [GIVEN] Mock Document No. gap: 2 lines with Document No. = 1 and 2 lines with Document No. = 3
         // [GIVEN] Line 1 with Document No. = "1"
@@ -5511,7 +5511,7 @@
     local procedure ValidateAmountAndVerifySalesPurchLCYGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Enum "Gen. Journal Recurring Method"; SystemCreatedEntry: Boolean; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     begin
         with GenJournalLine do begin
-            Init;
+            Init();
             "Recurring Method" := RecurringMethod;
             "System-Created Entry" := SystemCreatedEntry;
             "Document Type" := DocumentType;
@@ -5613,7 +5613,7 @@
         Assert.AreEqual(DebitAmountVisilble, GeneralJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, GeneralJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, GeneralJournal.Amount.Visible, WrongFieldVisibilityErr);
-        GeneralJournal.Close;
+        GeneralJournal.Close();
     end;
 
     local procedure VerifyPaymentJnlLinePageDebitCreditAmtFieldsVisibility(PaymentJournal: TestPage "Payment Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
@@ -5625,7 +5625,7 @@
         Assert.AreEqual(DebitAmountVisilble, PaymentJournal."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, PaymentJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, PaymentJournal.Amount.Visible, WrongFieldVisibilityErr);
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure VerifyJobGLJnlPageDebitCreditAmtFieldsVisibility(JobGLJournal: TestPage "Job G/L Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5638,14 +5638,14 @@
         Assert.AreEqual(CreditAmountVisilble, JobGLJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, JobGLJournal.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, JobGLJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        JobGLJournal.Close;
+        JobGLJournal.Close();
     end;
 
     local procedure VerifyChartOfAccountsPageDebitCreditAmtFieldsVisibility(ChartOfAccounts: TestPage "Chart of Accounts"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean)
     begin
         Assert.AreEqual(DebitAmountVisilble, ChartOfAccounts."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, ChartOfAccounts."Credit Amount".Visible, WrongFieldVisibilityErr);
-        ChartOfAccounts.Close;
+        ChartOfAccounts.Close();
     end;
 
     local procedure VerifyGeneralLedgerEntriesPageDebitCreditAmtFieldsVisibility(GeneralLedgerEntries: TestPage "General Ledger Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
@@ -5653,7 +5653,7 @@
         Assert.AreEqual(DebitAmountVisilble, GeneralLedgerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, GeneralLedgerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, GeneralLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
-        GeneralLedgerEntries.Close;
+        GeneralLedgerEntries.Close();
     end;
 
     local procedure VerifyCustomerLedgerEntriesPageDebitCreditAmtFieldsVisibility(CustomerLedgerEntries: TestPage "Customer Ledger Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5664,7 +5664,7 @@
         Assert.AreEqual(CreditAmountLCYVisilble, CustomerLedgerEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, CustomerLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, CustomerLedgerEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Close();
     end;
 
     local procedure VerifySalesJnlPageDebitCreditAmtFieldsVisibility(SalesJournal: TestPage "Sales Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5677,7 +5677,7 @@
         Assert.AreEqual(CreditAmountVisilble, SalesJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, SalesJournal.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, SalesJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        SalesJournal.Close;
+        SalesJournal.Close();
     end;
 
     local procedure VerifyPurchaseJnlPageDebitCreditAmtFieldsVisibility(PurchaseJournal: TestPage "Purchase Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5690,7 +5690,7 @@
         Assert.AreEqual(CreditAmountVisilble, PurchaseJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, PurchaseJournal.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, PurchaseJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        PurchaseJournal.Close;
+        PurchaseJournal.Close();
     end;
 
     local procedure VerifyCashReceiptJnlPageDebitCreditAmtFieldsVisibility(CashReceiptJournal: TestPage "Cash Receipt Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5703,7 +5703,7 @@
         Assert.AreEqual(CreditAmountVisilble, CashReceiptJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, CashReceiptJournal.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, CashReceiptJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure VerifyRecurringGeneralJnlPageDebitCreditAmtFieldsVisibility(RecurringGeneralJournal: TestPage "Recurring General Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5716,7 +5716,7 @@
         Assert.AreEqual(CreditAmountVisilble, RecurringGeneralJournal."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, RecurringGeneralJournal.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, RecurringGeneralJournal."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        RecurringGeneralJournal.Close;
+        RecurringGeneralJournal.Close();
     end;
 
     local procedure VerifyVendorLedgerEntriesPageDebitCreditAmtFieldsVisibility(VendorLedgerEntries: TestPage "Vendor Ledger Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5727,7 +5727,7 @@
         Assert.AreEqual(CreditAmountLCYVisilble, VendorLedgerEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, VendorLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, VendorLedgerEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Close();
     end;
 
     local procedure VerifyApplyBankAccLedgerEntriesPageDebitCreditAmtFieldsVisibility(ApplyBankAccLedgerEntries: TestPage "Apply Bank Acc. Ledger Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
@@ -5735,7 +5735,7 @@
         Assert.AreEqual(DebitAmountVisilble, ApplyBankAccLedgerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, ApplyBankAccLedgerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, ApplyBankAccLedgerEntries.Amount.Visible, WrongFieldVisibilityErr);
-        ApplyBankAccLedgerEntries.Close;
+        ApplyBankAccLedgerEntries.Close();
     end;
 
     local procedure VerifyDetailedCustLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedCustLedgEntries: TestPage "Detailed Cust. Ledg. Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5746,7 +5746,7 @@
         Assert.AreEqual(CreditAmountLCYVisilble, DetailedCustLedgEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, DetailedCustLedgEntries.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, DetailedCustLedgEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        DetailedCustLedgEntries.Close;
+        DetailedCustLedgEntries.Close();
     end;
 
     local procedure VerifyDetailedVendorLedgEntriesPageDebitCreditAmtFieldsVisibility(DetailedVendorLedgEntries: TestPage "Detailed Vendor Ledg. Entries"; DebitAmountVisilble: Boolean; DebitAmountLCYVisilble: Boolean; CreditAmountVisilble: Boolean; CreditAmountLCYVisilble: Boolean; AmountVisilble: Boolean; AmountLCYVisilble: Boolean)
@@ -5757,7 +5757,7 @@
         Assert.AreEqual(CreditAmountLCYVisilble, DetailedVendorLedgEntries."Credit Amount (LCY)".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, DetailedVendorLedgEntries.Amount.Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountLCYVisilble, DetailedVendorLedgEntries."Amount (LCY)".Visible, WrongFieldVisibilityErr);
-        DetailedVendorLedgEntries.Close;
+        DetailedVendorLedgEntries.Close();
     end;
 
     local procedure VerifyAppliedVendorEntriesPageDebitCreditAmtFieldsVisibility(AppliedVendorEntries: TestPage "Applied Vendor Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
@@ -5765,7 +5765,7 @@
         Assert.AreEqual(DebitAmountVisilble, AppliedVendorEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, AppliedVendorEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, AppliedVendorEntries.Amount.Visible, WrongFieldVisibilityErr);
-        AppliedVendorEntries.Close;
+        AppliedVendorEntries.Close();
     end;
 
     local procedure VerifyAppliedCustomerEntriesPageDebitCreditAmtFieldsVisibility(AppliedCustomerEntries: TestPage "Applied Customer Entries"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
@@ -5773,7 +5773,7 @@
         Assert.AreEqual(DebitAmountVisilble, AppliedCustomerEntries."Debit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(CreditAmountVisilble, AppliedCustomerEntries."Credit Amount".Visible, WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, AppliedCustomerEntries.Amount.Visible, WrongFieldVisibilityErr);
-        AppliedCustomerEntries.Close;
+        AppliedCustomerEntries.Close();
     end;
 
     local procedure VerifySalesPurchLCYAfterValidateAmount(RecurringMethod: Enum "Gen. Journal Recurring Method")
@@ -6018,12 +6018,12 @@
         JSONManagement: Codeunit "JSON Management";
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Name', NewGenJnlBatchName);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Journal_Template_Name', GenJnlTemplateName);
 
-        GenJnlBatchJson := JSONManagement.WriteObjectToString;
+        GenJnlBatchJson := JSONManagement.WriteObjectToString();
     end;
 
     [ModalPageHandler]

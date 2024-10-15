@@ -36,7 +36,7 @@ codeunit 143000 "Library - LSV"
         GLSetup.Get();
 
         with LSVSetup do begin
-            Init;
+            Init();
             "Bank Code" := BankAcc."No.";
             "LSV Customer ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
             "LSV Sender ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
@@ -51,7 +51,7 @@ codeunit 143000 "Library - LSV"
             "LSV Filename" := LibraryUtility.GenerateGUID();
             "DebitDirect Customerno." := Format(LibraryRandom.RandIntInRange(111111, 999999));
             "DebitDirect Import Filename" := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
 
         exit(LSVSetup."Bank Code");
@@ -63,7 +63,7 @@ codeunit 143000 "Library - LSV"
         LSVJnl.Init();
         LSVJnl.Validate("LSV Bank Code", LSVSetup."Bank Code");
         LSVJnl.Validate("LSV Status", LSVJnl."LSV Status"::Edit);
-        LSVJnl.Validate("Credit Date", WorkDate);
+        LSVJnl.Validate("Credit Date", WorkDate());
         LSVJnl.Insert(true);
     end;
 
@@ -87,7 +87,7 @@ codeunit 143000 "Library - LSV"
             "Bank Branch No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
             IBAN := LibraryUtility.GenerateGUID();
             "Giro Account No." := GetRandomGiroAccountNo;
-            Insert;
+            Insert();
         end;
     end;
 

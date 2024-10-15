@@ -4,7 +4,7 @@ codeunit 1328 "Top Customers By Sales Job"
 
     trigger OnRun()
     begin
-        UpdateCustomerTopList;
+        UpdateCustomerTopList();
     end;
 
     var

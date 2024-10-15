@@ -59,14 +59,14 @@ page 2803 "Native - Contact"
 
     trigger OnAfterGetRecord()
     begin
-        ClearCalculatedFields;
-        SetCustomerID;
+        ClearCalculatedFields();
+        SetCustomerID();
     end;
 
     trigger OnOpenPage()
     begin
-        SetFilterForGETStatement;
-        SelectLatestVersion;
+        SetFilterForGETStatement();
+        SelectLatestVersion();
     end;
 
     var

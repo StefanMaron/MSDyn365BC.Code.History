@@ -82,9 +82,9 @@ codeunit 144085 "Swiss SEPA Direct Debit"
 
         // [THEN] Export completed without errors
         // [THEN] Direct Debit Collection updated with Status "File Created"
-        DirectDebitCollection.Find;
+        DirectDebitCollection.Find();
         DirectDebitCollection.TestField(Status, DirectDebitCollection.Status::"File Created");
-        DirectDebitCollectionEntry.Find;
+        DirectDebitCollectionEntry.Find();
         DirectDebitCollectionEntry.TestField(Status, DirectDebitCollectionEntry.Status::"File Created");
     end;
 
@@ -194,13 +194,13 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         with BankExportImportSetup do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             Direction := Direction::Export;
             "Processing Codeunit ID" := GetSwissProcCodeunitID;
             "Processing XMLport ID" := GetSEPADDExportXMLPortID;
             "Check Export Codeunit" := CODEUNIT::"SEPA DD-Check Line";
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -216,7 +216,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
             IBAN := GetIBAN;
             "SWIFT Code" := GetSWIFT;
             "Creditor No." := GetRSPID;
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -310,7 +310,7 @@ codeunit 144085 "Swiss SEPA Direct Debit"
             "Type of Payment" := "Type of Payment"::Recurrent;
             "Expected Number of Debits" := 10;
             "Date of Signature" := Today;
-            Insert;
+            Insert();
         end;
     end;
 

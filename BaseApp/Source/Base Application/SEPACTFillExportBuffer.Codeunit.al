@@ -41,14 +41,14 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         BankAccount.TestField(IBAN);
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
         BankExportImportSetup.TestField("Check Export Codeunit");
-        TempGenJnlLine.DeletePaymentFileBatchErrors;
+        TempGenJnlLine.DeletePaymentFileBatchErrors();
         repeat
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempGenJnlLine);
             if TempGenJnlLine."Bal. Account No." <> BankAccount."No." then
                 TempGenJnlLine.InsertPaymentFileError(SameBankErr);
         until TempGenJnlLine.Next() = 0;
 
-        if TempGenJnlLine.HasPaymentFileErrorsInBatch then begin
+        if TempGenJnlLine.HasPaymentFileErrorsInBatch() then begin
             Commit();
             Error(HasErrorsErr);
         end;
@@ -56,23 +56,23 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("LCY Code");
 
-        MessageID := BankAccount.GetCreditTransferMessageNo;
+        MessageID := BankAccount.GetCreditTransferMessageNo();
         OnFillExportBufferOnAfterGetMessageID(TempGenJnlLine, MessageID);
         CreditTransferRegister.CreateNew(MessageID, BankAccount."No.");
         OnFillExportBufferOnAfterCreateNewRegister(CreditTransferRegister, BankExportImportSetup);
         SwissExport := CHMgt.IsSwissSEPACTExport(TempGenJnlLine);
         if SwissExport then
-            BatchBooking := TempGenJnlLine.Count >= CHMgt.NoOfPaymentsForBatchBooking
+            BatchBooking := TempGenJnlLine.Count >= CHMgt.NoOfPaymentsForBatchBooking()
         else
             BatchBooking := false;
 
         with PaymentExportData do begin
-            Reset;
+            Reset();
             if FindLast() then;
 
             TempGenJnlLine.FindSet();
             repeat
-                Init;
+                Init();
                 "Entry No." += 1;
                 SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
                 SetBankAsSenderBank(BankAccount);
@@ -271,13 +271,12 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     begin
         RecordRef.GetTable(RecVariant);
         FieldRef := RecordRef.FieldIndex(1);
-        with RecordRef do begin
+        with RecordRef do
             if FindSet() then
                 repeat
                     TempInteger.Number := FieldRef.Value;
                     TempInteger.Insert();
                 until Next() = 0;
-        end;
     end;
 
     local procedure ValidatePaymentExportData(var PaymentExportData: Record "Payment Export Data"; var GenJnlLine: Record "Gen. Journal Line"; SwissExport: Boolean)

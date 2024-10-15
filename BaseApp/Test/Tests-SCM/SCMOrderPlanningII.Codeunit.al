@@ -91,7 +91,7 @@ codeunit 137087 "SCM Order Planning - II"
         Initialize();
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         CreateSalesOrderPlanningSetup(SalesHeader, Item, '', LibraryRandom.RandDec(10, 2));
-        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate);
+        ShipmentDate := CalcDate('<' + Format(LibraryRandom.RandInt(2) + 2) + 'D>', WorkDate());
 
         // Change Shipment Date On Sales Line.
         ChangeDataOnSalesLine(SalesHeader, Item."No.", SalesLine.FieldNo("Shipment Date"), ShipmentDate);
@@ -534,10 +534,10 @@ codeunit 137087 "SCM Order Planning - II"
         Assert.AreEqual(
           RequisitionLine."Replenishment System"::Transfer, RequisitionLine."Replenishment System",
           StrSubstNo(ValidationError, RequisitionLine.FieldCaption("Replenishment System"),
-            RequisitionLine."Replenishment System"::Transfer, RequisitionLine.TableCaption));
+            RequisitionLine."Replenishment System"::Transfer, RequisitionLine.TableCaption()));
         Assert.AreEqual(
           LocationBlue.Code, RequisitionLine."Supply From",
-          StrSubstNo(ValidationError, RequisitionLine.FieldCaption("Supply From"), LocationBlue.Code, RequisitionLine.TableCaption));
+          StrSubstNo(ValidationError, RequisitionLine.FieldCaption("Supply From"), LocationBlue.Code, RequisitionLine.TableCaption()));
 
         // Tear Down.
         RestoreSalesReceivableSetup(TempSalesReceivablesSetup);
@@ -775,7 +775,7 @@ codeunit 137087 "SCM Order Planning - II"
               ProdOrderComponent."Remaining Quantity", ReservationEntry.Quantity,
               StrSubstNo(
                 ValidationError, ReservationEntry.FieldCaption(Quantity), ProdOrderComponent."Remaining Quantity",
-                ReservationEntry.TableCaption));
+                ReservationEntry.TableCaption()));
         end else begin
             // Verify : Check That Reservation Entry Not Created after Make Supply Order.
             ReservationEntry.SetRange("Item No.", ChildItem."No.");
@@ -965,7 +965,7 @@ codeunit 137087 "SCM Order Planning - II"
         FindRequisitionLine(RequisitionLine, '', Item."No.", LocationBlue.Code);
 
         // [THEN] The sales line is not reserved from requisition line.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField(Reserve, SalesLine.Reserve::Never);
         SalesLine.TestField("Reserved Quantity", 0);
@@ -1123,7 +1123,7 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         for i := 1 to 2 do
-            CreateJobPlanningLine(JobTask, Item[i]."No.", '', WorkDate, LibraryRandom.RandInt(100));
+            CreateJobPlanningLine(JobTask, Item[i]."No.", '', WorkDate(), LibraryRandom.RandInt(100));
 
         // [WHEN] Calculate Order Planning
         LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
@@ -1188,7 +1188,7 @@ codeunit 137087 "SCM Order Planning - II"
         Assert.ExpectedError(PostDateOutOfRangeErr);
 
         // [GIVEN] Drop posting date restrictions
-        UserSetup.Validate("Allow Posting From", WorkDate - 1);
+        UserSetup.Validate("Allow Posting From", WorkDate() - 1);
         UserSetup.Modify(true);
 
         // [WHEN] Trying to post the Service Order
@@ -1619,13 +1619,13 @@ codeunit 137087 "SCM Order Planning - II"
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobPlanningLine(
           JobTask, ItemNo, LocationCode,
-          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', WorkDate), Quantities[1]);
+          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(1, 10)) + 'D>', WorkDate()), Quantities[1]);
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        CreateJobPlanningLine(JobTask, ItemNo, LocationCode, WorkDate, Quantities[1]);
+        CreateJobPlanningLine(JobTask, ItemNo, LocationCode, WorkDate(), Quantities[1]);
         CreateJobPlanningLine(
           JobTask, ItemNo, LocationCode,
-          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(11, 20)) + 'D>', WorkDate), Quantities[2]);
+          CalcDate('<-' + Format(LibraryRandom.RandIntInRange(11, 20)) + 'D>', WorkDate()), Quantities[2]);
         exit(Job."No.");
     end;
 
@@ -1636,7 +1636,7 @@ codeunit 137087 "SCM Order Planning - II"
     begin
         with JobPlanningLine do begin
             LibraryJob.CreateJobPlanningLine("Line Type"::Budget, Type::Item, JobTask, JobPlanningLine);
-            InitJobPlanningLine;
+            InitJobPlanningLine();
             Validate("Location Code", LocationCode);
             Validate("Planning Date", PlanningDate);
             Validate("No.", ItemNo);
@@ -1726,7 +1726,7 @@ codeunit 137087 "SCM Order Planning - II"
         ItemTranslation: Record "Item Translation";
     begin
         with ItemTranslation do begin
-            Init;
+            Init();
             Validate("Item No.", ItemNo);
             Validate("Language Code", LanguageCode);
             Validate(Description, ItemNo + LanguageCode);
@@ -2002,7 +2002,7 @@ codeunit 137087 "SCM Order Planning - II"
                         RequisitionLine.TestField(Status, SalesHeader.Status);
                         RequisitionLine.TestField("Location Code", SalesLine."Location Code");
                         RequisitionLine.TestField("Due Date", SalesLine."Shipment Date");
-                    until SalesLine.Next = 0;
+                    until SalesLine.Next() = 0;
                 end;
             DemandTypeGlobal::Production:
                 begin
@@ -2015,7 +2015,7 @@ codeunit 137087 "SCM Order Planning - II"
                         RequisitionLine.TestField("Demand Quantity", ProdOrderComponent."Remaining Quantity");
                         RequisitionLine.TestField("Location Code", ProdOrderComponent."Location Code");
                         RequisitionLine.TestField("Due Date", ProdOrderComponent."Due Date");
-                    until ProdOrderComponent.Next = 0;
+                    until ProdOrderComponent.Next() = 0;
                 end;
         end;
     end;
@@ -2049,7 +2049,7 @@ codeunit 137087 "SCM Order Planning - II"
                         ProductionOrder.TestField("Location Code", ProdOrderComponent."Location Code");
                     end;
             end;
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure VerifyDemandQtyWithPurchQty(SalesOrderNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10])

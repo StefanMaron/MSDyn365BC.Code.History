@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2198 "O365 Unit Of Measure Card"
 {
     Caption = 'Price per';
     DataCaptionExpression = Description;
     SourceTable = "Unit of Measure";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -10,20 +14,20 @@ page 2198 "O365 Unit Of Measure Card"
         {
             field("Code"; Code)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 ToolTip = 'Specifies a code for the unit of measure that is shown on the item and resource cards where it is used.';
                 Visible = false;
             }
             field(DescriptionInCurrentLanguage; DescriptionInCurrentLanguage)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Description';
                 ToolTip = 'Specifies a description of the unit of measure.';
 
                 trigger OnValidate()
                 begin
                     if DescriptionInCurrentLanguage = '' then
-                        DescriptionInCurrentLanguage := CopyStr(GetDescriptionInCurrentLanguage, 1, MaxStrLen(DescriptionInCurrentLanguage));
+                        DescriptionInCurrentLanguage := CopyStr(GetDescriptionInCurrentLanguage(), 1, MaxStrLen(DescriptionInCurrentLanguage));
                 end;
             }
         }
@@ -38,7 +42,7 @@ page 2198 "O365 Unit Of Measure Card"
 
     trigger OnAfterGetCurrRecord()
     begin
-        DescriptionInCurrentLanguage := CopyStr(GetDescriptionInCurrentLanguage, 1, MaxStrLen(DescriptionInCurrentLanguage));
+        DescriptionInCurrentLanguage := CopyStr(GetDescriptionInCurrentLanguage(), 1, MaxStrLen(DescriptionInCurrentLanguage));
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -48,7 +52,7 @@ page 2198 "O365 Unit Of Measure Card"
         if not (CloseAction in [ACTION::OK, ACTION::LookupOK]) then
             exit(true);
 
-        if DescriptionInCurrentLanguage = CopyStr(GetDescriptionInCurrentLanguage, 1, MaxStrLen(DescriptionInCurrentLanguage)) then
+        if DescriptionInCurrentLanguage = CopyStr(GetDescriptionInCurrentLanguage(), 1, MaxStrLen(DescriptionInCurrentLanguage)) then
             exit(true);
 
         // Do not insert a new empty record
@@ -59,9 +63,9 @@ page 2198 "O365 Unit Of Measure Card"
             Error(UnitOfMeasureAlredyExistsErr, DescriptionInCurrentLanguage);
 
         if Code = '' then
-            InsertNewUnitOfMeasure
+            InsertNewUnitOfMeasure()
         else
-            RenameUnitOfMeasureRemoveTranslations;
+            RenameUnitOfMeasureRemoveTranslations();
     end;
 
     var
@@ -90,4 +94,4 @@ page 2198 "O365 Unit Of Measure Card"
         Insert(true);
     end;
 }
-
+#endif

@@ -11,18 +11,18 @@ report 1170 "User Task Utility"
 
             trigger OnAfterGetRecord()
             begin
-                Delete;
+                Delete();
             end;
 
             trigger OnPreDataItem()
             var
                 Filters: Text;
             begin
-                Filters := GetFilters;
+                Filters := GetFilters();
 
                 if Filters = '' then begin
                     Message(NoFilterMsg);
-                    CurrReport.Quit;
+                    CurrReport.Quit();
                 end;
             end;
         }

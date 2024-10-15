@@ -58,7 +58,7 @@ codeunit 144024 "Vendor Payment Order"
         LibraryReportDataset.LoadDataSetFile;
         VerifyNumberOfRowsAndVendor(VendorName);
 
-        LibraryReportDataset.AssertCurrentRowValueEquals('DebitDate', Format(WorkDate));
+        LibraryReportDataset.AssertCurrentRowValueEquals('DebitDate', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('ShowAdrLines', false);
 
         LibraryVariableStorage.AssertEmpty;
@@ -83,7 +83,7 @@ codeunit 144024 "Vendor Payment Order"
         LibraryReportDataset.LoadDataSetFile;
         VerifyNumberOfRowsAndVendor(VendorName);
 
-        LibraryReportDataset.AssertCurrentRowValueEquals('DebitDate', Format(WorkDate));
+        LibraryReportDataset.AssertCurrentRowValueEquals('DebitDate', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals('ShowAdrLines', true);
 
         LibraryVariableStorage.AssertEmpty;
@@ -146,7 +146,7 @@ codeunit 144024 "Vendor Payment Order"
 
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, true, 0, false, WorkDate, '1', true,
+          WorkDate, true, 0, false, WorkDate(), '1', true,
           GenJournalLine."Bal. Account Type"::"G/L Account", SelectGLAccount, GenJournalLine."Bank Payment Type"::" ");
         SuggestVendorPayments.UseRequestPage(false);
         Vendor.SetRange("No.", VendorBankAcc."Vendor No.");
@@ -168,7 +168,7 @@ codeunit 144024 "Vendor Payment Order"
             "Bank Branch No." := BankBranchNo;
             "Bank Account No." := BankAccountNo;
             IBAN := NewIBAN;
-            Modify;
+            Modify();
         end;
 
         Vendor.Get(VendorBankAccount."Vendor No.");
@@ -180,7 +180,7 @@ codeunit 144024 "Vendor Payment Order"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.SetRange("Date Filter", 0D, CalcDate('<1D>', WorkDate));
+        Vendor.SetRange("Date Filter", 0D, CalcDate('<1D>', WorkDate()));
         Vendor.SetFilter("Balance Due (LCY)", '>%1', 0);
         Vendor.SetFilter("Balance (LCY)", '>%1', 0);
         Vendor.SetRange("Currency Code", '');
@@ -227,7 +227,7 @@ codeunit 144024 "Vendor Payment Order"
     begin
         LibraryVariableStorage.Dequeue(BatchName);
         RequestPage.JourName.SetValue(BatchName);
-        RequestPage.DebitDate.SetValue(WorkDate);
+        RequestPage.DebitDate.SetValue(WorkDate());
         RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -239,7 +239,7 @@ codeunit 144024 "Vendor Payment Order"
     begin
         LibraryVariableStorage.Dequeue(BatchName);
         RequestPage.JourName.SetValue(BatchName);
-        RequestPage.DebitDate.SetValue(WorkDate);
+        RequestPage.DebitDate.SetValue(WorkDate());
         RequestPage.ShowAdrLines.SetValue(true);
         RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

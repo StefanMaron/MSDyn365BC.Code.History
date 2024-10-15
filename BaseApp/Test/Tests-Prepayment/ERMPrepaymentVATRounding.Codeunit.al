@@ -372,11 +372,11 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         SetGeneralLedgerSetup(true);
         CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
         AmountInclVAT := 733.73;
-        NewDate := CalcDate('<1M>', WorkDate);
+        NewDate := CalcDate('<1M>', WorkDate());
 
         // [GIVEN] Currency with different Exch. Rates on dates "D1", "D2"
         CurrencyCode := CreateCurrency;
-        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, 4.180095, 4.180095);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 4.180095, 4.180095);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewDate, 4.178296, 4.178296);
 
         // [GIVEN] Create Sales Order with "Posting Date" = "D1", post prepayment Invoice
@@ -416,11 +416,11 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         SetGeneralLedgerSetup(true);
         CreateVATPostingSetupWithVATPct(VATPostingSetup, GetSpecificVAT19Pct);
         AmountInclVAT := 733.73;
-        NewDate := CalcDate('<1M>', WorkDate);
+        NewDate := CalcDate('<1M>', WorkDate());
 
         // [GIVEN] Currency with different Exch. Rates on dates "D1", "D2"
         CurrencyCode := CreateCurrency;
-        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, 4.180095, 4.180095);
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate(), 4.180095, 4.180095);
         LibraryERM.CreateExchangeRate(CurrencyCode, NewDate, 4.178296, 4.178296);
 
         // [GIVEN] Create Purchase Order with "Posting Date" = "D1", post prepayment Invoice
@@ -1131,7 +1131,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         GenLedgerSetup: Record "General Ledger Setup";
     begin
         with GenLedgerSetup do begin
-            Get;
+            Get();
             if not "Prepayment Unrealized VAT" then
                 Validate("Prepayment Unrealized VAT", PrepmtUnrealVAT);
             Modify(true);
@@ -1212,7 +1212,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             Validate("Prices Including VAT", PricesIncludingVAT);
             Validate("Compress Prepayment", CompressPrepmt);
             Validate("Prepayment %", PrepmtPct);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1643,7 +1643,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
             Validate("Prices Including VAT", PricesIncludingVAT);
             Validate("Compress Prepayment", CompressPrepmt);
             Validate("Prepayment %", PrepmtPct);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1722,7 +1722,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     local procedure ChangeQtyToShipOnSalesLine(var SalesLine: Record "Sales Line"; QtyToShip: Decimal)
     begin
         with SalesLine do begin
-            Find;
+            Find();
             Validate("Qty. to Ship", QtyToShip);
             Modify(true);
         end;
@@ -1731,7 +1731,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     local procedure ChangeQtyToReceiveOnPurchLine(var PurchLine: Record "Purchase Line"; QtyToReceive: Decimal)
     begin
         with PurchLine do begin
-            Find;
+            Find();
             Validate("Qty. to Receive", QtyToReceive);
             Modify(true);
         end;
@@ -1933,13 +1933,13 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
     var
         CurrencyExchRate: Record "Currency Exchange Rate";
     begin
-        LibraryERM.CreateExchRate(CurrencyExchRate, CreateCurrency, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchRate, CreateCurrency, WorkDate());
         with CurrencyExchRate do begin
             Validate("Exchange Rate Amount", ExchRateAmount);
             Validate("Adjustment Exch. Rate Amount", ExchRateAmount);
             Validate("Relational Exch. Rate Amount", 1);
             Validate("Relational Adjmt Exch Rate Amt", 1);
-            Modify;
+            Modify();
             exit("Currency Code");
         end;
     end;

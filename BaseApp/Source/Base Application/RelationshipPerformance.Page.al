@@ -35,13 +35,13 @@ page 783 "Relationship Performance"
                 trigger AddInReady()
                 begin
                     IsChartAddInReady := true;
-                    UpdateChart;
+                    UpdateChart();
                 end;
 
                 trigger Refresh()
                 begin
                     if IsChartAddInReady then
-                        UpdateChart;
+                        UpdateChart();
                 end;
             }
         }

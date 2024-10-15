@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 page 7004 "Sales Line Discounts"
 {
     Caption = 'Sales Line Discounts';
@@ -29,7 +29,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        SalesTypeFilterOnAfterValidate;
+                        SalesTypeFilterOnAfterValidate();
                     end;
                 }
                 field(SalesCodeFilterCtrl; SalesCodeFilter)
@@ -52,24 +52,24 @@ page 7004 "Sales Line Discounts"
                             SalesTypeFilter::Customer:
                                 begin
                                     CustList.LookupMode := true;
-                                    if CustList.RunModal = ACTION::LookupOK then
-                                        Text := CustList.GetSelectionFilter
+                                    if CustList.RunModal() = ACTION::LookupOK then
+                                        Text := CustList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
                             SalesTypeFilter::"Customer Discount Group":
                                 begin
                                     CustDiscGrList.LookupMode := true;
-                                    if CustDiscGrList.RunModal = ACTION::LookupOK then
-                                        Text := CustDiscGrList.GetSelectionFilter
+                                    if CustDiscGrList.RunModal() = ACTION::LookupOK then
+                                        Text := CustDiscGrList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
                             SalesTypeFilter::Campaign:
                                 begin
                                     CampaignList.LookupMode := true;
-                                    if CampaignList.RunModal = ACTION::LookupOK then
-                                        Text := CampaignList.GetSelectionFilter
+                                    if CampaignList.RunModal() = ACTION::LookupOK then
+                                        Text := CampaignList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
@@ -80,7 +80,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        SalesCodeFilterOnAfterValidate;
+                        SalesCodeFilterOnAfterValidate();
                     end;
                 }
                 field(StartingDateFilter; StartingDateFilter)
@@ -94,7 +94,7 @@ page 7004 "Sales Line Discounts"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(StartingDateFilter);
-                        StartingDateFilterOnAfterValid;
+                        StartingDateFilterOnAfterValid();
                     end;
                 }
                 field(ItemTypeFilter; ItemTypeFilter)
@@ -106,7 +106,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        ItemTypeFilterOnAfterValidate;
+                        ItemTypeFilterOnAfterValidate();
                     end;
                 }
                 field(CodeFilterCtrl; CodeFilter)
@@ -126,16 +126,16 @@ page 7004 "Sales Line Discounts"
                             Type::Item:
                                 begin
                                     ItemList.LookupMode := true;
-                                    if ItemList.RunModal = ACTION::LookupOK then
-                                        Text := ItemList.GetSelectionFilter
+                                    if ItemList.RunModal() = ACTION::LookupOK then
+                                        Text := ItemList.GetSelectionFilter()
                                     else
                                         Result := false;
                                 end;
                             Type::"Item Disc. Group":
                                 begin
                                     ItemDiscGrList.LookupMode := true;
-                                    if ItemDiscGrList.RunModal = ACTION::LookupOK then
-                                        Text := ItemDiscGrList.GetSelectionFilter
+                                    if ItemDiscGrList.RunModal() = ACTION::LookupOK then
+                                        Text := ItemDiscGrList.GetSelectionFilter()
                                     else
                                         Result := false;
                                 end;
@@ -148,7 +148,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        CodeFilterOnAfterValidate;
+                        CodeFilterOnAfterValidate();
                     end;
                 }
                 field(SalesCodeFilterCtrl2; CurrencyCodeFilter)
@@ -162,8 +162,8 @@ page 7004 "Sales Line Discounts"
                         CurrencyList: Page Currencies;
                     begin
                         CurrencyList.LookupMode := true;
-                        if CurrencyList.RunModal = ACTION::LookupOK then
-                            Text := CurrencyList.GetSelectionFilter
+                        if CurrencyList.RunModal() = ACTION::LookupOK then
+                            Text := CurrencyList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -172,7 +172,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeFilterOnAfterValid;
+                        CurrencyCodeFilterOnAfterValid();
                     end;
                 }
             }
@@ -180,7 +180,7 @@ page 7004 "Sales Line Discounts"
             {
                 Caption = 'Filters';
                 Visible = IsOnMobile;
-                field(FilterDescription; GetFilterDescription)
+                field(FilterDescription; GetFilterDescription())
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -189,7 +189,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnAssistEdit()
                     begin
-                        FilterLines;
+                        FilterLines();
                         CurrPage.Update(false);
                     end;
                 }
@@ -204,7 +204,7 @@ page 7004 "Sales Line Discounts"
 
                     trigger OnValidate()
                     begin
-                        SetEditableFields;
+                        SetEditableFields();
                     end;
                 }
                 field(SalesCode; "Sales Code")
@@ -223,39 +223,39 @@ page 7004 "Sales Line Discounts"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies one of two values, depending on the value in the Type field.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the currency code of the sales line discount price.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Minimum Quantity"; "Minimum Quantity")
+                field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the minimum quantity that the customer must purchase in order to gain the agreed discount.';
                 }
-                field("Line Discount %"; "Line Discount %")
+                field("Line Discount %"; Rec."Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which the sales line discount is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date to which the sales line discount is valid.';
@@ -286,14 +286,12 @@ page 7004 "Sales Line Discounts"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Filter';
                 Image = "Filter";
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Apply the filter.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    FilterLines;
+                    FilterLines();
                 end;
             }
             action(ClearFilter)
@@ -301,24 +299,36 @@ page 7004 "Sales Line Discounts"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Clear Filter';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Clear filter.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    Reset;
-                    UpdateBasicRecFilters;
-                    SetEditableFields;
+                    Reset();
+                    UpdateBasicRecFilters();
+                    SetEditableFields();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SalesLineDiscountsFilter_Promoted; SalesLineDiscountsFilter)
+                {
+                }
+                actionref(ClearFilter_Promoted; ClearFilter)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableFields;
+        SetEditableFields();
     end;
 
     trigger OnInit()
@@ -333,8 +343,8 @@ page 7004 "Sales Line Discounts"
 
     trigger OnOpenPage()
     begin
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
-        GetRecFilters;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
+        GetRecFilters();
         SetRecFilters();
         SetCaption();
     end;
@@ -368,7 +378,7 @@ page 7004 "Sales Line Discounts"
     local procedure GetRecFilters()
     begin
         if GetFilters <> '' then
-            UpdateBasicRecFilters;
+            UpdateBasicRecFilters();
     end;
 
     procedure SetRecFilters()
@@ -401,14 +411,14 @@ page 7004 "Sales Line Discounts"
             CodeFilter := '';
         end;
 
-        if CodeFilter <> '' then begin
-            SetFilter(Code, CodeFilter);
-        end else
+        if CodeFilter <> '' then
+            SetFilter(Code, CodeFilter)
+        else
             SetRange(Code);
 
-        if CurrencyCodeFilter <> '' then begin
-            SetFilter("Currency Code", CurrencyCodeFilter);
-        end else
+        if CurrencyCodeFilter <> '' then
+            SetFilter("Currency Code", CurrencyCodeFilter)
+        else
             SetRange("Currency Code");
 
         if StartingDateFilter <> '' then
@@ -434,7 +444,7 @@ page 7004 "Sales Line Discounts"
         SalesSrcTableName: Text;
         Description: Text;
     begin
-        GetRecFilters;
+        GetRecFilters();
 
         SourceTableName := '';
         case ItemTypeFilter of
@@ -489,43 +499,43 @@ page 7004 "Sales Line Discounts"
 
     local procedure SalesCodeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
         SetCaption();
     end;
 
     local procedure SalesTypeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SalesCodeFilter := '';
-        SetRecFilters;
+        SetRecFilters();
         SetCaption();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ItemTypeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         CodeFilter := '';
-        SetRecFilters;
+        SetRecFilters();
     end;
 
     local procedure CodeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
         SetCaption();
     end;
 
     local procedure CurrencyCodeFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure GetSalesTypeFilter(): Integer
@@ -559,7 +569,7 @@ page 7004 "Sales Line Discounts"
         FilterPageBuilder: FilterPageBuilder;
     begin
         FilterPageBuilder.AddTable(TableCaption, DATABASE::"Sales Line Discount");
-        FilterPageBuilder.SetView(TableCaption, GetView);
+        FilterPageBuilder.SetView(TableCaption, GetView());
 
         if GetFilter("Sales Type") = '' then
             FilterPageBuilder.AddFieldNo(TableCaption, FieldNo("Sales Type"));
@@ -574,22 +584,22 @@ page 7004 "Sales Line Discounts"
         if GetFilter("Currency Code") = '' then
             FilterPageBuilder.AddFieldNo(TableCaption, FieldNo("Currency Code"));
 
-        if FilterPageBuilder.RunModal then
+        if FilterPageBuilder.RunModal() then
             SetView(FilterPageBuilder.GetView(TableCaption));
 
-        UpdateBasicRecFilters;
-        SetEditableFields;
+        UpdateBasicRecFilters();
+        SetEditableFields();
     end;
 
     local procedure UpdateBasicRecFilters()
     begin
         if GetFilter("Sales Type") <> '' then
-            SalesTypeFilter := GetSalesTypeFilter
+            SalesTypeFilter := GetSalesTypeFilter()
         else
             SalesTypeFilter := SalesTypeFilter::None;
 
         if GetFilter(Type) <> '' then
-            ItemTypeFilter := GetTypeFilter
+            ItemTypeFilter := GetTypeFilter()
         else
             ItemTypeFilter := ItemTypeFilter::None;
 

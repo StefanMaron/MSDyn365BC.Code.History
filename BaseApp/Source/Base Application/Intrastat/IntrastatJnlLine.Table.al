@@ -36,7 +36,7 @@
 
             trigger OnValidate()
             begin
-                GetItemDescription;
+                GetItemDescription();
             end;
         }
         field(7; "Item Description"; Text[100])
@@ -175,7 +175,7 @@
                     else
                         "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
                 end;
-                GetItemDescription;
+                GetItemDescription();
             end;
         }
         field(21; Name; Text[100])

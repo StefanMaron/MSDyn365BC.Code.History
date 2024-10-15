@@ -174,7 +174,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         with VATVIESDeclarationXML do begin
             ReportingType.SetValue(ReportingTypeVar);
             if UseReportingDate then
-                ReportingDate.SetValue(WorkDate)
+                ReportingDate.SetValue(WorkDate())
             else
                 ReportingDate.SetValue(0D);
 
@@ -202,7 +202,7 @@ codeunit 142078 "Test Vat VIES Declaration"
                 Customer.FindFirst();
                 exit;
             end
-        until CountryRegion.Next <> 0;
+        until CountryRegion.Next() <> 0;
 
         Error(CustomerNotFoundErr)
     end;

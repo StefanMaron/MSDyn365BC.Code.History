@@ -94,8 +94,8 @@ codeunit 142057 "UT REP VATFUNC"
 
         // Setup: Initialize parameters of InitializeRequest function of Report VAT Statement Germany.
         Initialize();
-        VATStatementLine.SetRange("Date Filter", 0D, WorkDate);
-        VATStatementGermany.InitializeRequest(VATStatementName, VATStatementLine, "VAT Statement Report Selection"::Closed, PeriodSelection::"Within Period", false, false);  // Boolean False for PrintInIntegers and Additional Currency.
+        VATStatementLine.SetRange("Date Filter", 0D, WorkDate());
+        VATStatementGermany.InitializeRequest(VATStatementName, VATStatementLine, "VAT Statement Report Selection"::Closed, PeriodSelection::"Within Period", Enum::"VAT Date Type"::"Posting Date", false, false);  // Boolean False for PrintInIntegers and Additional Currency.
 
         // Exercise And Verify: Run Report and verify initialized values in the handler - VATStmtGermanyInitializeRequestPageHandler.
         VATStatementGermany.Run();
@@ -398,7 +398,7 @@ codeunit 142057 "UT REP VATFUNC"
     begin
         VATStatementGermany.Selection.AssertEquals(EntrySelection::Closed);
         VATStatementGermany.PeriodSelection.AssertEquals(PeriodSelection::"Within Period");
-        VATStatementGermany.EndDateReq.AssertEquals(WorkDate);
+        VATStatementGermany.EndDateReq.AssertEquals(WorkDate());
     end;
 
     [RequestPageHandler]

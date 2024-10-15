@@ -13,7 +13,7 @@ report 329 "Vendor - Trial Balance"
         {
             DataItemTableView = SORTING("Vendor Posting Group");
             RequestFilterFields = "No.", "Date Filter", "Vendor Posting Group";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PeriodPeriodFilter; StrSubstNo(Text003, PeriodFilter))
@@ -154,20 +154,19 @@ report 329 "Vendor - Trial Balance"
             PeriodStartDate := GetRangeMin("Date Filter");
             PeriodEndDate := GetRangeMax("Date Filter");
             SetRange("Date Filter");
-            VendFilter := GetFilters;
+            VendFilter := GetFilters();
             SetRange("Date Filter", PeriodStartDate, PeriodEndDate);
             AccountingPeriod.SetRange("Starting Date", 0D, PeriodEndDate);
             AccountingPeriod.SetRange("New Fiscal Year", true);
             if AccountingPeriod.FindLast() then
                 FiscalYearStartDate := AccountingPeriod."Starting Date"
             else
-                Error(Text000, AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod.TableCaption);
+                Error(Text000, AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod.TableCaption());
             FiscalYearFilter := Format(FiscalYearStartDate) + '..' + Format(PeriodEndDate);
         end;
     end;
 
     var
-        Text000: Label 'It was not possible to find a %1 in %2.';
         AccountingPeriod: Record "Accounting Period";
         PeriodBeginBalance: Decimal;
         PeriodDebitAmt: Decimal;
@@ -182,9 +181,6 @@ report 329 "Vendor - Trial Balance"
         PeriodStartDate: Date;
         PeriodEndDate: Date;
         FiscalYearStartDate: Date;
-        Text003: Label 'Period: %1';
-        Text004: Label 'Total for';
-        Text005: Label 'Group Totals: %1';
         VendTrialBalanceCapLbl: Label 'Vendor - Trial Balance';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AmountsinLCYCaptionLbl: Label 'Amounts in LCY';
@@ -197,6 +193,11 @@ report 329 "Vendor - Trial Balance"
         FiscalYearToDateCaptionLbl: Label 'Fiscal Year-To-Date';
         NetChangeCaptionLbl: Label 'Net Change';
         TotalinLCYCaptionLbl: Label 'Total in LCY';
+
+        Text000: Label 'It was not possible to find a %1 in %2.';
+        Text003: Label 'Period: %1';
+        Text004: Label 'Total for';
+        Text005: Label 'Group Totals: %1';
 
     local procedure CalcAmounts(DateFrom: Date; DateTo: Date; var BeginBalance: Decimal; var DebitAmt: Decimal; var CreditAmt: Decimal; var TotalBalance: Decimal)
     var

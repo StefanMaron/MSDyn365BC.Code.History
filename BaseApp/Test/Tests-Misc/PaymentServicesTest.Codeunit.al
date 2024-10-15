@@ -203,7 +203,7 @@ codeunit 134425 "Payment Services Test"
         Assert.AreEqual(FirstRowDescription, PaymentServices.Description.Value, 'Description was not set correctly on the first row');
 
         // Verify second record
-        PaymentServices.Next;
+        PaymentServices.Next();
         Assert.AreEqual(SecondRowName, PaymentServices.Name.Value, 'Description was not set correctly on the second row');
         Assert.AreEqual(true, PaymentServices.Enabled.AsBoolean, 'Enabled was not set correctly');
         Assert.AreEqual(
@@ -1537,7 +1537,7 @@ codeunit 134425 "Payment Services Test"
     var
         CompanyInformation: Record "Company Information";
     begin
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             CompanyInformation.Insert();
 
         TempPaymentServiceSetup."Setup Record ID" := CompanyInformation.RecordId;
@@ -1686,7 +1686,7 @@ codeunit 134425 "Payment Services Test"
         if CurrencyCode <> '' then
             SalesHeader.Validate("Currency Code", CurrencyCode);
 
-        SalesHeader.SetDefaultPaymentServices;
+        SalesHeader.SetDefaultPaymentServices();
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
@@ -1742,7 +1742,7 @@ codeunit 134425 "Payment Services Test"
 
         repeat
             ExpectedName += StrSubstNo(',%1', TempPaymentServiceSetup.Name);
-        until TempPaymentServiceSetup.Next = 0;
+        until TempPaymentServiceSetup.Next() = 0;
 
         exit(CopyStr(ExpectedName, 2));
     end;
@@ -1813,7 +1813,7 @@ codeunit 134425 "Payment Services Test"
         TargetURL: Text;
     begin
         Assert.IsFalse(TempPaymentReportingArgument.IsEmpty, 'Temp Payment Reporting Argument was not generated');
-        TargetURL := TempPaymentReportingArgument.GetTargetURL;
+        TargetURL := TempPaymentReportingArgument.GetTargetURL();
         GeneralLedgerSetup.Get();
         Assert.AreNotEqual('', TargetURL, 'Wrong setup data');
         SalesInvoiceHeader.CalcFields("Amount Including VAT");

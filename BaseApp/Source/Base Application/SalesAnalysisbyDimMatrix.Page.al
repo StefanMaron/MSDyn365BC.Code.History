@@ -30,7 +30,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(TotalQuantity; +Quantity)
                 {
                     ApplicationArea = All;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     Caption = 'Total Quantity';
@@ -52,7 +52,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(TotalInvtValue; +Amount)
                 {
                     ApplicationArea = All;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     Caption = 'Total Sales Amount';
@@ -74,7 +74,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field1; MatrixData[1])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[1];
@@ -90,7 +90,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field2; MatrixData[2])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[2];
@@ -106,7 +106,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field3; MatrixData[3])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[3];
@@ -122,7 +122,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field4; MatrixData[4])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[4];
@@ -138,7 +138,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field5; MatrixData[5])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[5];
@@ -154,7 +154,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field6; MatrixData[6])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[6];
@@ -170,7 +170,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field7; MatrixData[7])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[7];
@@ -186,7 +186,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field8; MatrixData[8])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[8];
@@ -202,7 +202,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field9; MatrixData[9])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[9];
@@ -218,7 +218,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field10; MatrixData[10])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[10];
@@ -234,7 +234,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field11; MatrixData[11])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[11];
@@ -250,7 +250,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field12; MatrixData[12])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[12];
@@ -266,7 +266,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field13; MatrixData[13])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[13];
@@ -282,7 +282,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field14; MatrixData[14])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[14];
@@ -298,7 +298,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field15; MatrixData[15])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[15];
@@ -314,7 +314,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field16; MatrixData[16])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[16];
@@ -330,7 +330,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field17; MatrixData[17])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[17];
@@ -346,7 +346,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field18; MatrixData[18])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[18];
@@ -362,7 +362,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field19; MatrixData[19])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[19];
@@ -378,7 +378,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field20; MatrixData[20])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[20];
@@ -394,7 +394,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field21; MatrixData[21])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[21];
@@ -410,7 +410,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field22; MatrixData[22])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[22];
@@ -426,7 +426,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field23; MatrixData[23])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[23];
@@ -442,7 +442,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field24; MatrixData[24])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[24];
@@ -458,7 +458,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field25; MatrixData[25])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[25];
@@ -474,7 +474,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field26; MatrixData[26])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[26];
@@ -490,7 +490,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field27; MatrixData[27])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[27];
@@ -506,7 +506,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field28; MatrixData[28])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[28];
@@ -522,7 +522,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field29; MatrixData[29])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[29];
@@ -538,7 +538,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field30; MatrixData[30])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[30];
@@ -554,7 +554,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field31; MatrixData[31])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[31];
@@ -570,7 +570,7 @@ page 9227 "Sales Analysis by Dim Matrix"
                 field(Field32; MatrixData[32])
                 {
                     ApplicationArea = Dimensions;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MatrixColumnCaptions[32];
@@ -622,7 +622,7 @@ page 9227 "Sales Analysis by Dim Matrix"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CalcAmounts;
+        CalcAmounts();
     end;
 
     trigger OnAfterGetRecord()
@@ -726,7 +726,7 @@ page 9227 "Sales Analysis by Dim Matrix"
 
     var
         ItemAnalysisView: Record "Item Analysis View";
-        AVBreakdownBuffer: Record "Dimension Code Amount Buffer" temporary;
+        TempDimensionCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary;
         DimCodeBufferColumn: Record "Dimension Code Buffer";
         DimCodeBufferColumn3: Record "Dimension Code Buffer";
         ItemStatisticsBuffer: Record "Item Statistics Buffer";
@@ -900,16 +900,16 @@ page 9227 "Sales Analysis by Dim Matrix"
 
         ItemAnalysisMgt.FindRecord(
           ItemAnalysisView, ColumnDimType, DimCodeBufferColumn3, Which,
-          GetFieldItemFilter, GetFieldLocationFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
-          GetFieldDim1Filter, GetFieldDim2Filter, GetFieldDim3Filter);
+          GetFieldItemFilter(), GetFieldLocationFilter(), PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
+          GetFieldDim1Filter(), GetFieldDim2Filter(), GetFieldDim3Filter());
 
         i := 1;
         while (i <= NoOfRecords) and (i <= ArrayLen(MatrixColumnCaptions)) do begin
             MatrixData[i] := CalcAmt(DimCodeBufferColumn3, ValueType, true);
             ItemAnalysisMgt.NextRecord(
               ItemAnalysisView, ColumnDimType, DimCodeBufferColumn3, Steps,
-              GetFieldItemFilter, GetFieldLocationFilter, PeriodType, DateFilter,
-              GetFieldDim1Filter, GetFieldDim2Filter, GetFieldDim3Filter);
+              GetFieldItemFilter(), GetFieldLocationFilter(), PeriodType, DateFilter,
+              GetFieldDim1Filter(), GetFieldDim2Filter(), GetFieldDim3Filter());
             i := i + 1;
         end;
     end;
@@ -920,8 +920,8 @@ page 9227 "Sales Analysis by Dim Matrix"
         AmtFromBuffer: Boolean;
     begin
         if SetColFilter then
-            if AVBreakdownBuffer.Get(Code, DimCodeBufferColumn1.Code) then begin
-                Amt := AVBreakdownBuffer.Amount;
+            if TempDimensionCodeAmountBuffer.Get(Code, DimCodeBufferColumn1.Code) then begin
+                Amt := TempDimensionCodeAmountBuffer.Amount;
                 AmtFromBuffer := true;
             end;
 
@@ -936,10 +936,10 @@ page 9227 "Sales Analysis by Dim Matrix"
                 ShowActualBudget);
 
             if SetColFilter then begin
-                AVBreakdownBuffer."Line Code" := Code;
-                AVBreakdownBuffer."Column Code" := DimCodeBufferColumn1.Code;
-                AVBreakdownBuffer.Amount := Amt;
-                AVBreakdownBuffer.Insert();
+                TempDimensionCodeAmountBuffer."Line Code" := Code;
+                TempDimensionCodeAmountBuffer."Column Code" := DimCodeBufferColumn1.Code;
+                TempDimensionCodeAmountBuffer.Amount := Amt;
+                TempDimensionCodeAmountBuffer.Insert();
             end;
         end;
 
@@ -958,19 +958,19 @@ page 9227 "Sales Analysis by Dim Matrix"
 
         ItemAnalysisMgt.FindRecord(
           ItemAnalysisView, ColumnDimType, DimCodeBufferColumn3, Which,
-          GetFieldItemFilter, GetFieldLocationFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
-          GetFieldDim1Filter, GetFieldDim2Filter, GetFieldDim3Filter);
+          GetFieldItemFilter(), GetFieldLocationFilter(), PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
+          GetFieldDim1Filter(), GetFieldDim2Filter(), GetFieldDim3Filter());
 
         Steps := Ordinal - 1;
         ItemAnalysisMgt.NextRecord(
           ItemAnalysisView, ColumnDimType, DimCodeBufferColumn3, Steps,
-          GetFieldItemFilter, GetFieldLocationFilter, PeriodType, DateFilter,
-          GetFieldDim1Filter, GetFieldDim2Filter, GetFieldDim3Filter);
+          GetFieldItemFilter(), GetFieldLocationFilter(), PeriodType, DateFilter,
+          GetFieldDim1Filter(), GetFieldDim2Filter(), GetFieldDim3Filter());
 
         ItemAnalysisMgt.DrillDownAmount(
           CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
-          GetFieldItemFilter, GetFieldLocationFilter, DateFilter,
-          GetFieldDim1Filter, GetFieldDim2Filter, GetFieldDim3Filter, BudgetFilter,
+          GetFieldItemFilter(), GetFieldLocationFilter(), DateFilter,
+          GetFieldDim1Filter(), GetFieldDim2Filter(), GetFieldDim3Filter(), BudgetFilter,
           LineDimType, Rec,
           ColumnDimType, DimCodeBufferColumn3,
           true, ValueType, ShowActualBudget);

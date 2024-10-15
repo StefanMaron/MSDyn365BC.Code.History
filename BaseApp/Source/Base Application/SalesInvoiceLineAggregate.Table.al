@@ -147,7 +147,7 @@ table 5476 "Sales Invoice Line Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateLineDiscounts;
+                UpdateLineDiscounts();
             end;
         }
         field(5402; "Variant Code"; Code[10])
@@ -215,7 +215,7 @@ table 5476 "Sales Invoice Line Aggregate"
             trigger OnValidate()
             begin
                 Validate(Type, Type::Item);
-                UpdateNo;
+                UpdateNo();
             end;
         }
         field(9031; "Account Id"; Guid)
@@ -226,7 +226,7 @@ table 5476 "Sales Invoice Line Aggregate"
             trigger OnValidate()
             begin
                 Validate(Type, Type::"G/L Account");
-                UpdateNo;
+                UpdateNo();
             end;
         }
         field(9032; "Unit of Measure Id"; Guid)
@@ -236,7 +236,7 @@ table 5476 "Sales Invoice Line Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateUnitOfMeasureCode;
+                UpdateUnitOfMeasureCode();
             end;
         }
         field(9039; "Line Tax Amount"; Decimal)
@@ -285,7 +285,7 @@ table 5476 "Sales Invoice Line Aggregate"
 
             trigger OnValidate()
             begin
-                UpdateLineDiscounts;
+                UpdateLineDiscounts();
             end;
         }
         field(9070; "Location Id"; Guid)
@@ -317,17 +317,17 @@ table 5476 "Sales Invoice Line Aggregate"
 
     trigger OnInsert()
     begin
-        UpdateCalculatedFields;
+        UpdateCalculatedFields();
     end;
 
     trigger OnModify()
     begin
-        UpdateCalculatedFields;
+        UpdateCalculatedFields();
     end;
 
     trigger OnRename()
     begin
-        UpdateCalculatedFields;
+        UpdateCalculatedFields();
     end;
 
     var
@@ -396,9 +396,9 @@ table 5476 "Sales Invoice Line Aggregate"
 
     procedure UpdateReferencedRecordIds()
     begin
-        UpdateItemId;
-        UpdateAccountId;
-        UpdateUnitOfMeasureId;
+        UpdateItemId();
+        UpdateAccountId();
+        UpdateUnitOfMeasureId();
         UpdateLocationId();
     end;
 
@@ -475,7 +475,7 @@ table 5476 "Sales Invoice Line Aggregate"
         LineAmount: Decimal;
     begin
         if "Currency Code" = '' then
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         case "Line Discount Calculation" of
             "Line Discount Calculation"::"%":
                 begin

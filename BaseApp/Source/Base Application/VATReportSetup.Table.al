@@ -106,7 +106,7 @@
 
             trigger OnValidate()
             begin
-                if not CheckPositivePeriodReminderCalculation then
+                if not CheckPositivePeriodReminderCalculation() then
                     Error(PositivePeriodReminderCalcErr);
             end;
         }
@@ -267,10 +267,10 @@
 
     local procedure CheckPositivePeriodReminderCalculation(): Boolean
     begin
-        if not IsPeriodReminderCalculation then
+        if not IsPeriodReminderCalculation() then
             exit(true);
 
-        exit(CalcDate("Period Reminder Calculation", WorkDate) - WorkDate >= 0);
+        exit(CalcDate("Period Reminder Calculation", WorkDate()) - WorkDate() >= 0);
     end;
 }
 

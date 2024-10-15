@@ -18,13 +18,13 @@ page 353 "Item Availability Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the first period that item availability is shown for.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Period Name';
@@ -91,7 +91,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowItemLedgerEntries(Item, false);
                     end;
                 }
-                field("Item.""Qty. on Purch. Order"""; "Qty. on Purch. Order")
+                field("Item.""Qty. on Purch. Order"""; Rec."Qty. on Purch. Order")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Purch. Order';
@@ -105,7 +105,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowPurchLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Sales Order"""; "Qty. on Sales Order")
+                field("Item.""Qty. on Sales Order"""; Rec."Qty. on Sales Order")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Sales Order';
@@ -119,7 +119,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSalesLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Service Order"""; "Qty. on Service Order")
+                field("Item.""Qty. on Service Order"""; Rec."Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';
@@ -132,7 +132,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowServLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Job Order"""; "Qty. on Job Order")
+                field("Item.""Qty. on Job Order"""; Rec."Qty. on Job Order")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Qty. on Job Order';
@@ -145,7 +145,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowJobPlanningLines(Item);
                     end;
                 }
-                field("Item.""Trans. Ord. Shipment (Qty.)"""; "Trans. Ord. Shipment (Qty.)")
+                field("Item.""Trans. Ord. Shipment (Qty.)"""; Rec."Trans. Ord. Shipment (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Trans. Ord. Shipment (Qty.)';
@@ -158,7 +158,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Shipment (Qty.)"));
                     end;
                 }
-                field("Item.""Qty. in Transit"""; "Qty. in Transit")
+                field("Item.""Qty. in Transit"""; Rec."Qty. in Transit")
                 {
                     ApplicationArea = Location;
                     Caption = 'Qty. in Transit';
@@ -171,7 +171,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Qty. in Transit"));
                     end;
                 }
-                field("Item.""Trans. Ord. Receipt (Qty.)"""; "Trans. Ord. Receipt (Qty.)")
+                field("Item.""Trans. Ord. Receipt (Qty.)"""; Rec."Trans. Ord. Receipt (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Trans. Ord. Receipt (Qty.)';
@@ -184,7 +184,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Receipt (Qty.)"));
                     end;
                 }
-                field("Item.""Qty. on Asm. Component"""; "Qty. on Asm. Comp. Lines")
+                field("Item.""Qty. on Asm. Component"""; Rec."Qty. on Asm. Comp. Lines")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Qty. on Asm. Comp. Lines';
@@ -198,7 +198,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowAsmCompLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Assembly Order"""; "Qty. on Assembly Order")
+                field("Item.""Qty. on Assembly Order"""; Rec."Qty. on Assembly Order")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Qty. on Assembly Order';
@@ -228,7 +228,7 @@ page 353 "Item Availability Lines"
                     ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
                     Visible = false;
                 }
-                field("Item.""Scheduled Receipt (Qty.)"""; "Scheduled Receipt (Qty.)")
+                field("Item.""Scheduled Receipt (Qty.)"""; Rec."Scheduled Receipt (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Receipt (Qty.)';
@@ -242,7 +242,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
-                field("Item.""Scheduled Need (Qty.)"""; "Scheduled Issue (Qty.)")
+                field("Item.""Scheduled Need (Qty.)"""; Rec."Scheduled Issue (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Issue (Qty.)';
@@ -269,7 +269,7 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(3);
                     end;
                 }
-                field("Item.""Net Change"""; "Net Change")
+                field("Item.""Net Change"""; Rec."Net Change")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Change';

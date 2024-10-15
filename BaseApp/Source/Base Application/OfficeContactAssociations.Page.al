@@ -3,7 +3,6 @@ page 1625 "Office Contact Associations"
     CaptionML = ENU = 'Which contact is associated to the email sender?';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Related Information';
     ShowFilter = false;
     SourceTable = "Office Contact Details";
     SourceTableTemporary = true;
@@ -14,7 +13,7 @@ page 1625 "Office Contact Associations"
         {
             repeater(Group)
             {
-                field("Associated Table"; "Associated Table")
+                field("Associated Table"; Rec."Associated Table")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the table that is associated with the contact, such as Customer, Vendor, Bank Account, or Company.';
@@ -32,12 +31,12 @@ page 1625 "Office Contact Associations"
                     Caption = 'Company';
                     ToolTip = 'Specifies the company of the contact.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the associated Office contact.';
@@ -48,7 +47,7 @@ page 1625 "Office Contact Associations"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the contact, such as company or contact person.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Office contact.';
@@ -66,8 +65,6 @@ page 1625 "Office Contact Associations"
                 ApplicationArea = Basic, Suite;
                 Caption = 'C&ustomer/Vendor';
                 Image = ContactReference;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ShortCutKey = 'Return';
                 ToolTip = 'View the related customer or vendor account that is associated with the current record.';
 
@@ -88,27 +85,38 @@ page 1625 "Office Contact Associations"
                     OfficeMgt.GetContext(TempOfficeAddinContext);
                     case "Associated Table" of
                         "Associated Table"::" ":
-                            begin
-                                if Contact.Get("Contact No.") then
-                                    Page.Run(Page::"Contact Card", Contact);
-                            end;
+                            if Contact.Get("Contact No.") then
+                                Page.Run(Page::"Contact Card", Contact);
                         "Associated Table"::Company,
                         "Associated Table"::"Bank Account":
-                            begin
-                                if Contact.Get("Contact No.") then
-                                    Page.Run(Page::"Contact Card", Contact)
-                            end;
+                            if Contact.Get("Contact No.") then
+                                Page.Run(Page::"Contact Card", Contact);
                         else
                             OfficeContactHandler.ShowCustomerVendor(TempOfficeAddinContext, Contact, "Associated Table", "No.");
                     end;
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Related Information', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("Customer/Vendor_Promoted"; "Customer/Vendor")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        GetName;
+        GetName();
     end;
 
     var
@@ -122,20 +130,14 @@ page 1625 "Office Contact Associations"
     begin
         case "Associated Table" of
             "Associated Table"::Customer:
-                begin
-                    if Customer.Get("No.") then
-                        Name := Customer.Name;
-                end;
+                if Customer.Get("No.") then
+                    Name := Customer.Name;
             "Associated Table"::Vendor:
-                begin
-                    if Vendor.Get("No.") then
-                        Name := Vendor.Name;
-                end;
+                if Vendor.Get("No.") then
+                    Name := Vendor.Name;
             "Associated Table"::Company:
-                begin
-                    if Contact.Get("No.") then
-                        Name := Contact."Company Name";
-                end;
+                if Contact.Get("No.") then
+                    Name := Contact."Company Name";
             else
                 Clear(Name);
         end;

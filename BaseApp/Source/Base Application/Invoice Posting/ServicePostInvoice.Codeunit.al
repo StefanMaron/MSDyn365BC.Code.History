@@ -229,7 +229,7 @@
     begin
         with GenJnlLine do begin
             InitNewLine(
-              ServiceHeader."Posting Date", ServiceHeader."Document Date", InvoicePostingBuffer."Entry Description",
+              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostingBuffer."Entry Description",
               InvoicePostingBuffer."Global Dimension 1 Code", InvoicePostingBuffer."Global Dimension 2 Code",
               InvoicePostingBuffer."Dimension Set ID", ServiceHeader."Reason Code");
 
@@ -257,7 +257,7 @@
 
         with GenJnlLine do begin
             InitNewLine(
-              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."Posting Description",
+              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
               ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
               ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
@@ -301,7 +301,7 @@
 
         with GenJnlLine do begin
             InitNewLine(
-              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."Posting Description",
+              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
               ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
               ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 

@@ -128,9 +128,9 @@ codeunit 144011 "Update VAT Statement Template"
     [Scope('OnPrem')]
     procedure UpdateVATStatementTemplateRequestPageHandler(var UpdateVATStatementTemplate: TestRequestPage "Update VAT Statement Template")
     begin
-        Assert.AreEqual(StrSubstNo(CHTemplateNameTxt, Format(Date2DMY(WorkDate, 3))),
+        Assert.AreEqual(StrSubstNo(CHTemplateNameTxt, Format(Date2DMY(WorkDate(), 3))),
           Format(UpdateVATStatementTemplate.VATStatementTemplateName), WrongVATStatTemplateNameErr);
-        Assert.AreEqual(StrSubstNo(CHTemplateDescrTxt, Format(Date2DMY(WorkDate, 3))),
+        Assert.AreEqual(StrSubstNo(CHTemplateDescrTxt, Format(Date2DMY(WorkDate(), 3))),
           Format(UpdateVATStatementTemplate.Description), WrongVATStatTemplateDescriptionErr);
         UpdateVATStatementTemplate.Cancel.Invoke;
     end;
@@ -159,7 +159,7 @@ codeunit 144011 "Update VAT Statement Template"
                 else
                     VATStatementLine.TestField("Gen. Posting Type", VATStatementLine."Gen. Posting Type"::Sale);
             end;
-        until TempVATPostingSetup.Next = 0;
+        until TempVATPostingSetup.Next() = 0;
     end;
 
     [ConfirmHandler]

@@ -253,7 +253,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
 
         // Exercise.
         SalesHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        CombineShipments.InitializeRequest(WorkDate, WorkDate, false, false, false, false);
+        CombineShipments.InitializeRequest(WorkDate(), WorkDate(), false, false, false, false);
         CombineShipments.UseRequestPage(false);
         CombineShipments.SetTableView(SalesHeader);
         CombineShipments.Run();
@@ -273,7 +273,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine2.SetRange(Type, SalesLine2.Type::" ");
             SalesLine2.SetFilter(Description, '*' + SalesLine."Shipment No." + '*');
             Assert.AreEqual(1, SalesLine2.Count, 'Description line missing.');
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Test]
@@ -341,7 +341,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote.Print.Invoke;
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [THEN] "Classification", "Subtotal Net" and "Subtotal Gross" fields are updated in "End-Total" line
         VerifySalesQuoteAutoRecalculated(SalesHeader);
@@ -387,7 +387,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             TotalAmount += Round(SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision");
             TotalQty += SalesLine.Quantity;
             TotalCost += SalesLine.Quantity * SalesLine."Unit Cost (LCY)";
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         LibraryVariableStorage.Enqueue(TotalAmount);
         LibraryVariableStorage.Enqueue(TotalQty);
@@ -415,7 +415,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         repeat
             TempSalesLine := SalesLine;
             TempSalesLine.Insert();
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure SetupSalesOrderWithSpecialLines(var SalesHeader: Record "Sales Header"; DocType: Option)
@@ -513,7 +513,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine.TestField("Subtotal Net", 0);
             SalesLine.TestField("Subtotal Gross", 0);
             SalesLine.TestField(Classification, '');
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesOrderReport(SalesHeader: Record "Sales Header")
@@ -533,7 +533,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Special lines should be printed.');
             LibraryReportDataset.AssertCurrentRowValueEquals('Sales_Line__Quantity', 0);
             LibraryReportDataset.AssertCurrentRowValueEquals('Sales_Line___Line_Amount_', 0);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesOrder(var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header")
@@ -547,7 +547,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine.TestField("No.", TempSalesLine."No.");
             SalesLine.TestField(Quantity, TempSalesLine.Quantity);
             SalesLine.TestField("Unit Price", TempSalesLine."Unit Price");
-        until TempSalesLine.Next = 0;
+        until TempSalesLine.Next() = 0;
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -566,7 +566,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine.TestField("Subtotal Net");
             SalesLine.TestField("Subtotal Gross");
             SalesLine.TestField(Classification);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [RequestPageHandler]

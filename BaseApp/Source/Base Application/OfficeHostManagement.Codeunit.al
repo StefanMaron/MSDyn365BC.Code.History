@@ -12,15 +12,15 @@ codeunit 1631 "Office Host Management"
     [Scope('OnPrem')]
     procedure InitializeContext(TempNewOfficeAddinContext: Record "Office Add-in Context" temporary)
     begin
-        CheckHost;
+        CheckHost();
         OnInitializeContext(TempNewOfficeAddinContext);
     end;
 
     [Scope('OnPrem')]
     procedure InitializeExchangeObject()
     begin
-        CheckHost;
-        OnInitializeExchangeObject;
+        CheckHost();
+        OnInitializeExchangeObject();
     end;
 
     [Scope('OnPrem')]
@@ -28,7 +28,7 @@ codeunit 1631 "Office Host Management"
     var
         HostName: Text;
     begin
-        CheckHost;
+        CheckHost();
         OnGetHostName(HostName);
         exit(HostName);
     end;
@@ -38,7 +38,7 @@ codeunit 1631 "Office Host Management"
     var
         HostType: Text;
     begin
-        CheckHost;
+        CheckHost();
         OnGetHostType(HostType);
         exit(HostType);
     end;
@@ -46,13 +46,13 @@ codeunit 1631 "Office Host Management"
     [Scope('OnPrem')]
     procedure CloseCurrentPage()
     begin
-        OnCloseCurrentPage;
+        OnCloseCurrentPage();
     end;
 
     [Scope('OnPrem')]
     procedure InvokeExtension(FunctionName: Text; Parameter1: Variant; Parameter2: Variant; Parameter3: Variant; Parameter4: Variant)
     begin
-        CheckHost;
+        CheckHost();
         OnInvokeExtension(FunctionName, Parameter1, Parameter2, Parameter3, Parameter4);
     end;
 
@@ -87,7 +87,7 @@ codeunit 1631 "Office Host Management"
     end;
 
 #if not CLEAN20
-    [Obsolete('Please use GetEmailAndAttachments which uses RecordRef instead of Vendor number.','20.0')]
+    [Obsolete('Please use GetEmailAndAttachments which uses RecordRef instead of Vendor number.', '20.0')]
     [Scope('OnPrem')]
     procedure GetEmailAndAttachments(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow,InitiateSendToAttachments; VendorNumber: Code[20])
     begin
@@ -184,7 +184,7 @@ codeunit 1631 "Office Host Management"
     end;
 
 #if not CLEAN20
-    [Obsolete('Please use OnGetEmailAndAttachmentsForEntity which uses RecordRef instead of Vendor number.','20.0')]
+    [Obsolete('Please use OnGetEmailAndAttachmentsForEntity which uses RecordRef instead of Vendor number.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetEmailAndAttachments(var TempExchangeObject: Record "Exchange Object" temporary; "Action": Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
     begin
