@@ -561,6 +561,18 @@ table 130 "Incoming Document"
 
         ReleaseIncomingDocument.Create(Rec);
 
+        ShowResultMessage(ErrorMessage);
+    end;
+
+    local procedure ShowResultMessage(var ErrorMessage: Record "Error Message")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowResultMessage(Rec, ErrorMessage, IsHandled);
+        if IsHandled then
+            exit;
+
         if ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Warning) > 0 then
             Message(DocCreatedWarningsMsg, Format("Document Type"), "Document No.")
         else
@@ -2077,6 +2089,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeDeleteApprovalEntries(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeShowResultMessage(var IncomingDocument: Record "Incoming Document"; var ErrorMessage: Record "Error Message"; var IsHandled: Boolean)
     begin
     end;
 

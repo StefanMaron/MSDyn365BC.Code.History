@@ -1,4 +1,4 @@
-codeunit 5064 "Email Logging Dispatcher"
+﻿codeunit 5064 "Email Logging Dispatcher"
 {
     TableNo = "Job Queue Entry";
 
@@ -141,6 +141,7 @@ codeunit 5064 "Email Logging Dispatcher"
             Error(Text002, MarketingSetup."Storage Folder Path");
         end;
 
+        OnRunJobOnBeforeRunEMailBatch(ErrorContext, ExchangeWebServicesServer, MarketingSetup);
         RunEMailBatch(MarketingSetup."Email Batch Size", QueueFolder, StorageFolder);
 
         Session.LogMessage('0000BVS', EmailLoggingDispatcherFinishedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
@@ -341,6 +342,8 @@ codeunit 5064 "Email Logging Dispatcher"
     local procedure IsMessageToLog(QueueMessage: DotNet IEmailMessage; var SegLine: Record "Segment Line"; var Attachment: Record Attachment) Result: Boolean
     var
         Sender: DotNet IEmailAddress;
+        QueueMessageIsSensitive: Boolean;
+        SenderIsEmpty: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -348,13 +351,17 @@ codeunit 5064 "Email Logging Dispatcher"
         if IsHandled then
             exit(Result);
 
-        if QueueMessage.IsSensitive then begin
+        QueueMessageIsSensitive := QueueMessage.IsSensitive;
+        OnIsMessageToLogOnAfterCalcQueueMessageIsSensitive(QueueMessageIsSensitive);
+        if QueueMessageIsSensitive then begin
             Session.LogMessage('0000BWA', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
 
         Sender := QueueMessage.SenderAddress;
-        if Sender.IsEmpty or (QueueMessage.RecipientsCount = 0) then begin
+        SenderIsEmpty := Sender.IsEmpty or (QueueMessage.RecipientsCount = 0);
+        OnIsMessageToLogOnAfterCalcSenderIsEmpty(SenderIsEmpty);
+        if SenderIsEmpty then begin
             Session.LogMessage('0000BWB', MessageNotForLoggingTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(false);
         end;
@@ -466,6 +473,7 @@ codeunit 5064 "Email Logging Dispatcher"
                 repeat
                     NextInteractLogEntryNo := NextInteractLogEntryNo + 1;
                     InsertInteractionLogEntry(SegLine, NextInteractLogEntryNo);
+                    OnLogMessageAsInteractionOnAfterInsertInteractionLogEntry(NextInteractLogEntryNo, Subject);
                     EntryNumbers.Add(NextInteractLogEntryNo);
                 until SegLine.Next() = 0;
         end else
@@ -815,6 +823,26 @@ codeunit 5064 "Email Logging Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetInboundOutboundInteraction(SenderAddress: Text; var SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsMessageToLogOnAfterCalcQueueMessageIsSensitive(var QueueMessageIsSensitive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsMessageToLogOnAfterCalcSenderIsEmpty(var SenderIsEmpty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunJobOnBeforeRunEMailBatch(var ErrorContext: Text; var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server"; MarketingSetup: Record "Marketing Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogMessageAsInteractionOnAfterInsertInteractionLogEntry(NextInteractLogEntryNo: Integer; Subject: Text)
     begin
     end;
 }

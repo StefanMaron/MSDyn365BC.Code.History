@@ -66,7 +66,7 @@
                     if "Item No." <> xRec."Item No." then begin
                         Validate("Production BOM No.", Item."Production BOM No.");
                         Validate("Routing No.", Item."Routing No.");
-                        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+                        ValidateUnitofMeasureCodeFromItem();
                     end;
                     OnAfterCopyFromItem(Rec, Item, xRec);
                     if ProdOrder."Source Type" = ProdOrder."Source Type"::Family then
@@ -500,7 +500,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
                 "Remaining Quantity" := Quantity - "Finished Quantity";
@@ -1049,6 +1056,18 @@
         end;
     end;
 
+    local procedure ValidateUnitofMeasureCodeFromItem()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateUnitofMeasureCodeFromItem(Rec, xRec, Item, ProdOrder, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
     procedure UpdateDatetime()
     begin
         if ("Starting Date" <> 0D) and ("Starting Time" <> 0T) then
@@ -1514,6 +1533,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitofMeasureCodeFromItem(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; var Item: Record Item; var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeleteRelationsNotCalledFromComponentFilter(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
@@ -1535,6 +1559,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantity(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

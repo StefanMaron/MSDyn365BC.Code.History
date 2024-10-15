@@ -131,7 +131,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
             TempTrackingSpecification.Validate("Quantity (Base)", NewQtyOnLine);
 
-            OnAfterAssistEditTrackingNo(TempTrackingSpecification, TempGlobalEntrySummary);
+            OnAfterAssistEditTrackingNo(TempTrackingSpecification, TempGlobalEntrySummary, CurrentSignFactor, MaxQuantity);
         end;
     end;
 
@@ -1247,7 +1247,7 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssistEditTrackingNo(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary)
+    local procedure OnAfterAssistEditTrackingNo(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; CurrentSignFactor: Integer; MaxQuantity: Decimal)
     begin
     end;
 

@@ -874,6 +874,29 @@ codeunit 6516 "Package Management"
         ItemTrackingSetup."Package No." := WhseItemTrackingLine."Package No.";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Item Tracking Setup", 'OnAfterGetNonWarehouseTrackingRequirements', '', false, false)]
+    local procedure ItemTrackingSetupGetNonWarehouseTrackingRequirements(var NonWhseItemTrackingSetup: Record "Item Tracking Setup";
+                                                                         WhseItemTrackingSetup: Record "Item Tracking Setup";
+                                                                         ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if IsEnabled() then begin
+            NonWhseItemTrackingSetup."Serial No. Required" :=
+                ItemTrackingSetup."Serial No. Required" and
+                not WhseItemTrackingSetup."Serial No. Required" and
+                (WhseItemTrackingSetup."Lot No. Required" or WhseItemTrackingSetup."Package No. Required");
+
+            NonWhseItemTrackingSetup."Lot No. Required" :=
+                ItemTrackingSetup."Lot No. Required" and
+                not WhseItemTrackingSetup."Lot No. Required" and
+                (WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Package No. Required");
+
+            NonWhseItemTrackingSetup."Package No. Required" :=
+                ItemTrackingSetup."Package No. Required" and
+                not WhseItemTrackingSetup."Package No. Required" and
+                (WhseItemTrackingSetup."Serial No. Required" or WhseItemTrackingSetup."Lot No. Required");
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Item Tracking Setup", 'OnAfterSetTrackingFilterForItem', '', false, false)]
     local procedure ItemTrackingSetupSetTrackingFilterForItem(ItemTrackingSetup: Record "Item Tracking Setup"; var Item: Record Item)
     begin

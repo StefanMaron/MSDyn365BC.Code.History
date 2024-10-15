@@ -2,6 +2,7 @@ codeunit 134645 "Option Lookup Buffer Test"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -42,6 +43,56 @@ codeunit 134645 "Option Lookup Buffer Test"
 
         // [THEN] Buffer table has entry for 'Inventory'
         TempOptionLookupBuffer.Get(Format(SalesLine.Type::Item));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FillOptionBufferWithCustomValuesForSalesTest()
+    var
+        TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
+        OptionLookupBufferTest: Codeunit "Option Lookup Buffer Test";
+        SalesLine: Record "Sales Line";
+        t: Text;
+    begin
+        // [SCENARIO 412825] Fill OptionLookupBuffer with custom values for Sales
+        Initialize;
+
+        // [GIVEN] Empty Option Lookup Buffer table
+        // [GIVEN] Extend "Sales Line Type" enum and add handler for Test_Custom1 value
+        BindSubscription(OptionLookupBufferTest); // to add handling of custom value
+        // [WHEN] FillLookupBuffer is called for LookupType::Sales
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
+
+        // [THEN] Buffer table is filled: 6 W1 values + 1 custom
+        Assert.RecordCount(TempOptionLookupBuffer, 7);
+
+        // [THEN] Buffer table has entry for 'Comment'
+        TempOptionLookupBuffer.Get(SalesLine.FormatType);
+
+        // [THEN] Buffer table has entry for 'G/L Account'
+        TempOptionLookupBuffer.Get(Format(SalesLine.Type::"G/L Account"));
+
+        // [THEN] Buffer table has entry for 'Inventory'
+        TempOptionLookupBuffer.Get(Format(SalesLine.Type::Item));
+
+        // [THEN] Buffer table has entry for 'Test Custom1', ID is 134645
+        SalesLine.Type := SalesLine.Type::Test_Custom1;
+        TempOptionLookupBuffer.Get(Format(SalesLine.Type));
+        TempOptionLookupBuffer.TestField(ID, SalesLine.Type::Test_Custom1.AsInteger());
+        // [THEN] Buffer table has no entry for 'Test Custom2'
+        assert.IsFalse(TempOptionLookupBuffer.Get(Format(SalesLine.Type::Test_Custom2)), 'Custom2 should not be found');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Option Lookup Buffer", 'OnBeforeIncludeOption', '', false, false)]
+    local procedure OnBeforeIncludeOption(OptionLookupBuffer: Record "Option Lookup Buffer"; LookupType: Option; Option: Integer; var Handled: Boolean; var Result: Boolean);
+    begin
+        case LookupType of
+            "Option Lookup Type"::Sales.AsInteger():
+                if Option = "Sales Line Type"::Test_Custom1.AsInteger() then begin
+                    Handled := true;
+                    Result := true;
+                end;
+        end;
     end;
 
     [Test]

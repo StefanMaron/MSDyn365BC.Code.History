@@ -1,4 +1,4 @@
-table 904 "Assemble-to-Order Link"
+﻿table 904 "Assemble-to-Order Link"
 {
     Caption = 'Assemble-to-Order Link';
     Permissions = TableData "Assembly Header" = imd,
@@ -110,6 +110,7 @@ table 904 "Assemble-to-Order Link"
             end else begin
                 if not NeedsSynchronization(NewSalesLine) then
                     exit;
+                OnUpdateAsmOnBeforeAsmReOpenIfReleased(Rec, AsmHeader);
                 AsmReopenIfReleased;
                 Delete;
             end;
@@ -592,6 +593,7 @@ table 904 "Assemble-to-Order Link"
 
         if TrackingSpecification.Find('-') then
             repeat
+                OnRestoreItemTrackingOnBeforeTrackingSpecificationLoop(TrackingSpecification);
                 CreateReservEntry.SetDates(TrackingSpecification."Warranty Date", TrackingSpecification."Expiration Date");
                 CreateReservEntry.SetApplyFromEntryNo(TrackingSpecification."Appl.-from Item Entry");
                 CreateReservEntry.SetDisallowCancellation(true);
@@ -1096,14 +1098,16 @@ table 904 "Assemble-to-Order Link"
         exit(b);
     end;
 
-    local procedure MaxQtyToAsm(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header"): Decimal
+    local procedure MaxQtyToAsm(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header") Result: Decimal
     begin
-        exit(GetMin(SalesLine."Qty. to Ship", AssemblyHeader."Remaining Quantity"));
+        Result := GetMin(SalesLine."Qty. to Ship", AssemblyHeader."Remaining Quantity");
+        OnAfterMaxQtyToAsm(SalesLine, AssemblyHeader, Result);
     end;
 
-    local procedure MaxQtyToAsmBase(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header"): Decimal
+    local procedure MaxQtyToAsmBase(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header") Result: Decimal
     begin
-        exit(GetMin(SalesLine."Qty. to Ship (Base)", AssemblyHeader."Remaining Quantity (Base)"));
+        Result := GetMin(SalesLine."Qty. to Ship (Base)", AssemblyHeader."Remaining Quantity (Base)");
+        OnAfterMaxQtyToAsmBase(SalesLine, AssemblyHeader, Result);
     end;
 
     local procedure MinQtyToAsm(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header"): Decimal
@@ -1292,6 +1296,16 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterMaxQtyToAsm(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMaxQtyToAsmBase(SalesLine: Record "Sales Line"; AssemblyHeader: Record "Assembly Header"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRemoveTrackingFromReservation(var ReservationEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
@@ -1352,6 +1366,11 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRestoreItemTrackingOnBeforeTrackingSpecificationLoop(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRollUpPriceOnAfterFindSalesLinePrice(var SalesHeader: Record "Sales Header"; var CompSalesLine: Record "Sales Line")
     begin
     end;
@@ -1378,6 +1397,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAsmOnBeforeAsmReOpenIfReleased(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header")
     begin
     end;
 

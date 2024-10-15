@@ -33,6 +33,7 @@ codeunit 1336 "Item Templ. Mgt."
     begin
         ApplyTemplate(Item, ItemTempl);
         InsertDimensions(Item."No.", ItemTempl.Code, Database::Item, Database::"Item Templ.");
+        Item.Get(Item."No.");
     end;
 
     local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")

@@ -146,7 +146,7 @@
                     "Due Time" := 0T;
                 end;
 
-                OnValidateRoutingLinkCodeBeforeValidateDueDate(Rec, ProdOrderLine);
+                OnValidateRoutingLinkCodeBeforeValidateDueDate(Rec, ProdOrderLine, ProdOrderRtngLine);
                 Validate("Due Date");
 
                 if "Routing Link Code" <> xRec."Routing Link Code" then
@@ -171,17 +171,10 @@
             TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
 
             trigger OnValidate()
-            var
-                ItemVariant: Record "Item Variant";
             begin
                 if Item."No." <> "Item No." then
                     Item.Get("Item No.");
-                if "Variant Code" = '' then
-                    Description := Item.Description
-                else begin
-                    ItemVariant.Get("Item No.", "Variant Code");
-                    Description := ItemVariant.Description;
-                end;
+                AssignDecsriptionFromItemOrVariant();
                 GetDefaultBin;
                 WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
                 ProdOrderCompReserve.VerifyChange(Rec, xRec);
@@ -200,7 +193,14 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateExpectedQuantity(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Item.Get("Item No.") then
                     if Item."Rounding Precision" > 0 then
                         RoundExpectedQuantity();
@@ -595,7 +595,14 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateExpectedQtyBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Status <> Status::Simulated then begin
                     if Status in [Status::Released, Status::Finished] then
                         CalcFields("Act. Consumption (Qty)");
@@ -1655,6 +1662,19 @@
         OnAfterSetFilterFromProdBOMLine(Rec, ProdBOMLine);
     end;
 
+    local procedure AssignDecsriptionFromItemOrVariant()
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        if "Variant Code" = '' then
+            Description := Item.Description
+        else begin
+            ItemVariant.Get("Item No.", "Variant Code");
+            Description := ItemVariant.Description;
+        end;
+        OnAfterAssignDecsriptionFromItemOrVariant(Rec, xRec, Item, ItemVariant);
+    end;
+
     local procedure IsLineRequiredForSingleDemand(ProdOrderLine: Record "Prod. Order Line"; DemandLineNo: Integer): Boolean
     var
         ProdOrderComponent: Record "Prod. Order Component";
@@ -1675,6 +1695,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutoReserve(var Item: Record Item; var ProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignDecsriptionFromItemOrVariant(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; Item: Record Item; ItemVariant: Record "Item Variant")
     begin
     end;
 
@@ -1849,7 +1874,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateRoutingLinkCodeBeforeValidateDueDate(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnValidateRoutingLinkCodeBeforeValidateDueDate(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 
@@ -1860,6 +1885,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBinCode(var Rec: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateExpectedQuantity(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateExpectedQtyBase(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
