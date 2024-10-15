@@ -1,0 +1,49 @@
+table 341 "Item Discount Group"
+{
+    Caption = 'Item Discount Group';
+    LookupPageID = "Item Disc. Groups";
+
+    fields
+    {
+        field(1; "Code"; Code[20])
+        {
+            Caption = 'Code';
+            NotBlank = true;
+        }
+        field(2; Description; Text[100])
+        {
+            Caption = 'Description';
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Code")
+        {
+            Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+        fieldgroup(Brick; "Code", Description)
+        {
+        }
+    }
+
+    local procedure AsPriceAsset(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset.Init();
+        PriceAsset."Asset Type" := PriceAsset."Asset Type"::"Item Discount Group";
+        PriceAsset."Asset No." := "Code";
+    end;
+
+    procedure ShowPriceListLines(PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    var
+        PriceAsset: Record "Price Asset";
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        AsPriceAsset(PriceAsset);
+        PriceUXManagement.ShowPriceListLines(PriceAsset, PriceType, AmountType);
+    end;
+}

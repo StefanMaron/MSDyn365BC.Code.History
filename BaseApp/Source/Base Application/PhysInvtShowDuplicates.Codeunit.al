@@ -1,0 +1,67 @@
+codeunit 5886 "Phys. Invt.-Show Duplicates"
+{
+    TableNo = "Phys. Invt. Order Header";
+
+    trigger OnRun()
+    begin
+        PhysInvtOrderHeader.Copy(Rec);
+        Code;
+        Rec := PhysInvtOrderHeader;
+    end;
+
+    var
+        CheckingLinesMsg: Label 'Checking lines        #2######', Comment = '%2 = counter';
+        NoDuplicateLinesMsg: Label 'There are no duplicate order lines in order %1.', Comment = '%1 = Order No.';
+        DuplicatesFoundQst: Label 'There are %1 duplicate order lines in order %2.\Do you want to show it?', Comment = '%1 = duplicates count, %2 = Order No.';
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtOrderLine2: Record "Phys. Invt. Order Line";
+        Window: Dialog;
+        ErrorText: Text[250];
+        LineCount: Integer;
+        DuplicateCount: Integer;
+
+    procedure "Code"()
+    begin
+        with PhysInvtOrderHeader do begin
+            Window.Open(
+              '#1################################\\' + CheckingLinesMsg);
+            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+
+            LineCount := 0;
+            DuplicateCount := 0;
+            PhysInvtOrderLine.Reset();
+            PhysInvtOrderLine.SetRange("Document No.", "No.");
+            PhysInvtOrderLine.ClearMarks;
+            if PhysInvtOrderLine.Find('-') then
+                repeat
+                    LineCount := LineCount + 1;
+                    Window.Update(2, LineCount);
+                    if not PhysInvtOrderLine.EmptyLine then begin
+                        PhysInvtOrderLine.TestField("Item No.");
+                        if
+                           GetSamePhysInvtOrderLine(
+                             PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Variant Code",
+                             PhysInvtOrderLine."Location Code", PhysInvtOrderLine."Bin Code",
+                             ErrorText,
+                             PhysInvtOrderLine2) > 1
+                        then begin
+                            PhysInvtOrderLine.Mark(true);
+                            DuplicateCount := DuplicateCount + 1;
+                        end;
+                    end;
+                until PhysInvtOrderLine.Next = 0;
+
+            Window.Close;
+
+            if DuplicateCount = 0 then
+                Message(StrSubstNo(NoDuplicateLinesMsg, "No."))
+            else
+                if Confirm(StrSubstNo(DuplicatesFoundQst, DuplicateCount, "No."), true) then begin
+                    PhysInvtOrderLine.MarkedOnly(true);
+                    PAGE.Run(0, PhysInvtOrderLine);
+                end;
+        end;
+    end;
+}
+
