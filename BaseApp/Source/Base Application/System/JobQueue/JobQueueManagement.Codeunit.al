@@ -269,43 +269,65 @@ codeunit 456 "Job Queue Management"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        JobQueueEntry2: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        JobQueueLogEntry2: Record "Job Queue Log Entry";
     begin
-        if JobQueueEntry.WritePermission() then begin
+        if Session.CurrentClientType() <> ClientType::Web then
+            exit;
+
+        if JobQueueEntry2.WritePermission() then begin
             // Find all in process job queue entries
+            JobQueueEntry.ReadIsolation(IsolationLevel::ReadCommitted);
             JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
             if JobQueueEntry.FindSet() then
                 repeat
-                    // Check if job is still running or stale
-                    // JQE is stale if it has task no longer exists
-                    // If stale, set to error
-                    if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then begin
-                        JobQueueEntry.SetError(JobSomethingWentWrongMsg);
+                    JobQueueEntry2.Get(JobQueueEntry.ID);
+                    // Not modified in the last 10 minutes
+                    if JobQueueEntry2.SystemModifiedAt < CurrentDateTime() - GetCheckDelayInMinutes() then
+                        // Check if job is still running or stale
+                        // JQE is stale if it has task no longer exists
+                        // If stale, set to error
+                        if (not TaskScheduler.TaskExists(JobQueueEntry2."System Task ID")) and
+                        HasNoActiveSession(JobQueueEntry2."User Service Instance ID", JobQueueEntry2."User Session ID") then begin
+                            JobQueueEntry.SetError(JobSomethingWentWrongMsg);
 
-                        StaleJobQueueEntryTelemetry(JobQueueEntry);
-                    end;
+                            StaleJobQueueEntryTelemetry(JobQueueEntry);
+                        end;
                 until JobQueueEntry.Next() = 0;
         end;
 
-        if JobQueueLogEntry.WritePermission() then begin
+        if JobQueueLogEntry2.WritePermission() then begin
             // Find all in process job queue log entries
+            JobQueueLogEntry.ReadIsolation(IsolationLevel::ReadCommitted);
             JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::"In Process");
             if JobQueueLogEntry.FindSet() then
                 repeat
                     // Check if job should be processed
-                    if ShouldProcessStaleJobQueueLogEntries(JobQueueLogEntry) then
-                        // Check if job is still running or stale
-                        // JQLE is stale if it has no task or active session
-                        // If stale, set to error
-                        if not TaskScheduler.TaskExists(JobQueueLogEntry."System Task ID") or
-                            HasNoActiveSession(JobQueueLogEntry."User Service Instance ID", JobQueueLogEntry."User Session ID") then begin
-                            JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
-                            JobQueueLogEntry."Error Message" := JobSomethingWentWrongMsg;
-                            JobQueueLogEntry.Modify();
+                    if ShouldProcessStaleJobQueueLogEntries(JobQueueLogEntry) then begin
+                        JobQueueLogEntry2.Get(JobQueueLogEntry."Entry No.");
+                        // Not modified in the last 10 minutes
+                        if JobQueueLogEntry2.SystemModifiedAt < CurrentDateTime() - GetCheckDelayInMinutes() then
+                            // Check if job is still running or stale
+                            // JQLE is stale if it has no task or active session
+                            // If stale, set to error
+                            if (not TaskScheduler.TaskExists(JobQueueLogEntry2."System Task ID")) and
+                            HasNoActiveSession(JobQueueLogEntry2."User Service Instance ID", JobQueueLogEntry2."User Session ID") then begin
+                                JobQueueLogEntry2.Status := JobQueueLogEntry2.Status::Error;
+                                JobQueueLogEntry2."Error Message" := JobSomethingWentWrongMsg;
+                                JobQueueLogEntry2.Modify();
 
-                            StaleJobQueueLogEntryTelemetry(JobQueueLogEntry);
-                        end;
+                                StaleJobQueueLogEntryTelemetry(JobQueueLogEntry2);
+                            end;
+                    end;
                 until JobQueueLogEntry.Next() = 0;
         end;
+    end;
+
+    local procedure GetCheckDelayInMinutes(): Integer
+    begin
+        exit(1000 * 60 * 10); // 10 minutes
     end;
 
     local procedure HasNoActiveSession(ServerInstanceID: Integer; SessionID: Integer): Boolean

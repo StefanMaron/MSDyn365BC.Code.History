@@ -73,7 +73,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             CreateReservEntry.SetPlanningFlexibility(PurchaseLine."Planning Flexibility");
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(PurchaseLine, Quantity, QuantityBase, ForReservationEntry, IsHandled);
+        OnCreateReservationOnBeforeCreateReservEntry(PurchaseLine, Quantity, QuantityBase, ForReservationEntry, IsHandled, FromTrackingSpecification, ExpectedReceiptDate, Description, ShipmentDate);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
                 Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(),
@@ -966,7 +966,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservationOnBeforeCreateReservEntry(var PurchLine: Record "Purchase Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var PurchLine: Record "Purchase Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var FromTrackingSpecification: Record "Tracking Specification"; ExpectedReceiptDate: Date; var Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 

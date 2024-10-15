@@ -1293,7 +1293,7 @@ codeunit 99000845 "Reservation Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry, CalcReservEntry2, IsHandled);
+        OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry, CalcReservEntry2, IsHandled, Item, ItemTrackingCode, SKU, MfgSetup, Positive, Location, TotalAvailQty, QtyAllocInWhse, QtyReservedOnPickShip);
         if IsHandled then
             exit;
 
@@ -1804,6 +1804,7 @@ codeunit 99000845 "Reservation Management"
     var
         FromTrackingSpecification: Record "Tracking Specification";
         Sign: Integer;
+        IsHandled: Boolean;
     begin
         if Quantity < 0 then
             ToReservEntry."Shipment Date" := AvailabilityDate
@@ -1815,20 +1816,24 @@ codeunit 99000845 "Reservation Management"
         if FromReservEntry."Planning Flexibility" <> FromReservEntry."Planning Flexibility"::Unlimited then
             CreateReservEntry.SetPlanningFlexibility(FromReservEntry."Planning Flexibility");
 
-        Sign := CreateReservEntry.SignFactor(FromReservEntry);
-        CreateReservEntry.CreateReservEntryFor(
-          FromReservEntry."Source Type", FromReservEntry."Source Subtype", FromReservEntry."Source ID",
-          FromReservEntry."Source Batch Name", FromReservEntry."Source Prod. Order Line", FromReservEntry."Source Ref. No.",
-          FromReservEntry."Qty. per Unit of Measure", 0, Sign * Quantity,
-          FromReservEntry);
+        IsHandled := false;
+        OnMakeConnectionOnBeforeCreateReservEntry(FromReservEntry, ToReservEntry, Quantity, ReservationStatus, AvailabilityDate, Binding, FromTrackingSpecification, Sign, IsHandled);
+        if not IsHandled then begin
+            Sign := CreateReservEntry.SignFactor(FromReservEntry);
+            CreateReservEntry.CreateReservEntryFor(
+              FromReservEntry."Source Type", FromReservEntry."Source Subtype", FromReservEntry."Source ID",
+              FromReservEntry."Source Batch Name", FromReservEntry."Source Prod. Order Line", FromReservEntry."Source Ref. No.",
+              FromReservEntry."Qty. per Unit of Measure", 0, Sign * Quantity,
+              FromReservEntry);
 
-        FromTrackingSpecification.SetSourceFromReservEntry(ToReservEntry);
-        FromTrackingSpecification."Qty. per Unit of Measure" := ToReservEntry."Qty. per Unit of Measure";
-        FromTrackingSpecification.CopyTrackingFromReservEntry(ToReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
-        CreateReservEntry.SetApplyFromEntryNo(FromReservEntry."Appl.-from Item Entry");
-        CreateReservEntry.SetApplyToEntryNo(FromReservEntry."Appl.-to Item Entry");
-        CreateReservEntry.SetUntrackedSurplus(ToReservEntry."Untracked Surplus");
+            FromTrackingSpecification.SetSourceFromReservEntry(ToReservEntry);
+            FromTrackingSpecification."Qty. per Unit of Measure" := ToReservEntry."Qty. per Unit of Measure";
+            FromTrackingSpecification.CopyTrackingFromReservEntry(ToReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+            CreateReservEntry.SetApplyFromEntryNo(FromReservEntry."Appl.-from Item Entry");
+            CreateReservEntry.SetApplyToEntryNo(FromReservEntry."Appl.-to Item Entry");
+            CreateReservEntry.SetUntrackedSurplus(ToReservEntry."Untracked Surplus");
+        end;
 
         if IsSpecialOrderOrDropShipment(ToReservEntry) then begin
             if FromReservEntry."Source Type" = Database::"Purchase Line" then
@@ -3295,7 +3300,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean; var Item: record Item; var ItemTrackingCode: Record "Item Tracking Code"; var SKU: Record "Stockkeeping Unit"; var MfgSetup: Record "Manufacturing Setup"; var Positive: Boolean; var Location: Record Location; var TotalAvailQty: Decimal; var QtyAllocInWhse: Decimal; var QtyReservedOnPickShip: Decimal)
     begin
     end;
 
@@ -3321,6 +3326,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteReservEntriesOnAfterItemTrackingHandling(var ReservationEntry: Record "Reservation Entry"; var ItemTrackingHandling: Option "None","Allow deletion",Match)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeConnectionOnBeforeCreateReservEntry(var FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; var Quantity: Decimal; ReservationStatus: Enum "Reservation Status"; var AvailabilityDate: Date; ReservationBinding: Enum "Reservation Binding"; var FromTrackingSpecification: Record "Tracking Specification"; var Sign: Integer; var IsHandled: Boolean)
     begin
     end;
 }

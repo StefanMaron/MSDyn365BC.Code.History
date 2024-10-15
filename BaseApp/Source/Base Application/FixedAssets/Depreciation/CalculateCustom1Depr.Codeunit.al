@@ -337,6 +337,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
         FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
         FALedgEntry.SetRange("Part of Book Value", true);
         FALedgEntry.SetRange("FA Posting Date", 0D, Custom1DeprUntil);
+        FALedgEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         FALedgEntry.CalcSums(Amount);
         if (Sign = -1) and (FALedgEntry.Amount > 0) then
             Error(

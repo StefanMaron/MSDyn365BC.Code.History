@@ -11,6 +11,9 @@ codeunit 1883 "Sandbox Cleanup local"
         GovTalkSetup: Record "GovTalk Setup";
         nullGUID: Guid;
     begin
+        if CompanyName() <> CompanyName then
+            GovTalkSetup.ChangeCompany(CompanyName);
+
         GovTalkSetup.ModifyAll(Password, nullGUID);
     end;
 }

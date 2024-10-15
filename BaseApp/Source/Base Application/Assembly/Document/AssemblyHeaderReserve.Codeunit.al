@@ -62,11 +62,15 @@ codeunit 925 "Assembly Header-Reserve"
         if AssemblyHeader."Planning Flexibility" <> AssemblyHeader."Planning Flexibility"::Unlimited then
             CreateReservEntry.SetPlanningFlexibility(AssemblyHeader."Planning Flexibility");
 
-        CreateReservEntry.CreateReservEntryFor(
-          Database::"Assembly Header", AssemblyHeader."Document Type".AsInteger(),
-          AssemblyHeader."No.", '', 0, 0, AssemblyHeader."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(AssemblyHeader, Quantity, QuantityBase, ForReservEntry, FromTrackingSpecification, IsHandled, ExpectedReceiptDate, Description, ShipmentDate);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+              Database::"Assembly Header", AssemblyHeader."Document Type".AsInteger(),
+              AssemblyHeader."No.", '', 0, 0, AssemblyHeader."Qty. per Unit of Measure",
+              Quantity, QuantityBase, ForReservEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
           AssemblyHeader."Item No.", AssemblyHeader."Variant Code", AssemblyHeader."Location Code",
           Description, ExpectedReceiptDate, ShipmentDate, 0);
@@ -564,6 +568,11 @@ codeunit 925 "Assembly Header-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservation(var AssemblyHeader: Record "Assembly Header"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry"; FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var AssemblyHeader: Record "Assembly Header"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 }
