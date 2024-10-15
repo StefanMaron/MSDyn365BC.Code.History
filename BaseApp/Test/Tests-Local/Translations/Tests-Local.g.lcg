@@ -3758,6 +3758,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Complex Rules - NamedType XPathPurchBaseDetalleIVATok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2120928477 - NamedType 530127432" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Corrected Invoice No. must have a value in Sales Header]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Corrective Documents - NamedType CorrectedInvoiceNoMustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2120928477 - NamedType 2437985021" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/]]></Val>

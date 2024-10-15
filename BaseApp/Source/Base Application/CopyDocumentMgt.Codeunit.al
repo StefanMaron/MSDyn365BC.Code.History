@@ -600,6 +600,7 @@
             OnCopySalesDocUpdateHeaderOnBeforeValidateLocationCode(ToSalesHeader, IsHandled);
             if not IsHandled then
                 if MoveNegLines or IncludeHeader then
+                  if not IsCreditDocType() then
                     Validate("Location Code");
 
             CopyShiptoCodeFromInvToCrMemo(ToSalesHeader, FromSalesInvHeader, FromDocType);
