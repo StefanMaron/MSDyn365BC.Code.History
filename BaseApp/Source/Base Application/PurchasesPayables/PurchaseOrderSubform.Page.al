@@ -1502,6 +1502,7 @@
             Commit();
             if not PurchLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
+            OnBeforeDeleteReservationEntries(Rec);
             PurchLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.PurchaseDocTotalsNotUpToDate();
@@ -1962,6 +1963,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeleteReservationEntries(var PurchaseLine: Record "Purchase Line");
     begin
     end;
 }

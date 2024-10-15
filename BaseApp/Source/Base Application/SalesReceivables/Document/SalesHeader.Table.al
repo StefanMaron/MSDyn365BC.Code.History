@@ -530,6 +530,10 @@
                     if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
                         Error(Text1130013, FieldCaption("Posting Date"), FieldCaption("Posting No."));
 
+                GLSetup.Get();
+                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+
                 if "Document Type" <> "Document Type"::Quote then begin
                     if "Document Date" > "Posting Date" then begin
                         IsHandled := false;
@@ -571,10 +575,6 @@
                     if DeferralHeadersExist() then
                         ConfirmUpdateDeferralDate();
                 SynchronizeAsmHeader();
-
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
             end;
         }
         field(21; "Shipment Date"; Date)
@@ -1557,6 +1557,8 @@
                 if not CheckVATExemption then
                     "Document Date" := xRec."Document Date";
                 GLSetup.Get();
+                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor();
                     if "Currency Factor" <> xRec."Currency Factor" then
@@ -1570,10 +1572,6 @@
 
                 if UpdateDocumentDate and ("Document Type" = "Document Type"::Quote) and ("Document Date" <> 0D) then
                     CalcQuoteValidUntilDate();
-
-                GLSetup.Get();
-                GLSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
             end;
         }
         field(100; "External Document No."; Code[35])
@@ -2291,12 +2289,26 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if "VAT Reporting Date" = 0D then
-                    InitVATDate();
+                if "VAT Reporting Date" = 0D then begin
+                    IsHandled := false;
+                    OnValidateVATReportingDateOnBeforeInitVATDate(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        InitVATDate();
+                end;
             end;
         }
         field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
@@ -5177,7 +5189,7 @@
             end;
         end;
 
-        OnAfterUpdateBillToCust(SalesHeader, Cont);
+        OnAfterUpdateBillToCust(Rec, Cont);
     end;
 
     local procedure UpdateBillToCustContact(Cont: Record Contact)
@@ -5376,9 +5388,9 @@
     begin
         if not IsCreditDocType() then
             exit;
-        Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
+        Rec."Rcvd.-from Count./Region Code" := RcvdFromCountryRegionCode;
     end;
-    
+
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -5440,6 +5452,7 @@
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnBeforeUpdateSalesLines(Rec, xRec);
         if OldDimSetID <> "Dimension Set ID" then begin
+            OnShowDocDimOnBeforeSalesHeaderModify(Rec);
             Modify();
             if SalesLinesExist() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -5673,8 +5686,12 @@
     procedure CalcInvDiscForHeader()
     var
         SalesInvDisc: Codeunit "Sales-Calc. Discount";
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcInvDiscForHeader(Rec);
+        IsHandled := false;
+        OnBeforeCalcInvDiscForHeader(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         GetSalesSetup();
         if SalesSetup."Calc. Inv. Discount" then
@@ -6293,6 +6310,7 @@
         if TempSalesLine.FindSet() then
             repeat
                 InitSalesLineDefaultDimSource(DefaultDimSource, TempSalesLine);
+                OnCreateDimSetForPrepmtAccDefaultDimOnBeforeTempSalesLineCreateDim(DefaultDimSource, TempSalesLine);
                 TempSalesLine.CreateDim(DefaultDimSource);
             until TempSalesLine.Next() = 0;
     end;
@@ -8404,6 +8422,8 @@
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
+        OnBeforeInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+
         DimMgt.AddDimSource(DefaultDimSource, Database::Customer, Rec."Bill-to Customer No.", FieldNo = Rec.FieldNo("Bill-to Customer No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salesperson Code", FieldNo = Rec.FieldNo("Salesperson Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FieldNo = Rec.FieldNo("Campaign No."));
@@ -8471,7 +8491,7 @@
 
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
-    
+
     internal procedure SetTrackInfoForCancellation()
     var
         CancelledDocument: Record "Cancelled Document";
@@ -10026,7 +10046,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscForHeader(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeCalcInvDiscForHeader(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -10227,6 +10247,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySellToCustomerAddressFieldsFromCustomerOnBeforeUpdateLocation(var SalesHeader: Record "Sales Header"; var SellToCustomer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATReportingDateOnBeforeInitVATDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDocDimOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimSetForPrepmtAccDefaultDimOnBeforeTempSalesLineCreateDim(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitDefaultDimensionSources(var SalesHeader: Record "Sales Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 }

@@ -537,14 +537,19 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransRcptLine."Prod. Order No." := TransLine."Prod. Order No.";
         TransRcptLine."Prod. Order Line No." := TransLine."Prod. Order Line No.";
         TransRcptLine."Prod. Order Comp. Line No." := TransLine."Prod. Order Comp. Line No.";
-        if TransRcptLine.Quantity = 0 then
-            if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order,
-                 TransRcptLine."Subcontr. Purch. Order No.",
-                 TransRcptLine."Subcontr. Purch. Order Line")
-            then begin
-                PurchOrderLine."Not Proc. WIP Qty to Receive" -= TransLine."WIP Quantity";
-                PurchOrderLine.Modify();
-            end;
+
+        IsHandled := false;
+        OnInsertTransRcptLineOnBeforeUpdateSubcontractPurchOrderLine(TransferReceiptHeader, TransRcptLine, TransLine, IsHandled);
+        if not IsHandled then
+            if TransRcptLine.Quantity = 0 then
+                if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order,
+                     TransRcptLine."Subcontr. Purch. Order No.",
+                     TransRcptLine."Subcontr. Purch. Order Line")
+                then begin
+                    PurchOrderLine."Not Proc. WIP Qty to Receive" -= TransLine."WIP Quantity";
+                    PurchOrderLine.Modify();
+                end;
+
         TransRcptLine."Return Order" := TransLine."Return Order";
         IsHandled := false;
         OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, IsHandled, TransferReceiptHeader);
@@ -974,6 +979,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransRcptLineOnBeforeUpdateSubcontractPurchOrderLine(var TransferReceiptHeader: Record "Transfer Receipt Header"; var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 }

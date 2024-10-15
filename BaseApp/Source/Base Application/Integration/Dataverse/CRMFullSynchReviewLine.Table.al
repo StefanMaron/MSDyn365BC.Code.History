@@ -397,8 +397,8 @@ table 5373 "CRM Full Synch. Review Line"
     begin
         if DependencyFilter <> '' then begin
             CRMFullSynchReviewLine.SetFilter(Name, DependencyFilter);
-            CRMFullSynchReviewLine.SetFilter(
-              "Job Queue Entry Status", '<>%1', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+            CRMFullSynchReviewLine.SetFilter("Job Queue Entry Status", '<>%1', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+            CRMFullSynchReviewLine.SetFilter("Initial Synch Recommendation", '<>%1', CRMFullSynchReviewLine."Initial Synch Recommendation"::"No Records Found");
             exit(CRMFullSynchReviewLine.IsEmpty);
         end;
         exit(true);

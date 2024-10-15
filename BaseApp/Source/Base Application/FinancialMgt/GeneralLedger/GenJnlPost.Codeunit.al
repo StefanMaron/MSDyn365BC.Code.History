@@ -54,9 +54,12 @@ codeunit 231 "Gen. Jnl.-Post"
 
             OnCodeOnAfterCheckTemplate(GenJnlLine);
 
-            if not (PreviewMode or HideDialog) then
-                if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
-                    exit;
+            IsHandled := false;
+            OnCodeOnBeforeConfirmPostJournalLinesResponse(GenJnlLine, IsHandled);
+            if not IsHandled then
+                if not (PreviewMode or HideDialog) then
+                    if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
+                        exit;
 
             if "Account Type" = "Account Type"::"Fixed Asset" then begin
                 FALedgEntry.SetRange("FA No.", "Account No.");
@@ -182,6 +185,11 @@ codeunit 231 "Gen. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenJnlLineSetFilter(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeConfirmPostJournalLinesResponse(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

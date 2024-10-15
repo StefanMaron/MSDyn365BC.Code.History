@@ -934,6 +934,25 @@
             Caption = 'Return Qty. Shipped (Base)';
             DecimalPlaces = 0 : 5;
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %';
+            DecimalPlaces = 0 : 5;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Base';
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Amount';
+        }
+        field(6203; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+        }
         field(6600; "Return Shipment No."; Code[20])
         {
             Caption = 'Return Shipment No.';

@@ -242,6 +242,8 @@ report 12173 "Issued Cust Bills Floppy"
 
     [Scope('OnPrem')]
     procedure RECORD14(Lines: Record "Issued Customer Bill Line")
+    var
+        IsHandled: Boolean;
     begin
         with Lines do begin
             if "Cumulative Bank Receipts" then
@@ -261,6 +263,11 @@ report 12173 "Issued Cust Bills Floppy"
               Sign +
               ConvertStr(Format(ABI, 5), ' ', '0') +
               ConvertStr(Format(CAB, 5), ' ', '0');
+
+            IsHandled := false;
+            OnRECORD14OnAfterAssignOutText(Lines, OutText, IsHandled);
+            if IsHandled then
+                exit;
 
             if CustBankAcc.Get("Customer No.", "Customer Bank Acc. No.") then begin
                 CustBankAcc.TestField(ABI);
@@ -295,14 +302,23 @@ report 12173 "Issued Cust Bills Floppy"
               Format(CompanyInfo.City, 24);
 
             OutText := PadStr(OutText, 120, FillChar);
+
+            OnRECORD20OnAfterAssignOutText(Lines, OutText);
         end;
     end;
 
     [Scope('OnPrem')]
     procedure RECORD30(Lines: Record "Issued Customer Bill Line")
+    var
+        IsHandled: Boolean;
     begin
         with Lines do begin
             OutText := ' 30' + ConvertStr(Format(BRProgr, 7), ' ', '0');
+
+            IsHandled := false;
+            OnRECORD30OnAfterAssignOutText(Lines, OutText, IsHandled);
+            if IsHandled then
+                exit;
 
             if Cust.Get("Customer No.") then
                 OutText := OutText + Format(Cust.Name, 30) + Format(Cust."Name 2", 30);
@@ -318,10 +334,17 @@ report 12173 "Issued Cust Bills Floppy"
 
     [Scope('OnPrem')]
     procedure RECORD40(Lines: Record "Issued Customer Bill Line")
+    var
+        IsHandled: Boolean;
     begin
         with Lines do begin
             OutText := ' 40' +
               ConvertStr(Format(BRProgr, 7), ' ', '0');
+
+            IsHandled := false;
+            OnRECORD40OnAfterAssignOutText(Lines, OutText, IsHandled);
+            if IsHandled then
+                exit;
 
             if Cust.Get("Customer No.") then begin
                 if Cust.Address = '' then
@@ -384,6 +407,8 @@ report 12173 "Issued Cust Bills Floppy"
               Format(CompanyInfo."Autoriz. Date", 6, 5);
 
             OutText := PadStr(OutText, 120, FillChar);
+
+            OnRECORD51OnAfterAssignOutText(Lines, OutText);
         end;
     end;
 
@@ -395,6 +420,8 @@ report 12173 "Issued Cust Bills Floppy"
               ConvertStr(Format(BRProgr, 7), ' ', '0');
 
             OutText := PadStr(OutText, 120, FillChar);
+
+            OnRECORD70OnAfterAssignOutText(Lines, OutText);
         end;
     end;
 
@@ -433,6 +460,36 @@ report 12173 "Issued Cust Bills Floppy"
 
     [IntegrationEvent(false, false)]
     local procedure OnRECORD50OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD14OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD20OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD30OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD40OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD51OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD70OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120])
     begin
     end;
 }

@@ -1580,6 +1580,15 @@
       <Cmt Name="Dev"><![CDATA[Single character string is required for the field 770 Code which is of 1 character]D;]A;(LookupHint=Codeunit ERM Plafond - Withhold Tax - NamedType StringTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3959304027 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Field Value]D;]A;(LookupHint=Codeunit ERM Plafond - Withhold Tax - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3959304027 - NamedType 635752351" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You have not specified any withhold code lines for withhold code]]></Val>

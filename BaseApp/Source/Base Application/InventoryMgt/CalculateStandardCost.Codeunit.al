@@ -581,7 +581,9 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcProdBOMCost(MfgItem, ProdBOMNo, RtngNo, MfgItemQtyBase, IsTypeItem, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, isHandled);
+        OnBeforeCalcProdBOMCost(
+            MfgItem, ProdBOMNo, RtngNo, MfgItemQtyBase, IsTypeItem, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd, IsHandled,
+            CalculationDate, LogErrors, TempRoutingVersion, TempProductionBOMVersion);
         if IsHandled then
             exit;
 
@@ -622,7 +624,8 @@
                                         IncrCost(SLMat, CompItem."Unit Cost", CompItemQtyBase);
                                         IncrCost(RUMat, CompItem."Unit Cost", CompItemQtyBase);
                                     end;
-                                OnCalcProdBOMCostOnAfterCalcAnyItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor);
+                                OnCalcProdBOMCostOnAfterCalcAnyItem(ProdBOMLine, MfgItem, MfgItemQtyBase, CompItem, CompItemQtyBase, Level, IsTypeItem, UOMFactor,
+                                                                    SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
                             end;
                         Type::"Production BOM":
                             CalcProdBOMCost(
@@ -1122,7 +1125,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdBOMCostOnAfterCalcAnyItem(var ProductionBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal)
+    local procedure OnCalcProdBOMCostOnAfterCalcAnyItem(var ProductionBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal)
     begin
     end;
 
@@ -1152,7 +1155,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcProdBOMCost(MfgItem: Record Item; ProdBOMNo: Code[20]; RtngNo: Code[20]; MfgItemQtyBase: Decimal; IsTypeItem: Boolean; Level: Integer; var SLMat: Decimal; var RUMat: Decimal; var RUCap: Decimal; var RUSub: Decimal; var RUCapOvhd: Decimal; var RUMfgOvhd: Decimal; var IsHandled: Boolean; var CalculationDate: Date; var LogErrors: Boolean; var TempRoutingVersion: Record "Routing Version" temporary; var TempProductionBOMVersion: Record "Production BOM Version" temporary)
     begin
     end;
 

@@ -244,6 +244,24 @@
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
         }
+        field(6200; "Non-Deductible VAT Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Amount';
+            Editable = false;
+        }
+        field(6201; "Non-Deductible VAT Amount LCY"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Amount LCY';
+            Editable = false;
+        }
+        field(6202; "Non-Deductible VAT Amount ACY"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            Caption = 'Non-Deductible VAT Amount ACY';
+            Editable = false;
+        }
         field(12100; "Bank Receipt Issued"; Boolean)
         {
             Caption = 'Bank Receipt Issued';

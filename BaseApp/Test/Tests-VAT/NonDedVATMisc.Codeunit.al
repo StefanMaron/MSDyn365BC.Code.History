@@ -15,6 +15,7 @@ codeunit 134284 "Non Ded. VAT Misc."
         LibraryFA: Codeunit "Library - Fixed Asset";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
@@ -819,6 +820,46 @@ codeunit 134284 "Non Ded. VAT Misc."
         TearDownLastUsedDateInPurchInvoiceNoSeries();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JournalLineWithDeferralAndNonDeductibleVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplate: Record "Deferral Template";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 475879] Posting results are correct for journal line with deferrals and Non-Deductible VAT
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup "V" with "VAT %" = 20 and "Deductible %" = 40% and "Non-Deductible VAT Account" = <blank>
+        CreateNonDeductibleVATPostingSetup(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          '', 3 * LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] "Deferral Template" "DT" with "Period No." = 2 and "Calc. Method" = "Straight-Line"
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
+          DeferralTemplate."Start Date"::"Beginning of Next Period", LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] General journal line with Amount = 1000, "Deferral Code" = "DT" and VAT setup = "V"
+        // [GIVEN] Posting G/L Account = "GLA"
+        CreateGenJnlLineWithDeferralAndDedVATCustom(
+            GenJournalLine, WorkDate(), VATPostingSetup, '',
+            DeferralTemplate."Deferral Code", LibraryRandom.RandDecInRange(1000, 2000, 2));
+
+        // [WHEN] Post purchase invoice
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Total Deferral Amount = 1000 * (20% VAT * (100% - 40% Deductible VAT)) = 1000 + (1000 * 20%) * 60% = 1000 + 200 * 60% = 1120.
+        // [THEN] Non-Deductible VAT Amount to defer = 120
+        // [THEN] Non-Deductible VAT Amount posted to "GLA"
+        // [THEN] G/L Entries for "GLA" = 1000, 120 and balanced with deferall account -1000, -120, 500, 60, 500, 60.
+        VerifyGLEntryDeferrals(
+            DeferralTemplate."Deferral Account", GenJournalLine."Account No.", GenJournalLine."VAT Base Amount (LCY)", VATPostingSetup, DeferralTemplate, GenJournalLine."Posting Date");
+
+        TearDownLastUsedDateInPurchInvoiceNoSeries();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -973,12 +1014,24 @@ codeunit 134284 "Non Ded. VAT Misc."
     end;
 
     local procedure CreatePurchInvoiceWithDeferralAndDedVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; DeferralCode: Code[10]; DirectUnitCost: Decimal)
+    begin
+        CreatePurchInvoiceWithDeferralAndDedVATCustom(PurchaseHeader, PurchaseLine, PostingDate, VATPostingSetup, '', DeferralCode, DirectUnitCost);
+    end;
+
+    local procedure CreatePurchInvoiceWithDeferralAndDedVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; DeferralCode: Code[10]; DirectUnitCost: Decimal)
+    begin
+        CreatePurchInvoiceWithDeferralAndDedVATCustom(PurchaseHeader, PurchaseLine, PostingDate, VATPostingSetup, CurrencyCode, DeferralCode, DirectUnitCost);
+    end;
+
+    local procedure CreatePurchInvoiceWithDeferralAndDedVATCustom(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; DeferralCode: Code[10]; DirectUnitCost: Decimal)
     var
         GLAccount: Record "G/L Account";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.SetHideValidationDialog(true);
         PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
@@ -986,6 +1039,20 @@ codeunit 134284 "Non Ded. VAT Misc."
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Validate("Deferral Code", DeferralCode);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateGenJnlLineWithDeferralAndDedVATCustom(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; DeferralCode: Code[10]; DirectUnitCost: Decimal)
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        //q1
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Deferral Code", DeferralCode);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreatePurchaseLineGL(PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; DirectUnitCost: Decimal; DimensionValue: Record "Dimension Value")
@@ -1115,15 +1182,15 @@ codeunit 134284 "Non Ded. VAT Misc."
         exit(VATPostingSetup."Non-Ded. Purchase VAT Account");
     end;
 
-    local procedure GetNonDeductibleVATExpectedAmount(VATPostingSetup: Record "VAT Posting Setup"; PurchaseLine: Record "Purchase Line"): Decimal
+    local procedure GetNonDeductibleVATExpectedAmount(VATPostingSetup: Record "VAT Posting Setup"; Amount: Decimal): Decimal
     var
         NonDeductibleVATAmount: Decimal;
     begin
-        NonDeductibleVATAmount := Round(PurchaseLine.Amount * VATPostingSetup."VAT %" / 100);
+        NonDeductibleVATAmount := Round(Amount * VATPostingSetup."VAT %" / 100);
         NonDeductibleVATAmount := Round(NonDeductibleVATAmount * (100 - GetDeductibleVATPctFromVATPostingSetup(VATPostingSetup)) / 100);
 
         if VATPostingSetup."Non-Ded. Purchase VAT Account" = '' then
-            exit(PurchaseLine.Amount + NonDeductibleVATAmount);
+            exit(Amount + NonDeductibleVATAmount);
 
         exit(NonDeductibleVATAmount);
     end;
@@ -1190,10 +1257,15 @@ codeunit 134284 "Non Ded. VAT Misc."
 
     local procedure VerifyGLEntryDeferrals(DeferralAccountNo: Code[20]; PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DeferralTemplate: Record "Deferral Template")
     begin
-        VerifyGLEntryDeferrals(DeferralAccountNo, PurchaseLine, VATPostingSetup, DeferralTemplate, WorkDate());
+        VerifyGLEntryDeferrals(DeferralAccountNo, PurchaseLine."No.", PurchaseLine.Amount, VATPostingSetup, DeferralTemplate, WorkDate());
     end;
 
     local procedure VerifyGLEntryDeferrals(DeferralAccountNo: Code[20]; PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DeferralTemplate: Record "Deferral Template"; PostingDate: Date)
+    begin
+        VerifyGLEntryDeferrals(DeferralAccountNo, PurchaseLine."No.", PurchaseLine.Amount, VATPostingSetup, DeferralTemplate, PostingDate);
+    end;
+
+    local procedure VerifyGLEntryDeferrals(DeferralAccountNo: Code[20]; PostingGLAccNo: Code[20]; Amount: Decimal; VATPostingSetup: Record "VAT Posting Setup"; DeferralTemplate: Record "Deferral Template"; PostingDate: Date)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1203,17 +1275,17 @@ codeunit 134284 "Non Ded. VAT Misc."
         Assert.RecordCount(GLEntry, (DeferralTemplate."No. of Periods" + 1) * 2);
 
         Clear(GLEntry);
-        GLEntry.SetRange("G/L Account No.", GetNonDeductibleVATAccountNo(VATPostingSetup, PurchaseLine."No."));
+        GLEntry.SetRange("G/L Account No.", GetNonDeductibleVATAccountNo(VATPostingSetup, PostingGLAccNo));
         GLEntry.SetFilter(Amount, '<%1', 0);
         GLEntry.CalcSums(Amount);
-        GLEntry.TestField(Amount, -GetNonDeductibleVATExpectedAmount(VATPostingSetup, PurchaseLine));
+        GLEntry.TestField(Amount, -GetNonDeductibleVATExpectedAmount(VATPostingSetup, Amount));
         if VATPostingSetup."Non-Ded. Purchase VAT Account" <> '' then
             Assert.RecordCount(GLEntry, 1)
         else
             Assert.RecordCount(GLEntry, 2);
 
         Clear(GLEntry);
-        GLEntry.SetRange("G/L Account No.", GetNonDeductibleVATAccountNo(VATPostingSetup, PurchaseLine."No."));
+        GLEntry.SetRange("G/L Account No.", GetNonDeductibleVATAccountNo(VATPostingSetup, PostingGLAccNo));
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.CalcSums(Amount);
         GLEntry.TestField(Amount, 0);
@@ -1221,6 +1293,16 @@ codeunit 134284 "Non Ded. VAT Misc."
             Assert.RecordCount(GLEntry, 2)
         else
             Assert.RecordCount(GLEntry, 4);
+    end;
+
+    local procedure VerifyGLEntriesDeferralsAmount(DeferralAccountNo: Code[20]; PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DeferralTemplate: Record "Deferral Template")
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GetNonDeductibleVATAccountNo(VATPostingSetup, PurchaseLine."No."));
+        GLEntry.SetFilter(Amount, '<%1', 0);
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, -GetNonDeductibleVATExpectedAmount(VATPostingSetup, PurchaseLine.Amount));
     end;
 
     local procedure VerifyGLEntryFAEntryLinedPair(GLEntry: Record "G/L Entry")

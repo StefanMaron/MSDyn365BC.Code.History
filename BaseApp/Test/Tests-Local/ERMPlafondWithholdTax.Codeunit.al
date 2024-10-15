@@ -69,9 +69,11 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         WithholdCodeErr: Label 'You have not specified any withhold code lines for withhold code';
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibrarySales: Codeunit "Library - Sales";
         BillReferenceCap: Label 'BillReference';
         WithHoldTaxAmountErr: Label '%1 should be equal to %2.', Comment = '%1 = Field Caption,%2 = Field Value';
         RecalculateINPSMsg: Label 'Please recalculate %1 and %2 from the Withholding - INPS.', Comment = '%1 = FIELDCAPTION("Withholding Tax Amount"), %2 = FIELDCAPTION("Social Security Amount")';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2.', Comment = '%1 = Field Caption , %2 = Field Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -438,6 +440,64 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         VendorBillLine.TestField("Amount to Pay", ExpectedAmountToPay);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AllowPostingForIssuedBillCardIfDifferentPurchaserCodeAreSelectedInPurchaseInvoice()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        SalespersonPurchaserNew: Record "Salesperson/Purchaser";
+        ExpectedDimesnionSetID: Integer;
+    begin
+        // [SCENARIO 473200] Verify Posting is allowed for Issued bill card if different purchaser code are selected in the Posted purchase invoice.
+        Initialize();
+
+        // [GIVEN] Created multiple SalesPerson/Purchaser with Default Dimension.
+        CreateMultiplePurchaserWithDefaultDimension(SalespersonPurchaser, SalespersonPurchaserNew);
+
+        // [GIVEN] Created a Vendor Bill Header with a Bank Account, Bill Posting Group and Payment Method.
+        VendorBillHeader.Get(CreateVendorBillHeader());
+
+        // [GIVEN] Create a Vendor with SalesPerson/Purchaser and Payment Method Code.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Purchaser Code", SalespersonPurchaser.Code);
+        Vendor.Validate("Payment Method Code", VendorBillHeader."Payment Method Code");
+        Vendor.Modify();
+
+        // [GIVEN] Create a Purchase invoice with the new Salesperson/Purchaser.
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.Validate("Purchaser Code", SalespersonPurchaserNew.Code);
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Save Dimension Set ID in a variable.
+        ExpectedDimesnionSetID := PurchaseHeader."Dimension Set ID";
+
+        // [GIVEN] Post the Purchase Invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Issued Vendor Bill for Purchase Invoice.
+        RunSuggestVendorBills(VendorBillHeader, Vendor."No.");
+        LibraryITLocalization.IssueVendorBill(VendorBillHeader);
+
+        // [WHEN] Post Issued Vendor Bill.
+        LibraryITLocalization.PostIssuedVendorBill(VendorBillHeader);
+
+        // [VERIFY] Verify the Dimension Set ID in the Vendor Ledger Entry for the posted vendor bill.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindLast();
+        Assert.AreEqual(
+            ExpectedDimesnionSetID,
+            VendorLedgerEntry."Dimension Set ID",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                VendorLedgerEntry.FieldCaption("Dimension Set ID"),
+                ExpectedDimesnionSetID));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -786,6 +846,27 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         ManualVendorPaymentLine.InsertLine.Invoke;
         VendorBillHeaderNo := VendorBillCard."No.".Value;
         VendorBillCard.Close();
+    end;
+
+    local procedure CreateMultiplePurchaserWithDefaultDimension(
+        var SalespersonPurchaser: Record "Salesperson/Purchaser";
+        var SalespersonPurchaserNew: Record "Salesperson/Purchaser")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+            DefaultDimension,
+            Database::"Salesperson/Purchaser",
+            SalespersonPurchaser.Code,
+            "Default Dimension Value Posting Type"::"Same Code");
+
+        LibrarySales.CreateSalesperson(SalespersonPurchaserNew);
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+            DefaultDimension,
+            Database::"Salesperson/Purchaser",
+            SalespersonPurchaserNew.Code,
+            "Default Dimension Value Posting Type"::"Same Code");
     end;
 
     [RequestPageHandler]

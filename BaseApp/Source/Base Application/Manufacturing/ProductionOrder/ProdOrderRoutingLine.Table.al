@@ -1161,6 +1161,11 @@
             CalculateRoutingForward();
         end;
 
+        if Rec."Schedule Manually" then begin
+            ProdOrderRoutingLine.Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
+            CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, PlanningDirection, false);
+        end;
+
         Get(Status, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
         GetProdOrderLine();
         if PlanningDirection = PlanningDirection::Forward then

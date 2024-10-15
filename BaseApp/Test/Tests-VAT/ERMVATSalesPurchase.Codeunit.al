@@ -1,4 +1,4 @@
-codeunit 134045 "ERM VAT Sales/Purchase"
+﻿codeunit 134045 "ERM VAT Sales/Purchase"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -35,6 +35,20 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         TooManyValuableSalesEntriesErr: Label 'Too many valuable Sales Lines found.', Comment = '.';
         TooManyValuablePurchaseEntriesErr: Label 'Too many valuable Purchase Lines found.', Comment = '.';
         VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
+
+    [Test]
+    procedure VerifyVATDateEqualsToPostingDate()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        Initialize();
+
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", WorkDate());
+
+        // verify after validating Posting Date, the VAT Date is the same as Posting Date
+        Assert.AreEqual(SalesHeader."Posting Date", SalesHeader."VAT Reporting Date", 'VAT Date should be the same Posting Date by default');
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -3237,6 +3251,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     local procedure ModifyInvRoundingInPurchSetup(InvoiceRounding: Boolean)
+        
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
@@ -3282,6 +3297,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         BlanketSalesOrder.OpenEdit;
         BlanketSalesOrder.FILTER.SetFilter("No.", DocumentNo);
         BlanketSalesOrder.Statistics.Invoke;
+        
     end;
 
     local procedure OpenSalesInvoiceStatistics(DocumentNo: Code[20])
@@ -3926,6 +3942,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PostingDate, VATDate : Variant;
     begin
+    
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
         BatchPostPurchInvoices.ReplacePostingDate.SetValue(true);
@@ -3952,6 +3969,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [RequestPageHandler]
     procedure BatchPostSalesReturnOrdersRequestPageHandler(var BatchPostSalesReturnOrders: TestRequestPage "Batch Post Sales Return Orders")
     begin
+        
         Assert.IsFalse(BatchPostSalesReturnOrders.VATDate.Visible(), '');
         Assert.IsFalse(BatchPostSalesReturnOrders.ReplaceVATDate.Visible(), '');
     end;

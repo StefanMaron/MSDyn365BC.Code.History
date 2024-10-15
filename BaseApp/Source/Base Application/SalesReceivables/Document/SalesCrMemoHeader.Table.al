@@ -497,7 +497,15 @@
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -733,7 +741,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Original Document Type" = CONST("Credit Memo"), "Original Document No." = FIELD("No.")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Original Document Type" = CONST("Credit Memo"), "Original Document No." = FIELD("No.")));
             Caption = 'Document Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -1077,7 +1085,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEmailRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; ShowDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeEmailRecords(var ReportSelections: Record "Report Selections"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocTxt: Text; var ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

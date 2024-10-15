@@ -1618,7 +1618,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Last(Fields!ABS_ReclassDeprAmount_.Value)</Value>
+                                                    <Value>=Last(Fields!ABS_TotalReclassDeprAmount__Control1130213.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Last(Fields!ABS_ReclassDeprAmount_Format.Value)</Format>
@@ -2620,7 +2620,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Last(Fields!ABS_ReclassDeprAmount_.Value)</Value>
+                                                    <Value>=Last(Fields!ABS_TotalReclassDeprAmount__Control1130213.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Last(Fields!ABS_ReclassDeprAmount_Format.Value)</Format>
@@ -3655,7 +3655,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Last(Fields!ABS_ReclassDeprAmount_.Value)</Value>
+                                                    <Value>=Last(Fields!ABS_TotalReclassDeprAmount__Control1130213.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Format>=Last(Fields!ABS_ReclassDeprAmount_Format.Value)</Format>

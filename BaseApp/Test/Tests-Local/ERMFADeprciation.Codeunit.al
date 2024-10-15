@@ -1014,6 +1014,77 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyEndTotalAmountForDisposalInPeriodAndReclassDepreciationColumn()
+    var
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        DepreciationTableCode: Code[10];
+        DepreciationBookCode: Code[10];
+        FAPostingGroupCode: Code[20];
+        DepreciationAmount: Decimal;
+        AcqCostPercentage: Decimal;
+    begin
+        // [SCENARIO 475594] Verify the End Total Amount for disposal in period and reclass/depreciation in the Depreciation Book report.
+        Initialize();
+
+        // [GIVEN] Created a depreciation book and table code, FA Posting Group.
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        CreateFAPostingGroup(FAPostingGroupCode);
+
+        // [GIVEN] Generate a random Depreciation Amount and Acquisition Cost Percentage and save them in a variable.
+        DepreciationAmount := LibraryRandom.RandIntInRange(3000, 4000);
+        AcqCostPercentage := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Created a Fixed Asset "FA1".
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[1], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+
+        // [GIVEN] Create and Post a Gen journal Line with FA Posting Type "Aquisition Cost".
+        CreateAndPostGenJournalLine(
+            FADepreciationBook[1],
+            GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            LibraryRandom.RandIntInRange(10000, 20000),
+            CalcDate('<-CY>', WorkDate()));
+
+        // [GIVEN] Create and Post a Gen journal Line with FA Posting Type "Depreciation".
+        CreateAndPostGenJournalLine(
+            FADepreciationBook[1],
+            GenJournalLine."FA Posting Type"::Depreciation,
+            -DepreciationAmount,
+            CalcDate('<-CY>', WorkDate()));
+
+        // [GIVEN] "FA1" partially reclassified to "FA2".
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[2], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+        ReclassifyAndPostFAReclassJournal(
+            CreateFAReclassJournalLineWithAcqCostPercentage(
+                FADepreciationBook,
+                AcqCostpercentage,
+                CalcDate('<CY>', WorkDate())),
+            DepreciationBookCode);
+
+        // [GIVEN] Create and Post a Gen journal Line with FA Posting Type "Disposal" for Fixed Asset "FA2".
+        CreateAndPostGenJournalLine(FADepreciationBook[2], GenJournalLine."FA Posting Type"::Disposal, 0, CalcDate('<CY>', WorkDate()));
+
+        // [WHEN] Run report "Depreciation Book" for "FA1" and "FA2".
+        RunDepreciationBookReport(
+            DepreciationBookCode,
+            FADepreciationBook[1]."FA No.",
+            FADepreciationBook[2]."FA No.",
+            true,
+            CalcDate('<-CY>', WorkDate()));
+
+        // [VERIFY] Verify the End Total Amount for disposal in period and reclass/depreciation in the Depreciation Book report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('ABS_TotalReclassDeprAmount__Control1130213', 0);
+        LibraryReportDataset.AssertElementWithValueExists(
+            'TotalDisposalAmounts_2__TotalDisposalAmounts_5__TotalDisposalAmounts_6_',
+            (DepreciationAmount * AcqCostpercentage) / 100);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1622,6 +1693,30 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage.Enqueue(StartDate);
         LibraryVariableStorage.Enqueue(PrintPerFixedAsset);
         REPORT.Run(REPORT::"Depreciation Book");
+    end;
+
+    local procedure CreateFAReclassJournalLineWithAcqCostPercentage(
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        ReclassifyAcqCostPercentage: Decimal;
+        FAPostingDate: Date): Code[10]
+    var
+        FAReclassJournalLine: Record "FA Reclass. Journal Line";
+        FAReclassJournalTemplate: Record "FA Reclass. Journal Template";
+        FAReclassJournalBatch: Record "FA Reclass. Journal Batch";
+    begin
+        FAReclassJournalTemplate.FindFirst();
+        LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
+        LibraryFixedAsset.CreateFAReclassJournal(FAReclassJournalLine, FAReclassJournalTemplate.Name, FAReclassJournalBatch.Name);
+        FAReclassJournalLine.Validate("FA No.", FADepreciationBook[1]."FA No.");
+        FAReclassJournalLine.Validate("New FA No.", FADepreciationBook[2]."FA No.");
+        FAReclassJournalLine.Validate("Depreciation Book Code", FADepreciationBook[1]."Depreciation Book Code");
+        FAReclassJournalLine.Validate("FA Posting Date", FAPostingDate);
+        FAReclassJournalLine.Validate("Reclassify Acquisition Cost", true);
+        FAReclassJournalLine.Validate("Reclassify Depreciation", true);
+        FAReclassJournalLine.Validate("Reclassify Acq. Cost %", ReclassifyAcqCostPercentage);
+        FAReclassJournalLine.Modify(true);
+
+        exit(FAReclassJournalBatch.Name);
     end;
 
     [RequestPageHandler]

@@ -173,8 +173,10 @@ codeunit 12173 "Vendor Bill List - Post"
             "External Document No." := VendorBillLine."Vendor Bill List No.";
             Validate(Amount, VendorBillLine."Amount to Pay");
             Validate("Currency Code", VendorBillHeader."Currency Code");
-            if not VendorBillLine."Manual Line" then
+            if not VendorBillLine."Manual Line" then begin
+                Validate("Salespers./Purch. Code", VendLedgEntry."Purchaser Code");
                 ApplyInvAndUpdateLedgEntry(GenJnlLine, VendorBillLine, Tax::" ");
+            end;
             Description := Bill.Description;
             "Source Code" := Bill."Vend. Bill Source Code";
             "System-Created Entry" := true;
@@ -211,6 +213,9 @@ codeunit 12173 "Vendor Bill List - Post"
             "Source Code" := Bill."Vend. Bill Source Code";
             "System-Created Entry" := true;
             "Reason Code" := VendorBillHeader."Reason Code";
+            if not VendorBillLine."Manual Line" then
+                Validate("Salespers./Purch. Code", VendLedgEntry."Purchaser Code");
+
             "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
             "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
             if not VendorBillLine."Manual Line" then
@@ -301,8 +306,10 @@ codeunit 12173 "Vendor Bill List - Post"
                     end;
             end;
             Validate("Currency Code", VendorBillHeader."Currency Code");
-            if not VendorBillLine."Manual Line" then
+            if not VendorBillLine."Manual Line" then begin
+                Validate("Salespers./Purch. Code", VendLedgEntry."Purchaser Code");
                 ApplyInvAndUpdateLedgEntry(GenJnlLine, VendorBillLine, Tax);
+            end;
             Description := Bill.Description;
             "Source Code" := Bill."Vend. Bill Source Code";
             "System-Created Entry" := true;

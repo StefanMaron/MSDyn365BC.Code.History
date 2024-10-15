@@ -1270,7 +1270,7 @@ page 253 "Sales Journal"
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
 
-        OnAfterOpenPage();
+        OnAfterOpenPage(CurrentJnlBatchName);
     end;
 
     var
@@ -1423,7 +1423,7 @@ page 253 "Sales Journal"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterOpenPage()
+    local procedure OnAfterOpenPage(var CurrentJnlBatchName: Code[10])
     begin
     end;
 

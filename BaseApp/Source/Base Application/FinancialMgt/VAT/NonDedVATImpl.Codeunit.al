@@ -301,6 +301,18 @@ codeunit 6201 "Non-Ded. VAT Impl."
         VATAmountLineRemainder."Non-Deductible VAT Diff." := VATDifference - PurchaseLine."Non-Deductible VAT Diff.";
     end;
 
+    procedure SetNonDeductibleVATAmount(var VATEntry: Record "VAT Entry"; NonDedVATAmount: Decimal; NonDedVATAmountACY: Decimal)
+    begin
+        VATEntry."Non-Deductible VAT Amount" := NonDedVATAmount;
+        VATEntry."Non-Deductible VAT Amount ACY" := NonDedVATAmountACY;
+    end;
+
+    procedure SetNonDeductibleVATBase(var VATEntry: Record "VAT Entry"; NonDedVATBase: Decimal; NonDedVATBaseACY: Decimal)
+    begin
+        VATEntry."Non-Deductible VAT Base" := NonDedVATBase;
+        VATEntry."Non-Deductible VAT Base ACY" := NonDedVATBaseACY;
+    end;
+
     procedure GetNonDedVATAmountFromVATAmountLine(var VATAmountLineRemainder: Record "VAT Amount Line"; VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; Part: Decimal; Total: Decimal) NDVATAmount: Decimal
     var
         Factor: Decimal;
@@ -399,7 +411,8 @@ codeunit 6201 "Non-Ded. VAT Impl."
             exit;
         if not (GenJournalLine."VAT Posting" in [GenJournalLine."VAT Posting"::"Automatic VAT Entry", GenJournalLine."VAT Posting"::"Manual VAT Entry"]) then
             exit;
-        GLEntry."Non-Deductible VAT Amount" := GenJournalLine."Non-Deductible VAT Amount";
+        GLEntry."Non-Deductible VAT Amount" := GenJournalLine."Non-Deductible VAT Amount LCY";
+        GLEntry."Non-Deductible VAT Amount ACY" := GenJournalLine."Non-Deductible VAT Amount ACY";
     end;
 
     procedure CheckPrepmtWithNonDeductubleVATInPurchaseLine(PurchaseLine: Record "Purchase Line")
@@ -534,6 +547,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
     procedure Reverse(var GLEntry: Record "G/L Entry"; GLEntryToReverse: Record "G/L Entry")
     begin
         GLEntry."Non-Deductible VAT Amount" := -GLEntryToReverse."Non-Deductible VAT Amount";
+        GLEntry."Non-Deductible VAT Amount ACY" := -GLEntryToReverse."Non-Deductible VAT Amount ACY";
     end;
 
     procedure Reverse(var VATEntry: Record "VAT Entry")
@@ -719,7 +733,9 @@ codeunit 6201 "Non-Ded. VAT Impl."
     procedure Calculate(var GenJournalLine: Record "Gen. Journal Line"; Currency: Record Currency)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        CurrExchRate: Record "Currency Exchange Rate";
         IsHandled: Boolean;
+        AmountsCalculated: Boolean;
     begin
         if not IsNonDeductibleVATEnabled() then
             exit;
@@ -738,6 +754,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
                     else
                         GenJournalLine.Validate("Non-Deductible VAT Amount",
                             Round((GenJournalLine.Amount - GenJournalLine."VAT Base Amount") * GetNonDedVATPctFromGenJournalLine(GenJournalLine) / 100, Currency."Amount Rounding Precision"));
+                    AmountsCalculated := true;
                 end;
             (GenJournalLine."Bal. VAT Bus. Posting Group" = VATPostingSetup."VAT Bus. Posting Group") and (GenJournalLine."Bal. VAT Prod. Posting Group" = VATPostingSetup."VAT Prod. Posting Group"):
                 begin
@@ -749,8 +766,26 @@ codeunit 6201 "Non-Ded. VAT Impl."
                     else
                         GenJournalLine.Validate("Non-Deductible VAT Amount",
                             Round((-GenJournalLine.Amount - GenJournalLine."Bal. VAT Base Amount") * GetNonDedVATPctFromGenJournalLine(GenJournalLine) / 100, Currency."Amount Rounding Precision"));
+                    AmountsCalculated := true;
                 end;
         end;
+        if not AmountsCalculated then
+            exit;
+        if GenJournalLine."Currency Code" = '' then begin
+            GenJournalLine.Validate("Non-Deductible VAT Base LCY", GenJournalLine."Non-Deductible VAT Base");
+            GenJournalLine.Validate("Non-Deductible VAT Amount LCY", GenJournalLine."Non-Deductible VAT Amount");
+            exit;
+        end;
+        GenJournalLine.Validate(
+            "Non-Deductible VAT Base LCY",
+            Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                    GenJournalLine."Posting Date", GenJournalLine."Currency Code", GenJournalLine."Non-Deductible VAT Base", GenJournalLine."Currency Factor")));
+        GenJournalLine.Validate(
+            "Non-Deductible VAT Amount LCY",
+            Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                    GenJournalLine."Posting Date", GenJournalLine."Currency Code", GenJournalLine."Non-Deductible VAT Amount", GenJournalLine."Currency Factor")));
     end;
 
     procedure Calculate(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -915,7 +950,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
         GeneralLedgerSetup.Get();
         UpdateNonDeductibleAmounts(GenJournalLine."Non-Deductible VAT Base ACY", GenJournalLine."Non-Deductible VAT Amount ACY", BaseAmountACY, VATAmountACY, GetNonDedVATPctFromGenJournalLine(GenJournalLine), GeneralLedgerSetup."Amount Rounding Precision");
         AdjustVATAmounts(VATAmountACY, BaseAmountACY, GenJournalLine."Non-Deductible VAT Amount ACY", GenJournalLine."Non-Deductible VAT Base ACY");
-        AdjustVATAmounts(VATAmount, BaseAmount, GenJournalLine."Non-Deductible VAT Amount", GenJournalLine."Non-Deductible VAT Base");
+        AdjustVATAmounts(VATAmount, BaseAmount, GenJournalLine."Non-Deductible VAT Amount LCY", GenJournalLine."Non-Deductible VAT Base LCY");
     end;
 
     local procedure AdjustVATAmountsWithNonDeductibleVATPct(var VATAmount: Decimal; var BaseAmount: Decimal; var NondeductibleVATAmount: Decimal; var NondeductibleBaseAmount: Decimal; NonDeductiblePct: Decimal; AmountRoundingPrecision: Decimal; var NonDedVATAmountRounding: Decimal; var NonDedVATBaseRounding: Decimal)
@@ -955,6 +990,12 @@ codeunit 6201 "Non-Ded. VAT Impl."
         UnroundedValue := Rounding + Amount * NonDeductiblePercent / 100;
         Result := Round(UnroundedValue, AmountRoundingPrecision, '=');
         Rounding := UnroundedValue - Result;
+    end;
+
+    procedure GetNonDeductibleVATBaseBothCurrencies(var NonDedVATBase: Decimal; var NonDedVATBaseACY: Decimal; VATEntry: Record "VAT Entry")
+    begin
+        NonDedVATBase := VATEntry."Non-Deductible VAT Base";
+        NonDedVATBaseACY := VATEntry."Non-Deductible VAT Base ACY";
     end;
 
     procedure AdjustRoundingForInvoicePostingBufferUpdate(var RoundingInvoicePostingBuffer: Record "Invoice Posting Buffer"; var CurrInvoicePostingBuffer: Record "Invoice Posting Buffer")

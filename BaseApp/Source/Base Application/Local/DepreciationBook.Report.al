@@ -1118,71 +1118,72 @@ report 12119 "Depreciation Book"
         i: Integer;
     begin
         Clear(ReclassAmount);
-        if IsReclassifiedFA(FANo, DeprBookCode, false) then begin
+        if IsReclassifiedFA(FANo, DeprBookCode, false) then
             for i := 1 to NumberOfTypes do begin
                 StartAmounts[i] := 0;
                 NetChangeAmounts[i] := 0;
                 DisposalAmounts[i] := 0;
                 ReclassDeprAmount := 0;
             end;
-            CalcReclassAmount(FANo);
-        end else begin
-            for i := 1 to NumberOfTypes do begin
-                case i of
-                    1:
-                        PostingType := FADeprBook.FieldNo("Acquisition Cost");
-                    2:
-                        PostingType := FADeprBook.FieldNo(Depreciation);
-                    3:
-                        PostingType := FADeprBook.FieldNo("Write-Down");
-                    4:
-                        PostingType := FADeprBook.FieldNo(Appreciation);
-                    5:
-                        PostingType := FADeprBook.FieldNo("Custom 1");
-                    6:
-                        PostingType := FADeprBook.FieldNo("Custom 2");
-                end;
-                if StartingDate <= 00000101D then begin
-                    StartAmounts[i] := 0;
-                    StartAmountForDisposal := 0;
-                end else begin
-                    StartAmountForDisposal :=
-                      FAGenReport.CalcFAPostedAmount(
-                        FANo, PostingType, Period1, StartingDate, EndingDate,
-                        DeprBookCode, BeforeAmount, EndingAmount, false, true);
-                    if PostingType = FADeprBook.FieldNo("Acquisition Cost") then
-                        StartAmounts[i] :=
-                          FAGenReport.CalcFAPostedOriginalAcqCostAmount(
-                            FANo, Period1, StartingDate, EndingDate, DeprBookCode)
-                    else
-                        StartAmounts[i] := StartAmountForDisposal;
-                end;
 
+        for i := 1 to NumberOfTypes do begin
+            case i of
+                1:
+                    PostingType := FADeprBook.FieldNo("Acquisition Cost");
+                2:
+                    PostingType := FADeprBook.FieldNo(Depreciation);
+                3:
+                    PostingType := FADeprBook.FieldNo("Write-Down");
+                4:
+                    PostingType := FADeprBook.FieldNo(Appreciation);
+                5:
+                    PostingType := FADeprBook.FieldNo("Custom 1");
+                6:
+                    PostingType := FADeprBook.FieldNo("Custom 2");
+            end;
+            if StartingDate <= 00000101D then begin
+                StartAmounts[i] := 0;
+                StartAmountForDisposal := 0;
+            end else begin
+                StartAmountForDisposal :=
+                  FAGenReport.CalcFAPostedAmount(
+                    FANo, PostingType, Period1, StartingDate, EndingDate,
+                    DeprBookCode, BeforeAmount, EndingAmount, false, true);
+                if PostingType = FADeprBook.FieldNo("Acquisition Cost") then
+                    StartAmounts[i] :=
+                      FAGenReport.CalcFAPostedOriginalAcqCostAmount(
+                        FANo, Period1, StartingDate, EndingDate, DeprBookCode)
+                else
+                    StartAmounts[i] := StartAmountForDisposal;
+            end;
+
+            NetChangeAmountForDisposal := 0;
+            if not IsReclassifiedFA(FANo, DeprBookCode, false) or (PostingType = FADeprBook.FieldNo(Depreciation)) then
                 NetChangeAmountForDisposal :=
                   FAGenReport.CalcFAPostedAmount(
                     FANo, PostingType, Period2, StartingDate, EndingDate,
                     DeprBookCode, BeforeAmount, EndingAmount, false, true);
-                if PostingType = FADeprBook.FieldNo("Acquisition Cost") then
-                    NetChangeAmounts[i] :=
-                      FAGenReport.CalcFAPostedOriginalAcqCostAmount(
-                        FANo, Period2, StartingDate, EndingDate, DeprBookCode)
-                else
-                    NetChangeAmounts[i] := NetChangeAmountForDisposal;
 
-                if PostingType = FADeprBook.FieldNo(Depreciation) then begin
-                    ReclassDeprAmount := FAGenReport.CalcFAPostedAmount(FANo, PostingType, Period2, StartingDate, EndingDate,
-                        DeprBookCode, BeforeAmount, EndingAmount, true, true);
-                    NetChangeAmounts[i] -= ReclassDeprAmount;
-                end;
+            if PostingType = FADeprBook.FieldNo("Acquisition Cost") then
+                NetChangeAmounts[i] :=
+                  FAGenReport.CalcFAPostedOriginalAcqCostAmount(
+                    FANo, Period2, StartingDate, EndingDate, DeprBookCode)
+            else
+                NetChangeAmounts[i] := NetChangeAmountForDisposal;
 
-                if GetPeriodDisposal() then
-                    DisposalAmounts[i] := -(StartAmountForDisposal + NetChangeAmountForDisposal)
-                else
-                    DisposalAmounts[i] := 0;
+            if PostingType = FADeprBook.FieldNo(Depreciation) then begin
+                ReclassDeprAmount := FAGenReport.CalcFAPostedAmount(FANo, PostingType, Period2, StartingDate, EndingDate,
+                    DeprBookCode, BeforeAmount, EndingAmount, true, true);
+                NetChangeAmounts[i] -= ReclassDeprAmount;
             end;
-            if not IsReclassifiedFA(FANo, DeprBookCode, true) then
-                CalcReclassAmount(FANo);
+
+            if GetPeriodDisposal() then
+                DisposalAmounts[i] := -(StartAmountForDisposal + NetChangeAmountForDisposal)
+            else
+                DisposalAmounts[i] := 0;
         end;
+        if not IsReclassifiedFA(FANo, DeprBookCode, true) then
+            CalcReclassAmount(FANo);
     end;
 
     local procedure IsReclassifiedFA(FANo: Code[20]; DeprBookCode: Code[10]; Reclassification: Boolean): Boolean
@@ -1220,7 +1221,7 @@ report 12119 "Depreciation Book"
 
         ReclassAmount[4] := ReclassAmount[1] + ReclassAmount[2] + ReclassAmount[3];
 
-        if not IsReclassifiedFA(FANo, DeprBookCode, true) then
+        if not IsReclassifiedFA(FANo, DeprBookCode, false) then
             ReclassAmount[5] :=
               FAGenReport.CalcFAPostedAmount(FANo, FADeprBook.FieldNo(Depreciation),
                 Period2, StartingDate, EndingDate,

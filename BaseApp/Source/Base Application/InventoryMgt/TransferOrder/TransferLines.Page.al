@@ -27,6 +27,12 @@ page 5749 "Transfer Lines"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a description of the item.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description of the item being transferred.';
+                    Visible = false;
+                }
                 field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;

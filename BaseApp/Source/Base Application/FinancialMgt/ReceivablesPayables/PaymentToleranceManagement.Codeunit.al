@@ -1,4 +1,4 @@
-codeunit 426 "Payment Tolerance Management"
+﻿codeunit 426 "Payment Tolerance Management"
 {
     Permissions = TableData Currency = r,
                   TableData "Cust. Ledger Entry" = rim,
@@ -171,6 +171,8 @@ codeunit 426 "Payment Tolerance Management"
 
         if (TempGenJnlLine."Applies-to Doc. No." = '') and (TempGenJnlLine."Applies-to ID" = '') then
             exit(true);
+
+        OnPmtTolGenJnlOnAfterCheckConditions(TempGenJnlLine, SuppressCommit, Result);
 
         case true of
             (TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Customer) or
@@ -2382,6 +2384,11 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPutVendPmtTolAmountOnAfterVendLedgEntrySetFilters(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPmtTolGenJnlOnAfterCheckConditions(GenJournalLine: Record "Gen. Journal Line"; var SuppressCommit: Boolean; var Result: Boolean)
     begin
     end;
 }

@@ -656,9 +656,15 @@
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
         PurchHeader := PurchHeaderVar;
         PurchLine := PurchLineVar;
+
+        IsHandled := false;
+        PurchPostInvoiceEvents.RunOnBeforeCheckItemQuantityPurchCredit(PurchHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if PurchLine.IsCreditDocType() then
             if (PurchLine."Job No." <> '') and (PurchLine.Type = PurchLine.Type::Item) and (PurchLine."Qty. to Invoice" <> 0) then
@@ -773,6 +779,8 @@
             PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
             PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
         GenJnlLine."Operation Occurred Date" := PurchHeader."Operation Occurred Date";
+
+        PurchPostInvoiceEvents.RunOnPostBalancingEntryOnAfterInitNewLine(GenJnlLine, PurchHeader);
 
         GenJnlLine.CopyDocumentFields(
             "Gen. Journal Document Type"::" ", InvoicePostingParameters."Document No.",

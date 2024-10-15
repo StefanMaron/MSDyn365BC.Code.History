@@ -503,6 +503,7 @@
                 if "Currency Code" <> '' then
                     TestField("Currency Factor");
                 if "Currency Factor" <> xRec."Currency Factor" then begin
+                    OnValidateCurrencyFactorOnBeforeUpdateDirectUnitCost(Rec, CurrExchRate);
                     if xRec."Currency Factor" <> 0 then
                         "Direct Unit Cost" :=
                           CurrExchRate.ExchangeAmtFCYToLCY(
@@ -4584,6 +4585,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetPurchaserCode(var RequisitionLine: Record "Requisition Line"; PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCurrencyFactorOnBeforeUpdateDirectUnitCost(var RequisitionLine: Record "Requisition Line"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 }

@@ -355,7 +355,7 @@ codeunit 12179 "Export FatturaPA Document"
 
             // 1.2.2 Sede
             AddGroupElement('Sede');
-            AddNonEmptyElement('Indirizzo', CompanyInformation.Address);
+            AddNonEmptyElement('Indirizzo', CopyStr(CompanyInformation.Address, 1, 60));
             AddNonEmptyElement('CAP', CompanyInformation."Post Code");
             AddNonEmptyElement('Comune', CompanyInformation.City);
             AddNonEmptyElement('Provincia', CompanyInformation.County);
@@ -449,7 +449,7 @@ codeunit 12179 "Export FatturaPA Document"
 
             // 1.4.2. Sede
             AddGroupElement('Sede');
-            AddNonEmptyElement('Indirizzo', Customer.Address);
+            AddNonEmptyElement('Indirizzo', CopyStr(Customer.Address, 1, 60));
             if Customer."Country/Region Code" <> CompanyInformation."Country/Region Code" then
                 AddNonEmptyElement('CAP', '00000')
             else
