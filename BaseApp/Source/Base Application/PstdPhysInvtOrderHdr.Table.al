@@ -95,7 +95,7 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
         }
         field(71; "No. Finished Recordings"; Integer)
         {
-            CalcFormula = Count ("Phys. Invt. Record Header" WHERE("Order No." = FIELD("No."),
+            CalcFormula = Count ("Pstd. Phys. Invt. Record Hdr" WHERE("Order No." = FIELD("No."),
                                                                    Status = CONST(Finished)));
             Caption = 'No. Finished Recordings';
             Editable = false;

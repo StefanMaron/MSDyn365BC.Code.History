@@ -2660,6 +2660,80 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseLine.TestField("Job Planning Line No.", JobPlanningLine."Line No.");
     end;
 
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure VerifyPurchInvPostedWithPurchOrderReservedForJob()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        ReceiptNo, VendorNo, InvoiceNo : Code[20];
+    begin
+        // [SCENARIO 464690] Post Purchase Invoice by getting receipt lines posted from purchase order reserved for job without tracking specification.
+        Initialize();
+
+        // [GIVEN] Item "I" with reordering policy Order and always reserve.
+        LibraryInventory.CreateItem(Item);
+        Item."Reordering Policy" := Item."Reordering Policy"::Order;
+        Item.Reserve := Item.Reserve::Always;
+        Item."Vendor No." := LibraryPurchase.CreateVendorNo();
+        Item.Modify();
+
+        // [GIVEN] Location "L" with inventory posting group.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item "I" on location "L"
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", Location.Code);
+
+        // [GIVEN] Calculate Order Planning for job planning lines.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find the planning line for item "I".
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", Location.Code);
+        VendorNo := RequisitionLine."Supply From";
+
+        // [GIVEN] Make a purchase order to supply the job planning line.
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
+
+        // [GIVEN] Check that Job No., Job Task No., and Job Planning Line No. are populated on the new purchase line.
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+
+        // [WHEN] Post Purchase Receipt
+        ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify Purchase Receipt entry is closed
+        ItemLedgerEntry.SetLoadFields("Remaining Quantity");
+        ItemLedgerEntry.SetRange("Posting Date", PurchaseHeader."Posting Date");
+        ItemLedgerEntry.SetRange("Document No.", ReceiptNo);
+        ItemLedgerEntry.SetRange("Job No.", JobPlanningLine."Job No.");
+        ItemLedgerEntry.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(0, ItemLedgerEntry."Remaining Quantity", 'Purchase Receipt entry not closed');
+
+        // [GIVEN] Purchase invoice with the same vendor.
+        // [GIVEN] Populate the invoice lines using "Get Receipt Lines" function.
+        Clear(PurchaseHeader);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchRcptLine.SetRange("Document No.", ReceiptNo);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [WHEN] Post Purchase Invoice
+        // [THEN] Verify Purchase Invoice posted
+        Assert.IsTrue(PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true)), 'Purchase Invoice not posted');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

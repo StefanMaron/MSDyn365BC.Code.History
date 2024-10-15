@@ -1552,6 +1552,7 @@ codeunit 134043 "ERM Additional Currency"
           CurrencyExchangeRate."Starting Date", WorkDate(), 'Test', CurrencyExchangeRate."Starting Date",
           DocumentNo, true, true);
         ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
 #endif
     end;
