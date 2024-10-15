@@ -279,6 +279,7 @@
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
+                    ToolTip = 'Print the intrastat journal.';
 
                     trigger OnAction()
                     begin
