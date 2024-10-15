@@ -420,7 +420,7 @@ table 951 "Time Sheet Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowLineDetails(Rec, IsHandled);
+        OnBeforeShowLineDetails(Rec, IsHandled, ManagerRole);
         if IsHandled then
             exit;
 
@@ -514,7 +514,7 @@ table 951 "Time Sheet Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowLineDetails(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    local procedure OnBeforeShowLineDetails(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean; ManagerRole: Boolean)
     begin
     end;
 

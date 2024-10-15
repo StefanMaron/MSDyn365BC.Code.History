@@ -2230,6 +2230,44 @@ codeunit 137159 "SCM Warehouse VII"
         Assert.AreEqual(WarehouseReceiptLine."Qty. to Cross-Dock", 1, CrossDockQtyIsNotCalculatedMsg);
     end;
 
+    [Test]
+    procedure VerifyBinCodeOnRequisitionLineWhenVendorIsAddedManually()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Bin: Record Bin;
+        RequisitionLine: Record "Requisition Line";
+        ReqWorksheet: TestPage "Req. Worksheet";
+    begin
+        // [SCENARIO 478663] Verify that the bin code is added on the requisition line when the vendor is added manually 
+        Initialize();
+
+        // [GIVEN] Setup Warehouse Employee for Silver Location
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationSilver.Code, true);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Vendor with Location Code
+        LibraryPurchase.CreateVendorWithLocationCode(Vendor, LocationSilver.Code);
+
+        // [GIVEN] Create Bin with Bin Content
+        CreateBinAndBinContent(Bin, LocationSilver.Code, Item."No.", Item."Base Unit of Measure", true); // True for Default Bin.
+
+        // [GIVEN] Create a line in Requisition Worksheet
+        CreateRequisitionWorksheetline(RequisitionLine, Item."No.", '');
+
+        // [WHEN] Open Requisition Worksheet and add Vendor
+        OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
+        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
+        ReqWorksheet.Close();
+
+        // [THEN] Verify results
+        FindRequisitionLine(RequisitionLine, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
+        RequisitionLine.TestField("Bin Code", Bin.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4052,6 +4090,54 @@ codeunit 137159 "SCM Warehouse VII"
     begin
         LibraryPatterns.MAKEProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
         LibraryPatterns.MAKEProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, Location.Code, '', Qty, WorkDate());
+    end;
+
+    local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; WorksheetTemplateName: Code[10]; JournalBatchName: Code[10])
+    begin
+        RequisitionLine.SetRange("Worksheet Template Name", WorksheetTemplateName);
+        RequisitionLine.SetRange("Journal Batch Name", JournalBatchName);
+        RequisitionLine.FindFirst();
+    end;
+
+    local procedure OpenRequisitionWorksheetPage(var ReqWorksheet: TestPage "Req. Worksheet"; Name: Code[20])
+    begin
+        ReqWorksheet.OpenEdit;
+        ReqWorksheet.CurrentJnlBatchName.SetValue(Name);
+    end;
+
+    local procedure CreateRequisitionWorksheetline(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; ItemVariantCode: Code[10])
+    begin
+        CreateBlankRequisitionLine(RequisitionLine);
+        with RequisitionLine do begin
+            Validate(Type, Type::Item);
+            Validate("No.", ItemNo);
+            Validate("Variant Code", ItemVariantCode);
+            Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
+            Validate("Due Date", WorkDate());
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateBlankRequisitionLine(var RequisitionLine: Record "Requisition Line")
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
+        ReqWkshTemplate.FindFirst();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+    end;
+
+    local procedure CreateBinAndBinContent(var Bin: Record Bin; LocationCode: Code[10]; ItemNo: Code[20]; UnitOfMeasure: Code[10]; IsDefault: Boolean)
+    var
+        BinContent: Record "Bin Content";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, ItemNo, '', UnitOfMeasure);
+        BinContent.Validate(Default, IsDefault);
+        BinContent.Modify(true);
     end;
 
     [ConfirmHandler]

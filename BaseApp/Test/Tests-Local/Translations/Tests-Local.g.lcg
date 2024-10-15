@@ -2048,15 +2048,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType OrderedQty)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2223412225 - NamedType 1844527775" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong Payee Name]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report III - NamedType PayeeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2223412225 - NamedType 2806217103" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[PercentString_1_]]></Val>

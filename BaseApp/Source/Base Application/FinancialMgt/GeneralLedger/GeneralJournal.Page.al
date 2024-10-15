@@ -268,6 +268,11 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type that will be used when you post the entry on this journal line.';
                     Visible = NOT IsSimplePage;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

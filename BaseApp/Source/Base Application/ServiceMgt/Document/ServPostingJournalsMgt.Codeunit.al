@@ -451,7 +451,13 @@
     procedure PostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         ResJnlLine: Record "Res. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostResJnlLineShip(ServiceLine, DocNo, ExtDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServiceLine."Time Sheet No." <> '' then
             TimeSheetMgt.CheckServiceLine(ServiceLine);
 
@@ -488,7 +494,13 @@
     procedure PostResJnlLineConsume(var ServiceLine: Record "Service Line"; var ServShptHeader: Record "Service Shipment Header")
     var
         ResJnlLine: Record "Res. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostResJnlLineConsume(ServiceLine, ServShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServiceLine."Time Sheet No." <> '' then
             TimeSheetMgt.CheckServiceLine(ServiceLine);
 
@@ -933,6 +945,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostResJnlLine(ServiceHeader: Record "Service Header"; var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostResJnlLineConsume(var ServiceLine: Record "Service Line"; var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

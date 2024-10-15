@@ -383,6 +383,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Doc. Exch. Service Setup - NamedType InvalidUriErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2678784840 - NamedType 4225461041" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Requests Sent For Approval count are not equal]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TestAccountantPortalWS - NamedType RequestsSentForApprovalErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2678784840 - NamedType 3418580325" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Request to approve count are not equal]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TestAccountantPortalWS - NamedType RequestsToApproveErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2277921709 - NamedType 3292470970" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CodeunitService]]></Val>

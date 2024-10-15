@@ -578,6 +578,14 @@ codeunit 6224 "XML DOM Management"
         LoadXMLNodeFromText(XmlText, XMLRootNode);
     end;
 
+    procedure GetUTF8BOMSymbols() ByteOrderMarkUtf8: Text;
+    var
+        UTF8Encoding: DotNet UTF8Encoding;
+    begin
+        UTF8Encoding := UTF8Encoding.UTF8Encoding();
+        ByteOrderMarkUtf8 := UTF8Encoding.GetString(UTF8Encoding.GetPreamble());
+    end;
+
     procedure ClearUTF8BOMSymbols(var XmlText: Text)
     var
         UTF8Encoding: DotNet UTF8Encoding;

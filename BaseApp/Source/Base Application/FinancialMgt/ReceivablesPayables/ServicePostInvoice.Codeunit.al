@@ -84,6 +84,7 @@
             then begin
                 GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
                 GenPostingSetup.TestField(Blocked, false);
+                ServicePostInvoiceEvents.RunOnPrepareLineAfterGetGenPostingSetup(GenPostingSetup, ServiceHeader, ServiceLine, ServiceLineACY);
             end;
 
         if not GLSetup."VAT in Use" then
