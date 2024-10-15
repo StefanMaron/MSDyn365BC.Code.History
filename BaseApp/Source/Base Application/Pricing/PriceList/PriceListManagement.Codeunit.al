@@ -16,6 +16,8 @@ using Microsoft.Utilities;
 using System.Environment.Configuration;
 using System.Threading;
 using System.Upgrade;
+using System.Telemetry;
+using Microsoft.Pricing.Calculation;
 
 codeunit 7017 "Price List Management"
 {
@@ -370,7 +372,15 @@ codeunit 7017 "Price List Management"
     end;
 
     procedure DefineDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group") DefaultPriceListCode: Code[20];
+#if not CLEAN21
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+#endif
     begin
+#if not CLEAN21
+        FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+#endif
         case SourceGroup of
             SourceGroup::Customer:
                 DefaultPriceListCode := DefineSalesDefaultPriceList();
@@ -422,7 +432,11 @@ codeunit 7017 "Price List Management"
     local procedure CreateDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group"): Code[20]
     var
         PriceListHeader: Record "Price List Header";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Used");
+
         PriceListHeader.Validate("Price Type", PriceType);
         PriceListHeader.Validate("Source Group", SourceGroup);
         PriceListHeader.Description := DefaultPriceListTok;
@@ -437,8 +451,10 @@ codeunit 7017 "Price List Management"
         PriceListHeader."Allow Updating Defaults" := true;
         PriceListHeader."Amount Type" := "Price Amount Type"::Any;
         PriceListHeader.Status := "Price Status"::Active;
-        if PriceListHeader.Insert(true) then
+        if PriceListHeader.Insert(true) then begin
+            FeatureTelemetry.LogUsage('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), 'Price List automatically activated');
             exit(PriceListHeader.Code);
+        end;
     end;
 
     procedure IsAllowedEditingActivePrice(PriceType: Enum "Price Type") Result: Boolean;
@@ -501,18 +517,27 @@ codeunit 7017 "Price List Management"
     end;
 
     procedure ActivateDraftLines(VerifyLinesNotification: Notification)
+    begin
+        ActivateDraftLines(VerifyLinesNotification, false)
+    end;
+    
+    procedure ActivateDraftLines(VerifyLinesNotification: Notification; SkipMessage: Boolean)
     var
         PriceListHeader: Record "Price List Header";
     begin
         if VerifyLinesNotification.HasData(PriceListHeader.FieldName(Code)) then
             if PriceListHeader.Get(VerifyLinesNotification.GetData(PriceListHeader.FieldName(Code))) then
-                ActivateDraftLines(PriceListHeader);
+                ActivateDraftLines(PriceListHeader, SkipMessage);
     end;
 
     procedure ActivateDraftLines(PriceListHeader: Record "Price List Header"): Boolean;
+    begin
+        exit(ActivateDraftLines(PriceListHeader, false));
+    end;
+
+    procedure ActivateDraftLines(PriceListHeader: Record "Price List Header"; SkipMessage: Boolean): Boolean;
     var
         PriceListLine: Record "Price List Line";
-        SkipMessage: Boolean;
     begin
         if not PriceListHeader.HasDraftLines(PriceListLine) then
             exit;
@@ -846,8 +871,12 @@ codeunit 7017 "Price List Management"
     procedure ImplementNewPrices(var PriceWorksheetLine: Record "Price Worksheet Line")
     var
         PriceListLine: Record "Price List Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         InsertedUpdatedLeft: array[3] of Integer;
     begin
+        FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Used");
+
         OnBeforeImplementNewPrices(PriceWorksheetLine);
 
         PriceWorksheetLine.SetFilter("Price List Code", '<>%1', '');
@@ -866,6 +895,8 @@ codeunit 7017 "Price List Management"
                 ActivateDraftLines(PriceListLine);
             end;
         end;
+
+        FeatureTelemetry.LogUsage('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), 'New prices implemented');
     end;
 
     local procedure ImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var PriceListLine: Record "Price List Line"; var InsertedUpdatedLeft: array[3] of Integer) Implemented: Boolean;

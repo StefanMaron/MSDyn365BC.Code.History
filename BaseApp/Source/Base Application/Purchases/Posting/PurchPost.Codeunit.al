@@ -789,7 +789,7 @@ codeunit 90 "Purch.-Post"
 
             CheckPurchLines(PurchHeader);
 
-            OnAfterCheckPurchDoc(PurchHeader, SuppressCommit, WhseShip, WhseReceive, PreviewMode);
+            OnAfterCheckPurchDoc(PurchHeader, SuppressCommit, WhseShip, WhseReceive, PreviewMode, ErrorMessageMgt);
             if not LogErrorMode then
                 ErrorMessageMgt.Finish(RecordId);
         end;
@@ -10041,7 +10041,7 @@ codeunit 90 "Purch.-Post"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckPurchDoc(var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean; PreviewMode: Boolean)
+    local procedure OnAfterCheckPurchDoc(var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean; PreviewMode: Boolean; var ErrorMessageMgt: Codeunit "Error Message Management")
     begin
     end;
 

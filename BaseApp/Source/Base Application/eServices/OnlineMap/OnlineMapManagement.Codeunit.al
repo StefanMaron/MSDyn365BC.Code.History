@@ -174,6 +174,7 @@ codeunit 802 "Online Map Management"
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapParameterSetup: Record "Online Map Parameter Setup";
         i: Integer;
+        IsHandled: Boolean;
     begin
         Clear(Parameters);
         if ValidAddresses(TableNo) then
@@ -182,6 +183,12 @@ codeunit 802 "Online Map Management"
             Error(Text007, Format(TableNo));
         if TableNo = Database::Geolocation then
             exit;
+
+        IsHandled := false;
+        OnBuildParametersOnBeforeGetOnlineMapSetup(TableNo, IsHandled);
+        if IsHandled then
+            exit;
+
         OnlineMapSetup.Get();
         OnlineMapSetup.TestField("Map Parameter Setup Code");
         OnlineMapParameterSetup.Get(OnlineMapSetup."Map Parameter Setup Code");
@@ -573,6 +580,11 @@ codeunit 802 "Online Map Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeSelectionAfterStrMenu(var Selection: Integer; var OnlineMapParameterSetup: Record "Online Map Parameter Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBuildParametersOnBeforeGetOnlineMapSetup(TableNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

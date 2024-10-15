@@ -4091,6 +4091,85 @@ codeunit 137072 "SCM Production Orders II"
         ProductionOrder.TestField("No.", ProdOrderLine."Prod. Order No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandlerTrue,MessageHandler')]
+    procedure VerifyRefreshReleasedProductionOrderForAddtionalItemUoMWithRoudingPrecision()
+    var
+        CompItem, ProdItem : Record Item;
+        CompItemUnitOfMeasure, ProdItemUnitOfMeasure : array[2] of Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RoundPrecision: Decimal;
+    begin
+        // [SCENARIO 492441] Verify Quantity Rounding in Production Order working as expected.
+        Initialize();
+
+        // [GIVEN] Save Rounding Precision.
+        RoundPrecision := 0.00001;
+
+        // [GIVEN] Set the location mandatory to false in inventory setup.
+        LibraryInventory.SetLocationMandatory(false);
+
+        // [GIVEN] Create a component item with an item unit of measure code.
+        CreateComponentItemWithItemUnitOfMeasureCode(CompItem, CompItemUnitOfMeasure);
+
+        // [GIVEN] Create a production BOM for the component item.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItemUnitOfMeasure[2].Code);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Update the component item.
+        CompItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        CompItem.Validate("Base Unit of Measure", CompItemUnitOfMeasure[1].Code);
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::"Pick + Backward");
+        CompItem.Validate("Purch. Unit of Measure", CompItem."Base Unit of Measure");
+        CompItem.Validate("Rounding Precision", RoundPrecision);
+        CompItem.Modify(true);
+
+        // [GIVEN] Create a production item with an item unit of measure code.
+        CreateProductionItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure);
+
+        // [GIVEN] Create a production BOM for the production item.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItemUnitOfMeasure[2].Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItemUnitOfMeasure[2].Code);
+        ProductionBOMLine.Modify(true);
+
+        // [GIVEN] Change status of production BOM to Certified for the production item.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Update the production item.
+        ProdItem.Validate("Base Unit of Measure", ProdItemUnitOfMeasure[1].Code);
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::"Pick + Backward");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Purch. Unit of Measure", ProdItem."Base Unit of Measure");
+        ProdItem.Validate("Rounding Precision", RoundPrecision);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Refresh the production order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", LibraryRandom.RandIntInRange(22, 22), '', '');
+
+        // [GIVEN] Post the production journal for the component item.
+        FindProductionOrderLine(ProdOrderLine, CompItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Post the production journal for the production item.
+        FindProductionOrderLine(ProdOrderLine, ProdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [VERIFY] Verify that the status of the production order has been finished successfully.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5740,6 +5819,20 @@ codeunit 137072 "SCM Production Orders II"
           RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateComponentItemWithItemUnitOfMeasureCode(var CompItem: Record Item; var CompItemUnitOfMeasure: array[2] of Record "Item Unit of Measure")
+    begin
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure[1], CompItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure[2], CompItem."No.", LibraryRandom.RandDecInDecimalRange(2.67, 2.67, 2));
+    end;
+
+    local procedure CreateProductionItemWithItemUnitOfMeasureCode(var ProdItem: Record Item; var ProdItemUnitOfMeasure: array[2] of Record "Item Unit of Measure")
+    begin
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure[1], ProdItem."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure[2], ProdItem."No.", LibraryRandom.RandDecInDecimalRange(12.4, 12.4, 1));
     end;
 
     [ModalPageHandler]

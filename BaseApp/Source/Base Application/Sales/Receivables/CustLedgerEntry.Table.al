@@ -936,7 +936,13 @@ table 21 "Cust. Ledger Entry"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         DrillDownPageID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDownOnOverdueEntriesBeforeCode(DtldCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgEntry.Reset();
         DtldCustLedgEntry.CopyFilter("Customer No.", CustLedgEntry."Customer No.");
         DtldCustLedgEntry.CopyFilter("Currency Code", CustLedgEntry."Currency Code");
@@ -1238,6 +1244,11 @@ table 21 "Cust. Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRemainingPmtDiscPossible(CustLedgerEntry: Record "Cust. Ledger Entry"; ReferenceDate: Date; var RemainingPmtDiscPossible: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownOnOverdueEntriesBeforeCode(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 }

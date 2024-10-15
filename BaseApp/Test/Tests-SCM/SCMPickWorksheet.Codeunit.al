@@ -662,6 +662,7 @@ codeunit 137015 "SCM Pick Worksheet"
         // [FEATURE] [Pick Worksheet] [Reservation]
         // [SCENARIO 204644] "Available Qty. to Pick" should be 0 in the pick worksheet when all stock is either reserved or pick, but not yet shipped
         Initialize();
+        WhseWorksheetLine.DeleteAll();
 
         ResetDefaultSafetyLeadTime;
 
@@ -928,6 +929,152 @@ codeunit 137015 "SCM Pick Worksheet"
         InvokeGetShipmentUpdateQtyToHandleAndAutofillInPickWorksheet(LocationGreen.Code, ShipmentNo);
 
         // [THEN] Quantity, "Qty. to Handle" and "Avail. Qty. to Pick" values are calculated correctly on each step for all three pick worksheet lines.
+    end;
+
+    [Test]
+    procedure AvailableToPickCannotBeNegative()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WarehouseEmployee: Record "Warehouse Employee";
+        PickWorksheetTestPage: TestPage "Pick Worksheet";
+        ShipmentNo: array[2] of Code[20];
+        Qty: Integer;
+    begin
+        // [SCENARIO] [BUG] [486361] Pick worksheet: Available to Pick cannot be negative for directed put-away and pick location
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick enabled
+        WhseWorksheetLine.DeleteAll();
+        WarehouseEmployee.DeleteAll();
+        GetPickWksheetTemplate(WhseWorksheetTemplate);
+        SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Item with not inventory
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] 2 Warehouse shipments for same item
+        Qty := 100;
+        ShipmentNo[1] := CreateSales(Item."No.", Location.Code, Qty, false, true, false, 0);
+        ShipmentNo[2] := CreateSales(Item."No.", Location.Code, Qty, false, true, false, 0);
+
+        // [WHEN] Get the shipment in the pick worksheet
+        WhseWorksheetName.SetRange("Template Type", WhseWorksheetName."Template Type"::Pick);
+        WhseWorksheetName.SetRange("Location Code", Location.Code);
+        WhseWorksheetName.FindFirst();
+        PickWorksheetGetSourceDocument(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Location.Code, 0, ShipmentNo[1]);
+        PickWorksheetGetSourceDocument(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Location.Code, 0, ShipmentNo[2]);
+
+        // [THEN] Quantity available to pick is 0
+        PickWorkSheetValidateLine(WhseWorksheetLine, 10000, Qty, 0, 0);
+        PickWorkSheetValidateLine(WhseWorksheetLine, 20000, Qty, 0, 0);
+
+        // [WHEN] Update the quantity to handle from UI
+        PickWorksheetTestPage.OpenEdit();
+        WhseWorksheetLine.SetRange("Line No.", 10000);
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
+        WhseWorksheetLine.FindFirst();
+        PickWorksheetTestPage.GoToRecord(WhseWorksheetLine);
+        PickWorksheetTestPage."Qty. to Handle".SetValue(Qty);
+
+        // [THEN] Quantity available to pick is 0
+        PickWorkSheetValidateLine(WhseWorksheetLine, 10000, Qty, Qty, 0);
+        Assert.AreEqual(0, PickWorksheetTestPage.AvailableQtyToPickExcludingQCBins.AsDecimal(), ErrorDifferentAvailQty);
+        PickWorksheetTestPage.Close();
+
+        // [WHEN] Update the quantity to handle from UI
+        PickWorksheetTestPage.OpenEdit();
+        WhseWorksheetLine.SetRange("Line No.", 20000);
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
+        WhseWorksheetLine.FindFirst();
+        PickWorksheetTestPage.GoToRecord(WhseWorksheetLine);
+        PickWorksheetTestPage."Qty. to Handle".SetValue(Qty);
+
+        // [THEN] Quantity available to pick is 0
+        Assert.AreEqual(0, PickWorksheetTestPage.AvailableQtyToPickExcludingQCBins.AsDecimal(), ErrorDifferentAvailQty);
+        PickWorksheetTestPage.Close();
+
+        PickWorkSheetValidateLine(WhseWorksheetLine, 10000, Qty, Qty, 0);
+        PickWorkSheetValidateLine(WhseWorksheetLine, 20000, Qty, Qty, 0);
+    end;
+
+    [Test]
+    procedure QtyToHandleIsSetToMaximumAvailableQtyOnGetSrcDoc()
+    var
+        Location: Record Location;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        Item: Record Item;
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ShipmentNo: Code[20];
+        BinCode: array[2] of Code[20];
+        ZoneCode: array[2] of Code[10];
+        SalesLineQty: Decimal;
+        Qty: array[2] of Decimal;
+    begin
+        // [SCENARIO 487516] Set the qty. to handle to max available to pick regardless of the settings of location always create pick line
+        Initialize();
+        Qty[1] := 10;
+        Qty[2] := 10;
+        LibraryInventory.CreateItem(Item);
+        WhseWorksheetLine.DeleteAll();
+        GetPickWksheetTemplate(WhseWorksheetTemplate);
+
+        // [GIVEN] Location with Directed Put-away and Pick enabled with two bins:
+        // [GIVEN] Put-away only Bin "BPW"
+        // [GIVEN] Bin "BP" with Pick enabled
+        SetupLocation(Location, WhseWorksheetTemplate.Name, true, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        FindZoneAndBinWithPickDisabled(
+          BinCode[1], ZoneCode[1], Location.Code, StrSubstNo('<>%1', Location."Adjustment Bin Code"),
+          GetBinTypeFilterPickDisabled(true));
+        FindZoneAndBinWithPickEnabled(BinCode[2], ZoneCode[2], Location.Code);
+
+        // [GIVEN] Location has Always Create Pick Line as false
+        Location.Validate("Always Create Pick Line", false);
+        Location.Modify();
+
+        // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BPW" and Quantity 10 and second with Bin "BP" and Quantity 10
+        // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
+        CreateTwoWarehouseJnlLinesWithBinsAndZones(
+          WarehouseJournalLine, Location.Code, Item."No.", BinCode, ZoneCode, Qty);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+        PostWhseAdjustment(WarehouseJournalLine."Item No.");
+
+        // [GIVEN] 2 Warehouse shipments for same item
+        SalesLineQty := 100;
+        ShipmentNo := CreateSales(Item."No.", Location.Code, SalesLineQty, false, true, false, 0);
+
+        // [WHEN] Get the shipment in the pick worksheet
+        WhseWorksheetName.SetRange("Template Type", WhseWorksheetName."Template Type"::Pick);
+        WhseWorksheetName.SetRange("Location Code", Location.Code);
+        WhseWorksheetName.FindFirst();
+        PickWorksheetGetSourceDocument(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Location.Code, 0, ShipmentNo);
+
+        // [THEN] Quantity to handle is set to available quantity to pick
+        PickWorkSheetValidateLine(WhseWorksheetLine, 10000, SalesLineQty, Qty[2], Qty[2]);
+
+        // [GIVEN] Delete the pick worksheet lines
+        WhseWorksheetLine.SetRange("Line No.", 10000);
+        WhseWorksheetLine.FindFirst();
+        WhseWorksheetLine.Delete();
+
+        // [GIVEN] Set the Always Create Pick Line to true
+        Location.Validate("Always Create Pick Line", true);
+        Location.Modify();
+
+        // [WHEN] Get the shipment in the pick worksheet
+        PickWorksheetGetSourceDocument(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Location.Code, 0, ShipmentNo);
+
+        // [THEN] Quantity to handle is set to available quantity to pick
+        PickWorkSheetValidateLine(WhseWorksheetLine, 10000, SalesLineQty, Qty[2], Qty[2]);
     end;
 
     [Test]

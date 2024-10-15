@@ -169,9 +169,11 @@ codeunit 40 LogInManagement
                 UserTimeRegister.LockTable();
                 if UserTimeRegister.Find() then begin
                     UserTimeRegister.Minutes := UserTimeRegister.Minutes + Minutes;
+                    OnLoginEndOnBeforeModify(UserTimeRegister, LogOutTime, LogOutDate);
                     UserTimeRegister.Modify();
                 end else begin
                     UserTimeRegister.Minutes := Minutes;
+                    OnLoginEndOnBeforeInsert(UserTimeRegister, LogInTime, LogOutTime, LogOutDate);
                     UserTimeRegister.Insert();
                 end;
             end;
@@ -297,6 +299,16 @@ codeunit 40 LogInManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnShowTermsAndConditions()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoginEndOnBeforeModify(var UserTimeRegister: Record "User Time Register"; LogOutTime: Time; LogOutDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoginEndOnBeforeInsert(var UserTimeRegister: Record "User Time Register"; LogInTime: Time; LogOutTime: Time; LogOutDate: Date)
     begin
     end;
 }

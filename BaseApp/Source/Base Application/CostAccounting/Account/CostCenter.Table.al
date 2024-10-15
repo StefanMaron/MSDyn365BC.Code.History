@@ -33,11 +33,9 @@ table 1112 "Cost Center"
         {
             Caption = 'Name';
         }
-        field(3; "Cost Subtype"; Option)
+        field(3; "Cost Subtype"; Enum "Cost Center Subtype")
         {
             Caption = 'Cost Subtype';
-            OptionCaption = ' ,Service Cost Center,Aux. Cost Center,Main Cost Center';
-            OptionMembers = " ","Service Cost Center","Aux. Cost Center","Main Cost Center";
         }
         field(4; "Cost Type Filter"; Code[20])
         {
@@ -54,7 +52,7 @@ table 1112 "Cost Center"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Center Code" = field(Code),
-                                                         "Cost Center Code" = field(FILTER(Totaling)),
+                                                         "Cost Center Code" = field(filter(Totaling)),
                                                          "Cost Type No." = field("Cost Type Filter"),
                                                          "Posting Date" = field("Date Filter")));
             Caption = 'Net Change';
@@ -65,9 +63,9 @@ table 1112 "Cost Center"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Center Code" = field(Code),
-                                                         "Cost Center Code" = field(FILTER(Totaling)),
+                                                         "Cost Center Code" = field(filter(Totaling)),
                                                          "Cost Type No." = field("Cost Type Filter"),
-                                                         "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                         "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -76,7 +74,7 @@ table 1112 "Cost Center"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Center Code" = field(Code),
-                                                         "Cost Center Code" = field(FILTER(Totaling)),
+                                                         "Cost Center Code" = field(filter(Totaling)),
                                                          "Cost Type No." = field("Cost Type Filter"),
                                                          "Posting Date" = field("Date Filter"),
                                                          Allocated = const(false)));
@@ -153,7 +151,7 @@ table 1112 "Cost Center"
 
             trigger OnLookup()
             var
-                SelectionFilter: Text[1024];
+                SelectionFilter: Text;
             begin
                 if LookupCostCenterFilter(SelectionFilter) then
                     Validate(Totaling, CopyStr(SelectionFilter, 1, MaxStrLen(Totaling)));
@@ -204,8 +202,8 @@ table 1112 "Cost Center"
     end;
 
     var
-        Text001: Label 'There are general ledger entries, cost entries, or cost budget entries that are posted to the selected cost center. Are you sure that you want to delete the cost center?';
-        Text002: Label 'There are general ledger entries, cost entries, or cost budget entries that are posted to the selected cost center. Are you sure that you want to modify the cost center?';
+        ConfirmDeleteQst: Label 'There are general ledger entries, cost entries, or cost budget entries that are posted to the selected cost center. Are you sure that you want to delete the cost center?';
+        ConfirmModifyQst: Label 'There are general ledger entries, cost entries, or cost budget entries that are posted to the selected cost center. Are you sure that you want to modify the cost center?';
 
     local procedure EntriesExist(var CostCenter: Record "Cost Center") EntriesFound: Boolean
     var
@@ -223,7 +221,7 @@ table 1112 "Cost Center"
                 DimFilter := DimensionMgt.GetDimSetFilter();
                 if DimFilter <> '' then begin
                     GLEntry.SetFilter("Dimension Set ID", DimFilter);
-                    if GLEntry.FindFirst() then
+                    if not GLEntry.IsEmpty() then
                         EntriesFound := true;
                 end;
 
@@ -244,7 +242,7 @@ table 1112 "Cost Center"
     procedure ConfirmDeleteIfEntriesExist(var CostCenter: Record "Cost Center"; CalledFromOnInsert: Boolean)
     begin
         if EntriesExist(CostCenter) then
-            if not Confirm(Text001, true) then
+            if not Confirm(ConfirmDeleteQst, true) then
                 Error('');
         if not CalledFromOnInsert then
             CostCenter.DeleteAll();
@@ -257,7 +255,7 @@ table 1112 "Cost Center"
         CostCenter2 := CostCenter;
         CostCenter2.SetRecFilter();
         if EntriesExist(CostCenter2) then
-            if not Confirm(Text002, true) then
+            if not Confirm(ConfirmModifyQst, true) then
                 Error('');
     end;
 
