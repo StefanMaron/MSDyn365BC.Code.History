@@ -1,7 +1,11 @@
+#if not CLEAN19
 page 9981 "Buy Subscription"
 {
     Caption = 'Buy Subscription';
     Editable = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The page is replaced by direct link to "purchase through partner" page, rather than to show embedded content.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -39,4 +43,4 @@ page 9981 "Buy Subscription"
     var
         BuySubscriptionForwardLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=828659', Locked = true;
 }
-
+#endif

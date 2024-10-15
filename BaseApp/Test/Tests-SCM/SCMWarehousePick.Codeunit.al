@@ -590,6 +590,8 @@ codeunit 137055 "SCM Warehouse Pick"
         ItemJournalLine: Record "Item Journal Line";
         SalesHeader: Record "Sales Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         LocationCode: Code[10];
         ItemNo: Code[20];
         UoM: Code[10];
@@ -609,6 +611,10 @@ codeunit 137055 "SCM Warehouse Pick"
 
         // [GIVEN] Item with Base UoM 'PCS' and other UoM 'PACK' = 3 'PCS'
         CreateItemWithUoM(ItemNo, UoM, QtyPerBaseUoM);
+        Item.Get(ItemNo);
+        ItemUnitOfMeasure.Get(ItemNo, Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure.Modify(true);
 
         // [GIVEN] Posted purchase Item Journal Line with 1 'PCS'
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Quantity);
@@ -625,11 +631,11 @@ codeunit 137055 "SCM Warehouse Pick"
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
-        // [THEN] Item Ledger Entry has Quantity = -0.99999
-        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Sales Shipment", LocationCode, -QtyPerBaseUoM * QtyToHandle);
+        // [THEN] Item Ledger Entry has Quantity = -1
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Sales Shipment", LocationCode, -1);
 
-        // [THEN] Posted Sales Shipment Line has Quantity (Base) = Qty. Invoiced (Base) = 0.99999
-        VerifySalesShipmentBaseQty(SalesHeader."Sell-to Customer No.", QtyPerBaseUoM * QtyToHandle);
+        // [THEN] Posted Sales Shipment Line has Quantity (Base) = Qty. Invoiced (Base) = 1
+        VerifySalesShipmentBaseQty(SalesHeader."Sell-to Customer No.", 1);
     end;
 
     [Test]
@@ -783,6 +789,8 @@ codeunit 137055 "SCM Warehouse Pick"
         ItemJournalLine: Record "Item Journal Line";
         TransferHeader: Record "Transfer Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         FromLocationCode: Code[10];
         ToLocationCode: Code[10];
         InTransitLocationCode: Code[10];
@@ -804,6 +812,10 @@ codeunit 137055 "SCM Warehouse Pick"
 
         // [GIVEN] Item with Base UoM 'PCS' and other UoM 'PACK' = 3 'PCS'
         CreateItemWithUoM(ItemNo, UoM, QtyPerBaseUoM);
+        Item.Get(ItemNo);
+        ItemUnitOfMeasure.Get(ItemNo, Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure.Modify(true);
 
         // [GIVEN] Posted purchase Item Journal Line with 1 'PCS' in SILVER Location
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, FromLocationCode, '', Quantity);
@@ -821,14 +833,14 @@ codeunit 137055 "SCM Warehouse Pick"
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
 
-        // [THEN] Transfer Shipment Item Ledger Entry for Location SILVER has Quantity = -0.99999
-        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", FromLocationCode, -QtyPerBaseUoM * QtyToHandle);
+        // [THEN] Transfer Shipment Item Ledger Entry for Location SILVER has Quantity = -1
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", FromLocationCode, -1);
 
-        // [THEN] Transfer Shipment Item Ledger Entry for Location RED has Quantity = 0.99999
-        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", InTransitLocationCode, QtyPerBaseUoM * QtyToHandle);
+        // [THEN] Transfer Shipment Item Ledger Entry for Location RED has Quantity = 1
+        VerifyItemLedgerEntryQty(ItemNo, "Item Ledger Document Type"::"Transfer Shipment", InTransitLocationCode, 1);
 
-        // [THEN] Posted Transfer Shipment Line has Quantity (Base) = 0.99999
-        VerifyTransferShipmentLineBaseQty(FromLocationCode, ToLocationCode, QtyPerBaseUoM * QtyToHandle);
+        // [THEN] Posted Transfer Shipment Line has Quantity (Base) = 1
+        VerifyTransferShipmentLineBaseQty(FromLocationCode, ToLocationCode, 1);
     end;
 
     [Test]
@@ -1432,6 +1444,29 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseActivityLine.TestField("Bin Code", ShipBin.Code);
     end;
 
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestWhseSetupLastWhsePostingRefNo()
+    var
+        WarehouseSetup: Record "Warehouse setup";
+    begin
+        // Given: Warehouse setup is using legacy "Last Whse. Posting Ref. No."
+        WarehouseSetup.LockTable();
+        WarehouseSetup.Get();
+        WarehouseSetup."Last Whse. Posting Ref. Seq." := '';
+        WarehouseSetup."Last Whse. Posting Ref. No." := 2;
+        WarehouseSetup.Modify();
+
+        // When getting next reference number, the sequence should be created and record not be updated anymore.
+        Assert.AreEqual(2, WarehouseSetup.GetCurrentReference(), 'Unexpected current value');
+        Assert.AreEqual('', WarehouseSetup."Last Whse. Posting Ref. Seq.", 'Sequence should not be created before used.');
+        Assert.AreEqual(3, WarehouseSetup.GetNextReference(), 'Unexpected next value');
+        Assert.AreEqual(2, WarehouseSetup."Last Whse. Posting Ref. No.", '"Last Whse. Posting Ref. No." should not be updated.');
+        Assert.AreNotEqual('', WarehouseSetup."Last Whse. Posting Ref. Seq.", 'Sequence should be created on first use.');
+        Assert.IsTrue(NumberSequence.Exists(WarehouseSetup."Last Whse. Posting Ref. Seq."), 'Numbersequence must exist.');
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -1634,16 +1669,16 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);  // Value used for number of bin per zone.
     end;
 
-    local procedure UpdateQtyToHandleBaseInWhseActivityLine(WarehouseActivityHeaderType: Integer; WarehouseActivityHeaderNo: Code[20]; Quantity: Decimal)
+    local procedure UpdateQtyToHandleBaseInWhseActivityLine(ActivityType: Enum "Warehouse Activity Type"; WarehouseActivityHeaderNo: Code[20]; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        FindWhseActivityLineByActivityHeader(WarehouseActivityLine, WarehouseActivityHeaderType, WarehouseActivityHeaderNo);
+        FindWhseActivityLineByActivityHeader(WarehouseActivityLine, ActivityType, WarehouseActivityHeaderNo);
         WarehouseActivityLine.Validate("Qty. to Handle (Base)", Quantity);
         WarehouseActivityLine.Modify(true);
     end;
 
-    local procedure UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeaderType: Integer; WarehouseActivityHeaderNo: Code[20]; Quantity: Decimal)
+    local procedure UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeaderType: Enum "Warehouse Activity Type"; WarehouseActivityHeaderNo: Code[20]; Quantity: Decimal)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1822,7 +1857,7 @@ codeunit 137055 "SCM Warehouse Pick"
         WarehouseActivityHeader.FindFirst;
     end;
 
-    local procedure FindWhseActivityLineByActivityHeader(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeaderType: Integer; WarehouseActivityHeaderNo: Code[20])
+    local procedure FindWhseActivityLineByActivityHeader(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeaderType: Enum "Warehouse Activity Type"; WarehouseActivityHeaderNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeaderType);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeaderNo);
@@ -1836,7 +1871,7 @@ codeunit 137055 "SCM Warehouse Pick"
         TransferHeader.FindFirst;
     end;
 
-    local procedure FilterOnWhseActivityLine(SourceNo: Code[20]; ActionType: Option)
+    local procedure FilterOnWhseActivityLine(SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1854,7 +1889,7 @@ codeunit 137055 "SCM Warehouse Pick"
         exit(AssemblyHeader."No.");
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; ActionType: Option; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -1907,7 +1942,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Option): Code[20]
+    local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"): Code[20]
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1976,7 +2011,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure UpdateBinOnActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; BinCode: Code[20]; ActionType: Option)
+    local procedure UpdateBinOnActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; BinCode: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, ActionType, LocationWhite.Code, SourceNo);
         WarehouseActivityLine.Validate("Bin Code", BinCode);
@@ -1984,7 +2019,7 @@ codeunit 137055 "SCM Warehouse Pick"
     end;
 
     [Normal]
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -2024,7 +2059,7 @@ codeunit 137055 "SCM Warehouse Pick"
         ItemJournalLine.FindFirst;
     end;
 
-    local procedure PostInventoryActivity(ActivityType: Option; ActivityNo: Code[20])
+    local procedure PostInventoryActivity(ActivityType: Enum "Warehouse Activity Type"; ActivityNo: Code[20])
     var
         WhseActivHeader: Record "Warehouse Activity Header";
     begin

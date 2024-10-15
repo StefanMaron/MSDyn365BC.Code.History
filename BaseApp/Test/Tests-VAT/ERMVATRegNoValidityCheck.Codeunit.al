@@ -1073,7 +1073,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Reg. No Validity Check");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
 
         IsInitialized := true;
         Commit();
@@ -1262,7 +1262,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     [Scope('OnPrem')]
     procedure CustomerConsentConfirmationPageChooseYesModalPageHandler(var CustConsentConfPage: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfPage.Yes().Invoke();
+        CustConsentConfPage.Accept.Invoke();
     end;
 }
 

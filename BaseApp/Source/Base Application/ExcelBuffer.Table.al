@@ -500,19 +500,19 @@ table 370 "Excel Buffer"
         ExcelBufferDialogMgt.Open(Text005);
         LastUpdate := CurrentDateTime;
         TotalRecNo := ExcelBuffer.Count();
-        if ExcelBuffer.FindSet then
+        if ExcelBuffer.FindSet() then
             repeat
                 RecNo := RecNo + 1;
                 if not UpdateProgressDialog(ExcelBufferDialogMgt, LastUpdate, RecNo, TotalRecNo) then begin
-                    CloseBook;
+                    CloseBook();
                     Error(Text035)
                 end;
-                if Formula = '' then
+                if ExcelBuffer.Formula = '' then
                     WriteCellValue(ExcelBuffer)
                 else
                     WriteCellFormula(ExcelBuffer)
             until ExcelBuffer.Next() = 0;
-        ExcelBufferDialogMgt.Close;
+        ExcelBufferDialogMgt.Close();
     end;
 
     procedure WriteCellValue(ExcelBuffer: Record "Excel Buffer")
@@ -525,7 +525,7 @@ table 370 "Excel Buffer"
             GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
 
             CellTextValue := "Cell Value as Text";
-            
+
             if "Cell Value as Blob".HasValue then begin
                 "Cell Value as Blob".CreateInStream(InStream, TextEncoding::Windows);
                 InStream.Read(CellTextValue);
@@ -1141,7 +1141,7 @@ table 370 "Excel Buffer"
             end;
 
             DialogWindow.Open(StrSubstNo(SavingDocumentMsg, FileName));
-            DocumentUrl := DocumentServiceMgt.SaveFile(FileNameServer, FileName, true);
+            DocumentUrl := DocumentServiceMgt.SaveFile(FileNameServer, FileName, Enum::"Doc. Service Conflict Behavior"::Replace);
             DocumentServiceMgt.OpenDocument(DocumentUrl);
             DialogWindow.Close;
             exit(true);

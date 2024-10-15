@@ -1,6 +1,6 @@
 page 9005 "Sales Manager Role Center"
 {
-    Caption = 'Sales Manager', Comment = '{Dependency=Match,"ProfileDescription_SALESMANAGER"}';
+    Caption = 'Sales Manager';
     PageType = RoleCenter;
 
     layout

@@ -54,6 +54,12 @@ codeunit 27022 "DIOT Subscribers"
         GenJnlLine."DIOT Type of Operation" := PurchHeader."DIOT Type of Operation";
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice", 'OnPostLinesOnBeforeGenJnlLinePost', '', false, false)]
+    local procedure TransferDIOTTypeOfOperationOnPostLinesOnBeforeGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header");
+    begin
+        GenJnlLine."DIOT Type of Operation" := PurchHeader."DIOT Type of Operation";
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterInsertEvent', '', false, false)]
     local procedure ModifyDIOTTypeOfOperationOnInsertVendor(var Rec: Record Vendor; RunTrigger: Boolean)
     var

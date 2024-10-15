@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 988 "Query Navigation List"
 {
     PageType = List;
@@ -6,6 +7,9 @@ page 988 "Query Navigation List"
     Editable = false;
     RefreshOnActivate = true;
     Caption = 'Query Navigation List';
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central';
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -192,3 +196,4 @@ page 988 "Query Navigation List"
         TargetPageName: Text;
         RecordsExist: Boolean;
 }
+#endif

@@ -366,6 +366,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Assert.AreEqual('', ConfigRule, '');
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
     [Scope('OnPrem')]
@@ -401,7 +402,9 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CustomerTemplate.FindFirst;
         VerifyCustomerTemplate(CustomerTemplate);
     end;
+#endif
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
     [Scope('OnPrem')]
@@ -437,6 +440,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         InStr.ReadText(ConfigRule);
         Assert.AreEqual('', ConfigRule, '');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
@@ -585,6 +589,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Reply := LibraryVariableStorage.DequeueBoolean;
     end;
 
+#if not CLEAN18
     local procedure VerifyCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     begin
         AssertCustomerTemplateFieldMatchesTemplate(CustomerTemplate, CustomerTemplate.FieldNo("Customer Posting Group"));
@@ -607,6 +612,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
           GetValueFromTemplate(FieldId), Format(FieldRef.Value),
           StrSubstNo('The field %1 does not match across both templates', FieldRef.Name));
     end;
+#endif
 
     local procedure GetValueFromTemplate(FieldId: Integer): Text
     var

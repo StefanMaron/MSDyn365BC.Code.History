@@ -1,4 +1,4 @@
-﻿codeunit 7324 "Whse.-Activity-Post"
+codeunit 7324 "Whse.-Activity-Post"
 {
     Permissions = TableData "Warehouse Setup" = m,
                   TableData "Warehouse Journal Batch" = imd,
@@ -433,11 +433,15 @@
                         PurchLine.Get("Source Subtype", "Source No.", "Source Line No.");
                         OnUpdateSourceDocumentOnAfterGetPurchLine(PurchLine, TempWhseActivLine);
                         if "Source Document" = "Source Document"::"Purchase Order" then begin
+                            if (PurchLine."Outstanding Quantity" <> 0) and ("Qty. to Handle" > PurchLine."Outstanding Quantity") then
+                                "Qty. to Handle" := PurchLine."Outstanding Quantity";
                             PurchLine.Validate("Qty. to Receive", "Qty. to Handle");
                             PurchLine."Qty. to Receive (Base)" := "Qty. to Handle (Base)";
                             if InvoiceSourceDoc then
                                 PurchLine.Validate("Qty. to Invoice", "Qty. to Handle");
                         end else begin
+                            if (PurchLine."Outstanding Quantity" <> 0) and (-"Qty. to Handle" > PurchLine."Outstanding Quantity") then
+                                "Qty. to Handle" := -PurchLine."Outstanding Quantity";
                             PurchLine.Validate("Return Qty. to Ship", -"Qty. to Handle");
                             PurchLine."Return Qty. to Ship (Base)" := -"Qty. to Handle (Base)";
                             if InvoiceSourceDoc then
@@ -885,6 +889,8 @@
                 ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine.Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+            ItemJnlLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+            ItemJnlLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             ItemJnlLine.Description := Description;
             if "Activity Type" = "Activity Type"::"Invt. Pick" then
                 ItemJnlLine.Validate(Quantity, "Qty. to Handle")
@@ -944,6 +950,8 @@
             if ItemJnlLine."Unit of Measure Code" <> "Unit of Measure Code" then
                 ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+            ItemJnlLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+            ItemJnlLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             ItemJnlLine."Location Code" := "Location Code";
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Variant Code" := "Variant Code";

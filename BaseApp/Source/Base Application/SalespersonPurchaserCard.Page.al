@@ -305,6 +305,26 @@ page 5116 "Salesperson/Purchaser Card"
                     end;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this salesperson/purchaser.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Salesperson/Purchaser", Rec.SystemId);
+                    end;
+                }
+            }
         }
         area(processing)
         {
@@ -321,6 +341,25 @@ page 5116 "Salesperson/Purchaser Card"
                 trigger OnAction()
                 begin
                     CreateInteraction;
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this person.';
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Salesperson/Purchaser", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
         }
@@ -344,9 +383,12 @@ page 5116 "Salesperson/Purchaser Card"
     end;
 
     trigger OnOpenPage()
+    var
+        EmailFeature: Codeunit "Email Feature";
     begin
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
     end;
 
     var
@@ -354,5 +396,6 @@ page 5116 "Salesperson/Purchaser Card"
         CDSIntegrationEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 }
 

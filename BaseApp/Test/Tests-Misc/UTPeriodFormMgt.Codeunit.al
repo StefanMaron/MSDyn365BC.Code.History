@@ -9,7 +9,7 @@ codeunit 134996 "UT Period Form Mgt"
     end;
 
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageManagement: Codeunit PeriodPageManagement;
         Assert: Codeunit Assert;
         IncorrectDateFilterErr: Label 'Incorrect date filter.';
         LibraryRandom: Codeunit "Library - Random";
@@ -20,7 +20,7 @@ codeunit 134996 "UT Period Form Mgt"
     [Scope('OnPrem')]
     procedure GetFullPeriodDateFilter_EmptyDateFilter()
     begin
-        Assert.AreEqual('', PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Day, ''), IncorrectDateFilterErr);
+        Assert.AreEqual('', PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Day, ''), IncorrectDateFilterErr);
     end;
 
     [Test]
@@ -30,7 +30,7 @@ codeunit 134996 "UT Period Form Mgt"
         DateFilter: Text;
     begin
         DateFilter := GetRandomDateFilter;
-        VerifyDateFilter(DateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Day, DateFilter));
+        VerifyDateFilter(DateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Day, DateFilter));
     end;
 
     [Test]
@@ -41,7 +41,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Week);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Week, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Week, ActualDateFilter));
     end;
 
     [Test]
@@ -52,7 +52,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Month);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 134996 "UT Period Form Mgt"
         // Verify that full period gives the same full period result filter
         // Test for month only due to other period types use the same algoritm
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Month);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Month, ExpectedDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ExpectedDateFilter));
     end;
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterFewMonth(ActualDateFilter, ExpectedDateFilter);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeOneDayDateFilter(ActualDateFilter, ExpectedDateFilter);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Quarter);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Quarter, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Quarter, ActualDateFilter));
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Year);
-        VerifyDateFilter(ExpectedDateFilter, PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::Year, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Year, ActualDateFilter));
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 134996 "UT Period Form Mgt"
     begin
         MakeAccountingPeriodRandomFilter(ActualDateFilter, ExpectedDateFilter, 1);
         VerifyDateFilter(ExpectedDateFilter,
-          PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::"Accounting Period", ActualDateFilter));
+          PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::"Accounting Period", ActualDateFilter));
     end;
 
     [Test]
@@ -133,16 +133,16 @@ codeunit 134996 "UT Period Form Mgt"
     begin
         MakeAccountingPeriodRandomFilter(ActualDateFilter, ExpectedDateFilter, LibraryRandom.RandIntInRange(5, 10));
         VerifyDateFilter(ExpectedDateFilter,
-          PeriodFormMgt.GetFullPeriodDateFilter(PeriodType::"Accounting Period", ActualDateFilter));
+          PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::"Accounting Period", ActualDateFilter));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure MoveDateByPeriod_Month()
     begin
-        Assert.AreEqual(DMY2Date(1, 2, 2018), PeriodFormMgt.MoveDateByPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, 1),
+        Assert.AreEqual(DMY2Date(1, 2, 2018), PeriodPageManagement.MoveDateByPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, 1),
           'Expected to move date by 1 Month');
-        Assert.AreEqual(DMY2Date(1, 12, 2017), PeriodFormMgt.MoveDateByPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, -1),
+        Assert.AreEqual(DMY2Date(1, 12, 2017), PeriodPageManagement.MoveDateByPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, -1),
           'Expected to move date by -1 Month');
     end;
 
@@ -150,9 +150,9 @@ codeunit 134996 "UT Period Form Mgt"
     [Scope('OnPrem')]
     procedure MoveDateByPeriod_Quarter()
     begin
-        Assert.AreEqual(DMY2Date(10, 12, 2018), PeriodFormMgt.MoveDateByPeriod(DMY2Date(10, 6, 2018), PeriodType::Quarter, 2),
+        Assert.AreEqual(DMY2Date(10, 12, 2018), PeriodPageManagement.MoveDateByPeriod(DMY2Date(10, 6, 2018), PeriodType::Quarter, 2),
           'Expected to move date by 2 Quarters');
-        Assert.AreEqual(DMY2Date(5, 4, 2017), PeriodFormMgt.MoveDateByPeriod(DMY2Date(5, 1, 2018), PeriodType::Quarter, -3),
+        Assert.AreEqual(DMY2Date(5, 4, 2017), PeriodPageManagement.MoveDateByPeriod(DMY2Date(5, 1, 2018), PeriodType::Quarter, -3),
           'Expected to move date by -3 Quarters');
     end;
 
@@ -160,9 +160,9 @@ codeunit 134996 "UT Period Form Mgt"
     [Scope('OnPrem')]
     procedure MoveDateByPeriod_Year()
     begin
-        Assert.AreEqual(DMY2Date(31, 7, 2023), PeriodFormMgt.MoveDateByPeriod(DMY2Date(31, 7, 2018), PeriodType::Year, 5),
+        Assert.AreEqual(DMY2Date(31, 7, 2023), PeriodPageManagement.MoveDateByPeriod(DMY2Date(31, 7, 2018), PeriodType::Year, 5),
           'Expected to move date by 5 Years');
-        Assert.AreEqual(DMY2Date(1, 1, 2016), PeriodFormMgt.MoveDateByPeriod(DMY2Date(1, 1, 2018), PeriodType::Year, -2),
+        Assert.AreEqual(DMY2Date(1, 1, 2016), PeriodPageManagement.MoveDateByPeriod(DMY2Date(1, 1, 2018), PeriodType::Year, -2),
           'Expected to move date by -2 Years');
     end;
 
@@ -171,10 +171,10 @@ codeunit 134996 "UT Period Form Mgt"
     procedure MoveDateByPeriodToEndOfPeriod_Month()
     begin
         Assert.AreEqual(
-          DMY2Date(28, 2, 2018), PeriodFormMgt.MoveDateByPeriodToEndOfPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, 1),
+          DMY2Date(28, 2, 2018), PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, 1),
           'Expected to move date by 1 Month and go to end of period');
         Assert.AreEqual(
-          DMY2Date(31, 12, 2017), PeriodFormMgt.MoveDateByPeriodToEndOfPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, -1),
+          DMY2Date(31, 12, 2017), PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(DMY2Date(1, 1, 2018), PeriodType::Month, -1),
           'Expected to move date by -1 Month and go to end of period');
     end;
 
@@ -183,10 +183,10 @@ codeunit 134996 "UT Period Form Mgt"
     procedure MoveDateByPeriodToEndOfPeriod_Quarter()
     begin
         Assert.AreEqual(
-          DMY2Date(9, 3, 2019), PeriodFormMgt.MoveDateByPeriodToEndOfPeriod(DMY2Date(10, 6, 2018), PeriodType::Quarter, 2),
+          DMY2Date(9, 3, 2019), PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(DMY2Date(10, 6, 2018), PeriodType::Quarter, 2),
           'Expected to move date by 2 Quarters and go to end of period');
         Assert.AreEqual(
-          DMY2Date(4, 7, 2017), PeriodFormMgt.MoveDateByPeriodToEndOfPeriod(DMY2Date(5, 1, 2018), PeriodType::Quarter, -3),
+          DMY2Date(4, 7, 2017), PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(DMY2Date(5, 1, 2018), PeriodType::Quarter, -3),
           'Expected to move date by -3 Quarters and go to end of period');
     end;
 
@@ -195,10 +195,10 @@ codeunit 134996 "UT Period Form Mgt"
     procedure MoveDateByPeriodToEndOfPeriod_Year()
     begin
         Assert.AreEqual(
-          DMY2Date(30, 7, 2024), PeriodFormMgt.MoveDateByPeriodToEndOfPeriod(DMY2Date(31, 7, 2018), PeriodType::Year, 5),
+          DMY2Date(30, 7, 2024), PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(DMY2Date(31, 7, 2018), PeriodType::Year, 5),
           'Expected to move date by 5 Years and go to end of period');
         Assert.AreEqual(
-          DMY2Date(31, 12, 2016), PeriodFormMgt.MoveDateByPeriodToEndOfPeriod(DMY2Date(1, 1, 2018), PeriodType::Year, -2),
+          DMY2Date(31, 12, 2016), PeriodPageManagement.MoveDateByPeriodToEndOfPeriod(DMY2Date(1, 1, 2018), PeriodType::Year, -2),
           'Expected to move date by -2 Years and go to end of period');
     end;
 
@@ -216,7 +216,7 @@ codeunit 134996 "UT Period Form Mgt"
         Calendar."Period Start" := AccountingPeriod."Starting Date";
 
         // [WHEN] Run FindDate function on this Calendar record with SearchString ">=" and Period Type "Accounting Period".
-        PeriodFormMgt.FindDate('>=', Calendar, PeriodType::"Accounting Period");
+        PeriodPageManagement.FindDate('>=', Calendar, PeriodType::"Accounting Period");
 
         // [THEN] Calendar."Period End" is equal to 31.12.9999.
         Calendar.TestField("Period End", DMY2Date(31, 12, 9999));

@@ -65,10 +65,12 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorContextElement: Codeunit "Error Context Element";
     begin
         OnBeforePostPrepmtDocument(PurchHeader, PrepmtDocumentType.AsInteger());
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, PurchHeader.RecordId, 0, '');
         PurchPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not PurchPostPrepayments.Run(PurchHeader) then

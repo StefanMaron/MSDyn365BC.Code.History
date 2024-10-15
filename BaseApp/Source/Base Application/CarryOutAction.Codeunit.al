@@ -788,6 +788,8 @@ codeunit 99000813 "Carry Out Action"
                 AsmLine.Validate("No.", PlanningComponent."Item No.");
                 AsmLine.Description := PlanningComponent.Description;
                 AsmLine."Unit of Measure Code" := PlanningComponent."Unit of Measure Code";
+                AsmLine."Qty. Rounding Precision" := PlanningComponent."Qty. Rounding Precision";
+                AsmLine."Qty. Rounding Precision (Base)" := PlanningComponent."Qty. Rounding Precision (Base)";
                 AsmLine."Lead-Time Offset" := PlanningComponent."Lead-Time Offset";
                 AsmLine.Position := PlanningComponent.Position;
                 AsmLine."Position 2" := PlanningComponent."Position 2";

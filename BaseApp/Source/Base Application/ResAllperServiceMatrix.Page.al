@@ -512,7 +512,6 @@ page 9215 "Res. All. per Service  Matrix"
                     Caption = 'Sales Prices';
                     Image = Price;
                     Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource group.';
 

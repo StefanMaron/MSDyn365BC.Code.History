@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5486 "Payment Methods Entity"
 {
     Caption = 'paymentMethods', Locked = true;
@@ -105,4 +106,4 @@ page 5486 "Payment Methods Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

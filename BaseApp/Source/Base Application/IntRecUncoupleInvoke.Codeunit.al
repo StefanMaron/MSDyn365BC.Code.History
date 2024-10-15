@@ -25,8 +25,8 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
         IsContextInitialized: Boolean;
         ContextErr: Label 'The integration record synchronization context has not been initialized.';
         UncoupleFailedErr: Label 'Uncoupling %1 failed because of the following error: %2.', Comment = '%1 = Table Caption, %2 = Error from modify process.';
-        UnexpectedRecordStateTxt: Label 'Uncoupling %1 was skipped because of record state differs from the expected one. Actual state: %2, expected state: %3.', Comment = '%1 = table caption, %2 = actual state, %3 = expected state.';
-        UnexpectedSyncActionTxt: Label 'Uncoupling %1 was skipped because of sync action differs the expected one. Actual action: %2, expected action: %3.', Comment = '%1 = table caption, %2 = actual action, %3 = expected action.';
+        UnexpectedRecordStateTxt: Label 'Uncoupling %1 was skipped because of record state differs from the expected one. Actual state: %2, expected state: %3.', Locked = true;
+        UnexpectedSyncActionTxt: Label 'Uncoupling %1 was skipped because of sync action differs the expected one. Actual action: %2, expected action: %3.', Locked = true;
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
 
     procedure SetContext(IntegrationTableMapping: Record "Integration Table Mapping"; LocalRecordRef: RecordRef; IntegrationRecordRef: RecordRef; SynchAction: Option; LocalRecordModified: Boolean; IntegrationRecordModified: Boolean; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
@@ -69,7 +69,7 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
     begin
         if SynchAction <> SynchActionType::Uncouple then begin
             SynchAction := SynchActionType::Skip;
-            Session.LogMessage('0000DEB', StrSubstNo(UnexpectedSyncActionTxt, IntegrationRecordRef.Caption(), SynchAction, SynchActionType::Skip), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Session.LogMessage('0000DEB', StrSubstNo(UnexpectedSyncActionTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"), SynchAction, SynchActionType::Skip), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
@@ -79,7 +79,7 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
             RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
         if RecordState <> RecordState::Coupled then begin
             SynchAction := SynchActionType::Skip;
-            Session.LogMessage('0000DEC', StrSubstNo(UnexpectedRecordStateTxt, IntegrationRecordRef.Caption(), RecordState, RecordState::Coupled), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Session.LogMessage('0000DEC', StrSubstNo(UnexpectedRecordStateTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"), RecordState, RecordState::Coupled), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit;
         end;
 
@@ -114,7 +114,7 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
             OnErrorWhenUncouplingRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef);
             LogSynchError(
                 LocalRecordRef, IntegrationRecordRef,
-                StrSubstNo(UncoupleFailedErr, IntegrationRecordRef.Caption(), RemoveTrailingDots(GetLastErrorText())), JobId);
+                StrSubstNo(UncoupleFailedErr, GetTableCaption(IntegrationTableMapping."Integration Table ID"), RemoveTrailingDots(GetLastErrorText())), JobId);
             exit;
         end;
 
@@ -179,6 +179,15 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
             // Close destination - it is in error state and can no longer be used.
             IntegrationRecordRef.Close();
         end;
+    end;
+
+    local procedure GetTableCaption(TableID: Integer): Text
+    var
+        TableMetadata: Record "Table Metadata";
+    begin
+        if TableMetadata.Get(TableID) then
+            exit(TableMetadata.Caption);
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

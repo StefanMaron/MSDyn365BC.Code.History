@@ -131,6 +131,18 @@ table 5496 "Purchase Order Entity Buffer"
                 UpdateShipmentMethodId();
             end;
         }
+        field(29; "Shortcut Dimension 1 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 1 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
+        }
+        field(30; "Shortcut Dimension 2 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 2 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
+        }
         field(31; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';

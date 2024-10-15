@@ -149,6 +149,13 @@ report 10159 "Sales Promotion"
     {
     }
 
+    trigger OnInitReport()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
+
     trigger OnPreReport()
     begin
         CompanyInformation.Get();

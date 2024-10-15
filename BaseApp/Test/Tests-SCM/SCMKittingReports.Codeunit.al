@@ -2052,7 +2052,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         // Add the produced item as a component in the Assembly Order or viceversa.
         if TopItemReplenishment = TopItemRepl::Assembly then
             LibraryAssembly.CreateAssemblyLine(
-              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", LibraryRandom.RandInt(10), 1, '')
+              AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", LibraryRandom.RandInt(10), 1, '')
         else
             LibraryManufacturing.CreateProductionBOMLine(
               ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, AssemblyHeader."Item No.",

@@ -1319,13 +1319,13 @@ codeunit 141041 "Test Partner Integration NA"
 
         // [GIVEN] Service Header
         Initialize;
-        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice.AsInteger());
         CreateServiceLine(ServiceLine, ServiceHeader);
 
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Serv-Amounts Mgt.FillInvPostingBuffer
-        ServAmountsMgt.FillInvPostingBuffer(InvoicePostBuffer, ServiceLine, ServiceLine, ServiceHeader);
+        ServAmountsMgt.FillInvoicePostBuffer(InvoicePostBuffer[2], ServiceLine, ServiceLine, ServiceHeader);
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnFillInvPostingBufferServAmtsMgtTxt);

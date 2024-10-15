@@ -43,6 +43,13 @@ page 527 "Posted Sales Credit Memo Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Package Tracking No."; "Package Tracking No.")
                 {
                     ToolTip = 'Specifies the Package Tracking No. field on the sales line.';

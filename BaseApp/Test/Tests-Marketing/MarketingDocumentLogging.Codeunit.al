@@ -7,6 +7,7 @@ codeunit 136202 "Marketing Document Logging"
     begin
         // [FEATURE] [Archive] [Marketing]
         IsInitialized := false;
+        Initialize();
     end;
 
     var
@@ -23,6 +24,7 @@ codeunit 136202 "Marketing Document Logging"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         ArchivedSalesHeaderError: Label '%1 %2=%3, %4=%5 must not exist.';
 
@@ -144,14 +146,14 @@ codeunit 136202 "Marketing Document Logging"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmMessageHandlerFalse')]
+    [HandlerFunctions('StdSalesQuoteExcelRequestPageHandler')]
     [Scope('OnPrem')]
     procedure InteractionLogEntryQuote()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         InteractionLogEntry: Record "Interaction Log Entry";
-        SalesQuote: Report "Sales - Quote";
+        SalesQuote: Report "Standard Sales - Quote";
         FilePath: Text[1024];
     begin
         // Covers document number TC0047 - refer to TFS ID 21739.
@@ -159,18 +161,20 @@ codeunit 136202 "Marketing Document Logging"
 
         // 1. Setup: Create Sales Header and Sales Line with Type Item.
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
+        LibraryReportDataset.SetFileName(LibraryUtility.GenerateGUID);
+        SetRDLCReportLayout(REPORT::"Standard Sales - Quote");
 
-        // 2. Exercise: Run Sales Quote Report with Log Interaction and Archive Document True, Save it as as XML and XLSX in
-        // local Temp folder.
+        // 2. Exercise: Run Sales Quote Report with Log Interaction, Save it as as XLSX.
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
         SalesQuote.SetTableView(SalesHeader);
-        SalesQuote.InitializeRequest(1, false, true, true, true);
-        FilePath := TemporaryPath + Format(SalesHeader."Document Type") + SalesHeader."No." + '.xlsx';
-        SalesQuote.SaveAsExcel(FilePath);
+        SalesQuote.InitializeRequest(true);
+        Commit();
+        SalesHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
-        // 3. Verify: Verfiy Saved Report have some data and Interaction Log Entry.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
+        // 3. Verify: Verify Saved Report have some data and Interaction Log Entry.
+        LibraryUtility.CheckFileNotEmpty(LibraryReportDataset.GetFileName());
         InteractionLogEntry.SetRange("Contact No.", SalesHeader."Bill-to Contact No.");
         InteractionLogEntry.SetRange("Document No.", SalesHeader."No.");
         InteractionLogEntry.FindFirst;
@@ -187,38 +191,6 @@ codeunit 136202 "Marketing Document Logging"
         // Test Sales Quote Successfully Restored from Archived Sales Quote.
 
         RestoreSalesDocument(SalesHeader."Document Type"::Quote);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure InteractionLogEntryOrder()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        InteractionLogEntry: Record "Interaction Log Entry";
-        OrderConfirmation: Report "Order Confirmation";
-        FilePath: Text[1024];
-    begin
-        // Covers document number TC0049 - refer to TFS ID 21739.
-        // Test Order Confirmation Report and Interaction Log entry.
-
-        // 1. Setup: Create Sales Header and Sales Line with Type Item.
-        CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-
-        // 2. Exercise: Run Order Confirmation Report with Log Interaction and Archive Document True, Save it as as XML and XLSX in
-        // local Temp folder.
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        OrderConfirmation.SetTableView(SalesHeader);
-        OrderConfirmation.InitializeRequest(1, false, true, true, true, false);
-        FilePath := TemporaryPath + Format(SalesHeader."Document Type") + SalesHeader."No." + '.xlsx';
-        OrderConfirmation.SaveAsExcel(FilePath);
-
-        // 3. Verify: Verfiy Saved Report have some data and Interaction Log Entry.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
-        InteractionLogEntry.SetRange("Contact No.", SalesHeader."Bill-to Contact No.");
-        InteractionLogEntry.SetRange("Document No.", SalesHeader."No.");
-        InteractionLogEntry.FindFirst;
     end;
 
     [Test]
@@ -611,17 +583,22 @@ codeunit 136202 "Marketing Document Logging"
     procedure SalesQuoteHeaderFromContact()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
     begin
         // Test Create a Sales Quote from Contact.
 
         // 1. Setup: Create Contact, Customer Template.
-        LibraryMarketing.FindContact(Contact);
-        LibraryMarketing.FindCustomerTemplate(CustomerTemplate);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
 
         // 2. Exercise: Create Sales Quote Header from Contact with Customer Template.
-        LibraryMarketing.CreateSalesHeaderWithContact(SalesHeader, Contact."No.", CustomerTemplate.Code);
+        SalesHeader.Init();
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplate.Code);
+        SalesHeader.Modify(true);
 
         // 3. Verify: Verify Values on Sales Header with Document Type Quote.
         VerifySalesHeaderQuoteValues(SalesHeader, Contact."No.", CustomerTemplate.Code);
@@ -633,7 +610,7 @@ codeunit 136202 "Marketing Document Logging"
     procedure SalesQuoteDocumentFromContact()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -642,11 +619,15 @@ codeunit 136202 "Marketing Document Logging"
         // Test Create a Sales Quote Document from Contact and Verify Values on Sales Quote Document.
         Initialize;
         // 1. Setup: Create Contact, Customer Template.
-        LibraryMarketing.FindContact(Contact);
-        FindUpdateCustomerTemplate(CustomerTemplate);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
 
         // 2. Exercise: Create Sales Quote Document from Contact with Customer Template and Random Quantity.
-        LibraryMarketing.CreateSalesHeaderWithContact(SalesHeader, Contact."No.", CustomerTemplate.Code);
+        SalesHeader.Init();
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplate.Code);
+        SalesHeader.Modify(true);
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
@@ -656,13 +637,14 @@ codeunit 136202 "Marketing Document Logging"
         VerifySalesLineQuoteValues(SalesLine, Item."No.", Quantity);
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('ConfirmMessageHandlerSpecific,MessageHandler')]
     [Scope('OnPrem')]
     procedure ArchiveSalesQuoteFromContact()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -671,11 +653,15 @@ codeunit 136202 "Marketing Document Logging"
         // Test Create Archive Document from Sales Quote Document with Contact.
         Initialize;
         // 1. Setup: Create Contact, Customer Template, Create Sales Quote Document from Contact with Customer Template and Random Quantity.
-        LibraryMarketing.FindContact(Contact);
-        FindUpdateCustomerTemplate(CustomerTemplate);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(true);
-        LibraryMarketing.CreateSalesHeaderWithContact(SalesHeader, Contact."No.", CustomerTemplate.Code);
+        SalesHeader.Init();
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplate.Code);
+        SalesHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
@@ -689,14 +675,14 @@ codeunit 136202 "Marketing Document Logging"
         VerifyArchivedVersions(SalesHeader);
         LibraryVariableStorage.AssertEmpty;
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ConfirmMessageHandlerSpecific,MessageHandler')]
     [Scope('OnPrem')]
     procedure ReleasedSalesQuoteAfterArchive()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -706,12 +692,16 @@ codeunit 136202 "Marketing Document Logging"
         Initialize;
         // 1. Setup: Create Contact, Customer Template, Create Sales Quote Document from Contact with Customer Template and Random Quantity.
         // Archive the Sales Document.
-        LibraryMarketing.FindContact(Contact);
-        FindUpdateCustomerTemplate(CustomerTemplate);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        LibraryTemplates.CreateCustomerTemplateWithData(CustomerTemplate);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
-        LibraryMarketing.CreateSalesHeaderWithContact(SalesHeader, Contact."No.", CustomerTemplate.Code);
+        SalesHeader.Init();
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
+        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplate.Code);
+        SalesHeader.Modify(true);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
@@ -871,6 +861,7 @@ codeunit 136202 "Marketing Document Logging"
         ReportSelections.DeleteAll();
         CreateDefaultReportSelection;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibraryTemplates.EnableTemplatesFeature();
 
         CompanyInformation.Get();
         CompanyInformation."SWIFT Code" := 'A';
@@ -1053,6 +1044,7 @@ codeunit 136202 "Marketing Document Logging"
         LibrarySales.SetArchiveOrders(ArchiveOrders);
     end;
 
+#if not CLEAN18
     local procedure FindUpdateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -1065,7 +1057,7 @@ codeunit 136202 "Marketing Document Logging"
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CustomerTemplate.Modify(true);
     end;
-
+#endif
     local procedure RunReportArchivedSalesQuote(SalesHeader: Record "Sales Header")
     var
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -1143,6 +1135,7 @@ codeunit 136202 "Marketing Document Logging"
         until SalesLineArchive.Next = 0;
     end;
 
+#if not CLEAN18
     local procedure VerifySalesHeaderArchive(SalesHeader: Record "Sales Header")
     var
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -1155,12 +1148,12 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive.TestField("Order Date", SalesHeader."Order Date");
         SalesHeaderArchive.TestField("Document Date", SalesHeader."Document Date");
     end;
-
-    local procedure VerifySalesHeaderQuoteValues(SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[10])
+#endif
+    local procedure VerifySalesHeaderQuoteValues(SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[20])
     begin
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         SalesHeader.TestField("Sell-to Contact No.", SellToContactNo);
-        SalesHeader.TestField("Sell-to Customer Template Code", SellToCustomerTemplateCode);
+        SalesHeader.TestField("Sell-to Customer Templ. Code", SellToCustomerTemplateCode);
         SalesHeader.TestField("Order Date", WorkDate);
         SalesHeader.TestField("Document Date", WorkDate);
     end;
@@ -1201,6 +1194,25 @@ codeunit 136202 "Marketing Document Logging"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLine__VAT_Identifier_', VATProdPostingGroup);
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLine__VAT_Amount_', VATAmount);
+    end;
+
+    local procedure SetRDLCReportLayout(ReportID: Integer)
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+    begin
+        ReportLayoutSelection.SetRange("Report ID", ReportID);
+        ReportLayoutSelection.SetRange("Company Name", CompanyName);
+        if ReportLayoutSelection.FindFirst then begin
+            ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
+            ReportLayoutSelection."Custom Report Layout Code" := '';
+            ReportLayoutSelection.Modify();
+        end else begin
+            ReportLayoutSelection."Report ID" := ReportID;
+            ReportLayoutSelection."Company Name" := CompanyName;
+            ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
+            ReportLayoutSelection."Custom Report Layout Code" := '';
+            ReportLayoutSelection.Insert();
+        end;
     end;
 
     [ConfirmHandler]
@@ -1249,6 +1261,13 @@ codeunit 136202 "Marketing Document Logging"
     procedure SalesInvoiceRequestHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StdSalesQuoteExcelRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
+    begin
+        StandardSalesQuote.SaveAsExcel(LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -1253,7 +1253,7 @@ page 8626 "Config. Package Records"
 
     var
         ConfigPackageData: Record "Config. Package Data";
-        MatrixCellData: array[1000] of Text[250];
+        MatrixCellData: array[1000] of Text[2048];
         MatrixColumnCaptions: array[1000] of Text[100];
         MatrixDimension: array[1000] of Boolean;
         FormCaption: Text[1024];
@@ -1610,7 +1610,7 @@ page 8626 "Config. Package Records"
         ConfigPackageMgt: Codeunit "Config. Package Management";
         RecRef: RecordRef;
         FieldRef: FieldRef;
-        ErrorText: Text[250];
+        ErrorText: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;

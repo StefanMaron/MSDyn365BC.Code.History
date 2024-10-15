@@ -1,6 +1,6 @@
 page 9009 "Whse. Worker WMS Role Center"
 {
-    Caption = 'Warehouse Worker - Warehouse Management System', Comment = '{Dependency=Match,"ProfileDescription_WAREHOUSEWORKER-WMS"}';
+    Caption = 'Warehouse Worker - Warehouse Management System';
     PageType = RoleCenter;
 
     layout

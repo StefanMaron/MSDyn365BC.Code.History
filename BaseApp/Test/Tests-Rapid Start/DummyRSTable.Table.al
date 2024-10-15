@@ -24,6 +24,10 @@ table 136607 DummyRSTable
         {
 
         }
+        field(6; "Long Text Field"; Text[2048])
+        {
+
+        }
     }
 
     keys

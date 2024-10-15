@@ -1147,7 +1147,7 @@ codeunit 134101 "ERM Prepayment II"
 
         // [THEN] Error Messages list shows one error: "Tax Group Code must have a value", Context = <blank>
         Assert.ExpectedMessage(MissingTaxGroupCodeErr, ErrorMessagesPage.Description.Value);
-        ErrorMessagesPage.Context.AssertEquals('');
+        ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader.RecordId));
     end;
 
     [Test]

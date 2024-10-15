@@ -1,4 +1,4 @@
-﻿codeunit 410 "Update Analysis View"
+codeunit 410 "Update Analysis View"
 {
     Permissions = TableData "G/L Entry" = r,
                   TableData "G/L Budget Entry" = r,

@@ -194,6 +194,9 @@ page 5904 "Service Line List"
                     ApplicationArea = Service;
                     Caption = 'Show Document';
                     Image = View;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 

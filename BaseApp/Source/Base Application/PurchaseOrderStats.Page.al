@@ -742,7 +742,6 @@ page 10039 "Purchase Order Stats."
         TempSalesTaxLine3: Record "Sales Tax Amount Line" temporary;
         TempVATAmountLine4: Record "VAT Amount Line" temporary;
         PurchSetup: Record "Purchases & Payables Setup";
-        SalesTaxDifference: Record "Sales Tax Amount Difference";
         TaxArea: Record "Tax Area";
         PurchPost: Codeunit "Purch.-Post";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
@@ -986,7 +985,7 @@ page 10039 "Purchase Order Stats."
             SalesTaxCalculate.StartSalesTaxCalculation;
             SalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine1,
-              SalesTaxDifference."Document Product Area"::Purchase,
+              "Sales Tax Document Area"::Purchase.AsInteger(),
               "Document Type".AsInteger(), "No.");
             SalesTaxCalculate.DistTaxOverPurchLines(PurchLine);
             SalesTaxCalculate.SaveTaxDifferences;
@@ -995,7 +994,7 @@ page 10039 "Purchase Order Stats."
             SalesTaxCalculate.StartSalesTaxCalculation;
             SalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine2,
-              SalesTaxDifference."Document Product Area"::Purchase,
+              "Sales Tax Document Area"::Purchase.AsInteger(),
               "Document Type".AsInteger(), "No.");
             SalesTaxCalculate.DistTaxOverPurchLines(PurchLine);
             SalesTaxCalculate.SaveTaxDifferences;

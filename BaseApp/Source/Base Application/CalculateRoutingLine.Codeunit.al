@@ -1502,7 +1502,7 @@ codeunit 99000774 "Calculate Routing Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAdjustEndingTime(IsHandled);
+        OnBeforeAdjustEndingTime(IsHandled, CalendarEntry, EndingTime);
         if IsHandled then
             exit;
 
@@ -1515,7 +1515,7 @@ codeunit 99000774 "Calculate Routing Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAdjustStartingTime(IsHandled);
+        OnBeforeAdjustStartingTime(IsHandled, CalendarEntry, StartingTime);
         if IsHandled then
             exit;
 
@@ -1995,12 +1995,12 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAdjustEndingTime(var IsHandled: Boolean)
+    local procedure OnBeforeAdjustEndingTime(var IsHandled: Boolean; CalendarEntry: Record "Calendar Entry"; var EndingTime: Time)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAdjustStartingTime(var IsHandled: Boolean)
+    local procedure OnBeforeAdjustStartingTime(var IsHandled: Boolean; CalendarEntry: Record "Calendar Entry"; var StartingTime: Time)
     begin
     end;
 

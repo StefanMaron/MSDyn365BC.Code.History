@@ -2331,7 +2331,7 @@ codeunit 139501 "MS - Yodlee Bank Service Tests"
     [Scope('OnPrem')]
     procedure ConsentConfirmYes(var CustConsentConfirmation: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfirmation.Yes().Invoke();
+        CustConsentConfirmation.Accept.Invoke();
     end;
 
     local procedure DoNotEnableJobQueue();

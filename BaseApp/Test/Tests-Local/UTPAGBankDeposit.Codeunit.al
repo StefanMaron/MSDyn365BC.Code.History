@@ -503,6 +503,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     procedure LCYDepositWithTwoLinesChangeBankToFCY()
     var
         DepositHeader: Record "Deposit Header";
+        GenJournalLine: Record "Gen. Journal Line";
         Deposit: TestPage Deposit;
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
@@ -533,6 +534,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     procedure FCYDepositWithTwoLinesChangeBankToLCY()
     var
         DepositHeader: Record "Deposit Header";
+        GenJournalLine: Record "Gen. Journal Line";
         Deposit: TestPage Deposit;
         CurrencyCode: Code[10];
         CurrencyFactor: Decimal;
@@ -563,6 +565,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     procedure FCYDepositWithTwoLinesChangeBankToFCY2()
     var
         DepositHeader: Record "Deposit Header";
+        GenJournalLine: Record "Gen. Journal Line";
         Deposit: TestPage Deposit;
         CurrencyCode: array[2] of Code[10];
         CurrencyFactor: array[2] of Decimal;
@@ -598,6 +601,7 @@ codeunit 141008 "UT PAG Bank Deposit"
     procedure FCYDepositWithTwoLinesChangePostingDate()
     var
         DepositHeader: Record "Deposit Header";
+        GenJournalLine: Record "Gen. Journal Line";
         Deposit: TestPage Deposit;
         CurrencyCode: Code[10];
         CurrencyFactor: array[2] of Decimal;
@@ -726,6 +730,7 @@ codeunit 141008 "UT PAG Bank Deposit"
 
     local procedure CreateBankAccount(CurrencyCode: Code[10]): Code[20]
     var
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);

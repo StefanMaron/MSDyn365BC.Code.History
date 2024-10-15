@@ -14,15 +14,19 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Gen. Journal Line" = r,
                   tabledata "General Ledger Setup" = RM,
                   tabledata Job = RIMD,
+#if not CLEAN19
                   tabledata "Job G/L Account Price" = RIMD,
                   tabledata "Job Item Price" = RIMD,
+#endif
                   tabledata "Job Journal Line" = r,
                   tabledata "Job Ledger Entry" = Rm,
                   tabledata "Job Planning Line - Calendar" = RIMD,
                   tabledata "Job Planning Line" = RIMD,
                   tabledata "Job Planning Line Invoice" = RIMD,
                   tabledata "Job Posting Group" = R,
+#if not CLEAN19
                   tabledata "Job Resource Price" = RIMD,
+#endif
                   tabledata "Job Task" = RIMD,
                   tabledata "Job Usage Link" = RIMD,
                   tabledata "Job WIP Entry" = rimd,
@@ -51,7 +55,9 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Res. Ledger Entry" = rm,
                   tabledata Resource = R,
                   tabledata "Resource Group" = R,
+#if not CLEAN19
                   tabledata "Resource Price" = RIMD,
+#endif
                   tabledata "Return Receipt Header" = r,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Return Shipment Header" = r,

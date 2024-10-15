@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5472 "Vendor Entity"
 {
     Caption = 'vendors', Locked = true;
@@ -371,4 +372,4 @@ page 5472 "Vendor Entity"
             RegisterFieldSet(FieldNo(County));
     end;
 }
-
+#endif

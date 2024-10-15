@@ -47,6 +47,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [THEN] Message indicates all journal lines are post-ready
 
         Initialize;
+        GLPostingPreview.OpenEdit();
 
         // Setup
         CreateDirectApprovalEnabledWorkflow(Workflow);

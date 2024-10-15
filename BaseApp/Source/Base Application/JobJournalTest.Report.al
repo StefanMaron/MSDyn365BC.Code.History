@@ -393,7 +393,6 @@ report 1005 "Job Journal - Test"
         Text011: Label '%1 is not within your allowed range of posting dates.';
         Text012: Label 'There is a gap in the number series.';
         Text013: Label '%1 cannot be specified.';
-        Text014: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         Job: Record Job;
         JT: Record "Job Task";
@@ -405,10 +404,6 @@ report 1005 "Job Journal - Test"
         DimSetEntry: Record "Dimension Set Entry";
         InvtPeriod: Record "Inventory Period";
         DimMgt: Codeunit DimensionManagement;
-        Day: Integer;
-        Week: Integer;
-        Month: Integer;
-        MonthText: Text[30];
         ErrorCounter: Integer;
         ErrorText: array[50] of Text[250];
         JobJnlLineFilter: Text;
@@ -471,21 +466,8 @@ report 1005 "Job Journal - Test"
     local procedure MakeRecurringTexts(var JobJnlLine2: Record "Job Journal Line")
     begin
         with JobJnlLine2 do
-            if ("Posting Date" <> 0D) and ("No." <> '') and ("Recurring Method" <> 0) then begin
-                Day := Date2DMY("Posting Date", 1);
-                Week := Date2DWY("Posting Date", 2);
-                Month := Date2DMY("Posting Date", 2);
-                MonthText := Format("Posting Date", 0, Text014);
-                AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
-                    AccountingPeriod.Name := '';
-                "Document No." :=
-                  DelChr(PadStr(StrSubstNo("Document No.", Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen("Document No.")), '>');
-                Description :=
-                  DelChr(PadStr(StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen(Description)), '>');
-            end;
+            if ("Posting Date" <> 0D) and ("No." <> '') and ("Recurring Method" <> 0) then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
     end;
 
     procedure AddError(Text: Text[250])

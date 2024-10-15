@@ -402,11 +402,9 @@ table 254 "VAT Entry"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
-        field(10019; "GST/HST"; Option)
+        field(10019; "GST/HST"; Enum "GST HST Tax Type")
         {
             Caption = 'GST/HST';
-            OptionCaption = ' ,Acquisition,Self Assessment,Rebate,New Housing Rebates,Pension Rebate';
-            OptionMembers = " ",Acquisition,"Self Assessment",Rebate,"New Housing Rebates","Pension Rebate";
         }
         field(27040; "DIOT-Type of Operation"; Option)
         {

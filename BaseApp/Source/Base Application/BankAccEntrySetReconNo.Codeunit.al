@@ -10,7 +10,10 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     var
         CheckLedgEntry: Record "Check Ledger Entry";
 
-    procedure ApplyEntries(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry"; Relation: Option "One-to-One","One-to-Many"): Boolean
+    procedure ApplyEntries(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry"; Relation: Option "One-to-One","One-to-Many","Many-to-One"): Boolean
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        NextMatchID: Integer;
     begin
         OnBeforeApplyEntries(BankAccReconLine, BankAccLedgEntry, Relation);
 
@@ -19,20 +22,112 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         BankAccReconLine.LockTable();
         BankAccReconLine.Find;
 
-        if BankAccLedgEntry.IsApplied then
-            exit(false);
+        case Relation of
+            Relation::"One-to-One":
+                begin
+                    if BankAccReconLine."Applied Entries" > 0 then
+                        exit(false);
+                    if BankAccLedgEntry.IsApplied() then
+                        exit(false);
 
-        if (Relation = Relation::"One-to-One") and (BankAccReconLine."Applied Entries" > 0) then
-            exit(false);
+                    BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
+                    BankAccReconLine."Ready for Application" := true;
+                    SetReconNo(BankAccLedgEntry, BankAccReconLine);
+                    BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
+                    BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" + 1;
+                    BankAccReconLine.Validate("Statement Amount");
+                    ModifyBankAccReconLine(BankAccReconLine);
+                end;
+            Relation::"One-to-Many":
+                begin
+                    if BankAccLedgEntry.IsApplied() then
+                        exit(false);
 
-        BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
-        BankAccReconLine."Ready for Application" := true;
-        SetReconNo(BankAccLedgEntry, BankAccReconLine);
-        BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
-        BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" + 1;
-        BankAccReconLine.Validate("Statement Amount");
-        ModifyBankAccReconLine(BankAccReconLine);
+                    BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
+                    BankAccReconLine."Ready for Application" := true;
+                    SetReconNo(BankAccLedgEntry, BankAccReconLine);
+                    BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
+                    BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" + 1;
+                    BankAccReconLine.Validate("Statement Amount");
+                    ModifyBankAccReconLine(BankAccReconLine);
+                end;
+            Relation::"Many-to-One":
+                begin
+                    if (BankAccReconLine."Applied Entries" > 0) then
+                        exit(false); //Many-to-many is not supported
+
+                    NextMatchID := GetNextMatchID(BankAccReconLine, BankAccLedgEntry);
+                    BankAccRecMatchBuffer.Init();
+                    BankAccRecMatchBuffer."Ledger Entry No." := BankAccLedgEntry."Entry No.";
+                    BankAccRecMatchBuffer."Statement No." := BankAccReconLine."Statement No.";
+                    BankAccRecMatchBuffer."Statement Line No." := BankAccReconLine."Statement Line No.";
+                    BankAccRecMatchBuffer."Bank Account No." := BankAccReconLine."Bank Account No.";
+                    BankAccRecMatchBuffer."Match ID" := NextMatchID;
+                    BankAccRecMatchBuffer.Insert();
+
+                    BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
+                    BankAccReconLine."Ready for Application" := true;
+                    if BankAccLedgEntry."Statement Line No." <> -1 then begin
+                        SetReconNo(BankAccLedgEntry, BankAccReconLine);
+                        BankAccLedgEntry."Statement Line No." := -1;
+                        BankAccLedgEntry.Modify();
+                    end;
+
+                    BankAccReconLine."Applied Amount" += BankAccLedgEntry."Remaining Amount";
+                    if System.Abs(BankAccReconLine."Statement Amount") < System.Abs(BankAccLedgEntry."Remaining Amount") then
+                        BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
+
+                    BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" + 1;
+                    BankAccReconLine.Validate("Statement Amount");
+                    ModifyBankAccReconLine(BankAccReconLine);
+                end;
+        end;
+
         exit(true);
+    end;
+
+    local procedure GetNextMatchID(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankAccLedgEntry: Record "Bank Account Ledger Entry"): Integer
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+    begin
+        BankAccRecMatchBuffer.SetRange("Statement No.", BankAccReconLine."Statement No.");
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
+        BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
+        if BankAccRecMatchBuffer.FindLast() then
+            exit(BankAccRecMatchBuffer."Match ID");
+
+        BankAccRecMatchBuffer.Reset();
+        BankAccRecMatchBuffer.SetRange("Statement No.", BankAccReconLine."Statement No.");
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", BankAccReconLine."Bank Account No.");
+        if BankAccRecMatchBuffer.FindLast() then
+            exit(BankAccRecMatchBuffer."Match ID" + 1)
+        else
+            exit(1);
+    end;
+
+    local procedure RemoveManyToOneMatch(var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");
+        if BankAccRecMatchBuffer.FindSet() then
+            repeat
+                BankAccReconLine.SetRange("Statement Line No.", BankAccRecMatchBuffer."Statement Line No.");
+                BankAccReconLine.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
+                BankAccReconLine.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
+                if BankAccReconLine.FindFirst() then
+                    RemoveReconNo(BankAccLedgEntry, BankAccReconLine, false);
+
+                BankAccReconLine."Applied Amount" := 0;
+                BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
+                BankAccReconLine.Validate("Statement Amount");
+                ModifyBankAccReconLine(BankAccReconLine);
+                DeletePaymentMatchDetails(BankAccReconLine);
+
+            until BankAccRecMatchBuffer.Next() = 0;
+
+        BankAccRecMatchBuffer.DeleteAll();
     end;
 
     procedure RemoveApplication(var BankAccLedgEntry: Record "Bank Account Ledger Entry")
@@ -41,26 +136,27 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     begin
         OnBeforeRemoveApplication(BankAccLedgEntry);
 
+        RemoveManyToOneMatch(BankAccLedgEntry);
+
         BankAccLedgEntry.LockTable();
         CheckLedgEntry.LockTable();
         BankAccReconLine.LockTable();
 
-        if not BankAccReconLine.Get(
+        if BankAccReconLine.Get(
              BankAccReconLine."Statement Type"::"Bank Reconciliation",
              BankAccLedgEntry."Bank Account No.",
              BankAccLedgEntry."Statement No.", BankAccLedgEntry."Statement Line No.")
-        then
-            exit;
+        then begin
+            BankAccReconLine.TestField("Statement Type", BankAccReconLine."Statement Type"::"Bank Reconciliation");
+            BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
+            RemoveReconNo(BankAccLedgEntry, BankAccReconLine, true);
 
-        BankAccReconLine.TestField("Statement Type", BankAccReconLine."Statement Type"::"Bank Reconciliation");
-        BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Bank Account Ledger Entry");
-        RemoveReconNo(BankAccLedgEntry, BankAccReconLine, true);
-
-        BankAccReconLine."Applied Amount" -= BankAccLedgEntry."Remaining Amount";
-        BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
-        BankAccReconLine.Validate("Statement Amount");
-        ModifyBankAccReconLine(BankAccReconLine);
-        DeletePaymentMatchDetails(BankAccReconLine);
+            BankAccReconLine."Applied Amount" -= BankAccLedgEntry."Remaining Amount";
+            BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
+            BankAccReconLine.Validate("Statement Amount");
+            ModifyBankAccReconLine(BankAccReconLine);
+            DeletePaymentMatchDetails(BankAccReconLine);
+        end;
     end;
 
     local procedure DeletePaymentMatchDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -115,11 +211,12 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         BankAccLedgEntry.TestField(Open, true);
         if Test then begin
             BankAccLedgEntry.TestField(
-              "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+            "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
             BankAccLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
             BankAccLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
         end;
         BankAccLedgEntry.TestField("Bank Account No.", BankAccReconLine."Bank Account No.");
+
         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
         BankAccLedgEntry."Statement No." := '';
         BankAccLedgEntry."Statement Line No." := 0;

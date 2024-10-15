@@ -2213,7 +2213,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryReportDataset.AssertElementWithValueExists('AmountPaid', Amount);
     end;
 
-    local procedure CreatePaymentGLLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreatePaymentGLLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type";
+                                                                                                                                                            AccountNo: Code[20];
+                                                                                                                                                            AppliesToDocType: Enum "Gen. Journal Document Type";
+                                                                                                                                                            AppliesToDocNo: Code[20];
+                                                                                                                                                            BalAccountType: Enum "Gen. Journal Account Type";
+                                                                                                                                                            BalAccountNo: Code[20];
+                                                                                                                                                            Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
@@ -3315,7 +3321,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     local procedure VerifyEFTExportMX(var ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer"; EFTExportWorkset: Record "EFT Export Workset"; SettleDate: Date)
     begin
         ERMElectronicFundsTransfer.GetTempACHCecobanHeader(TempACHCecobanHeader);
-        TempACHCecobanHeader.TESTFIELD("Settlement Date", SettleDate);
+        TempACHCecobanHeader.TestField("Settlement Date", SettleDate);
 
         ERMElectronicFundsTransfer.GetTempACHCecobanDetail(TempACHCecobanDetail);
         TempACHCecobanDetail.TestField("Document No.", EFTExportWorkset."Document No.");
@@ -3362,11 +3368,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         TestMode := true
     end;
 
+#if not CLEAN19
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Generate EFT", 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnGenerateEFT(var TestMode: Boolean)
     begin
         TestMode := true
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (RB)", 'OnBeforeACHRBHeaderModify', '', false, false)]
     local procedure StoreTempACHRBHeaderOnBeforeACHRBHeaderModify(var ACHRBHeader: Record "ACH RB Header"; BankAccount: Record "Bank Account")

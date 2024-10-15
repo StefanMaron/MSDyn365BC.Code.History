@@ -240,9 +240,11 @@ page 36723 "Bank Rec. Adj. Lines"
     var
         AccName: Text[100];
         BalAccName: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         LastBankRecLine: Record "Bank Rec. Line";
         Text000: Label 'Placeholder';
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     procedure SetupTotals()
     begin

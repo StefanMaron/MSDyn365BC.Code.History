@@ -268,11 +268,9 @@ table 5077 "Segment Line"
             Caption = 'Contact Alt. Address Code';
             TableRelation = "Contact Alt. Address".Code WHERE("Contact No." = FIELD("Contact No."));
         }
-        field(16; Evaluation; Option)
+        field(16; Evaluation; Enum "Interaction Evaluation")
         {
             Caption = 'Evaluation';
-            OptionCaption = ' ,Very Positive,Positive,Neutral,Negative,Very Negative';
-            OptionMembers = " ","Very Positive",Positive,Neutral,Negative,"Very Negative";
         }
         field(17; "Campaign Target"; Boolean)
         {

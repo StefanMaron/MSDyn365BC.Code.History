@@ -166,6 +166,7 @@ codeunit 130509 "Library - Sales"
         CustomerPriceGroup.Insert(true);
     end;
 
+#if not CLEAN18
     procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     begin
         CustomerTemplate.Init();
@@ -188,6 +189,7 @@ codeunit 130509 "Library - Sales"
         CustomerTemplate.Modify(true);
         exit(CustomerTemplate.Code);
     end;
+#endif
 
     procedure CreateCustomerWithLocationCode(var Customer: Record Customer; LocationCode: Code[10]): Code[20]
     begin
@@ -548,6 +550,7 @@ codeunit 130509 "Library - Sales"
         SalesCommentLine.Modify(true);
     end;
 
+#if not CLEAN19
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin
         Clear(SalesPrice);
@@ -565,7 +568,7 @@ codeunit 130509 "Library - Sales"
 
         OnAfterCreateSalesPrice(SalesPrice, ItemNo, SalesType.AsInteger(), SalesCode, StartingDate, CurrencyCode, VariantCode, UOMCode, MinQty, UnitPrice);
     end;
-
+#endif
     procedure CreateShipToAddress(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
     begin
         ShipToAddress.Init();
@@ -1348,11 +1351,12 @@ codeunit 130509 "Library - Sales"
     begin
     end;
 
+#if not CLEAN18
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20])
     begin
@@ -1363,11 +1367,12 @@ codeunit 130509 "Library - Sales"
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostSalesDocument(var SalesHeader: Record "Sales Header"; NewShipReceive: Boolean; NewInvoice: Boolean; AfterPostSalesDocumentSendAsEmail: Boolean)
     begin

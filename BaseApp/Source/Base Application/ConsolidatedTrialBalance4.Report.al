@@ -304,8 +304,7 @@ report 10008 "Consolidated Trial Balance (4)"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Show';
-                        OptionCaption = 'Net Change,Balance';
-                        ToolTip = 'Specifies which accounts to include. All Accounts: Includes all accounts with transactions. Accounts with Balances: Includes accounts with balances. Accounts with Activity: Includes accounts that are currently active.';
+                        ToolTip = 'Specifies if the selected value is shown in the window.';
                     }
                     field(AmountsInWhole1000s; InThousands)
                     {
@@ -360,7 +359,7 @@ report 10008 "Consolidated Trial Balance (4)"
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;
         InThousands: Boolean;
-        AmountType: Option "Net Change",Balance;
+        AmountType: Enum "Analysis Amount Type";
         GLFilter: Text;
         BusUnitFilter: Text;
         MainTitle: Text;

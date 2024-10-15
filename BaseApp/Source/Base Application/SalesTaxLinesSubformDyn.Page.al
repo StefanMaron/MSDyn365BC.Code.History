@@ -161,11 +161,10 @@ page 36740 "Sales Tax Lines Subform Dyn"
         PricesIncludingVAT := NewPricesIncludingVAT;
         AllowInvDisc := NewAllowInvDisc;
         VATBaseDiscPct := NewVATBaseDiscPct;
-        "Tax AmountEditable" := AllowVATDifference;
-        if CurrencyCode = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get(CurrencyCode);
+        "Tax AmountEditable" := NewAllowVATDifference;
+        Currency.Initialize(CurrencyCode);
+
+        OnAfterInitGlobals("Tax AmountEditable");
         CurrPage.Update();
     end;
 
@@ -186,6 +185,11 @@ page 36740 "Sales Tax Lines Subform Dyn"
             Error(
               Text001, FieldCaption("Tax Difference"),
               Currency.FieldCaption("Max. VAT Difference Allowed"), Currency."Max. VAT Difference Allowed");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitGlobals(var TaxAmountEditable: Boolean)
+    begin
     end;
 }
 

@@ -16,7 +16,7 @@ table 8401 "Record Set Tree"
         field(10; Value; RecordID)
         {
             Caption = 'Value';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(11; "Parent Node ID"; Integer)
         {

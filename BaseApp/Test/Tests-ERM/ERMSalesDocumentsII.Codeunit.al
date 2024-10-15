@@ -508,6 +508,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifySalesInvoice(GetSalesInvoiceHeaderNoOrder(SalesHeader."No."), SalesLine);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithItemSalesPrices()
@@ -589,6 +590,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesInvoice.SalesLines."Unit Price".AssertEquals(UnitPrice);
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandler')]
@@ -775,6 +777,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifyVATEntry(PostedDocumentNo, SalesInvoiceHeader.Amount);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceAndLineDiscount()
@@ -803,7 +806,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifyUnitPriceAndLineDiscountOnSalesLine(
           SalesLine, SalesPrice."Minimum Quantity" * 2, SalesPrice."Unit Price", SalesLineDiscount."Line Discount %");
     end;
-
+#endif
     [Test]
     [HandlerFunctions('GetShipmentLinesHandler')]
     [Scope('OnPrem')]
@@ -1451,6 +1454,7 @@ codeunit 134386 "ERM Sales Documents II"
         end;
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure UT_DeleteCustomerPriceGroupWithSalesPrice()
@@ -1576,6 +1580,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLineDiscount.SetRange("Sales Code", Customer."No.");
         Assert.RecordIsNotEmpty(SalesLineDiscount);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2053,6 +2058,7 @@ codeunit 134386 "ERM Sales Documents II"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceMinimumQuantityWithMaxValue()
@@ -2085,7 +2091,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.AreNotEqual(Format(0.123456), SalesPrices."Minimum Quantity".Value, SalesPrice.FieldCaption("Minimum Quantity"));
         Assert.AreEqual(Format(0.12346), SalesPrices."Minimum Quantity".Value, SalesPrice.FieldCaption("Minimum Quantity"));
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure ArchivedSalesQuoteReportWithPricesInclVATAndTwoLines()
@@ -2675,6 +2681,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.ExpectedError('Blocked must be equal to ''No''');
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure UI_CannotCopyPricesWhenSalesTypeFilterNotCustomer()
@@ -2850,7 +2857,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice.SetRange("Sales Code", CopyToCustomerNo);
         Assert.RecordCount(SalesPrice, 2);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure CheckShipToWhenCreateSecondSalesInvoiceFromCustomerCard()
@@ -3336,6 +3343,7 @@ codeunit 134386 "ERM Sales Documents II"
         VerifyShipToOptionWithContactOnSalesDocument(SalesHeader, ContactNew);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure AllowInvoiceDiscIsFalseOnOverviewPageWhenFalseInSalesPrice()
@@ -3389,7 +3397,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] Sales Price and Line Disc Buff is created with "Allow Invoice Disc." = TRUE and "Allow Line Disc." = FALSE
         VerifySalesPriceAndLineDiscBuff(TempSalesPriceAndLineDiscBuff, SalesPrice."Item No.", AllowInvoiceDisc, AllowLineDisc);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderShipToOptionWhenTwoCitiesHaveOnePostCode()
@@ -3630,6 +3638,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesHeaderArchive.TestField("Sell-to E-Mail", SalesHeader."Sell-to E-Mail");
     end;
 
+#if not CLEAN19
     [Test]
     procedure TwoSingleQuotesFilterRecordsWithEmptyStartingDate()
     var
@@ -3683,7 +3692,7 @@ codeunit 134386 "ERM Sales Documents II"
         // [THEN] "S2" is found.
         Assert.IsTrue(SalesPrices.GotoRecord(SalesPrice2), StrSubstNo(WorkStartingDateRecIsNotFoundErr, WorkDate));
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure CheckErrorForRenameInStandardCustomerSalesCode()
@@ -3806,7 +3815,7 @@ codeunit 134386 "ERM Sales Documents II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -4447,6 +4456,7 @@ codeunit 134386 "ERM Sales Documents II"
         LibrarySales.CreateCustomerSalesCode(StandardCustomerSalesCode, Customer."No.", StandardSalesCode.Code);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPriceWithUnitPrice(var SalesPrice: Record "Sales Price"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPriceAmount: Decimal)
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesPrice."Sales Type"::Customer, CustomerNo, ItemNo, WorkDate, '', '', '', Quantity);
@@ -4463,7 +4473,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice.Validate("Allow Line Disc.", AllowLineDisc);
         SalesPrice.Modify(true);
     end;
-
+#endif
     local procedure CreateAndModifySalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount(0));
@@ -4496,6 +4506,7 @@ codeunit 134386 "ERM Sales Documents II"
         PostCode.FindLast;
     end;
 
+#if not CLEAN19
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; SalesPrice: Record "Sales Price")
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -4574,7 +4585,7 @@ codeunit 134386 "ERM Sales Documents II"
           Item."Base Unit of Measure",
           WorkDate);
     end;
-
+#endif
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -4689,6 +4700,7 @@ codeunit 134386 "ERM Sales Documents II"
         end;
     end;
 
+#if not CLEAN19
     local procedure CopyPricesScenarioOnSalesPricePage(var SalesPrice: Record "Sales Price"; var CopyToCustomerNo: Code[20]; var SalesPrices: TestPage "Sales Prices")
     var
         CopyFromCustomerNo: Code[20];
@@ -4702,7 +4714,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrices.SalesCodeFilterCtrl.SetValue(CopyToCustomerNo);
         LibraryVariableStorage.Enqueue(CopyFromCustomerNo);
     end;
-
+#endif
     local procedure RunReccuringSalesIvoice(DocumentDate: Date; StandardSalesLine: Record "Standard Sales Line"): Code[20]
     var
         SalesLine: Record "Sales Line";
@@ -5486,6 +5498,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.RecordIsEmpty(SalesHeader);
     end;
 
+#if not CLEAN19
     local procedure VerifyCopiedSalesPrice(CopiedFromSalesPrice: Record "Sales Price"; CustNo: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -5504,7 +5517,7 @@ codeunit 134386 "ERM Sales Documents II"
         SalesPrice.SetRange("Sales Code", SalesPrice."Sales Code");
         Assert.RecordCount(SalesPrice, 1);
     end;
-
+#endif
     local procedure VerifyAmountInclVATOfCreditLimitDetails(ExpectedAmount: Decimal)
     begin
         Assert.AreEqual(
@@ -5535,6 +5548,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.AreEqual(Format(ShipToOptions::"Default (Sell-to Address)"), Format(ShipToOptions), '');
     end;
 
+#if not CLEAN19
     local procedure VerifySalesPriceAndLineDiscBuff(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; ItemNo: Code[20]; AllowInvoiceDisc: Boolean; AllowLineDisc: Boolean)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::Customer);
@@ -5543,7 +5557,7 @@ codeunit 134386 "ERM Sales Documents II"
         TempSalesPriceAndLineDiscBuff.TestField("Allow Invoice Disc.", AllowInvoiceDisc);
         TempSalesPriceAndLineDiscBuff.TestField("Allow Line Disc.", AllowLineDisc);
     end;
-
+#endif
     local procedure GetAmountTotalIncVAT(SalesHeader: Record "Sales Header"): Decimal
     var
         TotalSalesLine: Record "Sales Line";
@@ -5731,10 +5745,10 @@ codeunit 134386 "ERM Sales Documents II"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure TemplateSelectionPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure TemplateSelectionPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
     end;
 
     [RecallNotificationHandler]
@@ -5800,6 +5814,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.IsFalse(CustomerLedgerEntries.Next, 'There is more than one entry in Customer Ledger Entries page');
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesPricesSelectPriceOfCustomerModalPageHandler(var SalesPrices: TestPage "Sales Prices")
@@ -5814,7 +5829,7 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         SalesPrices.Cancel.Invoke;
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListPageHandler(var ContactList: TestPage "Contact List")

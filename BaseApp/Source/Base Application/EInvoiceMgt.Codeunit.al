@@ -1,4 +1,4 @@
-codeunit 10145 "E-Invoice Mgt."
+﻿codeunit 10145 "E-Invoice Mgt."
 {
     Permissions = TableData "Sales Invoice Header" = rimd,
                   TableData "Sales Cr.Memo Header" = rimd;
@@ -2510,7 +2510,7 @@ codeunit 10145 "E-Invoice Mgt."
             Message.AddAttachment(CopyStr(FilePathEDoc, 1, 250), 'Document', XMLInstream);
             if FileNamePDF <> '' then begin
                 TempBlobPDF.CreateInStream(PDFInStream);
-                Message.AddAttachment('', 'PDF', PDFInStream);
+                Message.AddAttachment(CopyStr(FileNamePDF, 1, 250), 'PDF', PDFInStream);
             end;
             EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount);
             ClearLastError();

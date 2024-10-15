@@ -296,5 +296,28 @@ table 1170 "User Task"
     begin
         exit("Percent Complete" = 100);
     end;
+
+    procedure RunReportOrPageLink()
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunReportOrPageLink(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Object Type" = 0) or ("Object ID" = 0) then
+            exit;
+        if "Object Type" = AllObjWithCaption."Object Type"::Page then
+            PAGE.Run("Object ID")
+        else
+            REPORT.Run("Object ID");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunReportOrPageLink(var UserTask: Record "User Task"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

@@ -74,6 +74,8 @@ page 5759 "Posted Transfer Receipt Lines"
                     ApplicationArea = Location;
                     Caption = 'Show Document';
                     Image = View;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -91,6 +93,8 @@ page 5759 "Posted Transfer Receipt Lines"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 

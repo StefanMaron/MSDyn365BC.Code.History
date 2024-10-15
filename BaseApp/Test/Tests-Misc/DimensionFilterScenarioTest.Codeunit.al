@@ -32,7 +32,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -59,7 +59,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -87,7 +87,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -115,7 +115,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -143,7 +143,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -171,7 +171,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -198,7 +198,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         ChartofAccounts: TestPage "Chart of Accounts";
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -225,7 +225,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -253,7 +253,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -282,7 +282,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -310,7 +310,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -338,7 +338,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -366,7 +366,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -394,7 +394,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -425,7 +425,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -460,7 +460,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         ChartofAccounts: TestPage "Chart of Accounts";
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();
@@ -485,7 +485,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NetChange: Decimal;
     begin
         Initialize;
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // Setup
         GeneralLedgerSetup.Get();

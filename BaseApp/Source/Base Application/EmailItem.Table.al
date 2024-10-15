@@ -263,6 +263,35 @@ table 9500 "Email Item"
         AttachmentNames.Add(AttachmentName);
     end;
 
+    procedure AddRelatedSourceDocuments(TableID: Integer; SourceID: Guid)
+    var
+        Contact: Record Contact;
+        ContactRelation: Record "Contact Business Relation";
+        IContactRelationLink: Interface "Contact Business Relation Link";
+        EmailRelationType: Enum "Email Relation Type";
+        RelatedTableId: Integer;
+        RelatedSystemId: Guid;
+    begin
+        if TableId <> Database::Contact then
+            exit;
+
+        if Contact.GetBySystemId(SourceID) then begin
+
+            if Contact."Contact Business Relation" = Contact."Contact Business Relation"::None then
+                exit;
+
+            ContactRelation.SetRange("Contact No.", Contact."Company No.");
+            ContactRelation.FindSet();
+            repeat
+                if ContactRelation."Link to Table" <> ContactRelation."Link to Table"::" " then begin
+                    IContactRelationLink := ContactRelation."Link to Table";
+                    IContactRelationLink.GetTableAndSystemId(ContactRelation."No.", RelatedTableId, RelatedSystemId);
+                    AddSourceDocument(RelatedTableId, RelatedSystemId, EmailRelationType::"Related Entity");
+                end;
+            until ContactRelation.Next() <= 0;
+        end;
+    end;
+
     procedure AddSourceDocument(TableID: Integer; SourceID: Guid)
     begin
         AddSourceDocument(TableID, SourceID, Enum::"Email Relation Type"::"Primary Source");

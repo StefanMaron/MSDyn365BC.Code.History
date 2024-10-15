@@ -159,9 +159,9 @@ page 10016 "Vendor 1099 Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
         HiLineOnScreen := 10;
-        CalculateVendor1099;
+        CalculateVendor1099();
     end;
 
     var
@@ -187,11 +187,18 @@ page 10016 "Vendor 1099 Statistics"
         Text002: Label 'All other 1099 types';
 
     procedure CalculateVendor1099()
+    var
+        IsHandled: Boolean;
     begin
         Clear(Codes);
         Clear(Amounts);
         Clear(Descriptions);
         Clear(LastLineNo);
+
+        IsHandled := false;
+        OnBeforeCalculateVendor1099(Rec, Codes, Descriptions, Amounts, LastLineNo, IsHandled);
+        if IsHandled then
+            exit;
 
         Year := Date2DMY(WorkDate, 3);
         PeriodDate[1] := DMY2Date(1, 1, Year);
@@ -310,6 +317,21 @@ page 10016 "Vendor 1099 Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessInvoicesOnAfterTempAppliedEntrySetFilters(var TempAppliedEntry: Record "Vendor Ledger Entry" temporary; var PaymentEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalculateVendor1099(Vendor: Record Vendor; Codes: array[100] of Code[10]; Descriptions: array[100] of Text[50]; Amounts: array[100] of Decimal; LastLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    procedure OverloadedUpdateLines(Code: Code[10]; Amount: Decimal; InYear: Date);
+    begin
+        OnOverloadedUpdateLines(Code, Amount, InYear, Codes, LastLineNo, Amounts, IRS1099FormBox, Descriptions);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOverloadedUpdateLines(var Code: Code[10]; var Amount: Decimal; var InYear: Date; var Codes: array[100] of Code[10]; var LastLineNo: Integer; var Amounts: array[100] of Decimal; var IRS1099FormBox: Record "IRS 1099 Form-Box"; var Descriptions: array[100] of Text[50])
     begin
     end;
 }

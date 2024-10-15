@@ -327,9 +327,9 @@ page 9302 "Sales Credit Memos"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(CFDIRelationDocuments)
@@ -502,6 +502,7 @@ page 9302 "Sales Credit Memos"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -709,7 +710,7 @@ page 9302 "Sales Credit Memos"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         PreAssignedNo: Code[20];
-        IsHandled: Boolean;        
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then begin
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -759,6 +760,6 @@ page 9302 "Sales Credit Memos"
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
     begin
-    end; 
+    end;
 }
 

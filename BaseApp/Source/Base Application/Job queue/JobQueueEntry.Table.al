@@ -184,7 +184,7 @@ table 472 "Job Queue Entry"
         field(15; "Record ID to Process"; RecordID)
         {
             Caption = 'Record ID to Process';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(16; "Parameter String"; Text[250])
         {
@@ -483,6 +483,9 @@ table 472 "Job Queue Entry"
             Caption = 'Recovery Task Id';
             Editable = false;
             DataClassification = SystemMetadata;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The recovery job is no longer needed.';
+            ObsoleteTag = '19.0';
         }
     }
 
@@ -602,11 +605,18 @@ table 472 "Job Queue Entry"
         "Error Message" := CopyStr(ErrorText, 1, 2048);
         ClearServiceValues();
         SetStatusValue(Status::Error);
-        if not IsNullGuid("Recovery Task ID") then
-            if TaskScheduler.TaskExists("Recovery Task ID") then begin
-                TaskScheduler.CancelTask("Recovery Task ID");
-                Clear("Recovery Task ID");
-            end;
+    end;
+
+    internal procedure SetResult(PrevStatus: Option)
+    begin
+        if (Rec.Status = Status::"On Hold") or Rec."Manual Recurrence" then
+            exit;
+
+        if "Recurring Job" and (PrevStatus in [Status::"On Hold", Status::"On Hold with Inactivity Timeout"]) then
+            Status := PrevStatus
+        else
+            Status := Status::Finished;
+        Rec.Modify();
     end;
 
     procedure SetResult(IsSuccess: Boolean; PrevStatus: Option; ErrorMessageRegisterId: Guid)
@@ -663,16 +673,17 @@ table 472 "Job Queue Entry"
     begin
         JobQueueLogEntry."Entry No." := 0;
         JobQueueLogEntry.Init();
-        JobQueueLogEntry.ID := ID;
-        JobQueueLogEntry."User ID" := "User ID";
-        JobQueueLogEntry."Parameter String" := "Parameter String";
-        JobQueueLogEntry."Start Date/Time" := "User Session Started";
-        JobQueueLogEntry."Object Type to Run" := "Object Type to Run";
-        JobQueueLogEntry."Object ID to Run" := "Object ID to Run";
-        JobQueueLogEntry.Description := Description;
+        JobQueueLogEntry.ID := Rec.ID;
+        JobQueueLogEntry."User ID" := Rec."User ID";
+        JobQueueLogEntry."Parameter String" := Rec."Parameter String";
+        JobQueueLogEntry."Start Date/Time" := Rec."User Session Started";
+        JobQueueLogEntry."Object Type to Run" := Rec."Object Type to Run";
+        JobQueueLogEntry."Object ID to Run" := Rec."Object ID to Run";
+        JobQueueLogEntry.Description := Rec.Description;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
         JobQueueLogEntry."Processed by User ID" := UserId();
-        JobQueueLogEntry."Job Queue Category Code" := "Job Queue Category Code";
+        JobQueueLogEntry."Job Queue Category Code" := Rec."Job Queue Category Code";
+        JobQueueLogEntry."System Task Id" := Rec."System Task ID";
         Rec.CalcFields(XML);
         JobQueueLogEntry.XML := Rec.XML;
         OnBeforeInsertLogEntry(JobQueueLogEntry, Rec);
@@ -687,14 +698,14 @@ table 472 "Job Queue Entry"
 
     procedure FinalizeLogEntry(JobQueueLogEntry: Record "Job Queue Log Entry"; LastErrorCallStack: Text)
     begin
-        if Status = Status::Error then begin
+        if Rec.Status = Status::Error then begin
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
-            JobQueueLogEntry."Error Message" := "Error Message";
+            JobQueueLogEntry."Error Message" := Rec."Error Message";
             if LastErrorCallStack <> '' then
                 JobQueueLogEntry.SetErrorCallStack(LastErrorCallstack)
             else
-                JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallstack);
-            JobQueueLogEntry."Error Message Register Id" := "Error Message Register Id";
+                JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallstack());
+            JobQueueLogEntry."Error Message Register Id" := Rec."Error Message Register Id";
         end else
             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Success;
         JobQueueLogEntry."End Date/Time" := CurrentDateTime();
@@ -886,9 +897,10 @@ table 472 "Job Queue Entry"
     local procedure CleanupAfterExecution()
     var
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
+        SessionId: Integer;
     begin
         if "Notify On Success" then
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Send Notification", Rec);
+            if Session.StartSession(SessionId, Codeunit::"Job Queue - Send Notification", CurrentCompany(), Rec) then;
 
         if "Recurring Job" then begin
             ClearServiceValues();
@@ -898,17 +910,17 @@ table 472 "Job Queue Entry"
                 "Earliest Start Date/Time" := JobQueueDispatcher.CalcNextRunTimeForRecurringJob(Rec, CurrentDateTime);
             EnqueueTask();
         end else
-            Delete();
+            Rec.Delete();
     end;
 
     local procedure HandleExecutionError()
     begin
-        if "Maximum No. of Attempts to Run" > "No. of Attempts to Run" then begin
-            "No. of Attempts to Run" += 1;
-            "Earliest Start Date/Time" := CurrentDateTime + 1000 * "Rerun Delay (sec.)";
+        if Rec."Maximum No. of Attempts to Run" > Rec."No. of Attempts to Run" then begin
+            Rec."No. of Attempts to Run" += 1;
+            Rec."Earliest Start Date/Time" := CurrentDateTime + 1000 * Rec."Rerun Delay (sec.)";
             EnqueueTask();
         end else begin
-            SetStatusValue(Status::Error);
+            SetStatusValue(Rec.Status::Error);
             Commit();
             TryRunJobQueueSendNotification();
         end;
@@ -917,13 +929,14 @@ table 472 "Job Queue Entry"
     local procedure TryRunJobQueueSendNotification()
     var
         IsHandled: Boolean;
+        SessionId: Integer;
     begin
         IsHandled := false;
         OnBeforeTryRunJobQueueSendNotification(Rec, IsHandled);
         if IsHandled then
             exit;
 
-        if Codeunit.Run(Codeunit::"Job Queue - Send Notification", Rec) then;
+        if Session.StartSession(SessionId, Codeunit::"Job Queue - Send Notification", CurrentCompany(), Rec) then;
     end;
 
     local procedure ClearRunOnWeekdays()
@@ -1121,7 +1134,7 @@ table 472 "Job Queue Entry"
         OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
-        if(Params <> '') and (Params <> OldParams) then begin
+        if (Params <> '') and (Params <> OldParams) then begin
             "User ID" := UserId();
             SetReportParameters(Params);
         end;
@@ -1296,20 +1309,13 @@ table 472 "Job Queue Entry"
         exit(FindFirst());
     end;
 
+#if not CLEAN19
+    [Obsolete('The recovery job is no longer needed.', '19.0')]
     procedure ScheduleRecoveryJob()
-    var
-        RunAfterDelay: Duration;
     begin
-        if not IsNullGuid("Recovery Task ID") then
-            if TaskScheduler.TaskExists("Recovery Task ID") then
-                TaskScheduler.CancelTask("Recovery Task ID");
-        RunAfterDelay := Rec."Job Timeout";
-        if RunAfterDelay = 0 then
-            RunAfterDelay := Rec.DefaultJobTimeout();
-        RunAfterDelay += 60000; // Wait one extra minute
-        OnBeforeScheduleRecoveryJob(Rec, RunAfterDelay);
-        "Recovery Task ID" := TaskScheduler.CreateTask(Codeunit::"Job Queue Recover Job", Codeunit::"Job Queue Error Handler", true, CurrentCompany, CurrentDateTime + RunAfterDelay, Rec.RecordId);
+        // Does nothing
     end;
+#endif
 
     procedure GetDefaultDescription(): Text[250]
     var
@@ -1394,10 +1400,13 @@ table 472 "Job Queue Entry"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('The recovery job is no longer needed.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeScheduleRecoveryJob(var JobQueueEntry: Record "Job Queue Entry"; var Delay: Duration)
     begin
     end;
+#endif
 
     [InternalEvent(false)]
     local procedure OnReuseExisingJobFromId(var JobQueueEntry: Record "Job Queue Entry")

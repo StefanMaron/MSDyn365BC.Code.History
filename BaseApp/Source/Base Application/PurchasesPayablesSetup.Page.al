@@ -143,7 +143,7 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when posted purchase documents can be deleted. If you enter a date, posted purchase documents with a posting date on or after this date cannot be deleted.';
+                    ToolTip = 'Specifies if and when posted purchase invoices and credit memos can be deleted. If you enter a date, posted purchase documents with a posting date on or after this date cannot be deleted.';
                 }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {
@@ -161,6 +161,18 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the value of the Vendor Invoice No. field must be copied to the Payment Reference field during posting unless the Payment Reference field is not blank.';
                     Importance = Additional;
+                }
+                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of purchase invoices.';
+                    Visible = false;
+                }
+                field("Document Default Line Type"; "Document Default Line Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the default value for the Type field on the first line in new purchase documents. If needed, you can change the value on the line.';
                 }
             }
             group(Prices)
@@ -385,7 +397,6 @@ page 460 "Purchases & Payables Setup"
     trigger OnOpenPage()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        PriceUXManagement: Codeunit "Price UX Management";
     begin
         Rec.Reset;
         if not Rec.Get then begin
@@ -393,7 +404,6 @@ page 460 "Purchases & Payables Setup"
             Rec.Insert;
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        PriceUXManagement.InitSmartListDesigner();
     end;
 
     var

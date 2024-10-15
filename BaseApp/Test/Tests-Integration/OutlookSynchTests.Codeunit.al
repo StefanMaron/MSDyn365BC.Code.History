@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 139014 "Outlook Synch Tests"
 {
     Subtype = Test;
@@ -259,4 +260,4 @@ codeunit 139014 "Outlook Synch Tests"
         exit(xmlString);
     end;
 }
-
+#endif

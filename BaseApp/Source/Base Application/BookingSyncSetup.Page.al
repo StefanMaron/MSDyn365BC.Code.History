@@ -89,10 +89,10 @@ page 6702 "Booking Sync. Setup"
 #if not CLEAN18
                 field("Customer Template Code"; "Customer Template Code")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Default Customer Template';
                     ToolTip = 'Specifies the customer template to use when creating new Customers from the Bookings company.';
-                    Visible = OldCustTemplateCodeVisible;
+                    Visible = false;
                     ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
                     ObsoleteState = Pending;
                     ObsoleteTag = '18.0';
@@ -277,9 +277,6 @@ page 6702 "Booking Sync. Setup"
         GraphSyncEnabled: Boolean;
         IsSaaS: Boolean;
         NewCustTemplateCodeVisible: Boolean;
-#if not CLEAN18
-        OldCustTemplateCodeVisible: Boolean;
-#endif
 
     local procedure CheckExistingSetup()
     begin
@@ -312,13 +309,8 @@ page 6702 "Booking Sync. Setup"
     end;
 
     local procedure SetCustTemplateCodesVisibility()
-    var
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
-        NewCustTemplateCodeVisible := not GraphSyncEnabled and CustomerTemplMgt.IsEnabled();
-#if not CLEAN18
-        OldCustTemplateCodeVisible := not GraphSyncEnabled and not CustomerTemplMgt.IsEnabled();
-#endif
+        NewCustTemplateCodeVisible := not GraphSyncEnabled;
     end;
 }
 

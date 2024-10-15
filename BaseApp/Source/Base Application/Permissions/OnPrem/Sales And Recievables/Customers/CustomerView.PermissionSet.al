@@ -13,7 +13,9 @@ permissionset 4970 "Customer - View"
                   tabledata "Customer Bank Account" = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Detailed Cust. Ledg. Entry" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Reference" = R,
                   tabledata Location = R,
                   tabledata "My Customer" = Rimd,

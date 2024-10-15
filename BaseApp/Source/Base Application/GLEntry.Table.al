@@ -379,6 +379,10 @@ table 17 "G/L Entry"
             ELSE
             IF ("FA Entry Type" = CONST(Maintenance)) "Maintenance Ledger Entry";
         }
+        field(5618; Comment; Text[250])
+        {
+            Caption = 'Comment';
+        }
         field(8001; "Account Id"; Guid)
         {
             CalcFormula = Lookup("G/L Account".SystemId WHERE("No." = FIELD("G/L Account No.")));
@@ -401,11 +405,9 @@ table 17 "G/L Entry"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
-        field(10019; "GST/HST"; Option)
+        field(10019; "GST/HST"; Enum "GST HST Tax Type")
         {
             Caption = 'GST/HST';
-            OptionCaption = ' ,Acquisition,Self Assessment,Rebate,New Housing Rebates,Pension Rebate';
-            OptionMembers = " ",Acquisition,"Self Assessment",Rebate,"New Housing Rebates","Pension Rebate";
         }
     }
 
@@ -578,6 +580,7 @@ table 17 "G/L Entry"
         "Document No." := GenJnlLine."Document No.";
         "External Document No." := GenJnlLine."External Document No.";
         Description := GenJnlLine.Description;
+        Comment := GenJnlLine.Comment;
         "Business Unit Code" := GenJnlLine."Business Unit Code";
         "Global Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";

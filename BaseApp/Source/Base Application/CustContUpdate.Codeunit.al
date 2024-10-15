@@ -49,6 +49,7 @@ codeunit 5056 "CustCont-Update"
         Cont."No. Series" := NoSeries;
         OnAfterTransferFieldsFromCustToCont(Cont, Cust);
 
+        Cont.Type := OldCont.Type;
         Cont.Validate(Name);
         Cont.DoModify(OldCont);
         Cont.Modify(true);

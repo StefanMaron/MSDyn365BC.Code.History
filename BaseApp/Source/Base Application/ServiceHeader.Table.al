@@ -125,7 +125,6 @@
                         end;
                     end;
 
-                Commit();
                 Validate("Ship-to Code", Cust."Ship-to Code");
                 if Cust."Bill-to Customer No." <> '' then
                     Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
@@ -491,7 +490,7 @@
 
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "No.");
-                if ServLine.FindSet then
+                if ServLine.FindSet() then
                     repeat
                         if "Posting Date" <> ServLine."Posting Date" then begin
                             ServLine."Posting Date" := "Posting Date";
@@ -502,12 +501,12 @@
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
                 then begin
-                    if ServLineExists then
+                    if ServLineExists() then
                         ServLine.ModifyAll("Posting Date", "Posting Date");
                 end;
 
                 if "Currency Code" <> '' then begin
-                    UpdateCurrencyFactor;
+                    UpdateCurrencyFactor();
                     if "Currency Factor" <> xRec."Currency Factor" then
                         ConfirmCurrencyFactorUpdate();
                 end;
@@ -609,7 +608,7 @@
 
             trigger OnValidate()
             begin
-                CheckHeaderDimension;
+                CheckHeaderDimension();
                 ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
@@ -622,7 +621,7 @@
 
             trigger OnValidate()
             begin
-                CheckHeaderDimension;
+                CheckHeaderDimension();
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
@@ -640,7 +639,7 @@
             trigger OnValidate()
             begin
                 if CurrFieldNo <> FieldNo("Currency Code") then
-                    UpdateCurrencyFactor
+                    UpdateCurrencyFactor()
                 else
                     if "Currency Code" <> xRec."Currency Code" then begin
                         if ServLineExists and ("Contract No." <> '') and
@@ -648,11 +647,11 @@
                         then
                             Error(Text058, FieldCaption("Currency Code"), "Document Type", "No.", "Contract No.");
 
-                        UpdateCurrencyFactor;
-                        ValidateServPriceGrOnServItem;
+                        UpdateCurrencyFactor();
+                        ValidateServPriceGrOnServItem();
                     end else
                         if "Currency Code" <> '' then begin
-                            UpdateCurrencyFactor;
+                            UpdateCurrencyFactor();
                             if "Currency Factor" <> xRec."Currency Factor" then
                                 ConfirmCurrencyFactorUpdate();
                         end;
@@ -702,7 +701,7 @@
                             ServLine.Amount := 0;
                             ServLine."Amount Including VAT" := 0;
                             ServLine."VAT Base Amount" := 0;
-                            ServLine.InitOutstandingAmount;
+                            ServLine.InitOutstandingAmount();
                             ServLine.Modify();
                         until ServLine.Next() = 0;
                     ServLine.SetRange(Type);
@@ -723,7 +722,7 @@
                             ServLine.TestField("Quantity Invoiced", 0);
                             if not RecalculatePrice then begin
                                 ServLine."VAT Difference" := 0;
-                                ServLine.InitOutstandingAmount;
+                                ServLine.InitOutstandingAmount();
                             end else
                                 if "Prices Including VAT" then begin
                                     ServLine."Unit Price" :=
@@ -2796,7 +2795,7 @@
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure UpdateCurrencyFactor()
+    protected procedure UpdateCurrencyFactor()
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -2813,9 +2812,9 @@
                      StrSubstNo(MissingExchangeRatesQst, "Currency Code", CurrencyDate), true)
                 then begin
                     UpdateCurrencyExchangeRates.OpenExchangeRatesPage("Currency Code");
-                    UpdateCurrencyFactor;
+                    UpdateCurrencyFactor();
                 end else
-                    RevertCurrencyCodeAndPostingDate;
+                    RevertCurrencyCodeAndPostingDate();
             end;
         end else begin
             "Currency Factor" := 0;
@@ -3227,7 +3226,7 @@
         exit(not ServLine.IsEmpty);
     end;
 
-    local procedure MessageIfServLinesExist(ChangedFieldName: Text[100])
+    procedure MessageIfServLinesExist(ChangedFieldName: Text[100])
     begin
         if ServLineExists and not HideValidationDialog then
             Message(
@@ -3626,6 +3625,34 @@
             Clear(Cust);
     end;
 
+    procedure SendToPost(CodeunitId: Integer) IsSuccess: Boolean
+    var
+        TempServLine: Record "Service Line" temporary;
+    begin
+        exit(SendToPostWithLines(CodeunitId, TempServLine));
+    end;
+
+    procedure SendToPostWithLines(CodeunitId: Integer; var TempServLine: Record "Service Line" temporary) IsSuccess: Boolean
+    var
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
+    begin
+        Commit();
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
+        if CodeunitId = Codeunit::"Service-Post (Yes/No)" then begin
+            ServPostYesNo.SetGlobalServiceHeader(Rec);
+            IsSuccess := ServPostYesNo.Run(TempServLine);
+            ServPostYesNo.GetGlobalServiceHeader(Rec);
+        end else
+            IsSuccess := Codeunit.Run(CodeunitId, Rec);
+
+        if not IsSuccess then
+            ErrorMessageHandler.ShowErrors();
+    end;
+
     local procedure ShippedServLinesExist(): Boolean
     begin
         ServLine.Reset();
@@ -3814,10 +3841,17 @@
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
-        if UserSetupMgt.GetServiceFilter <> '' then begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetServiceFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetServiceFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetServiceFilter());
             FilterGroup(0);
         end;
 
@@ -3937,16 +3971,16 @@
             exit;
 
         SetShipToAddress(
-          Cust.Name, Cust."Name 2", Cust.Address, Cust."Address 2",
-          Cust.City, Cust."Post Code", Cust.County, Cust."Country/Region Code");
-        "Ship-to Contact" := Cust.Contact;
-        "Ship-to Phone" := Cust."Phone No.";
-        "Tax Area Code" := Cust."Tax Area Code";
-        "Tax Liable" := Cust."Tax Liable";
-        if Cust."Location Code" <> '' then
-            "Location Code" := Cust."Location Code";
-        "Ship-to Fax No." := Cust."Fax No.";
-        "Ship-to E-Mail" := Cust."E-Mail";
+          SellToCustomer.Name, SellToCustomer."Name 2", SellToCustomer.Address, SellToCustomer."Address 2",
+          SellToCustomer.City, SellToCustomer."Post Code", SellToCustomer.County, SellToCustomer."Country/Region Code");
+        "Ship-to Contact" := SellToCustomer.Contact;
+        "Ship-to Phone" := SellToCustomer."Phone No.";
+        "Tax Area Code" := SellToCustomer."Tax Area Code";
+        "Tax Liable" := SellToCustomer."Tax Liable";
+        if SellToCustomer."Location Code" <> '' then
+            "Location Code" := SellToCustomer."Location Code";
+        "Ship-to Fax No." := SellToCustomer."Fax No.";
+        "Ship-to E-Mail" := SellToCustomer."E-Mail";
 
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
@@ -4677,6 +4711,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 
