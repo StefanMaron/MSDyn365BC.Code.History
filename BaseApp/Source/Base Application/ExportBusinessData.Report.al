@@ -666,7 +666,7 @@ report 11015 "Export Business Data"
             ZipFileNameOnServer := FileMgt.InstreamExportToServerFile(ZipReadStream, '.zip');
             FileMgt.DownloadHandler(ZipFileNameOnServer, '', '', '', ClientFileName);
         end else
-            DownloadFromStream(ZipReadStream, '', '', '', ZipFileName);
+            FileMgt.DownloadFromStreamHandler(ZipReadStream, '', '', '', ZipFileName);
     end;
 
     [Scope('OnPrem')]

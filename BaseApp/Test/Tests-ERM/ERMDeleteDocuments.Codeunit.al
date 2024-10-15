@@ -63,23 +63,27 @@ codeunit 134417 "ERM Delete Documents"
     [Scope('OnPrem')]
     procedure MakeOrderFromPurchaseQuote()
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        PurchArchiveQuotes: Option;
     begin
         // [FEATURE] [Document Archive]
         // [SCENARIO] Check the functionality of Purchase Quote while making it into Order.
 
         // [GIVEN] Create Purchase Quote.
-        Initialize;
+        Initialize();
+        PurchArchiveQuotes := SetPurchArchiveQuotes(PurchasesPayablesSetup."Archive Quotes"::Always);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
 
-        // [WHEN] Release and Archive Purchase Quote and finally making an Order of it.
-        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
+        // [WHEN] Make an Order of Quote.
         CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
 
         // [THEN] Verify Item Number,Quantity,Type and Unit of Measure Code in Purchase Quote Archive.
-        VerifyPurchaseLineArchive(PurchaseLine, PurchaseHeader."No.");
+        VerifyPurchaseLineArchive(PurchaseLine, PurchaseHeader);
+        Assert.IsFalse(PurchaseHeader.Find(), 'Quote header is not deleted');
+        Assert.IsFalse(PurchaseLine.Find(), 'Quote line is not deleted');
+        SetPurchArchiveQuotes(PurchArchiveQuotes);
     end;
 
     [Test]
@@ -155,7 +159,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Verify Item Number,Quantity,Type and Unit of Measure Code in Purchase Order.
-        VerifyPurchaseLineArchive(PurchaseLine, PurchaseHeader."No.");
+        VerifyPurchaseLineArchive(PurchaseLine, PurchaseHeader);
     end;
 
 #if not CLEAN19
@@ -219,28 +223,64 @@ codeunit 134417 "ERM Delete Documents"
     [Scope('OnPrem')]
     procedure MakeOrderFromSalesQuote()
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         OldStockOutWarning: Boolean;
+        ArchiveQuotes: Option;
     begin
         // [FEATURE] [Document Archive]
         // [SCENARIO] Check the functionality of Sales Quote Archive while making it into Order.
 
         // [GIVEN] Create Sales Quote.
-        Initialize;
+        Initialize();
+        ArchiveQuotes := SetSalesArchiveQuotes(SalesReceivablesSetup."Archive Quotes"::Always);
         OldStockOutWarning := UpdateStockOutWarning(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
 
-        // [WHEN] Release and Archive Sales Quote and finally making an Order of it.
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        ArchiveManagement.StoreSalesDocument(SalesHeader, false);
+        // [WHEN] Make an Order of Quote
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
 
         // [THEN] Verify Item Number,Quantity,Type and Unit of Measure Code in Sales Quote.
-        VerifySalesLineArchive(SalesLine, SalesHeader."No.");
+        VerifySalesLineArchive(SalesLine, SalesHeader);
+        Assert.IsFalse(SalesHeader.Find(), 'Quote header is not deleted');
+        Assert.IsFalse(SalesLine.Find(), 'Quote line is not deleted');
 
         // 4.Tear Down: Set Stockout Warning to original state.
         UpdateStockOutWarning(OldStockOutWarning);
+        SetSalesArchiveQuotes(ArchiveQuotes);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakeInvoiceFromSalesQuote()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OldStockOutWarning: Boolean;
+        ArchiveQuotes: Option;
+    begin
+        // [FEATURE] [Document Archive]
+        // [SCENARIO 426014] Check the functionality of Sales Quote Archive while making it into Invoice.
+
+        // [GIVEN] Create Sales Quote.
+        Initialize();
+        ArchiveQuotes := SetSalesArchiveQuotes(SalesReceivablesSetup."Archive Quotes"::Always);
+        OldStockOutWarning := UpdateStockOutWarning(false);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
+
+        // [WHEN] Make an Invoice of Quote.
+        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Invoice", SalesHeader);
+
+        // [THEN] Verify Item Number,Quantity,Type and Unit of Measure Code in Sales Quote.
+        VerifySalesLineArchive(SalesLine, SalesHeader);
+        Assert.IsFalse(SalesHeader.Find(), 'Quote header is not deleted');
+        Assert.IsFalse(SalesLine.Find(), 'Quote line is not deleted');
+
+        // 4.Tear Down: Set Stockout Warning to original state.
+        UpdateStockOutWarning(OldStockOutWarning);
+        SetSalesArchiveQuotes(ArchiveQuotes);
     end;
 
     [Test]
@@ -325,7 +365,7 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Verify Item Number,Quantity,Type and Unit of Measure Code in Sales Order Archive.
-        VerifySalesLineArchive(SalesLine, SalesHeader."No.");
+        VerifySalesLineArchive(SalesLine, SalesHeader);
 
         // 4.Tear Down: Set Stockout Warning to original state.
         UpdateStockOutWarning(OldStockOutWarning);
@@ -2154,23 +2194,25 @@ codeunit 134417 "ERM Delete Documents"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyPurchaseLineArchive(PurchaseLine: Record "Purchase Line"; PostedDocumentNo: Code[20])
+    local procedure VerifyPurchaseLineArchive(PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLineArchive: Record "Purchase Line Archive";
     begin
-        PurchaseLineArchive.SetRange("Document No.", PostedDocumentNo);
-        PurchaseLineArchive.FindFirst;
+        PurchaseLineArchive.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLineArchive.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLineArchive.FindFirst();
         PurchaseLineArchive.TestField("No.", PurchaseLine."No.");
         PurchaseLineArchive.TestField("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
         PurchaseLineArchive.TestField(Quantity, PurchaseLine.Quantity);
     end;
 
-    local procedure VerifySalesLineArchive(SalesLine: Record "Sales Line"; PostedDocumentNo: Code[20])
+    local procedure VerifySalesLineArchive(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
         SalesLineArchive: Record "Sales Line Archive";
     begin
-        SalesLineArchive.SetRange("Document No.", PostedDocumentNo);
-        SalesLineArchive.FindFirst;
+        SalesLineArchive.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLineArchive.SetRange("Document No.", SalesHeader."No.");
+        SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("No.", SalesLine."No.");
         SalesLineArchive.TestField("Unit of Measure Code", SalesLine."Unit of Measure Code");
         SalesLineArchive.TestField(Quantity, SalesLine.Quantity);
@@ -2382,6 +2424,30 @@ codeunit 134417 "ERM Delete Documents"
         DeleteInvoicedPurchOrders.SetTableView(PurchaseHeader);
         DeleteInvoicedPurchOrders.UseRequestPage(false);
         DeleteInvoicedPurchOrders.Run;
+    end;
+
+    local procedure SetPurchArchiveQuotes(NewArchiveQuotes: Option) ArchiveQuotes: Option
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        ArchiveQuotes := PurchasesPayablesSetup."Archive Quotes";
+        if ArchiveQuotes <> NewArchiveQuotes then begin
+            PurchasesPayablesSetup."Archive Quotes" := NewArchiveQuotes;
+            PurchasesPayablesSetup.Modify();
+        end;
+    end;
+
+    local procedure SetSalesArchiveQuotes(NewArchiveQuotes: Option) ArchiveQuotes: Option
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        ArchiveQuotes := SalesReceivablesSetup."Archive Quotes";
+        if ArchiveQuotes <> NewArchiveQuotes then begin
+            SalesReceivablesSetup."Archive Quotes" := NewArchiveQuotes;
+            SalesReceivablesSetup.Modify();
+        end;
     end;
 
     [ModalPageHandler]
