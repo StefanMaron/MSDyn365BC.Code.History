@@ -2768,7 +2768,6 @@
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
             begin
-                TestStatusOpen;
                 if (CurrFieldNo <> 0) and
                    ("Promised Receipt Date" <> 0D)
                 then
@@ -2817,7 +2816,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
 
                 if "Requested Receipt Date" <> 0D then
@@ -2833,7 +2831,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 if ("Promised Receipt Date" <> 0D) or
                    ("Requested Receipt Date" <> 0D)
                 then
@@ -2851,7 +2848,6 @@
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
             begin
-                TestStatusOpen;
                 if "Promised Receipt Date" <> 0D then begin
                     if "Planned Receipt Date" <> 0D then begin
                         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
@@ -2884,7 +2880,6 @@
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
             begin
-                TestStatusOpen;
                 if (CurrFieldNo <> 0) and
                    ("Document Type" = "Document Type"::Order) and
                    ("Order Date" < WorkDate) and
@@ -5863,11 +5858,14 @@
 
             if "Cross-Reference No." <> xRec."Cross-Reference No." then
                 PlanPriceCalcByField(FieldNo("Cross-Reference No."));
-            Validate("No.", ReturnedItemCrossReference."Item No.");
+            if "No." <> ReturnedItemCrossReference."Item No." then
+                Validate("No.", ReturnedItemCrossReference."Item No.");
             SetVendorItemNo;
             if ReturnedItemCrossReference."Variant Code" <> '' then
                 Validate("Variant Code", ReturnedItemCrossReference."Variant Code");
-            if ReturnedItemCrossReference."Unit of Measure" <> '' then
+            if (ReturnedItemCrossReference."Unit of Measure" <> '') and
+               ("Unit of Measure Code" <> ReturnedItemCrossReference."Unit of Measure")
+            then
                 Validate("Unit of Measure Code", ReturnedItemCrossReference."Unit of Measure");
         end;
 
@@ -6241,7 +6239,7 @@
     begin
         GetPurchSetup;
         if PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank then begin
-            if ("Document Type" = "Document Type"::Order) or ("Document Type" = "Document Type"::Quote) then begin
+            if (("Document Type" = "Document Type"::Order) and ("Over-Receipt Quantity" = 0)) or ("Document Type" = "Document Type"::Quote) then begin
                 "Qty. to Receive" := 0;
                 "Qty. to Receive (Base)" := 0;
                 "Qty. to Invoice" := 0;
@@ -7015,7 +7013,11 @@
         if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or (Abs("Qty. to Receive") <= Abs("Outstanding Quantity")) then
             exit(false);
 
-        Validate("Over-Receipt Quantity", "Qty. to Receive" - xRec."Qty. to Receive");
+        GetPurchSetup();
+        if (PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank) then
+            Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Quantity Received")
+        else
+            Validate("Over-Receipt Quantity", "Qty. to Receive" - xRec."Qty. to Receive");
         exit(true);
     end;
 

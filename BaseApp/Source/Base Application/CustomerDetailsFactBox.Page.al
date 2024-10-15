@@ -114,7 +114,7 @@ page 9084 "Customer Details FactBox"
         PAGE.Run(PAGE::"Customer Card", Rec);
     end;
 
-    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '16.0')]
+    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '17.0')]
     procedure SetCustomerNoVisibility(Visible: Boolean)
     begin
         ShowCustomerNo := Visible;

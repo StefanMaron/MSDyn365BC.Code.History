@@ -522,6 +522,7 @@ report 393 "Suggest Vendor Payments"
         LastLineNo: Integer;
         NextEntryNo: Integer;
         DueDateOffset: DateFormula;
+        [InDataSet]
         UseDueDateAsPostingDate: Boolean;
         StopPayments: Boolean;
         DocNoPerLine: Boolean;

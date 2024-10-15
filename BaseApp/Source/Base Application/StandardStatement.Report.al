@@ -649,21 +649,27 @@ report 1316 "Standard Statement"
                 TempAgingBandBuf.DeleteAll();
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 PrintLine := false;
-                if PrintAllHavingBal then
+                if PrintAllHavingBal and (not PrintAllHavingEntry) then
                     PrintLine := true;
 
-                IF (NOT PrintLine) AND PrintAllHavingEntry THEN BEGIN
-                  CustLedgerEntry.Reset();
-                  CustLedgerEntry.SetCurrentKey("Customer No.","Posting Date");
-                  CustLedgerEntry.SETRANGE("Customer No.","No.");
-                  CustLedgerEntry.SETRANGE("Posting Date",StartDate,EndDate);
-                  COPYFILTER("Currency Filter",CustLedgerEntry."Currency Code");
-                  PrintLine := NOT CustLedgerEntry.ISEMPTY;
-                END;
-                IF NOT PrintLine THEN
-                  CurrReport.Skip();
+                if (not PrintLine) and PrintAllHavingEntry then begin
+                    CustLedgerEntry.Reset();
+                    CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date");
+                    CustLedgerEntry.SetRange("Customer No.", "No.");
+                    CustLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
+                    CopyFilter("Currency Filter", CustLedgerEntry."Currency Code");
+                    PrintLine := not CustLedgerEntry.IsEmpty();
+                end;
+                if (not PrintLine) and PrintAllHavingBal then begin
+                    Cust2 := Customer;
+                    Cust2.SetRange("Date Filter", 0D, EndDate);
+                    Cust2.CalcFields("Net Change (LCY)");
+                    PrintLine := Cust2."Net Change (LCY)" <> 0;
+                end;
+                if not PrintLine then
+                    CurrReport.Skip();
 
-                FormatAddr.Customer(CustAddr,Customer);
+                FormatAddr.Customer(CustAddr, Customer);
                 PrintedCustomersList.Add("No.");
 
                 IsFirstLoop := false;
@@ -682,8 +688,9 @@ report 1316 "Standard Statement"
                 PopulateTempCurrencies;
 
                 if PrintAllHavingBal and not PrintAllHavingEntry then begin
-                    SetAutoCalcFields("Balance (LCY)");
-                    SetFilter("Balance (LCY)", '<>0');
+                    SetRange("Date Filter", 0D, EndDate);
+                    SetAutoCalcFields("Net Change (LCY)");
+                    SetFilter("Net Change (LCY)", '<>0');
                 end;
             end;
         }

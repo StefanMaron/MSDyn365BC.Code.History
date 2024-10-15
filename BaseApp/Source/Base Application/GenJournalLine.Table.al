@@ -7278,6 +7278,9 @@
         GraphIntContact: Codeunit "Graph Int. - Contact";
         GraphID: Text[250];
     begin
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit;
+
         if IsNullGuid("Customer Id") then
             Clear("Contact Graph Id");
 
