@@ -184,7 +184,7 @@ codeunit 136306 "Job Invoicing"
         Assert.AreEqual(StrPos(GetLastErrorText, QtyErr), 1, UnexpectedErrorMsg)
     end;
 
-    local procedure TransferJob(ConsumableType: Enum "Job Planning Line Type"; LineType: Option; Fraction: Decimal)
+    local procedure TransferJob(ConsumableType: Enum "Job Planning Line Type"; LineType: Enum "Job Planning Line Line Type"; Fraction: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
         SalesHeader: Record "Sales Header";
@@ -248,7 +248,7 @@ codeunit 136306 "Job Invoicing"
         TransferJobStaged(LibraryJob.ItemType, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(99) / 100)
     end;
 
-    local procedure TransferJobStaged(ConsumableType: Enum "Job Planning Line Type"; LineType: Option; Fraction: Decimal)
+    local procedure TransferJobStaged(ConsumableType: Enum "Job Planning Line Type"; LineType: Enum "Job Planning Line Line Type"; Fraction: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
@@ -759,7 +759,7 @@ codeunit 136306 "Job Invoicing"
           ExpectedDimValueCode, SalesLine."Shortcut Dimension 1 Code", WrongDimValueCodeErr);
     end;
 
-    local procedure ExecuteJob(ConsumableType: Enum "Job Planning Line Type"; LineType: Option; UsageFraction: Decimal; InvoiceFraction: Decimal; CreditFraction: Decimal)
+    local procedure ExecuteJob(ConsumableType: Enum "Job Planning Line Type"; LineType: Enum "Job Planning Line Line Type"; UsageFraction: Decimal; InvoiceFraction: Decimal; CreditFraction: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
         JobJournalLine: Record "Job Journal Line";
@@ -1190,7 +1190,7 @@ codeunit 136306 "Job Invoicing"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
         LibraryVariableStorage.Enqueue(PostedInvoiceNo);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // [WHEN] Post Purchase Credit Memo
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1941,7 +1941,7 @@ codeunit 136306 "Job Invoicing"
 
         // [WHEN] Post Sales Credit Memo
         Commit();
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, true);
         GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::"Credit Memo", SalesHeader);
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2439,7 +2439,7 @@ codeunit 136306 "Job Invoicing"
         end;
     end;
 
-    local procedure Plan(LineType: Option; ConsumableType: Enum "Job Planning Line Type"; var JobPlanningLine: Record "Job Planning Line")
+    local procedure Plan(LineType: Enum "Job Planning Line Line Type"; ConsumableType: Enum "Job Planning Line Type"; var JobPlanningLine: Record "Job Planning Line")
     var
         JobTask: Record "Job Task";
     begin
@@ -2594,7 +2594,7 @@ codeunit 136306 "Job Invoicing"
         exit(Job."No.");
     end;
 
-    local procedure CreateSimpleSalesInvoiceFromJobPlanningLine(var SalesHeader: Record "Sales Header"; var JobPlanningLine: Record "Job Planning Line"; LineType: Option; QtyInvoiceFraction: Decimal): Code[20]
+    local procedure CreateSimpleSalesInvoiceFromJobPlanningLine(var SalesHeader: Record "Sales Header"; var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; QtyInvoiceFraction: Decimal): Code[20]
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -2606,7 +2606,7 @@ codeunit 136306 "Job Invoicing"
         exit(Job."No.");
     end;
 
-    local procedure CreateSalesInvoiceWithResourceAndTextTypes(var SalesHeader: Record "Sales Header"; var JobPlanningLine: Record "Job Planning Line"; LineType: Option): Code[20]
+    local procedure CreateSalesInvoiceWithResourceAndTextTypes(var SalesHeader: Record "Sales Header"; var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"): Code[20]
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -3464,7 +3464,7 @@ codeunit 136306 "Job Invoicing"
         FindJobLedgerEntry(JobLedgerEntry, JobTask);
         FindGLEntry(GLEntry, DocumentNo, GLEntry."Document Type"::Invoice);
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             with JobLedgerEntry do begin
                 SetRange("Ledger Entry No.", GLEntry."Entry No.");
@@ -3515,7 +3515,7 @@ codeunit 136306 "Job Invoicing"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
                 TestField("Completely Invoiced", true);
@@ -3532,7 +3532,7 @@ codeunit 136306 "Job Invoicing"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 TestField("Applied Entry to Adjust", true);
             until Next = 0;
@@ -3578,11 +3578,11 @@ codeunit 136306 "Job Invoicing"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
         JobLedgerEntry.SetRange("Job No.", JobPlanningLine."Job No.");
-        JobLedgerEntry.FindSet;
+        JobLedgerEntry.FindSet();
         JobPlanningLineInvoice.SetRange("Document Type", DocType);
         JobPlanningLineInvoice.SetRange("Document No.", DocNo);
         JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         repeat
             JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
             JobPlanningLineInvoice.FindFirst;
@@ -3674,7 +3674,7 @@ codeunit 136306 "Job Invoicing"
         JobTransferLine.FromPlanningLineToJnlLine(JobPlanningLine, 0D, JobJournalTemplateName, JobJournalBatchName, JobJournalLine);
     end;
 
-    local procedure CreateJobPlanningLineWithTypeText(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; JobTask: Record "Job Task")
+    local procedure CreateJobPlanningLineWithTypeText(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; JobTask: Record "Job Task")
     var
         StandardText: Record "Standard Text";
     begin

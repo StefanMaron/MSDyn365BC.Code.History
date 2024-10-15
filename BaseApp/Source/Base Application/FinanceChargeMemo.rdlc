@@ -5416,6 +5416,24 @@ End Function
         <Field Name="DocumentDateCaption">
           <DataField>DocumentDateCaption</DataField>
         </Field>
+        <Field Name="ContactPhoneNoLbl">
+          <DataField>ContactPhoneNoLbl</DataField>
+        </Field>
+        <Field Name="ContactMobilePhoneNoLbl">
+          <DataField>ContactMobilePhoneNoLbl</DataField>
+        </Field>
+        <Field Name="ContactEmailLbl">
+          <DataField>ContactEmailLbl</DataField>
+        </Field>
+        <Field Name="ContactPhoneNo">
+          <DataField>ContactPhoneNo</DataField>
+        </Field>
+        <Field Name="ContactMobilePhoneNo">
+          <DataField>ContactMobilePhoneNo</DataField>
+        </Field>
+        <Field Name="ContactEmail">
+          <DataField>ContactEmail</DataField>
+        </Field>
         <Field Name="PostDate_IssFinChrgMemoHdr">
           <DataField>PostDate_IssFinChrgMemoHdr</DataField>
         </Field>

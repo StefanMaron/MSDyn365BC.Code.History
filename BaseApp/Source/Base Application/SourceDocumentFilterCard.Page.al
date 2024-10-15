@@ -12,59 +12,59 @@ page 5786 "Source Document Filter Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code that identifies the filter record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of filter combinations in the Source Document Filter Card window to retrieve lines from source documents.';
                 }
-                field("Source No. Filter"; "Source No. Filter")
+                field("Source No. Filter"; Rec."Source No. Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number, or number range, that is used to filter the source documents to get.';
                 }
-                field("Item No. Filter"; "Item No. Filter")
+                field("Item No. Filter"; Rec."Item No. Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item number used to filter the source documents to get.';
                 }
-                field("Variant Code Filter"; "Variant Code Filter")
+                field("Variant Code Filter"; Rec."Variant Code Filter")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the item variant used to filter the source documents to get.';
                 }
-                field("Unit of Measure Filter"; "Unit of Measure Filter")
+                field("Unit of Measure Filter"; Rec."Unit of Measure Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the unit of measure used to filter the source documents to get.';
                 }
-                field("Shipment Method Code Filter"; "Shipment Method Code Filter")
+                field("Shipment Method Code Filter"; Rec."Shipment Method Code Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shipment method code used to filter the source documents to get.';
                 }
-                field("Show Filter Request"; "Show Filter Request")
+                field("Show Filter Request"; Rec."Show Filter Request")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the Filters to Get Source Docs. window appears when you choose Use Filters to Get Source Docs on a warehouse shipment or receipt.';
                 }
-                field("Sales Return Orders"; "Sales Return Orders")
+                field("Sales Return Orders"; Rec."Sales Return Orders")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = SalesReturnOrdersEnable;
                     ToolTip = 'Specifies that sales return orders are retrieved when you choose Use Filters to Get Src. Docs in the Warehouse Shipment window.';
                 }
-                field("Purchase Orders"; "Purchase Orders")
+                field("Purchase Orders"; Rec."Purchase Orders")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = PurchaseOrdersEnable;
                     ToolTip = 'Specifies that purchase orders are retrieved when you choose Use Filters to Get Src. Docs in the Warehouse Receipt window.';
                 }
-                field("Inbound Transfers"; "Inbound Transfers")
+                field("Inbound Transfers"; Rec."Inbound Transfers")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = InboundTransfersEnable;
@@ -75,19 +75,19 @@ page 5786 "Source Document Filter Card"
                         EnableControls();
                     end;
                 }
-                field("Shipping Agent Code Filter"; "Shipping Agent Code Filter")
+                field("Shipping Agent Code Filter"; Rec."Shipping Agent Code Filter")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = ShippingAgentCodeFilterEnable;
                     ToolTip = 'Specifies the shipping agent code used to filter the source documents.';
                 }
-                field("Shipping Agent Service Filter"; "Shipping Agent Service Filter")
+                field("Shipping Agent Service Filter"; Rec."Shipping Agent Service Filter")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = ShippingAgentServiceFilterEnable;
                     ToolTip = 'Specifies the shipping agent service used to filter the source documents.';
                 }
-                field("Do Not Fill Qty. to Handle"; "Do Not Fill Qty. to Handle")
+                field("Do Not Fill Qty. to Handle"; Rec."Do Not Fill Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that inventory quantities are assigned when you get outbound source document lines for shipment.';
@@ -95,7 +95,7 @@ page 5786 "Source Document Filter Card"
                 group("Source Document:")
                 {
                     Caption = 'Source Document:';
-                    field("Sales Orders"; "Sales Orders")
+                    field("Sales Orders"; Rec."Sales Orders")
                     {
                         ApplicationArea = Warehouse;
                         Enabled = SalesOrdersEnable;
@@ -106,18 +106,18 @@ page 5786 "Source Document Filter Card"
                             EnableControls();
                         end;
                     }
-                    field("Service Orders"; "Service Orders")
+                    field("Service Orders"; Rec."Service Orders")
                     {
                         ApplicationArea = Warehouse;
                         ToolTip = 'Specifies that service lines with a Released to Ship status are retrieved by the function that gets source documents for warehouse shipment.';
                     }
-                    field("Purchase Return Orders"; "Purchase Return Orders")
+                    field("Purchase Return Orders"; Rec."Purchase Return Orders")
                     {
                         ApplicationArea = Warehouse;
                         Enabled = PurchaseReturnOrdersEnable;
                         ToolTip = 'Specifies that purchase return orders are retrieved when you choose Use Filters to Get Src. Docs in the Warehouse Shipment window.';
                     }
-                    field("Outbound Transfers"; "Outbound Transfers")
+                    field("Outbound Transfers"; Rec."Outbound Transfers")
                     {
                         ApplicationArea = Warehouse;
                         Enabled = OutboundTransfersEnable;
@@ -132,12 +132,12 @@ page 5786 "Source Document Filter Card"
                 group("Shipping Advice Filter:")
                 {
                     Caption = 'Shipping Advice Filter:';
-                    field(Partial; Partial)
+                    field(Partial; Rec.Partial)
                     {
                         ApplicationArea = Warehouse;
                         ToolTip = 'Specifies the Shipping Advice field on sales orders must contain Partial when you choose Use Filters to Get Src. Docs.';
                     }
-                    field(Complete; Complete)
+                    field(Complete; Rec.Complete)
                     {
                         ApplicationArea = Warehouse;
                         ToolTip = 'Specifies the Shipping Advice field on sales orders must contain Complete when you choose Use Filters to Get Src. Docs.';
@@ -147,7 +147,7 @@ page 5786 "Source Document Filter Card"
             group(Sales)
             {
                 Caption = 'Sales';
-                field("Sell-to Customer No. Filter"; "Sell-to Customer No. Filter")
+                field("Sell-to Customer No. Filter"; Rec."Sell-to Customer No. Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the sell-to customer number used to filter the source documents to get.';
@@ -156,7 +156,7 @@ page 5786 "Source Document Filter Card"
             group(Purchase)
             {
                 Caption = 'Purchase';
-                field("Buy-from Vendor No. Filter"; "Buy-from Vendor No. Filter")
+                field("Buy-from Vendor No. Filter"; Rec."Buy-from Vendor No. Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the buy-from vendor number used to filter the source documents to get.';
@@ -165,17 +165,17 @@ page 5786 "Source Document Filter Card"
             group(Transfer)
             {
                 Caption = 'Transfer';
-                field("In-Transit Code Filter"; "In-Transit Code Filter")
+                field("In-Transit Code Filter"; Rec."In-Transit Code Filter")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the in-transit code used to filter the source documents.';
                 }
-                field("Transfer-from Code Filter"; "Transfer-from Code Filter")
+                field("Transfer-from Code Filter"; Rec."Transfer-from Code Filter")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the transfer-from code used to filter the source documents.';
                 }
-                field("Transfer-to Code Filter"; "Transfer-to Code Filter")
+                field("Transfer-to Code Filter"; Rec."Transfer-to Code Filter")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the transfer-to code used to filter the source documents to get.';
@@ -184,7 +184,7 @@ page 5786 "Source Document Filter Card"
             group(Service)
             {
                 Caption = 'Service';
-                field("Customer No. Filter"; "Customer No. Filter")
+                field("Customer No. Filter"; Rec."Customer No. Filter")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies which customers are included when you use the Filters to Get Source Docs. window to retrieve source document lines.';
@@ -210,28 +210,28 @@ page 5786 "Source Document Filter Card"
                 var
                     GetSourceBatch: Report "Get Source Documents";
                 begin
-                    "Planned Delivery Date" := CopyStr(GetFilter("Planned Delivery Date Filter"), 1, MaxStrLen("Planned Delivery Date"));
-                    "Planned Shipment Date" := CopyStr(GetFilter("Planned Shipment Date Filter"), 1, MaxStrLen("Planned Shipment Date"));
-                    "Sales Shipment Date" := CopyStr(GetFilter("Sales Shipment Date Filter"), 1, MaxStrLen("Sales Shipment Date"));
-                    "Planned Receipt Date" := CopyStr(GetFilter("Planned Receipt Date Filter"), 1, MaxStrLen("Planned Receipt Date"));
-                    "Expected Receipt Date" := CopyStr(GetFilter("Expected Receipt Date Filter"), 1, MaxStrLen("Expected Receipt Date"));
-                    "Shipment Date" := CopyStr(GetFilter("Shipment Date Filter"), 1, MaxStrLen("Shipment Date"));
-                    "Receipt Date" := CopyStr(GetFilter("Receipt Date Filter"), 1, MaxStrLen("Receipt Date"));
+                    Rec."Planned Delivery Date" := CopyStr(Rec.GetFilter("Planned Delivery Date Filter"), 1, MaxStrLen(Rec."Planned Delivery Date"));
+                    Rec."Planned Shipment Date" := CopyStr(Rec.GetFilter("Planned Shipment Date Filter"), 1, MaxStrLen(Rec."Planned Shipment Date"));
+                    Rec."Sales Shipment Date" := CopyStr(Rec.GetFilter("Sales Shipment Date Filter"), 1, MaxStrLen(Rec."Sales Shipment Date"));
+                    Rec."Planned Receipt Date" := CopyStr(Rec.GetFilter("Planned Receipt Date Filter"), 1, MaxStrLen(Rec."Planned Receipt Date"));
+                    Rec."Expected Receipt Date" := CopyStr(Rec.GetFilter("Expected Receipt Date Filter"), 1, MaxStrLen(Rec."Expected Receipt Date"));
+                    Rec."Shipment Date" := CopyStr(Rec.GetFilter("Shipment Date Filter"), 1, MaxStrLen(Rec."Shipment Date"));
+                    Rec."Receipt Date" := CopyStr(Rec.GetFilter("Receipt Date Filter"), 1, MaxStrLen(Rec."Receipt Date"));
 
                     case RequestType of
                         RequestType::Receive:
                             begin
                                 GetSourceBatch.SetOneCreatedReceiptHeader(WhseReceiptHeader);
-                                SetFilters(GetSourceBatch, WhseReceiptHeader."Location Code");
+                                Rec.SetFilters(GetSourceBatch, WhseReceiptHeader."Location Code");
                             end;
                         RequestType::Ship:
                             begin
                                 GetSourceBatch.SetOneCreatedShptHeader(WhseShptHeader);
-                                SetFilters(GetSourceBatch, WhseShptHeader."Location Code");
+                                Rec.SetFilters(GetSourceBatch, WhseShptHeader."Location Code");
                             end;
                     end;
 
-                    GetSourceBatch.UseRequestPage("Show Filter Request");
+                    GetSourceBatch.UseRequestPage(Rec."Show Filter Request");
                     GetSourceBatch.RunModal();
                     if GetSourceBatch.NotCancelled then
                         CurrPage.Close();
@@ -249,20 +249,18 @@ page 5786 "Source Document Filter Card"
         InitializeControls();
 
         DataCaption := CurrPage.Caption;
-        FilterGroup := 2;
-        if GetFilter(Type) <> '' then
-            DataCaption := DataCaption + ' - ' + GetFilter(Type);
-        FilterGroup := 0;
+        Rec.FilterGroup := 2;
+        if Rec.GetFilter(Type) <> '' then
+            DataCaption := DataCaption + ' - ' + Rec.GetFilter(Type);
+        Rec.FilterGroup := 0;
         CurrPage.Caption(DataCaption);
 
         EnableControls();
     end;
 
-    var
+    protected var
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseReceiptHeader: Record "Warehouse Receipt Header";
-
-    protected var
         DataCaption: Text[250];
         RequestType: Option Receive,Ship;
         [InDataSet]
@@ -296,21 +294,21 @@ page 5786 "Source Document Filter Card"
 
     local procedure EnableControls()
     begin
-        case Type of
-            Type::Inbound:
+        case Rec.Type of
+            Rec.Type::Inbound:
                 begin
                     SalesOrdersEnable := false;
                     PurchaseReturnOrdersEnable := false;
                     OutboundTransfersEnable := false;
                 end;
-            Type::Outbound:
+            Rec.Type::Outbound:
                 begin
                     PurchaseOrdersEnable := false;
                     SalesReturnOrdersEnable := false;
                     InboundTransfersEnable := false;
                 end;
         end;
-        if "Sales Orders" or "Inbound Transfers" or "Outbound Transfers" then begin
+        if Rec."Sales Orders" or Rec."Inbound Transfers" or Rec."Outbound Transfers" then begin
             ShippingAgentCodeFilterEnable := true;
             ShippingAgentServiceFilterEnable := true;
         end else begin

@@ -87,7 +87,7 @@ report 28000 "BarCode Checking"
                     if not TempAddressID.Find('-') then
                         CurrReport.Break();
                 end else begin
-                    if TempAddressID.Next = 0 then
+                    if TempAddressID.Next() = 0 then
                         CurrReport.Break();
                 end;
                 if (TempAddressID."Error Flag No." = '') and ShowErrorOnly then
@@ -262,7 +262,7 @@ report 28000 "BarCode Checking"
                     BarCodeManagement.BuildBarCode(AddressID."Address ID", '', TempAddressID."Bar Code");
                 TempAddressID.Insert();
                 LocalCurrentRec := LocalCurrentRec + 1;
-            until AddressID.Next = 0;
+            until AddressID.Next() = 0;
     end;
 }
 

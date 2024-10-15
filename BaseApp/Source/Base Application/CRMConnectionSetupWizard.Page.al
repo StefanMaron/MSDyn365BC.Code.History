@@ -117,48 +117,51 @@ page 1817 "CRM Connection Setup Wizard"
                             OnImportSolutionChange;
                         end;
                     }
+                    field(EnableItemAvailability; EnableItemAvailability)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Automatically Synchronize Item Availability';
+                        Enabled = PublishItemAvailabilityServiceEnabled;
+                        ToolTip = 'Specifies that item availability job queue entry will be scheduled.';
+                    }
                     field(PublishItemAvailabilityService; PublishItemAvailabilityService)
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                         ApplicationArea = Suite;
                         Caption = 'Publish Item Availability Web Service';
                         Enabled = PublishItemAvailabilityServiceEnabled;
-                        ToolTip = 'Specifies that the Item Availability web service for Business Central is enabled.';
-
-                        trigger OnValidate()
-                        begin
-                            if not PublishItemAvailabilityService then begin
-                                Clear("Dynamics NAV OData Username");
-                                Clear("Dynamics NAV OData Accesskey");
-                            end;
-                        end;
                     }
                     label(Control26)
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                         ApplicationArea = Suite;
                         Caption = 'You must assign the security role Business Central Product Availability User to your sales people in Dynamics 365 Sales.';
                     }
                     field(NAVODataUsername; "Dynamics NAV OData Username")
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                         ApplicationArea = Suite;
                         Caption = 'Business Central OData Web Service User Name';
                         Editable = PublishItemAvailabilityService;
                         Enabled = PublishItemAvailabilityServiceEnabled;
                         Lookup = true;
                         LookupPageID = Users;
-                        ToolTip = 'Specifies the user name to access Dynamics 365 OData web services.';
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        var
-                            User: Record User;
-                        begin
-                            if PAGE.RunModal(PAGE::Users, User) = ACTION::LookupOK then begin
-                                "Dynamics NAV OData Username" := User."User Name";
-                                UpdateUserWebKey(User);
-                            end;
-                        end;
                     }
                     field(NAVODataAccesskey; "Dynamics NAV OData Accesskey")
                     {
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                        ObsoleteTag = '18.0';
+                        Visible = false;
                         ApplicationArea = Suite;
                         Caption = 'Business Central OData Web Service Access Key';
                         Editable = false;
@@ -278,7 +281,7 @@ page 1817 "CRM Connection Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     if "Authentication Type" = "Authentication Type"::Office365 then
                         if "User Name" = '' then
@@ -286,7 +289,7 @@ page 1817 "CRM Connection Setup Wizard"
 
                     if not FinalizeSetup() then
                         exit;
-                    AssistedSetup.Complete(PAGE::"CRM Connection Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"CRM Connection Setup Wizard");
                     Commit();
                     CurrPage.Close;
                 end;
@@ -325,11 +328,11 @@ page 1817 "CRM Connection Setup Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Info: ModuleInfo;
     begin
         if CloseAction = ACTION::OK then
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"CRM Connection Setup Wizard") then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"CRM Connection Setup Wizard") then
                 if not Confirm(ConnectionNotSetUpQst, false, CRMProductName.SHORT()) then
                     Error('');
     end;
@@ -357,6 +360,7 @@ page 1817 "CRM Connection Setup Wizard"
         PublishItemAvailabilityServiceEnabled: Boolean;
         EnableSalesOrderIntegration: Boolean;
         EnableSalesOrderIntegrationEnabled: Boolean;
+        EnableItemAvailability: Boolean;
         ShowAdvancedSettings: Boolean;
         AdvancedActionEnabled: Boolean;
         SimpleActionEnabled: Boolean;
@@ -364,7 +368,6 @@ page 1817 "CRM Connection Setup Wizard"
         [NonDebuggable]
         Password: Text;
         ConnectionNotSetUpQst: Label 'The %1 connection has not been set up.\\Are you sure you want to exit?', Comment = '%1 = CRM product name';
-        MustUpdateClientsQst: Label 'If you change the web service access key, the current access key will no longer be valid. You must update all clients that use it. Do you want to continue?';
         CRMURLShouldNotBeEmptyErr: Label 'You must specify the URL of your %1 solution.', Comment = '%1 = CRM product name';
         CRMSynchUserCredentialsNeededErr: Label 'You must specify the credentials for the user account for synchronization with %1.', Comment = '%1 = CRM product name';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
@@ -443,8 +446,6 @@ page 1817 "CRM Connection Setup Wizard"
     local procedure ShowFinishStep()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
-        User: Record User;
-        IdentityManagement: Codeunit "Identity Management";
     begin
         BackActionEnabled := true;
         NextActionEnabled := false;
@@ -455,11 +456,6 @@ page 1817 "CRM Connection Setup Wizard"
 
         EnableSalesOrderIntegrationEnabled := ImportCRMSolutionEnabled;
         EnableCRMConnectionEnabled := "Server Address" <> '';
-        if User.Get(UserSecurityId) then begin
-            "Dynamics NAV OData Accesskey" := IdentityManagement.GetWebServicesKey(User."User Security ID");
-            if "Dynamics NAV OData Accesskey" <> '' then
-                "Dynamics NAV OData Username" := User."User Name";
-        end;
         "Authentication Type" := "Authentication Type"::Office365;
         if CRMConnectionSetup.Get then begin
             EnableCRMConnection := true;
@@ -467,11 +463,8 @@ page 1817 "CRM Connection Setup Wizard"
             EnableSalesOrderIntegration := true;
             EnableSalesOrderIntegrationEnabled := not CRMConnectionSetup."Is S.Order Integration Enabled";
             ImportSolution := true;
-            if CRMConnectionSetup."Is CRM Solution Installed" then begin
+            if CRMConnectionSetup."Is CRM Solution Installed" then
                 ImportCRMSolutionEnabled := false;
-                "Dynamics NAV OData Username" := CRMConnectionSetup."Dynamics NAV OData Username";
-                "Dynamics NAV OData Accesskey" := CRMConnectionSetup."Dynamics NAV OData Accesskey";
-            end;
         end else begin
             if ImportCRMSolutionEnabled then
                 ImportSolution := true;
@@ -486,23 +479,28 @@ page 1817 "CRM Connection Setup Wizard"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-        AdminEmail: Text[250];
+        AdminEmail: Text;
         AdminPassword: Text;
         AccessToken: Text;
+        AdminADDomain: Text;
     begin
         if ImportSolution and ImportCRMSolutionEnabled then begin
-            if "Authentication Type" = "Authentication Type"::Office365 then
-                CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken)
-            else
-                if not PromptForCredentials(AdminEmail, AdminPassword) then
-                    exit(false);
-            CRMIntegrationManagement.ImportCRMSolution(
-              "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, "Proxy Version", true);
+            case "Authentication Type" of
+                "Authentication Type"::Office365:
+                    CDSIntegrationImpl.GetAccessToken("Server Address", true, AccessToken);
+                "Authentication Type"::AD:
+                    if not PromptForCredentials(AdminEmail, AdminPassword, AdminADDomain) then
+                        exit(false);
+                else
+                    if not PromptForCredentials(AdminEmail, AdminPassword) then
+                        exit(false);
+            end;
+            CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, "Proxy Version", true);
         end;
-        if PublishItemAvailabilityService then
-            CRMIntegrationManagement.SetupItemAvailabilityService;
         if EnableSalesOrderIntegration then
             "Is S.Order Integration Enabled" := true;
+        if EnableItemAvailability then
+            "Item Availability Enabled" := true;
 
         CRMIntegrationManagement.InitializeCRMSynchStatus();
         CRMConnectionSetup.UpdateFromWizard(Rec, Password);
@@ -510,40 +508,12 @@ page 1817 "CRM Connection Setup Wizard"
             CRMConnectionSetup.EnableCRMConnectionFromWizard;
         if EnableSalesOrderIntegration and EnableSalesOrderIntegrationEnabled then
             CRMConnectionSetup.SetCRMSOPEnabledWithCredentials(AdminEmail, AdminPassword, true);
-        if PublishItemAvailabilityService and PublishItemAvailabilityServiceEnabled then begin
-            CRMIntegrationManagement.SetCRMNAVConnectionUrl(GetUrl(CLIENTTYPE::Web));
-            CRMIntegrationManagement.SetCRMNAVODataUrlCredentials(
-              CRMIntegrationManagement.GetItemAvailabilityWebServiceURL,
-              "Dynamics NAV OData Username", "Dynamics NAV OData Accesskey");
-        end;
         exit(true);
     end;
 
     local procedure OnImportSolutionChange()
     begin
         PublishItemAvailabilityServiceEnabled := ImportSolution;
-        PublishItemAvailabilityService := ImportSolution;
-    end;
-
-    local procedure UpdateUserWebKey(User: Record User)
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-        IdentityManagement: Codeunit "Identity Management";
-        SetWebServiceAccessKey: Page "Set Web Service Access Key";
-    begin
-        "Dynamics NAV OData Accesskey" := IdentityManagement.GetWebServicesKey(User."User Security ID");
-        if not (EnvironmentInfo.IsSaaS and (UserSecurityId <> User."User Security ID")) and
-           ("Dynamics NAV OData Accesskey" = '')
-        then
-            if Confirm(MustUpdateClientsQst) then begin
-                User.SetCurrentKey("User Security ID");
-                User.SetRange("User Name", User."User Name");
-                SetWebServiceAccessKey.SetRecord(User);
-                SetWebServiceAccessKey.SetTableView(User);
-                if SetWebServiceAccessKey.RunModal = ACTION::OK then
-                    "Dynamics NAV OData Accesskey" := IdentityManagement.GetWebServicesKey(User."User Security ID");
-            end;
-        CurrPage.Update;
     end;
 
     local procedure InitializeDefaultAuthenticationType()

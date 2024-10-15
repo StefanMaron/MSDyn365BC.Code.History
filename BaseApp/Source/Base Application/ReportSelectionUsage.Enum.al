@@ -62,6 +62,7 @@ enum 77 "Report Selection Usage"
     value(56; "S.TaxInvoice") { Caption = 'S.TaxInvoice'; }
     value(57; "P.TaxCreditMemo") { Caption = 'P.TaxCreditMemo'; }
     value(58; "S.TaxCreditMemo") { Caption = 'S.TaxCreditMemo'; }    
+    value(60; "Posted Payment Reconciliation") { Caption = 'Posted Payment Reconciliation'; }
     value(84; "P.V.Remit.") { Caption = 'P.V.Remit.'; }
     value(85; "C.Statement") { Caption = 'C.Statement'; }
     value(86; "V.Remittance") { Caption = 'V.Remittance'; }
@@ -75,4 +76,9 @@ enum 77 "Report Selection Usage"
     value(94; "P.Phys.Invt.Order") { Caption = 'P.Phys.Invt.Order'; }
     value(95; "Phys.Invt.Rec.") { Caption = 'Phys.Invt.Rec.'; }
     value(96; "P.Phys.Invt.Rec.") { Caption = 'P.Phys.Invt.Rec.'; }
+    value(106; "Inventory Shipment") { Caption = 'Inventory Shipment'; }
+    value(107; "Inventory Receipt") { Caption = 'Inventory Receipt'; }
+    value(109; "P.Inventory Shipment") { Caption = 'Inventory Shipment'; }
+    value(110; "P.Inventory Receipt") { Caption = 'Inventory Receipt'; }
+    value(111; "P.Direct Transfer") { Caption = 'P.Direct Transfer'; }
 }

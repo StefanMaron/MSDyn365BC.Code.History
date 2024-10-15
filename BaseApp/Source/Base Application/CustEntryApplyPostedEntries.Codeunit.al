@@ -85,11 +85,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             ApplyToCustLedgEntry.SetRange("Customer No.", "Customer No.");
             ApplyToCustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
             OnGetApplicationDateOnAfterSetFilters(ApplyToCustLedgEntry, CustLedgEntry);
-            ApplyToCustLedgEntry.FindSet;
+            ApplyToCustLedgEntry.FindSet();
             repeat
                 if ApplyToCustLedgEntry."Posting Date" > ApplicationDate then
                     ApplicationDate := ApplyToCustLedgEntry."Posting Date";
-            until ApplyToCustLedgEntry.Next = 0;
+            until ApplyToCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -184,7 +184,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 repeat
                     if "Entry No." > ApplicationEntryNo then
                         ApplicationEntryNo := "Entry No.";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(ApplicationEntryNo);
     end;
@@ -204,7 +204,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 repeat
                     if LastTransactionNo < "Transaction No." then
                         LastTransactionNo := "Transaction No.";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(LastTransactionNo);
     end;
@@ -304,7 +304,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 CheckReversal(DtldCustLedgEntry."Cust. Ledger Entry No.");
                 if DtldCustLedgEntry."Transaction No." <> 0 then
                     CheckUnappliedEntries(DtldCustLedgEntry);
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
 
@@ -444,7 +444,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 repeat
                     TempCustLedgerEntry."Entry No." := "Cust. Ledger Entry No.";
                     if TempCustLedgerEntry.Insert() then;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -461,7 +461,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             repeat
                 if (DtldCustLedgEntry."Transaction No." > LastTransactionNo) and not DtldCustLedgEntry.Unapplied then
                     LastTransactionNo := DtldCustLedgEntry."Transaction No.";
-            until DtldCustLedgEntry.Next = 0;
+            until DtldCustLedgEntry.Next() = 0;
         exit(LastTransactionNo);
     end;
 
@@ -479,14 +479,14 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
             ApplyToCustLedgEntry.SetRange("Customer No.", "Customer No.");
             ApplyToCustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            ApplyToCustLedgEntry.FindSet;
+            ApplyToCustLedgEntry.FindSet();
             repeat
                 if ApplyToCustLedgEntry."Document Type" <> ApplyToCustLedgEntry."Document Type"::"Credit Memo" then begin
                     ApplyToCustLedgEntry.CalcFields("WHT Amount");
                     if ApplyToCustLedgEntry."WHT Amount" <> 0 then
                         Error(Text1500002);
                 end;
-            until ApplyToCustLedgEntry.Next = 0;
+            until ApplyToCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -562,7 +562,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             Error(LatestEntryMustBeAnApplicationErr, DtldCustLedgEntry."Cust. Ledger Entry No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnPreviewRun(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";

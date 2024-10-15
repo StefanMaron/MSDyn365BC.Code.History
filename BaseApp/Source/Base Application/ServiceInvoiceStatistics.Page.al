@@ -222,7 +222,7 @@ page 6033 "Service Invoice Statistics"
                     else
                         VATPercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + CostCalcMgt.CalcServInvLineCostLCY(ServInvLine);
-            until ServInvLine.Next = 0;
+            until ServInvLine.Next() = 0;
         VATAmount := AmountInclVAT - CustAmount;
         InvDiscAmount := Round(InvDiscAmount, currency."Amount Rounding Precision");
 

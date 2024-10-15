@@ -1,4 +1,4 @@
-﻿codeunit 393 "Reminder-Issue"
+codeunit 393 "Reminder-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Issued Reminder Header" = rimd,
@@ -92,7 +92,7 @@
                     GenJnlLine2."Dimension Set ID" := "Dimension Set ID";
                     OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
                     GenJnlPostLine.Run(GenJnlLine2);
-                until GenJnlLine.Next = 0;
+                until GenJnlLine.Next() = 0;
 
             GenJnlLine.DeleteAll();
 
@@ -107,7 +107,7 @@
                     if ReminderLine.Find('-') then
                         repeat
                             UpdateCustLedgEntriesCalculateInterest(ReminderLine."Entry No.", "Currency Code");
-                        until ReminderLine.Next = 0;
+                        until ReminderLine.Next() = 0;
                     ReminderLine.SetRange(Type);
                 end;
             end;
@@ -137,7 +137,7 @@
                         NextEntryNo := NextEntryNo + 1;
                     end;
                     InsertIssuedReminderLine(ReminderLine, IssuedReminderHeader."No.");
-                until ReminderLine.Next = 0;
+                until ReminderLine.Next() = 0;
             ReminderLine.DeleteAll();
             Delete;
         end;
@@ -446,7 +446,7 @@
                                 InsertGenJnlLineForFee(ReminderLine);
                             end;
                     end;
-                until ReminderLine.Next = 0;
+                until ReminderLine.Next() = 0;
         end;
 
         OnAfterProcessReminderLines(ReminderHeader, ReminderLine, ReminderInterestAmount, ReminderInterestVATAmount);

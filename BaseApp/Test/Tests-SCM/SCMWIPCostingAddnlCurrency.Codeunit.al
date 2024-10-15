@@ -39,8 +39,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         // [SCENARIO] Verify correct conversion for additional reporting currency when adjusting Item.
 
         // [GIVEN] Posted Purchase Order with Item having costing method Standard, Released Production Order created and refreshed.
-        Initialize;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        Initialize();
 
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);

@@ -538,7 +538,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         SelectSendingOptions.OK.Invoke();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     var
         NameValueBuffer: Record "Name/Value Buffer";

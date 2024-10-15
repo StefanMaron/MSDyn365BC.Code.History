@@ -29,7 +29,7 @@ page 189 "Incoming Document"
                     trigger OnValidate()
                     begin
                         SetURL(URL);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(MainAttachment; AttachmentFileName)
@@ -43,7 +43,7 @@ page 189 "Incoming Document"
                     trigger OnDrillDown()
                     begin
                         MainAttachmentDrillDown;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Data Exchange Type"; "Data Exchange Type")
@@ -69,7 +69,7 @@ page 189 "Incoming Document"
                     trigger OnDrillDown()
                     begin
                         ShowRecord;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Document Type"; "Document Type")
@@ -103,7 +103,7 @@ page 189 "Incoming Document"
                         OCRServiceSetup: Record "OCR Service Setup";
                         OCRServiceMgt: Codeunit "OCR Service Mgt.";
                     begin
-                        if not OCRServiceSetup.IsEmpty then
+                        if not OCRServiceSetup.IsEmpty() then
                             HyperLink(OCRServiceMgt.GetStatusHyperLink(Rec));
                     end;
                 }
@@ -144,7 +144,7 @@ page 189 "Incoming Document"
                         trigger OnDrillDown()
                         begin
                             OCRResultDrillDown;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                 }
@@ -395,7 +395,7 @@ page 189 "Incoming Document"
                     trigger OnAction()
                     begin
                         PAGE.RunModal(PAGE::"OCR Service Setup");
-                        CurrPage.Update;
+                        CurrPage.Update();
                         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
                             if OCRIsEnabled then begin
                                 OnCloseIncomingDocumentFromAction(Rec);

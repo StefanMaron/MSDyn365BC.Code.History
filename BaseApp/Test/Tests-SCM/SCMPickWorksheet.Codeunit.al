@@ -1036,7 +1036,7 @@ codeunit 137015 "SCM Pick Worksheet"
         BinType.SetRange("Put Away", IsPutAway);
         BinType.SetRange(Ship, false);
         BinType.SetRange(Receive, false);
-        BinType.FindSet;
+        BinType.FindSet();
         repeat
             BinTypeFilter += BinType.Code + '|';
         until BinType.Next = 0;
@@ -1328,7 +1328,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseActivityLine.SetRange("Source Type", SourceType);
         WhseActivityLine.SetRange("Source Document", SourceDocument);
         WhseActivityLine.SetRange("Source No.", SourceNo);
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             if QtyToHandle <> 0 then
                 WhseActivityLine.Validate("Qty. to Handle", QtyToHandle);

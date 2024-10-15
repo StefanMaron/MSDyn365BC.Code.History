@@ -40,7 +40,7 @@ page 5154 "Interact. Tmpl. Languages"
                         else
                             OpenAttachment;
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Custom Layout Code"; "Custom Layout Code")
@@ -225,7 +225,7 @@ page 5154 "Interact. Tmpl. Languages"
                 RemoveAttachment(false);
 
         CalcFields("Custom Layout Description");
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -31,7 +31,7 @@ page 2339 "BC O365 No. Series Settings"
                             if NoSeries.Get(SalesReceivablesSetup."Posted Invoice Nos.") then;
                             PAGE.RunModal(PAGE::"BC O365 No. Series Card", NoSeries);
                             NextInvoiceNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.");
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -55,7 +55,7 @@ page 2339 "BC O365 No. Series Settings"
                             if NoSeries.Get(SalesReceivablesSetup."Quote Nos.") then;
                             PAGE.RunModal(PAGE::"BC O365 No. Series Card", NoSeries);
                             NextEstimateNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Quote Nos.");
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }

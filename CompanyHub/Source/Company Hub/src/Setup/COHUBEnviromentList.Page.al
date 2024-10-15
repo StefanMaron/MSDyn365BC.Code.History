@@ -107,4 +107,11 @@ page 1166 "COHUB Enviroment List"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        COHUBCore: Codeunit "COHUB Core";
+    begin
+        COHUBCore.ShowNotSupportedOnPremNotification();
+    end;
 }

@@ -18,18 +18,18 @@ codeunit 6400 "Flow Service Management"
         FlowEnvironmentsProdApiTxt: Label 'https://management.azure.com/providers/Microsoft.ProcessSimple/environments?api-version=2016-11-01', Locked = true;
         FlowEnvironmentsTip1ApiTxt: Label 'https://tip1.api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01', Locked = true;
         FlowEnvironmentsTip2ApiTxt: Label 'https://tip2.api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01', Locked = true;
-        GenericErr: Label 'An error occured while trying to access the Flow service. Please try again or contact your system administrator if the error persists.';
+        GenericErr: Label 'An error occured while trying to access the Power Automate service. Please try again or contact your system administrator if the error persists.';
         FlowResourceNameTxt: Label 'Flow Services';
         FlowTemplatePageSizeTxt: Label '20', Locked = true;
         FlowTemplateDestinationNewTxt: Label 'new', Locked = true;
         FlowTemplateDestinationDetailsTxt: Label 'details', Locked = true;
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         DotNetString: DotNet String;
-        FlowPPEErr: Label 'Microsoft Power Automate integration is only supported on a production environment.';
-        FlowAccessDeniedErr: Label 'Windows Azure Service Management API permissions need to be enabled for Flow in the Azure Portal. Contact your system administrator.';
+        FlowPPEErr: Label 'Power Automate integration is only supported on a production environment.';
+        FlowAccessDeniedErr: Label 'Windows Azure Service Management API permissions need to be enabled for Power Automate in the Azure portal. Contact your system administrator.';
         FlowLinkUrlFormatTxt: Label '%1manage/environments/%2/flows/%3/details', Locked = true;
         FlowManageLinkUrlFormatTxt: Label '%1manage/environments/%2/flows/', Locked = true;
-        FlowLinkInvalidFlowIdErr: Label 'An invalid Flow ID was provided.';
+        FlowLinkInvalidFlowIdErr: Label 'An invalid flow ID was provided.';
         TemplateFilterTxt: Label 'Microsoft Dynamics 365 Business Central', Locked = true;
         SalesFilterTxt: Label 'Sales', Locked = true;
         PurchasingFilterTxt: Label 'Purchase', Locked = true;
@@ -342,7 +342,7 @@ codeunit 6400 "Flow Service Management"
         exit(FlowUserEnvironmentConfig.Get(UserSecurityId));
     end;
 
-    [EventSubscriber(ObjectType::Page, 6302, 'OnOAuthAccessDenied', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Azure AD Access Dialog", 'OnOAuthAccessDenied', '', false, false)]
     local procedure CheckOAuthAccessDenied(description: Text; resourceFriendlyName: Text)
     begin
         if StrPos(resourceFriendlyName, FlowResourceNameTxt) > 0 then begin

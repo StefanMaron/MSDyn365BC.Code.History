@@ -320,7 +320,7 @@ report 14303 "WHT Certificate"
                         WHTAmountLCY := WHTAmountLCY + WHTEntry2."Amount (LCY)";
                         WHTBaseLCY := WHTBaseLCY + WHTEntry2."Base (LCY)";
                         WHTDate := WHTEntry2."Posting Date";
-                    until WHTEntry2.Next = 0;
+                    until WHTEntry2.Next() = 0;
                 TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                 TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
 

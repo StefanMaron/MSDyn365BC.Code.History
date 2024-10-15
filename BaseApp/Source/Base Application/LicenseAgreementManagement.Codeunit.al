@@ -8,7 +8,7 @@ codeunit 853 "License Agreement Management"
     var
         PartnerAgreementNotAcceptedErr: Label 'Partner Agreement has not been accepted.';
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnShowTermsAndConditions', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnShowTermsAndConditions', '', false, false)]
     local procedure OnShowTermsAndConditionsSubscriber()
     var
         LicenseAgreement: Record "License Agreement";

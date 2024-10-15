@@ -42,7 +42,7 @@ codeunit 280 "My Records Demo Setup"
             exit;
 
         MyCustomer.SetRange("User ID", UserId);
-        if not MyCustomer.IsEmpty then
+        if not MyCustomer.IsEmpty() then
             exit(true);
 
         I := 0;
@@ -54,7 +54,7 @@ codeunit 280 "My Records Demo Setup"
                 MyCustomer."User ID" := UserId;
                 MyCustomer.Validate("Customer No.", Customer."No.");
                 if MyCustomer.Insert() then;
-            until (Customer.Next = 0) or (I >= MaxCustomersToAdd);
+            until (Customer.Next() = 0) or (I >= MaxCustomersToAdd);
     end;
 
     local procedure SetupMyItem(): Boolean
@@ -68,7 +68,7 @@ codeunit 280 "My Records Demo Setup"
             exit;
 
         MyItem.SetRange("User ID", UserId);
-        if not MyItem.IsEmpty then
+        if not MyItem.IsEmpty() then
             exit(true);
 
         I := 0;
@@ -81,7 +81,7 @@ codeunit 280 "My Records Demo Setup"
                 MyItem."User ID" := UserId;
                 MyItem.Validate("Item No.", Item."No.");
                 if MyItem.Insert() then;
-            until (Item.Next = 0) or (I >= MaxItemsToAdd);
+            until (Item.Next() = 0) or (I >= MaxItemsToAdd);
     end;
 
     local procedure SetupMyVendor(): Boolean
@@ -95,7 +95,7 @@ codeunit 280 "My Records Demo Setup"
             exit;
 
         MyVendor.SetRange("User ID", UserId);
-        if not MyVendor.IsEmpty then
+        if not MyVendor.IsEmpty() then
             exit(true);
 
         I := 0;
@@ -107,7 +107,7 @@ codeunit 280 "My Records Demo Setup"
                 MyVendor."User ID" := UserId;
                 MyVendor.Validate("Vendor No.", Vendor."No.");
                 if MyVendor.Insert() then;
-            until (Vendor.Next = 0) or (I >= MaxVendorsToAdd);
+            until (Vendor.Next() = 0) or (I >= MaxVendorsToAdd);
     end;
 
     local procedure SetupMyAccount(): Boolean
@@ -121,7 +121,7 @@ codeunit 280 "My Records Demo Setup"
             exit;
 
         MyAccount.SetRange("User ID", UserId);
-        if not MyAccount.IsEmpty then
+        if not MyAccount.IsEmpty() then
             exit(true);
 
         I := 0;
@@ -133,10 +133,10 @@ codeunit 280 "My Records Demo Setup"
                 MyAccount."User ID" := UserId;
                 MyAccount.Validate("Account No.", GLAccount."No.");
                 if MyAccount.Insert() then;
-            until (GLAccount.Next = 0) or (I >= MaxAccountsToAdd);
+            until (GLAccount.Next() = 0) or (I >= MaxAccountsToAdd);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterLogInStart', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterLogInStart', '', false, false)]
     local procedure OnAfterLogInStartSubscriber()
     begin
         SetupMyRecords();

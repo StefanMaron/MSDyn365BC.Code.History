@@ -132,7 +132,7 @@ page 830 "Workflow Webhook Entries"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Record")
@@ -143,7 +143,7 @@ page 830 "Workflow Webhook Entries"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
-                ToolTip = 'Open the document, journal line, or card that the Flow entry is for.';
+                ToolTip = 'Open the document, journal line, or card that the Power Automate flow entry is for.';
 
                 trigger OnAction()
                 begin

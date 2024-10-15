@@ -78,6 +78,7 @@ page 7001 "Price List Lines"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the product.';
+
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
@@ -88,6 +89,9 @@ page 7001 "Price List Lines"
                     ApplicationArea = All;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the product.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
+
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
@@ -97,6 +101,8 @@ page 7001 "Price List Lines"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the product.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -144,7 +150,7 @@ page 7001 "Price List Lines"
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
                 field("Cost Factor"; Rec."Cost Factor")
@@ -155,7 +161,7 @@ page 7001 "Price List Lines"
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
@@ -181,7 +187,7 @@ page 7001 "Price List Lines"
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -192,7 +198,7 @@ page 7001 "Price List Lines"
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory;
                     Style = Subordinate;
-                    StyleExpr = not DiscountMandatory;
+                    StyleExpr = not DiscountMandatory or LineToVerify;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
@@ -202,7 +208,7 @@ page 7001 "Price List Lines"
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
                     Style = Subordinate;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
             }
@@ -212,6 +218,7 @@ page 7001 "Price List Lines"
     trigger OnAfterGetRecord()
     begin
         UpdateSourceType();
+        LineToVerify := Rec.IsLineToVerify();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -219,6 +226,7 @@ page 7001 "Price List Lines"
         UpdateSourceType();
         SetEditable();
         SetMandatoryAmount();
+        LineToVerify := Rec.IsLineToVerify();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -252,6 +260,7 @@ page 7001 "Price List Lines"
         IsCustomerGroup: Boolean;
         IsJobGroup: Boolean;
         IsJobTask: Boolean;
+        LineToVerify: Boolean;
         SourceNoEnabled: Boolean;
         AllowUpdatingDefaults: Boolean;
 
@@ -299,7 +308,6 @@ page 7001 "Price List Lines"
     procedure SetSubFormLinkFilter(NewViewAmountType: Enum "Price Amount Type")
     var
         PriceListLine: Record "Price List Line";
-        SkipActivate: Boolean;
     begin
         ViewAmountType := NewViewAmountType;
         if ViewAmountType = ViewAmountType::Any then
@@ -309,9 +317,7 @@ page 7001 "Price List Lines"
         CurrPage.SetTableView(PriceListLine);
         UpdateColumnVisibility();
         CurrPage.Update(false);
-        OnAfterSetSubFormLinkFilter(SkipActivate);
-        if not SkipActivate then
-            CurrPage.Activate(true);
+        CurrPage.Activate(true);
     end;
 
     local procedure UpdateSourceType()
@@ -343,8 +349,19 @@ page 7001 "Price List Lines"
         CurrPage.Update(true);
     end;
 
+#if not CLEAN18
+    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
+    procedure RunOnAfterSetSubFormLinkFilter()
+    var
+        SkipActivate: Boolean;
+    begin
+        OnAfterSetSubFormLinkFilter(SkipActivate);
+    end;
+
+    [Obsolete('Used to be a workaround for now fixed bug 374742.', '18.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetSubFormLinkFilter(var SkipActivate: Boolean)
     begin
     end;
+#endif
 }

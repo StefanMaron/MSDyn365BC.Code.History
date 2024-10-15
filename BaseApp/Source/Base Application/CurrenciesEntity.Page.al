@@ -7,6 +7,9 @@ page 5485 "Currencies Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Currency;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

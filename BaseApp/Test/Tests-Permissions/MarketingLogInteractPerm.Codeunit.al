@@ -27,16 +27,16 @@ codeunit 136218 "Marketing Log Interact. Perm."
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Find Interaction Template Code under Basic ISV permission set
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales Invoices" Interaction Template Setup code is filled in
-        UpdateSalesInvoicesInteractionTemplateSetupCode;
+        UpdateSalesInvoicesInteractionTemplateSetupCode();
         // [GIVEN] Basic ISV permission set
-        LibraryLowerPermissions.SetO365BasicISV;
+        LibraryLowerPermissions.SetO365BasicISV();
         // [WHEN] Find Interaction Template Setup Code for "Sales Invoice" document
         InteractionTemplateCode := SegManagement.FindInteractTmplCode(4);
         // [THEN] Empty template code is returned
-        Assert.IsTrue(InteractionTemplateCode = '', InteractionTemplateErr);
+        Assert.AreEqual('', InteractionTemplateCode, InteractionTemplateErr);
     end;
 
     [Test]
@@ -49,33 +49,33 @@ codeunit 136218 "Marketing Log Interact. Perm."
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Find Interaction Template Code under Basic permission set
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales Invoices" Interaction Template Setup code is filled in
-        SalesInvoicesInteractionTemplateCode := UpdateSalesInvoicesInteractionTemplateSetupCode;
+        SalesInvoicesInteractionTemplateCode := UpdateSalesInvoicesInteractionTemplateSetupCode();
         // [GIVEN] Basic permission set
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [WHEN] Find Interaction Template Setup Code for "Sales Invoice" document
         InteractionTemplateCode := SegManagement.FindInteractTmplCode(4);
         // [THEN] SalesInvoicesInteractionTemplateCode is returned
-        Assert.IsTrue(InteractionTemplateCode = SalesInvoicesInteractionTemplateCode, InteractionTemplateErr);
+        Assert.AreEqual(InteractionTemplateCode, SalesInvoicesInteractionTemplateCode, InteractionTemplateErr);
     end;
 
     local procedure Initialize()
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Log Interact. Perm.");
+        LibraryTestInitialize.OnTestInitialize(codeunit::"Marketing Log Interact. Perm.");
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Log Interact. Perm.");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(codeunit::"Marketing Log Interact. Perm.");
 
         LibrarySetupStorage.Save(DATABASE::"Interaction Template Setup");
         IsInitialized := true;
         Commit();
 
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Log Interact. Perm.");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(codeunit::"Marketing Log Interact. Perm.");
     end;
 
     local procedure UpdateSalesInvoicesInteractionTemplateSetupCode(): Code[10]

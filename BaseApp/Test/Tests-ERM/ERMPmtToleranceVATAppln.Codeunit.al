@@ -1031,7 +1031,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         CustomerPostingGroup.Get(PostingGroupCode);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
         GLAccount.Next;
@@ -1048,7 +1048,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VendorPostingGroup.Get(PostingGroupCode);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         VendorPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         VendorPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
         GLAccount.Next;

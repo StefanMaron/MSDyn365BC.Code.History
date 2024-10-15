@@ -211,7 +211,7 @@ report 28043 "WHT Certificate - Other Copy"
                             WHTBaseLCY := WHTBaseLCY + WHTEntry2."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry2."Amount (LCY)";
                         WHTDate := WHTEntry2."Posting Date";
-                    until WHTEntry2.Next = 0;
+                    until WHTEntry2.Next() = 0;
                 TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                 TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
             end;

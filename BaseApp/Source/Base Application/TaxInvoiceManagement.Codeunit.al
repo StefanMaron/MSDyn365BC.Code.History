@@ -72,7 +72,7 @@ codeunit 28070 TaxInvoiceManagement
                     RemainingAmt := RemainingAmt + TempVendLedgEntry1."Rem. Amt for WHT";
                     if TempVendLedgEntry1."Document Type" = TempVendLedgEntry1."Document Type"::"Credit Memo" then
                         RemainingAmt := RemainingAmt + TempVendLedgEntry1."Rem. Amt for WHT";
-                until TempVendLedgEntry1.Next = 0;
+                until TempVendLedgEntry1.Next() = 0;
             TotAmt := Abs(GenJnlLine.Amount);
             TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::"Credit Memo");
@@ -124,7 +124,7 @@ codeunit 28070 TaxInvoiceManagement
                     GenJnlLine."WHT Payment" := true;
                     VendLedgerEntry."Applies-to ID" := '';
                     VendLedgerEntry.Modify();
-                until (TempVendLedgEntry.Next = 0) or (TotAmt = -1);
+                until (TempVendLedgEntry.Next() = 0) or (TotAmt = -1);
 
             TempVendLedgEntry.Reset();
             TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
@@ -178,7 +178,7 @@ codeunit 28070 TaxInvoiceManagement
                     GenJnlLine."WHT Payment" := true;
                     VendLedgerEntry."Applies-to ID" := '';
                     VendLedgerEntry.Modify();
-                until (TempVendLedgEntry.Next = 0) or (TotAmt = -1);
+                until (TempVendLedgEntry.Next() = 0) or (TotAmt = -1);
         end else
             TaxInvoicePurchase(GenJnlLine, false);
         if InvNo <> '' then begin
@@ -228,7 +228,7 @@ codeunit 28070 TaxInvoiceManagement
 
                     if TempCustLedgEntry1."Document Type" = TempCustLedgEntry1."Document Type"::"Credit Memo" then
                         RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT";
-                until TempCustLedgEntry1.Next = 0;
+                until TempCustLedgEntry1.Next() = 0;
 
             TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::"Credit Memo");
@@ -251,7 +251,7 @@ codeunit 28070 TaxInvoiceManagement
                         if WHTEntry.Find('-') then
                             repeat
                                 WHTAmount := WHTAmount + WHTEntry."Unrealized Amount";
-                            until WHTEntry.Next = 0;
+                            until WHTEntry.Next() = 0;
                     end;
                     if Abs(TempCustLedgEntry."Rem. Amt for WHT") <= Abs(TempCustLedgEntry."Rem. Amt") then
                         WHTAmount := 0;
@@ -300,7 +300,7 @@ codeunit 28070 TaxInvoiceManagement
                     WHTUsed1 := true;
                     CustLedgerEntry."Applies-to ID" := '';
                     CustLedgerEntry.Modify();
-                until (TempCustLedgEntry.Next = 0) or (TotAmt = -1);
+                until (TempCustLedgEntry.Next() = 0) or (TotAmt = -1);
 
             TempCustLedgEntry.Reset();
             if GenJnlLine."Document No." = GenJnlLine."Applies-to ID" then
@@ -326,7 +326,7 @@ codeunit 28070 TaxInvoiceManagement
                         if WHTEntry.Find('-') then
                             repeat
                                 WHTAmount := WHTAmount + WHTEntry."Unrealized Amount";
-                            until WHTEntry.Next = 0;
+                            until WHTEntry.Next() = 0;
                     end;
                     if Abs(TempCustLedgEntry."Rem. Amt for WHT") <= Abs(TempCustLedgEntry."Rem. Amt") then
                         WHTAmount := 0;
@@ -372,7 +372,7 @@ codeunit 28070 TaxInvoiceManagement
                     WHTUsed1 := true;
                     CustLedgerEntry."Applies-to ID" := '';
                     CustLedgerEntry.Modify();
-                until (TempCustLedgEntry.Next = 0) or (TotAmt = -1);
+                until (TempCustLedgEntry.Next() = 0) or (TotAmt = -1);
         end else
             TaxInvoiceSales(GenJnlLine, WHTUsed1, false);
         if InvNo <> '' then begin
@@ -412,7 +412,7 @@ codeunit 28070 TaxInvoiceManagement
                     RemainingAmt := RemainingAmt + TempVendLedgEntry1."Rem. Amt for WHT";
                     if TempVendLedgEntry1."Document Type" = TempVendLedgEntry1."Document Type"::"Credit Memo" then
                         RemainingAmt := RemainingAmt + TempVendLedgEntry1."Rem. Amt for WHT";
-                until TempVendLedgEntry1.Next = 0;
+                until TempVendLedgEntry1.Next() = 0;
             TotAmt := Abs(GenJnlLine.Amount);
             TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::"Credit Memo");
@@ -472,7 +472,7 @@ codeunit 28070 TaxInvoiceManagement
                     WHTUsed1 := true;
                     VendLedgerEntry."Applies-to ID" := '';
                     VendLedgerEntry.Modify();
-                until (TempVendLedgEntry.Next = 0) or (TotAmt = -1);
+                until (TempVendLedgEntry.Next() = 0) or (TotAmt = -1);
         end else
             TaxInvoicePurchaseCrMemo(GenJnlLine, WHTUsed1, false);
         if InvNo <> '' then begin
@@ -517,7 +517,7 @@ codeunit 28070 TaxInvoiceManagement
 
                     if TempCustLedgEntry1."Document Type" = TempCustLedgEntry1."Document Type"::"Credit Memo" then
                         RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT";
-                until TempCustLedgEntry1.Next = 0;
+                until TempCustLedgEntry1.Next() = 0;
 
             TempCustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::"Credit Memo");
@@ -579,7 +579,7 @@ codeunit 28070 TaxInvoiceManagement
                     WHTUsed1 := true;
                     CustLedgerEntry."Applies-to ID" := '';
                     CustLedgerEntry.Modify();
-                until (TempCustLedgEntry.Next = 0) or (TotAmt = -1);
+                until (TempCustLedgEntry.Next() = 0) or (TotAmt = -1);
         end else
             TaxInvoiceSalesCrMemo(GenJnlLine, WHTUsed1, false);
         if InvNo <> '' then begin
@@ -631,7 +631,7 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxInvLine."Paid VAT" := SalesTaxInvLine."Amount Including VAT" - SalesTaxInvLine."VAT Base Amount";
                     SalesTaxInvLine.Insert();
                 end;
-        until SalesInvLine.Next = 0;
+        until SalesInvLine.Next() = 0;
         TempSalesTaxInvLine.Reset();
         TempSalesTaxInvLine.SetRange("Document No.", SalesTaxInvHeader."No.");
         if not TempSalesTaxInvLine.FindFirst then begin
@@ -680,7 +680,7 @@ codeunit 28070 TaxInvoiceManagement
                     PurchTaxInvLine."External Document No." := PurchInvHeader."No.";
                     PurchTaxInvLine.Insert();
                 end;
-        until PurchInvLine.Next = 0;
+        until PurchInvLine.Next() = 0;
         TempPurchTaxInvLine.Reset();
         TempPurchTaxInvLine.SetRange("Document No.", PurchTaxInvHeader."No.");
         if not TempPurchTaxInvLine.FindFirst then begin
@@ -729,7 +729,7 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxCrMemoLine."External Document No." := SalesCrMemoHeader."No.";
                     SalesTaxCrMemoLine.Insert();
                 end;
-        until SalesCrMemoLine.Next = 0;
+        until SalesCrMemoLine.Next() = 0;
         TempSalesTaxCrMemoLine.Reset();
         TempSalesTaxCrMemoLine.SetRange("Document No.", SalesTaxCrMemoHeader."No.");
         if not TempSalesTaxCrMemoLine.FindFirst then begin
@@ -776,7 +776,7 @@ codeunit 28070 TaxInvoiceManagement
                     PurchTaxCrMemoLine."External Document No." := PurchCrMemoHeader."No.";
                     PurchTaxCrMemoLine.Insert();
                 end;
-        until PurchCrMemoLine.Next = 0;
+        until PurchCrMemoLine.Next() = 0;
         TempPurchTaxCrMemoLine.Reset();
         TempPurchTaxCrMemoLine.SetRange("Document No.", PurchTaxCrMemoHeader."No.");
         if not TempPurchTaxCrMemoLine.FindFirst then begin
@@ -818,7 +818,7 @@ codeunit 28070 TaxInvoiceManagement
             if ReportSelection.Find('-') then
                 repeat
                     REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxInvHeader);
-                until ReportSelection.Next = 0;
+                until ReportSelection.Next() = 0;
             SalesInvHeader."Printed Tax Document" := true;
             Message(Text034, TaxInvoiceNo);
         end else
@@ -851,7 +851,7 @@ codeunit 28070 TaxInvoiceManagement
             if ReportSelection.Find('-') then
                 repeat
                     REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, PurchTaxInvHeader);
-                until ReportSelection.Next = 0;
+                until ReportSelection.Next() = 0;
             PurchInvHeader."Printed Tax Document" := true;
             Message(Text034, TaxInvoiceNo);
         end else
@@ -884,7 +884,7 @@ codeunit 28070 TaxInvoiceManagement
             if ReportSelection.Find('-') then
                 repeat
                     REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxCrMemoHeader);
-                until ReportSelection.Next = 0;
+                until ReportSelection.Next() = 0;
             SalesCrMemoHeader."Printed Tax Document" := true;
             Message(Text044, TaxInvoiceNo);
         end else
@@ -917,7 +917,7 @@ codeunit 28070 TaxInvoiceManagement
             if ReportSelection.Find('-') then
                 repeat
                     REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, PurchTaxCrMemoHeader);
-                until ReportSelection.Next = 0;
+                until ReportSelection.Next() = 0;
             PurchCrMemoHeader."Printed Tax Document" := true;
             Message(Text044, TaxInvoiceNo);
         end else
@@ -971,7 +971,7 @@ codeunit 28070 TaxInvoiceManagement
                     if WHTEntry.Find('-') then
                         repeat
                             WHTAmount := WHTAmount + WHTEntry."Unrealized Amount";
-                        until WHTEntry.Next = 0;
+                        until WHTEntry.Next() = 0;
                     Payment1 := 0;
                     Payment2 := 0;
                     CustLedgEntry.Reset();
@@ -1042,7 +1042,7 @@ codeunit 28070 TaxInvoiceManagement
                                 SalesTaxInvLine.Insert();
                             LineNo := LineNo + 10000;
                         end;
-                until SalesCrMemoLine.Next = 0;
+                until SalesCrMemoLine.Next() = 0;
             SalesCrMemoHeader."Posted Tax Document" := true;
             SalesCrMemoHeader.Modify();
         end else begin
@@ -1069,7 +1069,7 @@ codeunit 28070 TaxInvoiceManagement
                     if WHTEntry.Find('-') then
                         repeat
                             WHTAmount := WHTAmount + WHTEntry."Unrealized Amount";
-                        until WHTEntry.Next = 0;
+                        until WHTEntry.Next() = 0;
                     Payment1 := 0;
                     Payment2 := 0;
                     CustLedgEntry.Reset();
@@ -1091,7 +1091,7 @@ codeunit 28070 TaxInvoiceManagement
                             if WHTEntry1.Find('-') then
                                 repeat
                                     WHTAmount1 := WHTAmount1 + WHTEntry1."Unrealized Amount";
-                                until WHTEntry1.Next = 0;
+                                until WHTEntry1.Next() = 0;
                             WHTAmount := WHTAmount + WHTAmount1;
                         end;
                         SalesTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
@@ -1161,7 +1161,7 @@ codeunit 28070 TaxInvoiceManagement
                                 LineNo := LineNo + 10000;
                             end;
                     end;
-                until SalesInvoiceLine.Next = 0;
+                until SalesInvoiceLine.Next() = 0;
             InvNo := SalesTaxInvHeader."No.";
             SalesInvHeader."Printed Tax Document" := true;
             SalesInvHeader."Posted Tax Document" := true;
@@ -1208,7 +1208,7 @@ codeunit 28070 TaxInvoiceManagement
                     if WHTEntry.Find('-') then
                         repeat
                             WHTAmount := WHTAmount + WHTEntry.Amount;
-                        until WHTEntry.Next = 0;
+                        until WHTEntry.Next() = 0;
                     Payment1 := 0;
                     Payment2 := 0;
 
@@ -1263,7 +1263,7 @@ codeunit 28070 TaxInvoiceManagement
                                 SalesTaxCrMemoLine.Insert();
                             LineNo := LineNo + 10000;
                         end;
-                until SalesCrMemoLine.Next = 0;
+                until SalesCrMemoLine.Next() = 0;
         end;
         if GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::"Credit Memo" then begin
             InvNo := SalesTaxCrMemoHeader."No.";
@@ -1316,7 +1316,7 @@ codeunit 28070 TaxInvoiceManagement
                     if WHTEntry.Find('-') then
                         repeat
                             WHTAmount := WHTAmount + WHTEntry.Amount;
-                        until WHTEntry.Next = 0;
+                        until WHTEntry.Next() = 0;
                     Payment1 := 0;
                     Payment2 := 0;
 
@@ -1365,7 +1365,7 @@ codeunit 28070 TaxInvoiceManagement
                                 LineNo := LineNo + 10000;
                             end;
                     end;
-                until PurchCrMemoLine.Next = 0;
+                until PurchCrMemoLine.Next() = 0;
         end else begin
             if not PurchInvHeader.Get(GenJnlLine."Applies-to Doc. No.") then
                 exit;
@@ -1391,7 +1391,7 @@ codeunit 28070 TaxInvoiceManagement
                     if WHTEntry.Find('-') then
                         repeat
                             WHTAmount := WHTAmount + WHTEntry.Amount;
-                        until WHTEntry.Next = 0;
+                        until WHTEntry.Next() = 0;
                     Payment1 := 0;
                     Payment2 := 0;
 
@@ -1410,7 +1410,7 @@ codeunit 28070 TaxInvoiceManagement
                         if WHTEntry1.Find('-') then
                             repeat
                                 WHTAmount1 := WHTAmount1 + WHTEntry1.Amount;
-                            until WHTEntry1.Next = 0;
+                            until WHTEntry1.Next() = 0;
                         WHTAmount := WHTAmount + WHTAmount1;
                     end;
                     PurchTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
@@ -1468,7 +1468,7 @@ codeunit 28070 TaxInvoiceManagement
                                 LineNo := LineNo + 10000;
                             end;
                     end;
-                until PurchInvoiceLine.Next = 0;
+                until PurchInvoiceLine.Next() = 0;
             InvNo := PurchTaxInvHeader."No.";
             PurchInvHeader."Printed Tax Document" := true;
             PurchInvHeader.Modify();
@@ -1541,7 +1541,7 @@ codeunit 28070 TaxInvoiceManagement
                                 if TempWHTEntry.Find('-') then
                                     repeat
                                         WHTAmount1 := WHTAmount1 + TempWHTEntry."Unrealized Amount (LCY)";
-                                    until TempWHTEntry.Next = 0;
+                                    until TempWHTEntry.Next() = 0;
                                 WHTAmount := WHTAmount - WHTAmount1;
 
                                 GLSetup.Get();
@@ -1578,7 +1578,7 @@ codeunit 28070 TaxInvoiceManagement
                                 LineNo := LineNo + 10000;
                             end;
                     end;
-                until PurchCrMemoLine.Next = 0;
+                until PurchCrMemoLine.Next() = 0;
         end;
         InvNo := PurchTaxCrMemoHeader."No.";
         PurchCrMemoHeader."Printed Tax Document" := true;
@@ -1636,7 +1636,7 @@ codeunit 28070 TaxInvoiceManagement
             TaxDocBufferBuild."Currency Code" := SalesInvHeader2."Currency Code";
             TaxDocBufferBuild."Payment Discount %" := SalesInvHeader2."Payment Discount %";
             TaxDocBufferBuild.Insert();
-        until SalesInvHeader2.Next = 0;
+        until SalesInvHeader2.Next() = 0;
 
         TaxDocBufferBuild.Reset();
         TaxDocBufferBuild.SetCurrentKey("Bill-to Customer No.", "Currency Code", "Payment Discount %");
@@ -1651,7 +1651,7 @@ codeunit 28070 TaxInvoiceManagement
                 TaxDocBuffer."Payment Discount %" := TaxDocBufferBuild."Payment Discount %";
                 TaxDocBuffer.Insert();
             end;
-        until TaxDocBufferBuild.Next = 0;
+        until TaxDocBufferBuild.Next() = 0;
 
         TaxDocBuffer.Find('-');
         repeat
@@ -1685,8 +1685,8 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxInvLine."External Document No." := TaxDocBufferBuild."Document No.";
                     SalesTaxInvLine.Insert();
                     LineNumber := LineNumber + 10000;
-                until SalesInvLine.Next = 0;
-            until TaxDocBufferBuild.Next = 0;
+                until SalesInvLine.Next() = 0;
+            until TaxDocBufferBuild.Next() = 0;
             TempSalesTaxInvLine.SetRange("Document No.", SalesTaxInvHeader."No.");
             if not TempSalesTaxInvLine.FindFirst then begin
                 SalesTaxInvHeader.Delete();
@@ -1705,7 +1705,7 @@ codeunit 28070 TaxInvoiceManagement
                 if ReportSelection.Find('-') then
                     repeat
                         REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxInvHeader2);
-                    until ReportSelection.Next = 0;
+                    until ReportSelection.Next() = 0;
             end;
             TaxDocBufferBuild.Find('-');
             repeat
@@ -1714,8 +1714,8 @@ codeunit 28070 TaxInvoiceManagement
                 if Print then
                     SalesInvHeader2."Printed Tax Document" := true;
                 SalesInvHeader2.Modify();
-            until TaxDocBufferBuild.Next = 0;
-        until TaxDocBuffer.Next = 0;
+            until TaxDocBufferBuild.Next() = 0;
+        until TaxDocBuffer.Next() = 0;
         if Print then
             Message(Text054)
         else
@@ -1775,11 +1775,11 @@ codeunit 28070 TaxInvoiceManagement
                                     BatchPostingPrintMgt.SchedulePrintJobQueueEntry(PurchTaxInvoiceHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
                                 else
                                     REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, PurchTaxInvoiceHeader);
-                            until ReportSelection.Next = 0;
+                            until ReportSelection.Next() = 0;
                     end;
                 end;
                 LastTaxInvoice := TaxInvBuffer."Tax Invoice No.";
-            until TaxInvBuffer.Next = 0;
+            until TaxInvBuffer.Next() = 0;
 
         LastTaxInvoice := '';
         TaxInvBuffer.Reset();
@@ -1798,11 +1798,11 @@ codeunit 28070 TaxInvoiceManagement
                                     BatchPostingPrintMgt.SchedulePrintJobQueueEntry(SalesTaxInvoiceHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
                                 else
                                     REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxInvoiceHeader);
-                            until ReportSelection.Next = 0;
+                            until ReportSelection.Next() = 0;
                     end;
                 end;
                 LastTaxInvoice := TaxInvBuffer."Tax Invoice No.";
-            until TaxInvBuffer.Next = 0;
+            until TaxInvBuffer.Next() = 0;
 
         LastTaxInvoice := '';
         TaxInvBuffer.Reset();
@@ -1821,11 +1821,11 @@ codeunit 28070 TaxInvoiceManagement
                                     BatchPostingPrintMgt.SchedulePrintJobQueueEntry(PurchTaxCrMemoHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
                                 else
                                     REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, PurchTaxCrMemoHeader);
-                            until ReportSelection.Next = 0;
+                            until ReportSelection.Next() = 0;
                     end;
                 end;
                 LastTaxInvoice := TaxInvBuffer."Tax Invoice No.";
-            until TaxInvBuffer.Next = 0;
+            until TaxInvBuffer.Next() = 0;
 
         LastTaxInvoice := '';
         TaxInvBuffer.Reset();
@@ -1844,11 +1844,11 @@ codeunit 28070 TaxInvoiceManagement
                                     BatchPostingPrintMgt.SchedulePrintJobQueueEntry(SalesTaxCrMemoHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
                                 else
                                     REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxCrMemoHeader);
-                            until ReportSelection.Next = 0;
+                            until ReportSelection.Next() = 0;
                     end;
                 end;
                 LastTaxInvoice := TaxInvBuffer."Tax Invoice No.";
-            until TaxInvBuffer.Next = 0;
+            until TaxInvBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

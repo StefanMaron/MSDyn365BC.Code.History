@@ -96,7 +96,7 @@ table 2117 "O365 Posted Coupon Claim"
         if Next <> 0 then
             repeat
                 CouponCodes += StrSubstNo(', %1', Code);
-            until Next = 0;
+            until Next() = 0;
     end;
 }
 

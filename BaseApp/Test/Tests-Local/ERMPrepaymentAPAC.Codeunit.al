@@ -150,7 +150,7 @@ codeunit 141057 "ERM Prepayment APAC"
 
         // Verify.
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Amount += GLEntry."Credit Amount";
         until GLEntry.Next = 0;

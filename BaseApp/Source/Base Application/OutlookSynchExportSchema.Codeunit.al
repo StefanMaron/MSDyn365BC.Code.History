@@ -56,7 +56,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
             OSynchEntity.Get(SortedEntitiesBuffer.Name);
             if OSynchEntity."Outlook Item" <> '' then
                 ComposeSynchEntityNode(OSynchEntity, UserID);
-        until SortedEntitiesBuffer.Next = 0;
+        until SortedEntitiesBuffer.Next() = 0;
 
         XMLWriter.WriteEndElement;
         XMLWriter.WriteEndDocument;
@@ -114,13 +114,13 @@ codeunit 5306 "Outlook Synch. Export Schema"
                     TempOSynchField := OSynchField;
                     TempOSynchField.Insert();
                 end;
-            until OSynchField.Next = 0;
+            until OSynchField.Next() = 0;
 
         TempOSynchField.Reset();
         if TempOSynchField.Find('-') then
             repeat
                 ComposeFieldNode(TempOSynchField);
-            until TempOSynchField.Next = 0;
+            until TempOSynchField.Next() = 0;
 
         OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetCurrentKey("Table No.");
@@ -131,7 +131,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
                 OSynchEntityElement.Get(OSynchSetupDetail."Synch. Entity Code", OSynchSetupDetail."Element No.");
                 if OSynchEntityElement."Outlook Collection" <> '' then
                     ComposeCollectionNode(OSynchEntityElement);
-            until OSynchSetupDetail.Next = 0;
+            until OSynchSetupDetail.Next() = 0;
 
         XMLWriter.WriteEndElement;
     end;
@@ -207,13 +207,13 @@ codeunit 5306 "Outlook Synch. Export Schema"
                     TempOSynchField := OSynchField;
                     TempOSynchField.Insert();
                 end;
-            until OSynchField.Next = 0;
+            until OSynchField.Next() = 0;
 
         TempOSynchField.Reset();
         if TempOSynchField.Find('-') then
             repeat
                 ComposeFieldNode(TempOSynchField);
-            until TempOSynchField.Next = 0;
+            until TempOSynchField.Next() = 0;
 
         OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", TempOSynchField."Synch. Entity Code");
@@ -223,7 +223,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
             if TempOSynchField.Find('-') then
                 repeat
                     ComposeSearchFieldNode(TempOSynchField, OSynchDependency);
-                until TempOSynchField.Next = 0;
+                until TempOSynchField.Next() = 0;
         end;
 
         XMLWriter.WriteEndElement;
@@ -279,8 +279,8 @@ codeunit 5306 "Outlook Synch. Export Schema"
                                 SearchKeyBuffer.Insert();
                             end;
                         end;
-                    until OSynchField.Next = 0;
-            until OSynchDependency.Next = 0;
+                    until OSynchField.Next() = 0;
+            until OSynchDependency.Next() = 0;
 
         XMLWriter.WriteEndElement;
     end;

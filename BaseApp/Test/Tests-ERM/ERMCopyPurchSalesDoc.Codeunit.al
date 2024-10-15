@@ -223,7 +223,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchLine.SetRange("Document Type", DestinationPurchHeader."Document Type");
         PurchLine.SetRange("Document No.", DestinationPurchHeader."No.");
         PurchLine.SetRange("No.", InvRoundingAccNo);
-        PurchLine.FindSet;
+        PurchLine.FindSet();
         PurchLine.TestField(Type, PurchLine.Type::Item);
         PurchLine.Next;
         PurchLine.TestField(Type, PurchLine.Type::"G/L Account");
@@ -531,7 +531,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.SetRange("Document Type", DestinationSalesHeader."Document Type");
         SalesLine.SetRange("Document No.", DestinationSalesHeader."No.");
         SalesLine.SetRange("No.", InvRoundingAccNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         SalesLine.TestField(Type, SalesLine.Type::Item);
         SalesLine.Next;
         SalesLine.TestField(Type, SalesLine.Type::"G/L Account");
@@ -2447,16 +2447,16 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     [Scope('OnPrem')]
     procedure CorrectPostedPurchaseInvoiceWithZeroChargeItemUnitCost();
     var
-        GeneralLedgerSetup: Record 98;
-        Item: Record 27;
-        ItemCharge: Record 5800;
-        Vendor: Record 23;
-        PurchaseHeader: Record 38;
-        PurchaseLineItem: Record 39;
-        PurchaseLineChargeItem: Record 39;
-        ItemChargeAssignmentPurch: Record 5805;
-        PurchInvHeader: Record 122;
-        CorrectPostedPurchInvoice: Codeunit 1313;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record "Item";
+        ItemCharge: Record "Item Charge";
+        Vendor: Record "Vendor";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         DirectUnitCost: Decimal;
     begin
         // [FEATURE] [Purchase]
@@ -2842,7 +2842,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         UserSetup: Record "User Setup";
         Workflow: Record Workflow;
         WorkflowSetup: Codeunit "Workflow Setup";
-        DocType: Option;
+        DocType: Enum "Purchase Document Type";
     begin
         // [SCENARIO 377875] It is possible to copy released purchase document with Include Header = False, Recalculate Lines = False when Purchase document approval workflow is enabled.
         Initialize();
@@ -2881,7 +2881,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         UserSetup: Record "User Setup";
         Workflow: Record Workflow;
         WorkflowSetup: Codeunit "Workflow Setup";
-        DocType: Option;
+        DocType: Enum "Sales Document Type";
     begin
         // [SCENARIO 377875] It is possible to copy released sales document with Include Header = False, Recalculate Lines = False when Sales document approval workflow is enabled.
         Initialize();
@@ -3395,7 +3395,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesShipmentLine.Insert();
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record 39; PurchaseHeader: Record 38; PurchaseLineType: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLineType: Enum "Purchase Line Type"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLineType, ItemNo, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -3943,10 +3943,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         SalesLine.SetRange("Document Type", SalesDocType);
         SalesLine.SetRange("Document No.", SalesDocNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         SalesLine.Next;
         RecRef.GetTable(CopiedDocument);
-        RecRef.FindSet;
+        RecRef.FindSet();
         repeat
             ExpectedType := RecRef.Field(TypeFieldNo).Value;
             SalesLine.TestField(Type, ExpectedType);
@@ -3965,10 +3965,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         PurchLine.SetRange("Document Type", PurchDocType);
         PurchLine.SetRange("Document No.", PurchDocNo);
-        PurchLine.FindSet;
+        PurchLine.FindSet();
         PurchLine.Next;
         RecRef.GetTable(CopiedDocument);
-        RecRef.FindSet;
+        RecRef.FindSet();
         repeat
             ExpectedType := RecRef.Field(TypeFieldNo).Value;
             PurchLine.TestField(Type, ExpectedType);
@@ -4231,13 +4231,13 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnBeforeInsertOldPurchDocNoLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnBeforeInsertOldPurchDocNoLine', '', false, false)]
     local procedure OnBeforeInsertOldPurchDocNoLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
         IsHandled := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6620, 'OnBeforeInsertOldSalesDocNoLine', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnBeforeInsertOldSalesDocNoLine', '', false, false)]
     local procedure OnBeforeInsertOldSalesDocNoLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
         IsHandled := true;

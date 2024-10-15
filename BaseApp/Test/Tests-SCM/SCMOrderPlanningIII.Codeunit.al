@@ -1608,7 +1608,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The service line is now reserved from production order with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.",
           DATABASE::"Prod. Order Line");
     end;
 
@@ -1660,7 +1660,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The service line is now reserved from transfer order with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.",
           DATABASE::"Transfer Line");
     end;
 
@@ -1705,7 +1705,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The service line is now reserved from assembly order with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.",
           DATABASE::"Assembly Header");
     end;
 
@@ -1760,7 +1760,7 @@ codeunit 137088 "SCM Order Planning - III"
 
         // [THEN] The assembly line is now reserved from requisition worksheet line with "Order-to-Order" binding.
         VerifyOrderToOrderBindingOnReservEntry(
-          DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.",
+          DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.",
           DATABASE::"Requisition Line");
     end;
 
@@ -2628,7 +2628,7 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20]; ItemNo: Code[20])

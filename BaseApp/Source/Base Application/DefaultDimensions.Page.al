@@ -5,6 +5,8 @@ page 540 "Default Dimensions"
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Default Dimension";
+    AboutTitle = 'About default dimensions';
+    AboutText = 'Default dimensions help make reports more consistent. Their values are always added to documents for specific accounts, customers, vendors, or items.';
 
     layout
     {
@@ -22,11 +24,34 @@ page 540 "Default Dimensions"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value code to suggest as the default dimension.';
+                    AboutTitle = 'Enter default values';
+                    AboutText = 'Default values could be departments or teams, geographic regions or area codes, customers or vendors, salespeople or purchasers, and so on. Use them to filter, total, and do other types of analyses on reports.';
                 }
                 field("Value Posting"; "Value Posting")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies how default dimensions and their values must be used.';
+                    AboutTitle = 'Control value selection';
+                    AboutText = 'You can require a dimension, but let people choose a value when they create documents. For example, this allows for exceptions to default values. For mandatory dimensions, you can provide specific values or ranges of values.';
+                }
+                field(AllowedValuesFilter; "Allowed Values Filter")
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension values that can be used for the selected account.';
+                    AboutTitle = 'Allow specific values';
+                    AboutText = 'You can make a dimension mandatory and provide the values that people can choose. For example, you might provide certain geographic areas or a range of accounts.';
+                    Editable = IsAllowedValuesFilterEditable;
+
+                    trigger OnAssistEdit()
+                    var
+                        DimMgt: Codeunit DimensionManagement;
+                    begin
+                        if "Value Posting" = "Default Dimension Value Posting Type"::"Code Mandatory" then begin
+                            CurrPage.SaveRecord();
+                            DimMgt.OpenAllowedDimValuesPerAccount(Rec);
+                            CurrPage.Update();
+                        end;
+                    end;
                 }
             }
         }
@@ -48,5 +73,14 @@ page 540 "Default Dimensions"
     actions
     {
     }
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        IsAllowedValuesFilterEditable := "Value Posting" = "Default Dimension Value Posting Type"::"Code Mandatory";
+    end;
+
+    var
+        [InDataSet]
+        IsAllowedValuesFilterEditable: Boolean;
 }
 

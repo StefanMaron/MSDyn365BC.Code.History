@@ -253,7 +253,7 @@ codeunit 134113 "ERM Test Employee Expense"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         ExpenseAccGLEntry.SetRange("G/L Account No.", ExpenseAccNo);
-        ExpenseAccGLEntry.FindSet;
+        ExpenseAccGLEntry.FindSet();
         Assert.AreEqual(2, ExpenseAccGLEntry.Count, 'Error Multiple G/L entries were created when posting Gen. Journal Line');
         Assert.AreEqual(FirstAmount, ExpenseAccGLEntry.Amount, 'Error amount incorrect on first Expense Account GL Entry');
         ExpenseAccGLEntry.Next;

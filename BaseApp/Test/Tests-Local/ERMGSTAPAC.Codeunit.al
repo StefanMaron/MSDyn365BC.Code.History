@@ -1366,7 +1366,7 @@ codeunit 141007 "ERM GST APAC"
         VATEntry: Record "VAT Entry";
     begin
         SalesInvLine.SetRange("Document No.", DocumentNo);
-        SalesInvLine.FindSet;
+        SalesInvLine.FindSet();
         repeat
             GSTSalesEntry.SetRange("Document No.", SalesInvLine."Document No.");
             GSTSalesEntry.SetRange("Customer No.", SalesInvLine."Sell-to Customer No.");

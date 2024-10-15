@@ -58,6 +58,32 @@ codeunit 6302 "Power BI Label Mgt."
         VendorList_VendorPurchases_ValueTxt: Label 'Vendor Purchases';
         VendorList_PurchaseInvoiceList_KeyTxt: Label 'VendorList_PurchaseInvoiceList', Locked = true;
         VendorList_PurchaseInvoiceList_ValueTxt: Label 'Document Number';
+        // Telemetry labels
+        LabelsGeneratedTelemetryTxt: Label 'Retrieving Power BI labels for language "%1" (system language is "%2").', Locked = true;
+
+    procedure GetReportLabelsForUserLanguage(var TempPowerBIReportLabels: Record "Power BI Report Labels" temporary; UserSID: Guid)
+    var
+        UserPersonalization: Record "User Personalization";
+        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+        LanguageChanged: Boolean;
+        PreviousLanguage: Integer;
+    begin
+        // Web Service sessions run on the language specified in the Accept-Language HTTP header, or en-us if none is specified.
+        // Power BI reports using these labels have no mean to specify an Accept-Language header, so we should instead use the user language.
+        if UserPersonalization.Get(UserSID) and (UserPersonalization."Language ID" <> 0) then begin
+            PreviousLanguage := GlobalLanguage();
+            GlobalLanguage(UserPersonalization."Language ID");
+            LanguageChanged := true;
+        end;
+
+        Session.LogMessage('0000EKF', StrSubstNo(LabelsGeneratedTelemetryTxt, UserPersonalization."Language ID", PreviousLanguage),
+            Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+
+        GetReportLabels(TempPowerBIReportLabels);
+
+        if LanguageChanged then
+            GlobalLanguage(PreviousLanguage);
+    end;
 
     procedure GetReportLabels(var TempPowerBIReportLabels: Record "Power BI Report Labels" temporary)
     begin

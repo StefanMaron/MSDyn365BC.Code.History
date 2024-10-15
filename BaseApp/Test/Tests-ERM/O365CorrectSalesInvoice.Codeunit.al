@@ -810,7 +810,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         // VERIFY: It should not be possible to correct a posted invoice when the sales income statements accounts are blocked
         // or Dimensions are mandatory
-        TempGLAcc.FindSet;
+        TempGLAcc.FindSet();
         repeat
             VerifyCorrectionFailsOnBlockedGLAcc(TempGLAcc, BillToCust, SalesInvoiceHeader);
             VerifyCorrectionFailsOnMandatoryDimGLAcc(TempGLAcc, BillToCust, SalesInvoiceHeader);
@@ -1820,7 +1820,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
     local procedure CopyGLAccToGLAcc(var FromGLAcc: Record "G/L Account"; var ToGLAcc: Record "G/L Account")
     begin
-        FromGLAcc.FindSet;
+        FromGLAcc.FindSet();
         repeat
             ToGLAcc := FromGLAcc;
             if ToGLAcc.Insert() then;
@@ -2026,7 +2026,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Customer);
         ValueEntry.SetRange("Source No.", Cust."No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
@@ -2044,7 +2044,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         CustPostingGroup.Get(Cust."Customer Posting Group");
         GLEntry.SetFilter("Entry No.", '>%1', LastGLEntry."Entry No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";

@@ -1,4 +1,4 @@
-﻿page 5807 "Value Entries Preview"
+page 5807 "Value Entries Preview"
 {
     Caption = 'Value Entries Preview';
     Editable = false;
@@ -403,7 +403,7 @@
             repeat
                 Rec := TempValueEntry;
                 Insert;
-            until TempValueEntry.Next = 0;
+            until TempValueEntry.Next() = 0;
     end;
 }
 

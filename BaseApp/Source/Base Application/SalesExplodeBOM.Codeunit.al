@@ -72,7 +72,7 @@ codeunit 63 "Sales-Explode BOM"
                         if ToSalesLine."Outstanding Quantity" > 0 then
                             if ItemCheckAvail.SalesLineCheck(ToSalesLine) then
                                 ItemCheckAvail.RaiseUpdateInterruptedError;
-                until FromBOMComp.Next = 0;
+                until FromBOMComp.Next() = 0;
         end;
 
         if "BOM Item No." = '' then
@@ -117,6 +117,11 @@ codeunit 63 "Sales-Explode BOM"
         NoOfBOMComp: Integer;
         Selection: Integer;
 
+    procedure CallExplodeBOMCompLines(SalesLine: Record "Sales Line")
+    begin
+        ExplodeBOMCompLines(SalesLine);
+    end;
+
     local procedure ExplodeBOMCompLines(SalesLine: Record "Sales Line")
     var
         PreviousSalesLine: Record "Sales Line";
@@ -148,7 +153,7 @@ codeunit 63 "Sales-Explode BOM"
             FromBOMComp.Reset();
             FromBOMComp.SetRange("Parent Item No.", "No.");
             OnExplodeBOMCompLinesOnAfterFromBOMCompSetFilters(FromBOMComp, SalesLine);
-            FromBOMComp.FindSet;
+            FromBOMComp.FindSet();
             repeat
                 ToSalesLine.Init();
                 NextLineNo := NextLineNo + LineSpacing;
@@ -228,7 +233,7 @@ codeunit 63 "Sales-Explode BOM"
                         TransferExtendedText.InsertSalesExtText(PreviousSalesLine);
 
                 PreviousSalesLine := ToSalesLine;
-            until FromBOMComp.Next = 0;
+            until FromBOMComp.Next() = 0;
 
             if TransferExtendedText.SalesCheckIfAnyExtText(ToSalesLine, false) then
                 TransferExtendedText.InsertSalesExtText(ToSalesLine);

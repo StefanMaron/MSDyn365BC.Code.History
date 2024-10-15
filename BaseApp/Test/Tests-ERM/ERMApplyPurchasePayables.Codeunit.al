@@ -828,7 +828,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         CreatePaymentJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, GenJournalLineInv."Account No.", 0, '', 0);
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, GenJournalLineInv."Account No.",
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         Commit();
@@ -889,7 +890,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         CreatePaymentJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, 0, '', 0);
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
         UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode2, -VendorLedgerEntry2.Amount);
         UpdateVendorLedgerEntryAppln(VendorLedgerEntry2, GenJournalLine."Document No.", VendorLedgerEntry2.Amount);
 
@@ -956,7 +958,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         CreatePaymentJournalBatch(GenJournalBatch);
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, 0, '', 0);
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
+          "Gen. Journal Account Type"::"G/L Account", '', 0);
         UpdateGenJnlLineAppln(GenJournalLine, CurrencyCode2, -VendorLedgerEntry2.Amount);
         UpdateVendorLedgerEntryAppln(VendorLedgerEntry2, GenJournalLine."Document No.", VendorLedgerEntry2.Amount);
 
@@ -992,6 +995,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           VendorNo, CurrencyCode1, VendorLedgerEntry1."Entry No.", VendorLedgerEntry2."Entry No.", 1, 0);
     end;
 
+    [Test]
     [HandlerFunctions('MultipleSelectionApplyVendorEntriesModalPageHandler')]
     [Scope('OnPrem')]
     procedure CheckPostingDateForMultipleVendLedgEntriesWhenSetAppliesToIDOnApplyVendorEntries()
@@ -1035,6 +1039,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
     [HandlerFunctions('ApplyVendorEntriesModalPageHandler')]
     [Scope('OnPrem')]
     procedure CheckCurrencyForMultipleVendLedgEntriesWhenSetAppliesToIDOnApplyVendorEntries()
@@ -1447,7 +1452,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           AccountType, AccountNo, Amount);
     end;
 
-    local procedure CreateGenJnlLineWithPostingDateAndCurrency(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date; CurrencyCode: Code[10])
+    local procedure CreateGenJnlLineWithPostingDateAndCurrency(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date; CurrencyCode: Code[10])
     begin
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -1893,7 +1898,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         until VendorLedgerEntry.Next = 0;
     end;
 
-    local procedure SetApplicationMethodOnVendor(VendorNo: Code[20]; ApplicationMethod: Option)
+    local procedure SetApplicationMethodOnVendor(VendorNo: Code[20]; ApplicationMethod: Enum "Application Method")
     var
         Vendor: Record Vendor;
     begin

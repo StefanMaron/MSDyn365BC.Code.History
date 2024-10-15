@@ -1,4 +1,4 @@
-﻿table 60 "Document Sending Profile"
+table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
     LookupPageID = "Document Sending Profiles";
@@ -345,34 +345,34 @@
         ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault;
         SingleCustomerSelected: Boolean;
         ShowDialog: Boolean;
-        Handled: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo, Handled);
-        if Handled then
-            exit;
+        IsHandled := false;
+        OnBeforeSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo, IsHandled);
+        if not IsHandled then begin
+            SingleCustomerSelected := IsSingleRecordSelected(RecordVariant, CustomerNo, CustomerFieldNo);
 
-        SingleCustomerSelected := IsSingleRecordSelected(RecordVariant, CustomerNo, CustomerFieldNo);
+            if not CheckShowProfileSelectionMethodDialog(SingleCustomerSelected, ProfileSelectionMethod, CustomerNo, true) then
+                exit;
 
-        if not CheckShowProfileSelectionMethodDialog(SingleCustomerSelected, ProfileSelectionMethod, CustomerNo, true) then
-            exit;
-
-        if SingleCustomerSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
-            OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend);
-            if DocumentSendingProfile.LookupProfile(CustomerNo, true, true) then
-                DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
-        end else begin
-            ShowDialog := ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach;
-            RecRefSource.GetTable(RecordVariant);
-            if RecRefSource.FindSet then
-                repeat
-                    RecRefToSend := RecRefSource.Duplicate;
-                    RecRefToSend.SetRecFilter;
-                    CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
-                    DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
-                    OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend);
-                    if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
-                        DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
-                until RecRefSource.Next = 0;
+            if SingleCustomerSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
+                OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend);
+                if DocumentSendingProfile.LookupProfile(CustomerNo, true, true) then
+                    DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
+            end else begin
+                ShowDialog := ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach;
+                RecRefSource.GetTable(RecordVariant);
+                if RecRefSource.FindSet() then
+                    repeat
+                        RecRefToSend := RecRefSource.Duplicate();
+                        RecRefToSend.SetRecFilter();
+                        CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
+                        DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
+                        OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend);
+                        if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
+                            DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
+                    until RecRefSource.Next() = 0;
+            end;
         end;
 
         OnAfterSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo);
@@ -413,7 +413,7 @@
                     OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2);
                     if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                         DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
-                until RecRef.Next = 0;
+                until RecRef.Next() = 0;
         end;
     end;
 
@@ -612,7 +612,7 @@
                 FieldRef := RecRef.Field(CustomerVendorFieldNo);
                 CustomerNo := FieldRef.Value;
                 if CustomerVendorNos.Add(CustomerNo, CustomerNo) then;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -663,13 +663,15 @@
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
+        TempBlob: Codeunit "Temp Blob";
+        SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
         ServerFilePath: Text[250];
-        ZipPath: Text[250];
         ClientZipFileName: Text[250];
         ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
+        AttachmentStream: Instream;
     begin
         if "E-Mail" = "E-Mail"::No then
             exit;
@@ -690,12 +692,15 @@
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "E-Mail Format");
                     ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
                     ReportSelections.SendToZipForCust(ReportUsage, RecordVariant, DocNo, ToCust, DataCompression);
-                    SaveZipArchiveToServerFile(DataCompression, ZipPath);
+
+                    DataCompression.SaveZipArchive(TempBlob);
+                    TempBlob.CreateInStream(AttachmentStream);
+                    SourceReference := RecordVariant;
 
                     ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
                     DocumentMailing.EmailFile(
-                      ZipPath, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
-                      not ShowDialog, ReportUsage.AsInteger());
+                      AttachmentStream, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
+                      not ShowDialog, ReportUsage.AsInteger(), SourceReference);
                 end;
         end;
     end;
@@ -707,13 +712,15 @@
         ReportDistributionManagement: Codeunit "Report Distribution Management";
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
+        TempBlob: Codeunit "Temp Blob";
+        SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
         ServerFilePath: Text[250];
-        ZipPath: Text[250];
         ClientZipFileName: Text[250];
         ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
+        AttachmentStream: Instream;
     begin
         if "E-Mail" = "E-Mail"::No then
             exit;
@@ -734,12 +741,15 @@
                     ElectronicDocumentFormat.SendElectronically(ServerFilePath, ClientFilePath, RecordVariant, "E-Mail Format");
                     ReportDistributionManagement.CreateOrAppendZipFile(DataCompression, ServerFilePath, ClientFilePath, ClientZipFileName);
                     ReportSelections.SendToZipForVend(ReportUsage, RecordVariant, DocNo, ToVendor, DataCompression);
-                    SaveZipArchiveToServerFile(DataCompression, ZipPath);
+
+                    DataCompression.SaveZipArchive(TempBlob);
+                    TempBlob.CreateInStream(AttachmentStream);
+                    SourceReference := RecordVariant;
 
                     ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
                     DocumentMailing.EmailFile(
-                      ZipPath, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
-                      not ShowDialog, ReportUsage.AsInteger());
+                      AttachmentStream, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
+                      not ShowDialog, ReportUsage.AsInteger(), SourceReference);
                 end;
         end;
     end;
@@ -854,7 +864,7 @@
         exit(true);
     end;
 
-    local procedure IsSingleRecordSelected(RecordVariant: Variant; CVNo: Code[20]; CVFieldNo: Integer): Boolean
+    protected procedure IsSingleRecordSelected(RecordVariant: Variant; CVNo: Code[20]; CVFieldNo: Integer): Boolean
     var
         RecRef: RecordRef;
         FieldRef: FieldRef;
@@ -863,7 +873,7 @@
         if not RecRef.FindSet then
             exit(false);
 
-        if RecRef.Next = 0 then
+        if RecRef.Next() = 0 then
             exit(true);
 
         FieldRef := RecRef.Field(CVFieldNo);

@@ -707,7 +707,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         "Count": Integer;
     begin
         InsCoverageLedgerEntry.SetRange("FA No.", FANo);
-        InsCoverageLedgerEntry.FindSet;
+        InsCoverageLedgerEntry.FindSet();
         Count := 1;
         repeat
             InsCoverageLedgerEntry.TestField("Insurance No.", InsuranceNo);

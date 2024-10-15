@@ -4,7 +4,7 @@ codeunit 1373 "Batch Posting Print Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1380, 'OnAfterBatchProcessing', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnAfterBatchProcessing', '', false, false)]
     local procedure PrintDocumentOnAfterBatchPosting(var RecRef: RecordRef; PostingResult: Boolean)
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
@@ -236,14 +236,14 @@ codeunit 1373 "Batch Posting Print Mgt."
 
         ReportSelections.Reset();
         ReportSelections.SetRange(Usage, ReportUsage);
-        ReportSelections.FindSet;
+        ReportSelections.FindSet();
         repeat
             ReportSelections.TestField("Report ID");
             if PrintViaJobQueue then
                 SchedulePrintJobQueueEntry(RecVar, ReportSelections."Report ID", ReportOutputType)
             else
                 REPORT.Run(ReportSelections."Report ID", false, false, RecVar);
-        until ReportSelections.Next = 0;
+        until ReportSelections.Next() = 0;
     end;
 
     procedure SchedulePrintJobQueueEntry(RecVar: Variant; ReportId: Integer; ReportOutputType: Option)

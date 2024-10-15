@@ -16,6 +16,7 @@ report 9802 "Copy Permission Set"
                 SourceTenantPermission: Record "Tenant Permission";
                 PermissionSetLink: Record "Permission Set Link";
                 SourcePermissionSet: Record "Permission Set";
+                PermissionManager: Codeunit "Permission Manager";
             begin
                 CreateNewTenantPermissionSet(InputRoleID, Name);
 
@@ -27,13 +28,13 @@ report 9802 "Copy Permission Set"
                                 exit;
                             repeat
                                 CopyPermissionToNewTenantPermission(InputRoleID, SourcePermission);
-                            until SourcePermission.Next = 0;
+                            until SourcePermission.Next() = 0;
                             if CreateLink then begin
                                 PermissionSetLink.Init();
                                 PermissionSetLink."Permission Set ID" := SourcePermission."Role ID";
                                 PermissionSetLink."Linked Permission Set ID" := InputRoleID;
                                 SourcePermissionSet.Get("Role ID");
-                                PermissionSetLink."Source Hash" := SourcePermissionSet.Hash;
+                                PermissionSetLink."Source Hash" := PermissionManager.GenerateHashForPermissionSet(SourcePermissionSet."Role ID");
                                 PermissionSetLink.Insert();
                             end;
                         end;
@@ -44,7 +45,7 @@ report 9802 "Copy Permission Set"
                             if SourceTenantPermission.FindSet then
                                 repeat
                                     CopyTenantPermissionToNewTenantPermission(InputRoleID, SourceTenantPermission);
-                                until SourceTenantPermission.Next = 0;
+                                until SourceTenantPermission.Next() = 0;
                         end;
                 end;
             end;
@@ -154,7 +155,7 @@ report 9802 "Copy Permission Set"
         AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         AggregatePermissionSet.SetRange("Role ID", TargetPermissionSetRoleID);
-        if not AggregatePermissionSet.IsEmpty then
+        if not AggregatePermissionSet.IsEmpty() then
             Error(TargetExistsErr);
     end;
 
@@ -163,7 +164,7 @@ report 9802 "Copy Permission Set"
         AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         AggregatePermissionSet.CopyFilters(FromAggregatePermissionSet);
-        if AggregatePermissionSet.IsEmpty then
+        if AggregatePermissionSet.IsEmpty() then
             Error(MissingSourceErr);
     end;
 

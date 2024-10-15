@@ -63,7 +63,7 @@ page 99000800 "Prod. BOM Version List"
 
     local procedure StartingDateOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

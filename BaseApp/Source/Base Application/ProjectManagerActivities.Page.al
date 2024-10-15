@@ -10,10 +10,14 @@ page 9068 "Project Manager Activities"
     {
         area(content)
         {
+#if not CLEAN18
             cuegroup("Intelligent Cloud")
             {
                 Caption = 'Intelligent Cloud';
-                Visible = ShowIntelligentCloud;
+                Visible = false;
+                ObsoleteTag = '18.0';
+                ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                ObsoleteState = Pending;
 
                 actions
                 {
@@ -24,6 +28,10 @@ page 9068 "Project Manager Activities"
                         Image = TileInfo;
                         RunPageMode = View;
                         ToolTip = ' Learn more about the Intelligent Cloud and how it can help your business.';
+                        Visible = false;
+                        ObsoleteTag = '18.0';
+                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                        ObsoleteState = Pending;
 
                         trigger OnAction()
                         var
@@ -39,6 +47,10 @@ page 9068 "Project Manager Activities"
                         Image = TileCloud;
                         RunPageMode = View;
                         ToolTip = 'View your Intelligent Cloud insights.';
+                        Visible = false;
+                        ObsoleteTag = '18.0';
+                        ObsoleteReason = 'Intelligent Cloud Insights is discontinued.';
+                        ObsoleteState = Pending;
 
                         trigger OnAction()
                         var
@@ -49,6 +61,7 @@ page 9068 "Project Manager Activities"
                     }
                 }
             }
+#endif
             cuegroup(Invoicing)
             {
                 Caption = 'Invoicing';
@@ -295,7 +308,7 @@ page 9068 "Project Manager Activities"
 
     procedure RefreshRoleCenter()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger UserTours::ShowTourWizard(hasTourCompleted: Boolean)

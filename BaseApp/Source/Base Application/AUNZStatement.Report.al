@@ -917,7 +917,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry1.CalcFields("Remaining Amount");
                     AgingAmount[1] += TempCustLedgerEntry1."Remaining Amount";
-                until TempCustLedgerEntry1.Next = 0;
+                until TempCustLedgerEntry1.Next() = 0;
         end else begin
             TempCustLedgerEntry1.Reset();
             TempCustLedgerEntry1.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
@@ -927,7 +927,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry1.CalcFields("Remaining Amt. (LCY)");
                     AgingAmount[1] += TempCustLedgerEntry1."Remaining Amt. (LCY)";
-                until TempCustLedgerEntry1.Next = 0;
+                until TempCustLedgerEntry1.Next() = 0;
         end;
         if not PrintLCY then begin
             TempCustLedgerEntry2.Reset();
@@ -938,7 +938,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry2.CalcFields("Remaining Amount");
                     AgingAmount[2] += TempCustLedgerEntry2."Remaining Amount";
-                until TempCustLedgerEntry2.Next = 0;
+                until TempCustLedgerEntry2.Next() = 0;
         end else begin
             TempCustLedgerEntry2.Reset();
             TempCustLedgerEntry2.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
@@ -948,7 +948,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry2.CalcFields("Remaining Amt. (LCY)");
                     AgingAmount[2] += TempCustLedgerEntry2."Remaining Amt. (LCY)";
-                until TempCustLedgerEntry2.Next = 0;
+                until TempCustLedgerEntry2.Next() = 0;
         end;
         if not PrintLCY then begin
             TempCustLedgerEntry3.Reset();
@@ -959,7 +959,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry3.CalcFields("Remaining Amount");
                     AgingAmount[3] += TempCustLedgerEntry3."Remaining Amount";
-                until TempCustLedgerEntry3.Next = 0;
+                until TempCustLedgerEntry3.Next() = 0;
         end else begin
             TempCustLedgerEntry3.Reset();
             TempCustLedgerEntry3.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
@@ -969,7 +969,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry3.CalcFields("Remaining Amount");
                     AgingAmount[3] += TempCustLedgerEntry3."Remaining Amount";
-                until TempCustLedgerEntry3.Next = 0;
+                until TempCustLedgerEntry3.Next() = 0;
         end;
         if not PrintLCY then begin
             TempCustLedgerEntry4.Reset();
@@ -980,7 +980,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry4.CalcFields("Remaining Amount");
                     AgingAmount[4] += TempCustLedgerEntry4."Remaining Amount";
-                until TempCustLedgerEntry4.Next = 0;
+                until TempCustLedgerEntry4.Next() = 0;
         end else begin
             TempCustLedgerEntry4.Reset();
             TempCustLedgerEntry4.SetRange("Customer No.", "AgingCust. Ledger Entry"."Customer No.");
@@ -990,7 +990,7 @@ report 17110 "AU/NZ Statement"
                 repeat
                     TempCustLedgerEntry4.CalcFields("Remaining Amount");
                     AgingAmount[4] += TempCustLedgerEntry4."Remaining Amount";
-                until TempCustLedgerEntry4.Next = 0;
+                until TempCustLedgerEntry4.Next() = 0;
         end;
     end;
 }

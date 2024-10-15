@@ -213,7 +213,7 @@ report 5174 "Archived Blanket Purch. Order"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry.Next = 0);
+                            until (DimSetEntry.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -459,7 +459,7 @@ report 5174 "Archived Blanket Purch. Order"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry.Next = 0);
+                                until (DimSetEntry.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()
@@ -909,7 +909,7 @@ report 5174 "Archived Blanket Purch. Order"
                         repeat
                             TempPurchLineArchive := PurchLineArchive;
                             TempPurchLineArchive.Insert();
-                        until PurchLineArchive.Next = 0;
+                        until PurchLineArchive.Next() = 0;
                     TempVATAmountLine.DeleteAll();
 
                     if Number > 1 then begin

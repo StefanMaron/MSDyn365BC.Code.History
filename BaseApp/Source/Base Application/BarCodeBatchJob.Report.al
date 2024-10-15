@@ -158,7 +158,7 @@ report 28001 "BarCode Batch Job"
                   Format(CityFieldRef.Value),
                   Format(PostCodeFieldRef.Value));
                 CurrentRec := CurrentRec + 1;
-            until RecordRef.Next = 0;
+            until RecordRef.Next() = 0;
 
         RecordRef.Close;
     end;

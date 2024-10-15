@@ -1497,7 +1497,7 @@ codeunit 141026 "ERM GST On Prepayments"
         CreditAmount: Decimal;
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next = 0;

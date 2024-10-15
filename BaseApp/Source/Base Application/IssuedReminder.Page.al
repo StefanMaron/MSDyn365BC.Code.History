@@ -66,6 +66,33 @@ page 438 "Issued Reminder"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the reminder is for.';
                 }
+                field(ContactPhoneNo; PrimaryContact."Phone No.")
+                {
+                    Caption = 'Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the customer contact person the reminder is for.';
+                }
+                field(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the customer contact person the reminder is for.';
+                }
+                field(ContactEmail; PrimaryContact."E-Mail")
+                {
+                    Caption = 'Email';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the email address of the customer contact person the reminder is for.';
+                }
                 field("Posting Date"; "Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -332,7 +359,15 @@ page 438 "Issued Reminder"
         }
     }
 
+    trigger OnAfterGetRecord()
     var
+        Customer: Record Customer;
+    begin
+        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+    end;
+
+    var
+        PrimaryContact: Record Contact;
         IssuedReminderHeader: Record "Issued Reminder Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";

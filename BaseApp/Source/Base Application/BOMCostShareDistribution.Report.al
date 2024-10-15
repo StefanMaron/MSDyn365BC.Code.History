@@ -236,7 +236,7 @@ report 5872 "BOM Cost Share Distribution"
                             CalcUnitCost;
                             Modify;
                         end;
-                until Next = 0;
+                until Next() = 0;
             MergeLinesWithSameTypeAndNo;
 
             exit(not IsEmpty);
@@ -308,7 +308,7 @@ report 5872 "BOM Cost Share Distribution"
                         CalcUnitCost;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure FindNextRecord(var BOMBuffer: Record "BOM Buffer"; Position: Integer): Boolean

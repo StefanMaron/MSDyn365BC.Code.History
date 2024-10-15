@@ -240,7 +240,7 @@ page 400 "Purchase Invoice Statistics"
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchInvLine, VendAmount, AmountInclVAT, InvDiscAmount,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage)
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
 
         OnAfterCalculateTotals(
             Rec, VendAmount, AmountInclVAT, InvDiscAmount,

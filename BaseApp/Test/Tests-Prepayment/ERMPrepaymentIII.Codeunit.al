@@ -1648,7 +1648,7 @@ codeunit 134102 "ERM Prepayment III"
         GLEntry: Record "G/L Entry";
     begin
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
         until GLEntry.Next = 0;
@@ -2004,14 +2004,14 @@ codeunit 134102 "ERM Prepayment III"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindSalesLinePrepaymentPct(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]) TotalPrepaymentPct: Decimal
@@ -2028,7 +2028,7 @@ codeunit 134102 "ERM Prepayment III"
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure GetPostedDocumentNo(NoSeries: Code[20]): Code[20]

@@ -166,7 +166,7 @@ report 16629 "Quarterly VAT Return"
                     if VATEntry.Find('-') then
                         repeat
                             AmtPurchases := AmtPurchases + VATEntry.Amount;
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
 
                     SetRange(Type, Type::Sale);
                 end;

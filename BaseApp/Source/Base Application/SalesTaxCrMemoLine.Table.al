@@ -56,9 +56,7 @@ table 28074 "Sales Tax Cr.Memo Line"
         {
             Caption = 'Shipment Date';
         }
-#pragma warning disable AS0086 // Breaking change required for #369413
         field(11; Description; Text[100])
-#pragma warning restore AS0086
         {
             Caption = 'Description';
         }
@@ -561,7 +559,7 @@ table 28074 "Sales Tax Cr.Memo Line"
                 VATAmountLine."Calculated VAT Amount" := "Amount Including VAT" - Amount - "VAT Difference";
                 VATAmountLine."VAT Difference" := "VAT Difference";
                 VATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]

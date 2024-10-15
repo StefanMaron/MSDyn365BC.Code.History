@@ -233,7 +233,7 @@ report 11604 "BAS-Update"
                                 BASCalcSheet1.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version");
                                 BASCalcSheet1.Consolidated := false;
                                 BASCalcSheet1.Modify();
-                            until BASBusUnits.Next = 0;
+                            until BASBusUnits.Next() = 0;
                         BASCalcSheet.Consolidated := false;
                         BASCalcSheet."Group Consolidated" := false;
                     end;
@@ -556,7 +556,7 @@ report 11604 "BAS-Update"
                                             BASCalcEntry.Modify();
                                     end;
                                 end;
-                            until GLEntry.Next = 0;
+                            until GLEntry.Next() = 0;
                     end;
                     CalcTotalAmount(BASSetup2, TotalAmount);
                 end;
@@ -639,7 +639,7 @@ report 11604 "BAS-Update"
                             BASCalcEntry."BAS Adjustment" := BASSetup2."BAS Adjustment";
                             if not BASCalcEntry.Insert() then
                                 BASCalcEntry.Modify();
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
 
                     CalcTotalAmount(BASSetup2, TotalAmount);
                 end;
@@ -665,7 +665,7 @@ report 11604 "BAS-Update"
                                 ErrorText := ErrorText + '...';
                                 BASSetup2.FieldError("Row No.", ErrorText);
                             end;
-                        until BASSetup2.Next = 0;
+                        until BASSetup2.Next() = 0;
                 end;
         end;
 
@@ -748,7 +748,7 @@ report 11604 "BAS-Update"
               BASSetup2."Amount Type"::"GST Amount":
                 Amount := Amount + BASCalcSheetEntry.Amount;
             END;
-          UNTIL BASCalcSheetEntry.NEXT = 0;
+          UNTIL BASCalcSheetEntry.Next() = 0;
         CalcTotalAmount(BASSetup2,TotalAmount);
         EXIT(TRUE);
         */
@@ -801,7 +801,7 @@ report 11604 "BAS-Update"
                                                 Amount := Amount + GLEntry."VAT Amount";
                                         end;
                                 end;
-                            until GLEntry.Next = 0;
+                            until GLEntry.Next() = 0;
                     end;
                     CalcTotalAmount(BASSetup2, TotalAmount);
                 end;
@@ -851,7 +851,7 @@ report 11604 "BAS-Update"
                                         Amount := Amount + VATEntry."Unrealized Base";
                                 end;
 
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
                     CalcTotalAmount(BASSetup2, TotalAmount);
                 end;
             BASSetup2.Type::"Row Totaling":
@@ -876,7 +876,7 @@ report 11604 "BAS-Update"
                                 ErrorText := ErrorText + '...';
                                 BASSetup2.FieldError("Row No.", ErrorText);
                             end;
-                        until BASSetup2.Next = 0;
+                        until BASSetup2.Next() = 0;
                 end;
         end;
 

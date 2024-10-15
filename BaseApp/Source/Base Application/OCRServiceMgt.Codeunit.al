@@ -735,7 +735,7 @@ codeunit 1294 "OCR Service Mgt."
             IncomingDocumentAttachment.FindFirst;
             TempIncomingDocumentAttachment := IncomingDocumentAttachment;
             TempIncomingDocumentAttachment.Insert();
-        until IncomingDocument.Next = 0;
+        until IncomingDocument.Next() = 0;
 
         GetBatches(TempIncomingDocumentAttachment, '');
     end;
@@ -874,7 +874,7 @@ codeunit 1294 "OCR Service Mgt."
             repeat
                 IncomingDocument.Get(TempIncomingDocumentAttachment."Incoming Document Entry No.");
                 SendIncomingDocumentToOCR.SetStatusToFailed(IncomingDocument);
-            until TempIncomingDocumentAttachment.Next = 0;
+            until TempIncomingDocumentAttachment.Next() = 0;
 
         exit(true);
     end;
@@ -1045,7 +1045,7 @@ codeunit 1294 "OCR Service Mgt."
             Error(ActivityMessage);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleOCRRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         OCRServiceSetup: Record "OCR Service Setup";
@@ -1140,7 +1140,7 @@ codeunit 1294 "OCR Service Mgt."
         StatusAsInt: Integer;
     begin
         foreach XMLNode in XMLRootNode.ChildNodes do begin
-            if TempIncomingDocumentAttachment.IsEmpty then
+            if TempIncomingDocumentAttachment.IsEmpty() then
                 exit;
 
             DocId := XMLDOMManagement.FindNodeText(XMLNode, './ExternalId');
@@ -1158,7 +1158,7 @@ codeunit 1294 "OCR Service Mgt."
                     end;
 
                     TempIncomingDocumentAttachment.Delete();
-                until TempIncomingDocumentAttachment.Next = 0;
+                until TempIncomingDocumentAttachment.Next() = 0;
 
             // Remove filter
             TempIncomingDocumentAttachment.SetRange("External Document Reference");
@@ -1185,13 +1185,13 @@ codeunit 1294 "OCR Service Mgt."
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Page, 189, 'OnCloseIncomingDocumentFromAction', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Incoming Document", 'OnCloseIncomingDocumentFromAction', '', false, false)]
     local procedure OnCloseIncomingDocumentHandler(var IncomingDocument: Record "Incoming Document")
     begin
         PAGE.Run(PAGE::"Incoming Document", IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Page, 190, 'OnCloseIncomingDocumentsFromActions', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Incoming Documents", 'OnCloseIncomingDocumentsFromActions', '', false, false)]
     local procedure OnCloseIncomingDocumentsHandler(var IncomingDocument: Record "Incoming Document")
     begin
         PAGE.Run(PAGE::"Incoming Documents", IncomingDocument);
@@ -1239,14 +1239,14 @@ codeunit 1294 "OCR Service Mgt."
         exit(FileManagement.GetExtension(AttachmentName));
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnAfterCreateGenJnlLineFromIncomingDocSuccess', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterCreateGenJnlLineFromIncomingDocSuccess', '', false, false)]
     local procedure LogTelemetryOnAfterCreateGenJnlLineFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success then
             Session.LogMessage('000089P', OCRServiceUserCreatedGenJnlLineOutOfOCRedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132, 'OnAfterCreateDocFromIncomingDocSuccess', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterCreateDocFromIncomingDocSuccess', '', false, false)]
     local procedure LogTelemetryOnAfterCreateDocFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success then

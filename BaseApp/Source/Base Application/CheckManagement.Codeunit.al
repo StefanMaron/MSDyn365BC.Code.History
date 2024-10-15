@@ -128,7 +128,7 @@ codeunit 367 CheckManagement
                     OnBeforeVoidCheckGenJnlLine2Modify(GenJnlLine2, GenJnlLine);
                     GenJnlLine2.Modify();
                 end;
-            until GenJnlLine2.Next = 0;
+            until GenJnlLine2.Next() = 0;
 
         CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
@@ -246,7 +246,7 @@ codeunit 367 CheckManagement
                                 OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
                                 OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                 end;
             CheckLedgEntry."Bal. Account Type"::Vendor:
@@ -283,7 +283,7 @@ codeunit 367 CheckManagement
                                 OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
                                 OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                 end;
             CheckLedgEntry."Bal. Account Type"::"Bank Account":
@@ -303,7 +303,7 @@ codeunit 367 CheckManagement
                             OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                             GenJnlPostLine.RunWithCheck(GenJnlLine2);
                             OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             CheckLedgEntry."Bal. Account Type"::"Fixed Asset":
                 with FALedgEntry do begin
@@ -321,7 +321,7 @@ codeunit 367 CheckManagement
                             OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                             GenJnlPostLine.RunWithCheck(GenJnlLine2);
                             OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             CheckLedgEntry."Bal. Account Type"::Employee:
                 begin
@@ -345,7 +345,7 @@ codeunit 367 CheckManagement
                                 OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine2, CheckLedgEntry);
                                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
                                 OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
-                            until Next = 0;
+                            until Next() = 0;
                     end;
                 end;
             else begin
@@ -409,7 +409,7 @@ codeunit 367 CheckManagement
                     OnFinancialVoidCheckOnBeforePostBalAccLine(GenJnlLine, CheckLedgEntry);
                     GenJnlPostLine.RunWithCheck(GenJnlLine);
                     OnFinancialVoidCheckOnAfterPostBalAccLine(GenJnlLine, CheckLedgEntry, GenJnlPostLine);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -457,7 +457,7 @@ codeunit 367 CheckManagement
                 GenJournalLine1.Amount := -WHTEntry.Amount;
                 GenJournalLine1."Amount (LCY)" := -WHTEntry."Amount (LCY)";
                 GenJnlPostLine.RunWithCheck(GenJournalLine1);
-            until WHTEntry.Next = 0
+            until WHTEntry.Next() = 0
         else begin
             PayDetailedVendorLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
             PayDetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", OrigPaymentVendorLedgerEntry."Entry No.");
@@ -473,7 +473,7 @@ codeunit 367 CheckManagement
                 GenJournalLine3."Source Code" := SourceCodeSetup."Financially Voided Check";
                 OnUnApplyVendInvoicesOnBeforePost(GenJournalLine3, VendorLedgEntry, PayDetailedVendorLedgEntry);
                 GenJnlPostLine.UnapplyVendLedgEntry(GenJournalLine3, PayDetailedVendorLedgEntry, true);
-            until PayDetailedVendorLedgEntry.Next = 0;
+            until PayDetailedVendorLedgEntry.Next() = 0;
         end;
 
         with OrigPaymentVendorLedgerEntry do begin
@@ -486,7 +486,7 @@ codeunit 367 CheckManagement
                 "Accepted Pmt. Disc. Tolerance" := false;
                 "Accepted Payment Tolerance" := 0;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         end;
         exit(true);
     end;
@@ -529,7 +529,7 @@ codeunit 367 CheckManagement
             GenJournalLine3."Source Code" := SourceCodeSetup."Financially Voided Check";
             OnUnApplyCustInvoicesOnBeforePost(GenJournalLine3, CustLedgEntry, PayDetailedCustLedgEntry);
             GenJnlPostLine.UnapplyCustLedgEntry(GenJournalLine3, PayDetailedCustLedgEntry);
-        until PayDetailedCustLedgEntry.Next = 0;
+        until PayDetailedCustLedgEntry.Next() = 0;
 
         with OrigPaymentCustLedgerEntry do begin
             FindSet(true, false);  // re-get the now-modified payment entry.
@@ -541,7 +541,7 @@ codeunit 367 CheckManagement
                 "Accepted Pmt. Disc. Tolerance" := false;
                 "Accepted Payment Tolerance" := 0;
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         end;
         exit(true);
     end;
@@ -583,7 +583,7 @@ codeunit 367 CheckManagement
             GenJournalLine3.Description := StrSubstNo(VoidingCheckMsg, CheckLedgEntry."Check No.");
             GenJournalLine3."Source Code" := SourceCodeSetup."Financially Voided Check";
             GenJnlPostLine.UnapplyEmplLedgEntry(GenJournalLine3, PayDetailedEmployeeLedgEntry);
-        until PayDetailedEmployeeLedgEntry.Next = 0;
+        until PayDetailedEmployeeLedgEntry.Next() = 0;
 
         with OrigPaymentEmployeeLedgerEntry do begin
             FindSet(true, false);  // re-get the now-modified payment entry.
@@ -593,7 +593,7 @@ codeunit 367 CheckManagement
                 CalcFields("Remaining Amount");
                 "Amount to Apply" := "Remaining Amount";
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         end;
         exit(true);
     end;
@@ -623,7 +623,7 @@ codeunit 367 CheckManagement
                         RelatedCheckLedgerEntry2."Statement Status" := RelatedCheckLedgerEntry2."Statement Status"::Closed;
                     end;
                     RelatedCheckLedgerEntry2.Modify();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with OriginalCheckLedgerEntry do begin
@@ -740,7 +740,7 @@ codeunit 367 CheckManagement
                         CheckLedgEntry3."Entry Status" := CheckLedgEntry3."Entry Status"::Transmitted;
                 end;
                 CheckLedgEntry3.Modify();
-            until CheckLedgEntry2.Next = 0;
+            until CheckLedgEntry2.Next() = 0;
 
         if WhichProcess = WhichProcess::Void then
             RemoveCreditTransfers(GenJournalLine);
@@ -793,7 +793,7 @@ codeunit 367 CheckManagement
         OnPostRoundingAmountOnAfterGenJnlPostLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure CleanRecordIDToPrintOnAfterDeleteEventGenJournalLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -802,7 +802,7 @@ codeunit 367 CheckManagement
         if Rec.IsTemporary then
             exit;
         CheckLedgerEntry.SetRange("Record ID to Print", Rec.RecordId);
-        if not CheckLedgerEntry.IsEmpty then
+        if not CheckLedgerEntry.IsEmpty() then
             CheckLedgerEntry.ModifyAll("Record ID to Print", DummyRecordID);
     end;
 

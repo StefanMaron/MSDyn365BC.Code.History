@@ -41,7 +41,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
         exit(ServiceInvoiceHeader."Amount Including VAT" > ThresholdAmount);
     end;
 
-    [EventSubscriber(ObjectType::Report, 206, 'OnBeforeGetDocumentCaption', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
     local procedure OnBeforeGetSalesInvoiceCaption(SalesInvoiceHeader: Record "Sales Invoice Header"; var DocCaption: Text)
     begin
         if GetTaxInvoiceThreshold then
@@ -52,7 +52,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
                     DocCaption := SalesTaxInvoiceTxt;
     end;
 
-    [EventSubscriber(ObjectType::Report, 1306, 'OnBeforeGetDocumentCaption', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Standard Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
     local procedure OnBeforeGetStdSalesInvoiceCaption(SalesInvoiceHeader: Record "Sales Invoice Header"; var DocCaption: Text)
     begin
         if GetTaxInvoiceThreshold then
@@ -63,7 +63,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
                     DocCaption := TaxInvoiceTxt;
     end;
 
-    [EventSubscriber(ObjectType::Report, 5911, 'OnBeforeGetDocumentCaption', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Service - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
     local procedure OnBeforeGetServiceInvoiceCaption(ServiceInvoiceHeader: Record "Service Invoice Header"; var DocCaption: Text)
     begin
         if GetTaxInvoiceThreshold then

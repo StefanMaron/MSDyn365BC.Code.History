@@ -27,7 +27,7 @@ codeunit 115 "G/L Entry-Edit"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 423, 'OnAfterIsAlwaysLoggedTable', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Log Management", 'OnAfterIsAlwaysLoggedTable', '', false, false)]
     local procedure OnAfterIsAlwaysLoggedTable(TableID: Integer; var AlwaysLogTable: Boolean)
     begin
         if TableID = DATABASE::"G/L Entry" then

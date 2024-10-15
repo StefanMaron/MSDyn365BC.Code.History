@@ -520,7 +520,7 @@ page 28092 "Post Dated Checks-Purchases"
         if PostDatedCheck.FindSet then begin
             repeat
                 LineAmount := LineAmount + PostDatedCheck."Amount (LCY)";
-            until PostDatedCheck.Next = 0;
+            until PostDatedCheck.Next() = 0;
             LineCount := PostDatedCheck.Count();
         end;
     end;

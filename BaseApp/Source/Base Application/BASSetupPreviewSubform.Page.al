@@ -103,7 +103,7 @@ page 11610 "BAS Setup Preview Subform"
         SetFilter(
           "Date Filter",
           BASUpdate.GetPeriodFilter(PeriodSelection, BASCalcSheet.A3, BASCalcSheet.A4));
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure RunOnDrillDown()
@@ -154,7 +154,7 @@ page 11610 "BAS Setup Preview Subform"
                                         if GLEntry."Posting Date" = NormalDate(GLEntry."Posting Date") then
                                             GLEntry.Mark(true);
                                 end;
-                            until GLEntry.Next = 0;
+                            until GLEntry.Next() = 0;
                             GLEntry.MarkedOnly(true);
                         end;
                     end;
@@ -206,7 +206,7 @@ page 11610 "BAS Setup Preview Subform"
                                 if BASCalcEntry1.FindFirst then
                                     VATEntry.Mark(true);
                             end;
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
                         VATEntry.MarkedOnly(true);
                     end;
                     VATEntries.SetTableView(VATEntry);

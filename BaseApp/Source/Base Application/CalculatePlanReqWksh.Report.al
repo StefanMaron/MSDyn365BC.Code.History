@@ -38,7 +38,7 @@ report 699 "Calculate Plan - Req. Wksh."
                     if ReqLineExtern.Find('-') then
                         repeat
                             ReqLineExtern.Delete(true);
-                        until ReqLineExtern.Next = 0;
+                        until ReqLineExtern.Next() = 0;
                 end;
 
                 InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType);
@@ -58,7 +58,7 @@ report 699 "Calculate Plan - Req. Wksh."
                             PlanningAssignment.Inactive := true;
                             PlanningAssignment.Modify();
                         end;
-                    until PlanningAssignment.Next = 0;
+                    until PlanningAssignment.Next() = 0;
 
                 Commit();
             end;
@@ -179,7 +179,7 @@ report 699 "Calculate Plan - Req. Wksh."
             Item.CopyFilter("No.", ProductionForecastEntry."Item No.");
             if MfgSetup."Use Forecast on Locations" then
                 Item.CopyFilter("Location Filter", ProductionForecastEntry."Location Code");
-            if not ProductionForecastEntry.IsEmpty then
+            if not ProductionForecastEntry.IsEmpty() then
                 Error(Text005);
         end;
 
@@ -261,7 +261,7 @@ report 699 "Calculate Plan - Req. Wksh."
                        ("Reordering Policy" <> "Reordering Policy"::" ")
                     then
                         exit(false);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         SkipPlanning := true;

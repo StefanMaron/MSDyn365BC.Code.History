@@ -108,7 +108,7 @@ codeunit 5335 "Integration Table Synch."
     begin
         OnBeforeSynchronize(SourceRecordRef, DestinationRecordRef, ForceModify, IgnoreSynchOnlyCoupledRecords, IsHandled);
         if IsHandled then
-            exit;
+            exit(true);
 
         if not DoesSourceMatchMapping(SourceRecordRef.Number) then begin
             FinishIntegrationSynchJob(
@@ -151,7 +151,7 @@ codeunit 5335 "Integration Table Synch."
                 if not IntegrationRecSynchInvoke.Run then begin
                     LogSynchError(SourceRecordRef, DestinationRecordRef, GetLastErrorText);
                     IntegrationRecSynchInvoke.MarkIntegrationRecordAsFailed(
-                      CurrentIntegrationTableMapping, SourceRecordRef, CurrentIntegrationSynchJob.ID, IntegrationTableConnectionType);
+                      CurrentIntegrationTableMapping, SourceRecordRef, CurrentIntegrationSynchJob.ID, IntegrationTableConnectionType, SynchAction);
                     exit(false);
                 end;
                 IntegrationRecSynchInvoke.GetContext(
@@ -268,14 +268,21 @@ codeunit 5335 "Integration Table Synch."
             exit(ModifiedFieldRef.Value);
         end;
 
-        ModifiedFieldRef := FromRecordRef.Field(FromRecordRef.SystemModifiedAtNo());
-        exit(ModifiedFieldRef.Value);
+        if FromRecordRef.Number() = IntegrationTableMapping."Table ID" then begin
+            ModifiedFieldRef := FromRecordRef.Field(FromRecordRef.SystemModifiedAtNo());
+            exit(ModifiedFieldRef.Value);
+        end;
+
+        exit(0DT);
     end;
 
+#if not CLEAN18
+    [Obsolete('No need for setting the last synch time', '18.0')]
     procedure GetStartDateTime(): DateTime
     begin
         exit(CurrentIntegrationSynchJob."Start Date/Time");
     end;
+#endif
 
     local procedure EnsureState(RequiredState: Option)
     begin
@@ -363,13 +370,13 @@ codeunit 5335 "Integration Table Synch."
             SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
             SetFilter(Direction, '%1|%2', SynchDirection, Direction::Bidirectional);
             SetFilter(Status, '<>%1', Status::Disabled);
-            if IsEmpty then
+            if IsEmpty() then
                 Error(
                   IntegrationTableMappingHasNoMappedFieldsErr, TableCaption,
                   FieldCaption("Integration Table Mapping Name"), IntegrationTableMapping.Name);
 
             TempIntegrationFieldMapping.DeleteAll();
-            FindSet;
+            FindSet();
             repeat
                 TempIntegrationFieldMapping.Init();
                 TempIntegrationFieldMapping."No." := "No.";
@@ -387,7 +394,7 @@ codeunit 5335 "Integration Table Synch."
                 end;
                 TempIntegrationFieldMapping.Bidirectional := Direction = Direction::Bidirectional;
                 TempIntegrationFieldMapping.Insert();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

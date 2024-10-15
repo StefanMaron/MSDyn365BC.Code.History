@@ -443,26 +443,26 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if PurchaseHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseHeader(PurchaseHeader);
-            until PurchaseHeader.Next = 0;
+            until PurchaseHeader.Next() = 0;
 
         if PurchInvHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseInvoiceHeader(PurchInvHeader);
-            until PurchInvHeader.Next = 0;
+            until PurchInvHeader.Next() = 0;
 
         PurchInvEntityAggregate.SetRange(Posted, false);
         if PurchInvEntityAggregate.FindSet(true, false) then
             repeat
                 if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchInvEntityAggregate."No.") then
                     PurchInvEntityAggregate.Delete(true);
-            until PurchInvEntityAggregate.Next = 0;
+            until PurchInvEntityAggregate.Next() = 0;
 
         PurchInvEntityAggregate.SetRange(Posted, true);
         if PurchInvEntityAggregate.FindSet(true, false) then
             repeat
                 if not PurchInvHeader.Get(PurchInvEntityAggregate."No.") then
                     PurchInvEntityAggregate.Delete(true);
-            until PurchInvEntityAggregate.Next = 0;
+            until PurchInvEntityAggregate.Next() = 0;
     end;
 
     local procedure InsertOrModifyFromPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -562,7 +562,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
         repeat
             UpdateStatusIfChanged(PurchInvEntityAggregate);
-        until PurchInvEntityAggregate.Next = 0;
+        until PurchInvEntityAggregate.Next() = 0;
     end;
 
     local procedure SetStatusOptionFromCancelledDocument(var CancelledDocument: Record "Cancelled Document")
@@ -601,7 +601,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     local procedure UpdateStatusIfChanged(var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
-        CurrentStatus: Option;
+        CurrentStatus: Enum "Invoice Entity Aggregate Status";
     begin
         if not PurchInvHeader.Get(PurchInvEntityAggregate."No.") then
             exit;
@@ -806,7 +806,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
                     if TargetFieldRef.Value <> SourceFieldRef.Value then
                         TargetFieldRef.Validate(SourceFieldRef.Value);
             end;
-        until TempFieldBuffer.Next = 0;
+        until TempFieldBuffer.Next() = 0;
     end;
 
     procedure RedistributeInvoiceDiscounts(var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate")
@@ -870,7 +870,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
                 UpdateLineAmountsFromPurchaseInvoiceLine(PurchInvLineAggregate);
                 SetItemVariantId(PurchInvLineAggregate, PurchInvLine."No.", PurchInvLine."Variant Code");
                 PurchInvLineAggregate.Insert(true);
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
     end;
 
     local procedure LoadPurchaseLines(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate")
@@ -884,7 +884,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             repeat
                 TransferFromPurchaseLine(PurchInvLineAggregate, PurchInvEntityAggregate, PurchaseLine);
                 PurchInvLineAggregate.Insert(true);
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     local procedure TransferFromPurchaseLine(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; var PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate"; var PurchaseLine: Record "Purchase Line")
@@ -1095,6 +1095,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
+        GeneralLedgerSetup.Get();
         if GeneralLedgerSetup.UseVat then begin
             PurchInvLineAggregate."Tax Code" := VATIdentifier;
             if VATProductPostingGroup.Get(VATProductPostingGroupCode) then

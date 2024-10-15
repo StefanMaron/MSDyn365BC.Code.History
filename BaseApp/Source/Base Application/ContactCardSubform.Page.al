@@ -63,9 +63,9 @@ page 5051 "Contact Card Subform"
                                             RatingTemp := Rating;
                                             RatingTemp.Insert();
                                         end;
-                                    until Rating.Next = 0;
+                                    until Rating.Next() = 0;
 
-                                if not RatingTemp.IsEmpty then
+                                if not RatingTemp.IsEmpty() then
                                     PAGE.RunModal(PAGE::"Answer Points List", RatingTemp)
                                 else
                                     Message(Text001);

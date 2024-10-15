@@ -284,7 +284,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                         repeat
                             "Entry No." := DtldCustLedgEntry."Cust. Ledger Entry No.";
                             Mark(true);
-                        until DtldCustLedgEntry.Next = 0;
+                        until DtldCustLedgEntry.Next() = 0;
 
                     SetCurrentKey("Customer No.", Open);
                     SetRange("Customer No.", Customer."No.");
@@ -293,7 +293,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                     if Find('-') then
                         repeat
                             Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     SetRange(Open);

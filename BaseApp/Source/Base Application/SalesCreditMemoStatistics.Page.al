@@ -1,4 +1,4 @@
-﻿page 398 "Sales Credit Memo Statistics"
+page 398 "Sales Credit Memo Statistics"
 {
     Caption = 'Sales Credit Memo Statistics';
     Editable = false;
@@ -332,7 +332,7 @@
                 OnCalculateTotalsOnAfterAddLineTotals(
                     SalesCrMemoLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

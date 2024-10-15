@@ -78,6 +78,7 @@ codeunit 99000832 "Sales Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(SalesLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -87,6 +88,7 @@ codeunit 99000832 "Sales Line-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(SalesLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     local procedure CreateBindingReservation(SalesLine: Record "Sales Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
@@ -110,11 +112,13 @@ codeunit 99000832 "Sales Line-Reserve"
         CreateReservEntry.SetDisallowCancellation(DisallowCancellation);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SalesLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line")
     begin
         SalesLine.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure ReservQuantity(SalesLine: Record "Sales Line"; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
     begin
@@ -258,7 +262,7 @@ codeunit 99000832 "Sales Line-Reserve"
                 CreateReservEntry.SetOverruleItemTracking(not ItemTrkgAlreadyOverruled);
                 // Try to match against Item Tracking on the sales order line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(ItemJnlLine);
-                if OldReservEntry.IsEmpty then
+                if OldReservEntry.IsEmpty() then
                     exit(TransferQty);
             end;
 
@@ -365,7 +369,7 @@ codeunit 99000832 "Sales Line-Reserve"
                             NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", '', 0,
                             NewSalesLine."Line No.", NewSalesLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
-                until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
     end;
 
@@ -482,7 +486,7 @@ codeunit 99000832 "Sales Line-Reserve"
             exit;
         if not FindReservEntry(SalesLine, ReservEntry) then
             exit;
-        ReservEntry.FindSet;
+        ReservEntry.FindSet();
         repeat
             ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Prospect);
             ReservEntry.TestField("Item Ledger Entry No.");
@@ -495,7 +499,7 @@ codeunit 99000832 "Sales Line-Reserve"
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
             TempInvoicingSpecification.Insert();
             ReservEntry.Delete();
-        until ReservEntry.Next = 0;
+        until ReservEntry.Next() = 0;
 
         OK := TempInvoicingSpecification.FindFirst;
     end;
@@ -767,7 +771,7 @@ codeunit 99000832 "Sales Line-Reserve"
             repeat
                 TempReservationEntry := ReservationEntry;
                 TempReservationEntry.Insert();
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
         ReservationEntry.DeleteAll();
     end;
 
@@ -784,7 +788,7 @@ codeunit 99000832 "Sales Line-Reserve"
                 ReservationEntry := TempReservationEntry;
                 ReservationEntry."Source Ref. No." := NewSourceRefNo;
                 ReservationEntry.Insert();
-            until TempReservationEntry.Next = 0;
+            until TempReservationEntry.Next() = 0;
         TempReservationEntry.DeleteAll();
     end;
 
@@ -827,12 +831,13 @@ codeunit 99000832 "Sales Line-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(31);
+        exit("Reservation Summary Type"::"Sales Quote".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [31, 32, 33, 34, 35, 36]);
+        exit(EntryNo in ["Reservation Summary Type"::"Sales Quote".AsInteger() ..
+                         "Reservation Summary Type"::"Sales Return Order".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -987,7 +992,7 @@ codeunit 99000832 "Sales Line-Reserve"
                 SalesLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= SalesLine."Reserved Qty. (Base)";
                 TotalQuantity += SalesLine."Outstanding Qty. (Base)";
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -1014,7 +1019,8 @@ codeunit 99000832 "Sales Line-Reserve"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
     local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
     begin
-        if ReservSummEntry."Entry No." in [32, 36] then
+        if ReservSummEntry."Entry No." in ["Reservation Summary Type"::"Sales Order".AsInteger(),
+                                           "Reservation Summary Type"::"Sales Return Order".AsInteger()] then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, "Sales Document Type".FromInteger(ReservSummEntry."Entry No." - 31), Positive, TotalQuantity);
     end;

@@ -204,7 +204,7 @@ report 14310 "WHT Report - PND 53"
                             WHTBaseLCY := WHTBaseLCY + Abs(WHTEntry2."Base (LCY)");
                             WHTDate := WHTEntry2."Posting Date";
                             "WHT%" := "WHT%" + WHTEntry2."WHT %";
-                        until WHTEntry2.Next = 0;
+                        until WHTEntry2.Next() = 0;
                     end;
                     if Count1 <> 0 then
                         "WHT%" := "WHT%" / Count1;

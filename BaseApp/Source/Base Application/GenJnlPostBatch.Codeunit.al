@@ -108,7 +108,9 @@
         SuppressCommit: Boolean;
         ReversePostingDateErr: Label 'Posting Date for reverse cannot be less than %1', Comment = '%1 = Posting Date';
         FirstLine: Boolean;
-        TempBatchNameTxt: Label 'BD_TEMP_B', Locked = true;
+        TempBatchNameTxt: Label 'BD_TEMP', Locked = true;
+        TwoPlaceHoldersTok: Label '%1%2', Locked = true;
+        ServiceSessionTok: Label '#%1#%2#', Locked = true;
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -184,6 +186,7 @@
                     GenJnlPostPreview.ThrowError;
                 if not SuppressCommit then
                     Commit();
+                DeleteDimBalBatch(GenJnlLine, false);
                 exit;
             end;
 
@@ -201,7 +204,7 @@
                 CheckLine(GenJnlLine, PostingAfterCurrentFiscalYearConfirmed);
                 TempGenJnlLine := GenJnlLine5;
                 TempGenJnlLine.Insert();
-                if Next = 0 then
+                if Next() = 0 then
                     FindFirst;
             until "Line No." = StartLineNo;
             if GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany then
@@ -241,7 +244,7 @@
                     repeat
                         PostGenJournalLine(WHTGenJournalLine, GenJnlLine, CurrentICPartner, ICTransactionNo);
                     until WHTGenJournalLine.Next() = 0;
-            until Next = 0;
+            until Next() = 0;
 
             if LastICTransactionNo > 0 then
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
@@ -281,9 +284,9 @@
                 repeat
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
 
-            DeleteDimBalBatch(GenJnlLine);
+            DeleteDimBalBatch(GenJnlLine, true);
 
             OnBeforeCommit(GLRegNo, GenJnlLine, GenJnlPostLine);
 
@@ -423,7 +426,7 @@
                           "Document Type", "Document No.", "Posting Date");
                     LastLineNo := "Line No.";
                 end;
-            until Next = 0;
+            until Next() = 0;
             CheckBalance(GenJnlLine);
             CopyFields(GenJnlLine);
             if VATEntryCreated and VATInfoSourceLineIsInserted then
@@ -637,7 +640,7 @@
                     GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                     GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                     GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-                    if GenJnlAlloc.IsEmpty then
+                    if GenJnlAlloc.IsEmpty() then
                         Error(
                           Text028);
                 end;
@@ -647,7 +650,7 @@
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
                 GenJnlAlloc.SetFilter(Amount, '<>0');
-                if not GenJnlAlloc.IsEmpty then begin
+                if not GenJnlAlloc.IsEmpty() then begin
                     if not GenJnlTemplate.Recurring then
                         Error(Text023);
                     GenJnlAlloc.SetRange("Account No.", '');
@@ -749,7 +752,7 @@
                                 GenJnlAlloc.Modify();
                             end;
                         end;
-                    until GenJnlAlloc.Next = 0;
+                    until GenJnlAlloc.Next() = 0;
                 end;
             end;
 
@@ -898,7 +901,7 @@
                 GenJnlLine4.Get(TempGenJnlLine."Journal Template Name", TempGenJnlLine."Journal Batch Name", TempGenJnlLine."Line No.");
                 CopyGenJnlLineBalancingData(GenJnlLine4, TempGenJnlLine);
                 GenJnlLine4.Modify();
-            until TempGenJnlLine.Next = 0;
+            until TempGenJnlLine.Next() = 0;
     end;
 
     local procedure CheckICDocument(var TempGenJnlLine1: Record "Gen. Journal Line" temporary)
@@ -948,7 +951,7 @@
                               FieldCaption("Bal. Account No."));
                 end else
                     TestField("IC Partner G/L Acc. No.", '');
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -998,7 +1001,7 @@
             end;
             // IF (NOT GenJnlLine5."Skip WHT") THEN
             // EXIT;
-        until VendLedgEntry.Next = 0;
+        until VendLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1030,7 +1033,7 @@
             end;
             if not GenJnlLine5."Skip WHT" then
                 exit;
-        until CustLedgEntry.Next = 0;
+        until CustLedgEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1105,12 +1108,12 @@
                 UpdateDialogUpdateBalLines(RefPostingSubState, LineCount, JnlLineTotalQty);
                 TempGenJournalLineHistory.SetRange("Posting Date", GenJnlLine4."Posting Date");
                 TempGenJournalLineHistory.SetRange("Document No.", GenJnlLine4."Document No.");
-                if TempGenJournalLineHistory.IsEmpty then begin
+                if TempGenJournalLineHistory.IsEmpty() then begin
                     TempGenJournalLineHistory := GenJnlLine4;
                     TempGenJournalLineHistory.Insert();
                     GenJnlLine6.SetRange("Posting Date", GenJnlLine4."Posting Date");
                     GenJnlLine6.SetRange("Document No.", GenJnlLine4."Document No.");
-                    LinesFound := GenJnlLine6.FindSet;
+                    LinesFound := GenJnlLine6.FindSet();
                 end;
                 if LinesFound then begin
                     AccountType := GetPostingTypeFilter(GenJnlLine4, CheckBalAcount);
@@ -1129,7 +1132,7 @@
                         LinesFound := (GenJnlLine6.Next <> 0);
                     until not LinesFound or (-GenJnlLine4.Amount = CheckAmount);
                 end;
-            until GenJnlLine4.Next = 0;
+            until GenJnlLine4.Next() = 0;
     end;
 
     local procedure UpdateGenJnlLineWithVATInfo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLineVATInfoSource: Record "Gen. Journal Line"; StartLineNo: Integer; LastLineNo: Integer)
@@ -1158,7 +1161,7 @@
                         end;
                     end;
                     Finish := "Line No." = LastLineNo;
-                until (Next = 0) or Finish;
+                until (Next() = 0) or Finish;
 
             if Get("Journal Template Name", "Journal Batch Name", OldLineNo) then;
         end;
@@ -1171,19 +1174,16 @@
         exit(GenJnlLine4."Account Type");
     end;
 
-    local procedure UpdateDialog(PostingState: Integer; LineNo: Integer; TotalLinesQty: Integer)
+    procedure UpdateDialog(PostingState: Integer; LineNo: Integer; TotalLinesQty: Integer)
     begin
         UpdatePostingState(PostingState, LineNo);
         Window.Update(2, GetProgressBarValue(PostingState, LineNo, TotalLinesQty));
     end;
 
-    local procedure UpdateDialogUpdateBalLines(PostingSubState: Integer; LineNo: Integer; TotalLinesQty: Integer)
+    procedure UpdateDialogUpdateBalLines(PostingSubState: Integer; LineNo: Integer; TotalLinesQty: Integer)
     begin
         UpdatePostingState(RefPostingState::"Updating bal. lines", LineNo);
-        Window.Update(
-          2,
-          GetProgressBarUpdateBalLinesValue(
-            CalcProgressPercent(PostingSubState, 3, LineCount, TotalLinesQty)));
+        Window.Update(2, GetProgressBarUpdateBalLinesValue(CalcProgressPercent(PostingSubState, 3, LineCount, TotalLinesQty)));
     end;
 
     local procedure UpdatePostingState(PostingState: Integer; LineNo: Integer)
@@ -1261,7 +1261,7 @@
     begin
         with GenJournalLine do begin
             if not Find then
-                FindSet;
+                FindSet();
             SetRange("Posting Date", 0D, WorkDate);
             if FindSet then begin
                 StartLineNo := "Line No.";
@@ -1277,7 +1277,7 @@
                         end else
                             MarkedGenJnlLine.Insert();
                     end;
-                    if Next = 0 then
+                    if Next() = 0 then
                         FindFirst;
                 until ("Line No." = StartLineNo) and (StartBatchName = "Journal Batch Name");
             end;
@@ -1347,7 +1347,7 @@
                     GenJnlPostLine.RunWithCheck(GenJournalLine2);
                     PostAllocations(GenJournalLine1, true);
                 end;
-            until TempGenJnlLine.Next = 0;
+            until TempGenJnlLine.Next() = 0;
 
         OnAfterPostReversingLines(TempGenJnlLine, PreviewMode);
     end;
@@ -1390,7 +1390,7 @@
                         GenJnlLine2.Validate("VAT Amount", OldVATAmount);
                 OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(GenJnlLine2);
                 GenJnlLine2.Modify();
-            until GenJnlLine2.Next = 0;
+            until GenJnlLine2.Next() = 0;
         end else begin
             // Not a recurring journal
             GenJnlLine2.Copy(GenJnlLine);
@@ -1451,7 +1451,7 @@
         if GenJnlLine.FindSet then
             repeat
                 GenJnlLine.ClearDataExchangeEntries(true);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
     end;
 
     local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrGenJnlLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer): Boolean
@@ -1556,7 +1556,7 @@
                    (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment)
                 then
                     exit(true);
-            until GenJournalLineWHT.Next = 0;
+            until GenJournalLineWHT.Next() = 0;
 
         exit(false);
     end;
@@ -1650,6 +1650,7 @@
     local procedure PrepareDimensionBalancedGenJnlLine(var SrcGenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalLine: Record "Gen. Journal Line";
+        TempBatchName: Code[10];
     begin
         GenJournalLine.Copy(SrcGenJournalLine);
         GenJournalLine.SetFilter(
@@ -1660,23 +1661,56 @@
             exit;
 
         SavedGenJournalLine := SrcGenJournalLine;
-        CreateDimBalGenJnlBatch(SrcGenJournalLine);
+        TempBatchName := CreateDimBalGenJnlBatch(SrcGenJournalLine);
         CreateDimBalGenJnlLines(GenJournalLine);
         SrcGenJournalLine.FilterGroup(2);
-        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchNameTxt);
+        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchName);
         SrcGenJournalLine.FilterGroup(0);
-        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchNameTxt);
+        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchName);
     end;
 
-    local procedure CreateDimBalGenJnlBatch(SrcGenJournalLine: Record "Gen. Journal Line")
+    local procedure CreateDimBalGenJnlBatch(SrcGenJournalLine: Record "Gen. Journal Line"): Code[10];
     var
         SrcGenJournalBatch: Record "Gen. Journal Batch";
         DstGenJournalBatch: Record "Gen. Journal Batch";
     begin
         SrcGenJournalBatch.Get(SrcGenJournalLine."Journal Template Name", SrcGenJournalLine."Journal Batch Name");
         DstGenJournalBatch := SrcGenJournalBatch;
-        DstGenJournalBatch.Name := TempBatchNameTxt;
+        DstGenJournalBatch.Name := NewTempBatchName();
+        DstGenJournalBatch.Description := GetSessionId();
         DstGenJournalBatch.Insert();
+        exit(DstGenJournalBatch.Name);
+    end;
+
+    local procedure FindTempBatch(var GenJournalBatch: Record "Gen. Journal Batch"): Boolean;
+    begin
+        GenJournalBatch.SetFilter(Name, StrSubstNo(TwoPlaceHoldersTok, TempBatchNameTxt, '*'));
+        exit(GenJournalBatch.FindLast());
+    end;
+
+    local procedure GetSessionId(): Text[100];
+    begin
+        exit(StrSubstNo(ServiceSessionTok, ServiceInstanceId(), SessionId()));
+    end;
+
+    local procedure GetTempBatchName(): Code[10];
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        GenJournalBatch.SetRange(Description, GetSessionId());
+        if FindTempBatch(GenJournalBatch) then
+            exit(GenJournalBatch.Name);
+    end;
+
+    local procedure NewTempBatchName() Name: Code[10];
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if FindTempBatch(GenJournalBatch) then
+            Name := GenJournalBatch.Name
+        else
+            Name := StrSubstNo(TwoPlaceHoldersTok, TempBatchNameTxt, '000');
+        exit(IncStr(Name));
     end;
 
     local procedure CreateDimBalGenJnlLines(var SrcGenJournalLine: Record "Gen. Journal Line");
@@ -1684,10 +1718,13 @@
         GenJournalLine: Record "Gen. Journal Line";
         DimBalGLEntry: Record "G/L Entry";
         TempInteger: Record Integer temporary;
+        TempBatchName: Code[10];
         LineNo: Integer;
     begin
+        TempBatchName := GetTempBatchName();
         if SrcGenJournalLine.FindSet() then
             repeat
+                DimBalGLEntry.Reset();
                 DimBalGLEntry.SetRange("G/L Account No.", SrcGenJournalLine."Account No.");
                 DimBalGLEntry.SetRange("Posting Date", 0D, SrcGenJournalLine."Posting Date");
                 SetGLEntryDimensionFilters(DimBalGLEntry, SrcGenJournalLine);
@@ -1704,7 +1741,7 @@
                         DimBalGLEntry.CalcSums(Amount);
                         if DimBalGLEntry.Amount <> 0 then begin
                             GenJournalLine := SrcGenJournalLine;
-                            GenJournalLine."Journal Batch Name" := TempBatchNameTxt;
+                            GenJournalLine."Journal Batch Name" := TempBatchName;
                             GenJournalLine."Line No." := LineNo;
                             GenJournalLine.Validate("Dimension Set ID", TempInteger.Number);
                             GenJournalLine.Validate(Amount, -DimBalGLEntry.Amount);
@@ -1767,13 +1804,14 @@
             until SrcGenJnlAllocation.Next() = 0;
     end;
 
-    local procedure DeleteDimBalBatch(var SrcGenJournalLine: Record "Gen. Journal Line")
+    local procedure DeleteDimBalBatch(var SrcGenJournalLine: Record "Gen. Journal Line"; Posted: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if GenJournalBatch.Get(GenJnlTemplate.Name, TempBatchNameTxt) then begin
+        if GenJournalBatch.Get(GenJnlTemplate.Name, GetTempBatchName()) then begin
             GenJournalBatch.Delete(true);
-            SrcGenJournalLine := SavedGenJournalLine;
+            if Posted then
+                SrcGenJournalLine := SavedGenJournalLine;
         end;
     end;
 

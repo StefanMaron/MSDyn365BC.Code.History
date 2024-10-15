@@ -188,14 +188,14 @@ table 5065 "Interaction Log Entry"
         }
         field(39; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(40; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact Company No."),
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact Company No."),
                                                      Type = CONST(Company)));
             Caption = 'Contact Company Name';
             Editable = false;
@@ -203,7 +203,7 @@ table 5065 "Interaction Log Entry"
         }
         field(43; Comment; Boolean)
         {
-            CalcFormula = Exist ("Inter. Log Entry Comment Line" WHERE("Entry No." = FIELD("Entry No.")));
+            CalcFormula = Exist("Inter. Log Entry Comment Line" WHERE("Entry No." = FIELD("Entry No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -323,6 +323,8 @@ table 5065 "Interaction Log Entry"
         Text009: Label 'Do you want to remove Attachment?';
         Text010: Label 'Do you want to remove unique Attachments for the selected lines?';
         Text011: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
+        TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
+        TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
 
     procedure AssignNewOpportunity()
     var
@@ -414,7 +416,7 @@ table 5065 "Interaction Log Entry"
         TempTask.CreateTaskFromInteractLogEntry(Rec)
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Scope('OnPrem')]
     procedure OpenAttachment()
     var
         Attachment: Record Attachment;
@@ -483,7 +485,7 @@ table 5065 "Interaction Log Entry"
                 if Find('-') then
                     repeat
                         SetCanceledCheckmark(MasterCanceledCheckmark, RemoveUniqueAttachment);
-                    until Next = 0
+                    until Next() = 0
             end;
         end
     end;
@@ -560,7 +562,7 @@ table 5065 "Interaction Log Entry"
         if Find('-') then
             repeat
                 IsUnique := UniqueAttachment;
-            until (Next = 0) or IsUnique
+            until (Next() = 0) or IsUnique
     end;
 
     procedure ShowDocument()
@@ -764,7 +766,7 @@ table 5065 "Interaction Log Entry"
                 repeat
                     Evaluation := Selected;
                     Modify;
-                until Next = 0
+                until Next() = 0
         end;
     end;
 
@@ -794,6 +796,30 @@ table 5065 "Interaction Log Entry"
             TempSegLine.SetRange("Opportunity No.", TempSegLine."Opportunity No.");
 
         TempSegLine.StartWizard;
+    end;
+
+    procedure GetEntryTitle() EntryTitle: Text
+    var
+        InteractionTemplate: Record "Interaction Template";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        User: Record User;
+    begin
+        if InteractionTemplate.Get("Interaction Template Code") then begin
+            EntryTitle := InteractionTemplate.Description;
+            case InteractionTemplate."Information Flow" of
+                InteractionTemplate."Information Flow"::Outbound:
+                    if ("Salesperson Code" <> '') and SalespersonPurchaser.Get("Salesperson Code") then
+                        EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, SalespersonPurchaser.Name)
+                    else
+                        if User.Get(UserSecurityId()) then
+                            EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, User."Full Name");
+                InteractionTemplate."Information Flow"::Inbound:
+                    begin
+                        CalcFields("Contact Name");
+                        EntryTitle := StrSubstNo(TitleFromLbl, InteractionTemplate.Description, "Contact Name");
+                    end;
+            end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -398,7 +398,7 @@ codeunit 141083 "ERM IC Purchase Details"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next = 0;

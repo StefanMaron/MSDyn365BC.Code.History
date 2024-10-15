@@ -158,9 +158,9 @@ report 28091 "Create Check Installments"
                             repeat
                                 AmtVAT := AmtVAT + ((PurchInvLine."Amount Including VAT" - PurchInvLine."VAT Base Amount") *
                                                     TempPostDatedCheck.Amount / Abs(VendorLedgerEntry.Amount));
-                            until PurchInvLine.Next = 0;
+                            until PurchInvLine.Next() = 0;
                         VATBaseAmt := (Abs(VendorLedgerEntry.Amount) - AmtVAT);
-                    until VendorLedgerEntry.Next = 0;
+                    until VendorLedgerEntry.Next() = 0;
             end;
     end;
 }

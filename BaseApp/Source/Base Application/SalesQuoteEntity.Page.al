@@ -8,6 +8,9 @@ page 5505 "Sales Quote Entity"
     ODataKeyFields = Id;
     PageType = API;
     SourceTable = "Sales Quote Entity Buffer";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

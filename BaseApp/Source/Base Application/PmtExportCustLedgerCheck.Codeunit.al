@@ -26,7 +26,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         CustLedgEntry2.Copy(CustLedgEntry);
         CustLedgEntry2.SetFilter("Document Type", '<>%1', CustLedgEntry2."Document Type"::Refund);
 
-        if not CustLedgEntry2.IsEmpty then
+        if not CustLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr,
               CustLedgEntry2.FieldCaption("Document Type"), CustLedgEntry2.TableCaption, CustLedgEntry2."Document Type"::Refund);
     end;
@@ -38,7 +38,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         CustLedgEntry2.Copy(CustLedgEntry);
         CustLedgEntry2.SetRange("Recipient Bank Account", '');
 
-        if not CustLedgEntry2.IsEmpty then
+        if not CustLedgEntry2.IsEmpty() then
             Error(RecipientBankAccMissingErr, CustLedgEntry2.FieldCaption("Recipient Bank Account"), CustLedgEntry2.TableCaption);
     end;
 
@@ -49,7 +49,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         CustLedgEntry2.Copy(CustLedgEntry);
         CustLedgEntry2.SetRange("Payment Method Code", '');
 
-        if not CustLedgEntry2.IsEmpty then
+        if not CustLedgEntry2.IsEmpty() then
             Error(MissingPmtMethodErr, CustLedgEntry2.FieldCaption("Payment Method Code"));
     end;
 
@@ -60,7 +60,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         CustLedgEntry2.Copy(CustLedgEntry);
         CustLedgEntry2.SetFilter("Bal. Account Type", '<>%1', CustLedgEntry2."Bal. Account Type"::"Bank Account");
 
-        if not CustLedgEntry2.IsEmpty then
+        if not CustLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, CustLedgEntry2.FieldCaption("Bal. Account Type"),
               CustLedgEntry2.TableCaption, CustLedgEntry2."Bal. Account Type"::"Bank Account");
     end;
@@ -73,7 +73,7 @@ codeunit 1213 "Pmt. Export Cust. Ledger Check"
         CustLedgEntry2.SetRange("Bal. Account Type", CustLedgEntry2."Bal. Account Type"::"Bank Account");
         CustLedgEntry2.SetFilter("Bal. Account No.", '<>%1', CustLedgEntry."Bal. Account No.");
 
-        if not CustLedgEntry2.IsEmpty then
+        if not CustLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, CustLedgEntry2.FieldCaption("Bal. Account No."),
               CustLedgEntry2.TableCaption, CustLedgEntry."Bal. Account No.");
     end;

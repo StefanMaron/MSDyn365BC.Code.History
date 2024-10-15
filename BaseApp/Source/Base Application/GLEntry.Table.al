@@ -338,6 +338,28 @@ table 17 "G/L Entry"
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
         }
+
+        field(495; "Last Dim. Correction Entry No."; Integer)
+        {
+            Caption = 'Last Dim. Correction Entry No.';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
+        field(496; "Last Dim. Correction Node"; Integer)
+        {
+            Caption = 'Last Dim. Correction Node';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
+        field(497; "Dimension Changes Count"; Integer)
+        {
+            Caption = 'Count of Dimension Changes';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
+
         field(5400; "Prod. Order No."; Code[20])
         {
             Caption = 'Prod. Order No.';
@@ -476,6 +498,9 @@ table 17 "G/L Entry"
         key(Key17; "Source Code", "Document No.", "Posting Date")
         {
         }
+        key(Key18; "Dimension Set ID")
+        {
+        }
     }
 
     fieldgroups
@@ -547,7 +572,7 @@ table 17 "G/L Entry"
                 TempValueEntry.Init();
                 TempValueEntry := ValueEntry;
                 TempValueEntry.Insert();
-            until GLItemLedgRelation.Next = 0;
+            until GLItemLedgRelation.Next() = 0;
 
         PAGE.RunModal(0, TempValueEntry);
     end;
