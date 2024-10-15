@@ -39,7 +39,7 @@ codeunit 143 "ECSL Report Validate"
     begin
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
         ECSLVATReportLine.SetRange("Customer VAT Reg. No.", '');
-        if ECSLVATReportLine.FindSet then
+        if ECSLVATReportLine.FindSet() then
             repeat
                 ErrorMessage.LogMessage(ECSLVATReportLine, ECSLVATReportLine.FieldNo("Customer VAT Reg. No."),
                   ErrorMessage."Message Type"::Error, StrSubstNo(NoVatRegNoErr, ECSLVATReportLine."Line No."));
@@ -53,7 +53,7 @@ codeunit 143 "ECSL Report Validate"
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
         ECSLVATReportLine.SetRange("Total Value Of Supplies", 0);
 
-        if ECSLVATReportLine.FindSet then
+        if ECSLVATReportLine.FindSet() then
             repeat
                 ErrorMessage.LogMessage(ECSLVATReportLine, ECSLVATReportLine.FieldNo("Total Value Of Supplies"),
                   ErrorMessage."Message Type"::Error, StrSubstNo(ZeroTotalValueErr, ECSLVATReportLine."Line No."));

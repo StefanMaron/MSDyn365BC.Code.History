@@ -95,11 +95,7 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         StreamWriter.Close;
 
         ReportChecksum.GenerateChecksum("Payment History", ServerTempFileName, ExportProtocolCode);
-#if not CLEAN17
-        FileMgt.DownloadToFile(ServerTempFileName, ExportFileName);
-#else
         FileMgt.DownloadHandler(ServerTempFileName, '', '', '', ExportFileName);
-#endif
 
         Clear(XMLDomDoc);
         FileMgt.DeleteServerFile(ServerTempFileName);
@@ -167,7 +163,7 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
               PaymentHistoryLine.Status::New,
               PaymentHistoryLine.Status::Transmitted,
               PaymentHistoryLine.Status::"Request for Cancellation");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (Date <> LastPaymentHistoryLine.Date) or ("Sequence Type" <> LastPaymentHistoryLine."Sequence Type") then begin
                         LastPaymentHistoryLine := PaymentHistoryLine;

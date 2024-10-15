@@ -73,14 +73,14 @@ table 11410 "Elec. Tax Declaration Line"
         if "Line No." = 0 then begin
             ElecTaxDeclarationLine.SetRange("Declaration Type", "Declaration Type");
             ElecTaxDeclarationLine.SetRange("Declaration No.", "Declaration No.");
-            if not ElecTaxDeclarationLine.FindLast then;
+            if not ElecTaxDeclarationLine.FindLast() then;
             "Line No." := ElecTaxDeclarationLine."Line No." + 10000;
         end;
 
         if "Indentation Level" > 0 then begin
             ElecTaxDeclarationLine.SetFilter("Line No.", '<%1', "Line No.");
             ElecTaxDeclarationLine.SetRange("Indentation Level", "Indentation Level" - 1);
-            ElecTaxDeclarationLine.FindLast;
+            ElecTaxDeclarationLine.FindLast();
             "Parent Line No." := ElecTaxDeclarationLine."Line No.";
         end else
             "Parent Line No." := 0;

@@ -40,12 +40,12 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
         ParentDataExchField.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
         // Need to sort unique on ParentDataExchField. To guarantee uniqueness, filter by a mandatory column no.
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         ParentDataExchField.SetRange(
           "Column No.",
           FindColumnNoOfPath(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, '/Document/BkToCstmrStmt/Stmt/Ntry/Amt'));
 
-        if not ParentDataExchField.FindSet then
+        if not ParentDataExchField.FindSet() then
             exit;
 
         // General filters
@@ -64,7 +64,7 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
 
             ChildDataExchField.SetFilter("Node ID", CopyStr(ParentDataExchField."Node ID", 1, 12) + '*');
             CurrentLineNo := -1;
-            if ChildDataExchField.FindSet then begin
+            if ChildDataExchField.FindSet() then begin
                 // Find all children
                 repeat
                     if CurrentLineNo <> ChildDataExchField."Line No." then begin
@@ -81,14 +81,14 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
                     ChildDataExchColumnDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
                     ChildDataExchColumnDef.SetRange("Data Exch. Line Def Code", TempChildDataExchField."Data Exch. Line Def Code");
 
-                    if ChildDataExchColumnDef.FindSet then
+                    if ChildDataExchColumnDef.FindSet() then
                         repeat
                             // For each column def of the child
                             ParentDataExchColumnDef.SetRange(Path, ChildDataExchColumnDef.Path);
-                            if ParentDataExchColumnDef.FindFirst then begin
+                            if ParentDataExchColumnDef.FindFirst() then begin
                                 ParentLookupDataExchField.SetRange("Column No.", ParentDataExchColumnDef."Column No.");
                                 // If the parent has the same attribute then inherit it to the child
-                                if ParentLookupDataExchField.FindFirst then
+                                if ParentLookupDataExchField.FindFirst() then
                                     CopyParentFieldToChild(
                                       ParentLookupDataExchField, TempChildDataExchField, ChildDataExchColumnDef."Column No.");
                             end;
@@ -113,7 +113,7 @@ codeunit 11408 "Imp. Bank Trans. Data Updates"
         OldLineNo := 0;
         NewLineNo := 0;
         DataExchField.SetRange("Data Exch. No.", DataExchNo);
-        if DataExchField.FindSet then
+        if DataExchField.FindSet() then
             repeat
                 if DataExchField."Line No." <> OldLineNo then begin
                     NewLineNo += 1;

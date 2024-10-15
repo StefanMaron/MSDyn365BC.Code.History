@@ -137,7 +137,7 @@ codeunit 144050 "UT TAB EVAT"
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
     begin
         // Setup: Create Electronic Tax Delcaration Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationSetup(ElecTaxDeclarationSetup, VATContactType);
 
         // Exercise.
@@ -157,7 +157,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of this test is to validate Agent Contact Type Agent and Part of Fiscal Entity function for Electronic Tax Declaration Setup Table.
 
         // Setup: Create Electronic Tax Delcaration Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationSetup(ElecTaxDeclarationSetup, ElecTaxDeclarationSetup."VAT Contact Type"::Agent);
         ElecTaxDeclarationSetup."Agent Contact ID" := LibraryUTUtility.GetNewCode10;
         ElecTaxDeclarationSetup."Part of Fiscal Entity" := false;
@@ -178,7 +178,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of the test is to validate Category on Table 11411(Elec. Tax Decl. VAT Category) with "By Us (Domestic)".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ElecTaxDeclVATCategory.Validate(Category, ElecTaxDeclVATCategory.Category::"5. Calculation");
@@ -196,7 +196,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of the test is to validate Category on Table 11411(Elec. Tax Decl. VAT Category) with "To Us (Domestic)".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ElecTaxDeclVATCategory.Validate(Category, ElecTaxDeclVATCategory.Category::"1. By Us (Domestic)");
@@ -214,7 +214,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of the test is to validate Category on Table 11411(Elec. Tax Decl. VAT Category) with "By Us (Foreign)".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ElecTaxDeclVATCategory.Validate(Category, ElecTaxDeclVATCategory.Category::"2. To Us (Domestic)");
@@ -232,7 +232,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of the test is to validate Category on Table 11411(Elec. Tax Decl. VAT Category) with "To Us (Foreign)".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ElecTaxDeclVATCategory.Validate(Category, ElecTaxDeclVATCategory.Category::"3. By Us (Foreign)");
@@ -250,7 +250,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of the test is to validate Category on Table 11411(Elec. Tax Decl. VAT Category) with Calculation.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         ElecTaxDeclVATCategory.Validate(Category, ElecTaxDeclVATCategory.Category::"4. To Us (Foreign)");
@@ -269,7 +269,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is set to blank and
         // Verify error "Category must be equal to '1. By Us (Domestic)'  in Elec. Tax Decl. VAT Category: Code=. Current value is ' '".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & verify.
         ElectronicTaxDeclarationVATCategoryError(
@@ -287,7 +287,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "To Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is set to blank and
         // Verify error "Category must be equal to '2. To Us (Domestic)'  in Elec. Tax Decl. VAT Category: Code=. Current value is ' '".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & verify.
         ElectronicTaxDeclarationVATCategoryError(
@@ -305,7 +305,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Foreign)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is set to blank and
         // Verify error "Category must be equal to '3. By Us (Foreign)'  in Elec. Tax Decl. VAT Category: Code=. Current value is ' '".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & verify.
         ElectronicTaxDeclarationVATCategoryError(
@@ -323,7 +323,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "To Us (Foreign)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is set to blank and
         // Verify error "Category must be equal to '4. To Us (Foreign)'  in Elec. Tax Decl. VAT Category: Code=. Current value is ' '".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & verify.
         ElectronicTaxDeclarationVATCategoryError(
@@ -341,7 +341,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate Calculation on Table 11411(Elec. Tax Decl. VAT Category) when Category is set to blank and
         // Verify "Category must be equal to '5. Calculation'  in Elec. Tax Decl. VAT Category: Code=. Current value is ' '".
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise & verify.
         ElectronicTaxDeclarationVATCategoryError(
@@ -359,7 +359,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is not equal to blank and
         // Verify error "Elec. Tax Decl. VAT Category 1A-1 already uses this category and subcategory.".
         // Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationVATCategory(
           ElecTaxDeclVATCategory.Category::"1. By Us (Domestic)", ElecTaxDeclVATCategory.FieldNo("By Us (Domestic)"),
           ElecTaxDeclVATCategory."By Us (Domestic)"::"1a. Sales Amount (High Rate)");
@@ -380,7 +380,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is not equal to blank and
         // Verify error "Elec. Tax Decl. VAT Category 2A-1 already uses this category and subcategory.".
         // Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationVATCategory(ElecTaxDeclVATCategory.Category::"2. To Us (Domestic)",
           ElecTaxDeclVATCategory.FieldNo("To Us (Domestic)"),
           ElecTaxDeclVATCategory."To Us (Domestic)"::"2a. Sales Amount (Tax Withheld)");
@@ -401,7 +401,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is not equal to blank and
         // Verify error "Elec. Tax Decl. VAT Category 3A already uses this category and subcategory.".
         // Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationVATCategory(
           ElecTaxDeclVATCategory.Category::"3. By Us (Foreign)", ElecTaxDeclVATCategory.FieldNo("By Us (Foreign)"),
           ElecTaxDeclVATCategory."By Us (Foreign)"::"3a. Sales Amount (Non-EU)");
@@ -422,7 +422,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is not equal to blank and
         // Verify error "Elec. Tax Decl. VAT Category 4A-1 already uses this category and subcategory.".
         // Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationVATCategory(
           ElecTaxDeclVATCategory.Category::"4. To Us (Foreign)", ElecTaxDeclVATCategory.FieldNo("To Us (Foreign)"),
           ElecTaxDeclVATCategory."To Us (Foreign)"::"4a. Purchase Amount (Non-EU)");
@@ -443,7 +443,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate "By Us (Domestic)" on Table 11411(Elec. Tax Decl. VAT Category) when Category is not equal to blank and
         // Verify error "Elec. Tax Decl. VAT Category 5A already uses this category and subcategory.".
         // Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationVATCategory(
           ElecTaxDeclVATCategory.Category::"4. To Us (Foreign)", ElecTaxDeclVATCategory.FieldNo("To Us (Foreign)"),
           ElecTaxDeclVATCategory."To Us (Foreign)"::"4a. Purchase Amount (Non-EU)");
@@ -528,7 +528,7 @@ codeunit 144050 "UT TAB EVAT"
         ElecTaxDeclVATCategory: Record "Elec. Tax Decl. VAT Category";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror ElecTaxDeclVATCategory.GetCategoryCode(Category, LibraryRandom.RandInt(5));  // Taken random value for Sub Category.
@@ -547,7 +547,7 @@ codeunit 144050 "UT TAB EVAT"
         // Purpose of the test is to validate error "Elec. Tax Decl. VAT Category cannot be deleted; one or more VAT statement lines refer to it" on Delete trigger for Table 11411(Elec. Tax Decl. VAT Category).
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateElectronicTaxDeclarationVATCategory(
           ElecTaxDeclVATCategory.Category::"4. To Us (Foreign)", ElecTaxDeclVATCategory.FieldNo("To Us (Foreign)"),
           ElecTaxDeclVATCategory."To Us (Foreign)"::"4a. Purchase Amount (Non-EU)");
@@ -638,7 +638,7 @@ codeunit 144050 "UT TAB EVAT"
         FieldRef: FieldRef;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         RecRef.GetTable(CompanyInformation);
         FieldRef := RecRef.Field(FieldNo);

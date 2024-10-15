@@ -27,7 +27,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     begin
         // [FEATURE] [Invoice] [Document Amount] [UI]
         // [SCENARIO] Total DocAmount fields are enabled on Invoice page if "Check Doc. Total Amounts" is on.
-        Initialize;
+        Initialize();
         // [GIVEN] "Check Doc. Total Amounts" is 'Yes'
         EnableDocTotalAmounts;
         // [GIVEN] Create Purchase Invoice.
@@ -53,7 +53,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     begin
         // [FEATURE] [Invoice] [Statistics] [UI]
         // [SCENARIO] validate Statisitc - OnAction trigger of Page ID - 51 Purchase Invoice.
-        Initialize;
+        Initialize();
         // [GIVEN] Create Purchase Invoice. Transaction Model is Autocommit, because it is explicitly called on Statisitc - OnAction trigger of Page Purchase Invoice.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);  // Required inside PurchaseStatisticsPageHandler.
@@ -76,7 +76,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     begin
         // [FEATURE] [Invoice] [Move Negative Lines] [UI]
         // [SCENARIO] validate Move Negative Purchase Lines - OnAction trigger of Page ID - 51 Purchase Invoice.
-        Initialize;
+        Initialize();
         // [GIVEN] Create Purchase Invoice.
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.Quantity := -LibraryRandom.RandDec(10, 2);  // Negative Quantity required.
@@ -90,7 +90,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         // [THEN] Verify Purchase Credit Memo with positive line is created.
         PurchaseLine2.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine2.SetRange("No.", PurchaseLine."No.");
-        PurchaseLine2.FindFirst;
+        PurchaseLine2.FindFirst();
         PurchaseLine2.TestField(Quantity, -PurchaseLine.Quantity);
         PurchaseInvoice.Close;
     end;
@@ -105,7 +105,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     begin
         // [FEATURE] [Credit Memo] [Document Amount] [UI]
         // [SCENARIO] Total DocAmount fields are enabled on Credit memo page if "Check Doc. Total Amounts" is on.
-        Initialize;
+        Initialize();
         // [GIVEN] "Check Doc. Total Amounts" is 'Yes'
         EnableDocTotalAmounts;
         // [GIVEN] Create Purchase Credit Memo.
@@ -123,7 +123,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT PAG EASINPPINV");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
     end;
 

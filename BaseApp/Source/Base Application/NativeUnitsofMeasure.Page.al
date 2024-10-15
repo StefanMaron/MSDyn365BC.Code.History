@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2860 "Native - Units of Measure"
 {
     Caption = 'nativeInvoicingUnitsOfMeasure', Locked = true;
@@ -107,4 +108,4 @@ page 2860 "Native - Units of Measure"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

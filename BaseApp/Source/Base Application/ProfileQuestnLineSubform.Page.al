@@ -78,7 +78,7 @@ page 5169 "Profile Questn. Line Subform"
 
     local procedure ClearSettings()
     begin
-        if TempProfileQuestionnaireLine.FindFirst then
+        if TempProfileQuestionnaireLine.FindFirst() then
             TempProfileQuestionnaireLine.DeleteAll();
     end;
 }

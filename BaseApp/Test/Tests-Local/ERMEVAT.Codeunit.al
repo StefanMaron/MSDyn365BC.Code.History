@@ -81,7 +81,7 @@ codeunit 144051 "ERM EVAT"
         // Verify Total VAT Amount when Round To Whole Numbers is true on VAT Statement report.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         RowNo := CreateElecVATDeclAndRunVATStatementReport(true, true);  // True for 'Round To Whole Amount' on VAT Statement report and Print on VAT Statement Line.
 
         // Verify: Verify Total VAT Amount on VAT Statement report.
@@ -99,7 +99,7 @@ codeunit 144051 "ERM EVAT"
         // Verify Total VAT Amount when Round To Whole Numbers is False on VAT Statement report.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         RowNo := CreateElecVATDeclAndRunVATStatementReport(false, true);  // False for 'Round To Whole Amount' on VAT Statement report and True for Print on VAT Statement Line.
 
         // Verify: Verify Total VAT Amount on VAT Statement report.
@@ -117,7 +117,7 @@ codeunit 144051 "ERM EVAT"
         // Verify Row does not exist on VAT Statement report when Print is false on VAT Statement Line.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         RowNo := CreateElecVATDeclAndRunVATStatementReport(true, false);  // True for 'Round To Whole Amount' on VAT Statement report and false for Print on VAT Statement Line.
 
         // Verify: Verify Row does not exist on VAT Statement report.
@@ -155,8 +155,8 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Setup: Create and Post General Journal Line. Create and modify Elec. Tax Declaration Header and VAT Statement Line.
-        Initialize;
-        VATStatementName.FindFirst;
+        Initialize();
+        VATStatementName.FindFirst();
         CreateAndPostGeneralJnlLine(GenJournalLine, GenJournalLine."Document Type"::" ", '<-3M>');
         CreateAndModifyVATStatementLineWithAccountTotaling(
           VATStatementName, LibraryUtility.GenerateGUID, VATStatementLine.Type::"Account Totaling",
@@ -201,7 +201,7 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         InitializeElecTaxDeclSetup(true, false);
         CreateReverseChargeSalesInvoiceVATEntry(VATEntry, false, false);
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"ICP Declaration");
@@ -229,7 +229,7 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Setup & Exercise: Create ICP declaration and remove required elements to trigger error
-        Initialize;
+        Initialize();
         InitializeElecTaxDeclSetup(true, false);
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"ICP Declaration");
         ElecTaxDeclLine.SetRange("Declaration Type", ElecTaxDeclHeader."Declaration Type"::"ICP Declaration");
@@ -281,10 +281,10 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Enqueue for CreateElecVATDeclarationRequestPageHandler.
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
 
@@ -330,10 +330,10 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Enqueue for CreateElecVATDeclarationRequestPageHandler.
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
 
@@ -362,10 +362,10 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Enqueue for CreateElecVATDeclarationRequestPageHandler.
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
 
@@ -393,23 +393,23 @@ codeunit 144051 "ERM EVAT"
         NextNo: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Enqueue for CreateElecVATDeclarationRequestPageHandler.
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
 
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
         ElecTaxDeclHeader.Get(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration", No);
         ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Submitted;
-        ElecTaxDeclHeader."Message ID" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclHeader."Message ID" := LibraryUtility.GenerateGUID();
         ElecTaxDeclHeader.Modify();
 
         // Insert dummy response message into response table
         ElecTaxDeclRespMsg.Reset();
         ElecTaxDeclRespMsg."No." := 0;
-        if not ElecTaxDeclRespMsg.FindLast then;
+        if not ElecTaxDeclRespMsg.FindLast() then;
         NextNo := ElecTaxDeclRespMsg."No." + 1;
 
         CreateResponseMessage(NextNo, '105', 'Aanleverproces gestart', ElecTaxDeclHeader);
@@ -443,23 +443,23 @@ codeunit 144051 "ERM EVAT"
         XmlFile: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Enqueue for CreateElecVATDeclarationRequestPageHandler.
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
 
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
         ElecTaxDeclHeader.Get(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration", No);
         ElecTaxDeclHeader.Status := ElecTaxDeclHeader.Status::Submitted;
-        ElecTaxDeclHeader."Message ID" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclHeader."Message ID" := LibraryUtility.GenerateGUID();
         ElecTaxDeclHeader.Modify();
 
         // Insert dummy response message into response table
         ElecTaxDeclRespMsg.Reset();
         ElecTaxDeclRespMsg."No." := 0;
-        if not ElecTaxDeclRespMsg.FindLast then;
+        if not ElecTaxDeclRespMsg.FindLast() then;
         NextNo := ElecTaxDeclRespMsg."No." + 1;
 
         CreateResponseMessage(NextNo, '105', 'Aanleverproces gestart', ElecTaxDeclHeader);
@@ -500,7 +500,7 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Purpose: Verify an error is shown if no certificate name is supplied during setup
-        Initialize;
+        Initialize();
 
         // Setup
         ElecTaxDeclSetup.Get();
@@ -508,7 +508,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclSetup."Digipoort Service Cert. Name" := 'abcde';
         ElecTaxDeclSetup.Modify();
 
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
@@ -535,7 +535,7 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // Purpose: Verify an error is shown if no certificate name is supplied during setup
-        Initialize;
+        Initialize();
 
         // Setup
         ElecTaxDeclSetup.Get();
@@ -543,7 +543,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclSetup."Digipoort Service Cert. Name" := 'qwerty';
         ElecTaxDeclSetup.Modify();
 
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
@@ -571,14 +571,14 @@ codeunit 144051 "ERM EVAT"
         // [SCENARIO] Verify XBLR document content for Tax Declaration with type "VAT Declaration"
         // [SCENARIO 261086] The attribute "xmlns:bd-ob" does not exist in XBLR document for Tax Declaration with type "VAT Declaration"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Electronic Tax Declaration with type = "VAT Declaration"
         InitializeElecTaxDeclSetup(false, false);
         // TFS ID 398781: Stan can submit electronic tax declaration with the "Use Certificate Setup" option enabled
         EnableUseCertificateSetupOption();
 
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
@@ -603,11 +603,11 @@ codeunit 144051 "ERM EVAT"
         TempFile: Text;
     begin
         // Purpose: Verify XBLR document content
-        Initialize;
+        Initialize();
 
         // Setup
         InitializeElecTaxDeclSetup(true, false);
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
@@ -629,7 +629,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
     begin
         // Purpose: Verify an error is shown if the agent information is not filled out correctly.
-        Initialize;
+        Initialize();
 
         // Setup
         InitializeElecTaxDeclSetup(true, false);
@@ -637,7 +637,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclarationSetup."Agent Contact Address" := '';
         ElecTaxDeclarationSetup.Modify();
 
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
         LibraryVariableStorage.Enqueue(VATStatementName.Name);
         asserterror CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
@@ -657,7 +657,7 @@ codeunit 144051 "ERM EVAT"
         TempFile: Text;
     begin
         // Purpose: Verify XBLR document content
-        Initialize;
+        Initialize();
 
         // Setup
         InitializeElecTaxDeclSetup(false, false);
@@ -707,7 +707,7 @@ codeunit 144051 "ERM EVAT"
         // Verify Electronic Tax ICP Declaration does not show line for Amount Zero and its parent and sibling elements.
 
         // Setup: Create a Reverse Charge Sales Invoice VAT Entry with base amount greater than 0 and less than 1.
-        Initialize;
+        Initialize();
         CreateSalesInvoiceVATEntry;
 
         // Exercise: Create Electronic Tax ICP Declaration.
@@ -736,7 +736,7 @@ codeunit 144051 "ERM EVAT"
         SubmitReport.PreviewOnly(TempFile);
         SubmitReport.UseRequestPage := false;
         SubmitReport.SetTableView(ElecTaxDeclheader);
-        SubmitReport.RunModal;
+        SubmitReport.RunModal();
     end;
 
     local procedure VerifyVATXBLRDocContent(var ElecTaxDeclHeader: Record "Elec. Tax Declaration Header"; Filename: Text)
@@ -909,7 +909,7 @@ codeunit 144051 "ERM EVAT"
         PatchedXML: Text;
     begin
         // Purpose is to produce an error in the associated Digipoort DLL to verify its existence (and test the xml patch up).
-        Initialize;
+        Initialize();
 
         PatchedXML := Digpoort.PatchUpTruncatedXML('<xml><roo');
         Assert.AreEqual('<vroot><xml></xml></vroot>', PatchedXML, ValuesMustBeEqual);
@@ -936,7 +936,7 @@ codeunit 144051 "ERM EVAT"
         No: Code[20];
     begin
         // [SCENARIO 271082] When Country/Region record has nonempty "EU Country/Region Code", bd-i:CountryCodeISO-EC and bd-i:VATIdentificationNumberNational values are set according to EU Country Code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Country/Region record with "EU Country/Region Code" = "EL", it is different from Code = "GR".
         // [GIVEN] VAT Entry with "Country/Region Code" = "GR", "VAT Registration No." = "EL1234567". Posting Date must be less than TODAY.
@@ -947,7 +947,7 @@ codeunit 144051 "ERM EVAT"
         MockVATEntry(
           VATEntry, VATEntry."Document Type"::Invoice, VATEntry."VAT Calculation Type"::"Reverse Charge VAT",
           VATEntry.Type::Sale, -LibraryRandom.RandDec(100, 2), 0, CalcDate('<-3M>', Today), CountryRegion.Code,
-          CountryRegion."EU Country/Region Code" + LibraryUtility.GenerateGUID);
+          CountryRegion."EU Country/Region Code" + LibraryUtility.GenerateGUID());
 
         // [WHEN] Create Electronic Tax Declaration
         No := CreateElectronicTaxDeclaration(ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
@@ -974,18 +974,18 @@ codeunit 144051 "ERM EVAT"
         // [FEATURE] [UT]
         // [SCENARIO 354933] Stan can run the "Submit Elec. Tax Declaration" report with option "Use Certificate Setup" disabled
 
-        Initialize;
+        Initialize();
         LibraryPermissions.SetTestabilitySoftwareAsAService(true);
-        ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.Get();
         ElecTaxDeclarationSetup.Validate("Client Certificate Code", MockIsolatedCertificate);
         ElecTaxDeclarationSetup.Validate("Service Certificate Code", MockIsolatedCertificate);
         ElecTaxDeclarationSetup.Validate("Use Certificate Setup", true);
-        ElecTaxDeclarationSetup.Validate("Digipoort Delivery URL", LibraryUtility.GenerateGUID);
-        ElecTaxDeclarationSetup.Validate("Digipoort Status URL", LibraryUtility.GenerateGUID);
+        ElecTaxDeclarationSetup.Validate("Digipoort Delivery URL", LibraryUtility.GenerateGUID());
+        ElecTaxDeclarationSetup.Validate("Digipoort Status URL", LibraryUtility.GenerateGUID());
         ElecTaxDeclarationSetup.Modify(true);
         Commit;
         // We do not actually run the report but only check the OnInitReport trigger, then cancel the report by CancelSubmitElecTaxDeclarationReportRequestPageHandler
-        SubmitElecTaxDeclaration.Run;
+        SubmitElecTaxDeclaration.Run();
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1318,8 +1318,8 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclHeader: Record "Elec. Tax Declaration Header";
     begin
         // Setup: Create VAT Statement Line, create and post Gen. Journal Line, create Electronic Tax Declaration.
-        RowNo := LibraryUtility.GenerateGUID;
-        VATStatementName.FindFirst;
+        RowNo := LibraryUtility.GenerateGUID();
+        VATStatementName.FindFirst();
         CreateAndPostGeneralJnlLine(GenJournalLine, GenJournalLine."Document Type"::" ", '<-3M>');
         CreateAndModifyVATStatementLine(
           VATStatementName, GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group",
@@ -1371,7 +1371,7 @@ codeunit 144051 "ERM EVAT"
         NextEntryNo := 0;
         with VATEntry do begin
             Reset;
-            if FindLast then
+            if FindLast() then
                 NextEntryNo := "Entry No.";
             NextEntryNo += 1;
 
@@ -1539,7 +1539,7 @@ codeunit 144051 "ERM EVAT"
     begin
         ElecTaxDeclarationLine.SetRange("Declaration No.", DeclarationNo);
         ElecTaxDeclarationLine.SetRange(Name, Name);
-        ElecTaxDeclarationLine.FindFirst;
+        ElecTaxDeclarationLine.FindFirst();
         ElecTaxDeclarationLine.TestField(Data, Data);
     end;
 
@@ -1555,7 +1555,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclLine2: Record "Elec. Tax Declaration Line";
     begin
         ElecTaxDeclLine.SetRange(Name, 'bd-ob-tuple:IntraCommunitySupplies');
-        if ElecTaxDeclLine.FindSet then
+        if ElecTaxDeclLine.FindSet() then
             repeat
                 ElecTaxDeclLine2.CopyFilters(ElecTaxDeclLine);
                 ElecTaxDeclLine2.SetRange(Name);
@@ -1570,7 +1570,7 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclLine2: Record "Elec. Tax Declaration Line";
     begin
         ElecTaxDeclLine.SetRange(Name, ElementName);
-        if ElecTaxDeclLine.FindSet then
+        if ElecTaxDeclLine.FindSet() then
             repeat
                 ElecTaxDeclLine2.Get(
                   ElecTaxDeclLine."Declaration Type", ElecTaxDeclLine."Declaration No.", ElecTaxDeclLine."Parent Line No.");

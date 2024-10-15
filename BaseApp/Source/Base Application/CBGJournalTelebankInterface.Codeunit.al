@@ -45,7 +45,7 @@ codeunit 11000002 "CBG Journal Telebank Interface"
                     CBGStatementLine.SetRange("Journal Template Name", "Journal Template Name");
                     CBGStatementLine.SetRange("No.", "No.");
                     repeat
-                        if CBGStatementLine.FindLast then
+                        if CBGStatementLine.FindLast() then
                             CBGStatementLine."Line No." := CBGStatementLine."Line No." + 10000
                         else begin
                             CBGStatementLine."Line No." := 10000;

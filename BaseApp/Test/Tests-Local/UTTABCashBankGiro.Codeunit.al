@@ -48,7 +48,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         // Purpose of this test to verify Journal Template Name without Balance Account No in CBG Statement table.
 
         // Setup: Create Journal Template.
-        Initialize;
+        Initialize();
         CBGStatement."Journal Template Name" := CreateJournalTemplate('');
 
         // Exercise.
@@ -88,7 +88,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Setup: Create CBG Statement.
-        Initialize;
+        Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, Type, CBGStatementLine."Account Type"::Customer,
           CreateCustomerLedgerEntry, CreateCurrency);
@@ -128,7 +128,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Setup: Create CBG Statement.
-        Initialize;
+        Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, Type, CBGStatementLine."Account Type"::Customer,
           CreateCustomerLedgerEntry, '');
@@ -168,7 +168,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Create CBG Statement.
-        Initialize;
+        Initialize();
         CreateCBGStatement(CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", AccountType, '', '');
 
         // Exercise.
@@ -186,7 +186,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Purpose of this test to validate Applies To ID  in when creating two statement line in CBG Statement Line table.
-        Initialize;
+        Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro",
           CBGStatementLine."Account Type"::Customer, CreateCustomerLedgerEntry, '');
@@ -207,7 +207,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Purpose of this test to validate Identification with different currency in CBG Statement Line table and Payment History Line table.
-        Initialize;
+        Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro",
           CBGStatementLine."Account Type"::Customer, CreateCustomerLedgerEntry, CreateCurrency);
@@ -231,7 +231,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Purpose of this test to Calculate VAT with VAT Posting Type and  VAT Bus Posting Group CBG Statement Line table.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer, '');
@@ -255,7 +255,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Purpose of this test to Calculate VAT with VAT Posting Type and VAT Prod. Posting Group CBG Statement Line table.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer, '');
@@ -279,7 +279,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Purpose of this test to Calculate VAT with VAT Bus Posting Group and VAT Prod. Posting Group CBG Statement Line table.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer, '');
@@ -302,7 +302,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Purpose of this test to Calculate VAT with VAT Calculation Type Full VAT for Sale in CBG Statement Line table.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT");
         VATOnCBGStatement(
           CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount, CBGStatementLine."VAT Type"::Sale,
@@ -318,7 +318,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Purpose of this test to Calculate VAT with VAT Calculation Type Full VAT for Purchase in CBG Statement Line table.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT");
         VATOnCBGStatement(
           CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount, CBGStatementLine."VAT Type"::Purchase,
@@ -354,7 +354,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Purpose of this test validate Calculate VAT with VAT Calculation Type Sales tax in CBG Statement Table.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Sales Tax");
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro",
@@ -375,7 +375,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT TAB Cash Bank Giro");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
     end;
@@ -465,7 +465,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CreateCustomer;

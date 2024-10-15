@@ -161,7 +161,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. Applied Entries for Customer with "Applied Amount" = "--" are hidden if Stan created Bank/Giro Journal lines from Payment History.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CBG Statement with linked CBG Statement Line. "CBG Statement Line".Identification = I1.
         MockCBGStatement(
@@ -185,7 +185,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry"),
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -207,7 +207,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. Applied Entries for Customer with "Applied Amount" = "--" are visible if Stan created Bank/Giro Journal lines manually.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CBG Statement with linked CBG Statement Line. "CBG Statement Line".Identification has no value.
         MockCBGStatement(
@@ -230,7 +230,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry"),
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -252,7 +252,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. Applied Entries for Vendor with "Applied Amount" = "--" are hidden if Stan created Bank/Giro Journal lines from Payment History.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CBG Statement with linked CBG Statement Line. "CBG Statement Line".Identification = I1.
         MockCBGStatement(
@@ -276,7 +276,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("External Document No."), DATABASE::"Vendor Ledger Entry"),
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -298,7 +298,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. Applied Entries for Vendor with "Applied Amount" = "--" are visible if Stan created Bank/Giro Journal lines manually.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CBG Statement with linked CBG Statement Line. "CBG Statement Line".Identification has no value.
         MockCBGStatement(
@@ -321,7 +321,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("External Document No."), DATABASE::"Vendor Ledger Entry"),
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -343,7 +343,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Employee]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. Applied Entries for Employee with "Applied Amount" = "--" are hidden if Stan created Bank/Giro Journal lines from Payment History.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CBG Statement with linked CBG Statement Line. "CBG Statement Line".Identification = I1.
         MockCBGStatement(
@@ -366,7 +366,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           true,
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -388,7 +388,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Employee]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. Applied Entries for Employee with "Applied Amount" = "--" are visible if Stan created Bank/Giro Journal lines manually.
-        Initialize;
+        Initialize();
 
         // [GIVEN] CBG Statement with linked CBG Statement Line. "CBG Statement Line".Identification has no value.
         MockCBGStatement(
@@ -410,7 +410,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           true,
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -434,7 +434,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. "Applied Amount" values for Applied Entries for Customer are shown with decimals when the decimals equal to zero.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank/Giro Journal line created from Payment History.
         MockCBGStatement(
@@ -463,7 +463,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry"),
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -487,7 +487,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. "Applied Amount" values for Applied Entries for Vendor are shown with decimals when the decimals equal to zero.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank/Giro Journal line created from Payment History.
         MockCBGStatement(
@@ -516,7 +516,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("External Document No."), DATABASE::"Vendor Ledger Entry"),
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -540,7 +540,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // [FEATURE] [Employee]
         // [SCENARIO 251022] Stan runs "CBG Posting - Test" report from Bank/Giro Journal. "Applied Amount" values for Applied Entries for Employee are shown with decimals when the decimals equal to zero.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank/Giro Journal line created from Payment History.
         MockCBGStatement(
@@ -568,7 +568,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           true,
           CBGStatementLine."Applies-to ID", WorkDate);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -585,7 +585,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Setup: Create CBG Statement, CBG StatementLine.
-        Initialize;
+        Initialize();
         MockCBGStatement(CBGStatement, Type, DocumentNo);
         MockCBGStatementLine(
           CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
@@ -708,7 +708,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure MockCBGStatement(var CBGStatement: Record "CBG Statement"; Type: Option; DocumentNo: Code[20])

@@ -470,7 +470,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         // Pre-setup.
         CreateBankAccWithBankStatementSetup(BankAccount, GenJournalTemplate, 'SEPA CAMT');
         CreateImportProtocol(ImportProtocol, BankAccount."No.", false);
-        UstrdFieldVal := LibraryUtility.GenerateGUID;
+        UstrdFieldVal := LibraryUtility.GenerateGUID();
 
         // Setup.
         CreateExpectedCBGStatement(TempCreditCBGStatementLine, TempCBGStatement, BankAccount);
@@ -712,13 +712,13 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CBGStatementLineAddInfo.Init();
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        SEPACAMTFileParameters.RelatedPartyName := LibraryUtility.GenerateGUID;
-        SEPACAMTFileParameters.RelatedPartyAddress := LibraryUtility.GenerateGUID;
-        SEPACAMTFileParameters.RelatedPartyCity := LibraryUtility.GenerateGUID;
+        SEPACAMTFileParameters.RelatedPartyName := LibraryUtility.GenerateGUID();
+        SEPACAMTFileParameters.RelatedPartyAddress := LibraryUtility.GenerateGUID();
+        SEPACAMTFileParameters.RelatedPartyCity := LibraryUtility.GenerateGUID();
         SEPACAMTFileParameters.RelatedPartyBankAccount := BankAccount."Bank Account No.";
         SEPACAMTFileParameters.AddtlNtryInfFieldValue :=
           PadStr(LibraryUtility.GenerateGUID, MaxStrLen(CBGStatementLineAddInfo.Description), '0');
-        SEPACAMTFileParameters.AddtlNtryInfFieldValue += LibraryUtility.GenerateGUID;
+        SEPACAMTFileParameters.AddtlNtryInfFieldValue += LibraryUtility.GenerateGUID();
 
         WriteCAMTFile(SEPACAMTFileParameters);
 
@@ -834,7 +834,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        SEPACAMTFileParameters.EndToEndIdFieldValue := LibraryUtility.GenerateGUID;
+        SEPACAMTFileParameters.EndToEndIdFieldValue := LibraryUtility.GenerateGUID();
         WriteCAMTFile(SEPACAMTFileParameters);
 
         // [WHEN] Import XML file.
@@ -875,7 +875,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
-        SEPACAMTFileParameters.EndToEndIdFieldValue := LibraryUtility.GenerateGUID;
+        SEPACAMTFileParameters.EndToEndIdFieldValue := LibraryUtility.GenerateGUID();
         WriteCAMTFile(SEPACAMTFileParameters);
 
         // [WHEN] Import XML file.
@@ -956,7 +956,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         Assert.RecordCount(BankAccReconciliationLine, 1);
 
         // [THEN] "Bank Acc. Reconciliation Line"."Statement Amount" = 10
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         BankAccReconciliationLine.TestField("Statement Amount", InstdAmt);
     end;
 
@@ -1243,7 +1243,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     begin
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
         LibraryCAMTFileMgt.WriteCAMTHeader(OutStream);
-        LibraryCAMTFileMgt.WriteCAMTStmtHeader(OutStream, '', LibraryUtility.GenerateGUID);
+        LibraryCAMTFileMgt.WriteCAMTStmtHeader(OutStream, '', LibraryUtility.GenerateGUID());
         InstdAmt := LibraryRandom.RandIntInRange(10, 100);
         LibraryCAMTFileMgt.WriteCAMTStmtLineWithInstdAmt(OutStream, WorkDate, 'StmtText', InstdAmt / 2, '', '', InstdAmt, '');
         LibraryCAMTFileMgt.WriteCAMTStmtFooter(OutStream);
@@ -1261,7 +1261,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         Iterator: Integer;
     begin
         for Iterator := 1 to Multiplier do
-            AddtlNtryInfFieldVal += LibraryUtility.GenerateGUID;
+            AddtlNtryInfFieldVal += LibraryUtility.GenerateGUID();
         exit(AddtlNtryInfFieldVal);
     end;
 
@@ -1306,7 +1306,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         Iterator: Integer;
     begin
         for Iterator := 1 to 10 do
-            UstrdFieldVal += LibraryUtility.GenerateGUID;
+            UstrdFieldVal += LibraryUtility.GenerateGUID();
         exit(UstrdFieldVal);
     end;
 
@@ -1436,7 +1436,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
             SetRange(Currency, ExpectedCBGStatement.Currency);
             Assert.AreEqual(ExpectedNumberOfOccurrences, Count, WrongNrOfCBGStatementLinesErr + GetFilters);
             if ExpectedNumberOfOccurrences > 0 then
-                FindFirst;
+                FindFirst();
         end;
     end;
 
@@ -1483,7 +1483,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         SetCBGStatementLineFilters(CBGStatement, CBGStatementLine, ExpectedCBGStatementLine, Multiplier);
 
         Assert.AreEqual(1, CBGStatementLine.Count, WrongNrOfCBGStatementLinesErr + CBGStatementLine.GetFilters);
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
 
         with CBGStatementLineAddInfo do begin
             SetRange("Journal Template Name", CBGStatement."Journal Template Name");
@@ -1516,7 +1516,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin
         SetCBGStatementLineFilters(CBGStatement, ActualCBGStatementLine, ExpectedCBGStatementLine, Multiplier);
-        if not ActualCBGStatementLine.FindFirst then
+        if not ActualCBGStatementLine.FindFirst() then
             Assert.Fail('Cannot find CBG Statement Line with filters ' + ActualCBGStatementLine.GetFilters);
 
         with CBGStatementLineAddInfo do begin
@@ -1524,7 +1524,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
             SetRange("CBG Statement No.", CBGStatement."No.");
             SetRange("CBG Statement Line No.", ActualCBGStatementLine."Line No.");
             SetRange("Information Type", "Information Type"::"Account No. Balancing Account");
-            if not FindFirst then
+            if not FindFirst() then
                 Assert.Fail(StrSubstNo('Unable to find additional info for the CBG Statement Line %1', ActualCBGStatementLine."No."));
             if ExpectIBAN then
                 Assert.AreEqual(BankAccount.IBAN, Description, 'Incorrect IBAN');
@@ -1791,7 +1791,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin
         CBGStatement.SetRange("Account No.", AccountNo);
-        CBGStatement.FindFirst;
+        CBGStatement.FindFirst();
         with CBGStatementLineAddInfo do begin
             SetRange("Journal Template Name", CBGStatement."Journal Template Name");
             SetRange("CBG Statement No.", CBGStatement."No.");
@@ -1812,7 +1812,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
     begin
         CBGStatement.SetRange("Account No.", AccountNo);
-        CBGStatement.FindFirst;
+        CBGStatement.FindFirst();
         CBGStatementLineAddInfo.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLineAddInfo.SetRange("CBG Statement No.", CBGStatement."No.");
         CBGStatementLineAddInfo.SetRange("Information Type", InformationType);

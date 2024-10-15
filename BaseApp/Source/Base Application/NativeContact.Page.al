@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2803 "Native - Contact"
 {
     Caption = 'Native - Contact';
@@ -59,7 +60,6 @@ page 2803 "Native - Contact"
     trigger OnAfterGetRecord()
     begin
         ClearCalculatedFields;
-        SetXrmID;
         SetCustomerID;
     end;
 
@@ -71,35 +71,11 @@ page 2803 "Native - Contact"
 
     var
         CustomerID: Guid;
-        CannotCreateCustomerErr: Label 'Cannot create a customer from the contact.';
-
-    local procedure SetXrmID()
-    var
-        GraphIntegrationRecord: Record "Graph Integration Record";
-        IntegrationRecord: Record "Integration Record";
-        GraphID: Text[250];
-    begin
-        if not GraphIntegrationRecord.FindIDFromRecordID(RecordId, GraphID) then
-            exit;
-
-        IntegrationRecord.SetRange("Record ID", RecordId);
-        if not IntegrationRecord.FindFirst then
-            exit;
-
-        if not GraphIntegrationRecord.Get(GraphID, IntegrationRecord."Integration ID") then
-            exit;
-
-        "Xrm Id" := GraphIntegrationRecord.XRMId;
-    end;
 
     local procedure SetCustomerID()
     var
         Customer: Record Customer;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
     begin
-        if not GraphIntContact.FindCustomerFromContact(Customer, Rec) then
-            exit;
-
         CustomerID := Customer.SystemId;
     end;
 
@@ -112,17 +88,13 @@ page 2803 "Native - Contact"
     local procedure SetFilterForGETStatement()
     var
         Contact: Record Contact;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
         xrmIDFilter: Text[250];
     begin
         xrmIDFilter := CopyStr(GetFilter("Xrm Id"), 1, MaxStrLen(xrmIDFilter));
         if xrmIDFilter = '' then
             exit;
 
-        if not GraphIntContact.FindContactFromGraphId(xrmIDFilter, Contact) then
-            SetFilter("No.", '<>*')
-        else
-            SetRange("No.", Contact."No.");
+        SetRange("No.", Contact."No.");
 
         SetRange("Xrm Id");
     end;
@@ -131,13 +103,9 @@ page 2803 "Native - Contact"
     procedure MakeCustomer(var ActionContext: DotNet WebServiceActionContext)
     var
         Customer: Record Customer;
-        GraphIntContact: Codeunit "Graph Int. - Contact";
     begin
         if not IsNullGuid(CustomerID) then
-            Customer.GetBySystemId(CustomerID)
-        else
-            if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Xrm Id", Customer, Rec) then
-                Error(CannotCreateCustomerErr);
+            Customer.GetBySystemId(CustomerID);
 
         SetActionResponse(ActionContext, Customer);
     end;
@@ -150,4 +118,4 @@ page 2803 "Native - Contact"
         ODataActionManagement.SetDeleteResponseLocation(ActionContext, PAGE::"Native - Customer Entity")
     end;
 }
-
+#endif

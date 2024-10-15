@@ -814,7 +814,7 @@ report 11400 "CBG Posting - Test"
                                             "CBG Statement".Type::"Bank/Giro":
                                                 EmployeeLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
                                         end;
-                                        Print := EmployeeLedgerEntry.FindFirst;
+                                        Print := EmployeeLedgerEntry.FindFirst();
                                     end;
                             end;
                         end;

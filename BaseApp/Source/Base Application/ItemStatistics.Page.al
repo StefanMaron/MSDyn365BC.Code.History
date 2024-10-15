@@ -225,7 +225,7 @@ page 5827 "Item Statistics"
                         RoundingFactor, PerUnit, IncludeExpected, ItemBuffer, Item, PeriodType, AmountType,
                         ColumnDimCode, DateFilter, ItemFilter, LocationFilter, VariantFilter);
                     MatrixForm.SetTableView(Rec);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Previous Set")

@@ -31,13 +31,13 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with VAT Registration No. and "External Document No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "VAT Registration No." = 'BE1234567890' and "External Document No." = "INV01" and text line
         Customer.Get(CreateCustomerWithAddressAndVATRegNo);
         SalesInvoiceHeader.Get(
           CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::Invoice));
-        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Modify();
         MockTextSalesInvoiceLine(SalesInvoiceHeader."No.");
 
@@ -72,7 +72,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with GLN where "External Document No." is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "GLN" = '1234567890123' and "External Document No." = blank
         Customer.Get(CreateCustomerWithAddressAndGLN);
@@ -106,7 +106,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice when Company Information has VAT Registration No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company has "VAT Registration No." = 'NO1234567890'
         UpdateCompanyVATRegNo;
@@ -143,7 +143,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice when Company Information has GLN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company has GLN = '1234567890123'
         UpdateCompanyGLN;
@@ -178,7 +178,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'S' - ordinary rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'S', VAT Percent = 10
         SalesInvoiceHeader.Get(
@@ -209,7 +209,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'E' - VAT Exempt
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'E'
         SalesInvoiceHeader.Get(
@@ -238,7 +238,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'O' - no VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'O', VAT Percent = 0
         SalesInvoiceHeader.Get(
@@ -270,7 +270,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'Z' - VAT Exempt for goods not included in the VAT regulations
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'Z'
         SalesInvoiceHeader.Get(
@@ -298,7 +298,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'AE' - Reverse charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'AE' and VAT% = 10
         SalesInvoiceHeader.Get(
@@ -328,7 +328,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'G' - Export outside EU
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'G'
         SalesInvoiceHeader.Get(
@@ -358,7 +358,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'L' // IGIC
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'L', VAT Percent = 7
         SalesInvoiceHeader.Get(
@@ -385,7 +385,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'M' // IPSI
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'M', VAT Percent = 4
         SalesInvoiceHeader.Get(
@@ -412,7 +412,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'K' - intra-community supply
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Tax Category 'K', VAT Percent = 0
         SalesInvoiceHeader.Get(
@@ -443,13 +443,13 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with VAT Registration No. and "External Document No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "VAT Registration No." = 'BE1234567890' and "External Document No." = "INV01" and text line
         Customer.Get(CreateCustomerWithAddressAndVATRegNo);
         SalesCrMemoHeader.Get(
           CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::"Credit Memo"));
-        SalesCrMemoHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."External Document No." := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader.Modify();
         MockTextSalesCrMemoLine(SalesCrMemoHeader."No.");
 
@@ -483,7 +483,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with GLN where "External Document No." is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "GLN" = '1234567890123' and "External Document No." = blank
         Customer.Get(CreateCustomerWithAddressAndGLN);
@@ -517,7 +517,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo when Company Information has VAT Registration No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company has "VAT Registration No." = 'NO1234567890'
         UpdateCompanyVATRegNo;
@@ -554,7 +554,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo when Company Information has GLN
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company has GLN = '1234567890123'
         UpdateCompanyGLN;
@@ -589,7 +589,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'S' - ordinary rate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'S', VAT Percent = 10
         SalesCrMemoHeader.Get(
@@ -620,7 +620,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'E' - VAT Exempt
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'E'
         SalesCrMemoHeader.Get(
@@ -649,7 +649,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'O' - no VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'O', VAT Percent = 0
         SalesCrMemoHeader.Get(
@@ -681,7 +681,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'Z' - VAT Exempt for goods not included in the VAT regulations
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'Z'
         SalesCrMemoHeader.Get(
@@ -709,7 +709,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'AE' - Reverse charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'AE' and VAT% = 10
         SalesCrMemoHeader.Get(
@@ -740,7 +740,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'G' - Export outside EU
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'G'
         SalesCrMemoHeader.Get(
@@ -770,7 +770,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'L'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'L', VAT Percent = 10
         SalesCrMemoHeader.Get(
@@ -798,7 +798,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'M'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'M', VAT Percent = 10
         SalesCrMemoHeader.Get(
@@ -825,7 +825,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo] [Tax Category]
         // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'K' - intra-community supply
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with Tax Category 'K', VAT Percent = 0
         SalesCrMemoHeader.Get(
@@ -856,7 +856,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 281593] PEPPOL BIS3. Export Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice for Customer with GLN = '1234567890123'
         CreatePostServiceInvoice(ServiceInvoiceHeader, '');
@@ -888,7 +888,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 281593] PEPPOL BIS3. Export Service Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo for Customer with GLN = '1234567890123'
         CreatePostServiceCrMemo(ServiceCrMemoHeader, '');
@@ -919,7 +919,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 340475] Export PEPPOL BIS3 Sales Invoice when Salesperson and Payment Terms are not defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with blank Salesperson and Payment Terms fields
         SalesInvoiceHeader.Get(
@@ -949,7 +949,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 340475] Export PEPPOL BIS3 Sales Credit Memo when Salesperson and Payment Terms are not defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with blank Salesperson and Payment Terms fields
         SalesCrMemoHeader.Get(
@@ -988,7 +988,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         CreateSalesDoc(SalesHeader, SalesLine, Customer."No.", SalesHeader."Document Type"::Invoice, CreateCurrencyCode);
         SalesInvoiceHeader.Get(
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Modify();
 
         // [WHEN] Export Sales Invoice with PEPPOL BIS3
@@ -1019,7 +1019,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         CreateSalesDoc(SalesHeader, SalesLine, Customer."No.", SalesHeader."Document Type"::"Credit Memo", CreateCurrencyCode);
         SalesCrMemoHeader.Get(
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesCrMemoHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."External Document No." := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader.Modify();
 
         // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
@@ -1085,7 +1085,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     var
         CompanyInfo: Record "Company Information";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if not IsInitialized then begin
             CompanyInfo.Get();
@@ -1102,13 +1102,13 @@ codeunit 139145 "PEPPOL BIS BillingTests"
 
             AddCompPEPPOLIdentifier;
 
-            LibraryERMCountryData.CreateVATData;
-            LibraryERMCountryData.UpdateGeneralLedgerSetup;
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
-            LibraryERMCountryData.UpdateSalesReceivablesSetup;
-            LibraryERMCountryData.UpdateLocalData;
+            LibraryERMCountryData.CreateVATData();
+            LibraryERMCountryData.UpdateGeneralLedgerSetup();
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
+            LibraryERMCountryData.UpdateSalesReceivablesSetup();
+            LibraryERMCountryData.UpdateLocalData();
             UpdateElectronicDocumentFormatSetup;
-            LibraryService.SetupServiceMgtNoSeries;
+            LibraryService.SetupServiceMgtNoSeries();
             LibrarySetupStorage.Save(DATABASE::"Company Information");
 
             IsInitialized := true;
@@ -1253,7 +1253,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         ServiceInvoiceHeader.SetRange(
           "Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::Invoice, CurrencyCode));
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure CreatePostServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; CurrencyCode: Code[10])
@@ -1262,7 +1262,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         ServiceCrMemoHeader.SetRange(
           "Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::"Credit Memo", CurrencyCode));
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure CreatePostServiceDoc(DocumentType: Enum "Service Document Type"; CurrencyCode: Code[10]): Code[20]
@@ -1328,7 +1328,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGr, VATProductPostingGroup.Code);
-        VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID; // skip check relation
+        VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID(); // skip check relation
         VATPostingSetup.Validate("VAT Calculation Type", VATCalcType);
         VATPostingSetup.Validate("Tax Category", TaxCategory);
         VATPostingSetup.Validate("VAT %", VATPct);
@@ -1358,7 +1358,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         exit(SalesInvoiceLine."VAT %");
     end;
 
@@ -1367,7 +1367,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         exit(SalesCrMemoLine."VAT %");
     end;
 
@@ -1377,7 +1377,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         VATProductPostingGroup.Get(SalesInvoiceLine."VAT Prod. Posting Group");
         exit(VATProductPostingGroup.Description);
     end;
@@ -1388,7 +1388,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         VATProductPostingGroup.Get(SalesCrMemoLine."VAT Prod. Posting Group");
         exit(VATProductPostingGroup.Description);
     end;
@@ -1454,7 +1454,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             Init;
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, FieldNo("Line No."));
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -1467,7 +1467,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
             Init;
             "Document No." := DocumentNo;
             "Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, FieldNo("Line No."));
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -1475,10 +1475,14 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     local procedure PEPPOLXMLExport(DocumentVariant: Variant; FormatCode: Code[20]): Text
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
         ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
-        ElectronicDocumentFormat.SendElectronically(ServerFileName, ClientFileName, DocumentVariant, FormatCode);
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, DocumentVariant, FormatCode);
+        ServerFileName := CopyStr(FileManagement.ServerTempFileName('xml'), 1, 250);
+        FileManagement.BLOBExportToServerFile(TempBlob, ServerFileName);
         exit(ServerFileName);
     end;
 
@@ -1487,7 +1491,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.GLN := GetGNLID;
         CompanyInformation.Modify();
     end;
@@ -1497,7 +1501,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.GLN := '';
         CompanyInformation.Modify();
     end;

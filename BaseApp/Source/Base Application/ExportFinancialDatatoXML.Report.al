@@ -401,7 +401,7 @@ report 11420 "Export Financial Data to XML"
     begin
         AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             EndDate := AccountingPeriod."Starting Date" - 1;
     end;
 
@@ -475,14 +475,14 @@ report 11420 "Export Financial Data to XML"
         if AccountingPeriod2.IsEmpty() then
             Error(Text018, StartDate);
 
-        AccountingPeriod2.FindLast;
+        AccountingPeriod2.FindLast();
 
         AccountingPeriod3.SetRange("New Fiscal Year", true);
         AccountingPeriod3.SetFilter("Starting Date", '<=%1', EndDate);
         if AccountingPeriod3.IsEmpty() then
             Error(Text018, EndDate);
 
-        AccountingPeriod3.FindLast;
+        AccountingPeriod3.FindLast();
 
         if AccountingPeriod2."Starting Date" <> AccountingPeriod3."Starting Date" then
             Error(
@@ -499,14 +499,14 @@ report 11420 "Export Financial Data to XML"
             if AccountingPeriod2.IsEmpty() then
                 Error(Text018, PrevStartDate);
 
-            AccountingPeriod2.FindLast;
+            AccountingPeriod2.FindLast();
 
             AccountingPeriod3.SetRange("New Fiscal Year", true);
             AccountingPeriod3.SetFilter("Starting Date", '<=%1', PrevEndDate);
             if AccountingPeriod3.IsEmpty() then
                 Error(Text018, PrevEndDate);
 
-            AccountingPeriod3.FindLast;
+            AccountingPeriod3.FindLast();
             if AccountingPeriod2."Starting Date" <> AccountingPeriod3."Starting Date" then
                 Error(
                   Text002,

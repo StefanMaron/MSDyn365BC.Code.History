@@ -33,7 +33,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UI]
         // [SCENARIO] Notification is shown about gen. posting setup where discount accounts are missed If "Discount Posting" changed to not "All Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Inv. Disc. Account" is blank
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Line Disc. Account" is blank
         CreateGeneralPostingSetups(
@@ -71,7 +71,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO] Notification is recalled and shown again if "Discount Posting" is changed so there are missing accounts
-        Initialize;
+        Initialize();
         // [GIVEN] Shown the notification due to missing "Purch. Inv. Disc. Account"
         ShowSalesNotificationForDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Line Disc. Account" is blank
@@ -99,7 +99,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO] Notification is recalled if "Discount Posting" is changed so there are no missing accounts
-        Initialize;
+        Initialize();
         // [GIVEN] Shown the notification due to missing "Purch. Inv. Disc. Account"
         ShowSalesNotificationForDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
@@ -122,7 +122,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup]
         // [SCENARIO] Notification is recalled if "Discount Posting" is changed to "No Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Shown the notification due to missing "Purch. Inv. Disc. Account"
         ShowSalesNotificationForDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
@@ -147,7 +147,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UI]
         // [SCENARIO] Notification is shown about gen. posting setup where line discount accounts are missed If "Discount Posting" changed to "Line Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Inv. Disc. Account" is blank
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Line Disc. Account" is blank
         CreateGeneralPostingSetups(
@@ -179,7 +179,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UI]
         // [SCENARIO] Notification is shown about gen. posting setup where invoice discount accounts are missed If "Discount Posting" changed to "Invoice Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Inv. Disc. Account" is blank
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Line Disc. Account" is blank
         CreateGeneralPostingSetups(
@@ -213,7 +213,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] User enters a line discount while there is the posting setup, where line discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -256,7 +256,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] User enters the blank "Line Discount %" while the notification is shown
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -294,7 +294,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] User restores the "Line Amount" that caused the line discount, while the notification is shown
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -332,7 +332,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] User enters new "Line Discount %" while the "Discount Posting" is "No Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -371,7 +371,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO] Notification is not shown if "Line Discount %" validated through code, not on the page.
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -402,7 +402,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] User enters a invoice discount for the posting setup where invoice discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Invoice Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
@@ -446,7 +446,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] User runs 'Calculate Invoice Discount' action the posting setup where invoice discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Invoice Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
@@ -645,7 +645,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UI]
         // [SCENARIO] Notification is shown about gen. posting setup where discount accounts are missed If "Discount Posting" changed to not "All Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Posting Setup 'A', where "Purch. Inv. Disc. Account" is blank
         // [GIVEN] Gen. Posting Setup 'B', where "Purch. Line Disc. Account" is blank
         CreateGeneralPostingSetups(
@@ -683,7 +683,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO] Notification is recalled if "Discount Posting" is changed
-        Initialize;
+        Initialize();
         // [GIVEN] Shown the notification due to missing "Purch. Inv. Disc. Account"
         ShowPurchNotificationForDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Gen. Posting Setup 'B' where "Purch. Line Disc. Account" is blank
@@ -711,7 +711,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO] Notification is recalled if "Discount Posting" is changed so there are no missing accounts
-        Initialize;
+        Initialize();
         // [GIVEN] Shown the notification due to missing "Purch. Inv. Disc. Account"
         ShowPurchNotificationForDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
@@ -734,7 +734,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup]
         // [SCENARIO] Notification is recalled if "Discount Posting" is changed to "No Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Shown the notification due to missing "Purch. Inv. Disc. Account"
         ShowPurchNotificationForDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
@@ -759,7 +759,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UI]
         // [SCENARIO] Notification is shown about gen. posting setup where line discount accounts are missed If "Discount Posting" changed to "Line Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Posting Setup 'A', where "Purch. Inv. Disc. Account" is blank
         // [GIVEN] Gen. Posting Setup 'B', where "Purch. Line Disc. Account" is blank
         CreateGeneralPostingSetups(
@@ -791,7 +791,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UI]
         // [SCENARIO] Notification is shown about gen. posting setup where invoice discount accounts are missed If "Discount Posting" changed to "Invoice Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Posting Setup 'A', where "Purch. Inv. Disc. Account" is blank
         // [GIVEN] Gen. Posting Setup 'B', where "Purch. Line Disc. Account" is blank
         CreateGeneralPostingSetups(
@@ -825,7 +825,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO] User enters a line discount for the posting setup where line discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
@@ -868,7 +868,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO] User enters the blank "Line Discount %" while the notification is shown
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
@@ -906,7 +906,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO] User restores the "Line Amount" that caused the line discount, while the notification is shown
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
@@ -944,7 +944,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO] User enters new "Line Discount %" while the "Discount Posting" is "No Discounts"
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
@@ -983,7 +983,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO] Notification is not shown if "Line Discount %" validated through code, not on the page.
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
@@ -1014,7 +1014,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO] User enters a invoice discount for the posting setup where invoice discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Invoice Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
@@ -1058,7 +1058,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Invoice] [UI]
         // [SCENARIO] User runs 'Calculate Invoice Discount' action the posting setup where invoice discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Invoice Discounts'
         DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
@@ -1258,7 +1258,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Service] [Invoice] [UI]
         // [SCENARIO] User enters a line discount while there is the posting setup, where line discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -1302,7 +1302,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Service] [Invoice] [UI]
         // [SCENARIO] User restores the "Line Amount" that caused the line discount, while the notification is shown
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
@@ -1341,7 +1341,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Service] [Invoice] [UI]
         // [SCENARIO] User runs 'Calculate Invoice Discount' action the posting setup where invoice discount account is blank
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Invoice Discounts'
         DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
@@ -1560,7 +1560,7 @@ codeunit 132523 "Discount Setup Notifications"
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
         if BlankAccFieldNo > -1 then begin
-            GLAccNo := LibraryERM.CreateGLAccountNo;
+            GLAccNo := LibraryERM.CreateGLAccountNo();
             if BlankAccFieldNo <> GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account") then
                 GeneralPostingSetup."Sales Inv. Disc. Account" := GLAccNo;
             if BlankAccFieldNo <> GeneralPostingSetup.FieldNo("Sales Line Disc. Account") then
@@ -1707,7 +1707,7 @@ codeunit 132523 "Discount Setup Notifications"
         GLAccNo: Code[20];
     begin
         Assert.RecordIsNotEmpty(GeneralPostingSetup);
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         GeneralPostingSetup.ModifyAll("Sales Inv. Disc. Account", GLAccNo);
         GeneralPostingSetup.ModifyAll("Sales Line Disc. Account", GLAccNo);
         GeneralPostingSetup.ModifyAll("Purch. Inv. Disc. Account", GLAccNo);

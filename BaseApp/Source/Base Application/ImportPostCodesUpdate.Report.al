@@ -30,7 +30,7 @@ report 11415 "Import Post Codes Update"
         PostCodeUpdateLogEntry.SetCurrentKey(Type);
         PostCodeUpdateLogEntry.SetRange(Type, PostCodeUpdateLogEntry.Type::"Full Data Set");
 
-        if not PostCodeUpdateLogEntry.FindFirst then
+        if not PostCodeUpdateLogEntry.FindFirst() then
             if not Confirm(NoFullDataSetQst, false) then
                 CurrReport.Quit;
     end;
@@ -148,7 +148,7 @@ report 11415 "Import Post Codes Update"
         PostCodeUpdateLogEntry2.Reset();
         PostCodeUpdateLogEntry2.LockTable();
 
-        if PostCodeUpdateLogEntry2.FindLast then begin
+        if PostCodeUpdateLogEntry2.FindLast() then begin
             if PostCodeUpdateLogEntry."Period Start Date" <= PostCodeUpdateLogEntry2."Period Start Date" then
                 Error(NoImportErr);
             if PostCodeUpdateLogEntry."Period Start Date" <> CalcDate('<+1M>', PostCodeUpdateLogEntry2."Period Start Date") then

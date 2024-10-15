@@ -35,13 +35,13 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] 'Prior-Year Entry' is false on posting of Gen. Journal Line
-        Initialize;
+        Initialize();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Prior-Year Entry", false);
     end;
 
@@ -55,7 +55,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Posting of purchase document is available
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
@@ -76,7 +76,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Posting of sales document is available
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesInvoice(SalesHeader);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
@@ -99,8 +99,8 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Posting of service document is available
-        Initialize;
-        LibraryService.SetupServiceMgtNoSeries;
+        Initialize();
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -128,7 +128,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Fixed Asset]
         // [SCENARIO 222561] Post acquision and depreciation of foxed asset without accounting periods
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset with acquisition and appreciation at the beginnig of month
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -163,7 +163,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Deferrals] [General Journal]
         // [SCENARIO 222561] Post general journal line with 'equal per period' deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Line with 'equal per period' Deferral Template
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -186,7 +186,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Deferrals] [Purchase]
         // [SCENARIO 222561] Post purchase document with 'straight line' deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with 'straight line' Deferral Template
         CreatePurchaseInvoiceWithDeferral(
@@ -208,7 +208,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Deferrals] [Purchase]
         // [SCENARIO 222561] Post purchase document with 'days per period' deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with 'days per period' Deferral Template
         CreatePurchaseInvoiceWithDeferral(
@@ -230,7 +230,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Deferrals] [Sales]
         // [SCENARIO 222561] Post sales document with 'straight line' deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with 'straight line' Deferral Template
         CreateSalesInvoiceWithDeferral(
@@ -252,7 +252,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Deferrals] [Sales]
         // [SCENARIO 222561] Post sales document with 'days per period' deferral
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with 'days per period' Deferral Template
         CreateSalesInvoiceWithDeferral(
@@ -277,7 +277,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         // [FEATURE] [Adjust Cost - Item Entries]
         // [SCENARIO 273515] Cost is adjusted for an item with "Average" costing method when no accounting period exists and "Average Cost Period" is set to "Accounting Period"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Inventory Setup" is updated: "Average Cost Period" is set to "Accounting Period"
         LibraryInventory.SetAverageCostSetup(
@@ -314,14 +314,14 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"No Acc. Periods: Posting");
         AccountingPeriod.DeleteAll();
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"No Acc. Periods: Posting");
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         IsInitialized := true;
@@ -464,7 +464,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         CalculateDepreciation.InitializeRequest(
           DepreciationBookCode, EndingDate, false, 0, EndingDate, FixedAssetNo, FixedAsset.Description, false);
         CalculateDepreciation.UseRequestPage(false);
-        CalculateDepreciation.Run;
+        CalculateDepreciation.Run();
     end;
 
     local procedure VerifyAvgCostAdjmtEntryPoint(ItemNo: Code[20]; ValuationDate: Date)
@@ -474,7 +474,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         with AvgCostAdjmtEntryPoint do begin
             SetRange("Item No.", ItemNo);
             SetRange("Valuation Date", ValuationDate);
-            FindFirst;
+            FindFirst();
             TestField("Cost Is Adjusted", true);
         end;
     end;
@@ -505,7 +505,7 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField(Amount, DepreciationAmount);
     end;
 
@@ -516,7 +516,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)");
             TestField("Cost Amount (Actual)", CostAmount);
         end;

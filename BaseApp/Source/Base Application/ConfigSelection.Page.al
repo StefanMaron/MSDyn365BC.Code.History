@@ -81,7 +81,7 @@ page 8628 "Config. Selection"
 
     procedure Set(var TempConfigSelection: Record "Config. Selection" temporary)
     begin
-        if TempConfigSelection.FindSet then
+        if TempConfigSelection.FindSet() then
             repeat
                 Init;
                 "Line No." := TempConfigSelection."Line No.";
@@ -101,7 +101,7 @@ page 8628 "Config. Selection"
     begin
         Counter := 0;
         TempConfigSelection.DeleteAll();
-        if FindSet then
+        if FindSet() then
             repeat
                 TempConfigSelection.Init();
                 TempConfigSelection."Line No." := "Line No.";

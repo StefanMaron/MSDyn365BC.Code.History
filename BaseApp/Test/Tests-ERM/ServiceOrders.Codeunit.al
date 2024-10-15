@@ -1,4 +1,4 @@
-﻿codeunit 136101 "Service Orders"
+codeunit 136101 "Service Orders"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -79,7 +79,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Service Order Type Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Service Order Type Mandatory" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Order Type Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -109,7 +109,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Service Order Start Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Service Order Start Mandatory" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Order Start Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -139,7 +139,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Service Order Finish Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Service Order Finish Mandatory" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Order Finish Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -170,7 +170,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Fault Reason Code Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Fault Reason Code Mandatory" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Fault Reason Code Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -201,7 +201,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Salesperson Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Salesperson Mandatory" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Salesperson Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -237,7 +237,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Work Type Code Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Work Type Code Mandatory" field True on Service Management Setup.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Work Type Code Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -273,7 +273,7 @@
         // [SCENARIO 21728] Test error occurs on Posting Service Order with "Unit of Measure Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Unit of Measure Mandatory" field True on Service Management Setup, Create Service Order.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Unit of Measure Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -312,7 +312,7 @@
         // [SCENARIO 21728] Test error occurs on Signing Service Contract with "Contract Rsp. Time Mandatory" True on Service Management Setup.
 
         // [GIVEN] Set "Contract Rsp. Time Mandatory" field True on Service Management Setup, Create and Update Response Time on Service Item.
-        Initialize;
+        Initialize();
         ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Contract Rsp. Time Mandatory", true);
         ServiceMgtSetup.Modify(true);
@@ -361,7 +361,7 @@
         // [SCENARIO 21728] Test Ship to Code on Service Shipment Line after Post Service Order as Ship.
 
         // [GIVEN] Create Service Order with Different Ship to code on Service Item Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
 
@@ -406,7 +406,7 @@
         // [SCENARIO 21728] Test Delete Service Quote after Change Customer No. on Service Quote.
 
         // [GIVEN] Create Service Quote.
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithServiceItem(ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Quote, '');
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -443,7 +443,7 @@
         // [SCENARIO 21728] Test Comments on Service Order create from Service Quote after receiving Loaner on Created Service Order
 
         // [GIVEN] Create Service Quote and Assign Loaner on Service Quote, Create Comments on Service Quote.
-        Initialize;
+        Initialize();
         CreateServiceDocWithLoaner(ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Quote);
         CreateCommentsOnServiceQuote(ServiceItemLine);
         ServiceItemNo := ServiceItemLine."Service Item No.";
@@ -470,7 +470,7 @@
         // [SCENARIO 21728] Test error occurs on Deletion of Customer attached on Service Order.
 
         // [GIVEN] Create Customer Template.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate;
 
         // [WHEN] Create Customer from Service Order.
@@ -528,7 +528,7 @@
         // [SCENARIO 21728] Test Customer delete after deletion of attached Service Order.
 
         // [GIVEN] Create Customer Template, Create Customer from service Order.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate;
         CreateServiceHeaderWithName(ServiceHeader);
         Commit();
@@ -559,7 +559,7 @@
         // [SCENARIO 173928] Test Description correctly populated on Posted Invoice Line.
 
         // [GIVEN] Create Service Header and Service Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateMultipleServiceLine(ServiceHeader, CreateServiceOrder(ServiceHeader, Customer."No."));
         GetServiceLine(ServiceLine, ServiceHeader);
@@ -624,7 +624,7 @@
         // [WHEN] Save Service Order - Response Time Report as XML and XLSX in local Temp folder.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentHeader.SetRange("Responsibility Center", ServiceHeader."Responsibility Center");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         Clear(ServiceOrderResponseTime);
         ServiceOrderResponseTime.SetTableView(ServiceShipmentHeader);
         FilePath := TemporaryPath + Format(ServiceShipmentHeader."No.") + ServiceShipmentHeader."Responsibility Center" + '.xlsx';
@@ -646,7 +646,7 @@
         // [SCENARIO 21728] Test Service Item Line Labels Report.
 
         // [GIVEN] Create Service Order - Service Header, Service Item and Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithServiceItem(ServiceItemLine);
 
         // [WHEN] Save Service Item Line Labels Report as XML and XLSX in local Temp folder.
@@ -679,7 +679,7 @@
         Clear(ServiceProfitRespCenters);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentHeader.SetRange("Responsibility Center", ServiceHeader."Responsibility Center");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceProfitRespCenters.SetTableView(ServiceShipmentHeader);
         FilePath := TemporaryPath + Format(ServiceShipmentHeader."No.") + ServiceShipmentHeader."Responsibility Center" + '.xlsx';
         ServiceProfitRespCenters.SaveAsExcel(FilePath);
@@ -708,7 +708,7 @@
         Clear(ServiceProfitServOrders);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentHeader.SetRange("Responsibility Center", ServiceHeader."Responsibility Center");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceProfitServOrders.SetTableView(ServiceShipmentHeader);
         FilePath := TemporaryPath + Format(ServiceShipmentHeader."No.") + ServiceShipmentHeader."Responsibility Center" + '.xlsx';
         ServiceProfitServOrders.SaveAsExcel(FilePath);
@@ -731,7 +731,7 @@
         // [SCENARIO 21728] Test Service Tasks Report.
 
         // [GIVEN] Create Service Order - Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -772,7 +772,7 @@
 
         // [THEN] Verify that the Comments on Service Order is Comments assign on Service Quote.
         ServiceItemLine.SetRange("Service Item No.", ServiceItemLine."Service Item No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         VerifyComments(TempServiceCommentLine, ServiceItemLine);
 
         // 4. Teardown: Receive Loaner.
@@ -797,7 +797,7 @@
 
         // [WHEN] Post Service Order as Ship and Receive Loaner on service Shipment Header.
         ServiceItemLine.SetRange("Service Item No.", ServiceItemLine."Service Item No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         ServiceHeader.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
@@ -824,7 +824,7 @@
         // [SCENARIO 167035] Test Service Item Log and Service Document Log after create Service Item form Order.
 
         // [GIVEN] Create and Sign Service Contract, Create Service Header and Assign Contract No. on Header.
-        Initialize;
+        Initialize();
         InitServiceContractWithOrderScenario(ServiceHeader, ServiceContractHeader);
 
         // [WHEN] Create Service Item from Service Order and Assign Loaner on Service Item Line.
@@ -862,7 +862,7 @@
         // [SCENARIO 167035] Test Service Item Log and Service Document Log after Posting Service Order.
 
         // [GIVEN] Create and Sign Service Contract, Create Service Header and Assign Contract No. on Header,
-        Initialize;
+        Initialize();
         InitServiceContractWithOrderScenario(ServiceHeader, ServiceContractHeader);
 
         // [GIVEN] Create Service Item from Service Order and Assign Loaner on Service Item Line.
@@ -905,7 +905,7 @@
         // [SCENARIO 167035] Test Service Document Log created after change Repair Status code on Service Item Line.
 
         // [GIVEN] Create Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
 
@@ -932,7 +932,7 @@
         // [SCENARIO 167035] Test Service Document Log created after change Status on Service Header.
 
         // [GIVEN] Create Service Header.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
 
         // [WHEN] Change Status to In Process on Service Header.
@@ -957,7 +957,7 @@
         // [SCENARIO 167035] Test Service Document Log created after Resource Allocation on Service Header.
 
         // [GIVEN] Create Service Header, Service Item and Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithServiceItem(ServiceItemLine);
 
         // [WHEN] Allocate Resource on Service Order.
@@ -984,7 +984,7 @@
         // [SCENARIO 167035] Test Service Document Log created after Change Resource Allocation on Service Header.
 
         // [GIVEN] Create Service Header, Service Item and Service Item Line and Allocate Resource on Service Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         CreateServiceItemLineRepair(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1000,7 +1000,7 @@
         ServiceDocumentLog.SetRange("Document Type", ServiceDocumentLog."Document Type"::Order);
         ServiceDocumentLog.SetRange("Document No.", ServiceHeader."No.");
         ServiceDocumentLog.SetRange(After, ResourceNo);
-        ServiceDocumentLog.FindLast;
+        ServiceDocumentLog.FindLast();
         ServiceDocumentLog.TestField("Event No.", 5);  // The value 5 is the event number for Cancel Resource Allocation.
     end;
 
@@ -1021,7 +1021,7 @@
         // [SCENARIO 167035] Test Service Document Log created after Cancel Resource Allocation on Service Header.
 
         // [GIVEN] Create Service Header, Service Item and Service Item Line and Allocate Resource on Service Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         CreateServiceItemLineRepair(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1035,7 +1035,7 @@
         ServiceDocumentLog.SetRange("Document Type", ServiceDocumentLog."Document Type"::Order);
         ServiceDocumentLog.SetRange("Document No.", ServiceHeader."No.");
         ServiceDocumentLog.SetRange(After, Resource."No.");
-        ServiceDocumentLog.FindLast;
+        ServiceDocumentLog.FindLast();
         ServiceDocumentLog.TestField("Event No.", 17);  // The value 17 is the event number for Reallocation Needed.
     end;
 
@@ -1050,7 +1050,7 @@
         // [SCENARIO 167035] Test Service Item Log created after Delete service Order.
 
         // [GIVEN] Create Service Header, Service Item and Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithServiceItem(
           ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Order, '');
 
@@ -1075,7 +1075,7 @@
         // [SCENARIO 167035] Test Extended Text created on Service Line.
 
         // [GIVEN] Create Item, Extended Text for Item, Service Order - Service Header and Service Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Description := CreateExtendedTextForItem(Item."No.");
 
@@ -1107,7 +1107,7 @@
         // [SCENARIO 172910] Test Create Customer from Service Order.
 
         // [GIVEN] Create Customer Template.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate;
 
         // [WHEN] Create Customer from Service Order.
@@ -1168,7 +1168,7 @@
         // [SCENARIO 172911] Test Service Ledger Entry after Posting Service Order as Ship with Service Contract No.
 
         // [GIVEN] Create and Sign Service Contract, Create Service Order with Contract No. on Header.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader);
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1200,7 +1200,7 @@
 
         // [GIVEN] Create and Sign Service Contract, Create Service Order with Contract No. on Header and update Qty. to Consume on
         // Service Line.
-        Initialize;
+        Initialize();
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader);
         SignServContractDoc.SignContract(ServiceContractHeader);
@@ -1231,7 +1231,7 @@
         // [SCENARIO 172912] Test Deletion of Service Item Line.
 
         // [GIVEN] Create Service Item, Service Header and Service Item Line.
-        Initialize;
+        Initialize();
         CreateServiceDocumentWithServiceItem(ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Order, '');
 
         // [WHEN] Delete Service Item Line.
@@ -1274,7 +1274,7 @@
         // [SCENARIO 146033] Test Create a Service Order with Resolution Code.
 
         // [GIVEN] Create New Service Item.
-        Initialize;
+        Initialize();
         CreateServiceItemWithGroup(ServiceItem, LibrarySales.CreateCustomerNo);
 
         // [GIVEN] Create a new Service Order.
@@ -1301,7 +1301,7 @@
         DocumentNo: Code[20];
     begin
         // 1. Setup: Find Customer and Item,Create Service Item and Service Item Component.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, Item."No.");
         LibraryService.CreateServiceItemComponent(ServiceItemComponent, ServiceItem."No.", ServiceItemComponent.Type::Item, Item."No.");
@@ -1362,7 +1362,7 @@
     begin
         // 1. Setup: Create Customer, Customer Invoice Discount, Update Sales & Receivable Setup with Calc. Inv. Discount as True, Service
         // Item, Service Header with Document Type as Order, Service Item Line and Service Line with Type Resource.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         CreateCustomerInvoiceDiscount(Customer."No.", DiscountPct, 0);  // Take Zero for Service Charge.
@@ -1405,7 +1405,7 @@
         // [SCENARIO 202516] Test to verify that credit limit warning comes once when creating a Service Order through Customer Card.
 
         // [GIVEN] Set Credit Warnings to Both warnings, find Item, create Customer, create Sales Order and post it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
 
@@ -1418,7 +1418,7 @@
         CustomerCard.NewServiceOrder.Invoke;
 
         // [THEN] Verify through the SendNotificationHandler.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1433,7 +1433,7 @@
         // [SCENARIO 235565] Test calculation of Amount Including VAT on Service Line when Price Including VAT is True.
 
         // [GIVEN] Find VAT Posting Setup and create Item.
-        Initialize;
+        Initialize();
         LibraryERM.SetVATRoundingType('=');
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateAndUpdateServiceHeader(ServiceHeader, VATPostingSetup."VAT Bus. Posting Group");
@@ -1461,7 +1461,7 @@
         // [SCENARIO 235565] Test calculation of VAT Amount on GL Entry after posting Service Order.
 
         // [GIVEN] Find VAT Posting Setup and create Item, create Service Order with Random Quantity.
-        Initialize;
+        Initialize();
         LibraryERM.SetVATRoundingType('=');
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateAndUpdateServiceHeader(ServiceHeader, VATPostingSetup."VAT Bus. Posting Group");
@@ -1494,7 +1494,7 @@
         // [SCENARIO 203169] Check Responsibility Center on Service Order.
 
         // [GIVEN] Create User Setup.
-        Initialize;
+        Initialize();
         ResponsibilityCenterCode := CreateResponsibilityCenterAndUserSetup;
         LibrarySales.CreateCustomer(Customer);
 
@@ -1529,7 +1529,7 @@
         // [SCENARIO 203169] Check Responsibility Center on Service Document.
 
         // [GIVEN] Create User Setup, Service Order and Service Line.
-        Initialize;
+        Initialize();
         ResponsibilityCenterCode := CreateResponsibilityCenterAndUserSetup;
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
@@ -1542,11 +1542,11 @@
 
         // [THEN] Validate Responsibility Center on Service Document.
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Responsibility Center", ResponsibilityCenterCode);
 
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         ServiceShipmentHeader.TestField("Responsibility Center", ResponsibilityCenterCode);
 
         // 4. Tear Down.
@@ -1565,7 +1565,7 @@
         // [SCENARIO 259505] Check Posting Date on the Service lines same as Service Item Worksheet.
 
         // [GIVEN] Create Service Order and update the Posting Date on the Service Item Worksheet.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithUpdatedPostingDate(ServiceHeader, ServiceLine);
         LibraryVariableStorage.Enqueue(ServiceLine."Posting Date");
 
@@ -1589,7 +1589,7 @@
         // [SCENARIO 259505] Check Posting Date on the Service Ledger Entry same as Service Item Worksheet.
 
         // [GIVEN] Create Service Order and update the Posting Date on the Service Item Worksheet.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithUpdatedPostingDate(ServiceHeader, ServiceLine);
 
         // 2. Exercise.
@@ -1615,7 +1615,7 @@
         // [SCENARIO 265765] Test General Ledger, Customer Ledger and Detailed Customer ledger entries after Posting Service Order with Currency and Payment method with a balance account.
 
         // [GIVEN] Modify General Ledger Setup, create Customer with Payment Method Code with a balance account and create Service Order.
-        Initialize;
+        Initialize();
         LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Application Rounding Precision.
         CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount, 0);  // Taken Zero value for Currency Application Rounding Precision.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
@@ -1629,7 +1629,7 @@
 
         // [THEN] Verify GL, Customer and Detailed Customer ledger entries.
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VerifyEntriesAfterPostingServiceDocument(
           CustLedgerEntry."Document Type"::Payment, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."No.");
     end;
@@ -1652,7 +1652,7 @@
         // [SCENARIO 265766] Test General Ledger, Customer Ledger and Detailed Customer ledger entries after posting Service documents with Currency and Apply to Oldest Application Method.
 
         // [GIVEN] Modify General Ledger Setup, create Customer with Apply to Oldest Application Method, create and post Service Invoice and create Service Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Application Rounding Precision.
         LibraryERM.FindPaymentMethod(PaymentMethod);
         CreateAndModifyCustomer(
@@ -1670,9 +1670,9 @@
 
         // [THEN] Verify GL, Customer and Detailed Customer ledger entries.
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader2."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         VerifyEntriesAfterPostingServiceDocument(
           CustLedgerEntry."Document Type"::"Credit Memo", ServiceInvoiceHeader."No.", ServiceCrMemoHeader."No.");
     end;
@@ -1695,7 +1695,7 @@
         // [SCENARIO 259506] Test Discount Amount after Posting Service Order with Invoice Discount %.
 
         // [GIVEN] Modify Sales Receivables Setup, Create Customer, Item, Customer Invoice Discount, Service Order And Calculate Invoice Discount.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
@@ -1732,7 +1732,7 @@
         // [SCENARIO 245322] Verify the sequence of Service Lines after entering on the Service Order.
 
         // [GIVEN] Create Service Order, open Service Item Worksheet and save data to a temporary table.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceHeader, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         OpenServiceOrderPage(ServiceOrder, ServiceHeader."No.");
@@ -1758,7 +1758,7 @@
         // [SCENARIO 259256] Test Service Charge Line is generated after Partial shipment of Service Order.
 
         // [GIVEN] Modify Sales Receivables Setup, Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         CreateServiceDocumentWithInvoiceDiscount(ServiceLine);
         ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceLine."Document No.");
@@ -1781,7 +1781,7 @@
         // [SCENARIO 259256] Test Service Charge Line is not generated after shipping remaining quantity on Service Order.
 
         // [GIVEN] Modify Sales Receivables Setup, Create Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         CreateServiceDocumentWithInvoiceDiscount(ServiceLine);
         ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceLine."Document No.");
@@ -1812,7 +1812,7 @@
         // [SCENARIO 281469] Verify Resource Ledger Entry for Sale is created when posting a Resource line having 100% discount from a Service Order.
 
         // [GIVEN] Create Service Order with Resource with 100 % discount.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateServiceItem(ServiceItem, Customer."No.", LibraryInventory.CreateItem(Item));
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
@@ -1848,7 +1848,7 @@
         VATAmount: Decimal;
     begin
         // [SCENARIO 281474] Verify that VAT Amount and also that only one VAT Entry is created after posting the Service Order with Multiple Line having same Account and same Dimensions and same Posting groups.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set ServiceSetup."Copy Line Descr. to G/L Entry" = "No"
         SetServiceSetupCopyLineDescrToGLEntry(FALSE);
@@ -1873,7 +1873,7 @@
         // [THEN] Verify VAT Entry.
         VATEntry.SetRange("Document No.", FindServiceInvoiceHeader(ServiceHeader."No."));
         Assert.AreEqual(1, VATEntry.Count, StrSubstNo(NoOfLinesErr, VATEntry.TableCaption, 1));  // Only one VAT Entry should be created.
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           -VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
@@ -1893,7 +1893,7 @@
         // [SCENARIO 280212] Verify that VAT Amount calculated correctly in Posted Invoice Statistics in case of partial posting
 
         // [GIVEN] Get VAT Posting Setup, Modify Sales Receivables Setup
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(true);
 
         // [WHEN] Create and post Service Order
@@ -1917,7 +1917,7 @@
         // [SCENARIO 280212] Verify that VAT Amount calculated correctly in G/L Entry in case of partial posting
 
         // [GIVEN] Get VAT Posting Setup, Modify Sales Receivables Setup
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(true);
 
         // [WHEN] Create and post Service Order
@@ -1926,7 +1926,7 @@
         // [THEN] G/L Entries Amount By Document No. and VAT Account.
         VATAmount := Round(ServiceLine."Qty. to Invoice" * ServiceLine."Unit Price" * VATPostingSetup."VAT %" / 100);
         ServiceInvHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvHeader.FindLast;
+        ServiceInvHeader.FindLast();
         VerifyGLEntriesByAccount(ServiceInvHeader."No.", VATPostingSetup."Sales VAT Account", -VATAmount);
     end;
 
@@ -1943,7 +1943,7 @@
         // [SCENARIO 280212] Verify that VAT Amount calculated correctly in VAT Entry in case of partial posting
 
         // [GIVEN] Get VAT Posting Setup, Modify Sales Receivables Setup
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(true);
 
         // [WHEN] Create and post Service Order
@@ -1952,7 +1952,7 @@
         // [THEN] Verify VAT Entries Amount Dy Document No.
         VATAmount := Round(ServiceLine."Qty. to Invoice" * ServiceLine."Unit Price" * VATPostingSetup."VAT %" / 100);
         ServiceInvHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvHeader.FindLast;
+        ServiceInvHeader.FindLast();
         VerifyVATEntries(ServiceInvHeader."No.", -VATAmount);
     end;
 
@@ -1967,7 +1967,7 @@
     begin
         // [SCENARIO 283776] New Service Item is created by LookUp from Order line
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // Create Service Order.
         CreateServItemLineDescription(ServiceItemLine);
@@ -1992,7 +1992,7 @@
         // [SCENARIO 294774] Create and Post Service Order and Verify Open field as False in Warranty Ledger Entry.
 
         // [GIVEN] Create Service Item and Service Order .
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate);
         ServiceItem.Modify(true);
@@ -2018,7 +2018,7 @@
         // [SCENARIO 309583] Create Service Order and Verify OutStanding Amount on Service Lines.
 
         // [GIVEN] Create Service Item and Item .
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         UnitPrice := LibraryRandom.RandDec(100, 2);
         LibraryService.CreateServiceItem(ServiceItem, '');
@@ -2044,7 +2044,7 @@
         // [SCENARIO 309583] Create and Post Service Order and Verify OutStanding Amount on Service Lines.
 
         // [GIVEN] Create Service Item and Item and Service Order.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryInventory.CreateItem(Item);
         CreateServiceOrderWithMultipleLines(
@@ -2105,7 +2105,7 @@
         // [SCENARIO 316447] Test error occurs on validating Price Update Period less than Invoice Period on Service Contract.
 
         // [GIVEN] Create Service Contract Header.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
         ServiceContractHeader.Validate("Starting Date", CalcDate('<CY+1D>', WorkDate));  // Starting Date should be First Day of the Next Year.
@@ -2131,7 +2131,7 @@
         // [SCENARIO 324493] Check that program does not populate error while displaying matrix in Resource Group Availability window.
 
         // [GIVEN] Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithServiceItem(ServiceItemLine);
         ResourceAllocations.OpenEdit;
         ResourceAllocations.FILTER.SetFilter("Document No.", ServiceItemLine."Document No.");
@@ -2250,7 +2250,7 @@
         // [SCENARIO 332644] Verify that Bin Code exist on Service Invoice Line,When re-enter Item No. removes the default Bin.
 
         // [GIVEN] Create Service Document with Bin Code.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateBinAndBinContent(Bin, Item);
         CreateServiceDocumentWithLocation(ServiceLine, Item."No.", Bin."Location Code");
@@ -2293,7 +2293,7 @@
         // [SCENARIO 333709] Verify Amount Excl. VAT on Service Credit Memo Statistics when Invoice Rounding Precision updated.
 
         // [GIVEN] Modify General Ledger Setup and Create Service Credit Memo.
-        Initialize;
+        Initialize();
         InitServDocWithInvRoundingPrecisionScenario(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Post Service Order.
@@ -2315,7 +2315,7 @@
         // [SCENARIO 6749] Verify Service Lines are shown per Service Item.
 
         // [GIVEN] Create Multiple Service Item Lines with Service Line.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithMultipleServiceItemLines(ServiceHeader);
         GetServiceLine(ServiceLine, ServiceHeader);
         OpenServiceOrderPage(ServiceOrder, ServiceHeader."No.");
@@ -2342,7 +2342,7 @@
         // [SCENARIO 6749] Verify Service Line should be blank when Service Item Line created without Service Item.
 
         // [GIVEN] Create Multiple Service Item Lines with Service Line and One Service Item Line Without Service Item.
-        Initialize;
+        Initialize();
         CreateServiceOrderWithMultipleServiceItemLines(ServiceHeader);
         CreateServiceItemLine(ServiceItemLine, ServiceHeader);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
@@ -2368,7 +2368,7 @@
         // [SCENARIO 116417] Verify that no Overflow error on service line with more ranges.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Create Service order with large random values.
         CreateServiceDocument(
@@ -2423,7 +2423,7 @@
         SavedDate: Date;
     begin
         // Setup: Create and signed service contract.
-        Initialize;
+        Initialize();
         SavedDate := WorkDate;
         WorkDate := CalcDate('<CY+1D>', WorkDate); // First day of the year.
         CreateServiceContractHeader(ServiceContractHeader, InvoicePeriod);
@@ -2456,15 +2456,15 @@
         // [SCENARIO 352311] Verify Total Amount on Check Credit Limit page when having Invoice with Get Shipment Lines.
 
         // [GIVEN] Set StockOut warning and Credit Warnings, Create Customer and Item.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         CreateDocWithLineAndGetShipmentLine(ServiceHeader);
         // [WHEN] Open Service Order page with New Order
         OpenServiceOrderPageWithNewOrder(ServiceHeader."Customer No.");
         // [THEN] Verification of the Total Amount is done in CheckCreditLimitHandlerTotal.
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2479,14 +2479,14 @@
         // [SCENARIO 353097] Verify Total Amount on Check Credit Limit page when having Invoice with Get Shipment Lines in case of Unit Price line validation
 
         // [GIVEN] Set StockOut warning and Credit Warnings, Create Customer and Item.
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         CreateDocWithLineAndGetShipmentLine(ServiceHeader);
         // [WHEN] Validate "Unit Price" on Service Invoice page
         OpenServiceInvoicePageAndValidateUnitPrice(ServiceHeader."No.");
         // [THEN] Verification of the Total Amount is done in CheckCreditLimitHandlerTotal.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2502,8 +2502,8 @@
     begin
         // [FEATURE] [Credit Limit] [UI]
         // [SCENARIO 378637] Credit limit warning page is opened when validate Service Line with exceeded amount
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Customer "C" with "Credit Limit" = "A"
         // [GIVEN] Service Order for customer "C" with total amount = "A". Service Line "Quantity" = 1, "Unit Price" = "X"
@@ -2530,7 +2530,7 @@
           UnitPrice + LibraryERM.GetAmountRoundingPrecision,
           ServiceLine."Unit Price",
           ServiceLine.FieldCaption("Unit Price"));
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2545,8 +2545,8 @@
     begin
         // [FEATURE] [Credit Limit] [UT]
         // [SCENARIO 378637] Error is shown after close Credit limit warning page with "No" action after validate Service Line with exceeded amount
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Customer "C" with "Credit Limit" = "A"
         // [GIVEN] Service Order for customer "C" with total amount = "A". Service Line "Quantity" = 1, "Unit Price" = "X"
@@ -2564,7 +2564,7 @@
         // [THEN] Error occurs: "The update has been interrupted to respect the warning."
         LibraryVariableStorage.Enqueue(ServiceHeader."Customer No.");
         CustCheckCrLimit.ServiceLineCheck(ServiceLine);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -2579,8 +2579,8 @@
     begin
         // [FEATURE] [Credit Limit]
         // [SCENARIO 378637] Credit limit warning page is not opened when validate Service Line with max amount
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Customer "C" with "Credit Limit" = "A"
         // [GIVEN] Service Order for customer "C" with total amount = "A". Service Line "Quantity" = 1, "Unit Price" = "X"
@@ -2618,8 +2618,8 @@
     begin
         // [FEATURE] [Credit Limit] [UI]
         // [SCENARIO 378946] Credit limit warning page is opened once when validate Service Line with exceeded Quantity
-        Initialize;
-        UpdateSalesReceivablesSetup;
+        Initialize();
+        UpdateSalesReceivablesSetup();
 
         // [GIVEN] Customer with Credit Limit
         // [GIVEN] Service Order (used Location with "Require Shipment" = TRUE). Service Line "Quantity" = 1.
@@ -2647,7 +2647,7 @@
           Quantity + LibraryERM.GetAmountRoundingPrecision,
           ServiceLine.Quantity,
           ServiceLine.FieldCaption("Unit Price"));
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CreateDocWithLineAndGetShipmentLine(var NewServiceHeader: Record "Service Header")
@@ -2725,7 +2725,7 @@
         Customer2: Record Customer;
     begin
         // [SCENARIO 363375] "VAT Bus. Posting Group" should not be updated if "Bill-to Customer No." update is not confirmed.
-        Initialize;
+        Initialize();
         // Setup for test
         LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
         // [GIVEN] Service Order ("SO") for "Bill-to Customer No." = "C1", "VAT Bus. Posting Group" = "V1"
@@ -2752,7 +2752,7 @@
         // [SCENARIO 360806] Loaner Entry is inserted when Loaner No. change is confirmed
 
         // [GIVEN] Service Order
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
 
@@ -2783,7 +2783,7 @@
         // [SCENARIO 360806] Loaner entry is created if change Loaner No.
 
         // [GIVEN] Service Order with "Loaner No." = "A"
-        Initialize;
+        Initialize();
         CreateServiceDocWithLoaner(ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Order);
         // [GIVEN] Receive Loaner "A"
         ReceiveLoanerOnServiceOrder(ServiceItemLine, ServiceItemLine."Service Item No.");
@@ -2834,7 +2834,7 @@
     begin
         // [SCENARIO 120370] Check possibility of creation Service Line for each of >16 Service Item Lines
         // [GIVEN] Service Order with 16 Service Item Lines
-        Initialize;
+        Initialize();
         NoOfServiceItemLines := 16;
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -2869,7 +2869,7 @@
     begin
         // [SCENARIO 121069] Check error message appears after Inserting 16 Fees in Service Item Worksheet
         // [GIVEN] Service Order with Service Line
-        Initialize;
+        Initialize();
         CreateServiceItemWithZone(ServiceItem);
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
@@ -2941,7 +2941,7 @@
         Location: Record Location;
     begin
         // [SCENARIO 121634] Make Order should Create Service Order with Location Code value taken from Customer
-        Initialize;
+        Initialize();
         // [GIVEN] Customer with defined Location Code
         CreateCustomerWithLocationCode(Customer, Location);
         // [GIVEN] Service Quote
@@ -2963,12 +2963,12 @@
         i: Integer;
     begin
         // [SCENARIO 123182] Item's extended text line is not inserted into posted Service Invoice when "Qty. To Invoice" = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X" with extended text "ETX"
         // [GIVEN] Item "Y" with extended text "ETY"
         for i := 1 to 2 do begin
-            ItemNo[i] := LibraryInventory.CreateItemNo;
+            ItemNo[i] := LibraryInventory.CreateItemNo();
             ItemExtText[i] := CreateExtendedTextForItem(ItemNo[i]);
         end;
 
@@ -3001,7 +3001,7 @@
     begin
         // [FEATURE] [Line Discount] [UI]
         // [SCENARIO 362453] "Line Discount %" should not be changed by "Fault Reason Code" with "Exclude Contract Discount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with Service Line with Line Discount % = 50
         CreateSimpleServiceOrder(ServiceLine, LineDiscountPercent);
@@ -3028,7 +3028,7 @@
     begin
         // [FEATURE] [Line Discount] [UI]
         // [SCENARIO 362453] "Line Discount %" should be blanked by "Fault Reason Code" with "Exclude Contract Discount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with Service Line with Line Discount % = 50
         CreateSimpleServiceOrder(ServiceLine, LineDiscountPercent);
@@ -3054,7 +3054,7 @@
     begin
         // [FEATURE] [Line Discount] [UI]
         // [SCENARIO 379169] "Line Discount %" should be blanked by enable "Exclude Contract Discount" field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with Service Line with Line Discount % = 50
         CreateSimpleServiceOrder(ServiceLine, LineDiscountPercent);
@@ -3080,7 +3080,7 @@
         // [SCENARIO 378255] Field "Gen. Bus. Posting Group" is updated in lines when user changes it in the document header and Gen. Bus. Posting Group has "Auto Insert Default" = False
 
         // [GIVEN] Gen. Bus. Posting Group "B" with "Auto Insert Default" = False,
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
         GenBusPostingGroup.Modify();
@@ -3110,7 +3110,7 @@
         // [SCENARIO 378255] Field "Gen. Bus. Posting Group" is updated in lines when user changes it in the document header and chooses "No" in Confirm dialog
 
         // [GIVEN] Gen. Bus. Posting Group "B" with "Auto Insert Default" = False,
-        Initialize;
+        Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
         GenBusPostingGroup.Modify();
@@ -3136,18 +3136,24 @@
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
+        GLSetup: Record "General Ledger Setup";
     begin
         // [SCENARIO 379123] Message raised when delete Service Invoice with "Posted Invoice Nos." = "Invoice Nos." in Service Setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Posted Invoice Nos." = "Invoice Nos." in Service Setup
         SetPostedInvoiceNosEqualInvoiceNosInServSetup(ServiceMgtSetup);
 
         // [GIVEN] Service Invoice
+        GLSetup.Get();
         LibraryService.CreateServiceHeader(
           ServHeader, ServHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        ServHeader.Validate("No. Series", ServiceMgtSetup."Posted Service Invoice Nos.");
-        ServHeader.Validate("Posting No. Series", ServiceMgtSetup."Service Invoice Nos.");
+        if GLSetup."Journal Templ. Name Mandatory" then
+            ServHeader.Validate("Posting No.", LibraryUtility.GenerateGUID)
+        else begin
+            ServHeader.Validate("No. Series", ServiceMgtSetup."Posted Service Invoice Nos.");
+            ServHeader.Validate("Posting No. Series", ServiceMgtSetup."Service Invoice Nos.");
+        end;
         ServHeader.Modify(true);
         LibraryVariableStorage.Enqueue(PostedDocsToPrintCreatedMsg);
 
@@ -3171,7 +3177,7 @@
     begin
         // [FEATURE] [Order] [UI]
         // [SCENARIO 379469] Service Line get a unique "Line No." when there is no room to insert a line between two adjacent lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with 4 Service Item Lines: "A", "B", "C", "D".
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -3212,7 +3218,7 @@
     begin
         // [FEATURE] [Quote] [UI]
         // [SCENARIO 379469] Service Line gets an intermediate line no. if inserted between two adjacent lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Quote with 3 Service Item Lines: "A", "B", "C".
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -3250,7 +3256,7 @@
     begin
         // [FEATURE] [Order] [UI]
         // [SCENARIO 379758] When standard text with extended text is inserted between 2 Service Lines, extended text line is placed after standard text and not after the last line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with Service Item Lines
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -3301,7 +3307,7 @@
     begin
         // [FEATURE] [Standard Text] [Extended Text]
         // [SCENARIO 380579] Replacing of Service Line's Standard Text Code updates attached Extended Text lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard Text (Code = "ST1", Description = "SD1") with Extended Text "ET1".
         // [GIVEN] Standard Text (Code = "ST2", Description = "SD2") with Extended Text "ET2".
@@ -3330,7 +3336,7 @@
         DocDate: Date;
     begin
         // [SCENARIO 381308] "Document Date" should not be updated after creation of Service Order from Service Quote
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Quote with "Document Date" = 01.07.16
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
@@ -3344,7 +3350,7 @@
         // [THEN] Service Order has "Document Date" of 01.07.16
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.SetRange("Quote No.", ServiceHeader."No.");
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
 
         ServiceHeader.TestField("Document Date", DocDate);
     end;
@@ -3361,7 +3367,7 @@
     begin
         // [FEATURE] [Nonstock Item]
         // [SCENARIO 203155] It should be possible to add Nonstock Item having populated "Item Template Code" to the Service Order - Service Lines using the Action for Non Stock Items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Nonstock Item "I" having Item Template with populated "Gen. Prod. Posting Group" and "Inventory Posting Group"
         LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
@@ -3393,7 +3399,7 @@
     begin
         // [FEATURE] [Nonstock Item]
         // [SCENARIO 203155] It should not be possible to add Nonstock Item having Item Template with blank "Gen. Prod. Posting Group"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Nonstock Item with blank "Gen. Prod. Posting Group"
         LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
@@ -3428,7 +3434,7 @@
     begin
         // [FEATURE] [Nonstock Item]
         // [SCENARIO 203155] It should not be possible to add Nonstock Item having Item Template with blank "Inventory Posting Group"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Nonstock Item with blank "Inventory Posting Group"
         LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
@@ -3509,10 +3515,10 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 218581] Service Order's "Customer No." is not blanked after Ship through the Service Order page being applied with filter "Completely Shipped" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order for Customer "X"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateServiceDocumentWithServiceItem(
           ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Order, CustomerNo);
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItemLine."Service Item No.");
@@ -3546,7 +3552,7 @@
 
         // [GIVEN] Customer with "Credit Limit" = 100
         // [GIVEN] Service Order with Customer and "Amount Including VAT" = 350
-        Initialize;
+        Initialize();
         CreateServiceDocWithCrLimitCustomer(ServHeader, ServLine, ServHeader."Document Type"::Order);
 
         // [WHEN] Check Credit Limit on Service Order
@@ -3573,7 +3579,7 @@
 
         // [GIVEN] Customer with "Credit Limit" = 100
         // [GIVEN] Service Invoice with Customer and "Amount Including VAT" = 350
-        Initialize;
+        Initialize();
         CreateServiceDocWithCrLimitCustomer(ServHeader, ServLine, ServHeader."Document Type"::Invoice);
 
         // [WHEN] Check Credit Limit on Service Invoice
@@ -3595,7 +3601,7 @@
     begin
         // [FEATURE] [Service Item Line]
         // [SCENARIO 226470] Service Order is deleted after posting if there are not posted Service Item Lines with "Service Item No." = ''
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order "SO" with Service Item Line with Service Line
         CreateServiceOrderWithItem(
@@ -3623,7 +3629,7 @@
     begin
         // [FEATURE] [Service Item Line] [Service Line] [Dimension]
         // [SCENARIO 228572] Service Line Dimension Set ID remains the same when Service Lines are recreated
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Header with Service Line "SL"
         CreateServiceOrderWithServiceItemLineAndServiceLines(ServiceHeader, false);
@@ -3654,8 +3660,8 @@
     begin
         // [FEATURE] [Invoice] [Service Line] [UI]
         // [SCENARIO 229340] Service Invoice Lines created from Service Shipment Lines take Posting Date from Service Invoice
-        Initialize;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Shipped Service Order with Posting Date "PD1"
         CreateAndShipServiceOrderWithPostingDate(ServiceOrderHeader, CustomerNo, LibraryRandom.RandDate(0));
@@ -3682,7 +3688,7 @@
     begin
         // [FEATURE] [Customer] [Location] [UT]
         // [SCENARIO 255036] "Location Code" in Service Document must be copied from Customer when the Service Header is inserted after validating "Customer No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "10000" with Location "BLUE"
         CreateCustomerWithLocationCode(Customer, Location);
@@ -3706,7 +3712,7 @@
     begin
         // [FEATURE] [Customer] [Location] [UT]
         // [SCENARIO 255036] "Location Code" in Service Document must be copied from Customer when "Customer No." is set and then revalidated with a new value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "10000" with Location "BLUE"
         CreateCustomerWithLocationCode(Customer, Location);
@@ -3734,13 +3740,13 @@
     begin
         // [FEATURE] [UI] [UT] [Bill-to Customer]
         // [SCENARIO 288106] Stan validates Sell-to Cust No in Service Document and cancels change of Bill-to Customer No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with a line
         CreateServiceInvoiceSimple(ServiceHeader);
 
         // [GIVEN] Stan confirmed change of Bill-to Customer No. and line recalculation in Service Invoice
-        BillToCustNo := LibrarySales.CreateCustomerNo;
+        BillToCustNo := LibrarySales.CreateCustomerNo();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(true);
         ServiceHeader.Validate("Bill-to Customer No.", BillToCustNo);
@@ -3769,7 +3775,7 @@
     begin
         // [FEATURE] [G/L Entry] [Description]
         // [SCENARIO 300843] G/L account type document line Description is copied to G/L entry when ServiceSetup."Copy Line Descr. to G/L Entry" = "Yes"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set ServiceSetup."Copy Line Descr. to G/L Entry" = "Yes"
         SetServiceSetupCopyLineDescrToGLEntry(TRUE);
@@ -3794,7 +3800,7 @@
     begin
         // [FEATURE] [G/L Entry] [Description]
         // [SCENARIO 300843] Event InvoicePostBuffer.OnAfterInvPostBufferPrepareService can be used to copy document line Description for line type Item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscribe on InvoicePostBuffer.OnAfterInvPostBufferPrepareService
         BINDSUBSCRIPTION(ServiceOrders);
@@ -3823,7 +3829,7 @@
     begin
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on service hours when starting time is before service hours with the same date
-        Initialize;
+        Initialize();
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
@@ -3849,7 +3855,7 @@
     begin
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on starting time when starting time is during service hours with the same date
-        Initialize;
+        Initialize();
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
@@ -3875,7 +3881,7 @@
     begin
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on service hours when starting time is before service hours with different dates
-        Initialize;
+        Initialize();
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
@@ -3902,7 +3908,7 @@
     begin
         // [FEATURE] [UT] [Actual Response Hours]
         // [SCENARIO 313678] Actual Response Hours calculation is based on starting time when starting time is during service hours with different dates
-        Initialize;
+        Initialize();
         ServiceHour.DeleteAll();
 
         // [GIVEN] Service hours defined for WORKDAY
@@ -3928,7 +3934,7 @@
     begin
         // [FEATURE] [Ship-To] [VAT]
         // [SCENARIO 317562] Changing "Ship-to Country/Region Code" on a Service document doesn't affect "VAT Country/Region Code"
-        Initialize;
+        Initialize();
         GLSetup.Get();
         GLSetup.Validate("Bill-to/Sell-to VAT Calc.", GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No.");
         GLSetup.Modify();
@@ -3986,11 +3992,11 @@
     begin
         // [FEATURE] [Service Line] [UT]
         // [SCENARIO 335496] "GetLineNo" function returns next line no. after the last service line and "Line No." = 10000 if no service line exists.
-        Initialize;
+        Initialize();
 
         ServiceHeader.Init();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
-        ServiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceHeader."No." := LibraryUtility.GenerateGUID();
         ServiceHeader.Insert();
 
         with ServiceLine do begin
@@ -4661,26 +4667,77 @@
         Assert.ExpectedError(RoundingBalanceErr);
     end;
 
+    [Test]
+    procedure BinCodeNotAllowedForNonInventoryItems()
+    var
+        Item: Record Item;
+        NonInventoryItem: Record Item;
+        ServiceItem: Record "Service Item";
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO] On service lines, bin code should only be possible to set for inventory items.
+        Initialize();
+
+        // [GIVEN] An item, A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location and a bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(
+            BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure"
+        );
+
+        // [GIVEN] A service order with a service item containing a service line.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+
+        // [WHEN] Setting bin code on inventory item.
+        ServiceLine.Validate("No.", Item."No.");
+        ServiceLine.Validate("Location Code", Location.Code);
+        ServiceLine.Validate("Bin Code", Bin.Code);
+
+        // [THEN] No error is thrown.
+
+        // [WHEN] Setting bin code on non-inventory items.
+        ServiceLine.Validate("No.", NonInventoryItem."No.");
+        ServiceLine.Validate("Location Code", Location.Code);
+        asserterror ServiceLine.Validate("Bin Code", Bin.Code);
+
+        // [THEN] An error is thrown.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Orders");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Orders");
 
         // Create Demonstration Database.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         UpdateCustNoSeries;
         IsInitialized := true;
         Commit();
@@ -4709,7 +4766,7 @@
         ConfigTemplateLine.SetRange("Data Template Code", ItemTemplateCode);
         ConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
         ConfigTemplateLine.SetRange("Field ID", FieldNo);
-        ConfigTemplateLine.FindFirst;
+        ConfigTemplateLine.FindFirst();
         ConfigTemplateLine."Default Value" := '';
         ConfigTemplateLine.Modify();
     end;
@@ -4801,7 +4858,7 @@
         ServiceHeader: Record "Service Header";
         ServiceLineBeforeAfterInsert: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateServiceOrderWithServiceItemLineAndServiceLines(ServiceHeader, InsertAdditionalServiceLine);
         FindServiceLineByOrder(ServiceHeader, InsertBeforeAfterLineNo, ServiceLineBeforeAfterInsert);
 
@@ -4898,7 +4955,7 @@
 
         with ServiceHeader do begin
             SetRange("Contract No.", ServiceContractHeader."Contract No.");
-            FindFirst;
+            FindFirst();
             LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         end;
     end;
@@ -4983,7 +5040,7 @@
         ResponsibilityCenter: Record "Responsibility Center";
     begin
         LibrarySales.CreateCustomer(Customer);
-        ResponsibilityCenter.FindFirst;
+        ResponsibilityCenter.FindFirst();
         Customer.Validate("Responsibility Center", ResponsibilityCenter.Code);
         Customer.Modify(true);
     end;
@@ -5094,7 +5151,7 @@
     local procedure CreateRepairStatusCodeFinish(var RepairStatus: Record "Repair Status")
     begin
         RepairStatus.SetRange(Finished, true);
-        if not RepairStatus.FindFirst then begin
+        if not RepairStatus.FindFirst() then begin
             LibraryService.CreateRepairStatus(RepairStatus);
             RepairStatus.Validate(Finished, true);
             RepairStatus.Modify(true);
@@ -5315,7 +5372,7 @@
         ServiceItem: Record "Service Item";
     begin
         // Create Service Order - Service Header and Service Item Line with description.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
@@ -5370,9 +5427,9 @@
         ServiceLine: Record "Service Line";
     begin
         // Create Service Header with Responsibility Center, Create Service Item Line and Service Line.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
-        ResponsibilityCenter.FindFirst;
+        ResponsibilityCenter.FindFirst();
         ServiceHeader.Validate("Responsibility Center", ResponsibilityCenter.Code);
         ServiceHeader.Modify(true);
 
@@ -5425,7 +5482,7 @@
     begin
         // Create Service Item, Service Header with Document Type Quote, Service Item Line, Assign Loaner No. on Service Item Line,
         // Create Service Line with Type Item and Create Commnet on Service Quote.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         CreateServiceDocWithLoaner(ServiceHeader, ServiceItemLine, ServiceHeader."Document Type"::Quote);
         LibraryInventory.CreateItem(Item);
@@ -5523,7 +5580,7 @@
     begin
         LibrarySales.SetCreditWarnings(SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
         CreditLimit := LibraryRandom.RandDec(10, 2);
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         UpdateCustomerCreditLimit(CustNo, CreditLimit);
         CreateServiceDocWithIncreasedAmount(ServHeader, ServLine, DocType, CustNo, CreditLimit);
         LibraryVariableStorage.Enqueue(CustNo);
@@ -5847,7 +5904,7 @@
     local procedure DeleteUserSetup(var UserSetup: Record "User Setup"; ResponsibilityCenterCode: Code[10])
     begin
         UserSetup.SetRange("Service Resp. Ctr. Filter", ResponsibilityCenterCode);
-        UserSetup.FindFirst;
+        UserSetup.FindFirst();
         UserSetup.Delete(true);
     end;
 
@@ -5898,7 +5955,7 @@
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
@@ -5906,7 +5963,7 @@
     begin
         ServiceDocumentLog.SetRange("Document Type", DocumentType);
         ServiceDocumentLog.SetRange("Document No.", DocumentNo);
-        ServiceDocumentLog.FindFirst;
+        ServiceDocumentLog.FindFirst();
     end;
 
     local procedure FindServiceShipmentHeader(OrderNo: Code[20]): Code[20]
@@ -5914,7 +5971,7 @@
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -5923,7 +5980,7 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -5934,7 +5991,7 @@
         with ServiceItemLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             exit("Line No.");
         end;
     end;
@@ -5951,7 +6008,7 @@
             SetRange("Document Type", ServiceHeader."Document Type");
             SetRange("Document No.", ServiceHeader."No.");
             SetRange("Service Item Line No.", ServiceItemLineNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5995,7 +6052,7 @@
         PostedServiceShptSubform: Page "Posted Service Shpt. Subform";
     begin
         ServiceShipmentItemLine.SetRange("No.", FindServiceShipmentHeader(OrderNo));
-        ServiceShipmentItemLine.FindFirst;
+        ServiceShipmentItemLine.FindFirst();
         Clear(PostedServiceShptSubform);
         PostedServiceShptSubform.SetTableView(ServiceShipmentItemLine);
         PostedServiceShptSubform.SetRecord(ServiceShipmentItemLine);
@@ -6007,7 +6064,7 @@
         ServLoanerManagement: Codeunit ServLoanerManagement;
     begin
         ServiceItemLine.SetRange("Service Item No.", ServiceItemNo);
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         ServLoanerManagement.ReceiveLoaner(ServiceItemLine);
     end;
 
@@ -6031,7 +6088,7 @@
     begin
         ShipToAddress2.SetRange("Customer No.", ShipToAddress."Customer No.");
         ShipToAddress2.SetFilter(Code, '<>%1', ShipToAddress.Code);
-        if not ShipToAddress2.FindFirst then
+        if not ShipToAddress2.FindFirst() then
             LibrarySales.CreateShipToAddress(ShipToAddress2, ShipToAddress."Customer No.");
         ShipToAddress := ShipToAddress2;
     end;
@@ -6041,7 +6098,7 @@
         ServiceItemLine: Record "Service Item Line";
     begin
         // Setup: Create Service Order and Update Service Item Line with Item No.,Warranty.
-        Initialize;
+        Initialize();
         CreateServiceDoumentLine(ServiceItemLine, DocumentType);
         UpdateItemAndWarrantyOnServiceItemLine(ServiceItemLine, Warranty, ReplenishmentSystem);
 
@@ -6132,7 +6189,7 @@
         LibraryService.FindServiceItemGroup(ServiceItemGroup);
         ServiceItemLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceItemLine.SetRange("Item No.", '');
-        if ServiceItemLine.FindSet then
+        if ServiceItemLine.FindSet() then
             repeat
                 ServiceItemLine.Validate("Service Item Group Code", ServiceItemGroup.Code);
                 ServiceItemLine.Modify(true);
@@ -6199,7 +6256,7 @@
         ServiceItemLine: Record "Service Item Line";
     begin
         // Setup: Create Service Order and Update Service Item Line with Item No.,Warranty.
-        Initialize;
+        Initialize();
         CreateServiceDoumentLine(ServiceItemLine, DocumentType);
         UpdateItemAndWarrantyOnServiceItemLine(ServiceItemLine, Warranty, ReplenishmentSystem);
 
@@ -6223,7 +6280,7 @@
     var
         ServiceCommentLine: Record "Service Comment Line";
     begin
-        ServiceCommentLineOld.FindFirst;
+        ServiceCommentLineOld.FindFirst();
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("No.", ServiceItemLine."Document No.");
         ServiceCommentLine.SetRange("Table Line No.", ServiceItemLine."Line No.");
@@ -6241,7 +6298,7 @@
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceLine.FindSet();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", ServiceLine."Line No.");
@@ -6337,7 +6394,7 @@
             GLEntry.SetFilter(Amount, '>0')
         else
             GLEntry.SetFilter(Amount, '<0');
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 GLAmt += GLEntry.Amount;
             until GLEntry.Next = 0;
@@ -6366,7 +6423,7 @@
         ServiceHeader: Record "Service Header";
     begin
         // Setup: Modify General Ledger Setup and Create Service Document.
-        Initialize;
+        Initialize();
         InitServDocWithInvRoundingPrecisionScenario(ServiceHeader, DocumentType);
 
         // Exercise: Open Service Statistics.
@@ -6382,11 +6439,11 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", DocumentNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           DiscountAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(DiscountAmountErr, GLEntry.FieldCaption(Amount), DiscountAmount, GLEntry.TableCaption));
@@ -6411,7 +6468,7 @@
         LoanerEntry: Record "Loaner Entry";
     begin
         LoanerEntry.SetRange("Loaner No.", ServiceItemLine."Loaner No.");
-        LoanerEntry.FindFirst;
+        LoanerEntry.FindFirst();
         LoanerEntry.TestField("Document No.", ServiceItemLine."Document No.");
         LoanerEntry.TestField("Service Item Line No.", ServiceItemLine."Line No.");
         LoanerEntry.TestField("Service Item No.", ServiceItemLine."Service Item No.");
@@ -6426,7 +6483,7 @@
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
         ResLedgerEntry.SetRange("Document No.", DocumentNo);
         ResLedgerEntry.SetRange("Entry Type", EntryType);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, Quantity);
         ResLedgerEntry.TestField("Total Price", TotalPrice);
     end;
@@ -6452,7 +6509,7 @@
         with ServiceHeader do begin
             SetRange("Document Type", DocumentType);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(
               LocationCode, "Location Code",
               StrSubstNo(WrongValueErr, FieldCaption("Location Code"), LocationCode, TableCaption));
@@ -6466,7 +6523,7 @@
         with ServiceHeader do begin
             SetRange("Document Type", DocumentType);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             TestField("Responsibility Center", ResponsibilityCenter);
         end;
     end;
@@ -6519,7 +6576,7 @@
     begin
         ServiceItemLog.SetRange("Service Item No.", ServiceItemNo);
         ServiceItemLog.SetRange(After, After);
-        ServiceItemLog.FindFirst;
+        ServiceItemLog.FindFirst();
         ServiceItemLog.TestField("Event No.", EventNo);
     end;
 
@@ -6530,7 +6587,7 @@
         ServiceItemLog.SetRange("Document No.", DocumentNo);
         ServiceItemLog.SetRange("Document Type", ServiceItemLog."Document Type"::Order);
         ServiceItemLog.SetRange("Event No.", EventNo);
-        ServiceItemLog.FindFirst;
+        ServiceItemLog.FindFirst();
     end;
 
     local procedure VerifyServiceItemLogExist(ServiceItemNo: Code[20]; EventNo: Integer)
@@ -6539,7 +6596,7 @@
     begin
         ServiceItemLog.SetRange("Service Item No.", ServiceItemNo);
         ServiceItemLog.SetRange("Event No.", EventNo);
-        ServiceItemLog.FindFirst;
+        ServiceItemLog.FindFirst();
     end;
 
     local procedure VerifyServiceLedgerEntry(No: Code[20]; DocumentNo: Code[20]; ServiceContractNo: Code[20]; EntryType: Enum "Service Ledger Entry Entry Type"; Quantity: Decimal)
@@ -6549,7 +6606,7 @@
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Entry Type", EntryType);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("No.", No);
         ServiceLedgerEntry.TestField("Service Contract No.", ServiceContractNo);
         ServiceLedgerEntry.TestField(Quantity, Quantity);
@@ -6579,7 +6636,7 @@
     begin
         ServiceItemLine.SetRange("Document Type", DocumentType);
         ServiceItemLine.SetRange("Document No.", DocumentNo);
-        if ServiceItemLine.FindSet then
+        if ServiceItemLine.FindSet() then
             repeat
                 ServiceItemLine.TestField("Service Item Group Code");
             until ServiceItemLine.Next = 0;
@@ -6591,11 +6648,11 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.SetRange("VAT Amount", VATAmount);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure VerifyPostingDateOnServiceLedgerEntry(ServiceLine: Record "Service Line"; DocumentType: Enum "Service Ledger Entry Document Type"; Quantity: Decimal)
@@ -6604,7 +6661,7 @@
     begin
         ServiceLedgerEntry.SetRange("Service Order No.", ServiceLine."Document No.");
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("Posting Date", ServiceLine."Posting Date");
         ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
         ServiceLedgerEntry.TestField(Quantity, Quantity);
@@ -6615,7 +6672,7 @@
         WarrantyLedgerEntry: Record "Warranty Ledger Entry";
     begin
         WarrantyLedgerEntry.SetRange("Service Order No.", ServiceOrderNo);
-        WarrantyLedgerEntry.FindFirst;
+        WarrantyLedgerEntry.FindFirst();
         WarrantyLedgerEntry.TestField(Open, false);
     end;
 
@@ -6626,7 +6683,7 @@
     begin
         // Verify first line of Posted Service Invoice
         ServiceInvHeader.SetRange("Order No.", ServiceDocNo);
-        ServiceInvHeader.FindLast;
+        ServiceInvHeader.FindLast();
 
         ServiceInvStatistics.OpenView;
         ServiceInvStatistics.GotoRecord(ServiceInvHeader);
@@ -6641,7 +6698,7 @@
         ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics";
     begin
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         ServiceCreditMemoStatistics.OpenView;
         ServiceCreditMemoStatistics.GotoRecord(ServiceCrMemoHeader);
@@ -6662,7 +6719,7 @@
         Amount: Decimal;
     begin
         // Setup: Create Service Item and Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -6704,7 +6761,7 @@
         with ServiceLine do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(Round(Quantity * "Unit Price"), "Line Amount",
               StrSubstNo(WrongValueErr, FieldCaption("Line Amount"), "Line Amount"));
         end;
@@ -6750,11 +6807,11 @@
             Assert.AreEqual(2, Count, StrSubstNo(NoOfLinesErr, TableCaption, 2));
 
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpItemNo, "No.", StrSubstNo(WrongValueErr, FieldCaption("No."), ExpItemNo, TableCaption));
 
             SetRange(Type, Type::" ");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpExtendedText, Description, StrSubstNo(WrongValueErr, FieldCaption(Description), ExpExtendedText, TableCaption));
         end;
     end;
@@ -6805,7 +6862,7 @@
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Customer No.", ServiceHeader."Customer No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.TestField("Posting Date", ServiceHeader."Posting Date");
     end;
 
@@ -6815,10 +6872,10 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SETRANGE("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FINDFIRST;
+        ServiceInvoiceHeader.FindFirst();
 
         GLEntry.SETRANGE("Document No.", ServiceInvoiceHeader."No.");
-        TempServiceLine.FINDSET;
+        TempServiceLine.FindSet();
         REPEAT
             GLEntry.SETRANGE(Description, TempServiceLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
@@ -7021,7 +7078,7 @@
     begin
         // Modal form handler. Return Action as LookupOK for first record found.
         ServiceItemComponent.SetRange("Parent Service Item No.", LibraryVariableStorage.DequeueText);
-        ServiceItemComponent.FindFirst;
+        ServiceItemComponent.FindFirst();
         ServiceItemComponentList.SetRecord(ServiceItemComponent);
         Response := ACTION::LookupOK;
     end;
@@ -7083,7 +7140,7 @@
     var
         ServiceItemCardPage: TestPage "Service Item Card";
     begin
-        ServiceItemCardPage.OpenNew;
+        ServiceItemCardPage.OpenNew();
         ServiceItemCardPage.Description.Activate;
         ServiceItemList.OK.Invoke;
         LibraryVariableStorage.Enqueue(ServiceItemCardPage."No.".Value); // Format required for Testpage variable.

@@ -194,7 +194,7 @@ codeunit 144037 "ERM Telebank"
         TelebankProposal: TestPage "Telebank Proposal";
     begin
         // [SCENARIO 226711] No any error generated on Telebank Proposal page with blank Bank Account No on Bank Account.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Vendor invoice with Vendor Bank Account
         // [GIVEN] SEPA Bank Account with blank Bank Account No. field has Check SEPA ISO20022 codeunit in Export Protocol
@@ -271,7 +271,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank IBAN on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -290,7 +290,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with SEPA Allowed as false on Country/Region.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -309,7 +309,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank SWIFT Code on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -329,7 +329,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with SWIFT Code more than 11 characters on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -350,7 +350,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank IBAN on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -369,7 +369,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank SWIFT Code on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -389,7 +389,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with SWIFT Code more than 11 characters on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -409,7 +409,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank Country/Region Code on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -429,7 +429,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with SEPA Allowed as false on Country/Region.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -449,7 +449,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank Acc. Hold Country/Region Code on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -469,7 +469,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with blank Acc. Hold City on Vendor Bank Account.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -489,7 +489,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with No Check ID on Export Protocol.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -509,7 +509,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Test to Verify Error on Telebank Proposal page with Order as credit On Transaction Mode.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Exercise and Verify.
@@ -529,7 +529,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [SCENARIO 363009] There is no currency check error on Telebank Proposal page with Currency Euro on General Ledger Setup.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         UpdateGeneralLedgerSetup(CreateCurrency);
 
@@ -552,7 +552,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [SCENARIO 363009] There is no currency check error on Telebank Proposal page with blank Currency Euro on General Ledger Setup.
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         UpdateGeneralLedgerSetup('');  // Currency Euro as blank.
 
@@ -630,7 +630,7 @@ codeunit 144037 "ERM Telebank"
         CurrencyCode: Code[10];
     begin
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
@@ -718,7 +718,7 @@ codeunit 144037 "ERM Telebank"
         CurrencyCode: Code[10];
     begin
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CompanyInformation.Get();
         UpdateGeneralLedgerSetup(CurrencyCode);
@@ -755,7 +755,7 @@ codeunit 144037 "ERM Telebank"
         // Test to Verify error in case of set Serial No. as 0 on Propsal Detail Line.
 
         // Setup: Create Bank Account, Create and post Purchase Invoice and open Proposal Detail line page.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         UpdateGeneralLedgerSetup(DummyCurrencyCode);
         SetupForProposalLine(VendorBankAccount, CompanyInformation, DummyCurrencyCode);
@@ -789,7 +789,7 @@ codeunit 144037 "ERM Telebank"
         // Test to Verify Description after changed description detail on Propsal Detail Line.
 
         // Setup: Create Bank Account, Create and post Purchase Invoice and open and delete first entry on Proposal Detail line page.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         UpdateGeneralLedgerSetup(DummyCurrencyCode);
         SetupForProposalLine(VendorBankAccount, CompanyInformation, DummyCurrencyCode);
@@ -802,7 +802,7 @@ codeunit 144037 "ERM Telebank"
 
         // Verify: Verify Description on Proposal Detail Line page.
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         ProposalDetailLine."Description 1".AssertEquals(VendorLedgerEntry.Description);
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
@@ -826,7 +826,7 @@ codeunit 144037 "ERM Telebank"
         // Test to Verify updated Transaction Date in Detail Line.
 
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
@@ -843,7 +843,7 @@ codeunit 144037 "ERM Telebank"
 
         // Verify: Verify Transaction Date on Detail Line.
         DetailLine.SetRange("Account No.", VendorBankAccount."Vendor No.");
-        DetailLine.FindFirst;
+        DetailLine.FindFirst();
         DetailLine.TestField(Date, CalcDate('<1M>', WorkDate));
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
@@ -889,7 +889,7 @@ codeunit 144037 "ERM Telebank"
         ProposalLine: Record "Proposal Line";
     begin
         // Setup: Initialize proposal line with different country region codes and limits according to factors.
-        Initialize;
+        Initialize();
         InitProposalLineWithDiffCountryRegionCodes(ProposalLine);
 
         SetGLSetupEmptyLocalCurrency;
@@ -917,7 +917,7 @@ codeunit 144037 "ERM Telebank"
         ExDocNoMaxLength: Code[35];
     begin
         // Setup: Create Bank Account, Create and post Invoice and Get Telebank Proposal Entries.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
@@ -936,7 +936,7 @@ codeunit 144037 "ERM Telebank"
         with PaymentHistoryLine do begin
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", AccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExDocNoMaxLength, GetUnstrRemitInfo, WrongValueReturnedErr);
         end;
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
@@ -958,7 +958,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 122001] "Shorcut Dimension 1 Code" and "Shortcut Dimension 2 Code" of Proposal Line contains values of default dimensions for Vendor
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor and Bank Account with same default dimension, but different dimension value
         // [GIVEN] Value of "Shortcut Dimension 1 Code" = "X1", value of "Shortcut Dimension 2 Code" = "X2" in "Default Dimension" for vendor
         CreateVendorAndBankAccountWithDefaultDimension(Vendor, BankAccountNo, VendorBankAccountCode,
@@ -985,7 +985,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 122001] Fields "Shorcut Dimension 1 Code" and "Shortcut Dimension 2 Code" of Proposal Line contains values of default dimensions for Customer
-        Initialize;
+        Initialize();
         // [GIVEN] Customer Bank Account and Bank Account with same dimension, but different dimension value
         // [GIVEN] Value of "Shortcut Dimension 1 Code" = "X1", value of "Shortcut Dimension 2 Code" = "X2" in "Default Dimension" for customer
         CreateCustomerAndBankAccountWithDefaultDimension(Customer, BankAccountNo, CustomerBankAccountCode,
@@ -1014,7 +1014,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [FEATURE] [Report] [Get Proposal Entries] [Rounding]
         // [SCENARIO 229408] When report "Get Proposal Entries" is run for FCY Posted Purchase Invoice, then "Foreign Amount" in Proposal Line is rounded with respect to "Amount Rounding Precision" of Currency.
-        Initialize;
+        Initialize();
         ExchangeRate := 132.073876;
         Amount := 21111;
         VATRate := 19;
@@ -1040,7 +1040,7 @@ codeunit 144037 "ERM Telebank"
         ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
         ProposalLine.SetRange("Account No.", VendorNo);
         Assert.RecordCount(ProposalLine, 1);
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField(
           "Foreign Amount", Round(Round(AmountInclVAT / ExchangeRate) * ExchangeRate, Currency."Amount Rounding Precision"));
     end;
@@ -1060,7 +1060,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [FEATURE] [Report] [Get Proposal Entries]
         // [SCENARIO 230434] When report "Get Proposal Entries" is run for two similar FCY Posted Purchase Invoices [1] and [2], then one Proposal Line is created with Amount = [1].Total Amount + [2].Total Amount
-        Initialize;
+        Initialize();
         VATRate := LibraryRandom.RandIntInRange(10, 20);
 
         // [GIVEN] Vendor, transactions go through "Our bank" with FCY
@@ -1083,7 +1083,7 @@ codeunit 144037 "ERM Telebank"
         ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
         ProposalLine.SetRange("Account No.", VendorNo);
         Assert.RecordCount(ProposalLine, 1);
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField(Amount, AmountInclVAT[1] + AmountInclVAT[2]);
     end;
 
@@ -1100,7 +1100,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 122001] "Shorcut Dimension 1 Code" and "Shortcut Dimension 2 Code" of Proposal Line contains values of default dimensions for Employee
-        Initialize;
+        Initialize();
         // [GIVEN] Employee with default dimension
         // [GIVEN] Value of "Shortcut Dimension 1 Code" = "X1", value of "Shortcut Dimension 2 Code" = "X2" in "Default Dimension" for employee
         CreateEmployeeAndBankAccountWithDefaultDimension(Employee, BankAccountNo,
@@ -1216,9 +1216,9 @@ codeunit 144037 "ERM Telebank"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UpdateSWIFTCodeOnCompanyInformation;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         if IsInitialized then
             exit;
@@ -1468,7 +1468,7 @@ codeunit 144037 "ERM Telebank"
         OpenProposalDetailLine(ProposalDetailLine, AccountNo);
         ProposalDetailLine.Close;
         DetailLine.SetRange("Account No.", AccountNo);
-        DetailLine.FindFirst;
+        DetailLine.FindFirst();
         DetailLine.Delete(true);
         ProposalDetailLine.OpenEdit;
         ProposalDetailLine.FILTER.SetFilter("Account No.", AccountNo);
@@ -1497,7 +1497,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Setup: Create Bank Account, Create and post Invoice and Get Entries on Telebank Proposal Page.
         // Update Freely Transferable Maximum, Proposal Line and Transaction Mode. Run Process on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         CurrencyCode := CreateCurrency;
         UpdateGeneralLedgerSetup(CurrencyCode);
@@ -1602,7 +1602,7 @@ codeunit 144037 "ERM Telebank"
     begin
         FreelyTransferableMaximum.SetRange("Country/Region Code", CountryRegionCode);
         FreelyTransferableMaximum.SetRange("Currency Code", CurrencyCode);
-        FreelyTransferableMaximum.FindFirst;
+        FreelyTransferableMaximum.FindFirst();
         FreelyTransferableMaximum.Delete(true);
     end;
 
@@ -1709,7 +1709,7 @@ codeunit 144037 "ERM Telebank"
         VendorBankAccount: Record "Vendor Bank Account";
         TelebankProposal: TestPage "Telebank Proposal";
     begin
-        Initialize;
+        Initialize();
 
         PostVendorInvoiceUpdateSEPABankAccount(FIELDNO, FieldValue, VendorBankAccount);
         LibraryVariableStorage.Enqueue(VendorBankAccount."Vendor No."); // Enqueue for GetProposalEntriesRequestPageHandler.
@@ -1747,7 +1747,7 @@ codeunit 144037 "ERM Telebank"
     begin
         ProposalLine.SetRange("Our Bank No.", CopyStr(OurBankNo, 1, MaxStrLen(ProposalLine."Our Bank No.")));
         ProposalLine.SetRange("Account No.", AccountNo);
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.Validate("Nature of the Payment", NatureOfThePayment);
         ProposalLine.Validate("Currency Code", CurrencyCode);
         ProposalLine.Modify(true);
@@ -1783,7 +1783,7 @@ codeunit 144037 "ERM Telebank"
         ProposalLine.Init();
         OldIBAN := ProposalLine.IBAN;
         LibraryVariableStorage.Enqueue(ConfirmReply);
-        IBANNumber := LibraryUtility.GenerateGUID;
+        IBANNumber := LibraryUtility.GenerateGUID();
 
         if ConfirmReply then
             ProposalLine.Validate(IBAN, IBANNumber)
@@ -1893,6 +1893,11 @@ codeunit 144037 "ERM Telebank"
     local procedure CreateCustomerAndBankAccount(var Customer: Record Customer; var BankAccountNo: Code[20]; var CustomerBankAccount: Record "Customer Bank Account")
     var
         BankAccount: Record "Bank Account";
+        DimensionValue1Customer: Record "Dimension Value";
+        DimensionValue2Customer: Record "Dimension Value";
+        DimensionValue1BankAccount: Record "Dimension Value";
+        DimensionValue2BankAccount: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -2006,7 +2011,7 @@ codeunit 144037 "ERM Telebank"
         ProposalLine.SetRange("Our Bank No.", OurBankNo);
         ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
         ProposalLine.SetRange("Account No.", AccountNo);
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField("Error Message", ErrorMessage);
     end;
 
@@ -2227,10 +2232,10 @@ codeunit 144037 "ERM Telebank"
         LibraryDimension.FindDefaultDimension(DefaultDimension, TableID, SourceNo);
         with ProposalLine do begin
             DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 1 Code");
-            DefaultDimension.FindFirst;
+            DefaultDimension.FindFirst();
             Assert.AreEqual(DefaultDimension."Dimension Value Code", "Shortcut Dimension 1 Code", WrongShortcutDimensionErr);
             DefaultDimension.SetRange("Dimension Code", GLSetup."Shortcut Dimension 2 Code");
-            DefaultDimension.FindFirst;
+            DefaultDimension.FindFirst();
             Assert.AreEqual(DefaultDimension."Dimension Value Code", "Shortcut Dimension 2 Code", WrongShortcutDimensionErr);
         end;
     end;

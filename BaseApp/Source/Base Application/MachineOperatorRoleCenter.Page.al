@@ -173,6 +173,15 @@ page 9013 "Machine Operator Role Center"
                                     Recurring = CONST(true));
                 ToolTip = 'Post consumed capacities that are not posted as part of production order output, such as maintenance work.';
             }
+            action("Navi&gate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
         }
         area(sections)
         {

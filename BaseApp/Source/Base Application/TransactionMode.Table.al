@@ -213,7 +213,7 @@ table 11000004 "Transaction Mode"
             "Account Type"::Employee:
                 begin
                     Employee.SetRange("Transaction Mode Code", Code);
-                    if Employee.FindFirst then
+                    if Employee.FindFirst() then
                         if "Partner Type" <> "Partner Type"::" " then
                             Error(EmployeeTypeMismatchErr);
                 end;
@@ -232,7 +232,7 @@ table 11000004 "Transaction Mode"
         if TransactionModeCode <> '' then begin
             SetRange("Account Type", AccountType);
             SetRange(Code, TransactionModeCode);
-            FindFirst;
+            FindFirst();
             if (AccountType = AccountType::Employee) and ("Partner Type" <> "Partner Type"::" ") then
                 exit(false);
 

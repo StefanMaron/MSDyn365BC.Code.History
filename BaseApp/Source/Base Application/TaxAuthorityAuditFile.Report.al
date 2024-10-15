@@ -680,7 +680,7 @@ report 11412 "Tax Authority - Audit File"
         LocGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         LocGLEntry.SetRange("G/L Account No.", GLAccountNo);
         LocGLEntry.SetFilter("Posting Date", '..%1', ClosingDate(StartDate - 1));
-        LocGLEntry.FindLast;
+        LocGLEntry.FindLast();
         exit(LocGLEntry."Entry No.");
     end;
 

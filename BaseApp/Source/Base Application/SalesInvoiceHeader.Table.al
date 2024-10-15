@@ -503,6 +503,11 @@ table 112 "Sales Invoice Header"
             Caption = 'Quote No.';
             Editable = false;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(166; "Last Email Sent Time"; DateTime)
         {
             CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = CONST(Invoice),
@@ -935,7 +940,7 @@ table 112 "Sales Invoice Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure LookupAdjmtValueEntries()
@@ -1015,7 +1020,7 @@ table 112 "Sales Invoice Header"
         CustLedgerEntry.SetRange("Document No.", "No.");
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
 
-        if not CustLedgerEntry.FindFirst then
+        if not CustLedgerEntry.FindFirst() then
             exit(0);
 
         exit(CustLedgerEntry."Remaining Amount");
@@ -1032,8 +1037,8 @@ table 112 "Sales Invoice Header"
     begin
         IsHandled := false;
         OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
-		if IsHandled then
-			exit;
+        if IsHandled then
+            exit;
 
         if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);

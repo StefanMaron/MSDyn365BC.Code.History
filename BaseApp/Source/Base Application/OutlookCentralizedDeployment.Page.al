@@ -83,13 +83,44 @@ page 1831 "Outlook Centralized Deployment"
                     Caption = 'Let''s go!';
                     Visible = IsSaas;
                     InstructionalText = 'Centralized Deployment requires configuring both Business Central and Microsoft 365. Choose Next to get started.';
-
                 }
                 group("Para1.2A")
                 {
                     Caption = 'Let''s go!';
                     Visible = not IsSaas;
                     InstructionalText = 'Centralized Deployment requires configuring Business Central along with Microsoft 365 or Exchange Server. Choose Next to get started.';
+                }
+            }
+
+            group(Step1_5)
+            {
+                Caption = '';
+                Visible = PrivacyNoticeStepVisible;
+
+                group(PrivacyNotice)
+                {
+                    Caption = 'Your privacy is important to us';
+
+                    group(PrivacyNoticeInner)
+                    {
+                        ShowCaption = false;
+                        label(PrivacyNoticeLabel)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'This feature utilizes Microsoft Exchange. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Exchange may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Exchange to learn more.';
+                        }
+                        field(PrivacyNoticeStatement; PrivacyStatementTxt)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+
+                            trigger OnDrillDown()
+                            begin
+                                Hyperlink('https://go.microsoft.com/fwlink/?linkid=831305');
+                            end;
+                        }
+                    }
                 }
             }
 
@@ -349,6 +380,8 @@ page 1831 "Outlook Centralized Deployment"
         case Step of
             Step::Intro:
                 ShowIntroStep();
+            Step::PrivacyNotice:
+                ShowPrivacyNoticeStep();
             Step::Manifests:
                 ShowManifestsStep();
             Step::DeployTo:
@@ -365,6 +398,12 @@ page 1831 "Outlook Centralized Deployment"
         ResetWizardControls();
         IntroStepVisible := true;
         BackActionEnabled := false;
+    end;
+
+    local procedure ShowPrivacyNoticeStep()
+    begin
+        ResetWizardControls();
+        PrivacyNoticeStepVisible := true;
     end;
 
     local procedure ShowManifestsStep()
@@ -403,6 +442,7 @@ page 1831 "Outlook Centralized Deployment"
 
         // Tabs
         IntroStepVisible := false;
+        PrivacyNoticeStepVisible := false;
         ManifestsStepVisible := false;
         DeployToStepVisible := false;
         InstructionsStepVisible := false;
@@ -426,7 +466,7 @@ page 1831 "Outlook Centralized Deployment"
         MediaResourcesDone: Record "Media Resources";
         ClientTypeManagement: Codeunit "Client Type Management";
         OfficeMgt: Codeunit "Office Management";
-        Step: Option Intro,Manifests,DeployTo,Instructions;
+        Step: Option Intro,PrivacyNotice,Manifests,DeployTo,Instructions;
         DeployTo: Option M365,ExchangeServer;
         BackActionEnabled: Boolean;
         NextActionVisible: Boolean;
@@ -434,6 +474,7 @@ page 1831 "Outlook Centralized Deployment"
         DownloadActionVisible: Boolean;
         TopBannerVisible: Boolean;
         IntroStepVisible: Boolean;
+        PrivacyNoticeStepVisible: Boolean;
         ManifestsStepVisible: Boolean;
         DeployToStepVisible: Boolean;
         InstructionsStepVisible: Boolean;
@@ -445,4 +486,5 @@ page 1831 "Outlook Centralized Deployment"
         LearnMoreFwdLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2165028', Locked = true;
         LearnMoreLbl: Label 'Learn more about the add-in for Outlook in Exchange Server';
         SetupTelemetryTxt: Label 'Centralized deployment for Outlook Add-ins setup finished with deployment to = %1', Comment = '%1 specifies either M365 or ExchangeServer ', Locked = true;
+        PrivacyStatementTxt: Label 'Learn more about our Privacy Statement.';
 }

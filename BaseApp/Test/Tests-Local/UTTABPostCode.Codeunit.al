@@ -1407,7 +1407,7 @@ codeunit 144019 "UT TAB Post Code"
         CreatePostCodeAnd2PostRanges(PostCode, PostCodeRange);
 
         // [WHEN] Delete "Y1"
-        PostCodeRange.FindFirst;
+        PostCodeRange.FindFirst();
         PostCodeRange.Delete(true);
 
         // [THEN] Post Code "X" exists
@@ -1429,11 +1429,11 @@ codeunit 144019 "UT TAB Post Code"
         CreatePostCodeAnd2PostRanges(PostCode, PostCodeRange);
 
         // [GIVEN] Post Code Range "Y1" deleted
-        PostCodeRange.FindFirst;
+        PostCodeRange.FindFirst();
         PostCodeRange.Delete(true);
 
         // [WHEN] Delete "Y2"
-        PostCodeRange.FindFirst;
+        PostCodeRange.FindFirst();
         PostCodeRange.Delete(true);
 
         // [THEN] Post Code "X" deleted
@@ -1511,7 +1511,7 @@ codeunit 144019 "UT TAB Post Code"
     local procedure CreatePostCode(var PostCode: Record "Post Code")
     begin
         PostCode.Code := Format(LibraryRandom.RandIntInRange(1000, 9999)) + ' ZZ';  // Code should contain 4 digit following space and two upper case alphabet.
-        PostCode.City := LibraryUtility.GenerateGUID;
+        PostCode.City := LibraryUtility.GenerateGUID();
         PostCode.Insert(true);
     end;
 
@@ -1611,7 +1611,7 @@ codeunit 144019 "UT TAB Post Code"
         PostCodeRange.SetRange(City, PostCode.City);
         PostCode.SetRange(Code, PostCode.Code);
         PostCode.SetRange(City, PostCode.City);
-        PostCode.FindFirst;
+        PostCode.FindFirst();
     end;
 
     local procedure OpenBankAccountCard(var BankAccountCard: TestPage "Bank Account Card"; No: Code[20])

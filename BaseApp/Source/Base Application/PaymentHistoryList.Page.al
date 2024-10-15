@@ -65,7 +65,7 @@ page 11000007 "Payment History List"
                         PaymHist.SetRange("Our Bank", "Our Bank");
                         PaymHist.SetRange("Run No.", "Run No.");
                         PaymentHistory.SetTableView(PaymHist);
-                        PaymentHistory.RunModal;
+                        PaymentHistory.RunModal();
                     end;
                 }
                 field(Status; Status)
@@ -239,7 +239,7 @@ page 11000007 "Payment History List"
     begin
         PaymentCard.SetTableView(Rec);
         PaymentCard.SetRecord(Rec);
-        PaymentCard.Run;
+        PaymentCard.Run();
     end;
 
     [IntegrationEvent(false, false)]

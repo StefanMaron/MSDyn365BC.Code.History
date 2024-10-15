@@ -291,13 +291,13 @@ page 5239 "Empl. Ledger Entries Preview"
 
     procedure Set(var TempEmplLedgerEntry: Record "Employee Ledger Entry" temporary; var TempDetailedEmplLedgEntry2: Record "Detailed Employee Ledger Entry" temporary)
     begin
-        if TempEmplLedgerEntry.FindSet then
+        if TempEmplLedgerEntry.FindSet() then
             repeat
                 Rec := TempEmplLedgerEntry;
                 Insert;
             until TempEmplLedgerEntry.Next() = 0;
 
-        if TempDetailedEmplLedgEntry2.FindSet then
+        if TempDetailedEmplLedgEntry2.FindSet() then
             repeat
                 TempDetailedEmplLedgEntry := TempDetailedEmplLedgEntry2;
                 TempDetailedEmplLedgEntry.Insert();
@@ -314,7 +314,7 @@ page 5239 "Empl. Ledger Entries Preview"
         OriginalAmountFCY := 0;
 
         TempDetailedEmplLedgEntry.SetRange("Employee Ledger Entry No.", "Entry No.");
-        if TempDetailedEmplLedgEntry.FindSet then
+        if TempDetailedEmplLedgEntry.FindSet() then
             repeat
                 if TempDetailedEmplLedgEntry."Entry Type" = TempDetailedEmplLedgEntry."Entry Type"::"Initial Entry" then begin
                     OriginalAmountFCY += TempDetailedEmplLedgEntry.Amount;
@@ -344,7 +344,7 @@ page 5239 "Empl. Ledger Entries Preview"
                 TempDetailedEmplLedgEntry.SetRange("Entry Type");
         end;
         DetailedEmplEntriesPreview.Set(TempDetailedEmplLedgEntry);
-        DetailedEmplEntriesPreview.RunModal;
+        DetailedEmplEntriesPreview.RunModal();
         Clear(DetailedEmplEntriesPreview);
     end;
 }

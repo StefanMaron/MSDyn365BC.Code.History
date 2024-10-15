@@ -27,12 +27,12 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
         TransactionMode: Record "Transaction Mode";
     begin
         // [SCENARIO 263861] Transaction Mode should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transaction Mode with "Acc. No. Pmt./Rcpt. in Process" = "G"
         TransactionMode.Init();
         TransactionMode.Code := LibraryUTUtility.GetNewCode;
-        TransactionMode."Acc. No. Pmt./Rcpt. in Process" := LibraryERM.CreateGLAccountNo;
+        TransactionMode."Acc. No. Pmt./Rcpt. in Process" := LibraryERM.CreateGLAccountNo();
         TransactionMode.Insert();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -59,12 +59,12 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
         TransactionModeList: TestPage "Transaction Mode List";
     begin
         // [SCENARIO 263861] Transaction Mode List page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transaction Mode "TM" with "Acc. No. Pmt./Rcpt. in Process" = "G"
         TransactionMode.Init();
         TransactionMode.Code := LibraryUTUtility.GetNewCode;
-        TransactionMode."Acc. No. Pmt./Rcpt. in Process" := LibraryERM.CreateGLAccountNo;
+        TransactionMode."Acc. No. Pmt./Rcpt. in Process" := LibraryERM.CreateGLAccountNo();
         TransactionMode.Insert();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
@@ -77,7 +77,7 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 

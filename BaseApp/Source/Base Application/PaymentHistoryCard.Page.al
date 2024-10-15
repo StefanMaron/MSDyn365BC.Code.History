@@ -242,7 +242,7 @@ page 11000005 "Payment History Card"
     begin
         "Payment history line".SetRange("Our Bank", "Our Bank");
         "Payment history line".SetRange("Run No.", "Run No.");
-        if "Payment history line".FindFirst then
+        if "Payment history line".FindFirst() then
             CurrencyCode := "Payment history line"."Currency Code";
     end;
 

@@ -329,7 +329,7 @@ page 11309 "Apply General Ledger Entries"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -507,7 +507,7 @@ page 11309 "Apply General Ledger Entries"
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure UpdateAmounts()
     begin
         ShowAppliedAmount := 0;

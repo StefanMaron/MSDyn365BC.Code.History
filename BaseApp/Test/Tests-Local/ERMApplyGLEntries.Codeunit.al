@@ -65,7 +65,7 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
         // [FEATURE] [Reverse]
         // [SCENARIO 202197] Reverse G/L Entries should unapply related entries first
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted G/L Entries:
         // [GIVEN] "Doc1" / G/L Account "X" with Amount = 200
@@ -91,7 +91,7 @@ codeunit 144003 "ERM Apply GL Entries"
 
         // [WHEN] Reverse Transaction for "Doc1"
         GLEntry.SetRange("Document No.", DocumentNo1);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         LibraryERM.ReverseTransaction(GLEntry."Transaction No.");
 
         // [THEN] 2 initial entries and 2 reversal entries for "Doc1" are marked as reversed
@@ -114,7 +114,7 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
         // [SCENARIO 225647] When "Apply Entries" is invoked for the first time on page "Apply General Ledger Entries" for two lines 1 & 2 and then invoked for the second time on only 1st line, then field "Balance" is populated with Amount from 2nd line.
         // [SCENARIO 402200] Page cursor remains with same position when invoke "Set Applied-to ID" action
-        Initialize;
+        Initialize();
 
         Amount1 := LibraryRandom.RandIntInRange(1, 100);
         Amount2 := LibraryRandom.RandIntInRange(1, 100);
@@ -162,7 +162,7 @@ codeunit 144003 "ERM Apply GL Entries"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply GL Entries");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 #if not CLEAN19
         EnableNewPage();
 #endif
@@ -185,7 +185,7 @@ codeunit 144003 "ERM Apply GL Entries"
         GLAccountNo: Code[20];
     begin
         // Setup: Create General Ledger Account, Create And Post General Journal.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccount;
         CreateAndPostGeneralJournalLine(GenJournalLine."Document Type"::Invoice, Amount, GLAccountNo);
         CreateAndPostGeneralJournalLine(GenJournalLine."Document Type"::Payment, AppliedAmount, GLAccountNo);
@@ -321,7 +321,7 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           RemainingAmount, GLEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(RemainingAmountMsg, GLEntry.FieldCaption("Remaining Amount"), RemainingAmount, GLEntry.TableCaption));

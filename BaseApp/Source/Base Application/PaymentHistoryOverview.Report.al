@@ -634,7 +634,7 @@ report 11000002 "Payment History Overview"
                 begin
                     "Payment History Line".SetRange("Our Bank", "Our Bank");
                     "Payment History Line".SetRange("Run No.", "Run No.");
-                    if "Payment History Line".FindFirst then
+                    if "Payment History Line".FindFirst() then
                         Currency := "Payment History Line"."Currency Code";
                 end;
             }

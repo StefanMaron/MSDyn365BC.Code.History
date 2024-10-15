@@ -393,15 +393,7 @@ report 11000010 "Export BTL91-RABO"
         CFile.Trunc;
         CFile.Close;
         ReportChecksum.GenerateChecksum("Payment History", ServerFileName, ExportProtocolCode);
-
-#if not CLEAN17
-        if RBMgt.IsLocalFileSystemAccessible then
-            RBMgt.DownloadToFile(ServerFileName, ClientFileName)
-        else
-            RBMgt.DownloadHandler(ServerFileName, '', '', '', RBMgt.GetFileName(ClientFileName));
-#else
         RBMgt.DownloadHandler(ServerFileName, '', '', '', RBMgt.GetFileName(ClientFileName));
-#endif
 
         RBMgt.DeleteServerFile(ServerFileName);
     end;

@@ -228,16 +228,6 @@ page 5522 "Order Planning"
             group(Control38)
             {
                 ShowCaption = false;
-
-                fixed(Control1902204901)
-                {
-                    ShowCaption = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unneeded element';
-                    Visible = false;
-                    ObsoleteTag = '17.0';
-                }
-
                 group("Available for Transfer")
                 {
                     ShowCaption = false;
@@ -529,7 +519,7 @@ page 5522 "Order Planning"
                         TrackingForm: Page "Order Tracking";
                     begin
                         TrackingForm.SetReqLine(Rec);
-                        TrackingForm.RunModal;
+                        TrackingForm.RunModal();
                     end;
                 }
                 action("Refresh &Planning Line")
@@ -600,10 +590,10 @@ page 5522 "Order Planning"
                             ReqLine2.SetRange("Demand Order No.", "Demand Order No.");
                             ReqLine2.SetRange(Level, Level, Level + 1);
                             ReqLine2.SetFilter("Line No.", '<>%1', "Line No.");
-                            if not ReqLine2.FindFirst then begin // No other children
+                            if not ReqLine2.FindFirst() then begin // No other children
                                 ReqLine2.SetRange("Line No.");
                                 ReqLine2.SetRange(Level, 0);
-                                if ReqLine2.FindFirst then begin // Find and delete parent
+                                if ReqLine2.FindFirst() then begin // Find and delete parent
                                     Rec := ReqLine2;
                                     Delete;
                                 end;
@@ -824,7 +814,7 @@ page 5522 "Order Planning"
         ReqLine.CopyFilters(Rec);
         ReqLine.SetRange("User ID", UserId);
         ReqLine.SetRange("Worksheet Template Name", '');
-        if ReqLine.FindSet then
+        if ReqLine.FindSet() then
             repeat
                 Rec := ReqLine;
                 Insert;
@@ -832,7 +822,7 @@ page 5522 "Order Planning"
                     FindReqLineForCursor(ReqLineWithCursor, ReqLine);
             until ReqLine.Next() = 0;
 
-        if FindFirst then
+        if FindFirst() then
             if ReqLineWithCursor."Line No." > 0 then
                 Rec := ReqLineWithCursor;
 

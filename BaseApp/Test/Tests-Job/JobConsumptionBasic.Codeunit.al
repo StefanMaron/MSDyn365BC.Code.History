@@ -202,7 +202,7 @@ codeunit 136300 "Job Consumption Basic"
         // Type IN [Resource,G/L Account,Item]
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -234,7 +234,7 @@ codeunit 136300 "Job Consumption Basic"
         Idx: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -384,7 +384,7 @@ codeunit 136300 "Job Consumption Basic"
         // JobLineType IN ["",Budget,Billable,Both Budget and Billable]
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
 
@@ -397,7 +397,7 @@ codeunit 136300 "Job Consumption Basic"
         UpdatePurchLine(PurchaseLine, LibraryJob.Job2PurchaseConsumableType(ConsumableType));
         LibraryJob.AttachJobTask2PurchaseLine(JobTask, PurchaseLine);
         PurchaseLine.Validate("Job Line Type", JobLineType);
-        PurchaseLine.Description := LibraryUtility.GenerateGUID;
+        PurchaseLine.Description := LibraryUtility.GenerateGUID();
         PurchaseLine.Modify(true);
         LibraryJob.CopyPurchaseLines(PurchaseLine, TempPurchaseLine);
         PostPurchaseDocument(PurchaseHeader, PurchInvHeader);
@@ -406,7 +406,7 @@ codeunit 136300 "Job Consumption Basic"
         LibraryJob.VerifyPurchaseDocPostingForJob(TempPurchaseLine);
         JobLedgerEntry.SetRange(Description, TempPurchaseLine.Description);
         Assert.AreEqual(1, JobLedgerEntry.Count, '# job ledger entries');
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
 
         LibraryJob.VerifyGLEntries(JobLedgerEntry);
 
@@ -453,7 +453,7 @@ codeunit 136300 "Job Consumption Basic"
     begin
         // [SCENARIO 360964] Job G/l Journal field Job Total Cost is updated after users changes VAT Amount
         // [GIVEN] Enable Allow VAT Difference for General Ledger Setup and Job Journal Batch/Template
-        Initialize;
+        Initialize();
         MaxVATDiff := SetupJobJournalVATDifference(GenJournalBatch);
         // [GIVEN] Job and Job Task
         LibraryJob.CreateJob(Job);
@@ -487,7 +487,7 @@ codeunit 136300 "Job Consumption Basic"
         // [FEATURE] [Purchase] [Receipt] [Invoice]
         // [SCENARIO] Purchase invoice for a receipt with job and negative quantity should assign actual cost amount to both item ledger entries - purchase receipt and job usage
 
-        Initialize;
+        Initialize();
 
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -498,7 +498,7 @@ codeunit 136300 "Job Consumption Basic"
         Item.Validate("Unit Cost", LibraryRandom.RandDec(200, 2));
         Item.Modify(true);
 
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         Qty := LibraryRandom.RandInt(100);
 
         // [GIVEN] Post purchase receipt for 5 psc of item "I" with job "J"
@@ -535,7 +535,7 @@ codeunit 136300 "Job Consumption Basic"
         // JobLineType IN ["",Budget,Billable,Both Budget and Billable]
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateJobGLJournalLineGLAcc(JobGenJournalLine, JobTask, JobLineType);

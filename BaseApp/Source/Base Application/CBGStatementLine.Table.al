@@ -139,12 +139,7 @@ table 11401 "CBG Statement Line"
                 if "Account No." = '' then begin
                     if OriginalDescription then
                         Description := '';
-                    CreateDim(
-                      DimManagement.TypeToTableID1("Account Type"), "Account No.",
-                      0, '',
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::Campaign, "Campaign No.");
+                    CreateDimFromDefaultDim(FieldNo("Account No."));
                     exit;
                 end;
 
@@ -219,11 +214,7 @@ table 11401 "CBG Statement Line"
                 end;
 
                 Validate(Amount);
-                CreateDim(DimManagement.TypeToTableID1("Account Type"), "Account No.",
-                  0, '',
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Account No."));
             end;
         }
         field(14; Description; Text[100])
@@ -314,7 +305,7 @@ table 11401 "CBG Statement Line"
                     CBGStatementln.SetRange("No.", "No.");
                     CBGStatementln.SetRange("Applies-to ID", "Applies-to ID");
                     CBGStatementln.SetFilter("Line No.", '<>%1', "Line No.");
-                    if CBGStatementln.FindFirst then
+                    if CBGStatementln.FindFirst() then
                         Error(Text1000001,
                           FieldCaption("Applies-to ID"),
                           "Applies-to ID",
@@ -331,12 +322,7 @@ table 11401 "CBG Statement Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimManagement.TypeToTableID1("Account Type"), "Account No.",
-                  0, '',
-                  DATABASE::Job, "Job No.",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(30; "Amount incl. VAT"; Boolean)
@@ -421,12 +407,7 @@ table 11401 "CBG Statement Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DimManagement.TypeToTableID1("Account Type"), "Account No.",
-                  0, '',
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(FieldNo("Job No."));
             end;
         }
         field(50; "Shortcut Dimension 2 Code"; Code[20])
@@ -465,12 +446,7 @@ table 11401 "CBG Statement Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DimManagement.TypeToTableID1("Account Type"), "Account No.",
-                  0, '',
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                CreateDimFromDefaultDim(FieldNo("Campaign No."));
             end;
         }
         field(11400; "Amount Settled"; Decimal)
@@ -530,7 +506,7 @@ table 11401 "CBG Statement Line"
                     PaymentHistLine.SetCurrentKey("Our Bank", Identification);
                     PaymentHistLine.SetRange("Our Bank", "Statement No.");
                     PaymentHistLine.SetRange(Identification, Identification);
-                    PaymentHistLine.FindFirst;
+                    PaymentHistLine.FindFirst();
 
                     GetCBGStatementHeader;
                     CBGStatementLine := Rec;
@@ -718,7 +694,7 @@ table 11401 "CBG Statement Line"
         "Amount incl. VAT" := LastRecord."Amount incl. VAT";
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure UpdateLineBalance()
     begin
         if ((Amount > 0) and (not Correction)) or
@@ -974,7 +950,7 @@ table 11401 "CBG Statement Line"
         OnBeforeCheckAccountNo(Rec, IsHandled);
         if IsHandled then
             exit;
-            
+
         TestField("Account No.");
     end;
 
@@ -1083,35 +1059,35 @@ table 11401 "CBG Statement Line"
                 begin
                     GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                     GLEntry.SetRange("G/L Account No.", "Account No.");
-                    if GLEntry.FindLast then;
+                    if GLEntry.FindLast() then;
                     PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
                 end;
             "Account Type"::Customer:
                 begin
                     CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
-                    if CustLedgEntry.FindLast then;
+                    if CustLedgEntry.FindLast() then;
                     PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgEntry);
                 end;
             "Account Type"::Vendor:
                 begin
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                    if VendLedgEntry.FindLast then;
+                    if VendLedgEntry.FindLast() then;
                     PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
                 end;
             "Account Type"::Employee:
                 begin
                     EmployeeLedgerEntry.SetCurrentKey("Employee No.", "Posting Date");
                     EmployeeLedgerEntry.SetRange("Employee No.", "Account No.");
-                    if EmployeeLedgerEntry.FindLast then;
+                    if EmployeeLedgerEntry.FindLast() then;
                     PAGE.Run(PAGE::"Employee Ledger Entries", EmployeeLedgerEntry);
                 end;
             "Account Type"::"Bank Account":
                 begin
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
                     BankAccLedgEntry.SetRange("Bank Account No.", "Account No.");
-                    if BankAccLedgEntry.FindLast then;
+                    if BankAccLedgEntry.FindLast() then;
                     PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccLedgEntry);
                 end;
         end;
@@ -1314,7 +1290,7 @@ table 11401 "CBG Statement Line"
                     CBGStatementln.SetRange("Journal Template Name", "Journal Template Name");
                     CBGStatementln.SetRange("No.", "No.");
                     CBGStatementln.SetFilter("Applies-to ID", '<>%1', '');
-                    if CBGStatementln.FindLast then
+                    if CBGStatementln.FindLast() then
                         ID := IncStr(CBGStatementln."Applies-to ID")
                     else begin
                         if StrLen(CBGStatement."Document No.") > MaxStrLen(ID) - 5 then
@@ -1374,6 +1350,8 @@ table 11401 "CBG Statement Line"
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
@@ -1396,6 +1374,18 @@ table 11401 "CBG Statement Line"
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" := DimManagement.GetDefaultDimID(
             TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" := DimManagement.GetDefaultDimID(
+            DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     [Scope('OnPrem')]
@@ -1634,8 +1624,58 @@ table 11401 "CBG Statement Line"
             Error(PostingDateEarlierErr);
     end;
 
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(Rec."Account Type"), Rec."Account No.", FieldNo = Rec.FieldNo("Account No."));
+        DimManagement.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
+        DimManagement.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
+        DimManagement.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FieldNo = Rec.FieldNo("Campaign No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"CBG Statement Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Rec, DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var CBGStatementLine: Record "CBG Statement Line"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var CBGStatementLine: Record "CBG Statement Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

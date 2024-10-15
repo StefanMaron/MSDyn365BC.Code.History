@@ -130,7 +130,7 @@ report 11401 "CMR - Sales Shipment"
                 SalesShipmentLine.Reset();
                 SalesShipmentLine.SetRange("Document No.", "No.");
                 SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-                if not SalesShipmentLine.FindFirst then
+                if not SalesShipmentLine.FindFirst() then
                     CurrReport.Skip();
 
                 if "Location Code" <> '' then begin

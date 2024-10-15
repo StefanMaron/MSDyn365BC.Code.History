@@ -81,7 +81,7 @@ report 11408 "Receive Response Messages"
 
                 Window.Update(1, WindowStatusProcessingMsg);
                 ElecTaxDeclResponseMsg.Reset();
-                if not ElecTaxDeclResponseMsg.FindLast then
+                if not ElecTaxDeclResponseMsg.FindLast() then
                     ElecTaxDeclResponseMsg."No." := 0;
                 NextNo := ElecTaxDeclResponseMsg."No." + 1;
 

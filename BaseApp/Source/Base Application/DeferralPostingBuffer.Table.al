@@ -277,7 +277,8 @@ table 1706 "Deferral Posting Buffer"
         "Deferral Line No." := DeferralLineNo;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
+    [Obsolete('Replaced by PrepareInitialAmounts()', '20.0')]
     procedure PrepareInitialPair(InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
     var
         NewAmountLCY: Decimal;
@@ -323,7 +324,7 @@ table 1706 "Deferral Posting Buffer"
         Description := DeferralLine.Description;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by procedure Update without parameter InvoicePostBuffer.', '19.0')]
     procedure Update(DeferralPostBuffer: Record "Deferral Posting Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -431,13 +432,14 @@ table 1706 "Deferral Posting Buffer"
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by OnUpdateOnBeforeDeferralPostBufferInsert().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeferralPostBufferInsert(var ToDeferralPostingBuffer: Record "Deferral Posting Buffer"; FromDeferralPostingBuffer: Record "Deferral Posting Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOnAfterSetFilters(var DeferralPostingBufferRec: Record "Deferral Posting Buffer"; DeferralPostBuffer: Record "Deferral Posting Buffer")
     begin

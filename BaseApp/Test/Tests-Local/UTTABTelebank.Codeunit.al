@@ -57,7 +57,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         PaymentHistoryLine.Init();
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Customer;
-        PaymentHistoryLine."Account No." := LibrarySales.CreateCustomerNo;
+        PaymentHistoryLine."Account No." := LibrarySales.CreateCustomerNo();
 
         DocumentNo[1] := InsertCustLedgEntry(CustLedgEntry, PaymentHistoryLine);
         DocumentNo[2] := InsertCustLedgEntry(CustLedgEntry, PaymentHistoryLine);
@@ -76,7 +76,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         PaymentHistoryLine.Init();
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Vendor;
-        PaymentHistoryLine."Account No." := LibraryPurchase.CreateVendorNo;
+        PaymentHistoryLine."Account No." := LibraryPurchase.CreateVendorNo();
 
         DocumentNo[1] := InsertVendLedgEntry(VendLedgEntry, PaymentHistoryLine);
         DocumentNo[2] := InsertVendLedgEntry(VendLedgEntry, PaymentHistoryLine);
@@ -113,7 +113,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         PaymentHistoryLine.Init();
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Customer;
-        PaymentHistoryLine."Account No." := LibrarySales.CreateCustomerNo;
+        PaymentHistoryLine."Account No." := LibrarySales.CreateCustomerNo();
 
         InsertCustLedgEntry(CustLedgEntry, PaymentHistoryLine);
 
@@ -132,7 +132,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         PaymentHistoryLine.Init();
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Vendor;
-        PaymentHistoryLine."Account No." := LibraryPurchase.CreateVendorNo;
+        PaymentHistoryLine."Account No." := LibraryPurchase.CreateVendorNo();
 
         InsertVendLedgEntry(VendLedgEntry, PaymentHistoryLine);
 
@@ -261,7 +261,7 @@ codeunit 144055 "UT TAB Telebank"
         PaymentHistory: Record "Payment History";
         PaymentHistoryLine: Record "Payment History Line";
     begin
-        Initialize;
+        Initialize();
         PaymentJnlExportErrorText.Reset();
         PaymentJnlExportErrorText.DeleteAll();
 
@@ -287,7 +287,7 @@ codeunit 144055 "UT TAB Telebank"
         PaymentHistory: Record "Payment History";
         PaymentHistoryLine: Record "Payment History Line";
     begin
-        Initialize;
+        Initialize();
         PaymentJnlExportErrorText.Reset();
         PaymentJnlExportErrorText.DeleteAll();
 
@@ -316,7 +316,7 @@ codeunit 144055 "UT TAB Telebank"
         // Purpose of the test is to validate Bill-to Customer No. of Service Contract Header Table.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateServiceContractHeader(ServiceContractHeader);
 
@@ -341,7 +341,7 @@ codeunit 144055 "UT TAB Telebank"
         // Purpose of the test is to validate Transaction Mode Code of Service Contract Header Table.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer);
         CreateServiceContractHeader(ServiceContractHeader);
 
@@ -365,7 +365,7 @@ codeunit 144055 "UT TAB Telebank"
         // Purpose of the test is to validate Transaction Mode Code of Service Invoice Header Table.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer);
         CreateServiceInvoiceHeader(ServiceInvoiceHeader);
 
@@ -390,7 +390,7 @@ codeunit 144055 "UT TAB Telebank"
         // Purpose of the test is to validate Transaction Mode Code of Service Cr. Memo Header Table.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer);
         CreateServiceCrMemoHeader(ServiceCrMemoHeader);
 
@@ -413,7 +413,7 @@ codeunit 144055 "UT TAB Telebank"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate Account No of Customer of Gen. Journal Line Table.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         OnValidateAccountNoGenJournalLine(
           GenJournalLine."Account Type"::Customer, Customer."No.", Customer."Transaction Mode Code",
@@ -429,7 +429,7 @@ codeunit 144055 "UT TAB Telebank"
         Vendor: Record Vendor;
     begin
         // Purpose of the test is to validate Account No of Vendor of Gen. Journal Line Table.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         OnValidateAccountNoGenJournalLine(
           GenJournalLine."Account Type"::Vendor, Vendor."No.", Vendor."Transaction Mode Code",
@@ -445,7 +445,7 @@ codeunit 144055 "UT TAB Telebank"
         Employee: Record Employee;
     begin
         // Purpose of the test is to validate Account No of Vendor of Gen. Journal Line Table.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         OnValidateAccountNoGenJournalLine(
           GenJournalLine."Account Type"::Employee, Employee."No.", Employee."Transaction Mode Code",
@@ -598,7 +598,7 @@ codeunit 144055 "UT TAB Telebank"
         TransactionMode: Record "Transaction Mode";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateTransactionMode(TransactionMode, TransactionModeAccountType);
         CreateGenJournalLine(GenJournalLine, AccountType, BalAccountType);
 
@@ -622,7 +622,7 @@ codeunit 144055 "UT TAB Telebank"
         // Purpose of the test is to validate Transaction Mode Code of Gen. Journal Line Table for G/L Account and G/L Account.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Vendor);
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Bal. Account Type"::"G/L Account");
@@ -1007,7 +1007,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         DocumentNo := PostDocument(GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
         VendLedgEntry.SetRange("Document No.", DocumentNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
     end;
 
     local procedure PostEmployeeExpense(var EmplLedgEntry: Record "Employee Ledger Entry"; EmployeeNo: Code[20]; Amount: Decimal)
@@ -1017,7 +1017,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         DocumentNo := PostDocument(GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee, EmployeeNo, Amount);
         EmplLedgEntry.SetRange("Document No.", DocumentNo);
-        EmplLedgEntry.FindLast;
+        EmplLedgEntry.FindLast();
     end;
 
     local procedure PostSalesCreditMemo(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; Amount: Decimal)
@@ -1028,7 +1028,7 @@ codeunit 144055 "UT TAB Telebank"
         DocumentNo :=
           PostDocument(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
         CustLedgEntry.SetRange("Document No.", DocumentNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
     end;
 
     local procedure VerifyAppliedDocNoList(PaymentHistoryLine: Record "Payment History Line"; DocumentNo: array[2] of Code[35])

@@ -65,7 +65,6 @@ codeunit 137268 "SCM Package Tracking Fixes"
         Vendor: Record Vendor;
         PurchRcptLine: Record "Purch. Rcpt. Line";
         CopyPurchaseDocument: Report "Copy Purchase Document";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Posted Shipment";
         CDNo: array[2] of Code[50];
     begin
         // Test case to check Purchase Credit Memo creation from Posted Purchase Receipt using Copy Document functionality
@@ -90,18 +89,14 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
         PurchRcptLine.Reset();
         PurchRcptLine.SetFilter("Buy-from Vendor No.", Vendor."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
         PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-#if CLEAN17
-        CopyPurchaseDocument.SetParameters(DocType::"Posted Receipt", PurchRcptLine."Document No.", true, true);
-#else
-        CopyPurchaseDocument.InitializeRequest(DocType::"Posted Receipt", PurchRcptLine."Document No.", true, true);
-#endif
-        CopyPurchaseDocument.Run;
+        CopyPurchaseDocument.SetParameters("Purchase Document Type From"::"Posted Receipt", PurchRcptLine."Document No.", true, true);
+        CopyPurchaseDocument.Run();
 
         LibrarySmallBusiness.UpdatePurchHeaderDocTotal(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -158,7 +153,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
         ItemLedgerEntry.Reset();
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         LibrarySales.CreateSalesLineWithUnitPrice(
@@ -504,7 +499,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
             SetRange("Source Type", DATABASE::"Item Journal Line");
             SetRange("Source ID", ItemJnlLine."Journal Template Name");
             SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
-            FindFirst;
+            FindFirst();
 
             TestField("New Package No.", ExpectedPackageNo);
         end;

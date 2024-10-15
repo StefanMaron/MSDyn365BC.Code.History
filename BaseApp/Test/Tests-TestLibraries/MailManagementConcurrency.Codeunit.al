@@ -29,7 +29,7 @@ codeunit 139029 "Mail Management Concurrency"
     [Scope('OnPrem')]
     procedure InsertNameValueBuffer(var NameValueBuffer: Record "Name/Value Buffer")
     begin
-        if NameValueBuffer.FindLast then;
+        if NameValueBuffer.FindLast() then;
         NameValueBuffer.ID += 1;
         NameValueBuffer.Name := Format(NameValueBuffer.Count);
         NameValueBuffer.Insert();

@@ -23,7 +23,7 @@ codeunit 9000 "Users - Create Super User"
         PermissionSet: Record "Permission Set";
     begin
         User.SetRange("User Name", UserID);
-        if User.FindFirst then
+        if User.FindFirst() then
             exit;
 
         GetSuperRole(PermissionSet);

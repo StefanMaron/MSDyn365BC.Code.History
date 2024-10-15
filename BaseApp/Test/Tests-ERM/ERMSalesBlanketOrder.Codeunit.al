@@ -42,7 +42,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Test if the system allows to create a New Sales Blanket Order for Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesBlanketOrder(SalesHeader, SalesLine, 1 + LibraryRandom.RandInt(10), LibrarySales.CreateCustomerNo, CreateItem);  // Passing Random Value to create more than one line.
 
@@ -66,7 +66,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Test if the system calculates applicable VAT in Blanket Sales Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesBlanketOrder(SalesHeader, SalesLine, 1 + LibraryRandom.RandInt(10), LibrarySales.CreateCustomerNo, CreateItem);  // Passing Random Value to create more than 1 Line.
 
@@ -99,7 +99,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Test if the system generates Blanket Sales Order report.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesBlanketOrder(SalesHeader, SalesLine, 1 + LibraryRandom.RandInt(10), LibrarySales.CreateCustomerNo, CreateItem);  // Passing Random Value to create more than 1 Line.
 
@@ -127,7 +127,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Test Create Sales Order from Blanket Order with Qty. to Ship less than Quantity.
 
         // Setup: Set Stock out Warnings to No in Sales and Receivables Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // Exercise: Create Blanket Sales Order with Minimum Quantity 2 to make partial shipment. Create Sales Order from Sales Blanket Order and Post Sales order.
@@ -161,14 +161,14 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Test Post the Sales Order created from Blanket Order and check if lines of Blanket Order are getting updated.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesBlanketOrder(SalesHeader, SalesLine, 1 + LibraryRandom.RandInt(10), LibrarySales.CreateCustomerNo, CreateItem);  // Pass Random Value to create more than 1 Line.
 
         // Modify Location Code and Make Sales Order from Sales Blanket Order.
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         UpdateSalesHeaderWithLocation(SalesHeader, Location.Code);
         CODEUNIT.Run(CODEUNIT::"Blanket Sales Order to Order", SalesHeader);
 
@@ -192,7 +192,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Test Check if the Location Code can be changed in the Blanket Order after the Blanket Order has been Partially Shipped.
 
         // Setup: Create Sales Blanket Order with Quantity greater than 1. Change the Quantity to ship and store it in a variable.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
         LibrarySales.CreateSalesLine(
@@ -225,7 +225,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Check Invoice Discount has been flow correctly on Sales Order after Make Order from Sales Blanket Order.
 
         // Setup: Create Sales Blanket Order and Calculate Invoice Discount.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::"Blanket Order", CreateCustomerInvDiscount(LibrarySales.CreateCustomerNo));
@@ -256,7 +256,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Check that blank Posting Date is populating on created Sales Order from Blanket Order while Default Posting Date is set to No Date on the Sales & Receivables Setup.
 
         // Setup: Update Sales & Receivables Setup and create Sales Blanket Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"No Date", false);
         CreateSalesBlanketOrder(SalesHeader, SalesLine, 1 + LibraryRandom.RandInt(10), LibrarySales.CreateCustomerNo, CreateItem);  // Passing Random Value to create more than one Line.
         // To avoid failure in IT, using Posting Date as Document Date when Default Posting Date: "No Date" in Sales & Receivables Setup.
@@ -282,7 +282,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Check Blanket Order No. and Blanket Order Line No. in Sales Order created from Sales Blanket Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         LibrarySales.CreateCustomer(Customer);
         CreateSalesBlanketOrder(SalesHeader, SalesLine, 1, Customer."No.", CreateItem);  // Passing 1 to create only one Sales Line.
@@ -307,7 +307,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Check that Sales Blanket Order created using Copy Document does not contain Blanket Order No. and Blanket Order Line No.
 
         // Setup: Create Sales Blanket Order and create Sales Order from it.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesOrderFromBlanketSalesOrder(SalesLine);
 
@@ -333,7 +333,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Check that Sales Blanket Order can not be deleted if Sales Order created from Blanket Order exists.
 
         // Setup: Create Blanket Sales Order, make Sales Order from it.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesOrderFromBlanketSalesOrder(SalesLine);
         SalesHeader.Get(SalesHeader."Document Type"::"Blanket Order", SalesLine."Blanket Order No.");
@@ -359,7 +359,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Check that Sales Blanket Order can be deleted successfully after Sales Order creation.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
         CreateSalesOrderFromBlanketSalesOrder(SalesLine);
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
@@ -383,7 +383,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Verify Sales Order created from Sales Blanket Order with Item Charge.
 
         // Setup: Create Sales Blanket Order with Item Charge.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(ItemJournalLine);
         CreateSalesBlanketOrderWithItemCharge(SalesHeader, ItemJournalLine."Item No.");
         FindSalesLine(SalesLine, SalesLine."Document Type"::"Blanket Order", SalesHeader."Sell-to Customer No.");
@@ -406,7 +406,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [SCENARIO] Verify Exetended Text on Blanket Sales Order.
 
         // Setup: Create Sales Blanket Order Header.
-        Initialize;
+        Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
 
         // Exercise: Create Item, Sales Blanket Order Line.
@@ -430,7 +430,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         ItemNo: Code[20];
     begin
         // [SCENARIO 362692] Fields "Location Code", "Unit of Measure", "Unit Price", "Line Discount %", "Line Discount Amount"  are copied from Blanket Order to Purchase Order when Blanket Order and Line set manually
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, 1);
         LibraryWarehouse.CreateLocation(Location);
@@ -473,7 +473,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Credit Memo using Copy Document
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Sales Order from Blanket Order
@@ -500,7 +500,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Return Order using Copy Document
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Sales Order from Blanket Order
@@ -529,7 +529,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Get Document Lines To Reverse]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Credit Memo using Get Document Lines To Reverse
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Posted Sales Order from Blanket Order
@@ -562,7 +562,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Get Document Lines To Reverse]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Return Order using Get Document Lines To Reverse
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Posted Sales Order from Blanket Order
@@ -594,7 +594,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be empty when create Sales Invoice using Copy Document with Recalculate Lines = Yes
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Posted Sales Order from Blanket Order
@@ -622,7 +622,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Blanket Order fields should be filled in and Sales Invoice should not be posted when it is copied with Recalculate Lines = No
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Posted Sales Order from Blanket Order
@@ -657,7 +657,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Posting new Invoice after correction of first Sales Invoice from Blanket Order by Credit Memo
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Posted Sales Order from Blanket Order with Quantity = "X"
@@ -698,7 +698,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 375760] Posting new Invoice after correction of Sales Invoice from Blanket Order by Credit Memo with manually updated Blanket fields
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
 
         // [GIVEN] Posted Sales Order from Blanket Order with Quantity = "X"
@@ -744,7 +744,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Blanket Sales Order]
         // [SCENARIO 169245] "Blanket Order" action should open appropriate "Blanket Order" page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order "S" for Blanket Order "B"
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
@@ -771,7 +771,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Blanket Sales Order]
         // [SCENARIO 169245] "Blanket Order" action should throw error if appropriate "Blanket Order" does not exist
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
@@ -795,10 +795,10 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Blanket Order Page not editable if no customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Sales Blanket Order page is opened
-        BlanketSalesOrder.OpenNew;
+        BlanketSalesOrder.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(BlanketSalesOrder."Sell-to Contact".Editable, ContactShouldNotBeEditableErr);
@@ -815,7 +815,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Sales Blanket Order Page editable if customer selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Sales Blanket Order
         LibrarySales.CreateCustomer(Customer);
@@ -839,10 +839,10 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Item Charge]
         // [SCENARIO 202722] Unit Price could be updated on Blanket Sales Order line with item charge after the line is invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Sales Order line with Item Charge partially invoiced.
-        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)");
 
         // [WHEN] Update Unit Price on the line.
@@ -860,7 +860,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // [SCENARIO 218835] Create Sales Order from Blanket Order when "Default Posting Date" = "No Date" in Sales & Receivable setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] TAB311."Default Posting Date" = "No Date"
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"No Date", false);
@@ -878,7 +878,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         // [SCENARIO 218835] Create Sales Order from Blanket Order when "Default Posting Date" = "Work Date" in Sales & Receivable setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] TAB311."Default Posting Date" = "Work Date"
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
@@ -898,12 +898,12 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 253613] Link to blanket order line no. cannot be set on sales order line for drop shipment, if location code on sales order line does not match location code on blanket order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales blanket order line with location code "L".
-        MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item);
-        SalesLine[1]."Location Code" := LibraryUtility.GenerateGUID;
+        SalesLine[1]."Location Code" := LibraryUtility.GenerateGUID();
         SalesLine[1].Modify();
 
         // [GIVEN] Sales order line for drop shipment with blank location code.
@@ -929,12 +929,12 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 253613] Link to blanket order line no. cannot be set on sales order line for drop shipment, if variant code on sales order line does not match variant code on blanket order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales blanket order line with variant code "V".
-        MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item);
-        SalesLine[1]."Variant Code" := LibraryUtility.GenerateGUID;
+        SalesLine[1]."Variant Code" := LibraryUtility.GenerateGUID();
         SalesLine[1].Modify();
 
         // [GIVEN] Sales order line for drop shipment with blank variant code.
@@ -960,12 +960,12 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         // [FEATURE] [Drop Shipment] [UT]
         // [SCENARIO 253613] Link to blanket order line no. cannot be set on sales order line for drop shipment, if unit of measure code on sales order line does not match unit of measure code on blanket order line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales blanket order line with unit of measure code "UOM".
-        MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
+        MockSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID());
         MockSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item);
-        SalesLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID;
+        SalesLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         SalesLine[1].Modify();
 
         // [GIVEN] Sales order line for drop shipment with blank unit of measure code.
@@ -997,7 +997,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         UnitPrice: Integer;
     begin
         // [SCENARIO 328289] When "Calculate Invoice Discount" is TRUE creating Sales Order from Blanket Sales Order leads to Invoice Discount Amount being recalculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Calculate Invoice Discount" is set to TRUE in Sales & Receivables Setup.
         LibrarySales.SetCalcInvDiscount(true);
@@ -1068,17 +1068,17 @@ codeunit 134377 "ERM Sales Blanket Order"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Blanket Order");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Blanket Order");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         Commit();
         isInitialized := true;
@@ -1103,7 +1103,7 @@ codeunit 134377 "ERM Sales Blanket Order"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", CreateItem, LibraryRandom.RandDec(200, 2));  // Used Random Value for Qty.
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         ItemJournalLine.Validate("Location Code", Location.Code);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1128,7 +1128,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         UpdateSalesHeaderWithLocation(SalesHeader, Location.Code);
 
         // Create Sales Line with Item and update Unit Price.
@@ -1182,7 +1182,7 @@ codeunit 134377 "ERM Sales Blanket Order"
             "Document No." := SalesHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(SalesLine, FieldNo("Line No."));
             Type := LineType;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Quantity := LibraryRandom.RandIntInRange(11, 20);
             "Quantity Invoiced" := LibraryRandom.RandInt(10);
             "Unit Price" := LibraryRandom.RandDec(10, 2);
@@ -1250,13 +1250,13 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindOrderLineFromBlanket(var SalesLine: Record "Sales Line"; BlanketSalesHeader: Record "Sales Header")
     begin
         FilterOrderLineFromBlanket(SalesLine, BlanketSalesHeader);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindExtendedTextLine(DocumentType: Enum "Sales Document Type"; Description: Text[100]): Boolean
@@ -1313,7 +1313,7 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         SalesLine.SetRange("Blanket Order No.", SalesLine."Document No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesHeader.TestField("Posting Date", 0D);
     end;
@@ -1332,7 +1332,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         with SalesInvoiceLine do begin
             SetRange("Document No.", InvoiceNo);
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             TestField("Blanket Order No.", BlanketOrderNo);
             TestField("Blanket Order Line No.", BlanketOrderLineNo);
         end;

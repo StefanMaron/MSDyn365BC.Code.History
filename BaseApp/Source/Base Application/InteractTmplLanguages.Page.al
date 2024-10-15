@@ -88,7 +88,7 @@ page 5154 "Interact. Tmpl. Languages"
                         end else begin
                             CustomReportLayout.SetRange("Report ID", REPORT::"Email Merge");
                             CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', CustomReportLayoutDescription));
-                            if not CustomReportLayout.FindFirst then
+                            if not CustomReportLayout.FindFirst() then
                                 Error(CouldNotFindCustomReportLayoutErr, CustomReportLayoutDescription);
 
                             Validate("Custom Layout Code", CustomReportLayout.Code);

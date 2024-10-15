@@ -75,7 +75,7 @@ codeunit 144004 "UT REP Audit"
 
         // Exercise: Run Tax Authority - Audit File report.
         TaxAuthorityAuditFile.SetFileName(FileManagement.ServerTempFileName('xaf'));
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify Exclude Begin Balance field on Tax Authority - Audit File report, verification done by TaxAuthorityAuditFileReqestPageHandler.
     end;
@@ -337,7 +337,7 @@ codeunit 144004 "UT REP Audit"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Entry No." + 1);
     end;
 
@@ -346,7 +346,7 @@ codeunit 144004 "UT REP Audit"
         AccountingPeriod: Record "Accounting Period";
     begin
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         exit(AccountingPeriod."Starting Date");
     end;
 

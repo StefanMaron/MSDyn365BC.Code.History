@@ -178,7 +178,6 @@ table 11400 "CBG Statement"
         Text1000015: Label 'Do you want to update the lines?';
         DefaultJnlBatchNameTxt: Label 'DEFAULT', Locked = true;
 
-    [Scope('OnPrem')]
     procedure InitRecord(UseTemplate: Code[10])
     var
         CBGStatement: Record "CBG Statement";
@@ -186,6 +185,7 @@ table 11400 "CBG Statement"
         BankAccount: Record "Bank Account";
         GLAccount: Record "G/L Account";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         "Journal Template Name" := DelChr(UseTemplate, '<>', '''');
         JournalTemplate.Get("Journal Template Name");
@@ -230,7 +230,7 @@ table 11400 "CBG Statement"
         if "Opening Balance" = 0 then begin
             CBGStatement.SetRange("Journal Template Name", "Journal Template Name");
             CBGStatement.SetFilter("No.", '<>%1', "No.");
-            if CBGStatement.FindLast then
+            if CBGStatement.FindLast() then
                 "Opening Balance" := CBGStatement."Closing Balance"
             else
                 case "Account Type" of
@@ -257,14 +257,14 @@ table 11400 "CBG Statement"
         end;
 
         if JournalTemplate.Type = JournalTemplate.Type::Bank then
-            CreateDim(DATABASE::"Bank Account", "Account No.", 0, '', 0, '', 0, '', 0, '')// Use the Bank Account
+            DimManagement.AddDimSource(DefaultDimSource, Database::"Bank Account", "Account No.")// Use the Bank Account
         else
-            CreateDim(DATABASE::"G/L Account", "Account No.", 0, '', 0, '', 0, '', 0, '');// Use the G/L Account
+            DimManagement.AddDimSource(DefaultDimSource, Database::"G/L Account", "Account No.");// Use the G/L Account
+        CreateDim(DefaultDimSource);
 
         OnAfterInitRecord(CBGStatement, Rec);
     end;
 
-    [Scope('OnPrem')]
     procedure CLAccountNo() CLAccNo: Text[80]
     var
         GLAccount: Record "G/L Account";
@@ -288,7 +288,6 @@ table 11400 "CBG Statement"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetName() Name: Text[100]
     var
         GLAccount: Record "G/L Account";
@@ -312,7 +311,6 @@ table 11400 "CBG Statement"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure AssistEdit(OldCBGStatement: Record "CBG Statement"): Boolean
     var
         CBGStatement: Record "CBG Statement";
@@ -331,7 +329,6 @@ table 11400 "CBG Statement"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure LineFilter(var CBGStatementLine: Record "CBG Statement Line")
     begin
         CBGStatementLine.Reset();
@@ -339,7 +336,6 @@ table 11400 "CBG Statement"
         CBGStatementLine.SetRange("No.", "No.");
     end;
 
-    [Scope('OnPrem')]
     procedure MakeGenJournalLine(var GenJnlLine: Record "Gen. Journal Line"; ForEachDocumentNo: Code[20]; ForEachDate: Date; TotAmountVV: Decimal; TotAmountLV: Decimal)
     var
         DocumentType: Enum "Gen. Journal Document Type";
@@ -382,7 +378,6 @@ table 11400 "CBG Statement"
         OnAfterMakeGenJournalLine(Rec, GenJnlLine, ForEachDocumentNo, ForEachDate, TotAmountVV, TotAmountLV);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckBalance()
     begin
         CalcFields("Net Change Debit", "Net Change Credit");
@@ -404,7 +399,6 @@ table 11400 "CBG Statement"
                 Error(Text1000008);
     end;
 
-    [Scope('OnPrem')]
     procedure ProcessStatementASGenJournal()
     var
         GenJnlLine: Record "Gen. Journal Line" temporary;
@@ -467,7 +461,7 @@ table 11400 "CBG Statement"
                     PaymentHistLine.SetCurrentKey("Our Bank", Identification);
                     PaymentHistLine.SetRange("Our Bank", "Account No.");
                     PaymentHistLine.SetRange(Identification, CBGStatementLine.Identification);
-                    PaymentHistLine.FindFirst;
+                    PaymentHistLine.FindFirst();
                     TelebankInterface.ProcessPaymReceived(GenJnlLine, PaymentHistLine, CBGStatementLine);
                     Counter := GenJnlLine."Line No." + 10000;
                 end;
@@ -509,7 +503,8 @@ table 11400 "CBG Statement"
         Status.Close;
     end;
 
-    [Scope('OnPrem')]
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource:List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         TableID: array[10] of Integer;
@@ -532,8 +527,19 @@ table 11400 "CBG Statement"
         "Dimension Set ID" := DimManagement.GetDefaultDimID(
             TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
+#endif
 
-    [Scope('OnPrem')]
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" := DimManagement.GetDefaultDimID(
+            DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+
     procedure UpdateCBGStatementLine(ChangedFieldName: Text[100]; AskQuestion: Boolean)
     var
         Question: Text[250];
@@ -556,7 +562,7 @@ table 11400 "CBG Statement"
             CBGStatementLine.Reset();
             CBGStatementLine.SetRange("Journal Template Name", "Journal Template Name");
             CBGStatementLine.SetRange("No.", "No.");
-            if CBGStatementLine.FindSet then
+            if CBGStatementLine.FindSet() then
                 repeat
                     if (ChangedFieldName = FieldCaption(Date)) and (CBGStatementLine."No." <> 0) then begin
                         CBGStatementLine.Validate(Date, Date);
@@ -566,7 +572,6 @@ table 11400 "CBG Statement"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CBGStatementLinesExist(): Boolean
     begin
         CBGStatementLine.Reset();
@@ -575,7 +580,6 @@ table 11400 "CBG Statement"
         exit(CBGStatementLine.FindFirst);
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDimensions()
     begin
         "Dimension Set ID" := DimManagement.EditDimensionSet(
@@ -588,15 +592,42 @@ table 11400 "CBG Statement"
         CBGStatement: Record "CBG Statement";
     begin
         CBGStatement.SetRange("Journal Template Name", "Journal Template Name");
-        if CBGStatement.FindLast then
+        if CBGStatement.FindLast() then
             exit(CBGStatement."No." + 1);
         exit(1);
     end;
 
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"CBG Statement", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Rec, DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Will be removed with old CreateDim() procedure', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var CBGStatement: Record "CBG Statement"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var CBGStatement: Record "CBG Statement"; var Rec: Record "CBG Statement")

@@ -111,7 +111,7 @@ report 11000003 "Paymt. History - Change Status"
 
             MandatePaymentHistoryLine.SetRange("Direct Debit Mandate ID", PaymentHistoryLine."Direct Debit Mandate ID");
             MandatePaymentHistoryLine.SetFilter("Direct Debit Mandate Counter", '>%1', PaymentHistoryLine."Direct Debit Mandate Counter");
-            if MandatePaymentHistoryLine.FindSet then
+            if MandatePaymentHistoryLine.FindSet() then
                 repeat
                     CurrentMandateCounter := MandatePaymentHistoryLine."Direct Debit Mandate Counter";
                     MandatePaymentHistoryLine.Validate("Direct Debit Mandate Counter", CurrentMandateCounter - 1);

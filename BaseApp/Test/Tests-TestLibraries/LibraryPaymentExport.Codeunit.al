@@ -99,7 +99,7 @@ codeunit 130100 "Library - Payment Export"
             SetRange(Type, Type::Payments);
             SetRange(Recurring, false);
 
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Gen. Journal Template");
                 Type := Type::Payments;
@@ -131,7 +131,7 @@ codeunit 130100 "Library - Payment Export"
         BankAccount."Country/Region Code" := CompanyInformation."Country/Region Code";
         BankAccount.Modify(true);
         CountryRegion.SetFilter(Code, '<>%1', BankAccount."Country/Region Code");
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         VendorBankAccount."Country/Region Code" := CountryRegion.Code;
         VendorBankAccount.Modify(true);
     end;
@@ -156,7 +156,7 @@ codeunit 130100 "Library - Payment Export"
         BankAccount."Country/Region Code" := CompanyInformation."Country/Region Code";
         BankAccount.Modify(true);
         CountryRegion.SetFilter(Code, '<>%1', BankAccount."Country/Region Code");
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         CustomerBankAccount."Country/Region Code" := CountryRegion.Code;
         CustomerBankAccount.Modify(true);
     end;
@@ -205,7 +205,7 @@ codeunit 130100 "Library - Payment Export"
             if Get(DataExchDefCode) then
                 Delete;
             Reset;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Direction := Direction::Export;
             "Data Exch. Def. Code" := DataExchDefCode;
             Insert;

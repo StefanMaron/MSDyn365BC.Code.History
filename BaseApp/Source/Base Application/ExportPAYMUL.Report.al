@@ -573,14 +573,7 @@ report 11000009 "Export PAYMUL"
         Curfile.Trunc;
         Curfile.Close;
         ReportChecksum.GenerateChecksum("Payment History", ServerFileName, ExportProtocolCode);
-#if not CLEAN17
-        if RBMgt.IsLocalFileSystemAccessible then
-            RBMgt.DownloadToFile(ServerFileName, ClientFileName)
-        else
-            RBMgt.DownloadHandler(ServerFileName, '', '', '', RBMgt.GetFileName(ClientFileName));
-#else
         RBMgt.DownloadHandler(ServerFileName, '', '', '', RBMgt.GetFileName(ClientFileName));
-#endif
 
         RBMgt.DeleteServerFile(ServerFileName);
     end;
@@ -645,7 +638,7 @@ report 11000009 "Export PAYMUL"
     begin
         PaymLine.SetRange("Our Bank", "Payment History"."Our Bank");
         PaymLine.SetRange("Run No.", "Payment History"."Run No.");
-        if PaymLine.FindFirst then begin
+        if PaymLine.FindFirst() then begin
             if PaymLine."Currency Code" = '' then
                 CurrCode := AccountingSetup."LCY Code"
             else

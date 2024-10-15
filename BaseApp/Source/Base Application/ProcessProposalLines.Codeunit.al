@@ -229,7 +229,7 @@ codeunit 11000000 "Process Proposal Lines"
           PaymentHistoryLine.Status::Posted,
           PaymentHistoryLine.Status::Cancelled,
           PaymentHistoryLine.Status::Rejected);
-        if PaymentHistoryLine.FindFirst then begin
+        if PaymentHistoryLine.FindFirst() then begin
             Errortext := StrSubstNo(Text1000019,
                 CheckRecord.FieldCaption(Identification));
             exit(false);
@@ -238,7 +238,7 @@ codeunit 11000000 "Process Proposal Lines"
         ProposalLine.SetRange("Our Bank No.", CheckRecord."Our Bank No.");
         ProposalLine.SetRange(Identification, CheckRecord.Identification);
         ProposalLine.SetFilter("Line No.", '<>%1', CheckRecord."Line No.");
-        if ProposalLine.FindFirst then begin
+        if ProposalLine.FindFirst() then begin
             Errortext := StrSubstNo(Text1000020,
                 CheckRecord.FieldCaption(Identification));
             exit(false);
@@ -396,7 +396,7 @@ codeunit 11000000 "Process Proposal Lines"
                     CustLedgerEntry.SetRange("Customer No.", ProposalLine."Account No.");
                     CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
                     CustLedgerEntry.SetRange(Open, true);
-                    if CustLedgerEntry.FindFirst then
+                    if CustLedgerEntry.FindFirst() then
                         Warningstext := StrSubstNo(Text1000025, Customer.TableCaption, ProposalLine."Account No.");
                 end;
             ProposalLine."Account Type"::Vendor:
@@ -409,7 +409,7 @@ codeunit 11000000 "Process Proposal Lines"
                     VendorLedgerEntry.SetRange("Vendor No.", ProposalLine."Account No.");
                     VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
                     VendorLedgerEntry.SetRange(Open, true);
-                    if VendorLedgerEntry.FindFirst then
+                    if VendorLedgerEntry.FindFirst() then
                         Warningstext := StrSubstNo(Text1000025, Vendor.TableCaption, ProposalLine."Account No.");
                 end;
             ProposalLine."Account Type"::Employee:
@@ -422,7 +422,7 @@ codeunit 11000000 "Process Proposal Lines"
                     EmployeeLedgerEntry.SetRange("Employee No.", ProposalLine."Account No.");
                     EmployeeLedgerEntry.SetRange("Document Type", EmployeeLedgerEntry."Document Type"::"Credit Memo");
                     EmployeeLedgerEntry.SetRange(Open, true);
-                    if EmployeeLedgerEntry.FindFirst then
+                    if EmployeeLedgerEntry.FindFirst() then
                         Warningstext := StrSubstNo(Text1000025, Employee.TableCaption, ProposalLine."Account No.");
                 end;
         end;

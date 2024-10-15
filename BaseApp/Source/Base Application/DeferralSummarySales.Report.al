@@ -152,7 +152,7 @@ report 1701 "Deferral Summary - Sales"
                 if PrintOnlyOnePerPage and (PreviousCustomer <> WorkingCustomer) then begin
                     PostedDeferralHeaderPage.Reset();
                     PostedDeferralHeaderPage.SetRange(CustVendorNo, CustVendorNo);
-                    if PostedDeferralHeaderPage.FindFirst then
+                    if PostedDeferralHeaderPage.FindFirst() then
                         PageGroupNo := PageGroupNo + 1;
                 end;
 

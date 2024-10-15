@@ -156,14 +156,14 @@ codeunit 139844 "Cost Adj. Sch. Notif. Tests"
         JobQueueEntry.DeleteAll();
 
         Item.SetRange("Allow Online Adjustment", false);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 Item."Allow Online Adjustment" := true;
                 Item.Modify();
             until Item.Next = 0;
 
         InvtAdjmtEntryOrder.SetRange("Allow Online Adjustment", false);
-        if InvtAdjmtEntryOrder.FindSet then
+        if InvtAdjmtEntryOrder.FindSet() then
             repeat
                 InvtAdjmtEntryOrder."Allow Online Adjustment" := true;
                 InvtAdjmtEntryOrder.Modify();

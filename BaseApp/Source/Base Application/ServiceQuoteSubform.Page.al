@@ -446,7 +446,7 @@ page 5965 "Service Quote Subform"
                     ApplicationArea = Service;
                     Caption = 'Service Lin&es';
                     Image = ServiceLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'View or edit the related service lines.';
 
                     trigger OnAction()
@@ -493,7 +493,7 @@ page 5965 "Service Quote Subform"
         Clear(ServInvLines);
         ServInvLines.Initialize("Line No.");
         ServInvLines.SetTableView(ServInvLine);
-        ServInvLines.RunModal;
+        ServInvLines.RunModal();
         ServInvLine.FilterGroup(0);
     end;
 
@@ -528,13 +528,13 @@ page 5965 "Service Quote Subform"
         ServOrderAlloc.SetRange("Document No.", "Document No.");
         ServOrderAlloc.FilterGroup(0);
         ServOrderAlloc.SetRange("Service Item Line No.", "Line No.");
-        if ServOrderAlloc.FindFirst then;
+        if ServOrderAlloc.FindFirst() then;
         ServOrderAlloc.SetRange("Service Item Line No.");
         Clear(ResAlloc);
         ResAlloc.SetRecord(ServOrderAlloc);
         ResAlloc.SetTableView(ServOrderAlloc);
         ResAlloc.SetRecord(ServOrderAlloc);
-        ResAlloc.Run;
+        ResAlloc.Run();
     end;
 
     local procedure ReceiveLoaner()
@@ -577,7 +577,7 @@ page 5965 "Service Quote Subform"
         FaultResolutionRelation.SetDocument(
           DATABASE::"Service Item Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", "Service Item Group Code");
-        FaultResolutionRelation.RunModal;
+        FaultResolutionRelation.RunModal();
     end;
 
     local procedure CreateServItemOnServItemLine()

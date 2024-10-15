@@ -299,7 +299,7 @@ page 11000008 "Payment History Line Subform"
         PaymentHistLine.SetRange("Line No.", "Line No.");
         SentLinesZoom.SetTableView(PaymentHistLine);
         SentLinesZoom.SetRecord(PaymentHistLine);
-        SentLinesZoom.Run;
+        SentLinesZoom.Run();
     end;
 
     [Scope('OnPrem')]

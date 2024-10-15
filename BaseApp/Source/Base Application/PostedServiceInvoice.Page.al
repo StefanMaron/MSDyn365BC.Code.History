@@ -71,6 +71,7 @@ page 5978 "Posted Service Invoice"
                         {
                             ApplicationArea = Service;
                             Editable = false;
+                            ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
                     field("Post Code"; "Post Code")
@@ -82,6 +83,7 @@ page 5978 "Posted Service Invoice"
                     field("Country/Region Code"; "Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         ToolTip = 'Specifies the country/region of the address.';
                     }
                     field("Contact Name"; "Contact Name")
@@ -242,6 +244,7 @@ page 5978 "Posted Service Invoice"
                             ApplicationArea = Service;
                             Caption = 'County';
                             Editable = false;
+                            ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
                     field("Bill-to Post Code"; "Bill-to Post Code")
@@ -254,7 +257,9 @@ page 5978 "Posted Service Invoice"
                     field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         Caption = 'Country/Region';
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
                     field("Bill-to Contact"; "Bill-to Contact")
                     {
@@ -302,6 +307,13 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -371,6 +383,7 @@ page 5978 "Posted Service Invoice"
                             ApplicationArea = Service;
                             Caption = 'County';
                             Editable = false;
+                            ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
                     field("Ship-to Post Code"; "Ship-to Post Code")
@@ -384,7 +397,9 @@ page 5978 "Posted Service Invoice"
                     field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         Caption = 'Country/Region';
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
                     field("Ship-to Contact"; "Ship-to Contact")
                     {
@@ -420,6 +435,13 @@ page 5978 "Posted Service Invoice"
                         end;
                         Clear(ChangeExchangeRate);
                     end;
+                }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
@@ -567,7 +589,7 @@ page 5978 "Posted Service Invoice"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()

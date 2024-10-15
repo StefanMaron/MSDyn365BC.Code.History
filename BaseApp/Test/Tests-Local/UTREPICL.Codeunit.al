@@ -49,7 +49,7 @@ codeunit 144011 "UT REP ICL"
         // Purpose of the test is to validate OnPreReport Trigger of Report 11409 (VAT- VIES Decl. Tax Auth NL).
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateVATRegistrationNoOnCompanyInformation;
         CreateVATEntryWithEU3PartyTrade(VATEntry, false);  // EU3PartyTrade as False.
         EnqueueValuesForRequestPage(VATEntry."Bill-to/Pay-to No.", false);  // ShowAmount as False.
@@ -74,7 +74,7 @@ codeunit 144011 "UT REP ICL"
         // Purpose of the test is to validate VAT Entry - OnAfterGetRecord Trigger of Report 11409 (VAT- VIES Decl. Tax Auth NL) With Show Amount as False.
 
         // Setup.
-        Initialize;
+        Initialize();
         ModifyGeneralLedgerSetup(GeneralLedgerSetup);
         CreateVATEntryWithEU3PartyTrade(VATEntry, false);  // EU3PartyTrade as False.
         EnqueueValuesForRequestPage(VATEntry."Bill-to/Pay-to No.", false);  // ShowAmount as False.
@@ -95,7 +95,7 @@ codeunit 144011 "UT REP ICL"
         // Purpose of the test is to validate VAT Entry - OnAfterGetRecord Trigger of Report 11409 (VAT- VIES Decl. Tax Auth NL) With Show Amount as True.
 
         // Setup.
-        Initialize;
+        Initialize();
         ModifyGeneralLedgerSetup(GeneralLedgerSetup);
         CreateVATEntryWithEU3PartyTrade(VATEntry, false);  // EU3PartyTrade as False.
         EnqueueValuesForRequestPage(VATEntry."Bill-to/Pay-to No.", true);  // ShowAmount as True.
@@ -132,7 +132,7 @@ codeunit 144011 "UT REP ICL"
         VATEntry: Record "VAT Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATEntryWithEU3PartyTrade(VATEntry, EU3PartyTrade);
         EnqueueValuesForRequestPage(VATEntry."Bill-to/Pay-to No.", false);  // ShowAmount as False.
 
@@ -169,7 +169,7 @@ codeunit 144011 "UT REP ICL"
         VATEntry2: Record "VAT Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         FindCustomerWithCountryRegion(Customer);
         CreateVATEntryWithEU3PartyTrade(VATEntry2, EU3PartyTrade);
         CreateVATEntry(
@@ -182,7 +182,7 @@ codeunit 144011 "UT REP ICL"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -217,7 +217,7 @@ codeunit 144011 "UT REP ICL"
     var
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry."Bill-to/Pay-to No." := BillToPayToNo;
         VATEntry."Country/Region Code" := CountryRegionCode;
@@ -244,7 +244,7 @@ codeunit 144011 "UT REP ICL"
         CompanyInformation.Get();
         Customer.SetFilter("Country/Region Code", '<>%1', CompanyInformation."Country/Region Code");
         Customer.SetFilter("VAT Registration No.", '<>''''');
-        Customer.FindFirst;
+        Customer.FindFirst();
     end;
 
     local procedure ModifyGeneralLedgerSetup(var GeneralLedgerSetup: Record "General Ledger Setup")

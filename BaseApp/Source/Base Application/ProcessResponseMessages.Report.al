@@ -33,7 +33,7 @@ report 11406 "Process Response Messages"
                 ErrorLog.Reset();
                 ErrorLog.SetRange("Declaration Type", "Declaration Type");
                 ErrorLog.SetRange("Declaration No.", "Declaration No.");
-                if not ErrorLog.FindLast then
+                if not ErrorLog.FindLast() then
                     ErrorLog."No." := 0;
                 NextErrorNo := ErrorLog."No." + 1;
 

@@ -281,7 +281,7 @@ table 11000001 "Payment History"
         PaymentHistory.SetCurrentKey("Export Protocol", "Sent On", "Day Serial Nr.");
         PaymentHistory.SetRange("Export Protocol", "Export Protocol");
         PaymentHistory.SetRange("Sent On", Today);
-        if PaymentHistory.FindLast then
+        if PaymentHistory.FindLast() then
             LastDaySerialNo := PaymentHistory."Day Serial Nr.";
         exit(LastDaySerialNo + 1);
     end;

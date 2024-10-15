@@ -74,8 +74,6 @@ codeunit 99000840 "Plng. Component-Reserve"
     end;
 
     procedure Caption(PlanningComponent: Record "Planning Component") CaptionText: Text
-    var
-        ReqLine: Record "Requisition Line";
     begin
         CaptionText := PlanningComponent.GetSourceCaption;
     end;
@@ -253,7 +251,7 @@ codeunit 99000840 "Plng. Component-Reserve"
                     exit;
                 OldReservEntry.SetRange("Reservation Status", ReservStatus);
 
-                if OldReservEntry.FindSet then
+                if OldReservEntry.FindSet() then
                     repeat
                         OldReservEntry.TestItemFields(
                           OldPlanningComponent."Item No.", OldPlanningComponent."Variant Code", OldPlanningComponent."Location Code");
@@ -301,7 +299,7 @@ codeunit 99000840 "Plng. Component-Reserve"
                       PlanningComponent."Ref. Order No.", PlanningComponent."Line No.", false);
             end;
             SetRange("Source Prod. Order Line", PlanningComponent."Ref. Order Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     ReservEntry2 := ReservEntry;
                     ReservEntry2."Shipment Date" := PlanningComponent."Due Date";
@@ -337,7 +335,7 @@ codeunit 99000840 "Plng. Component-Reserve"
     begin
         TrackingSpecification.InitFromProdPlanningComp(PlanningComponent);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, PlanningComponent."Due Date");
-        ItemTrackingLines.RunModal;
+        ItemTrackingLines.RunModal();
 
         OnAfterCallItemTracking(PlanningComponent);
     end;
@@ -408,7 +406,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         if MatchThisEntry(EntrySummary."Entry No.") then begin
             Clear(AvailPlanningComponents);
             AvailPlanningComponents.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailPlanningComponents.RunModal;
+            AvailPlanningComponents.RunModal();
         end;
     end;
 

@@ -38,7 +38,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO 21733] Test creation of a Sales Quote from the Opportunity for a Contact that is not registered as a Customer.
 
         // [GIVEN] Create a new Customer Template, Contact, Sales Cycle, Opportunity.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
 
@@ -67,7 +67,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         Opportunity: Record Opportunity;
     begin
         // [SCENARIO 172048] Sales Quote should be assigned to the Opportunity for a Contact of type Person
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Customer with Contact 'C' of type Company.
         CreateContactWithCustomerRelation(Contact);
@@ -104,7 +104,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO 21733] Test creation of a Sales Quote for a Contact registered as a Customer directly from the Sales Quote window and conversion to Sales Order.
 
         // [GIVEN] Create a new Customer Template, Contact, Sales Quote - Sales Header and Sales Line.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
         CreateSalesQuoteWOCustomer(SalesHeader, Contact."No.", CustomerTemplate.Code);
@@ -137,7 +137,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO 21733] Test that the application generates an error on assigning a Sales Quote to an Opportunity that has already been assigned a Sales Quote.
 
         // [GIVEN] Create a new Customer Template, Contact, Sales Cycle, Opportunity. Create and assign a Sales Quote to Opportunity.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
 
@@ -166,7 +166,7 @@ codeunit 136204 "Marketing Quotations Contacts"
 
         // [GIVEN] Create a new Customer Template, Contact, Sales Cycle, Opportunity. Create and assign a Sales Quote to Opportunity.
         // [GIVEN] Create a new Sales Quote - Sales Header and Sales Line.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
 
@@ -199,7 +199,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Test that the application allows Assigning a Sales Quote to an Opportunity from the Sales Quote window.
 
         // [GIVEN] Create a new Customer Template, Contact, Sales Quote - Sales Header and Sales Line, Sales Cycle, Opportunity.
-        Initialize;
+        Initialize();
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
         CreateSalesQuoteWOCustomer(SalesHeader, Contact."No.", CustomerTemplate.Code);
@@ -207,7 +207,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         Opportunity.SetRange("Contact No.", Contact."No.");
         TempOpportunity.CreateOppFromOpp(Opportunity);
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
 
         // [WHEN] Update Opportunity No. On Sales Quote.
         SalesHeader.Validate("Opportunity No.", Opportunity."No.");
@@ -231,7 +231,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify Sales Document Type and No. on Opportunity card after restoring from Sales Quote Archive with Opportunity No.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Archive Sales Header.
@@ -257,7 +257,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify Sales Document Type and No. on Opportunity card after restoring from Sales Quote Archive without Opportunity No.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Update Opportunity No. as blank before Archive Sales Header.
@@ -286,7 +286,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify Sales Document Type and No. on Opportunity card after restoring from Sales order Archive with Opportunity No.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CustomerTemplateCode := CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Convert Quote to Order.
@@ -321,7 +321,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify Sales Document Type and No. on Opportunity card after restoring from Sales order Archive without Opportunity No.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign quote.
-        Initialize;
+        Initialize();
         CustomerTemplateCode := CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Convert Quote to Order.
@@ -354,7 +354,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify the Oppotunity Link after assigning the same opportunity to second sales quote and then restoring the first quote.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Archive Sales Header and create another sales quote by linking the same opportunity no.
@@ -382,7 +382,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify Sales Document Type and No. on Opportunity card by removing the opportunity link before restoring the Sales Quote.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Update Opportunity No. as blank after Archive Sales Header.
@@ -410,7 +410,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify the Oppotunity Link after removing the opportunity link and assigning the same opportunity to second sales quote and then restoring the first quote.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Update Opportunity No. as blank after Archive Sales Header.
@@ -439,7 +439,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO] Verify that error gets appeared at the time of restore when opportunity status change to won.
 
         // [GIVEN] Create a new Customer Template,Contact,Sales Cycle,Opportunity and Assign Quote.
-        Initialize;
+        Initialize();
         CreateSetupForOpportunity(SalesHeader, SalesHeader."Document Type"::Quote);
 
         // [GIVEN] Update Opportunity No. as blank after Archive Sales Header.Also change the status of the opportunity to won.
@@ -472,7 +472,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO 378651] User successfully deletes Sales Order related to won Opportunity
 
         // [GIVEN] New Customer Template, Contact, Sales Cycle
-        Initialize;
+        Initialize();
 
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
@@ -499,7 +499,7 @@ codeunit 136204 "Marketing Quotations Contacts"
 
         // [THEN] Created while closing Opportunity Entry has 0 "Estimated Value"
         OpportunityEntry.SetRange("Action Taken", OpportunityEntry."Action Taken"::Lost);
-        OpportunityEntry.FindLast;
+        OpportunityEntry.FindLast();
         OpportunityEntry.TestField("Estimated Value (LCY)", 0);
     end;
 
@@ -520,7 +520,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [SCENARIO 378651] User successfully deletes Sales Order related to won Opportunity having Estimated Value and last Entry of Opportunity has the same "Estimated Value" as previous Entry
 
         // [GIVEN] New Customer Template, Contact, Sales Cycle
-        Initialize;
+        Initialize();
 
         CreateCustomerTemplate(CustomerTemplate);
         CreateContactWithCustomerRelation(Contact);
@@ -529,7 +529,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [GIVEN] Sales Quote assigned to the Opportunity created earlier
         CreateAndAssignQuoteToOpportunity(Opportunity, Contact."No.");
         OpportunityEntry.SetRange("Opportunity No.", Opportunity."No.");
-        OpportunityEntry.FindLast;
+        OpportunityEntry.FindLast();
         EstimatedValueAmount := LibraryRandom.RandInt(100);
         OpportunityEntry."Estimated Value (LCY)" := EstimatedValueAmount;
         OpportunityEntry.Modify();
@@ -546,7 +546,7 @@ codeunit 136204 "Marketing Quotations Contacts"
 
         // [THEN] Created while closing Opportunity Entry has "Estimated Value (LCY)" = 100
         OpportunityEntry.SetRange("Action Taken", OpportunityEntry."Action Taken"::Lost);
-        OpportunityEntry.FindLast;
+        OpportunityEntry.FindLast();
         OpportunityEntry.TestField("Estimated Value (LCY)", EstimatedValueAmount);
     end;
 
@@ -564,7 +564,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         // [FEATURE] [Opportunity]
         // [SCENARIO 175273] User can assign a Quote to Contact from Opportunity with Customer Template if there is no Customer related to this Contact
         // [SCENARIO 253087] Update the dialogs and modal windows.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact without relation with Customer from Customer Template
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -584,13 +584,13 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Quotations Contacts");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Quotations Contacts");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryTemplates.EnableTemplatesFeature();
 
@@ -602,7 +602,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     local procedure AssignQuoteToOpportunity(var Opportunity: Record Opportunity; ContactNo: Code[20])
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CreateQuote;
     end;
 
@@ -647,7 +647,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation, Contact."No.", BusinessRelation.Code);
         ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
-        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo;
+        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo();
         ContactBusinessRelation.Modify(true);
     end;
 
@@ -698,7 +698,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         if CustomerTemplateCode <> '' then
             SalesHeader.SetRange("Sell-to Customer Templ. Code", CustomerTemplateCode);
         SalesHeader.SetRange("Sell-to Contact No.", SellToContactNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure RestoreSalesHeaderArchive(No: Code[20]; DocumentType: Enum "Sales Document Type")
@@ -708,7 +708,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     begin
         SalesHeaderArchive.SetRange("Document Type", DocumentType);
         SalesHeaderArchive.SetRange("No.", No);
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         ArchiveManagement.RestoreSalesDocument(SalesHeaderArchive);
     end;
 
@@ -745,7 +745,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     begin
         SalesHeader2.SetRange("Document Type", SalesHeader2."Document Type"::Order);
         SalesHeader2.SetRange("Quote No.", SalesHeader."No.");
-        SalesHeader2.FindFirst;
+        SalesHeader2.FindFirst();
         SalesHeader2.TestField("Sell-to Contact No.", SalesHeader."Sell-to Contact No.");
         SalesHeader2.TestField("Gen. Bus. Posting Group", SalesHeader."Gen. Bus. Posting Group");
         SalesHeader2.TestField("Customer Posting Group", SalesHeader."Customer Posting Group");
@@ -759,7 +759,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     begin
         with Opportunity do begin
             SetRange("Contact No.", ContactNo);
-            FindFirst;
+            FindFirst();
             TestField("Sales Document Type", SalesDocumentType);
             TestField("Sales Document No.", SalesDocumentNo);
         end;

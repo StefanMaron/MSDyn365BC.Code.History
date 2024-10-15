@@ -86,7 +86,7 @@ table 11413 "Elec. Tax Decl. Response Msg."
         if "No." = 0 then begin
             ElecTaxDeclResponseMsg.Reset();
             ElecTaxDeclResponseMsg."No." := 0;
-            if not ElecTaxDeclResponseMsg.FindLast then;
+            if not ElecTaxDeclResponseMsg.FindLast() then;
             "No." := ElecTaxDeclResponseMsg."No." + 1;
         end;
     end;

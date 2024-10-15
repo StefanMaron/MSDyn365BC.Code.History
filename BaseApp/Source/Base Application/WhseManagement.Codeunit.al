@@ -87,6 +87,8 @@ codeunit 5775 "Whse. Management"
                 end;
             DATABASE::"Job Journal Line":
                 exit("Warehouse Journal Source Document"::"Job Jnl.");
+            DATABASE::Job:
+                exit("Warehouse Journal Source Document"::"Job Usage");
         end;
 
         OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
@@ -193,6 +195,8 @@ codeunit 5775 "Whse. Management"
                     SourceType := DATABASE::"Whse. Internal Put-away Line";
                 "Whse. Document Type"::"Internal Pick":
                     SourceType := DATABASE::"Whse. Internal Pick Line";
+                "Whse. Document Type"::Job:
+                    SourceType := Database::Job;
             end;
     end;
 
@@ -206,7 +210,7 @@ codeunit 5775 "Whse. Management"
             SetRange("Source Subtype", SourceSubType);
             SetRange("Source No.", SourceNo);
             SetRange("Source Line No.", SourceLineNo);
-            if FindFirst then begin
+            if FindFirst() then begin
                 CalcFields("Pick Qty. (Base)", "Pick Qty.");
                 CalcSums(Quantity, "Qty. (Base)");
                 QtyOutstanding := Quantity - "Pick Qty." - "Qty. Picked";

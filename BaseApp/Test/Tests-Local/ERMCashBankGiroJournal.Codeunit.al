@@ -127,7 +127,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Check that Document Date is auto - filled on Cash Journal Line when no Date is entered in Cash Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         OpenCashJournalListPage;
 
         // Exercise: Fill Values on Cash Journal Line without filling Document Date.
@@ -149,7 +149,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Check that Document Date is correct when multiple Cash Journal Lines present on Cash Journal.
 
         // Setup: Open Cash Journal List Page, Create Cash Journal Line without entering Document Date.
-        Initialize;
+        Initialize();
         OpenCashJournalListPage;
         OpenCashJournalPage(CashJournal, LibraryERM.CreateGLAccountNo);
         CashJournal.Subform.Next;  // Go to next line.
@@ -203,9 +203,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct entries posted when Cash Journal created from Cash Journal Template Page.
 
         // Setup: Create Cash Journal using Cash Journal Template Page.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Take Random Amount.
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         OpenCashJournalListPage;
         OpenCashJournalPage(CashJournal, GLAccountNo);
         CashJournal.Subform.Credit.SetValue(Amount);
@@ -217,7 +217,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // Verify: Verify Amount on General Ledger Entry.
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           -Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AssertFailMsg, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
@@ -237,7 +237,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct entries posted when Bank Giro Journal created from Bank Giro Journal Template Page.
 
         // Setup: Create Cash Journal using Bank Giro Journal Template Page.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);  // Take Random Amount.
         BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
         OpenBankGiroJournalPage(
@@ -248,7 +248,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // Verify: Verify Amount on Bank Ledger Entry.
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), Amount, BankAccountLedgerEntry.TableCaption));
@@ -267,7 +267,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct data is present on Cash Journal's Fact Box.
 
         // Setup: Create Cash Journal through page.
-        Initialize;
+        Initialize();
         VATPct := CreateGLAccountWithPostingSetup(GLAccount);
         OpenCashJournalListPage;
         OpenCashJournalPage(CashJournal, GLAccount."No.");
@@ -299,7 +299,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct data is present on Bank Giro Journal's Fact Box.
 
         // Setup: Create Bank Giro Journal through page.
-        Initialize;
+        Initialize();
         VATPct := CreateGLAccountWithPostingSetup(GLAccount);
         Amount := LibraryRandom.RandDec(100, 2);  // Take Random Amount.
         VATAmount := Amount * VATPct / 100;
@@ -346,7 +346,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Full Amount Applied and posted from Bank Giro Journal for Vendor.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);  // Take large Random Amount.
         ApplyAndPostBankGiroJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CBGStatementLine."Account Type"::Vendor,
@@ -365,7 +365,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Partial Amount Applied and posted from Bank Giro Journal for Vendor.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);  // Take large Random Amount.
         ApplyAndPostBankGiroJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CBGStatementLine."Account Type"::Vendor,
@@ -384,7 +384,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Full Amount Applied and posted from Bank Giro Journal for Employee.
 
         // Setup: Create Employee and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);  // Take large Random Amount.
         ApplyAndPostBankGiroJournal(
           GenJournalLine, GenJournalLine."Account Type"::Employee, CBGStatementLine."Account Type"::Employee,
@@ -403,7 +403,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Partial Amount Applied and posted from Bank Giro Journal for Vendor.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);  // Take large Random Amount.
         ApplyAndPostBankGiroJournal(
           GenJournalLine, GenJournalLine."Account Type"::Employee, CBGStatementLine."Account Type"::Employee,
@@ -422,7 +422,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Full Amount Applied and posted from Bank Giro Journal for Customer.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);  // Take large Random Amount.
         ApplyAndPostBankGiroJournal(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CBGStatementLine."Account Type"::Customer,
@@ -441,7 +441,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Partial Amount Applied and posted from Bank Giro Journal for Customer.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);  // Take large Random Amount.
         ApplyAndPostBankGiroJournal(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CBGStatementLine."Account Type"::Customer,
@@ -462,7 +462,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Full Amount Applied.
 
         // Setup: Create Employee and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
 
@@ -494,7 +494,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Full Amount Applied.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
         CustNo := CreateCustomer;
 
@@ -525,9 +525,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify that correct Amount field in Bank/Giro Journal is not updated if Account type is G/L Account.
 
         // Setup: Create Vendor and Bank Giro Journal.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // Exercise.
         CreateGeneralJournal(GenJournalLine, GLAccountNo, GenJournalLine."Account Type"::"G/L Account", Amount);
@@ -555,7 +555,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Test to Verify correct Payment Discount Amount on Vendor Ledger Entry created when Bank Giro Journal created from Bank Giro Journal Template Page.
 
         // Setup: Create Bank Account, Create and post Purchase Invoice and Get Entries on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
         ProcessAndExportPaymentTelebank(VendorBankAccount, BankAccountNo);
         OpenBankGiroJournalListPage(VendorBankAccount."Bank Account No.");
@@ -582,7 +582,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Error message when Bank journal posted with Credit Amount and applied to Credit Memo.
 
         // Setup: Create and post Sales Credit Memo and Update CBG Statement Line with Credit Amount using Applies to Doc No.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         PostedDocumentNo :=
           CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", Customer."No.", WorkDate, '');
@@ -622,7 +622,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify the number of lines in the Report CBG Posting - Test when Show Applied Entries flag is FALSE.
         // TODO: Add employee expenses as well.
         // Initialize.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
         VendorNo := CreateVendor;
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
@@ -752,7 +752,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         // [SCENARIO 375661] CBG Statement Line is recognized and applied with Cust. Ledger Entry with payment discount.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "X" and Posted Sales Invoice "Y" with payment discount.
         CreateCustomerWithPmtDisc(Customer);
@@ -789,7 +789,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CustNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         EnableUpdateOnPosting;
         Amount := LibraryRandom.RandDec(100, 2);
         CustNo := CreateCustomer;
@@ -809,7 +809,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // Post CBG Statement with expecting an error
         BankGiroJournalPage.SetRecord(CBGStatement);
-        asserterror BankGiroJournalPage.Run;
+        asserterror BankGiroJournalPage.Run();
 
         // Verify Customer Invoice is not apllied with Payment from CBG Statement
         VerifyCustInvoiceRemainingAmount(CustNo, GenJnlLine."Document No.", Amount);
@@ -829,7 +829,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify CBG Statement Line set Reconciliation Status as Unknown if system doesn't find any matched record.
 
         // Setup: Create and Post Sales Invoice with Bank Account defined for Customer.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         AccountNumber := CompanyInformation.IBAN;
         CreateAndPostSalesDocument(
@@ -863,7 +863,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [SCENARIO] Verify CBG Statement Line is recognized and applied when IBAN Code contains more than 20 characters.
 
         // Setup: Create and Post Sales Invoice with Bank Account defined for Customer. IBAN code is more than 20 characters.
-        Initialize;
+        Initialize();
         AccountNumber := 'FR1420041010050500013M' + Format(LibraryRandom.RandIntInRange(10, 99));
         CreateAndPostSalesDocument(
           SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate, '');
@@ -899,7 +899,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [Feature] [Cash Management]
         // [SCENARIO 119460] In Bank/Grio Journal the payment tolerance amount should not be ignored when you change the amount from zero
         // [GIVEN] Max Payment Tolerance Amount setup
-        Initialize;
+        Initialize();
         MaxPaymentToleranceAmt := LibraryRandom.RandInt(10);
         SetMaxPaymentToleranceAmt(MaxPaymentToleranceAmt);
         // [GIVEN] Posted Sales Invoice
@@ -981,7 +981,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [FEATURE] [Purchase] [Dimension] [Telebank]
         // [SCENARIO 363509] Dimension Set ID is inherited from Purchase Invoice to Bank Giro Journal with Payment Telebank
 
-        Initialize;
+        Initialize();
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
         // [GIVEN] Processed Purchase Invoice with "Dimension Set ID" = "X" with Payment Telebank
         ProcessAndExportPurchPaymentTelebankWithDim(VendorBankAccount, DimSetID, BankAccountNo);
@@ -1009,7 +1009,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [FEATURE] [Sales] [Dimension] [Telebank]
         // [SCENARIO 363509] Dimension Set ID is inherited from Sales Invoice to Bank Giro Journal with Payment Telebank
 
-        Initialize;
+        Initialize();
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
         // [GIVEN] Processed Sales Invoice with "Dimension Set ID" = "X" with Payment Telebank
         ProcessAndExportSalesPaymentTelebankWithDim(CustomerBankAccount, DimSetID, BankAccountNo);
@@ -1037,7 +1037,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Payment Discount]
         // [SCENARIO 364591] Bank Giro Journal posted for Credit Memo and Invoice with Payment Discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice (Amount = X, Payment Discount Amount = D) and Credit Memo with Payment Discount
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
@@ -1076,7 +1076,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 377173] The CBG Posting - Test report can be opened from General Journal Batches page with Template Type = Bank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch "X" and Template "B" with Type = BANK
         CreateJournalBatch(
@@ -1110,7 +1110,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Purchase] [Payment Discount] [Grace Period]
         // [SCENARIO 380069] Invoice Vendor Ledger Entry with Pmt. Discount is updated with apply-fields when payment in created on Giro Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup for Pmt. Disc. Tolerance with Grace Period = 3D
         // [GIVEN] Purchase Invoice posted on 20-01-18 with Due Date = 28-01-18
@@ -1128,7 +1128,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
         VendorLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", true);
         CBGStatementLine.SetRange("Account No.", VendorBankAccount."Vendor No.");
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
         VendorLedgerEntry.TestField("Applies-to ID", CBGStatementLine."Applies-to ID");
         VendorLedgerEntry.TestField("Amount to Apply", -CBGStatementLine.Amount);
     end;
@@ -1148,7 +1148,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Purchase] [Payment Discount] [Grace Period]
         // [SCENARIO 380069] Invoice Vendor Ledger Entry with Pmt. Discount apply-fields are crealed when payment in deleted on Giro Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup for Pmt. Disc. Tolerance with Grace Period = 3D
         // [GIVEN] Purchase Invoice posted on 20-01-18 with Due Date = 28-01-18
@@ -1163,7 +1163,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [WHEN] Delete CBG Statement Line
         CBGStatementLine.SetRange("Account No.", VendorBankAccount."Vendor No.");
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
         CBGStatementLine.Delete(true);
 
         // [THEN] Invoice Vendor Ledger Entry has field "Accepted Pmt. Disc. Tolerance" = No,
@@ -1189,7 +1189,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Purchase] [Payment Discount] [Grace Period]
         // [SCENARIO 380069] Invoice Vendor Ledger Entry with Pmt. Discount is closed after payment in Giro Journal is posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup for Pmt. Disc. Tolerance with Grace Period = 3D
         // [GIVEN] Purchase Invoice posted on 20-01-18 with Due Date = 28-01-18
@@ -1228,7 +1228,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Sales] [Payment Discount] [Grace Period]
         // [SCENARIO 380069] Invoice Customer Ledger Entry with Pmt. Discount is updated with apply-fields when payment in created on Giro Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup for Pmt. Disc. Tolerance with Grace Period = 3D
         // [GIVEN] Sales Invoice posted on 20-01-18 with Due Date = 28-01-18
@@ -1246,7 +1246,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", true);
         CBGStatementLine.SetRange("Account No.", CustLedgerEntry."Customer No.");
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", CBGStatementLine."Applies-to ID");
         CustLedgerEntry.TestField("Amount to Apply", -CBGStatementLine.Amount);
     end;
@@ -1266,7 +1266,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Sales] [Payment Discount] [Grace Period]
         // [SCENARIO 380069] Invoice Customer Ledger Entry with Pmt. Discount apply-fields are crealed when payment in deleted on Giro Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup for Pmt. Disc. Tolerance with Grace Period = 3D
         // [GIVEN] Sales Invoice posted on 20-01-18 with Due Date = 28-01-18
@@ -1281,7 +1281,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [WHEN] Delete CBG Statement Line
         CBGStatementLine.SetRange("Account No.", CustomerBankAccount."Customer No.");
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
         CBGStatementLine.Delete(true);
 
         // [THEN] Invoice Customer Ledger Entry has field "Accepted Pmt. Disc. Tolerance" = No,
@@ -1307,7 +1307,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Sales] [Payment Discount] [Grace Period]
         // [SCENARIO 380069] Invoice Customer Ledger Entry with Pmt. Discount is closed after payment in Giro Journal is posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup for Pmt. Disc. Tolerance with Grace Period = 3D
         // [GIVEN] Sales Invoice posted on 20-01-18 with Due Date = 28-01-18
@@ -1341,7 +1341,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 264931] Applied Bank Giro Journal Line Posting Date cannot be earlier than Customer Ledger Entry Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post General Journal Line with "Account Type" = Customer and "Posting Date" = 02-01-2020.
         CreateGeneralJournal(
@@ -1370,7 +1370,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 264931] Applied Bank Giro Journal Line Posting Date cannot be earlier than Vendor Ledger Entry Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post General Journal Line with "Account Type" = Vendor and "Posting Date" = 02-01-2020.
         CreateGeneralJournal(
@@ -1399,7 +1399,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 264931] Applied Bank Giro Journal Line Posting Date cannot be earlier than Employee Ledger Entry Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post General Journal Line with "Account Type" = Employee and "Posting Date" = 02-01-2020.
         CreateGeneralJournal(
@@ -1432,7 +1432,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 264931] Applied Bank Giro Journal Line Posting Date cannot be earlier than Sales Document Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Sales Document with "Posting Date" = 02-01-2020.
         PostedDocumentNo :=
@@ -1470,7 +1470,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 264931] Applied Bank Giro Journal Line Posting Date cannot be earlier than Purchase Document Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Purchase Document with "Posting Date" = 02-01-2020.
         PostedDocumentNo :=
@@ -1510,7 +1510,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 264931] Applied Bank Giro Journal Line Posting Date cannot be earlier than Employee Expense Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and Post Employee Expense with "Posting Date" = 02-01-2020.
         PostedDocumentNo :=
@@ -1546,7 +1546,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 264931] Bank/Giro Journal Line "Posting Date" should not be empty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Bank/Giro Journal Line.
         CBGStatementLine.Init();
@@ -1577,7 +1577,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Purchase] [Payment History]
         // [SCENARIO 273767] Paid invoice is skipped when insert payment history with several purchase invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with General Journal
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
@@ -1602,7 +1602,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.RecordCount(CBGStatementLine, 3);
 
         CBGStatement.SetRange("Account No.", BankAccountNo);
-        CBGStatement.FindFirst;
+        CBGStatement.FindFirst();
         ErrorMessages.Trap;
 
         // [WHEN] Run Post action on CBG Statement
@@ -1632,7 +1632,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Employee] [Payment History]
         // [SCENARIO 273767] Paid invoice is skipped when insert payment history with several employee invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with General Journal
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
@@ -1657,7 +1657,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.RecordCount(CBGStatementLine, 3);
 
         CBGStatement.SetRange("Account No.", BankAccountNo);
-        CBGStatement.FindFirst;
+        CBGStatement.FindFirst();
         ErrorMessages.Trap;
 
         // [WHEN] Run Post action on CBG Statement
@@ -1687,7 +1687,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [Sales] [Payment History]
         // [SCENARIO 273767] Paid invoice is skipped when insert payment history with several sales invoices
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with General Journal
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
@@ -1713,7 +1713,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Assert.RecordCount(CBGStatementLine, 3);
 
         CBGStatement.SetRange("Account No.", BankAccountNo);
-        CBGStatement.FindFirst;
+        CBGStatement.FindFirst();
         ErrorMessages.Trap;
 
         // [WHEN] Run Post action on CBG Statement
@@ -1740,10 +1740,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [CBG Statement] [Sales]
         // [SCENARIO 315824] CBG Statement Line of a customer's invoice is applied when reconciliation is invoked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer ledger entry for invoice.
-        Iban := LibraryUtility.GenerateGUID;
+        Iban := LibraryUtility.GenerateGUID();
         CustomerNo := CreateCustomerWithBankAccountIBAN(Iban);
         CustomerLedgerEntryAmount := LibraryRandom.RandDec(1000, 2);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -1777,10 +1777,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [CBG Statement] [Sales]
         // [SCENARIO 315824] CBG Statement Line of a customer's credit memo is applied when reconciliation is invoked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer ledger entry for credit memo.
-        Iban := LibraryUtility.GenerateGUID;
+        Iban := LibraryUtility.GenerateGUID();
         CustomerNo := CreateCustomerWithBankAccountIBAN(Iban);
         CustomerLedgerEntryAmount := LibraryRandom.RandDec(1000, 2);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -1814,12 +1814,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [CBG Statement] [Purchase]
         // [SCENARIO 315824] CBG Statement Line of a vendor's invoice is applied when reconciliation is invoked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor ledger entry for invoice.
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
-        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
         VendorBankAccount.Modify(true);
         VendorLedgerEntryAmount := LibraryRandom.RandDec(1000, 2);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -1853,12 +1853,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [CBG Statement] [Purchase]
         // [SCENARIO 315824] CBG Statement Line of a vendor's credit memo is applied when reconciliation is invoked.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor ledger entry for credit memo.
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
-        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
         VendorBankAccount.Modify(true);
         VendorLedgerEntryAmount := LibraryRandom.RandDec(1000, 2);
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -1903,7 +1903,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [GIVEN] Payment History Line with Amount = 150, Identification = "D1".
         CreateCBGStatementLineAddInfo(
           CBGStatementLineAddInfo, CBGStatement."Journal Template Name", CBGStatement."No.", CBGStatementLine."Line No.",
-          CBGStatementLineAddInfo."Information Type"::"Payment Identification", LibraryUtility.GenerateGUID);
+          CBGStatementLineAddInfo."Information Type"::"Payment Identification", LibraryUtility.GenerateGUID());
         CreatePaymentHistoryLine(
           CBGStatementLine, CBGStatementLineAddInfo.Description,
           DummyPaymentHistoryLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
@@ -1935,7 +1935,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [CBG Statement]
         // [SCENARIO 333913] Posted Customer Invoice is applied to Payment and is closed during Posting of CBG Statement.
-        Initialize;
+        Initialize();
         UpdateSEPAAllowedOnCountryRegion(true);
 
         // [GIVEN] Customer with Bank Account, Posted Sales Invoice for this Customer.
@@ -1992,7 +1992,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [CBG Statement]
         // [SCENARIO 333913] Posted Vendor Invoice is applied to Payment and is closed during Posting of CBG Statement.
-        Initialize;
+        Initialize();
         UpdateSEPAAllowedOnCountryRegion(true);
 
         // [GIVEN] Vendor with Bank Account, Posted Purchase Invoice for this Vendor.
@@ -2041,7 +2041,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [UT] [CBG Statement]
         // [SCENARIO 363560] CBG Statement Line takes Date from CBG Statement if not specified
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created CBG Statement with Date = 02.01
         CreateCBGStatement(CBGStatement);
@@ -2065,7 +2065,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [FEATURE] [UT] [CBG Statement]
         // [SCENARIO 363560] CBG Statement Line does not overwrite specified Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created CBG Statement with Date = 02.01
         CreateCBGStatement(CBGStatement);
@@ -3020,8 +3020,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = -300
         UpdateExchRate(CurrencyCode, 2);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
         InsertProcessPaymentHistoryLine(CBGStatement, CBGBankAccountNo);
@@ -3065,7 +3068,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
         UpdateExchRate(CurrencyCode, 0.5);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3108,7 +3115,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = -500
         UpdateExchRate(CurrencyCode, 0.5);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'false' to decline using of adjusted amount
         LibraryVariableStorage.Enqueue(false);
@@ -3159,7 +3170,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = -300
         UpdateExchRate(CurrencyCodeAdj, 2);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3208,7 +3223,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
         UpdateExchRate(CurrencyCode, 0.5);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3253,7 +3272,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized loss = -100 after exch. rate adjustment, total Amount (LCY) = 300
         UpdateExchRate(CurrencyCode, 2);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3296,7 +3319,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated, unrealized gain = 100 after exch. rate adjustment, total Amount (LCY) = 500
         UpdateExchRate(CurrencyCode, 0.5);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'false' to decline using of adjusted amount
         LibraryVariableStorage.Enqueue(false);
@@ -3345,7 +3372,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Exch. rate is updated for "Cur2", unrealized gain = 100 after exch. rate adjustment, "Inv2" has Amount (LCY) = 500
         UpdateExchRate(CurrencyCodeAdj, 0.5);
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCodeAdj, WorkDate(), WorkDate());
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+#endif
 
         // [WHEN] Inserted payment history in Bank/Giro Journal confirm 'True' to apply adjusted amount
         LibraryVariableStorage.Enqueue(true);
@@ -3383,7 +3414,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [SCENARIO] Test to Verify correct Checksum value when Generate Checksums set to false
         // [GIVEN] Create Bank Account, Create and post Purchase Invoice and Get Entries on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
         ExportProtocolCode := CreateAndUpdateExportProtocol;
         ExportProtocol.Get(ExportProtocolCode);
@@ -3416,7 +3447,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // [SCENARIO] Test to Verify correct Checksum value when Generate Checksums set to true
         // [GIVEN] Create Bank Account, Create and post Purchase Invoice and Get Entries on Telebank Proposal Page.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
         ExportProtocolCode := CreateAndUpdateExportProtocol;
         ExportProtocol.Get(ExportProtocolCode);
@@ -3901,7 +3932,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Bank Giro Journal");
         LibraryVariableStorage.Clear();
         LibraryVariableStorageConfirmHandler.Clear();
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
         LibrarySetupStorage.Restore();
@@ -3978,7 +4009,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GeneralJournalBatches: TestPage "General Journal Batches";
     begin
         // Setup: Create CBG Journal Template then create Journal Batch for it.
-        Initialize;
+        Initialize();
         CreateJournalBatch(GenJournalBatch, Type, BalAccountType, BalAccountNo);
         OpenGeneralJournalBatchesPage(GenJournalBatch, GeneralJournalBatches);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Bal. Account No.");  // Enqueue value for CashJournalPageHandler/ BankGiroJournalPageHandler.
@@ -3997,7 +4028,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Setup: Create Bank Journal after creating Bank Journal Template.
-        Initialize;
+        Initialize();
         CreateBankJournalLine(
           CBGStatementLine, CBGStatementLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo);
 
@@ -4034,7 +4065,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // Verify: Verify Amount on Bank Ledger Entry.
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         if Debit then
             Assert.AreNearlyEqual(
               -Amount2, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
@@ -4113,7 +4144,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     local procedure CreateGenJournalLine(var CBGStatementLine: Record "CBG Statement Line"; var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
     begin
         CBGStatementLine.SetRange("Account No.", AccountNo);
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
         CBGStatementLine.CreateGenJournalLine(GenJournalLine);
     end;
 
@@ -4128,7 +4159,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         AccountNumber: Text[30];
     begin
         // Verify CBG Statement Line is recognized and applied with IBAN or 10 character Bank Account No.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
         case BankAccountType of
@@ -4413,7 +4444,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         CustLedgEntry.CalcFields("Remaining Amount");
     end;
 
@@ -4500,7 +4531,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         ExportProtocol.Validate("Check ID", CODEUNIT::"Check SEPA ISO20022");
         ExportProtocol.Validate("Export ID", REPORT::"Export SEPA ISO20022");
         ExportProtocol.Validate("Docket ID", REPORT::"Export BTL91-RABO");
-        ExportProtocol.Validate("Default File Names", StrSubstNo(FilePathTxt, LibraryUtility.GenerateGUID));  // Generate random file name.
+        ExportProtocol.Validate("Default File Names", StrSubstNo(FilePathTxt, LibraryUtility.GenerateGUID()));  // Generate random file name.
         ExportProtocol.Modify(true);
         exit(ExportProtocol.Code);
     end;
@@ -4959,7 +4990,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         with AnalysisView do begin
             SetRange("Account Source", "Account Source"::"G/L Account");
-            FindFirst;
+            FindFirst();
             "Update on Posting" := true;
             Modify;
         end;
@@ -4981,21 +5012,21 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         exit(BankAccount."Bank Account No.");
     end;
 
     local procedure FindCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20])
     begin
         CustomerBankAccount.SetRange("Customer No.", CustomerNo);
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Original Amount");
     end;
 
@@ -5003,7 +5034,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Original Amount");
     end;
 
@@ -5011,7 +5042,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
-        EmployeeLedgerEntry.FindFirst;
+        EmployeeLedgerEntry.FindFirst();
     end;
 
     local procedure FindPaymentHistoryLine(var PaymentHistoryLine: Record "Payment History Line"; OurBank: Code[20]; AccountType: Option; AccountNo: Code[20])
@@ -5019,7 +5050,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentHistoryLine.SetRange("Our Bank", OurBank);
         PaymentHistoryLine.SetRange("Account Type", AccountType);
         PaymentHistoryLine.SetRange("Account No.", AccountNo);
-        PaymentHistoryLine.FindFirst;
+        PaymentHistoryLine.FindFirst();
     end;
 
     local procedure FindPaymentHistoryLineForCurrency(var PaymentHistoryLine: Record "Payment History Line"; OurBank: Code[20]; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10])
@@ -5031,7 +5062,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     local procedure FindDetailLine(var DetailLine: Record "Detail Line"; SerialNo: Integer)
     begin
         DetailLine.SetRange("Serial No. (Entry)", SerialNo);
-        DetailLine.FindFirst;
+        DetailLine.FindFirst();
     end;
 
     local procedure GetEntriesOnTelebankProposal(var TelebankProposal: TestPage "Telebank Proposal"; BankAccFilter: Code[30])
@@ -5523,7 +5554,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         ProposalLine.SetRange("Our Bank No.", OurBankNo);
         ProposalLine.SetRange("Account No.", AccountNo);
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.Validate("Nature of the Payment", NatureOfThePayment);
         ProposalLine.Modify(true);
     end;
@@ -5591,7 +5622,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", AccountNo);
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         BankAccountLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
@@ -5631,7 +5662,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             SetRange("Customer No.", CustNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Remaining Amt. (LCY)");
             Assert.AreEqual(ExpAmt, "Remaining Amt. (LCY)", '');
         end;
@@ -5643,7 +5674,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocType);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(VendLedgerEntryIsOpen, Open, FieldCaption(Open));
             Assert.AreEqual(
                 RemPaymentDiscPossible, "Remaining Pmt. Disc. Possible",
@@ -5669,7 +5700,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         CBGStatementLine.SetRange("Account Type", AccountType);
         CBGStatementLine.SetRange("Account No.", AccountNo);
-        CBGStatementLine.FindFirst;
+        CBGStatementLine.FindFirst();
         Assert.AreEqual(
           DimSetID, CBGStatementLine."Dimension Set ID", CBGStatementLine.FieldCaption("Dimension Set ID"));
     end;

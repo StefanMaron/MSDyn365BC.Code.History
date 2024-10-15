@@ -184,7 +184,7 @@ page 11000000 "Telebank - Bank Overview"
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
                             DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

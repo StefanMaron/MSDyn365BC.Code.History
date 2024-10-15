@@ -32,7 +32,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate Our Reference - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Test to verify error, Our Reference must start with 'OB-' in Elec. Tax Declaration Header Declaration Type='VAT Declaration',No.=''.
-        Initialize;
+        Initialize();
         OnValidateOurReferenceElecTaxDeclarationHeader(LibraryUTUtility.GetNewCode10, TableErr);  // Our Reference - with random code.
     end;
 
@@ -44,7 +44,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate Our Reference - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Test to verify error, Our Reference can only contain letters, digits and dashes in Elec. Tax Declaration Header Declaration Type='VAT Declaration',No.=''.
-        Initialize;
+        Initialize();
         OnValidateOurReferenceElecTaxDeclarationHeader(InitialOurReferenceTxt + '@', TableErr);  // Our Reference - with special character.
     end;
 
@@ -68,7 +68,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate Declaration Type - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         // Setup.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
 
         // Exercise.
@@ -87,7 +87,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate Declaration Year - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         // Setup.
-        Initialize;
+        Initialize();
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration";
         ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode;
         ElecTaxDeclarationHeader."Declaration Period" := ElecTaxDeclarationHeader."Declaration Period"::December;  // Used Declaration Period as last month of the year.
@@ -108,7 +108,7 @@ codeunit 144046 "UT TAB EVAT II"
         ElecTaxDeclarationHeader2: Record "Elec. Tax Declaration Header";
     begin
         // Setup: Create Electronic Tax Declaration Header with different Declaration type with same Our Reference.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, LibraryRandom.RandIntInRange(0, 1));  // ElecTaxDeclarationHeader Declaration Type - VAT Declaration and ICP Declaration.
         ElecTaxDeclarationHeader.Validate("Our Reference", InitialOurReferenceTxt +
           LibraryUtility.GenerateRandomXMLText(
@@ -136,7 +136,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate Declaration Year - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Create two Electronic Tax Declaration Headers with same Declaration Period and Declaration Year.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
         UpdateDeclarationPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader, "Elec. Tax Declaration Period".FromInteger(LibraryRandom.RandIntInRange(1, 12)));  // Declaration Period - January to December.
         ElecTaxDeclarationHeader."Declaration Year" := Date2DMY(Today, 3) - 1;  // Declaration Year on the basis of Declaration Year - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
@@ -163,7 +163,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate Declaration Year - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Create Electronic Tax Declaration Header.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
         UpdateDeclarationPeriodElecTaxDeclarationHeader(ElecTaxDeclarationHeader, "Elec. Tax Declaration Period".FromInteger(LibraryRandom.RandIntInRange(1, 12)));  // Declaration Period - January to December.
 
@@ -183,7 +183,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         // Setup.
-        Initialize;
+        Initialize();
         ElecTaxDeclarationHeader.Status := ElecTaxDeclarationHeader.Status::Submitted;
 
         // Exercise.
@@ -206,7 +206,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Create Electronic Tax Declaration Header, Electronic Tax Declaration Line, Electronic Tax Declaration Error Log and Electronic Tax Declaration Response Message.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
         CreateElecTaxDeclarationLine(ElecTaxDeclarationLine, ElecTaxDeclarationHeader."Declaration Type", ElecTaxDeclarationHeader."No.");
         CreateElecTaxDeclErrorLog(ElecTaxDeclErrorLog, ElecTaxDeclarationHeader."Declaration Type", ElecTaxDeclarationHeader."No.");
@@ -239,7 +239,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate OnPreExport function of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Create Electronic Tax Declaration Header and Electronic Tax Declaration Line
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
         CreateElecTaxDeclarationLine(
           ElecTaxDeclarationLine, ElecTaxDeclarationHeader."Declaration Type", ElecTaxDeclarationLine."Declaration No.");
@@ -262,7 +262,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate InsertLine function of Table ID - 11409 Elec. Tax Declaration Header.
         // Setup.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
         Name := LibraryUTUtility.GetNewCode;
 
@@ -311,7 +311,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate TestNoSeries function of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Update VAT Declaration Nos. and ICP Declaration Nos. on Elec. Tax Declaration Setup.
-        Initialize;
+        Initialize();
         UpdateElecTaxDeclarationSetup(ElecTaxDeclarationSetup, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode10);  // VAT Declaration Nos and ICP Declaration Nos.
         ElecTaxDeclarationHeader."Declaration Type" := DeclarationType;
 
@@ -331,7 +331,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate Declaration Period - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         // Setup.
-        Initialize;
+        Initialize();
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration";
 
         // Exercise.
@@ -429,7 +429,7 @@ codeunit 144046 "UT TAB EVAT II"
         DeclarationDateExpression: DateFormula;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration";
         ElecTaxDeclarationHeader."Declaration Year" := Date2DMY(Today, 3) - 1;  // Declaration Year on the basis of Declaration Year - OnValidate Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         Evaluate(DeclarationDateExpression, DateExpression);
@@ -453,7 +453,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate OnRename Trigger of Table ID - 11410 Elec. Tax Declaration Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationLine(
           ElecTaxDeclarationLine, ElecTaxDeclarationLine."Declaration Type"::"VAT Declaration", LibraryUTUtility.GetNewCode);  // Using Random code for Elec. Tax Declaration Line - Declaration No.
 
@@ -476,7 +476,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 11413 Elec. Tax Decl. Response Msg.
 
         // Setup: Create Electronic Tax Declaration Response Msg with Number - 0.
-        Initialize;
+        Initialize();
         ElecTaxDeclResponseMsg.DeleteAll();  // Required to delete all Elec. Tax Decl. Response Msg.
         ElecTaxDeclResponseMsg."No." := 0;
 
@@ -497,7 +497,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 11409 Elec. Tax Declaration Header.
         // Setup.
-        Initialize;
+        Initialize();
         StartingNo := CreateElecTaxDeclarationHeaderWithNoSeries(ElecTaxDeclarationHeader, CreateNoSeries(true));  // Manual Nos - TRUE.
 
         // Exercise: Validate OnInsert Trigger of Elec. Tax Declaration Header with Manual Nos - TRUE.
@@ -518,7 +518,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate OnRename Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Create No. Series with Manual and Default as TRUE.
-        Initialize;
+        Initialize();
         ElecTaxDeclarationHeader."No." := CreateNoSeriesLine(CreateNoSeries(true));
         ElecTaxDeclarationHeader.Insert();
         No := LibraryUTUtility.GetNewCode10;
@@ -540,7 +540,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Purpose of the test is to validate OnValidate - No Trigger of Table ID - 11409 Elec. Tax Declaration Header.
 
         // Setup: Create No. Series with Manual - False.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeaderWithNoSeries(ElecTaxDeclarationHeader, CreateNoSeries(false));  // Manual Nos - FALSE.
         ElecTaxDeclarationHeader.Insert();
 
@@ -560,7 +560,7 @@ codeunit 144046 "UT TAB EVAT II"
     begin
         // Purpose of the test is to validate OnValidate - Fiscal Entity No Trigger of Table ID - 79 Company Information.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror CompanyInformation.Validate("Fiscal Entity No.", LibraryUTUtility.GetNewCode);
@@ -603,7 +603,7 @@ codeunit 144046 "UT TAB EVAT II"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT TAB EVAT II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateElecTaxDeclarationHeader(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"; DeclarationType: Option)

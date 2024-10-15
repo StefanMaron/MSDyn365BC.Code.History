@@ -33,7 +33,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchInvHeaderNo: Code[20];
     begin
         // [GIVEN] Create Purchase Invoice with Document Amount Including VAT.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
         // [WHEN] Update Doc. Amount Incl. VAT and post Purchase Invoice for Ship and Invoice.
@@ -54,7 +54,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchCrMemoHdrNo: Code[20];
     begin
         // [GIVEN] Create Purchase Credit Memo with Document Amount Including VAT.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Update Doc. Amount Incl. VAT and post Purchase Credit Memo for Ship and Invoice.
@@ -73,7 +73,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Post Purchase Invoice with wrong Document Amount Including VAT.
-        Initialize;
+        Initialize();
         PostPurchDocWithWrongDocAmountInclVAT("Purchase Document Type"::Invoice);
     end;
 
@@ -84,7 +84,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Post Purchase Credit Memo with wrong Document Amount Including VAT.
-        Initialize;
+        Initialize();
         PostPurchDocWithWrongDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
     end;
 
@@ -116,7 +116,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchInvHeaderNo: Code[20];
     begin
         // [GIVEN] Update Check Doc. Total Amounts - FALSE on Purchases & Payables Setup, Create Purchase Invoice with wrong Document Amount Including VAT.
-        Initialize;
+        Initialize();
         SetCheckDocTotalAmounts(false);
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
@@ -136,7 +136,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchCrMemoHeaderNo: Code[20];
     begin
         // [GIVEN] Update Check Doc. Total Amounts - FALSE on Purchases & Payables Setup, Create Purchase Credit Memo with wrong Document Amount Including VAT.
-        Initialize;
+        Initialize();
         SetCheckDocTotalAmounts(false);
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
 
@@ -155,7 +155,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Invoice with multiple lines for different Items having different VAT %.
-        Initialize;
+        Initialize();
         PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT("Purchase Document Type"::Invoice);
     end;
 
@@ -166,7 +166,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Credit Memo with multiple lines for different Items having different VAT %.
-        Initialize;
+        Initialize();
         PurchDocWithDiffItemsMultipleLinesDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
     end;
 
@@ -205,7 +205,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Invoice with multiple lines for same Item.
-        Initialize;
+        Initialize();
         PurchDocWithMultipleLinesDocAmountInclVAT("Purchase Document Type"::Invoice);
     end;
 
@@ -216,7 +216,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Credit Memo with multiple lines for same Item.
-        Initialize;
+        Initialize();
         PurchDocWithMultipleLinesDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
     end;
 
@@ -230,7 +230,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO 280476] No error when validate Doc Amount Incl. VAT in Purchase Header when only zero amount lines present in purch. document
         // [SCENARIO] Doc. Amount VAT is <zero> in this case
-        Initialize;
+        Initialize();
         DocAmountInclVAT := LibraryRandom.RandDecInRange(1000, 2000, 2);
 
         // [GIVEN] Purchase Invoice with Line having Qty = 1 and Unit Cost is <zero>
@@ -362,7 +362,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         VATProductPostingGroup.SetFilter(Code, '<>%1', VATProdPostingGroupCode);  // VAT Product Posting Group should be different for second Items
-        VATProductPostingGroup.FindFirst;
+        VATProductPostingGroup.FindFirst();
         CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         Item.Modify(true);
@@ -370,7 +370,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
 
     local procedure UpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocAmountInclVAT: Decimal)
     begin
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Validate("Doc. Amount Incl. VAT", DocAmountInclVAT);
         PurchaseHeader.Modify(true);
     end;
@@ -396,7 +396,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("Amount Including VAT", AmountIncludingVAT);
     end;
 
@@ -405,7 +405,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         PurchCrMemoLine.TestField("Amount Including VAT", AmountIncludingVAT);
     end;
 

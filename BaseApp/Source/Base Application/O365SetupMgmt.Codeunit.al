@@ -22,11 +22,11 @@ codeunit 2315 "O365 Setup Mgmt"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        if SalesInvoiceHeader.FindFirst then
+        if SalesInvoiceHeader.FindFirst() then
             exit(true);
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             exit(true);
     end;
 
@@ -35,7 +35,7 @@ codeunit 2315 "O365 Setup Mgmt"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             exit(true);
     end;
 
@@ -44,11 +44,11 @@ codeunit 2315 "O365 Setup Mgmt"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        if SalesInvoiceHeader.FindFirst then
+        if SalesInvoiceHeader.FindFirst() then
             exit(true);
 
         SalesHeader.SetFilter("Document Type", '%1|%2', SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Quote);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             exit(true);
     end;
 
@@ -91,7 +91,7 @@ codeunit 2315 "O365 Setup Mgmt"
         SessionSetting: SessionSettings;
     begin
         Company.SetRange("Evaluation Company", true);
-        if Company.FindFirst then begin
+        if Company.FindFirst() then begin
             UserPersonalization.Get(UserSecurityId);
             UserPersonalization.Validate(Company, Company.Name);
             UserPersonalization.Modify(true);
@@ -118,7 +118,7 @@ codeunit 2315 "O365 Setup Mgmt"
         ClientUrl := UrlHelper.GetFixedClientEndpointBaseUrl;
 
         Company.SetRange("Evaluation Company", true);
-        if Company.FindFirst then begin
+        if Company.FindFirst() then begin
             Session.LogMessage('00007L3', InvToBusinessCentralTrialTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvToBusinessCentralCategoryLbl);
             CompanyPart := StrSubstNo('?company=%1', TypeHelper.UriEscapeDataString(Company.Name));
             HyperLink(ClientUrl + CompanyPart);
@@ -141,7 +141,7 @@ codeunit 2315 "O365 Setup Mgmt"
         Company: Record Company;
     begin
         Company.SetRange("Evaluation Company", true);
-        if Company.FindFirst then begin
+        if Company.FindFirst() then begin
             if DummySalesHeader.ChangeCompany(Company.Name) then
                 exit(DummySalesHeader.WritePermission);
         end;

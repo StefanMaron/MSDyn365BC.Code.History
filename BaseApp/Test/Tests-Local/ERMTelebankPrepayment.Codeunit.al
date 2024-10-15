@@ -38,7 +38,7 @@ codeunit 144056 "ERM Telebank Prepayment"
         DocumentNo: Code[20];
     begin
         // Setup: Create Vendor, create Purchase Order.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreatePurchaseDocument(PurchaseHeader, Vendor."No.");
         DocumentNo := GetPostedDocumentNo(PurchaseHeader."Posting No. Series");
@@ -61,7 +61,7 @@ codeunit 144056 "ERM Telebank Prepayment"
         DocumentNo: Code[20];
     begin
         // Setup: Create Customer, create Sales Order.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateSalesOrder(SalesHeader, Customer."No.");
         DocumentNo := GetPostedDocumentNo(SalesHeader."Posting No. Series");

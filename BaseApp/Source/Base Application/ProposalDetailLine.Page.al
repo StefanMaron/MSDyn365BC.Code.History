@@ -181,7 +181,7 @@ page 11000002 "Proposal Detail Line"
                                 if Confirm(StrSubstNo(Text1000000, TableCaption, "Our Bank No.", BankAcc."No.")) then begin
                                     Propline.SetCurrentKey("Our Bank No.");
                                     Propline.SetRange("Our Bank No.", BankAcc."No.");
-                                    if Propline.FindLast then
+                                    if Propline.FindLast() then
                                         Rename(BankAcc."No.", Propline."Line No." + 10000)
                                     else
                                         Rename(BankAcc."No.", 10000);

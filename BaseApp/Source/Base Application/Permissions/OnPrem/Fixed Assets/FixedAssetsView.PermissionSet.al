@@ -32,6 +32,8 @@ permissionset 8689 "Fixed Assets - View"
                   tabledata "Insurance Journal Template" = R,
                   tabledata "Insurance Register" = Rimd,
                   tabledata "Maintenance Ledger Entry" = Rimd,
+#if not CLEAN20
                   tabledata "Native - Payment" = Ri,
+#endif
                   tabledata "Source Code Setup" = R;
 }

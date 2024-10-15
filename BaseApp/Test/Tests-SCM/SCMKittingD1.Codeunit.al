@@ -40,8 +40,8 @@ codeunit 137090 "SCM Kitting - D1"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - D1");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -58,7 +58,7 @@ codeunit 137090 "SCM Kitting - D1"
         CapOverhead: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", UseBaseUoM,
           NoOfItems, NoOfResources, NoOfTexts, QtyPerFactor, '', '');
@@ -141,7 +141,7 @@ codeunit 137090 "SCM Kitting - D1"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 0, 0, 0, 1, '', '');
 
@@ -187,7 +187,7 @@ codeunit 137090 "SCM Kitting - D1"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, CostingMethod, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(CostingMethod, Item."No.", true, 1, 1, 1, 1, '', '');
         LibraryAssembly.ModifyCostParams(Item."No.", CostAdjNeeded, IndirectCost, Overhead);
@@ -246,7 +246,7 @@ codeunit 137090 "SCM Kitting - D1"
         InitialCost: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, CostingMethod, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 1, 1, 1, 1, '', '');
         LibraryAssembly.ModifyItem(Item."No.", CostAdjNeeded, IndirectCost, Overhead);
@@ -324,7 +324,7 @@ codeunit 137090 "SCM Kitting - D1"
         CapOverhead: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 2, 1, 1, '', '');
 
@@ -431,7 +431,7 @@ codeunit 137090 "SCM Kitting - D1"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 2, 1, 1, '', '');
         LibraryAssembly.DeleteAssemblyList(Item."No.");
@@ -460,7 +460,7 @@ codeunit 137090 "SCM Kitting - D1"
         CapOverhead: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateMultipleLvlTree(Item, Item1, Item."Replenishment System"::Assembly,
           Item."Costing Method"::Standard, TreeDepth, NoOfComps);
         LibraryAssembly.EditAssemblyList(ChangeType, ComponentType, ComponentType, '', Item."No.");
@@ -591,7 +591,7 @@ codeunit 137090 "SCM Kitting - D1"
         CapOverhead: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         Item.Validate("Lot Size", LotSize);
         Item.Modify(true);
@@ -689,7 +689,7 @@ codeunit 137090 "SCM Kitting - D1"
         CapOverhead: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateMultipleLvlTree(Item, Item1, ReplenishmentMethod, Item."Costing Method"::Standard, TreeDepth, 2);
         SetItemReplenishmentMethod(Item."No.", ReplenishmentMethod);
         Commit();
@@ -799,7 +799,7 @@ codeunit 137090 "SCM Kitting - D1"
         Item1: Record Item;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 2, 1, 1, '', '');
         LibraryAssembly.CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
@@ -849,7 +849,7 @@ codeunit 137090 "SCM Kitting - D1"
         errorCode: Text;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '');
         LibraryAssembly.CreateResource(Resource, true, '');
@@ -935,7 +935,7 @@ codeunit 137090 "SCM Kitting - D1"
         BOMComponent: Record "BOM Component";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '');
         LibraryAssembly.CreateAssemblyListComponent(
@@ -946,7 +946,7 @@ codeunit 137090 "SCM Kitting - D1"
           LibraryRandom.RandDec(20, 2), true);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
         BOMComponent.SetRange("No.", Item2."No.");
-        BOMComponent.FindFirst;
+        BOMComponent.FindFirst();
 
         // Exercise.
         if Qty <> 1 then begin
@@ -1076,7 +1076,7 @@ codeunit 137090 "SCM Kitting - D1"
     begin
         // [FEATURE] [Item] [BOM]
         // [SCENARIO 274234] Item with a BOM Component can be deleted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" has a record "BOM Component" with the field "Parent Item No." = "I"
         LibraryInventory.CreateItem(Item);
@@ -1137,7 +1137,7 @@ codeunit 137090 "SCM Kitting - D1"
         BOMComponent: Record "BOM Component";
     begin
         BOMComponent.SetRange("Parent Item No.", SourceParentItem."No.");
-        if BOMComponent.FindFirst then
+        if BOMComponent.FindFirst() then
             BOMComponent.Rename(DestParentItem."No.", BOMComponent."Line No.");
         SourceParentItem.Find;
         DestParentItem.Find;

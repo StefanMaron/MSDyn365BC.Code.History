@@ -51,7 +51,7 @@ codeunit 143000 "Library - NL Localization"
     procedure CreateExportProtocol(var ExportProtocol: Record "Export Protocol")
     begin
         ExportProtocol.Init();
-        ExportProtocol.Validate(Code, LibraryUtility.GenerateGUID);
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateGUID());
         ExportProtocol.Insert(true);
     end;
 
@@ -107,7 +107,7 @@ codeunit 143000 "Library - NL Localization"
         TextPosition: Integer;
     begin
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindFirst;
+        PaymentHistory.FindFirst();
 
         LibraryTextFileValidation.ReadTextFile(PaymentHistory."File on Disk", FileContent);
 
@@ -133,7 +133,7 @@ codeunit 143000 "Library - NL Localization"
     begin
         PaymentHistory.SetRange("Export Protocol", ExportProtocolCode);
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindLast;
+        PaymentHistory.FindLast();
     end;
 }
 

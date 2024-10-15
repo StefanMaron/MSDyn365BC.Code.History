@@ -140,7 +140,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Customer: Record Customer;
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -163,7 +163,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
         ProposalLine: Record "Proposal Line";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -174,7 +174,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // verify
         ProposalLine.SetRange("Our Bank No.", BankAccount."No.");
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField("Direct Debit Mandate ID", DirectDebitMandate.ID)
     end;
 
@@ -188,7 +188,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
         PaymentHistoryLine: Record "Payment History Line";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -200,7 +200,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // verify
         PaymentHistoryLine.SetRange("Our Bank", BankAccount."No.");
-        PaymentHistoryLine.FindFirst;
+        PaymentHistoryLine.FindFirst();
         PaymentHistoryLine.TestField("Direct Debit Mandate ID", DirectDebitMandate.ID)
     end;
 
@@ -247,7 +247,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     var
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         ExportMultilinePayment(BankAccountNo, 2, false, true);
 
@@ -271,7 +271,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ProposalLine: Record "Proposal Line";
         TransactionMode: Record "Transaction Mode";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer1, DirectDebitMandate);
@@ -287,7 +287,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // verify
         ProposalLine.SetRange("Our Bank No.", BankAccount."No.");
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField("Error Message", PartnerTypeMismatchErr);
     end;
 
@@ -301,7 +301,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
         ProposalLine: Record "Proposal Line";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -315,7 +315,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // verify
         ProposalLine.SetRange("Our Bank No.", BankAccount."No.");
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField("Error Message", MissingMandateErr);
     end;
 
@@ -329,7 +329,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
         ProposalLine: Record "Proposal Line";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -343,7 +343,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // verify
         ProposalLine.SetRange("Our Bank No.", BankAccount."No.");
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField("Error Message", MissingCrIdentifierErr);
     end;
 
@@ -358,7 +358,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ProposalLine: Record "Proposal Line";
         TransactionMode: Record "Transaction Mode";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         CreateSEPABankAccount(BankAccount);
@@ -375,7 +375,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // verify
         ProposalLine.SetRange("Our Bank No.", BankAccount."No.");
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine.TestField("Error Message", MissingPartnerTypeErr);
     end;
 
@@ -415,7 +415,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         NumberOfPayments: Integer;
         NumberOfBatches: array[4] of Integer;
     begin
-        Initialize;
+        Initialize();
 
         NumberOfPayments := 3;
         ExportMultilinePayment(BankAccountNo, NumberOfPayments, true, true);
@@ -434,7 +434,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         NumberOfPayments: Integer;
         NumberOfBatches: array[4] of Integer;
     begin
-        Initialize;
+        Initialize();
 
         NumberOfPayments := 3;
         ExportMultilinePayment(BankAccountNo, NumberOfPayments, false, true);
@@ -454,7 +454,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         NumberOfPayments: Integer;
         NumberOfBatches: array[4] of Integer;
     begin
-        Initialize;
+        Initialize();
 
         NumberOfPayments := 3;
         ExportMultilinePayment(BankAccountNo, NumberOfPayments, true, false);
@@ -473,7 +473,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         NumberOfPayments: Integer;
         NumberOfBatches: array[4] of Integer;
     begin
-        Initialize;
+        Initialize();
 
         NumberOfPayments := 3;
         ExportMultilinePayment(BankAccountNo, NumberOfPayments, false, false);
@@ -495,7 +495,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         NumberOfBatches: array[4] of Integer;
         NumberOfPayments: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -521,7 +521,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Customer: Record Customer;
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
@@ -547,7 +547,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         // Verify Payment Amount in report Export SEPA ISO20022 after cancellation of single line in XML file.
 
         // Setup: Create and export multiple Payment Lines.
-        Initialize;
+        Initialize();
         NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02';
         CreateExportProtocol(11000011);
         ExportMultilinePayment(BankAccountNo, 2, false, true);
@@ -628,7 +628,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // setup
         SetUpSEPAVendor(BankAccount, Vendor, CreateCurrency);
@@ -652,7 +652,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
         // Check that Integer value is always exported to InstdAmt with 2 decimal symbols
-        Initialize;
+        Initialize();
 
         // setup
         NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
@@ -676,7 +676,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         BankAccountNo: Code[20];
     begin
         // [SCENARIO 363157] Report 11000013 SEPA ISO20022 Pain 008.001.0 does not contain BOM symbol in the beginning of file
-        Initialize;
+        Initialize();
 
         // [WHEN] Report 11000013 SEPA ISO20022 Pain 008.001.02 is exported to file
         ExportMultilinePayment(BankAccountNo, 1, false, false);
@@ -695,7 +695,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         // [SCENARIO 363158] Report 11000013 SEPA ISO20022 Pain 008.001.0 does not contain generate Checksum 
         // in Payment History if Generate Checksum is set to false
 
-        Initialize;
+        Initialize();
 
         // [WHEN] Report 11000013 SEPA ISO20022 Pain 008.001.02 is exported to file
         ExportMultilinePayment(BankAccountNo, 2, false, true);
@@ -715,7 +715,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         // [SCENARIO 363159] Report SEPA ISO20022 Pain 008.001.02 generates Checksum
         // in Payment History if Generate Checksum is set to true
-        Initialize;
+        Initialize();
         LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, true, false);
         ExportMultilinePayment(BankAccountNo, 1, false, false);
 
@@ -887,7 +887,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
@@ -920,7 +920,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         Commit();
         FindPaymentHistoryLines(BankAccountNo, PaymentHistoryLine);
-        PaymentHistoryLine.FindFirst;  // Using Findfirst to find first line in Payment History Line for Cancellation.
+        PaymentHistoryLine.FindFirst();  // Using Findfirst to find first line in Payment History Line for Cancellation.
         PaymentHistoryLine.SetFilter("Line No.", Format(PaymentHistoryLine."Line No."));
         LibraryVariableStorage.Enqueue(PaymentHistoryLine.Status::Cancelled);
         REPORT.RunModal(REPORT::"Paymt. History - Change Status", true, true, PaymentHistoryLine);
@@ -995,7 +995,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     local procedure CreateExportProtocol(ExportID: Integer)
     begin
         ExportProtocol.Init();
-        ExportProtocol.Validate(Code, LibraryUtility.GenerateGUID);
+        ExportProtocol.Validate(Code, LibraryUtility.GenerateGUID());
         ExportProtocol.Validate("Check ID", 11000011); // Report ID
         ExportProtocol.Validate("Export ID", ExportID); // Report ID 11000013 SEPA ISO20022 Pain 08.01.02
         ExportProtocol.Validate("Docket ID", 11000004); // Report ID
@@ -1037,7 +1037,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         CustomerBankAccount.Validate("Account Holder Address",
           LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Account Holder Address"), DATABASE::"Customer Bank Account"));
 
-        PostCode.FindFirst;
+        PostCode.FindFirst();
         CustomerBankAccount."Account Holder Post Code" := PostCode.Code;
         CustomerBankAccount."Account Holder City" := PostCode.City;
         CustomerBankAccount.Validate(IBAN, 'GB 12 CPBK 08929965044991'); // hard coded due to IBAN validation
@@ -1080,7 +1080,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
             Validate("Account Holder Address",
               LibraryUtility.GenerateRandomCode(FieldNo("Account Holder Address"), DATABASE::"Vendor Bank Account"));
 
-            PostCode.FindFirst;
+            PostCode.FindFirst();
             "Account Holder Post Code" := PostCode.Code;
             "Account Holder City" := PostCode.City;
             Validate(IBAN, 'GB 12 CPBK 08929965044991'); // hard coded due to IBAN validation
@@ -1121,7 +1121,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         PaymentHistory.SetRange("Export Protocol", ExportProtocol.Code);
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindLast;
+        PaymentHistory.FindLast();
     end;
 
     local procedure FindPaymentHistoryLines(BankAccountNo: Code[20]; var PaymentHistoryLine: Record "Payment History Line")
@@ -1129,7 +1129,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         PaymentHistory: Record "Payment History";
     begin
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindFirst;
+        PaymentHistory.FindFirst();
         PaymentHistoryLine.SetRange("Our Bank", PaymentHistory."Our Bank");
         PaymentHistoryLine.SetRange("Run No.", PaymentHistory."Run No.");
     end;
@@ -1214,7 +1214,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DetailLine.SetFilter(Status, '%1|%2|%3', DetailLine.Status::"In process", DetailLine.Status::Posted, DetailLine.Status::Correction);
         DetailLine.SetRange("Connect Batches", PaymentHistoryLine."Run No.");
         DetailLine.SetRange("Connect Lines", PaymentHistoryLine."Line No.");
-        DetailLine.FindFirst;
+        DetailLine.FindFirst();
         CustLedgEntry.Get(DetailLine."Serial No. (Entry)");
         exit(CustLedgEntry."Document No.");
     end;
@@ -1224,13 +1224,13 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
         DirectDebitMandate.Init();
-        DirectDebitMandate.ID := LibraryUtility.GenerateGUID;
+        DirectDebitMandate.ID := LibraryUtility.GenerateGUID();
         DirectDebitMandate."Type of Payment" := TypeOfPayment;
         DirectDebitMandate."Expected Number of Debits" := NoOfDebits;
         DirectDebitMandate.Insert();
 
         with PaymentHistoryLine do begin
-            "Run No." := LibraryUtility.GenerateGUID;
+            "Run No." := LibraryUtility.GenerateGUID();
             "Line No." := 1;
             "Direct Debit Mandate ID" := DirectDebitMandate.ID;
             "Sequence Type" := -1;
@@ -1247,7 +1247,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         with ProposalLine do begin
             SetRange("Our Bank No.", BankAccountNo);
-            FindFirst;
+            FindFirst();
             for LineNo := 1 to NumberOfPayments - 1 do begin
                 "Line No." += 1;
                 Identification := NoSeriesMgt.GetNextNo("Identification No. Series", "Transaction Date", true);
@@ -1267,7 +1267,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ProposalLine: Record "Proposal Line";
     begin
         ProposalLine.SetRange("Our Bank No.", BankAccountNo);
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProcessProposalLines.Run(ProposalLine);
         ProcessProposalLines.ProcessProposallines;
     end;
@@ -1290,7 +1290,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ErrorMessage: Text;
     begin
         // Setup: Create and export multiple Payment Lines.
-        Initialize;
+        Initialize();
         NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
 
         CreateExportProtocol(ReportNo);
@@ -1298,7 +1298,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ExportMultilinePayment(BankAccountNo, 2, false, true);
 
         FindPaymentHistoryLines(BankAccountNo, PaymentHistoryLine);
-        PaymentHistoryLine.FindFirst;
+        PaymentHistoryLine.FindFirst();
         Identification := PaymentHistoryLine.Identification;
 
         // Exercise: Cancel single Payment Line and export XML file.
@@ -1349,7 +1349,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.SetRange("Direct Posting", false);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         BankAccPostingGroup.Validate("Acc.No. Pmt./Rcpt. in Process", GLAccount."No.");
         BankAccPostingGroup.Modify(true);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccPostingGroup.Code);
@@ -1363,7 +1363,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         CompanyInfo.Get();
         CountryRegion.SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
 
         CountryRegion.Validate("SEPA Allowed", true);
         CountryRegion.Modify(true);
@@ -1428,7 +1428,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         CustomerBankAccount.SetRange("Customer No.", CustomerNo);
         CustomerBankAccount.SetRange(Code, BankAccountNo);
-        CustomerBankAccount.FindFirst;
+        CustomerBankAccount.FindFirst();
         CustomerBankAccount.Validate("Direct Debit Mandate ID", MandateId);
         CustomerBankAccount.Modify(true);
     end;
@@ -1502,7 +1502,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         GLSetup.Get();
 
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindFirst;
+        PaymentHistory.FindFirst();
 
         PaymentHistorySum := GetPmtHistoryLineSumAmount(PaymentHistory);
 
@@ -1548,7 +1548,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         GLSetup.Get();
 
         PaymentHistoryLine.SetRange("Our Bank", BankAccountNo);
-        PaymentHistoryLine.FindFirst;
+        PaymentHistoryLine.FindFirst();
 
         Customer.Get(PaymentHistoryLine."Account No.");
         pmtInfPrefix := '//ns:Document/ns:CstmrDrctDbtInitn/ns:PmtInf';
@@ -1629,7 +1629,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         PaymentHistoryLine: Record "Payment History Line";
     begin
         PaymentHistoryLine.SetRange("Our Bank", BankAccountNo);
-        PaymentHistoryLine.FindFirst;
+        PaymentHistoryLine.FindFirst();
 
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
         XMLReadHelper.VerifyNodeValueByXPath(
@@ -1646,7 +1646,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         for i := 1 to ArrayLen(NumberOfBatches) do
             NumberOfBatches[i] := 0;
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindFirst;
+        PaymentHistory.FindFirst();
         VerifySEPAGroupHeader(PaymentHistory, '0.00', NumberOfBatches, 0);
     end;
 
@@ -1655,7 +1655,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         PaymentHistory: Record "Payment History";
     begin
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
-        PaymentHistory.FindFirst;
+        PaymentHistory.FindFirst();
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
         asserterror XMLReadHelper.VerifyNodeValue('//ns:CtrlSum', '           ' + GetPmtHistoryLineSumAmount(PaymentHistory));
         Assert.ExpectedError(ExpectedErr);
@@ -1668,7 +1668,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         with ProposalLine do begin
             SetRange("Our Bank No.", BankAccountNo);
-            if FindFirst then begin
+            if FindFirst() then begin
                 UnexpectedError :=
                   StrSubstNo(
                     ForeignCurrencyErrorTok, FieldCaption("Foreign Currency"), FieldCaption("Foreign Amount"));

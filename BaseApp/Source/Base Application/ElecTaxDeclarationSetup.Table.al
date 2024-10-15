@@ -108,7 +108,7 @@ table 11408 "Elec. Tax Declaration Setup"
                     ElecTaxDeclarationHeader.Reset();
                     ElecTaxDeclarationHeader.SetFilter(Status, '%1|%2', ElecTaxDeclarationHeader.Status::Created,
                       ElecTaxDeclarationHeader.Status::Submitted);
-                    if ElecTaxDeclarationHeader.FindFirst then
+                    if ElecTaxDeclarationHeader.FindFirst() then
                         Error(Text003,
                           FieldCaption("Part of Fiscal Entity"),
                           ElecTaxDeclarationHeader.TableCaption,

@@ -62,7 +62,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLBlankCPStartDateError()
     begin
         // Purpose of this test is to verify error for blank Current Period(CP) Starting Date.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(0D, WorkDate, WorkDate, WorkDate);  // 0D for Current Period(CP) Starting Date.
     end;
 
@@ -73,7 +73,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLBlankCPEndDateError()
     begin
         // Purpose of this test is to verify error for blank Current Period(CP) Ending Date.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(WorkDate, 0D, WorkDate, WorkDate);  // 0D for Ending Date.
     end;
 
@@ -84,7 +84,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLBlankStartDateError()
     begin
         // Purpose of this test is to verify error for blank Comparative Period Starting Date when Ending Date is filled in.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(WorkDate, WorkDate, 0D, WorkDate);  // 0D for Comparative Period Starting Date.
     end;
 
@@ -95,7 +95,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLBlankEndDateError()
     begin
         // Purpose of this test is to verify error for blank Comparative Period Ending Date when Starting Date is filled in.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(WorkDate, WorkDate, WorkDate, 0D);  // 0D for Comparative Period Ending Date.
     end;
 
@@ -106,7 +106,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLCPStartDateError()
     begin
         // Purpose of this test is to verify error when Current Period(CP) Ending Date is before Starting Date.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(
           CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate), WorkDate,
           WorkDate, WorkDate);  // Added random days to WORKDATE for Starting Date.
@@ -119,7 +119,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLStartDateError()
     begin
         // Purpose of this test is to verify error when Comparative Period Ending Date is before Starting Date.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(
           WorkDate, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate),
           WorkDate);  // Added random days to WORKDATE for Comparative Starting Date.
@@ -132,7 +132,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLCPDiffFiscalYearError()
     begin
         // Purpose of this test is to verify error when Current Period(CP) Starting Date and Ending Date do not belong to the same fiscal year.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(
           CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', WorkDate), WorkDate, WorkDate,
           WorkDate);  // Subtracted random years from WORKDATE for different fiscal years.
@@ -145,7 +145,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreReportExportFinDataToXMLDiffFiscalYearError()
     begin
         // Purpose of this test is to verify error when Comparative Period Starting Date and Ending Date do not belong to the same fiscal year.
-        Initialize;
+        Initialize();
         ExportFinancialDataToXML(
           WorkDate, WorkDate, CalcDate('<-1Y>', WorkDate),
           WorkDate);  // Subtracted 1 years from WORKDATE for different fiscal years.
@@ -160,8 +160,8 @@ codeunit 144042 "UT REP XBRLIMPORT"
         AccountingPeriod: Record "Accounting Period";
     begin
         // Purpose of this test is to verify error for current Starting Date is not within any valid accounting Period.
-        Initialize;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        AccountingPeriod.FindFirst();
         ExportFinancialDataToXML(
           CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', AccountingPeriod."Starting Date"), WorkDate, WorkDate,
           WorkDate);  // Subtracted random years from Accounting Period Starting Date.
@@ -179,8 +179,8 @@ codeunit 144042 "UT REP XBRLIMPORT"
         AccountingPeriod: Record "Accounting Period";
     begin
         // Purpose of this test is to verify error for Comparative Starting Date is not within any valid accounting Period.
-        Initialize;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        AccountingPeriod.FindFirst();
         ExportFinancialDataToXML(
           WorkDate, WorkDate, CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', AccountingPeriod."Starting Date"),
           WorkDate);  // Subtracted random years from Accounting Period Starting Date.
@@ -242,7 +242,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT REP XBRLIMPORT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -260,14 +260,14 @@ codeunit 144042 "UT REP XBRLIMPORT"
         ExportFinancialDataToXML: Report "Export Financial Data to XML";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccount;
         EnqueueValuesForExportFinancialDataToXML(
           GLAccountNo, GLBudgetName, WorkDate, WorkDate, StartingDate, StartingDate);
 
         // Exercise.
         ExportFinancialDataToXML.SetFileName(FileName);
-        ExportFinancialDataToXML.Run;
+        ExportFinancialDataToXML.Run();
     end;
 
     local procedure CreateGLBudgetName(): Code[10]
@@ -306,7 +306,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     begin
         // Exercise.
         ExportFinancialDataToXML.SetFileName(FileManagement.ServerTempFileName('xml'));
-        asserterror ExportFinancialDataToXML.Run;
+        asserterror ExportFinancialDataToXML.Run();
 
         // Verify: Verify Actual error - "File name must be specified."
         Assert.ExpectedErrorCode('Dialog');

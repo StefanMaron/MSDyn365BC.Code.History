@@ -1048,7 +1048,7 @@
         Text012: Label 'You cannot change %1 because one or more unlogged segments are assigned to the contact.';
         Text019: Label 'The %2 record of the %1 already has the %3 with %4 %5.';
         CreateCustomerFromContactQst: Label 'Do you want to create a contact as a customer using a customer template?';
-        Text021: Label 'You have to set up formal and informal salutation formulas in %1  language for the %2 contact.';
+        Text021: Label 'You have to set up the salutation formula of the type %1 in %2 language for the %3 contact.', Comment = '%1 - salutation type, %2 - language code, %3 - contact number.';
         Text022: Label 'The creation of the customer has been aborted.';
         Text033: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         PostCodeMgt: Codeunit "Post Code Management";
@@ -1234,7 +1234,7 @@
             InteractLogEntry.SetCurrentKey("Contact Company No.", "Contact No.");
             InteractLogEntry.SetRange("Contact Company No.", "Company No.");
             InteractLogEntry.SetRange("Contact No.", "No.");
-            if InteractLogEntry.FindFirst then
+            if InteractLogEntry.FindFirst() then
                 Error(Text003, FieldCaption(Type));
             OnTypeChangeOnAfterCheckInteractionLog(Rec, xRec);
             Task.SetRange("Contact Company No.", "Company No.");
@@ -1270,7 +1270,7 @@
                     Cont.SetRange("Company No.", "No.");
                     Cont.SetRange(Type, Type::Person);
                     OnTypeChangeOnAfterContSetFilters(Cont, Rec);
-                    if Cont.FindFirst then
+                    if Cont.FindFirst() then
                         Error(Text007, FieldCaption(Type));
                     if Type <> xRec.Type then begin
                         CalcFields("No. of Business Relations", "No. of Industry Groups");
@@ -1552,7 +1552,7 @@
 
         Clear(Vend);
         Vend.SetInsertFromContact(true);
-        OnBeforeVendorInsert(Vend, Rec);
+        OnBeforeVendorInsert(Vend, Rec, VendorTemplateCode);
         Vend.Insert(true);
         Vend.SetInsertFromContact(false);
         VendorNo := Vend."No.";
@@ -1679,7 +1679,7 @@
         ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
         ContBusRel.SetRange("Contact No.", "Company No.");
-        if ContBusRel.FindFirst then
+        if ContBusRel.FindFirst() then
             if Cust.Get(ContBusRel."No.") then
 #if not CLEAN18
                 UpdateQuotes(Cust, '');
@@ -1972,7 +1972,7 @@
         ContAltAddrDateRange.SetRange("Contact No.", "No.");
         ContAltAddrDateRange.SetRange("Starting Date", 0D, ActiveDate);
         ContAltAddrDateRange.SetFilter("Ending Date", '>=%1|%2', ActiveDate, 0D);
-        if ContAltAddrDateRange.FindLast then
+        if ContAltAddrDateRange.FindLast() then
             exit(ContAltAddrDateRange."Contact Alt. Address Code");
 
         exit('');
@@ -2227,7 +2227,7 @@
                 ContBusRel.SetRange("Contact No.", xRec."Company No.");
                 SalesHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
                 SalesHeader.SetRange("Sell-to Contact No.", "No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     SalesHeader.SetRange("Sell-to Customer No.", ContBusRel."No.")
                 else
                     SalesHeader.SetRange("Sell-to Customer No.", '');
@@ -2483,7 +2483,7 @@
             exit(Salutation);
 
         if not SalutationFormula.Get("Salutation Code", LanguageCode, SalutationType) then
-            Error(Text021, LanguageCode, "No.");
+            Error(Text021, Format(SalutationType), LanguageCode, "No.");
         SalutationFormula.TestField(Salutation);
 
         case SalutationFormula."Name 1" of
@@ -2669,7 +2669,7 @@
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Contact, GetPosition)
         else
             Message(Text033);
@@ -2705,7 +2705,7 @@
         ContBusRel.SetCurrentKey("Link to Table", "Contact No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
         ContBusRel.SetRange("Contact No.", "Company No.");
-        if ContBusRel.FindFirst then
+        if ContBusRel.FindFirst() then
             if Customer.Get(ContBusRel."No.") then
                 if (("No." <> '') and (Customer."Primary Contact No." = "No.")) then begin
                     Customer.Contact := Name;
@@ -2713,7 +2713,7 @@
                 end;
 
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
-        if ContBusRel.FindFirst then
+        if ContBusRel.FindFirst() then
             if Vendor.Get(ContBusRel."No.") then
                 if (("No." <> '') and (Vendor."Primary Contact No." = "No.")) then begin
                     Vendor.Contact := Name;
@@ -2741,14 +2741,14 @@
         Contact.SetRange(Type, Contact.Type::Company);
 
         Contact.SetFilter(Name, '''@' + ContactWithoutQuote + '''');
-        if Contact.FindFirst then
+        if Contact.FindFirst() then
             exit(Contact."No.");
         Contact.SetRange(Name);
         ContactFilterFromStart := '''@' + ContactWithoutQuote + '*''';
         Contact.FilterGroup := -1;
         Contact.SetFilter("No.", ContactFilterFromStart);
         Contact.SetFilter(Name, ContactFilterFromStart);
-        if Contact.FindFirst then
+        if Contact.FindFirst() then
             exit(Contact."No.");
         ContactFilterContains := '''@*' + ContactWithoutQuote + '*''';
         Contact.SetFilter("No.", ContactFilterContains);
@@ -2760,7 +2760,7 @@
         case Contact.Count of
             1:
                 begin
-                    Contact.FindFirst;
+                    Contact.FindFirst();
                     exit(Contact."No.");
                 end;
             else begin
@@ -2778,11 +2778,11 @@
     var
         ContactList: Page "Contact List";
     begin
-        if Contact.FindSet then
+        if Contact.FindSet() then
             repeat
                 Contact.Mark(true);
             until Contact.Next() = 0;
-        if Contact.FindFirst then;
+        if Contact.FindFirst() then;
         Contact.MarkedOnly := true;
 
         ContactList.SetTableView(Contact);
@@ -2815,7 +2815,7 @@
         Contact.Get("Company No.");
         CompanyDetails.SetRecord(Contact);
         CompanyDetails.Editable := false;
-        CompanyDetails.RunModal;
+        CompanyDetails.RunModal();
     end;
 
 #if not CLEAN18
@@ -3000,8 +3000,8 @@
     begin
         if "Privacy Blocked" then begin
             if IsPosting then
-                Error(PrivacyBlockedPostErr, "No.");
-            Error(PrivacyBlockedCreateErr, "No.");
+                Error(ErrorInfo.Create(StrSubstNo(PrivacyBlockedPostErr, "No."), true, Rec));
+            Error(ErrorInfo.Create(StrSubstNo(PrivacyBlockedCreateErr, "No."), true, Rec));
         end;
     end;
 
@@ -3086,14 +3086,14 @@
                 exit(Contact."No.");
 
         Contact.SetRange(Name, ContactText);
-        if Contact.FindFirst then
+        if Contact.FindFirst() then
             exit(Contact."No.");
 
         Contact.SetCurrentKey(Name);
 
         ContactWithoutQuote := ConvertStr(ContactText, '''', '?');
         Contact.SetFilter(Name, '''@' + ContactWithoutQuote + '''');
-        if Contact.FindFirst then
+        if Contact.FindFirst() then
             exit(Contact."No.");
 
         Contact.SetRange(Name);
@@ -3102,7 +3102,7 @@
         Contact.FilterGroup := -1;
         Contact.SetFilter("No.", ContactFilterFromStart);
         Contact.SetFilter(Name, ContactFilterFromStart);
-        if Contact.FindFirst then
+        if Contact.FindFirst() then
             exit(Contact."No.");
 
         ContactFilterContains := '''@*' + ContactWithoutQuote + '*''';
@@ -3115,7 +3115,7 @@
             MarkContactsWithSimilarName(Contact, ContactText);
 
         if Contact.Count = 1 then begin
-            Contact.FindFirst;
+            Contact.FindFirst();
             exit(Contact."No.");
         end;
 
@@ -3141,7 +3141,7 @@
 
         Contact.Reset();
         Contact.Ascending(false); // most likely to search for newest contacts
-        if Contact.FindSet then
+        if Contact.FindSet() then
             repeat
                 ContactCount += 1;
                 if Abs(ContactTextLength - StrLen(Contact.Name)) <= Treshold then
@@ -3351,7 +3351,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact)
+    local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact; VendorTemplateCode: Code[20])
     begin
     end;
 

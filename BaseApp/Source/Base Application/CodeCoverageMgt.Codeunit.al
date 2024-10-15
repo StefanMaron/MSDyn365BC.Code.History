@@ -98,7 +98,7 @@ codeunit 9990 "Code Coverage Mgt."
         CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
         // excluding Code Coverage range 9900..9999 from calculation
         CodeCoverage.SetFilter("Object ID", '..9989|10000..129999|150000..');
-        if CodeCoverage.FindSet then
+        if CodeCoverage.FindSet() then
             repeat
                 NoOFLines += CodeCoverage."No. of Hits";
             until CodeCoverage.Next() = 0;
@@ -118,7 +118,7 @@ codeunit 9990 "Code Coverage Mgt."
             SetRange("Object ID", ObjectID);
             SetFilter("No. of Hits", '>%1', 0);
             SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet then
+            if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
                 until Next() = 0;

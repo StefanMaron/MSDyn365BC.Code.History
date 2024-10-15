@@ -42,7 +42,7 @@ codeunit 144542 "Sales Document"
         SalesHeader: Record "Sales Header";
         SalesLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Test Foreign Amount on Proposal Line after running Get Proposal Entries Report when Sales Invoice Posted with Currency.
 
         // Setup: Create and post Sales Invoice with Bank Account Code and Currency.
@@ -62,7 +62,7 @@ codeunit 144542 "Sales Document"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
         // Test Foreign Amount on Proposal Line after running Get Proposal Entries Report when Sales Invoice Posted without Currency.
 
         // Setup: Create and post Sales Invoice with Bank Account Code.
@@ -98,7 +98,7 @@ codeunit 144542 "Sales Document"
         TransactionMode: Record "Transaction Mode";
     begin
         LibrarySales.CreateCustomer(Customer);
-        TransactionMode.FindFirst;
+        TransactionMode.FindFirst();
         Customer.Validate("Transaction Mode Code", TransactionMode.Code);
         Customer.Validate("Preferred Bank Account Code", CreateCustomerBankAccount(Customer."No."));
         Customer.Validate("Currency Code", CurrencyCode);
@@ -140,7 +140,7 @@ codeunit 144542 "Sales Document"
             SetRange(Bank, SalesHeader."Bank Account Code");
             SetRange("Account Type", "Account Type"::Customer);
             SetRange("Account No.", SalesHeader."Sell-to Customer No.");
-            FindFirst;
+            FindFirst();
             TestField("Foreign Currency", SalesHeader."Currency Code");
             TestField("Foreign Amount", ForeignAmount);
         end;

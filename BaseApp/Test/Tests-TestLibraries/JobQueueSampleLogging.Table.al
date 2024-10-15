@@ -41,7 +41,7 @@ table 132450 "Job Queue Sample Logging"
         nextKey: Integer;
     begin
         LockTable();
-        if FindLast then
+        if FindLast() then
             nextKey := "No." + 1;
 
         Init;

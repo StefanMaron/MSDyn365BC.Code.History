@@ -367,7 +367,7 @@ page 5976 "Posted Service Shpt. Subform"
                     ApplicationArea = Service;
                     Caption = 'Service Shipment Lines';
                     Image = ShipmentLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'View the related shipment line.';
 
                     trigger OnAction()
@@ -395,7 +395,7 @@ page 5976 "Posted Service Shpt. Subform"
         Clear(ServShipmentLines);
         ServShipmentLines.Initialize("Line No.");
         ServShipmentLines.SetTableView(ServShipmentLine);
-        ServShipmentLines.RunModal;
+        ServShipmentLines.RunModal();
         ServShipmentLine.FilterGroup(0);
     end;
 

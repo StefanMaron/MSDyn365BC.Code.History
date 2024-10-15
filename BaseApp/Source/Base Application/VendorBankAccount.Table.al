@@ -116,8 +116,8 @@ table 288 "Vendor Bank Account"
             begin
                 if not LocalFunctionalityMgt.CheckBankAccNo("Bank Account No.", "Country/Region Code", "Bank Account No.") then
                     Message(Text1000001, "Bank Account No.");
-		    
-		        OnValidateBankAccount(Rec, 'Bank Account No.');
+
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])

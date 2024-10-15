@@ -6,7 +6,7 @@ codeunit 6703 "Exchange Contact Sync."
         LocalExchangeSync: Record "Exchange Sync";
     begin
         LocalExchangeSync.SetRange(Enabled, true);
-        if LocalExchangeSync.FindSet then
+        if LocalExchangeSync.FindSet() then
             repeat
                 O365SyncManagement.SyncExchangeContacts(LocalExchangeSync, false);
             until LocalExchangeSync.Next() = 0;
@@ -95,14 +95,14 @@ codeunit 6703 "Exchange Contact Sync."
         found: Boolean;
         ContactNo: Text;
     begin
-        if LocalContact.FindSet then
+        if LocalContact.FindSet() then
             repeat
                 found := false;
                 ContactNo := '';
                 Contact.Reset();
                 Clear(Contact);
                 Contact.SetRange("Search E-Mail", UpperCase(LocalContact."E-Mail"));
-                if Contact.FindFirst then begin
+                if Contact.FindFirst() then begin
                     found := true;
                     ContactNo := Contact."No.";
                 end;

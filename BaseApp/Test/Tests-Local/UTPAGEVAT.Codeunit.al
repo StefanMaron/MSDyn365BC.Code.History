@@ -65,7 +65,7 @@ codeunit 144048 "UT PAG EVAT"
         // Purpose of this test is to validate Category on page 11414(Elec. Tax Decl. VAT Categ.).
 
         // Setup.
-        Initialize;
+        Initialize();
         ElecTaxDeclVATCateg.OpenEdit;
 
         // Exercise.
@@ -88,8 +88,8 @@ codeunit 144048 "UT PAG EVAT"
     begin
         // Purpose of the test is to verify OnAfterGetRecord of Page - 11411 (Elec. Tax Declaration Card).
         // Setup.
-        Initialize;
-        VATStatementName.FindFirst;
+        Initialize();
+        VATStatementName.FindFirst();
         No := CreateElectronicTaxDeclarationHeader;
         CreateVATStatementLine(VATStatementName);
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");  // Enqueue value for CreateElecVATDeclarationRequestPageHandler.
@@ -124,7 +124,7 @@ codeunit 144048 "UT PAG EVAT"
     begin
         // Purpose of the test is to verify ReceiveResponseMessages - OnAction of Page - 11416 (Elec. Tax Decl. Response Msgs).
         // Setup.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         ElecTaxDeclHeader.DeleteAll(); // Ensure no declarations are processed
         ElecTaxDeclRespMsg.DeleteAll();
@@ -147,7 +147,7 @@ codeunit 144048 "UT PAG EVAT"
     begin
         // Purpose of the test is to verify ProcessResponseMessages - OnAction of Page - 11416 (Elec. Tax Decl. Response Msgs).
         // Setup.
-        Initialize;
+        Initialize();
         ElecTaxDeclResponseMsgs.OpenEdit;
 
         // Exercise.
@@ -169,7 +169,7 @@ codeunit 144048 "UT PAG EVAT"
         // Purpose is to verify only elements of the XML declaration are shown (attributes are hidden when filter is enabled)
 
         // Setup
-        Initialize;
+        Initialize();
         No := CreateElectronicTaxDeclarationHeader;
         ElecTaxDeclarationHeader.Get(ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration", No);
         CreateDeclarationLine(No, 'lineA', ElecTaxDeclLine."Line Type"::Element, 0);
@@ -196,7 +196,7 @@ codeunit 144048 "UT PAG EVAT"
         ElecTaxDeclSetup: Record "Elec. Tax Declaration Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT PAG EVAT");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if not ElecTaxDeclSetup.Get then begin
             ElecTaxDeclSetup.Init();

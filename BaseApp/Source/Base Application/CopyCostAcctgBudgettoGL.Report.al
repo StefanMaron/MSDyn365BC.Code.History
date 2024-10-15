@@ -24,7 +24,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
                 end;
 
                 GLAcc.SetFilter("No.", '%1', CostType."G/L Account Range");
-                if not GLAcc.FindFirst then begin
+                if not GLAcc.FindFirst() then begin
                     NoSkipped := NoSkipped + 1;
                     CurrReport.Skip();
                 end;

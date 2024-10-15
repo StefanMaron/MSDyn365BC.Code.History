@@ -333,7 +333,7 @@ table 11000003 "Detail Line"
     var
         "Detail line": Record "Detail Line";
     begin
-        if "Detail line".FindLast then
+        if "Detail line".FindLast() then
             "Transaction No." := "Detail line"."Transaction No." + 1
         else
             "Transaction No." := 1;
@@ -471,7 +471,7 @@ table 11000003 "Detail Line"
 
                     Prop.Get("Our Bank", "Connect Lines");
                     Prop.Validate(Amount, "Detail line".Amount + Amount);
-                    if "Detail line".FindFirst then begin
+                    if "Detail line".FindFirst() then begin
                         if (Date < "Detail line".Date) and (Date <> 0D) then
                             Prop."Transaction Date" := Date
                         else

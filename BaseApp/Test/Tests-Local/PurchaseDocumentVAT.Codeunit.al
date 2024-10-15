@@ -30,7 +30,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [Telebank] [Get Proposal Entries]
         // [SCENARIO 363155] Get Proposal Entries when Vendor, Our Bank Account, Purch.Invoice have the same FCY
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor, Our Bank Account, Purch.Invoice with the same currency = "X" and Amount = "A"
         CurrencyCode := CreateCurrencyWithRandomExchangeRate;
@@ -54,7 +54,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [Telebank] [Get Proposal Entries]
         // [SCENARIO 363155] Get Proposal Entries when Purch.Invoice has FCY different from Vendor, Our Bank Account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor, Our Bank Account with no Currency, Purch.Invoice Currency = "X" and Amount = "A"
         Amount := ScenarioPurchInvoiceWithCurrency(PurchaseHeader, '', '', CreateCurrencyWithRandomExchangeRate);
@@ -78,7 +78,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [Telebank] [Get Proposal Entries]
         // [SCENARIO] Get Proposal Entries when Vendor, Our Bank Account, Purch.Invoice with LCY currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor, Our Bank Account, Purch.Invoice with no Currency and Amount = "A"
         Amount := ScenarioPurchInvoiceWithCurrency(PurchaseHeader, '', '', '');
@@ -102,7 +102,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [Telebank] [Get Proposal Entries]
         // [SCENARIO 363152] Get Proposal Entries when Vendor in LCY whereas Vendor, Our Bank Account have the same FCY
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with empty Currency, Our Bank Account, Purch.Invoice with the same Currency = "X" and Amount = "A"
         CurrencyCode := CreateCurrencyWithRandomExchangeRate;
@@ -125,7 +125,7 @@ codeunit 144541 "Purchase Document - VAT"
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Verify program allows to set Prices Including VAT =True on Purchase order when Check Doc. Total Amounts=True on Purchase & Payables Setup window.
-        Initialize;
+        Initialize();
         UpdatePurchasePayableSetup;
         CreatePurchaseDocumentWithPriceIncludingVAT(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::Order, '', '');
@@ -146,7 +146,7 @@ codeunit 144541 "Purchase Document - VAT"
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Verify program allows to set Prices Including VAT =True on Purchase Credit Memo Order when Check Doc. Total Amounts=True on Purchase & Payables Setup window.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithPriceIncludingVAT(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::"Credit Memo", '', '');
         UpdatePurchaseHeaderWithDocumentAmountIncludingVat(PurchaseHeader, PurchaseLine."Line Amount");
@@ -168,12 +168,12 @@ codeunit 144541 "Purchase Document - VAT"
         GLAccountNo: Code[20];
         Amt: Decimal;
     begin
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         Amt := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Purchase Invoice with one line with G/L Account 'A'
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         Vendor.Get(LibraryPurchase.CreateVendorNo);
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         DocNo := PurchaseInvoice."No.".Value;
@@ -201,7 +201,7 @@ codeunit 144541 "Purchase Document - VAT"
         InvoiceAmount: array[2] of Decimal;
     begin
         // [SCENARIO 363884] Get Proposal Entries generates separate Proposal Line for each Foreign Currency
-        Initialize;
+        Initialize();
         SetupCheckDocTotalAmt(false);
 
         // [GIVEN] Posted Purchase Invoice "A" with Currency "X" and Posted Purchase Invoice "B" with Currency "Y" for the same Vendor
@@ -236,12 +236,12 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 376541] Return Qty. to Ship is equal to 1 after user adds a line with G/L Account to already existing one
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         Amount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Purchase Credit Memo with 1 line for G/L Account
-        PurchaseCrMemo.OpenNew;
+        PurchaseCrMemo.OpenNew();
         LibraryPurchase.CreateVendor(Vendor);
         PurchaseCrMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
         DocNo := PurchaseCrMemo."No.".Value;
@@ -270,7 +270,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 229427] "Purchase Header"."Doc. Amount VAT" must be correct when Purchase Lines has different "VAT %" (second line has zero VAT)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document with three lines
         CreatePurchHeaderWithPostingGroups(PurchaseHeader, 0);
@@ -302,7 +302,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 229427] "Purchase Header"."Doc. Amount VAT" must be correct when Purchase Lines has different "VAT %" (first line has zero VAT)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document with three lines
         CreatePurchHeaderWithPostingGroups(PurchaseHeader, 0);
@@ -336,7 +336,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 229653] "Purchase Header"."Doc. Amount VAT" must be correct when Purchase Header has "Sales Header"."VAT Base Discount %"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document with "Purchase Header"."VAT Base Discount %" = "50"
         CreatePurchHeaderWithPostingGroups(PurchaseHeader, LibraryRandom.RandIntInRange(10, 50));
@@ -364,7 +364,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 232544] "Purchase Header"."Doc. Amount VAT" must be correct when Purchase Lines has different "VAT %" and users input "Doc. Amount Incl. VAT" are not equal to Amount Including VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document with three lines
         CreatePurchHeaderWithPostingGroups(PurchaseHeader, 0);
@@ -392,7 +392,7 @@ codeunit 144541 "Purchase Document - VAT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purchase Document - VAT");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -569,7 +569,7 @@ codeunit 144541 "Purchase Document - VAT"
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
             SetRange("Foreign Currency", ForeignCurrency);
-            FindFirst;
+            FindFirst();
             TestField("Currency Code", CurrencyCode);
             TestField(Amount, AmountInCurrency);
             TestField("Foreign Amount", ForeignAmount);
@@ -581,7 +581,7 @@ codeunit 144541 "Purchase Document - VAT"
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         PurchCrMemoLine.TestField("Direct Unit Cost", DirectUnitCost);
     end;
 
@@ -590,7 +590,7 @@ codeunit 144541 "Purchase Document - VAT"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptLine.SetRange("Document No.", DocumentNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("Direct Unit Cost", DirectUnitCost);
     end;
 
@@ -599,7 +599,7 @@ codeunit 144541 "Purchase Document - VAT"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.TestField("Qty. to Receive", QtyToReceive);
     end;
 
@@ -608,7 +608,7 @@ codeunit 144541 "Purchase Document - VAT"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         PurchaseLine.TestField("Return Qty. to Ship", ReturnQtyToShip);
     end;
 

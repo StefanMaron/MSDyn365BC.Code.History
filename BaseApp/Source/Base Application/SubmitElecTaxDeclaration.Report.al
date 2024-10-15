@@ -334,7 +334,7 @@ report 11405 "Submit Elec. Tax Declaration"
         with ElecTaxDeclarationLine do begin
             SetRange("Declaration Type", TargetElecTaxDeclarationLine."Declaration Type");
             SetRange("Declaration No.", TargetElecTaxDeclarationLine."Declaration No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if StrPos(Name, ':') <> 0 then begin
                         if TargetNamespace = CopyStr(Name, StrPos(Name, ':') + 1, StrLen(Name) - StrPos(Name, ':'))

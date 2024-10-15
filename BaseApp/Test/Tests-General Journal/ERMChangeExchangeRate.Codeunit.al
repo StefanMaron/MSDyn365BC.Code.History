@@ -45,8 +45,8 @@ codeunit 134075 "ERM Change Exchange Rate"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Change Exchange Rate");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Change Exchange Rate");
@@ -60,7 +60,7 @@ codeunit 134075 "ERM Change Exchange Rate"
     begin
         // Setup: Create a Customer and attach a newly created Currency on it. Create another Currency and attach it on previous Currency
         // as Relational Currency.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         RelationalCurrencyCode := UpdateRelationalCurrency(Customer."Currency Code");
 
@@ -109,7 +109,7 @@ codeunit 134075 "ERM Change Exchange Rate"
     begin
         // Create a Relational Currency for Currency and update Fix Exchange Rate Amount field.
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
         CurrencyExchangeRate.Validate("Fix Exchange Rate Amount", CurrencyExchangeRate."Fix Exchange Rate Amount"::Both);
         CurrencyExchangeRate.Modify(true);
@@ -121,7 +121,7 @@ codeunit 134075 "ERM Change Exchange Rate"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
 
         // Update the Exchange Rates by subtracting a Random Decimal Amount from the Old Exchange Rates.
         CurrencyExchangeRate.Validate(
@@ -135,11 +135,11 @@ codeunit 134075 "ERM Change Exchange Rate"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyFactor := CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
 
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyExchangeRate."Relational Currency Code");
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyFactor :=
           CurrencyFactor * CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
         exit(CurrencyFactor);
@@ -153,13 +153,13 @@ codeunit 134075 "ERM Change Exchange Rate"
     begin
         Currency.Get(TempGenJournalLine."Currency Code");
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         AmountLCY :=
           (TempGenJournalLine.Amount / CurrencyExchangeRate."Exchange Rate Amount") *
           CurrencyExchangeRate."Relational Exch. Rate Amount";
 
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyExchangeRate."Relational Currency Code");
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         AmountLCY := (AmountLCY / CurrencyExchangeRate."Exchange Rate Amount") * CurrencyExchangeRate."Relational Exch. Rate Amount";
         Assert.AreNearlyEqual(
           AmountLCY, TempGenJournalLine."Amount (LCY)", Currency."Amount Rounding Precision",

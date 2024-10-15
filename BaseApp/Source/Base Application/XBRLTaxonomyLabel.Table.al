@@ -1,6 +1,14 @@
 table 401 "XBRL Taxonomy Label"
 {
     Caption = 'XBRL Taxonomy Label';
+    ObsoleteReason = 'XBRL feature will be discontinued';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
@@ -24,7 +32,7 @@ table 401 "XBRL Taxonomy Label"
         }
         field(5; "Windows Language Name"; Text[80])
         {
-            CalcFormula = Lookup ("Windows Language".Name WHERE("Language ID" = FIELD("Windows Language ID")));
+            CalcFormula = Lookup("Windows Language".Name WHERE("Language ID" = FIELD("Windows Language ID")));
             Caption = 'Windows Language Name';
             FieldClass = FlowField;
         }

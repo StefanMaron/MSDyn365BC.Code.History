@@ -32,12 +32,12 @@ codeunit 144070 Digipoort
         asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
         Assert.ExpectedError(DigipoortDeliveryURLSetupErr);
 
-        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID();
 
         asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
         Assert.ExpectedError(DigipoortStatusURLSetupErr);
 
-        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID();
 
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
 
@@ -57,22 +57,22 @@ codeunit 144070 Digipoort
         asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
         Assert.ExpectedError(DigipoortClientCertNameSetupErr);
 
-        ElecTaxDeclarationSetup."Digipoort Client Cert. Name" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Client Cert. Name" := LibraryUtility.GenerateGUID();
 
         asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
         Assert.ExpectedError(DigipoortServiceCertNameSetupErr);
 
-        ElecTaxDeclarationSetup."Digipoort Service Cert. Name" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Service Cert. Name" := LibraryUtility.GenerateGUID();
 
         asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
         Assert.ExpectedError(DigipoortDeliveryURLSetupErr);
 
-        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID();
 
         asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
         Assert.ExpectedError(DigipoortStatusURLSetupErr);
 
-        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID();
 
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
     end;
@@ -197,7 +197,7 @@ codeunit 144070 Digipoort
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         MockElecTaxDeclarationSetupOnPrem;
         MockElecTaxDeclarationHeader(ElecTaxDeclarationHeader);
-        ElecTaxDeclarationHeader."Message ID" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationHeader."Message ID" := LibraryUtility.GenerateGUID();
         ElecTaxDeclarationHeader.Modify();
         MockElecTaxDeclResponseMsg(ElecTaxDeclResponseMsg);
 
@@ -212,8 +212,8 @@ codeunit 144070 Digipoort
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
     begin
         ElecTaxDeclarationSetup.Get();
-        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID;
-        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID();
         ElecTaxDeclarationSetup.Modify();
     end;
 
@@ -222,10 +222,10 @@ codeunit 144070 Digipoort
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
     begin
         ElecTaxDeclarationSetup.Get();
-        ElecTaxDeclarationSetup."Digipoort Client Cert. Name" := LibraryUtility.GenerateGUID;
-        ElecTaxDeclarationSetup."Digipoort Service Cert. Name" := LibraryUtility.GenerateGUID;
-        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID;
-        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationSetup."Digipoort Client Cert. Name" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclarationSetup."Digipoort Service Cert. Name" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID();
+        ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID();
         ElecTaxDeclarationSetup.Modify();
     end;
 
@@ -233,7 +233,7 @@ codeunit 144070 Digipoort
     begin
         ElecTaxDeclarationHeader.Init();
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration";
-        ElecTaxDeclarationHeader."No." := LibraryUtility.GenerateGUID;
+        ElecTaxDeclarationHeader."No." := LibraryUtility.GenerateGUID();
         ElecTaxDeclarationHeader.Status := ElecTaxDeclarationHeader.Status::Created;
         ElecTaxDeclarationHeader.Insert();
     end;

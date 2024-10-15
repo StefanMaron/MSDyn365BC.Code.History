@@ -122,7 +122,7 @@ report 11414 "Import Post Codes"
             Error(Text005, ReadText(Header, 37, 4));
 
         PostCodeUpdateLogEntry2.LockTable();
-        if not PostCodeUpdateLogEntry2.FindLast then;
+        if not PostCodeUpdateLogEntry2.FindLast() then;
 
         PostCodeUpdateLogEntry."No." := PostCodeUpdateLogEntry2."No." + 1;
         PostCodeUpdateLogEntry."Period Start Date" := DMY2Date(1, Month, Year);

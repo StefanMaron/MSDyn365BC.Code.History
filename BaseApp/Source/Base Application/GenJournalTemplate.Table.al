@@ -142,7 +142,7 @@
         }
         field(15; "Test Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Test Report ID")));
             Caption = 'Test Report Caption';
             Editable = false;
@@ -150,7 +150,7 @@
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
                                                                            "Object ID" = FIELD("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -158,7 +158,7 @@
         }
         field(17; "Posting Report Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Posting Report ID")));
             Caption = 'Posting Report Caption';
             Editable = false;
@@ -169,7 +169,7 @@
             Caption = 'Force Doc. Balance';
             InitValue = true;
         }
-        field(19; "Bal. Account Type"; enum "Gen. Journal Account Type")
+        field(19; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
 
@@ -266,7 +266,7 @@
         field(26; "Cust. Receipt Report Caption"; Text[250])
         {
             AccessByPermission = TableData Customer = R;
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Cust. Receipt Report ID")));
             Caption = 'Cust. Receipt Report Caption';
             Editable = false;
@@ -281,7 +281,7 @@
         field(28; "Vendor Receipt Report Caption"; Text[250])
         {
             AccessByPermission = TableData Vendor = R;
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
                                                                            "Object ID" = FIELD("Vendor Receipt Report ID")));
             Caption = 'Vendor Receipt Report Caption';
             Editable = false;
@@ -303,6 +303,14 @@
                     GenJnlBatch.ModifyAll("Copy to Posted Jnl. Lines", "Copy to Posted Jnl. Lines");
                 end;
             end;
+        }
+        field(32; "Allow Posting Date From"; Date)
+        {
+            Caption = 'Allow Posting From';
+        }
+        field(33; "Allow Posting Date To"; Date)
+        {
+            Caption = 'Allow Posting To';
         }
         field(11402; "No. of CBG Statements"; Integer)
         {

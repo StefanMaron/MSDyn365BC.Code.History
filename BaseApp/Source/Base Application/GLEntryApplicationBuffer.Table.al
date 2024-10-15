@@ -400,7 +400,7 @@ table 11307 "G/L Entry Application Buffer"
         end else begin
             GLEntry.SetCurrentKey("Closed by Entry No.");
             GLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
-            if GLEntry.FindSet then
+            if GLEntry.FindSet() then
                 repeat
                     if GLEntry."Entry No." <> OrgGLEntry."Entry No." then begin
                         TempGLEntryApplicationBuffer.TransferFields(GLEntry);
@@ -425,7 +425,7 @@ table 11307 "G/L Entry Application Buffer"
 
         GLEntryApplicationBuffer.SetRange("Applies-to ID", GLEntryApplicationBuffer."Applies-to ID");
         GLEntryApplicationBuffer.SetFilter("Entry No.", '<> %1', GLEntryApplicationBuffer."Entry No.");
-        if GLEntryApplicationBuffer.FindSet then begin
+        if GLEntryApplicationBuffer.FindSet() then begin
             repeat
                 GLEntryApplicationBuffer.TestField("G/L Account No.", GLEntryApplicationBuffer."G/L Account No.");
                 GLEntryApplicationBuffer.TestField(Open, true);
@@ -478,7 +478,7 @@ table 11307 "G/L Entry Application Buffer"
 
             UndoGLEntry.SetCurrentKey("Closed by Entry No.");
             UndoGLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
-            if UndoGLEntry.FindSet then
+            if UndoGLEntry.FindSet() then
                 repeat
                     RealEntryChanged(GLEntryApplicationBuffer, GLEntry);
                     if Get(UndoGLEntry."Entry No.") then

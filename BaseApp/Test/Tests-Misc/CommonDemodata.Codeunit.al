@@ -26,7 +26,7 @@ codeunit 138500 "Common Demodata"
         Initialize();
 
         ConfigTemplateHeader.SetFilter("Table ID", '%1|%2|%3', DATABASE::Customer, DATABASE::Vendor, DATABASE::Item);
-        if ConfigTemplateHeader.FindSet then
+        if ConfigTemplateHeader.FindSet() then
             repeat
                 ConfigTemplateHeader.CalcFields("Table Caption");
                 TableNamePrefix := UpperCase(CopyStr(ConfigTemplateHeader."Table Caption", 1, 4));
@@ -90,7 +90,7 @@ codeunit 138500 "Common Demodata"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", 0 - "Full VAT" and 'Sales Tax'
+        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
         Initialize();
 
         with VATPostingSetup do begin
@@ -149,7 +149,7 @@ codeunit 138500 "Common Demodata"
         InventoryPostingSetup.SetRange("Location Code", '');
         Assert.RecordIsNotEmpty(InventoryPostingSetup);
 
-        if Location.FindSet then
+        if Location.FindSet() then
             repeat
                 InventoryPostingSetup.SetRange("Location Code", Location.Code);
                 Assert.RecordIsNotEmpty(InventoryPostingSetup);
@@ -210,7 +210,7 @@ codeunit 138500 "Common Demodata"
         Initialize();
 
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"Pro Forma S. Invoice");
-        ReportSelections.FindFirst;
+        ReportSelections.FindFirst();
         ReportSelections.TestField("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
     end;
 
@@ -225,7 +225,7 @@ codeunit 138500 "Common Demodata"
         Initialize();
 
         CustomReportLayout.SetRange("Report ID", REPORT::"Standard Sales - Pro Forma Inv");
-        CustomReportLayout.FindFirst;
+        CustomReportLayout.FindFirst();
         CustomReportLayout.TestField(Type, CustomReportLayout.Type::Word);
     end;
 

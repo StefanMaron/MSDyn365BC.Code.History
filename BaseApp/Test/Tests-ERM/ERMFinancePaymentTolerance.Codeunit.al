@@ -31,7 +31,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Finance Payment Tolerance");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -40,8 +40,8 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Finance Payment Tolerance");
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetApplnBetweenCurrencies(SalesReceivablesSetup."Appln. between Currencies"::All);
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -60,7 +60,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // Test application of Payment To Invoice by using Set Applies-to ID.
 
-        Initialize;
+        Initialize();
         Amount := 10 * LibraryRandom.RandDec(1000, 2);  // Using Large Random Number for Amount.
         AmountToApplyBySetAppliesToID(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, Amount, -Amount);
     end;
@@ -75,7 +75,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // Test application of Refund To Credit Memo by using Set Applies-to ID.
 
-        Initialize;
+        Initialize();
         Amount := 10 * LibraryRandom.RandDec(1000, 2);  // Using Large Random Number for Amount.
         AmountToApplyBySetAppliesToID(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -Amount, Amount);
@@ -91,7 +91,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // Test application of Invoice To Payment by using Set Applies-to ID.
 
-        Initialize;
+        Initialize();
         Amount := 10 * LibraryRandom.RandDec(1000, 2);  // Using Large Random Number for Amount.
         AmountToApplyBySetAppliesToID(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, -Amount, Amount);
     end;
@@ -109,7 +109,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         UpdateGeneralLedgerSetup;
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalLine(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::Customer, Customer."No.",
           GenJournalLineAmount, GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo);
@@ -136,7 +136,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // Test application of Payment To Invoice by using Set Applies-to ID with Payment Tolerance Warning.
 
-        Initialize;
+        Initialize();
         Amount := 10 * LibraryRandom.RandDec(1000, 2);  // Using Large Random Number for Amount.
         OptionValue := 1;  // Assign Global Variable for Page Handler.
         AmountToApplyToleranceWarning(
@@ -155,7 +155,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         // Test application of Refund To Credit Memo by using Set Applies-to ID with Payment Tolerance Warning.
 
-        Initialize;
+        Initialize();
         Amount := 10 * LibraryRandom.RandDec(1000, 2);  // Using Large Random Number for Amount.
         OptionValue := 1;  // Assign Global Variable for Page Handler.
         AmountToApplyToleranceWarning(
@@ -177,7 +177,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         UpdateGeneralLedgerSetup;
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalLine(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::Customer, Customer."No.",
           GenJournalLineAmount, GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo);
@@ -213,12 +213,12 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1.Setup: Update General Ledger Setup.Create a new Customer with Payment Terms, new General Journal Batch and General Journal
         // Template.Create a new G/L Account and Create and post General Journal Line of type Invoice.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup;
         UpdatePaymentGracePeriod;
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         OptionValue := 1;  // Assign Global Variable for Page Handler.
 
         // Using Large Random Number for Amount.
@@ -260,12 +260,12 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1.Setup: Update General Ledger Setup.Create a new Customer with Payment Terms, new General Journal Batch and
         // General Journal Template. Create G/L Account and Create and post General Journal Line of type Invoice.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup;
         UpdatePaymentGracePeriod;
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         OptionValue := 1;  // Assign Global Variable for Page Handler.
 
         // Using Large Random Number for Amount.
@@ -311,12 +311,12 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1.Setup: Update and General Ledger Setup,Create a new Customer with Payment Terms, new General Journal Batch and
         // General Journal Template.Create a new G/L Account and Create and post General Journal Lines of type Invoice.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetup;
         GracePeriodDays := UpdatePaymentGracePeriod;
         DiscountDays := CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         OptionValue := 1;  // Assign Global Variable for Page Handler.
 
         // Using Large Random Number for Amount.
@@ -364,7 +364,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -409,7 +409,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -457,7 +457,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -503,7 +503,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -545,7 +545,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -591,7 +591,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -638,7 +638,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -683,7 +683,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(500, 2);  // Taking Random value for Amount.
@@ -731,7 +731,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -779,7 +779,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -828,7 +828,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -882,7 +882,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -929,7 +929,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -971,7 +971,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1015,7 +1015,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1059,7 +1059,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1105,7 +1105,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1154,7 +1154,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1200,7 +1200,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1245,7 +1245,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1293,7 +1293,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1340,7 +1340,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1386,7 +1386,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1435,7 +1435,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1483,7 +1483,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1533,7 +1533,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1585,7 +1585,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1637,7 +1637,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1688,7 +1688,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
@@ -1741,7 +1741,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2));
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1791,7 +1791,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), 0);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1842,7 +1842,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Credit Memo and Refund, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), 0);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         CreateCurrencyWithSetup(Currency);
@@ -1895,7 +1895,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // [FEATURE] [Sales] [Payment] [Invoice]
         // [SCENARIO 333081] CLE is not closed when it is applied to payment when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
         // See the scenario on refered TFS
-        Initialize;
+        Initialize();
         PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
         PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
         CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
@@ -1976,7 +1976,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // [FEATURE] [Purchase] [Payment] [Invoice]
         // [SCENARIO 333081] VLE is not closed when it is applied to payment when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
         // See the scenario on refered TFS
-        Initialize;
+        Initialize();
         PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
         PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
         CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
@@ -2057,7 +2057,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // [FEATURE] [Sales] [Refund] [Credit Memo]
         // [SCENARIO 333081] CLE is not closed when it is applied to payment when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
         // See the scenario on refered TFS
-        Initialize;
+        Initialize();
         PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
         PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
         CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
@@ -2138,7 +2138,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         // [FEATURE] [Purchase] [Refund] [Credit Memo]
         // [SCENARIO 333081] Credit Memo VLE is not closed when it is applied to refund when its "Amount to Apply" < "Remaining Amount" and "Remaining Pmt. Disc. Possible" = 0
         // See the scenario on refered TFS
-        Initialize;
+        Initialize();
         PaymentDiscountDayRange := LibraryRandom.RandIntInRange(5, 10);
         PaymentTolerancePercent := LibraryRandom.RandDecInRange(2, 5, 2);
         CreatePaymentTerms(PaymentTerms, PaymentDiscountDayRange, PaymentTolerancePercent);
@@ -2439,7 +2439,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount", Amount);
     end;
 
@@ -2484,7 +2484,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Clear(ChangePaymentTolerance);
         ChangePaymentTolerance.InitializeRequest(false, CurrencyCode, PaymentTolerance, MaxPmtToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
-        ChangePaymentTolerance.Run;
+        ChangePaymentTolerance.Run();
     end;
 
     local procedure SetAppliesToIDGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -2614,7 +2614,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
             Currency.Get(DetailedCustLedgEntry."Currency Code");
         Currency.InitRoundingPrecision;
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           Round(Amount, Currency."Invoice Rounding Precision"),
           DetailedCustLedgEntry.Amount,

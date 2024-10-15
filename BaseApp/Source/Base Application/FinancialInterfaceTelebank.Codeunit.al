@@ -293,7 +293,7 @@ codeunit 11000001 "Financial Interface Telebank"
         DetailLine.SetRange("Connect Batches", PaymentHistoryLine."Run No.");
         DetailLine.SetRange("Connect Lines", PaymentHistoryLine."Line No.");
 
-        if DetailLine.FindSet then
+        if DetailLine.FindSet() then
             repeat
                 case DetailLine."Account Type" of
                     DetailLine."Account Type"::Customer:
@@ -387,16 +387,16 @@ codeunit 11000001 "Financial Interface Telebank"
         CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
         PaymentHistLine.SetRange("Our Bank", CBGStatement."Account No.");
-        if CBGStatementLine.FindSet then
+        if CBGStatementLine.FindSet() then
             repeat
                 PaymentHistLine.SetRange(Identification, CBGStatementLine.Identification);
-                if PaymentHistLine.FindFirst then
+                if PaymentHistLine.FindFirst() then
                     SetApplyCVLedgerEntries(PaymentHistLine, '', false, true);
             until CBGStatementLine.Next() = 0;
 
         if not TempErrorMessage.IsEmpty() then begin
             ErrorMessages.SetRecords(TempErrorMessage);
-            ErrorMessages.Run;
+            ErrorMessages.Run();
             Error('');
         end;
     end;

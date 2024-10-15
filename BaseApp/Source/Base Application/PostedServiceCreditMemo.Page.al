@@ -240,6 +240,7 @@ page 5972 "Posted Service Credit Memo"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         Editable = false;
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
                     field("Bill-to Contact"; "Bill-to Contact")
                     {
@@ -287,6 +288,13 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
                 }
                 field("Transaction Mode Code"; "Transaction Mode Code")
                 {
@@ -363,6 +371,7 @@ page 5972 "Posted Service Credit Memo"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         Editable = false;
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
                     field("Ship-to Contact"; "Ship-to Contact")
                     {
@@ -399,6 +408,13 @@ page 5972 "Posted Service Credit Memo"
                         end;
                         Clear(ChangeExchangeRate);
                     end;
+                }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
@@ -537,7 +553,7 @@ page 5972 "Posted Service Credit Memo"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()

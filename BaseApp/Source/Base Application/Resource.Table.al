@@ -695,7 +695,7 @@ table 156 Resource
         SalesOrderLine.SetCurrentKey(Type, "No.");
         SalesOrderLine.SetRange(Type, SalesOrderLine.Type::Resource);
         SalesOrderLine.SetRange("No.", "No.");
-        if SalesOrderLine.FindFirst then
+        if SalesOrderLine.FindFirst() then
             Error(DocumentExistsErr, "No.", SalesOrderLine."Document Type");
 
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Resource);
@@ -846,7 +846,7 @@ table 156 Resource
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Resource, GetPosition)
         else
             Message(Text004);
@@ -861,7 +861,7 @@ table 156 Resource
             Clear(ResourceUnitOfMeasure);
             ResourceUnitOfMeasure.SetRange("Resource No.", No);
             ResourceUnitOfMeasure.SetRange("Related to Base Unit of Meas.", true);
-            if ResourceUnitOfMeasure.FindSet then begin
+            if ResourceUnitOfMeasure.FindSet() then begin
                 repeat
                     Filter := Filter + GetQuotedCode(ResourceUnitOfMeasure.Code) + '|';
                 until ResourceUnitOfMeasure.Next() = 0;
@@ -878,7 +878,7 @@ table 156 Resource
     begin
         TimeSheetHeader.SetCurrentKey("Resource No.");
         TimeSheetHeader.SetRange("Resource No.", "No.");
-        if TimeSheetHeader.FindSet then
+        if TimeSheetHeader.FindSet() then
             repeat
                 TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
                 TimeSheetLine.SetRange(Posted, false);

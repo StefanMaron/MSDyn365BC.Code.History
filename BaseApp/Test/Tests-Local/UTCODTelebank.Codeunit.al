@@ -46,7 +46,7 @@ codeunit 144057 "UT COD Telebank"
 
         // Verify: Verify that Transaction Mode Code and Bank Account Code are same on Customer Ledger Entry after running Cust. Entry-Edit.
         CustLedgerEntry2.SetRange("Document No.", CustLedgerEntry."Document No.");
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
         CustLedgerEntry2.TestField("Transaction Mode Code", CustLedgerEntry."Transaction Mode Code");
         CustLedgerEntry2.TestField("Recipient Bank Account", CustLedgerEntry."Recipient Bank Account");
     end;
@@ -71,7 +71,7 @@ codeunit 144057 "UT COD Telebank"
 
         // Verify: Verify the Transaction Mode Code and Bank Account Code are same on Vendor Ledger Entry after running Vend. Entry-Edit.
         VendorLedgerEntry2.SetRange("Document No.", VendorLedgerEntry."Document No.");
-        VendorLedgerEntry2.FindFirst;
+        VendorLedgerEntry2.FindFirst();
         VendorLedgerEntry2.TestField("Transaction Mode Code", VendorLedgerEntry."Transaction Mode Code");
         VendorLedgerEntry2.TestField("Recipient Bank Account", VendorLedgerEntry."Recipient Bank Account");
     end;
@@ -96,7 +96,7 @@ codeunit 144057 "UT COD Telebank"
 
         // Verify: Verify the Transaction Mode Code and Bank Account Code are same on Vendor Ledger Entry after running Vend. Entry-Edit.
         EmployeeLedgerEntry2.SetRange("Document No.", EmployeeLedgerEntry."Document No.");
-        EmployeeLedgerEntry2.FindFirst;
+        EmployeeLedgerEntry2.FindFirst();
         EmployeeLedgerEntry2.TestField("Transaction Mode Code", EmployeeLedgerEntry."Transaction Mode Code");
     end;
 
@@ -203,7 +203,7 @@ codeunit 144057 "UT COD Telebank"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        if CustLedgerEntry2.FindLast then
+        if CustLedgerEntry2.FindLast() then
             CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1
         else
             CustLedgerEntry."Entry No." := 1;
@@ -233,7 +233,7 @@ codeunit 144057 "UT COD Telebank"
             Insert;
 
             VendLedgEntry.SetFilter("External Document No.", '<>%1', '');
-            VendLedgEntry.FindFirst;
+            VendLedgEntry.FindFirst();
             AppliesToDocNo := VendLedgEntry."External Document No.";
             MockDetailLine(DetailLine, PaymentHistoryLine, VendLedgEntry."Entry No.");
 
@@ -266,7 +266,7 @@ codeunit 144057 "UT COD Telebank"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        if VendorLedgerEntry2.FindLast then
+        if VendorLedgerEntry2.FindLast() then
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1
         else
             VendorLedgerEntry."Entry No." := 1;
@@ -292,7 +292,7 @@ codeunit 144057 "UT COD Telebank"
     var
         EmployeeLedgerEntry2: Record "Employee Ledger Entry";
     begin
-        if EmployeeLedgerEntry2.FindLast then
+        if EmployeeLedgerEntry2.FindLast() then
             EmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No." + 1
         else
             EmployeeLedgerEntry."Entry No." := 1;

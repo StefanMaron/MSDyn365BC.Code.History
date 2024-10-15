@@ -93,7 +93,7 @@ table 5906 "Service Comment Line"
         ServCommentLine.SetRange(Type, Type);
         ServCommentLine.SetRange("Table Line No.", "Table Line No.");
         ServCommentLine.SetRange(Date, WorkDate);
-        if not ServCommentLine.FindFirst then
+        if not ServCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, ServCommentLine);

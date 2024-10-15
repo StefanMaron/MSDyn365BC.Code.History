@@ -54,7 +54,7 @@ table 1228 "Payment Jnl. Export Error Text"
     procedure CreateNew(GenJnlLine: Record "Gen. Journal Line"; NewText: Text; NewAddnlInfo: Text; NewExtSupportInfo: Text)
     begin
         SetLineFilters(GenJnlLine);
-        if FindLast then;
+        if FindLast() then;
         "Journal Template Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         if (GenJnlLine."Journal Template Name" = '') and (GenJnlLine."Bal. Account No." <> '') then

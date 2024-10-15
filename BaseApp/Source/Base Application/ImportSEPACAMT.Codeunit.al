@@ -48,13 +48,13 @@ codeunit 11404 "Import SEPA CAMT"
         CreateCBGStatementTemplate(CBGStatement, CBGStatementLine, BankAcc, DataExch);
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
 
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
 
         // Run all pre-mapping codeunits
-        if DataExchMapping.FindSet then
+        if DataExchMapping.FindSet() then
             repeat
                 if DataExchMapping."Pre-Mapping Codeunit" <> 0 then
                     CODEUNIT.Run(DataExchMapping."Pre-Mapping Codeunit", CBGStatementLine);
@@ -65,7 +65,7 @@ codeunit 11404 "Import SEPA CAMT"
         CODEUNIT.Run(DataExchMapping."Mapping Codeunit", CBGStatementLine);
 
         // Run all post-mapping codeunits
-        if DataExchMapping.FindSet then
+        if DataExchMapping.FindSet() then
             repeat
                 if DataExchMapping."Post-Mapping Codeunit" <> 0 then
                     CODEUNIT.Run(DataExchMapping."Post-Mapping Codeunit", CBGStatementLine);
@@ -88,7 +88,7 @@ codeunit 11404 "Import SEPA CAMT"
         GenJnlTemplate.SetRange("Bal. Account Type", GenJnlTemplate."Bal. Account Type"::"Bank Account");
         GenJnlTemplate.SetRange("Bal. Account No.", BankAccount."No.");
 
-        if not GenJnlTemplate.FindFirst then
+        if not GenJnlTemplate.FindFirst() then
             Error(TemplateNotFoundErr, GenJnlTemplate.TableCaption, BankAccount.TableCaption, BankAccount."No.");
 
         CBGStatement.InitRecord(GenJnlTemplate.Name);

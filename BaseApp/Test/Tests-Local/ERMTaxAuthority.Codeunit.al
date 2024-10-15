@@ -87,7 +87,7 @@ codeunit 144005 "ERM Tax Authority"
         // [SCENARIO 209589] Audit file have to contains formated values of Customer."No." and Vendor."No."
 
         // Setup: Create and post Sales Order, Purchase Order and Gen. Journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase order for Vendor."No." = "VENDOR0001"
         PurchInvHeader.Get(CreateAndPostPurchaseOrder(GetPostingDate));
@@ -105,7 +105,7 @@ codeunit 144005 "ERM Tax Authority"
         // [WHEN] Run report "Tax Authority - Audit File"
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify Posting date, Sourc Code, Entry No., VAT Business Posting Group, GL Account No., Description, Vendor/Customer Details  in generated Audit file with in Start Date/End Date.
         VerifyTaxAuthorityAuditFile(FileName, 'effectiveDate', Format(GLEntry."Posting Date", 0, DateFormatTxt), 0);  // Date format required as XAF file date format.
@@ -144,7 +144,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify total number entries and Credit/Debit Amount from GL Entry  in generated Audit file.
 
         // Setup: Create and post Sales Order, find GL Entry.
-        Initialize;
+        Initialize();
         // Use random posting date and clear all entries before posting to avoid clashes
         PostingDate := GetPostingDate;
         GLEntry.SetRange("Posting Date", PostingDate);
@@ -156,7 +156,7 @@ codeunit 144005 "ERM Tax Authority"
         // Exercise: Run Tax Authority - Audit File report.
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify Total number entries and credit/debit amount from GL Entry  in generated Audit file.
         GLEntry.Reset();
@@ -182,7 +182,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify Reversal entry in generated Audit file.
 
         // Setup: Create and post Gen Jouranl and reverse.
-        Initialize;
+        Initialize();
         FindGLEntry(
           GLEntry, CreateLedgerEntry(GenJournalBatch, GetPostingDate), false);
         LibraryVariableStorage.Enqueue(ReverseEntriesQst);  // Enqueue for ConfirmHandler.
@@ -192,11 +192,11 @@ codeunit 144005 "ERM Tax Authority"
         // Exercise: Run Tax Authority - Audit File report.
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify Reversal entry in generated Audit file.
         FindGLEntry(GLEntry2, GLEntry."Document No.", true);
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         VerifyTaxAuthorityAuditFile(FileName, JournalIDCap, GLEntry2."Source Code", -1);
     end;
 
@@ -214,7 +214,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify no description with 'Transactie beginbalans' found in generated Audit file when ExcludeBalance on Tax Authority - Audit File set to TRUE.
 
         // Setup and Exercise: Create and post Gen. Journal and run report.
-        Initialize;
+        Initialize();
         FileName := FileManagement.ServerTempFileName('xaf');
         CreateLedgerEntryAndRunReport(FileName, true);  // TRUE for ExcludeBalance.
 
@@ -235,7 +235,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify description in generated Audit file when ExcludeBalance on Tax Authority - Audit File set to FALSE.
 
         // Setup and Exercise: Create and post Gen. Journal and run report.
-        Initialize;
+        Initialize();
         FileName := FileManagement.ServerTempFileName('xaf');
         CreateLedgerEntryAndRunReport(FileName, false);  // FALSE for ExludeBalance.
 
@@ -256,7 +256,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify report header details in generated Audit file.
 
         // Setup.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         UpdateCompanyInformation(CompanyInformation, CompanyInformation."VAT Registration No.");
         UpdateLCYCodeGLSetup(GeneralLedgerSetup);
@@ -267,7 +267,7 @@ codeunit 144005 "ERM Tax Authority"
         // Exercise.
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify Company ID, Postal code, Currency code, Date format in generated Audit file are according to the length prescribed by the tax authorities.
         VerifyTaxAuthorityAuditFile(FileName, 'companyID', CopyStr(CompanyInformation.Name, 1, 20), 0);
@@ -292,7 +292,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify Tax Registration No. in generated Audit file when VAT Registration No. is blank on Company Information.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation(CompanyInformation, '');  // '' for VAT Registration No.
         EnqueueValuesForRequestPage(GetPostingDate, false);  // Enqueue values for TaxAuthorityAuditFileRequestPageHandler.
         Commit();  // COMMIT required.
@@ -300,7 +300,7 @@ codeunit 144005 "ERM Tax Authority"
         // Exercise.
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify Tax Registration No. in generated Audit file.
         VerifyTaxAuthorityAuditFile(FileName, TaxRegistrationCap, '', 0);
@@ -321,7 +321,7 @@ codeunit 144005 "ERM Tax Authority"
         // Verify description in generated Audit file when Audit file contains closing G/L entries.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(CloseFiscalYearQst);  // Enqueue for CreateFiscalYearRequestPageHandler.
         REPORT.Run(REPORT::"Create Fiscal Year"); // Create previous fiscal year.
         StartDate := LibraryFiscalYear.GetFirstPostingDate(true);
@@ -342,7 +342,7 @@ codeunit 144005 "ERM Tax Authority"
         // Exercise.
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
 
         // Verify: Verify description in generated Audit file when Audit file contains closing G/L entries.
         VerifyTaxAuthorityAuditFile(FileName, DescriptionCap, 'Opening Entries', -1);
@@ -351,7 +351,7 @@ codeunit 144005 "ERM Tax Authority"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Tax Authority");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -411,7 +411,7 @@ codeunit 144005 "ERM Tax Authority"
 
         // Exercise.
         TaxAuthorityAuditFile.SetFileName(FileName);
-        TaxAuthorityAuditFile.Run;
+        TaxAuthorityAuditFile.Run();
     end;
 
     local procedure RunCloseIncomeStatement(GenJournalBatch: Record "Gen. Journal Batch")
@@ -424,7 +424,7 @@ codeunit 144005 "ERM Tax Authority"
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -489,7 +489,7 @@ codeunit 144005 "ERM Tax Authority"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange(Reversed, Reversed);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure GetGLEntryAmount(DocumentNo: Code[20]; Condition: Text[3]) Amount: Decimal
@@ -523,7 +523,7 @@ codeunit 144005 "ERM Tax Authority"
     local procedure UpdateCompanyInformation(var CompanyInformation: Record "Company Information"; VATRegistrationNo: Text[20])
     begin
         CompanyInformation.Get();
-        CompanyInformation.Validate("Post Code", LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID);
+        CompanyInformation.Validate("Post Code", LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID());
         CompanyInformation.Validate("VAT Registration No.", VATRegistrationNo);
         CompanyInformation.Modify(true);
     end;
@@ -531,7 +531,7 @@ codeunit 144005 "ERM Tax Authority"
     local procedure UpdateLCYCodeGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("LCY Code", LibraryUtility.GenerateGUID);
+        GeneralLedgerSetup.Validate("LCY Code", LibraryUtility.GenerateGUID());
         GeneralLedgerSetup.Modify(true);
     end;
 

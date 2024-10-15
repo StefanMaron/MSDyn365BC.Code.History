@@ -96,7 +96,7 @@ table 11000000 "Proposal Line"
                 DetailLine.SetRange(Status, DetailLine.Status::Proposal);
                 DetailLine.SetRange("Connect Lines", "Line No.");
                 DetailLine.SetRange("Account Type", "Account Type");
-                if DetailLine.FindSet then
+                if DetailLine.FindSet() then
                     repeat
                         DetailLine.Date := "Transaction Date";
                         DetailLine.Modify();
@@ -134,6 +134,7 @@ table 11000000 "Proposal Line"
                 CustmBank: Record "Customer Bank Account";
                 VendBank: Record "Vendor Bank Account";
                 GenJnlLine: Record "Gen. Journal Line";
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 if Bank <> '' then begin
                     case "Account Type" of
@@ -215,8 +216,8 @@ table 11000000 "Proposal Line"
                                 "Bank Address" := '';
                             end;
                     end;
-                    CreateDim(
-                      DimManagement.TypeToTableID1(GenJnlLine."Account Type"::"Bank Account".AsInteger()), "Our Bank No.", 0, '', 0, '', 0, '', 0, '', true);
+                    DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(GenJnlLine."Account Type"::"Bank Account".AsInteger()), "Our Bank No.");
+                    CreateDim(DefaultDimSource, true);
                 end;
                 DetailFilter("Detail line", Rec);
                 "Detail line".ModifyAll(Bank, Bank);
@@ -702,7 +703,7 @@ table 11000000 "Proposal Line"
         if "Transaction Date" = 0D then
             "Transaction Date" := WorkDate + 1;
 
-        if ProposalLine.FindFirst then
+        if ProposalLine.FindFirst() then
             "Header Dimension Set ID" := ProposalLine."Header Dimension Set ID";
     end;
 
@@ -730,23 +731,32 @@ table 11000000 "Proposal Line"
     local procedure ValidateDim()
     var
         GenJnlLine: Record "Gen. Journal Line";
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         case "Account Type" of
             "Account Type"::Customer:
-                CreateDim(
-                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Customer.AsInteger()), "Account No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code", 0, '', 0, '', 0, '', false);
+                begin
+                    DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Customer.AsInteger()), "Account No.");
+                    DimManagement.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                    CreateDim(DefaultDimSource, false);
+                end;
             "Account Type"::Vendor:
-                CreateDim(
-                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Vendor.AsInteger()), "Account No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code", 0, '', 0, '', 0, '', false);
+                begin
+                    DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Vendor.AsInteger()), "Account No.");
+                    DimManagement.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                    CreateDim(DefaultDimSource, false);
+                end;
             "Account Type"::Employee:
-                CreateDim(
-                  DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Employee.AsInteger()), "Account No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code", 0, '', 0, '', 0, '', false);
+                begin
+                    DimManagement.AddDimSource(DefaultDimSource, DimManagement.TypeToTableID1(GenJnlLine."Account Type"::Employee.AsInteger()), "Account No.");
+                    DimManagement.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                    CreateDim(DefaultDimSource, false);
+                end;
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20]; HeaderDimSetID: Boolean)
     var
@@ -775,6 +785,25 @@ table 11000000 "Proposal Line"
         end else
             "Header Dimension Set ID" :=
               DimManagement.GetDefaultDimID(TableID, No, '', ShortcutDimension1Code, ShortcutDimension2Code, 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; HeaderDimSetID: Boolean)
+    var
+        ShortcutDimension1Code: Code[20];
+        ShortcutDimension2Code: Code[20];
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        if not HeaderDimSetID then begin
+            "Shortcut Dimension 1 Code" := '';
+            "Shortcut Dimension 2 Code" := '';
+            "Dimension Set ID" :=
+              DimManagement.GetDefaultDimID(DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        end else
+            "Header Dimension Set ID" :=
+              DimManagement.GetDefaultDimID(DefaultDimSource, '', ShortcutDimension1Code, ShortcutDimension2Code, 0, 0);
     end;
 
     [Scope('OnPrem')]
@@ -836,9 +865,36 @@ table 11000000 "Proposal Line"
             HeaderGlobalDim1, HeaderGlobalDim2);
     end;
 
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Proposal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Rec, DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Will be removed with old CreateDim() procedure', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ProposalLine: Record "Proposal Line"; CurrentFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 }
 

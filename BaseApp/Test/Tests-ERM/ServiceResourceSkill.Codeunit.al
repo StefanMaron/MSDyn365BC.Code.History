@@ -29,9 +29,9 @@ codeunit 136126 "Service Resource Skill"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Resource Skill");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Resource Skill");
@@ -51,7 +51,7 @@ codeunit 136126 "Service Resource Skill"
         // The Test Case assign the Resource Skill in Service Item through Service Item Group.
 
         // Setup: Create a new Service Item, Create Service Item Group and modify the Service Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, '');
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         AttachItemGroupToServiceItem(ServiceItem, ServiceItemGroup.Code);
@@ -79,7 +79,7 @@ codeunit 136126 "Service Resource Skill"
         // The Test Case assign the Resource Skill in Item through Service Item Group.
 
         // Setup: Create a Service Item Group, create an Item, modify the Item and create the Resource Skill for Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         LibraryInventory.CreateItem(Item);
         AttachServiceItemGroupOnItem(Item, ServiceItemGroup.Code);
@@ -105,7 +105,7 @@ codeunit 136126 "Service Resource Skill"
         // The Test Case checks that the Resource Skill is modified on Item.
 
         // Setup: Create a new Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Exercise: Change the Resource Skill on Item.
@@ -132,7 +132,7 @@ codeunit 136126 "Service Resource Skill"
 
         // Setup: Create a new Service Item Group, Create a new Item and modify the Item, Create Resource Skill on Item, create a new
         // Service Item and modify the Service Item with Item No.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         LibraryInventory.CreateItem(Item);
         AttachServiceItemGroupOnItem(Item, ServiceItemGroup.Code);
@@ -164,7 +164,7 @@ codeunit 136126 "Service Resource Skill"
 
         // Setup: Create a new Item, find Skill Code, create Service Item Group, create Resource Skill, modify the Item with Service
         // Item Group, Create Service Item and modify the Service Item with Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         CreateResourceSkill(ServiceItemGroup.Code, ResourceSkill.Type::"Service Item Group");
@@ -232,7 +232,7 @@ codeunit 136126 "Service Resource Skill"
     [Normal]
     local procedure FindSkillCode(var SkillCode: Record "Skill Code")
     begin
-        SkillCode.FindFirst;
+        SkillCode.FindFirst();
     end;
 
     [Normal]
@@ -251,7 +251,7 @@ codeunit 136126 "Service Resource Skill"
         ResourceSkill.Get(ResourceSkill.Type::Item, ItemNo, Code);
         SkillCode.Init();
         SkillCode.SetFilter(Code, '<> %1', ResourceSkill."Skill Code");
-        SkillCode.FindFirst;
+        SkillCode.FindFirst();
 
         ResourceSkill.Rename(ResourceSkill.Type::Item, ItemNo, SkillCode.Code);
     end;
@@ -277,7 +277,7 @@ codeunit 136126 "Service Resource Skill"
     begin
         ResourceSkill.SetRange(Type, ResourceSkill.Type::Item);
         ResourceSkill.SetRange("No.", ItemNo);
-        ResourceSkill.FindFirst;
+        ResourceSkill.FindFirst();
         Assert.AreNotEqual(ResourceSkill."Skill Code", SkillCode, ErroResourceSkillChanged);
     end;
 

@@ -361,7 +361,7 @@ codeunit 99000832 "Sales Line-Reserve"
             if TransferQty = 0 then
                 exit;
             OldReservEntry.SetRange("Reservation Status", ReservStatus);
-            if OldReservEntry.FindSet then
+            if OldReservEntry.FindSet() then
                 repeat
                     OldReservEntry.TestItemFields(OldSalesLine."No.", OldSalesLine."Variant Code", OldSalesLine."Location Code");
                     if (OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Prospect) and
@@ -448,7 +448,7 @@ codeunit 99000832 "Sales Line-Reserve"
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, SalesLine."Shipment Date");
         ItemTrackingLines.SetInbound(SalesLine.IsInbound);
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(SalesLine, ItemTrackingLines);
-        ItemTrackingLines.RunModal;
+        ItemTrackingLines.RunModal();
     end;
 
     procedure CallItemTracking(var SalesLine: Record "Sales Line"; SecondSourceQuantityArray: array[3] of Decimal)
@@ -533,7 +533,7 @@ codeunit 99000832 "Sales Line-Reserve"
             ReservEntry.Delete();
         until ReservEntry.Next() = 0;
 
-        OK := TempInvoicingSpecification.FindFirst;
+        OK := TempInvoicingSpecification.FindFirst();
     end;
 
     procedure DeleteInvoiceSpecFromHeader(var SalesHeader: Record "Sales Header")
@@ -809,7 +809,7 @@ codeunit 99000832 "Sales Line-Reserve"
         ReservationEntry.Reset();
         ReservationEntry.SetSourceFilter(
           DATABASE::"Sales Line", OldSalesLine."Document Type".AsInteger(), OldSalesLine."Document No.", OldSalesLine."Line No.", true);
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 TempReservationEntry := ReservationEntry;
                 TempReservationEntry.Insert();
@@ -825,7 +825,7 @@ codeunit 99000832 "Sales Line-Reserve"
         TempReservationEntry.Reset();
         TempReservationEntry.SetSourceFilter(
           DATABASE::"Sales Line", OldSalesLine."Document Type".AsInteger(), OldSalesLine."Document No.", OldSalesLine."Line No.", true);
-        if TempReservationEntry.FindSet then
+        if TempReservationEntry.FindSet() then
             repeat
                 ReservationEntry := TempReservationEntry;
                 ReservationEntry."Source Ref. No." := NewSourceRefNo;
@@ -903,7 +903,7 @@ codeunit 99000832 "Sales Line-Reserve"
             Clear(AvailableSalesLines);
             AvailableSalesLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
             AvailableSalesLines.SetSource(SourceRecRef, ReservEntry, ReservEntry.GetTransferDirection());
-            AvailableSalesLines.RunModal;
+            AvailableSalesLines.RunModal();
         end;
     end;
 
@@ -1029,7 +1029,7 @@ codeunit 99000832 "Sales Line-Reserve"
 
         AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         SalesLine.FilterLinesForReservation(CalcReservEntry, DocumentType, AvailabilityFilter, Positive);
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 SalesLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= SalesLine."Reserved Qty. (Base)";

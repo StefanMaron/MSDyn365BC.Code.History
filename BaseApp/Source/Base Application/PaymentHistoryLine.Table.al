@@ -439,7 +439,7 @@ table 11000002 "Payment History Line"
         DetailLine.SetFilter(Status, '%1|%2|%3', DetailLine.Status::"In process", DetailLine.Status::Posted, DetailLine.Status::Correction);
         DetailLine.SetRange("Connect Batches", "Run No.");
         DetailLine.SetRange("Connect Lines", "Line No.");
-        if DetailLine.FindSet then
+        if DetailLine.FindSet() then
             repeat
                 case DetailLine."Account Type" of
                     DetailLine."Account Type"::Customer:
@@ -553,7 +553,7 @@ table 11000002 "Payment History Line"
         if DetailLine.IsEmpty() then
             exit("Description 1");
 
-        if DetailLine.FindSet then
+        if DetailLine.FindSet() then
             repeat
                 case DetailLine."Account Type" of
                     DetailLine."Account Type"::Vendor:

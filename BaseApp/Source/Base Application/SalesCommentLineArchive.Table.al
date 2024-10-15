@@ -68,7 +68,7 @@ table 5126 "Sales Comment Line Archive"
         SalesCommentLine.SetRange("Version No.", "Version No.");
         SalesCommentLine.SetRange("Document Line No.", "Line No.");
         SalesCommentLine.SetRange(Date, WorkDate);
-        if not SalesCommentLine.FindFirst then
+        if not SalesCommentLine.FindFirst() then
             Date := WorkDate;
     end;
 }

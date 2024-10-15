@@ -194,7 +194,7 @@ report 11403 "Create Elec. VAT Declaration"
                             if VATStmtName <> '' then begin
                                 VATStatementName.SetRange("Statement Template Name", VATTemplateName);
                                 VATStatementName.SetFilter(Name, VATStmtName + '*');
-                                VATStatementName.FindFirst;
+                                VATStatementName.FindFirst();
                                 VATStmtName := VATStatementName.Name;
                             end;
                         end;
@@ -276,10 +276,10 @@ report 11403 "Create Elec. VAT Declaration"
 
         case ElecTaxDeclVATCategory.Optional of
             true:
-                if not VATStatementLine.FindFirst then
+                if not VATStatementLine.FindFirst() then
                     exit('0');
             false:
-                VATStatementLine.FindFirst;
+                VATStatementLine.FindFirst();
         end;
 
         VATStatementName.Get(VATTemplateName, VATStmtName);

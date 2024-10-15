@@ -63,18 +63,18 @@ codeunit 11407 "Imp. SEPA CAMT Post-Mapping"
     begin
         DataExch.Get(CurrentCBGStatementLine."Data Exch. Entry No.");
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        DataExchLineDef.FindLast;
+        DataExchLineDef.FindLast();
 
         // Find entries
         DataExchField.SetRange("Data Exch. No.", CurrentCBGStatementLine."Data Exch. Entry No.");
         DataExchField.SetRange(
           "Column No.", ImpBankTransDataUpdates.FindColumnNoOfPath(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, XmlPath));
         CBGStatementLine.SetRange("Data Exch. Entry No.", CurrentCBGStatementLine."Data Exch. Entry No.");
-        if DataExchField.FindSet then
+        if DataExchField.FindSet() then
             repeat
                 // Insert info into CBG Statement Line Add. Info.
                 CBGStatementLine.SetRange("Data Exch. Line No.", DataExchField."Line No.");
-                if CBGStatementLine.FindFirst then
+                if CBGStatementLine.FindFirst() then
                     if Multiline then
                         UpdateCBGStatementLine(CBGStatementLine, DataExchField.Value, OverrideDescription)
                     else
@@ -122,7 +122,7 @@ codeunit 11407 "Imp. SEPA CAMT Post-Mapping"
             SetRange("Journal Template Name", ReferenceCBGStatementLine."Journal Template Name");
             SetRange("CBG Statement No.", ReferenceCBGStatementLine."No.");
             SetRange("CBG Statement Line No.", ReferenceCBGStatementLine."Line No.");
-            if FindLast then
+            if FindLast() then
                 "Line No." += 10000
             else
                 "Line No." := 10000;

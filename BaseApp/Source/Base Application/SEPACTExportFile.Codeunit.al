@@ -31,7 +31,7 @@ codeunit 1220 "SEPA CT-Export File"
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPortID, OutStr, GenJnlLine);
 
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
 
         if FileName = '' then
             FileName := StrSubstNo('%1.XML', CreditTransferRegister.Identifier)

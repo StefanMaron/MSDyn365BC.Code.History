@@ -29,15 +29,15 @@ codeunit 211 "Res. Jnl.-Check Line"
             if EmptyLine then
                 exit;
 
-            TestField("Resource No.");
-            TestField("Posting Date");
-            TestField("Gen. Prod. Posting Group");
+            TestField("Resource No.", ErrorInfo.Create());
+            TestField("Posting Date", ErrorInfo.Create());
+            TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
 
             CheckPostingDate(ResJnlLine);
 
             if "Document Date" <> 0D then
                 if "Document Date" <> NormalDate("Document Date") then
-                    FieldError("Document Date", Text000);
+                    FieldError("Document Date", ErrorInfo.Create(Text000, true));
 
             if ("Entry Type" = "Entry Type"::Usage) and ("Time Sheet No." <> '') then
                 TimeSheetMgt.CheckResJnlLine(ResJnlLine);
@@ -55,7 +55,7 @@ codeunit 211 "Res. Jnl.-Check Line"
     begin
         with ResJnlLine do begin
             if "Posting Date" <> NormalDate("Posting Date") then
-                FieldError("Posting Date", Text000);
+                FieldError("Posting Date", ErrorInfo.Create(Text000, true));
 
             IsHandled := false;
             OnCheckPostingDateOnBeforeCheckAllowedPostingDate("Posting Date", IsHandled);
@@ -90,6 +90,7 @@ codeunit 211 "Res. Jnl.-Check Line"
             No[2] := "Resource Group No.";
             TableID[3] := DATABASE::Job;
             No[3] := "Job No.";
+            OnCheckDimensionsOnAfterAssignDimTableIDs(ResJnlLine, TableID, No);
             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                 if "Line No." <> 0 then
                     Error(
@@ -118,6 +119,11 @@ codeunit 211 "Res. Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckPostingDateOnBeforeCheckAllowedPostingDate(PostingDate: Date; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var ResJnlLine: Record "Res. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 }

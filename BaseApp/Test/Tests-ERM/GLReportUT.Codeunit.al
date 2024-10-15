@@ -70,14 +70,14 @@ codeunit 134774 "G/L Report UT"
         PostedDoc := PostSalesInvoice(SalesHeader);
 
         GLEntry.SetRange("Document No.", PostedDoc);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         FirstEntry := GLEntry."Entry No.";
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntry := GLEntry."Entry No.";
 
         GLRegister.SetRange("From Entry No.", FirstEntry);
         GLRegister.SetRange("To Entry No.", LastEntry);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
 
         if ShowDetails then begin
             ShowDetailsTxt := 'Yes';
@@ -150,7 +150,7 @@ codeunit 134774 "G/L Report UT"
             SetRange("VAT %", 0);
             SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            FindFirst;
+            FindFirst();
             if "Sales VAT Account" = '' then
                 Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
             if "Purchase VAT Account" = '' then

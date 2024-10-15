@@ -174,21 +174,24 @@ page 624 "Unapply Vendor Entries"
 
                 trigger OnAction()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
                     ConfirmManagement: Codeunit "Confirm Management";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         Error(Text010);
                     if not ConfirmManagement.GetResponseOrDefault(Text011, true) then
                         exit;
 
-                    VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry2, DocNo, PostingDate);
+                    ApplyUnapplyParameters."Document No." := DocNo;
+                    ApplyUnapplyParameters."Posting Date" := PostingDate;
+                    VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry2, ApplyUnapplyParameters);
                     PostingDate := 0D;
                     DocNo := '';
-                    DeleteAll();
+                    Rec.DeleteAll();
                     Message(Text009);
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action(Preview)
@@ -203,12 +206,15 @@ page 624 "Unapply Vendor Entries"
 
                 trigger OnAction()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         Error(Text010);
 
-                    VendEntryApplyPostedEntries.PreviewUnapply(DtldVendLedgEntry2, DocNo, PostingDate);
+                    ApplyUnapplyParameters."Document No." := DocNo;
+                    ApplyUnapplyParameters."Posting Date" := PostingDate;
+                    VendEntryApplyPostedEntries.PreviewUnapply(DtldVendLedgEntry2, ApplyUnapplyParameters);
                 end;
             }
         }
@@ -220,14 +226,16 @@ page 624 "Unapply Vendor Entries"
     end;
 
     var
+        Text009: Label 'The entries were successfully unapplied.';
+        Text010: Label 'There is nothing to unapply.';
+        Text011: Label 'To unapply these entries, correcting entries will be posted.\Do you want to unapply the entries?';
+
+    protected var
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
         Vend: Record Vendor;
         DocNo: Code[20];
         PostingDate: Date;
         VendLedgEntryNo: Integer;
-        Text009: Label 'The entries were successfully unapplied.';
-        Text010: Label 'There is nothing to unapply.';
-        Text011: Label 'To unapply these entries, correcting entries will be posted.\Do you want to unapply the entries?';
 
     procedure SetDtldVendLedgEntry(EntryNo: Integer)
     begin

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2800 "Native - KPIs Entity"
 {
     Caption = 'nativeInvoicingRoleCenterKpi', Locked = true;
@@ -114,4 +115,4 @@ page 2800 "Native - KPIs Entity"
         OnlySupportForEqualFilterErr: Label 'We only support the equals filter on the requestedDateTime field.';
         RequestedDateTime: DateTime;
 }
-
+#endif

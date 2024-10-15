@@ -1019,16 +1019,16 @@
                         CustLedgEntry.SetCurrentKey("Customer No.");
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     CustLedgEntry.SetRange(Open, true);
-                    if CustLedgEntry.FindLast then
+                    if CustLedgEntry.FindLast() then
                         Error(Text012, FieldCaption("IC Partner Code"), TableCaption);
 
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     AccountingPeriod.SetRange(Closed, false);
-                    if AccountingPeriod.FindFirst then begin
+                    if AccountingPeriod.FindFirst() then begin
                         CustLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-                        if CustLedgEntry.FindFirst then
+                        if CustLedgEntry.FindFirst() then
                             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text011, TableCaption), true) then
                                 "IC Partner Code" := xRec."IC Partner Code";
                     end;
@@ -1718,7 +1718,6 @@
         CampaignTargetGr: Record "Campaign Target Group";
         ContactBusRel: Record "Contact Business Relation";
         Job: Record Job;
-        SocialListeningSearchTopic: Record "Social Listening Search Topic";
         StdCustSalesCode: Record "Standard Customer Sales Code";
         CustomReportSelection: Record "Custom Report Selection";
         MyCustomer: Record "My Customer";
@@ -1737,7 +1736,7 @@
         ApprovalsMgmt.OnCancelCustomerApprovalRequest(Rec);
 
         ServiceItem.SetRange("Customer No.", "No.");
-        if ServiceItem.FindFirst then
+        if ServiceItem.FindFirst() then
             if ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text008, TableCaption, "No.", ServiceItem.FieldCaption("Customer No.")), true)
             then
@@ -1769,21 +1768,16 @@
         StdCustSalesCode.SetRange("Customer No.", "No.");
         StdCustSalesCode.DeleteAll(true);
 
-        if not SocialListeningSearchTopic.IsEmpty() then begin
-            SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Customer, "No.");
-            SocialListeningSearchTopic.DeleteAll();
-        end;
-
         SalesOrderLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
         SalesOrderLine.SetRange("Bill-to Customer No.", "No.");
-        if SalesOrderLine.FindFirst then
+        if SalesOrderLine.FindFirst() then
             Error(
               Text000,
               TableCaption, "No.", SalesOrderLine."Document Type");
 
         SalesOrderLine.SetRange("Bill-to Customer No.");
         SalesOrderLine.SetRange("Sell-to Customer No.", "No.");
-        if SalesOrderLine.FindFirst then
+        if SalesOrderLine.FindFirst() then
             Error(
               Text000,
               TableCaption, "No.", SalesOrderLine."Document Type");
@@ -1793,7 +1787,7 @@
         if CampaignTargetGr.Find('-') then begin
             ContactBusRel.SetRange("Link to Table", ContactBusRel."Link to Table"::Customer);
             ContactBusRel.SetRange("No.", "No.");
-            ContactBusRel.FindFirst;
+            ContactBusRel.FindFirst();
             repeat
                 CampaignTargetGrMgmt.ConverttoContact(Rec, ContactBusRel."Contact No.");
             until CampaignTargetGr.Next() = 0;
@@ -1909,7 +1903,6 @@
         ShippingAgentService: Record "Shipping Agent Services";
         RMSetup: Record "Marketing Setup";
         SalesPrepmtPct: Record "Sales Prepayment %";
-        ServContract: Record "Service Contract Header";
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
@@ -2008,7 +2001,7 @@
             ContBusRel.SetCurrentKey("Link to Table", "No.");
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
             ContBusRel.SetRange("No.", "No.");
-            if not ContBusRel.FindFirst then begin
+            if not ContBusRel.FindFirst() then begin
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, TableCaption, "No."), true) then
                     exit;
                 UpdateContFromCust.InsertNewContact(Rec, false);
@@ -2128,7 +2121,13 @@
             Action := Text004
         else
             Action := Text005;
-        Error(Text006, Action, Cust2."No.", Cust2.Blocked);
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(
+                    Text006, Action, Cust2."No.", Cust2.Blocked),
+                true,
+                Cust2,
+                Cust2.FieldNo(Blocked)));
     end;
 
     procedure CustPrivacyBlockedErrorMessage(Cust2: Record Customer; Transaction: Boolean)
@@ -2140,7 +2139,12 @@
         else
             Action := Text005;
 
-        Error(PrivacyBlockedActionErr, Action, Cust2."No.");
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(
+                    PrivacyBlockedActionErr, Action, Cust2."No."),
+                true,
+                Cust2));
     end;
 
     procedure GetPrivacyBlockedGenericErrorText(Cust2: Record Customer): Text[250]
@@ -2154,7 +2158,7 @@
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Customer, GetPosition)
         else
             Message(Text014);
@@ -2521,6 +2525,28 @@
         exit(false);
     end;
 
+    procedure GetBalanceAsVendor(var LinkedVendorNo: Code[20]) BalanceAsVendor: Decimal;
+    var
+        Vendor: Record Vendor;
+    begin
+        BalanceAsVendor := 0;
+        LinkedVendorNo := GetLinkedVendor();
+        if Vendor.Get(LinkedVendorNo) then begin
+            Vendor.CalcFields("Balance (LCY)");
+            BalanceAsVendor := Vendor."Balance (LCY)";
+        end;
+    end;
+
+    procedure GetLinkedVendor(): Code[20];
+    var
+        ContBusRel: Record "Contact Business Relation";
+    begin
+        exit(
+            ContBusRel.GetLinkedTables(
+                "Contact Business Relation Link To Table"::Customer, "No.",
+                "Contact Business Relation Link To Table"::Vendor))
+    end;
+
     procedure GetCustNo(CustomerText: Text): Text
     begin
         exit(GetCustNoOpenCard(CustomerText, true, true));
@@ -2551,7 +2577,7 @@
         OnGetCustNoOpenCardOnBeforeFilterCustomer(Customer);
         Customer.SetRange(Blocked, Customer.Blocked::" ");
         Customer.SetRange(Name, CustomerText);
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(Customer."No.");
 
         Customer.SetCurrentKey(Name);
@@ -2559,7 +2585,7 @@
         CustomerWithoutQuote := ConvertStr(CustomerText, '''', '?');
         Customer.SetFilter(Name, '''@' + CustomerWithoutQuote + '''');
         OnGetCustNoOpenCardOnBeforeCustomerFindSet(Customer);
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(Customer."No.");
         Customer.SetRange(Name);
 
@@ -2571,7 +2597,7 @@
         Customer.SetFilter(Name, CustomerFilterFromStart);
         OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(Customer."No.");
 
         CustomerFilterContains := '''@*' + CustomerWithoutQuote + '*''';
@@ -2588,7 +2614,7 @@
             MarkCustomersWithSimilarName(Customer, CustomerText);
 
         if Customer.Count = 1 then begin
-            Customer.FindFirst;
+            Customer.FindFirst();
             exit(Customer."No.");
         end;
 
@@ -2645,7 +2671,7 @@
         Customer.Ascending(false); // most likely to search for newest customers
         Customer.SetRange(Blocked, Customer.Blocked::" ");
         OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(Customer);
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 CustomerCount += 1;
                 if Abs(CustomerTextLength - StrLen(Customer.Name)) <= Treshold then
@@ -2730,11 +2756,11 @@
 
     local procedure MarkCustomersByFilters(var Customer: Record Customer)
     begin
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 Customer.Mark(true);
             until Customer.Next() = 0;
-        if Customer.FindFirst then;
+        if Customer.FindFirst() then;
         Customer.MarkedOnly := true;
     end;
 
@@ -2853,17 +2879,17 @@
         HasAnyDocs: Boolean;
     begin
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             exit(true);
 
         SalesLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
         SalesLine.SetRange("Bill-to Customer No.", "No.");
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             exit(true);
 
         SalesLine.SetRange("Bill-to Customer No.");
         SalesLine.SetRange("Sell-to Customer No.", "No.");
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             exit(true);
 
         CustLedgerEntry.SetRange("Customer No.", "No.");
@@ -2937,7 +2963,7 @@
         Cont.Image.ExportFile(ExportPath);
         FileManagement.GetServerDirectoryFilesList(TempNameValueBuffer, TemporaryPath);
         TempNameValueBuffer.SetFilter(Name, StrSubstNo('%1*', ExportPath));
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
 
         Clear(Image);
         Image.ImportFile(TempNameValueBuffer.Name, '');
@@ -2972,10 +2998,10 @@
             Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure SetLastModifiedDateTime()
+    protected procedure SetLastModifiedDateTime()
     begin
-        "Last Modified Date Time" := CurrentDateTime;
-        "Last Date Modified" := Today;
+        "Last Modified Date Time" := CurrentDateTime();
+        "Last Date Modified" := Today();
         OnAfterSetLastModifiedDateTime(Rec);
     end;
 
@@ -3049,12 +3075,12 @@
         MarketingSetup: Record "Marketing Setup";
     begin
         Customer.SetRange("E-Mail", Email);
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(true);
 
         Customer.SetRange("E-Mail");
         LocalContact.SetRange("E-Mail", Email);
-        if LocalContact.FindSet then begin
+        if LocalContact.FindSet() then begin
             MarketingSetup.Get();
             repeat
                 if ContactBusinessRelation.Get(LocalContact."No.", MarketingSetup."Bus. Rel. Code for Customers") then begin

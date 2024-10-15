@@ -59,7 +59,7 @@ codeunit 144001 "UT TAB Apply GL Entries"
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
         GLEntry."Document Type" := GLEntry."Document Type"::Payment;

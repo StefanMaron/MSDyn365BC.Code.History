@@ -229,7 +229,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        if GeneralPostingSetup.FindSet then
+        if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
                     GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
@@ -341,7 +341,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -353,7 +359,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        if FAPostingGroup.FindSet then
+        if FAPostingGroup.FindSet() then
             repeat
                 FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", CreateGLAccountWithSetup);
                 FAPostingGroup.Modify(true);

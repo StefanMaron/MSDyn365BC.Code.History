@@ -172,7 +172,7 @@ report 11000022 "Import Rabobank vvmut.asc"
         GenJnlTemplate.SetRange("Bal. Account Type", GenJnlTemplate."Bal. Account Type"::"Bank Account");
         GenJnlTemplate.SetRange("Bal. Account No.", BankAcctCode);
 
-        if not GenJnlTemplate.FindFirst then
+        if not GenJnlTemplate.FindFirst() then
             Error(Text002, GenJnlTemplate.TableCaption, BankAcct.TableCaption, BankAcctCode);
 
         CBGStatement.InitRecord(GenJnlTemplate.Name);

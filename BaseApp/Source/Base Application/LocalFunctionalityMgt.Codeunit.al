@@ -13,7 +13,6 @@ codeunit 11400 "Local Functionality Mgt."
         Text1000033: Label 'G';
         Text1000034: Label 'PG';
 
-    [Scope('OnPrem')]
     procedure CheckBankAccNo(Acc: Text[30]; CountryCode: Code[10]; var AccountNo: Text[30]) Result: Boolean
     var
         Len: Integer;

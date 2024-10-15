@@ -551,7 +551,7 @@ page 11000001 "Telebank Proposal"
                                 if Confirm(StrSubstNo(Text1000002, TableCaption, "Our Bank No.", BankAcc."No.")) then begin
                                     PropLine.SetCurrentKey("Our Bank No.");
                                     PropLine.SetRange("Our Bank No.", BankAcc."No.");
-                                    if PropLine.FindLast then
+                                    if PropLine.FindLast() then
                                         Rename(BankAcc."No.", PropLine."Line No." + 10000)
                                     else
                                         Rename(BankAcc."No.", 10000);
@@ -814,13 +814,13 @@ page 11000001 "Telebank Proposal"
         Prop.SetRange("Our Bank No.", "Our Bank No.");
 
         if BelowxRec or (xRec."Our Bank No." <> "Our Bank No.") then begin
-            if Prop.FindLast then
+            if Prop.FindLast() then
                 "Line No." := Prop."Line No." + 10000
             else
                 "Line No." := 10000;
         end else begin
             Prop.SetFilter("Line No.", '<%1', xRec."Line No.");
-            if Prop.FindLast then
+            if Prop.FindLast() then
                 "Line No." := Round((Prop."Line No." + xRec."Line No.") / 2, 1)
             else
                 "Line No." := Round(xRec."Line No." / 2, 1);

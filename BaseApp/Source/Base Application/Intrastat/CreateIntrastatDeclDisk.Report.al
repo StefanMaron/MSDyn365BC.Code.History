@@ -457,12 +457,14 @@
     end;
 
 #if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
     [Scope('OnPrem')]
     procedure InitializeRequest(newServerFileName: Text)
     begin
         IntrastatFileWriter.SetServerFileName(newServerFileName);
     end;
 
+    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
     procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
     begin
         IntrastatFileWriter.SetServerFileName(newServerFileName);
@@ -479,6 +481,7 @@
     end;
 
 #if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnInitializeServerFileName(var Filename: Text)

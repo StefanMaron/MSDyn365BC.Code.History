@@ -5,8 +5,8 @@ codeunit 1883 "Sandbox Cleanup local"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Cleanup", 'OnClearCompanyConfiguration', '', false, false)]
-    local procedure OnClearConfiguration(CompanyName: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Environment Cleanup", 'OnClearCompanyConfig', '', false, false)]
+    local procedure OnClearConfiguration(CompanyName: Text; SourceEnv: Enum "Environment Type"; DestinationEnv: Enum "Environment Type")
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
     begin

@@ -433,7 +433,7 @@ codeunit 144049 "UT REP EVAT"
         No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(ICPContactType, DeclarationPeriod, PartOfFiscalEntity, EU3PartyTrade, EUService);
 
@@ -557,7 +557,7 @@ codeunit 144049 "UT REP EVAT"
         No: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(
             ICPContactType, ElecTaxDeclarationHeader."Declaration Period"::January, true, false, true);  // PartOfFiscalEntity, EUService as True and EU3PartyTrade as False.
@@ -683,7 +683,7 @@ codeunit 144049 "UT REP EVAT"
     local procedure ElectronicVATDeclarationError(VATContactType: Option; AgentContactID: Code[17]; AgentContactName: Text; AgentContactAddress: Text; AgentContactPostCode: Code[20]; AgentContactCity: Text; AgentContactPhoneNo: Text; TaxPayerContactName: Text; TaxPayerContactPhoneNo: Text)
     begin
         // Setup: Update Electronic Tax Delcaration Setup.
-        Initialize;
+        Initialize();
         UpdateElectronicTaxDeclarationSetup(
           VATContactType, AgentContactID, AgentContactName, AgentContactAddress, AgentContactPostCode, AgentContactCity,
           AgentContactPhoneNo, TaxPayerContactName, TaxPayerContactPhoneNo);
@@ -706,7 +706,7 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank VAT Template Name and VAT Statement Name.
 
         // Setup: Create Electronic Tax Delcaration Header.
-        Initialize;
+        Initialize();
         CreateElecTaxDeclarationHeader(
           ElecTaxDeclarationHeader."Declaration Period"::January, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
 
@@ -753,7 +753,7 @@ codeunit 144049 "UT REP EVAT"
         DeclarationNo: Code[20];
     begin
         // Setup: Update Electronic Tax Delcaration Setup,Create Electronic Tax Delcaration Header and Create VAT Statement Line.
-        Initialize;
+        Initialize();
         UpdateElectronicTaxDeclarationSetup(
           VATContactType, AgentContactID, AgentContactName, AgentContactAddress, AgentContactPostCode, AgentContactCity, AgentContactPhoneNo,
           TaxPayerContactName, TaxPayerContactPhoneNo);
@@ -788,7 +788,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // Purpose of the test is to verify Elec. Tax Declaration Header - OnAfterGetRecord of Report 11403 (Create Elec. VAT Declaration).
         // Setup.
-        Initialize;
+        Initialize();
         NamePrefix := DelChr(LibraryUTUtility.GetNewCode, '=', ' ');
         UpdateElectronicTaxDeclarationSetup(
           ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode,
@@ -819,7 +819,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // Purpose of the test is to verify Elec. Tax Declaration Header - OnAfterGetRecord of Report 11404 (Create Elec. ICP Declaration) with ICP Contact Type Agent.
         // Setup.
-        Initialize;
+        Initialize();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(
             ElecTaxDeclarationSetup."ICP Contact Type"::Agent, ElecTaxDeclarationHeader."Declaration Period"::January, true, false, true);  // PartOfFiscalEntity and EUService as True, EU3PartyTrade as False.
@@ -842,7 +842,7 @@ codeunit 144049 "UT REP EVAT"
         DeclarationNo: Code[20];
     begin
         // Elec. Tax Declaration when Agent Contact Name does not provide prefix
-        Initialize;
+        Initialize();
         // [GIVEN] Electronic Tax Declaration Setup with solid Agent Contact Name
         InitEmptyContactPrefixScenario(
           DeclarationNo,
@@ -865,7 +865,7 @@ codeunit 144049 "UT REP EVAT"
         DeclarationNo: Code[20];
     begin
         // Elec. Tax Declaration when Tax Payer Name does not provide prefix
-        Initialize;
+        Initialize();
         // [GIVEN] Electronic Tax Declaration Setup with solid Tax Payer Name
         InitEmptyContactPrefixScenario(
           DeclarationNo,
@@ -890,7 +890,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // Purpose of the test is to verify Elec. Tax Declaration Header - OnAfterGetRecord of Report 11404 (Create Elec. ICP Declaration) with Part of Fiscal Entity as True.
         // Setup.
-        Initialize;
+        Initialize();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(
             ElecTaxDeclarationSetup."ICP Contact Type"::"Tax Payer", ElecTaxDeclarationHeader."Declaration Period"::January, true, false,
@@ -917,7 +917,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // Purpose of the test is to verify Elec. Tax Declaration Header - OnAfterGetRecord of Report 11404 (Create Elec. ICP Declaration) with Part of Fiscal Entity as False.
         // Setup.
-        Initialize;
+        Initialize();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(
             ElecTaxDeclarationSetup."ICP Contact Type"::"Tax Payer", ElecTaxDeclarationHeader."Declaration Period"::January, false, false,
@@ -944,7 +944,7 @@ codeunit 144049 "UT REP EVAT"
         No: Code[20];
     begin
         // [SCENARIO 204131] 'bd-ob:VATIdentificationNumberNLFiscalEntityDivision' should not be exported when "Part Of Fiscal Entity" is false and "Fiscal Entity No." is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Part Of Fiscal Entity" is No in Elec.Tax Declaration Setup and "Fiscal Entity No." = '' in Company Information
         No :=
@@ -976,7 +976,7 @@ codeunit 144049 "UT REP EVAT"
         // [FEATURE] [VAT Declaration]
         // [SCENARIO 196180] The value of "xbrli:identifier" tag of Electronic VAT Declaration is "Fiscal Entity No." from Company Information if "Part of Fiscal Entity " is set in Electronic Tax Declaration Setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] "VAT Registration No." = "X", "Fiscal Entity No." = "Y" in Company Information
         // [GIVEN] "Part Of Fiscal Entity" is set in Electronic Tax Declaration Setup
         // [GIVEN] Electronic Tax Declaration Header with type "VAT Declaration"
@@ -1010,11 +1010,11 @@ codeunit 144049 "UT REP EVAT"
         // [FEATURE] [VAT Declaration]
         // [SCENARIO 196180] The value of "xbrli:identifier" tag of Electronic VAT Declaration is "VAT Registration No." from Company Information if "Part of Fiscal Entity " is not set in Electronic Tax Declaration Setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] "VAT Registration No." = "X", "Fiscal Entity No." = "Y" in Company Information
         // [GIVEN] "Part Of Fiscal Entity" is not set in Electronic Tax Declaration Setup
         // [GIVEN] Electronic Tax Declaration Header with type "VAT Declaration"
-        Initialize;
+        Initialize();
         No :=
           CreateElecTaxDeclarationHeader(
             ElecTaxDeclarationHeader."Declaration Period"::January, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
@@ -1045,7 +1045,7 @@ codeunit 144049 "UT REP EVAT"
         // [FEATURE] [ICP Declaration]
         // [SCENARIO 196180] The VAT identification values of Electronic ICP Declaration are correct if "Part of Fiscal Entity " is set in Electronic Tax Declaration Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Registration No." = "X", "Fiscal Entity No." = "Y" in Company Information
         // [GIVEN] "Part Of Fiscal Entity" is set in Electronic Tax Declaration Setup
@@ -1082,7 +1082,7 @@ codeunit 144049 "UT REP EVAT"
         // [FEATURE] [ICP Declaration]
         // [SCENARIO 196180] The VAT identification values of Electronic ICP Declaration are correct if "Part of Fiscal Entity " is not set in Electronic Tax Declaration Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Registration No." = "X", "Fiscal Entity No." = "Y" in Company Information
         // [GIVEN] "Part Of Fiscal Entity" is not set in Electronic Tax Declaration Setup
@@ -1117,7 +1117,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375329] Export amounts via "Create Elec. VAT Declaration" report for "1b. Sales Amount (Low Rate)"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Statement Line" - "L"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1b. Sales Amount (Low Rate)"
@@ -1161,7 +1161,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375329] Export amounts via "Create Elec. VAT Declaration" report for "1c. Sales Amount (Other Non-Zero Rates)"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Statement Line" - "L"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1c. Sales Amount (Other Non-Zero Rates)"
@@ -1205,7 +1205,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 379549] Export amounts via "Create Elec. VAT Declaration" report for "1b. Tax Amount (Low Rate)"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Statement Line" - "L"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1b. Tax Amount (Low Rate)"
@@ -1246,7 +1246,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 379549] Export amounts via "Create Elec. VAT Declaration" report for "1c. Tax Amount (Other Non-Zero Rates)"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Statement Line" - "L"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1c. Tax Amount (Other Non-Zero Rates)"
@@ -1286,7 +1286,7 @@ codeunit 144049 "UT REP EVAT"
         // [FEATURE] [UT]
         // [SCENARIO 196180] The return value of GetVATIdentificationNo function in Table 39 "Company Information" is "Fiscal Entity No." when "Part Of Fiscal Entity" is set
 
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         Assert.AreEqual(
           CompanyInformation."Fiscal Entity No.", CompanyInformation.GetVATIdentificationNo(true), '');
@@ -1302,7 +1302,7 @@ codeunit 144049 "UT REP EVAT"
         // [FEATURE] [UT]
         // [SCENARIO 196180] The return value of GetVATIdentificationNo function in Table 39 "Company Information" is "VAT Registration No." when "Part Of Fiscal Entity" is not set
 
-        Initialize;
+        Initialize();
         NewCode := LibraryUTUtility.GetNewCode10;
         CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := 'NL' + NewCode;
@@ -1316,8 +1316,8 @@ codeunit 144049 "UT REP EVAT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT REP EVAT");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         UpdateCompanyInformation;
         if IsInitialized then
             exit;
@@ -1385,7 +1385,7 @@ codeunit 144049 "UT REP EVAT"
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Reverse Charge VAT";
@@ -1415,8 +1415,8 @@ codeunit 144049 "UT REP EVAT"
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
     begin
-        VATStatementTemplate.FindFirst;
-        VATStatementName.FindFirst;
+        VATStatementTemplate.FindFirst();
+        VATStatementName.FindFirst();
         VATStatementLine."Statement Template Name" := VATStatementTemplate.Name;
         VATStatementLine."Statement Name" := VATStatementName.Name;
         VATStatementLine."Line No." := LibraryUtility.GetNewRecNo(VATStatementLine, VATStatementLine.FieldNo("Line No."));
@@ -1501,7 +1501,7 @@ codeunit 144049 "UT REP EVAT"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
 
         VATStatementLine.SetRange("Elec. Tax Decl. Category Code", CategoryCode);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         VATStatementLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         VATStatementLine.Modify();
@@ -1585,7 +1585,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         ElecTaxDeclarationLine.SetRange("Declaration No.", DeclarationNo);
         ElecTaxDeclarationLine.SetRange(Name, Name);
-        ElecTaxDeclarationLine.FindFirst;
+        ElecTaxDeclarationLine.FindFirst();
         ElecTaxDeclarationLine.TestField(Data, Data);
     end;
 

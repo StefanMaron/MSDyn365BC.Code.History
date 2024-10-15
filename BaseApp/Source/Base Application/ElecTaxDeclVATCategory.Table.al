@@ -126,7 +126,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
         VATStatementLine.Reset();
         VATStatementLine.SetCurrentKey("Elec. Tax Decl. Category Code");
         VATStatementLine.SetRange("Elec. Tax Decl. Category Code", Code);
-        if VATStatementLine.FindFirst then
+        if VATStatementLine.FindFirst() then
             Error(Text002, TableCaption, Code);
     end;
 
@@ -159,7 +159,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
                 Error(Text001);
         end;
 
-        if ElecTaxDeclVATCategory.FindFirst then
+        if ElecTaxDeclVATCategory.FindFirst() then
             exit(ElecTaxDeclVATCategory.Code);
 
         ElecTaxDeclVATCategory.Category := Category;
@@ -227,7 +227,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
         ElecTaxDeclVATCategory.SetRange("To Us (Foreign)", "To Us (Foreign)");
         ElecTaxDeclVATCategory.SetRange(Calculation, Calculation);
 
-        if ElecTaxDeclVATCategory.FindFirst then
+        if ElecTaxDeclVATCategory.FindFirst() then
             Error(Text003, ElecTaxDeclVATCategory.TableCaption, ElecTaxDeclVATCategory.Code);
     end;
 }

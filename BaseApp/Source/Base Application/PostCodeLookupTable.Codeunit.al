@@ -8,7 +8,6 @@ codeunit 11402 "Post Code Lookup - Table"
     var
         PostCodeRange: Record "Post Code Range";
 
-    [Scope('OnPrem')]
     procedure FindStreetNameFromAddress(var StreetName: Text[50]; HouseNo: Text[50]; var PostCode: Code[20]; var City: Text[50]; var PhoneNo: Text[30]; var FaxNo: Text[30]): Boolean
     var
         ForcePopup: Boolean;

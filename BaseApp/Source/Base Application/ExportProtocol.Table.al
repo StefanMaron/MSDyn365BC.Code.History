@@ -43,7 +43,7 @@ table 11000005 "Export Protocol"
             begin
                 AllObjWithCaption.SetRange("Object Type", GetObjectType("Export Object Type"));
                 AllObjWithCaption.SetRange("Object ID", "Export ID");
-                AllObjWithCaption.FindFirst;
+                AllObjWithCaption.FindFirst();
                 "Export Name" := AllObjWithCaption."Object Name";
             end;
         }

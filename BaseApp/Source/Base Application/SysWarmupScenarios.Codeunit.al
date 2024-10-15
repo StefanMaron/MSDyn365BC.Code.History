@@ -13,11 +13,11 @@ codeunit 130411 "Sys. Warmup Scenarios"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
     begin
-        if not Customer.FindFirst then
+        if not Customer.FindFirst() then
             exit;
 
         Item.SetFilter(Inventory, '<>%1', 0);
-        if not Item.FindFirst then
+        if not Item.FindFirst() then
             exit;
 
         CreateSalesInvoice(SalesHeader, Customer, Item);

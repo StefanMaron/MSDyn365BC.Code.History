@@ -65,7 +65,7 @@ table 5504 "Tax Area Buffer"
         PropagateUpdate(false);
     end;
 
-    local procedure PropagateUpdate(Insert: Boolean)
+    local procedure PropagateUpdate(InsertRec: Boolean)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -75,7 +75,7 @@ table 5504 "Tax Area Buffer"
             Error(RecordMustBeTemporaryErr);
 
         if GeneralLedgerSetup.UseVat then begin
-            if Insert() then begin
+            if InsertRec then begin
                 VATBusinessPostingGroup.TransferFields(Rec, true);
                 VATBusinessPostingGroup.Insert(true)
             end else begin
@@ -90,7 +90,7 @@ table 5504 "Tax Area Buffer"
 
             UpdateFromVATBusinessPostingGroup(VATBusinessPostingGroup);
         end else begin
-            if Insert() then begin
+            if InsertRec then begin
                 TaxArea.TransferFields(Rec, true);
                 TaxArea.Insert(true)
             end else begin
@@ -141,7 +141,7 @@ table 5504 "Tax Area Buffer"
     var
         TaxArea: Record "Tax Area";
     begin
-        if not TaxArea.FindSet then
+        if not TaxArea.FindSet() then
             exit;
 
         repeat
@@ -154,7 +154,7 @@ table 5504 "Tax Area Buffer"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        if not VATBusinessPostingGroup.FindSet then
+        if not VATBusinessPostingGroup.FindSet() then
             exit;
 
         repeat

@@ -1,4 +1,4 @@
-﻿page 1651 "Curr. Exch. Rate Service Card"
+page 1651 "Curr. Exch. Rate Service Card"
 {
     Caption = 'Currency Exch. Rate Service';
     PromotedActionCategories = 'New,Process,Report,Setup';

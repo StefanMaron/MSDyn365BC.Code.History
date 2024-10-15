@@ -597,28 +597,6 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Close;
     end;
 
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('PaymentHistoryListPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnDrillDownPaymentHistoryTelebankBankOverview()
-    var
-        TelebankBankOverview: TestPage "Telebank - Bank Overview";
-    begin
-        // Purpose of the test is to validate Payment History field on Telebank - Bank Overview page ID - 11000000.
-        // Setup: Open Telebank Bank Overview page.
-        OpenTelebankOverview(TelebankBankOverview, CreatePaymentHistory(0));
-        LibraryVariableStorage.Enqueue(TelebankBankOverview."No.".Value);
-
-        // Exercise: Drilldown Payment History field.
-        TelebankBankOverview."Payment History".DrillDown;  // Using PaymentHistoryListPageHandler.
-
-        // Verify: Verification done by PaymentHistoryListPageHandler, Payment History List page open successfully.
-        TelebankBankOverview.Close;
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ContactListPageHandler')]
     [Scope('OnPrem')]
@@ -675,28 +653,6 @@ codeunit 144036 "UT PAG Telebank"
         // Verify: Verification done by GetProposalEntriesRequestPageHandler, report Get Proposal Entries request Page open successfully.
         TelebankBankOverview.Close;
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('PaymentHistoryListPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionPaymentHistoryTelebankBankOverview()
-    var
-        TelebankBankOverview: TestPage "Telebank - Bank Overview";
-    begin
-        // Purpose of the test is to validate page action Payment History on Telebank - Bank Overview page ID - 11000000.
-        // Setup: Open Telebank Bank Overview page.
-        OpenTelebankOverview(TelebankBankOverview, CreatePaymentHistory(0));
-        LibraryVariableStorage.Enqueue(TelebankBankOverview."No.".Value);
-
-        // Exercise: Call action Payment History on Telebank overview page.
-        TelebankBankOverview.PaymentHistory.Invoke;  // Using PaymentHistoryListPageHandler.
-
-        // Verify: Verification done by PaymentHistoryListPageHandler, Payment HistoryList page open successfully.
-        TelebankBankOverview.Close;
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ProposalOverviewRequestPageHandler')]
@@ -778,7 +734,7 @@ codeunit 144036 "UT PAG Telebank"
         GlobalDimension2Value := LibraryUTUtility.GetNewCode;
 
         ProposalLine.SetRange("Account No.", Customer."No.");
-        ProposalLine.FindFirst;
+        ProposalLine.FindFirst();
         ProposalLine."Shortcut Dimension 1 Code" := GlobalDimension1Value;
         ProposalLine."Shortcut Dimension 2 Code" := GlobalDimension2Value;
         ProposalLine.Modify();
@@ -948,224 +904,6 @@ codeunit 144036 "UT PAG Telebank"
         ProposalDetailLine.Close;
     end;
 
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('PaymentHistoryCardModalPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnValidateRemainingAmountPaymentHistory()
-    var
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate Remaining Amount field on Payment History List page  ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // Exercise: Drilldown Remaining Amount field on Payment History List page.
-        PaymentHistoryList."Remaining Amount".DrillDown;  // Using PaymentHistoryCardModalPageHandler.
-
-        // Verify: Verification done by PaymentHistoryCardModalPageHandler, Payment History Card page open successfully.
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('PaymentHistoryCardPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionCardPaymentHistory()
-    var
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate action Card on Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-        LibraryVariableStorage.Enqueue(PaymentHistoryList."Our Bank".Value);
-
-        // Exercise: Call action Card on Payment History List page.
-        PaymentHistoryList.Card.Invoke;  // Using PaymentHistoryCardPageHandler.
-
-        // Verify: Verification done by PaymentHistoryCardPageHandler, Payment History Card page open successfully.
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('PaymentHistoryOverviewRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionPrintPaymentHistory()
-    var
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate action Print Payment History on Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // Exercise: Call action Print Payment History on Payment History List page.
-        PaymentHistoryList.PrintPaymentHistory.Invoke;  // Using PaymentHistoryOverviewRequestPageHandler.
-
-        // Verify: Verification done by PaymentHistoryOverviewRequestPageHandler, report Payment History Overview request page open successfully.
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('DimensionSetEntriesPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionDimensionsPaymentHistory()
-    var
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate action Dimensions on Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // Exercise: Call action Dimensions on Payment History List page.
-        PaymentHistoryList.Dimensions.Invoke;  // Using DimensionSetEntriesPageHandler.
-
-        // Verify: Verification done by DimensionSetEntriesPageHandler, Dimension Set Entries page successfully.
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionExportByReportPaymentHistory()
-    var
-        PaymentHistory: Record "Payment History";
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate action Export on Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // Exercise: Call action Export on Payment History List page.
-        PaymentHistory.Get(PaymentHistoryList."Our Bank".Value, PaymentHistoryList."Run No.".Value);
-        PaymentHistory.TestField(Export, true);
-        PaymentHistoryList.Export.Invoke;  // Using ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler.
-
-        // Verify: Verification done by ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler report Export file successfully.
-        PaymentHistory.Find;
-        PaymentHistory.TestField(Export, false);
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionExportByReportPaymentHistoryCard()
-    var
-        PaymentHistory: Record "Payment History";
-        PaymentHistoryCard: TestPage "Payment History Card";
-    begin
-        // Purpose of the test is to validate action Export on Payment History Card page ID - 11000005.
-        // Setup: Create Payment History, open Payment History Card page.
-        OpenPaymentHistoryCard(PaymentHistoryCard, 0);
-
-        // Exercise: Call action Export on Payment History Card page.
-        PaymentHistory.Get(PaymentHistoryCard."Our Bank".Value, PaymentHistoryCard."Run No.".Value);
-        PaymentHistory.TestField(Export, true);
-        PaymentHistoryCard.Export.Invoke;  // Using ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler.
-
-        // Verify: Verification done by ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler report Export file successfully.
-        PaymentHistory.Find;
-        PaymentHistory.TestField(Export, false);
-        PaymentHistoryCard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('ExportXMLPortMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionExportByXMLPortPaymentHistory()
-    var
-        PaymentHistory: Record "Payment History";
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate action Export on Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 1);
-
-        // Exercise: Call action Export on Payment History List page.
-        PaymentHistory.Get(PaymentHistoryList."Our Bank".Value, PaymentHistoryList."Run No.".Value);
-        PaymentHistory.TestField(Export, true);
-        LibraryVariableStorage.Enqueue(PaymentHistoryList."Our Bank".Value);
-        LibraryVariableStorage.Enqueue(PaymentHistoryList."Run No.".Value);
-        PaymentHistoryList.Export.Invoke;
-
-        // Verify: Verification done by ExportXMLPortMessageHandler.
-        PaymentHistory.Find;
-        PaymentHistory.TestField(Export, true);
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('ExportXMLPortMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionExportByXMLPortPaymentHistoryCard()
-    var
-        PaymentHistory: Record "Payment History";
-        PaymentHistoryCard: TestPage "Payment History Card";
-    begin
-        // Purpose of the test is to validate action Export on Payment History Card page ID - 11000005.
-        // Setup: Create Payment History, open Payment History Card page.
-        OpenPaymentHistoryCard(PaymentHistoryCard, 1);
-
-        // Exercise: Call action Export on Payment History Card page.
-        PaymentHistory.Get(PaymentHistoryCard."Our Bank".Value, PaymentHistoryCard."Run No.".Value);
-        PaymentHistory.TestField(Export, true);
-        LibraryVariableStorage.Enqueue(PaymentHistoryCard."Our Bank".Value);
-        LibraryVariableStorage.Enqueue(PaymentHistoryCard."Run No.".Value);
-        PaymentHistoryCard.Export.Invoke;
-
-        // Verify: Verification done by ExportXMLPortMessageHandler.
-        PaymentHistory.Find;
-        PaymentHistory.TestField(Export, true);
-        PaymentHistoryCard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('DocketRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionPrintDocketPaymentHistory()
-    var
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // Purpose of the test is to validate action Print Docket on Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // Exercise: Call action Print Docket on Payment History List page.
-        PaymentHistoryList.PrintDocket.Invoke;  // Using DocketRequestPageHandler.
-
-        // Verify: Verification done by DocketRequestPageHandler, report Docket request page open successfully.
-        PaymentHistoryList.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerCardPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnActionCardPaymentHistoryLine()
-    var
-        PaymentHistoryCard: TestPage "Payment History Card";
-    begin
-        // Purpose of the test is to validate action Card on Payment History Line Subform page ID - 11000008.
-        // Setup: Open Payment History Card page.
-        PaymentHistoryCard.OpenEdit;
-        PaymentHistoryCard.FILTER.SetFilter("Our Bank", CreatePaymentHistory(0));
-
-        // Exercise: Call action Card on Payment History Card page.
-        PaymentHistoryCard.Subform.Card.Invoke; // Using CustomerCardPageHandler.
-
-        // Verify: Verification done by CustomerCardPageHandler, Customer Card page open successfully.
-        PaymentHistoryCard.Close;
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('DimensionSetEntriesPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1277,7 +1015,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // [FEATURE] [Import Protocol]
         // [SCENARIO 202689] Look Up on "Import ID" field of Import Protocol should open Object page
-        ImportProtocols.OpenNew;
+        ImportProtocols.OpenNew();
         ImportProtocols."Import ID".Lookup;
     end;
 
@@ -1330,64 +1068,6 @@ codeunit 144036 "UT PAG Telebank"
           1, CodeCoverageMgt.GetNoOfHitsCoverageForObject(
               CodeCoverage."Object Type"::Page, PAGE::"Telebank Proposal", 'BankAccount.GET'), 'Unnecessary BankAccount.GET found');
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ExportBTL91ABNAMROChecksumFalse()
-    var
-        PaymentHistory: Record "Payment History";
-        ExportProtocol: Record "Export Protocol";
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // [GIVEN] Purpose of the test is to validate checksum after Exporting Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // [WHEN]: Call action Export on Payment History List page.
-        PaymentHistory.Get(PaymentHistoryList."Our Bank".Value, PaymentHistoryList."Run No.".Value);
-        PaymentHistory.TestField(Export, true);
-        ExportProtocol.Get(PaymentHistory."Export Protocol");
-        LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, false, false);
-        PaymentHistoryList.Export.Invoke;  // Using ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler.
-
-        PaymentHistory.Find;
-        PaymentHistoryList.Close;
-
-        // [THEN] Checksum field in the Payment History is left empty 
-        LibraryNLLocalization.VerifyPaymentHistoryChecksum(PaymentHistory."Our Bank", false, ExportProtocol.Code);
-    end;
-
-    [Test]
-    [HandlerFunctions('ExportBTL91ABNAMRORequestPageHandler,ExportMessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure ExportBTL91ABNAMROGenerateChecksumTrue()
-    var
-        PaymentHistory: Record "Payment History";
-        ExportProtocol: Record "Export Protocol";
-        PaymentHistoryList: TestPage "Payment History List";
-    begin
-        // [GIVEN] Purpose of the test is to validate checksum after Exporting Payment History List page ID - 11000007.
-        // Setup: Create Payment History, open Payment History List page.
-        OpenPaymentHistoryList(PaymentHistoryList, 0);
-
-        // [WHEN]: Call action Export on Payment History List page.
-        PaymentHistory.Get(PaymentHistoryList."Our Bank".Value, PaymentHistoryList."Run No.".Value);
-        PaymentHistory.TestField(Export, true);
-        ExportProtocol.Get(PaymentHistory."Export Protocol");
-        LibraryNLLocalization.SetupExportProtocolChecksum(ExportProtocol, true, false);
-        PaymentHistoryList.Export.Invoke;  // Using ExportBTL91ABNAMRORequestPageHandler, ExportMessageHandler.
-
-        PaymentHistory.Find;
-        PaymentHistoryList.Close;
-
-        // [THEN] Checksum field in the Payment History is populated
-        LibraryNLLocalization.VerifyPaymentHistoryChecksum(PaymentHistory."Our Bank", true, ExportProtocol.Code);
-    end;
-#endif
 
     local procedure CreateBankAccount(): Code[20]
     var
@@ -1448,7 +1128,7 @@ codeunit 144036 "UT PAG Telebank"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry."Entry No." := 1;
-        if CustLedgerEntry2.FindLast then
+        if CustLedgerEntry2.FindLast() then
             CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CustomerNo;
@@ -1465,7 +1145,7 @@ codeunit 144036 "UT PAG Telebank"
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
     begin
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         DefaultDimension."Table ID" := TableID;
         DefaultDimension."No." := No;
         DefaultDimension."Dimension Code" := DimensionValue."Dimension Code";
@@ -1473,28 +1153,6 @@ codeunit 144036 "UT PAG Telebank"
         DefaultDimension.Insert();
         exit(DefaultDimension."Dimension Code");
     end;
-
-#if not CLEAN17
-    local procedure CreateExportProtocol(ExportObjectType: Option): Code[20]
-    var
-        ExportProtocol: Record "Export Protocol";
-    begin
-        with ExportProtocol do begin
-            Code := LibraryUTUtility.GetNewCode;
-            "Export Object Type" := ExportObjectType;
-            case "Export Object Type" of
-                "Export Object Type"::Report:
-                    "Export ID" := REPORT::"Export BTL91-ABN AMRO";
-                "Export Object Type"::XMLPort:
-                    "Export ID" := XMLPORT::"SEPA CT Export Sample";
-            end;
-            "Docket ID" := REPORT::Docket;
-            "Default File Names" := CopyStr(FileManagement.ClientTempFileName('txt'), 1, MaxStrLen("Default File Names"));
-            Insert;
-            exit(Code);
-        end;
-    end;
-#endif
 
     local procedure CreateImportProtocol(): Code[20]
     var
@@ -1504,20 +1162,6 @@ codeunit 144036 "UT PAG Telebank"
         ImportProtocol.Insert();
         exit(ImportProtocol.Code);
     end;
-
-#if not CLEAN17
-    local procedure CreatePaymentHistory(ExportObjectType: Option): Code[20]
-    var
-        PaymentHistory: Record "Payment History";
-    begin
-        PaymentHistory."Our Bank" := CreateBankAccount;
-        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode;
-        PaymentHistory."Export Protocol" := CreateExportProtocol(ExportObjectType);
-        PaymentHistory."Remaining Amount" := LibraryRandom.RandDec(1000, 2);  // Using Random for Remaining Amount.
-        PaymentHistory.Insert();
-        exit(PaymentHistory."Our Bank");
-    end;
-#endif
 
     local procedure CreatePaymentTerms(): Code[10]
     var
@@ -1625,7 +1269,7 @@ codeunit 144036 "UT PAG Telebank"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry."Entry No." := 1;
-        if VendorLedgerEntry2.FindLast then
+        if VendorLedgerEntry2.FindLast() then
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Vendor No." := VendorNo;
@@ -1656,7 +1300,7 @@ codeunit 144036 "UT PAG Telebank"
         EmployeeLedgerEntry2: Record "Employee Ledger Entry";
     begin
         EmployeeLedgerEntry."Entry No." := 1;
-        if EmployeeLedgerEntry2.FindLast then
+        if EmployeeLedgerEntry2.FindLast() then
             EmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No." + 1;
         EmployeeLedgerEntry."Document Type" := EmployeeLedgerEntry."Document Type"::Invoice;
         EmployeeLedgerEntry."Employee No." := EmployeeNo;
@@ -1668,20 +1312,6 @@ codeunit 144036 "UT PAG Telebank"
         EmployeeLedgerEntry.Insert();
         exit(EmployeeLedgerEntry."Document No.");
     end;
-
-#if not CLEAN17
-    local procedure OpenPaymentHistoryList(PaymentHistoryList: TestPage "Payment History List"; ExportObjectType: Option)
-    begin
-        PaymentHistoryList.OpenEdit;
-        PaymentHistoryList.FILTER.SetFilter("Our Bank", CreatePaymentHistory(ExportObjectType));
-    end;
-
-    local procedure OpenPaymentHistoryCard(PaymentHistoryCard: TestPage "Payment History Card"; ExportObjectType: Option)
-    begin
-        PaymentHistoryCard.OpenEdit;
-        PaymentHistoryCard.FILTER.SetFilter("Our Bank", CreatePaymentHistory(ExportObjectType));
-    end;
-#endif
 
     local procedure OpenProposalDetailLine(var ProposalDetailLine: TestPage "Proposal Detail Line"; AccountType: Option; AccountNo: Code[20]; TransactionMode: Code[20])
     begin
@@ -1924,7 +1554,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         LibraryVariableStorage.Dequeue(ObjectType);
         AllObjWithCaption.SetRange("Object Type", ObjectType);
-        AllObjWithCaption.FindLast;
+        AllObjWithCaption.FindLast();
         ObjectsList.GotoRecord(AllObjWithCaption);
         ObjectsList.OK.Invoke;
     end;

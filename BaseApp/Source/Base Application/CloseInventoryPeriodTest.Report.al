@@ -317,7 +317,7 @@ report 1004 "Close Inventory Period - Test"
             InventoryAdjmtEntryOrder."Order Type"::Assembly:
                 begin
                     PostedAssemblyHeader.SetRange("Order No.", InventoryAdjmtEntryOrder."Order No.");
-                    if PostedAssemblyHeader.FindSet then
+                    if PostedAssemblyHeader.FindSet() then
                         repeat
                             RecRef.GetTable(PostedAssemblyHeader);
                             Bookmark := Format(RecRef.RecordId, 0, 10);

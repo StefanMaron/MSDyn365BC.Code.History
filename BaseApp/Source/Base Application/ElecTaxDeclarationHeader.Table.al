@@ -70,7 +70,7 @@ table 11409 "Elec. Tax Declaration Header"
                     ElecTaxDeclarationHeader.Reset();
                     ElecTaxDeclarationHeader.SetCurrentKey("Our Reference");
                     ElecTaxDeclarationHeader.SetRange("Our Reference", "Our Reference");
-                    if ElecTaxDeclarationHeader.FindFirst then
+                    if ElecTaxDeclarationHeader.FindFirst() then
                         Error(Text002, FieldCaption("Our Reference"),
                           TableCaption, "Our Reference", ElecTaxDeclarationHeader."Declaration Type", ElecTaxDeclarationHeader."No.");
                 end;
@@ -359,7 +359,7 @@ table 11409 "Elec. Tax Declaration Header"
         ElecTaxDeclaration2.SetRange("Declaration Year", "Declaration Year");
         ElecTaxDeclaration2.SetRange("Declaration Period", "Declaration Period");
         ElecTaxDeclaration2.SetFilter(Status, '<>%1', Status::Error);
-        if ElecTaxDeclaration2.FindFirst then
+        if ElecTaxDeclaration2.FindFirst() then
             if not Confirm(StrSubstNo(Text010, "Declaration Period", "Declaration Year")) then
                 Error('');
     end;
@@ -423,7 +423,7 @@ table 11409 "Elec. Tax Declaration Header"
             ElecTaxDeclarationLine.SetRange("Line Type", ElecTaxDeclarationLine."Line Type"::Element);
             ElecTaxDeclarationLine.SetFilter(Name, '%1|%2|%3', 'bd-t:IntraCommunitySupplies', 'bd-t:IntraCommunityServices',
               'bd-t:IntraCommunityABCSupplies');
-            if not ElecTaxDeclarationLine.FindFirst then
+            if not ElecTaxDeclarationLine.FindFirst() then
                 Error(Text007, TableCaption, FieldCaption("Declaration Type"), "Declaration Type");
         end;
     end;

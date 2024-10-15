@@ -12,13 +12,13 @@ page 9056 "Warehouse Worker Activities"
             cuegroup(Outbound)
             {
                 Caption = 'Outbound';
-                field("Unassigned Picks"; "Unassigned Picks")
+                field("Unassigned Picks"; Rec."Unassigned Picks")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Picks";
                     ToolTip = 'Specifies the number of unassigned picks that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("My Picks"; "My Picks")
+                field("My Picks"; Rec."My Picks")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Picks";
@@ -39,13 +39,13 @@ page 9056 "Warehouse Worker Activities"
             cuegroup(Inbound)
             {
                 Caption = 'Inbound';
-                field("Unassigned Put-aways"; "Unassigned Put-aways")
+                field("Unassigned Put-aways"; Rec."Unassigned Put-aways")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Put-aways";
                     ToolTip = 'Specifies the number of unassigned put-always that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("My Put-aways"; "My Put-aways")
+                field("My Put-aways"; Rec."My Put-aways")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Put-aways";
@@ -66,13 +66,13 @@ page 9056 "Warehouse Worker Activities"
             cuegroup(Internal)
             {
                 Caption = 'Internal';
-                field("Unassigned Movements"; "Unassigned Movements")
+                field("Unassigned Movements"; Rec."Unassigned Movements")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Movements";
                     ToolTip = 'Specifies the number of unassigned movements that are displayed in the Warehouse Worker WMS Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("My Movements"; "My Movements")
+                field("My Movements"; Rec."My Movements")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Warehouse Movements";
@@ -97,33 +97,6 @@ page 9056 "Warehouse Worker Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -133,21 +106,20 @@ page 9056 "Warehouse Worker Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRange("User ID Filter", UserId);
+        Rec.SetRange("User ID Filter", UserId());
 
-        LocationCode := WhseWMSCue.GetEmployeeLocation(UserId);
-        SetFilter("Location Filter", LocationCode);
+        LocationCode := WhseWMSCue.GetEmployeeLocation(UserId());
+        Rec.SetFilter("Location Filter", LocationCode);
     end;
 
     var
         WhseWMSCue: Record "Warehouse WMS Cue";
-        UserTaskManagement: Codeunit "User Task Management";
         LocationCode: Text[1024];
 }
 

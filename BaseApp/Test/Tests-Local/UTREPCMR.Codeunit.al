@@ -40,7 +40,7 @@ codeunit 144041 "UT REP CMR"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         // Purpose of test is to validate Sales Shipment Header - OnAfterGetRecord with Location for report 11401 CMR - Sales Shipment.
-        Initialize;
+        Initialize();
         CMRWithSalesShipment(SalesShipmentLine, CreateLocation, LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Sales Shipment.
@@ -57,7 +57,7 @@ codeunit 144041 "UT REP CMR"
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
         // Purpose of test is to validate Sales Shipment Line - OnAfterGetRecord without Location for report 11401 CMR - Sales Shipment.
-        Initialize;
+        Initialize();
         CMRWithSalesShipment(SalesShipmentLine, '', 0);  // Use Blank for Location and 0 for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Sales Shipment.
@@ -71,7 +71,7 @@ codeunit 144041 "UT REP CMR"
         // Setup.
         CreateSalesShipment(SalesShipmentHeader, LocationCode, UnitsPerParcel);
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");  // Required inside CMRSalesShipmentRequestPageHandler.
 
         // Exercise.
@@ -93,7 +93,7 @@ codeunit 144041 "UT REP CMR"
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
         // Purpose of test is to validate Transfer Shipment Header - OnAfterGetRecord with Location for report 11402 CMR - Transfer Shipment.
-        Initialize;
+        Initialize();
         CMRWithTransferShipment(TransferShipmentLine, CreateLocation, LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Transfer Shipment.
@@ -110,7 +110,7 @@ codeunit 144041 "UT REP CMR"
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
         // Purpose of test is to validate Transfer Shipment Line - OnAfterGetRecord without Location for report 11402 CMR - Transfer Shipment.
-        Initialize;
+        Initialize();
         CMRWithTransferShipment(TransferShipmentLine, '', 0);  // Use Blank for Location and 0 for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Transfer Shipment.
@@ -124,7 +124,7 @@ codeunit 144041 "UT REP CMR"
         // Setup.
         CreateTransferShipment(TransferShipmentHeader, LocationCode, UnitsPerParcel);
         TransferShipmentLine.SetRange("Document No.", TransferShipmentHeader."No.");
-        TransferShipmentLine.FindFirst;
+        TransferShipmentLine.FindFirst();
         LibraryVariableStorage.Enqueue(TransferShipmentHeader."No.");  // Required inside CMRTransferShipmentRequestPageHandler.
 
         // Exercise.
@@ -147,7 +147,7 @@ codeunit 144041 "UT REP CMR"
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
         // Purpose of test is to validate Return Shipment Header - OnAfterGetRecord with Location for report 11410 CMR - Return Shipment.
-        Initialize;
+        Initialize();
         CMRWithReturnShipment(ReturnShipmentLine, CreateLocation, LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Return Shipment.
@@ -164,7 +164,7 @@ codeunit 144041 "UT REP CMR"
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
         // Purpose of test is to validate Sales Shipment Line - OnAfterGetRecord without Location for report 11401 CMR - Sales Shipment.
-        Initialize;
+        Initialize();
         CMRWithReturnShipment(ReturnShipmentLine, '', 0);  // Use Blank for Location and 0 for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Sales Shipment.
@@ -178,7 +178,7 @@ codeunit 144041 "UT REP CMR"
         // Setup.
         CreateReturnShipment(ReturnShipmentHeader, LocationCode, UnitsPerParcel);
         ReturnShipmentLine.SetRange("Document No.", ReturnShipmentHeader."No.");
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
         LibraryVariableStorage.Enqueue(ReturnShipmentHeader."No.");  // Required inside CMRReturnShipmentRequestPageHandler.
 
         // Exercise.
@@ -193,7 +193,7 @@ codeunit 144041 "UT REP CMR"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(): Code[20]

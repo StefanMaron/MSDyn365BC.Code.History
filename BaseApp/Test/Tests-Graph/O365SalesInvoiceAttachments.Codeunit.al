@@ -226,7 +226,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365SalesDocAttachmentsTestPage.Trap; // call the page to perform some initialization
         O365SalesInvoiceTestPage.NoOfAttachments.DrillDown;
         O365SalesDocAttachmentsTestPage.Close;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         ImportFileAsAttachmentForDraft(SalesHeader."Incoming Document Entry No.");
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
         // [THEN] Exactly one attachment is found
@@ -236,7 +236,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
         // [WHEN] User takes picture and page refreshes
         AddTakenPictureAsAttachmentForDraft(SalesHeader."Incoming Document Entry No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
         // [THEN] One more attachment is found
         Assert.AreEqual(
@@ -262,7 +262,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365SalesDocAttachmentsTestPage.Trap; // call the page to perform some initialization
         O365SalesInvoiceTestPage.NoOfAttachments.DrillDown;
         O365SalesDocAttachmentsTestPage.Close;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         AddTakenPictureAsAttachmentForDraft(SalesHeader."Incoming Document Entry No.");
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
         // [THEN] Exactly one attachment is found
@@ -272,7 +272,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
         // [WHEN] User imports file and page refreshes
         ImportFileAsAttachmentForDraft(SalesHeader."Incoming Document Entry No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
         // [THEN] One more attachment is found
         Assert.AreEqual(
@@ -433,7 +433,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 10);
         LibrarySmallBusiness.PostSalesInvoice(SalesHeader);
 
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -459,7 +459,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         LibrarySmallBusiness.CreateSalesInvoiceHeader(SalesHeader, Customer);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 10);
 
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -479,7 +479,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         SystemIOFile.WriteAllText(FileName, '.jpg');
 
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
-        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
+        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID();
 
         IncomingDocumentAttachment.Modify(true);
     end;
@@ -524,7 +524,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         SystemIOFile.WriteAllText(FileName, '.jpg');
 
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
-        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID;
+        IncomingDocumentAttachment.Name := LibraryUtility.GenerateGUID();
 
         IncomingDocumentAttachment.Modify(true);
     end;
@@ -668,7 +668,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         IncomingDocumentAttachment.SetRange("Document No.", DocumentNo);
         IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         IncomingDocumentAttachment.Delete(true);
     end;
 
@@ -679,7 +679,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocumentNo);
         IncomingDocumentAttachment.Init();
-        IncomingDocumentAttachment.FindFirst;
+        IncomingDocumentAttachment.FindFirst();
         IncomingDocumentAttachment.Delete(true);
     end;
 

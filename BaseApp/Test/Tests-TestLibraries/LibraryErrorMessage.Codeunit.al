@@ -79,7 +79,7 @@ codeunit 132215 "Library - Error Message"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange("Field Caption", FieldName);
-        if Field.FindFirst then
+        if Field.FindFirst() then
             exit(Field."No.");
     end;
 

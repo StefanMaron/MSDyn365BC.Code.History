@@ -363,17 +363,17 @@ page 11310 "General Ledger Entries Apply"
         Header: Text[250];
         ApplyGeneralLedgerEntriesLbl: Label 'Apply General Ledger Entries';
         AppliedGeneralLedgerEntriesLbl: Label 'Applied General Ledger Entries';
-        DynamicCaption: Text[100];
         GLEntryApplicationBufferNotOpenErr: Label 'Not possible to set applies-to id for entry %1.', Comment = '%1 - Entry No.';
 
     protected var
+        DynamicCaption: Text[100];
         IncludeEntryFilter: Option All,Open,Closed;
         ShowAppliedAmount: Decimal;
         ShowAmount: Decimal;
         ShowTotalAppliedAmount: Decimal;
 
 
-    local procedure SetApplId(var GLEntryBuf: Record "G/L Entry Application Buffer")
+    protected procedure SetApplId(var GLEntryBuf: Record "G/L Entry Application Buffer")
     begin
         CheckGLEntryBufIsOpen(GLEntryBuf);
 
@@ -413,7 +413,7 @@ page 11310 "General Ledger Entries Apply"
         GLEntryApplicationBuffer.CalcSums("Remaining Amount");
     end;
 
-    internal procedure SetAllEntries(GLAccNo: Code[20])
+    procedure SetAllEntries(GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
         Window: Dialog;

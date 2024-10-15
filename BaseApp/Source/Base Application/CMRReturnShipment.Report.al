@@ -130,7 +130,7 @@ report 11410 "CMR - Return Shipment"
                 ReturnShipmentLine.Reset();
                 ReturnShipmentLine.SetRange("Document No.", "No.");
                 ReturnShipmentLine.SetRange(Type, ReturnShipmentLine.Type::Item);
-                if not ReturnShipmentLine.FindFirst then
+                if not ReturnShipmentLine.FindFirst() then
                     CurrReport.Skip();
 
                 if "Location Code" <> '' then begin

@@ -143,7 +143,7 @@ codeunit 144018 "ERM MISC"
         Initialize();
         Amount := CreateAndPostSalesReturnOrder(SalesHeader);
         SalesCrMemoHeader.SetRange("Return Order No.", SalesHeader."No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         CreateAndPostBankGiroJournalAndVerifyGLEntry(
           CBGStatementLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", SalesCrMemoHeader."No.", Amount);
     end;
@@ -164,7 +164,7 @@ codeunit 144018 "ERM MISC"
         Initialize();
         Amount := CreateAndPostPurchaseReturnOrder(PurchaseHeader);
         PurchCrMemoHdr.SetRange("Return Order No.", PurchaseHeader."No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         CreateAndPostBankGiroJournalAndVerifyGLEntry(
           CBGStatementLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", PurchCrMemoHdr."No.", Amount);
     end;
@@ -331,7 +331,7 @@ codeunit 144018 "ERM MISC"
         LibraryVariableStorage.Enqueue(CreateGenJournalTemplateWithBankAccount(BankAccountNo));
 
         // [GIVEN] Stan pushed "New" on page Bank/Giro Journal List
-        BankGiroJournal.OpenNew;
+        BankGiroJournal.OpenNew();
 
         // [GIVEN] Page Gen. Journal Templ. List (CBG) opened and Stan selected Template on page
         // Selection is done in GenJournalTemplListCBGPageHandler
@@ -362,14 +362,14 @@ codeunit 144018 "ERM MISC"
         // [GIVEN] Stan created new Bank/Giro Journal from new Template
         GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo);
         LibraryVariableStorage.Enqueue(GenJnlTemplateName);
-        BankGiroJournal.OpenNew;
+        BankGiroJournal.OpenNew();
 
         // [WHEN] Stan switches to field "Opening Balance"
         BankGiroJournal."Opening Balance".SetValue(LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [THEN] CBG Statement with No. = 1 is inserted for new Template
         CBGStatement.SetRange("Journal Template Name", GenJnlTemplateName);
-        CBGStatement.FindLast;
+        CBGStatement.FindLast();
         CBGStatement.TestField("No.", 1);
 
         // [THEN] Stan can see No. = 1 on Bank/Giro Journal page
@@ -1167,7 +1167,7 @@ codeunit 144018 "ERM MISC"
         Customer: Record Customer;
         TransactionMode: Record "Transaction Mode";
     begin
-        TransactionMode.FindFirst;
+        TransactionMode.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Transaction Mode Code", TransactionMode.Code);
         Customer.Validate("Preferred Bank Account Code", CreateCustomerBankAccount(Customer."No."));
@@ -1243,7 +1243,7 @@ codeunit 144018 "ERM MISC"
         TariffNumber: Record "Tariff Number";
     begin
         Item.Get(CreateItem);
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Modify(true);
         exit(Item."No.");
@@ -1324,7 +1324,7 @@ codeunit 144018 "ERM MISC"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendor);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
         Amount := PurchaseLine."Outstanding Amount" - (PurchaseLine."Outstanding Amount" / PurchaseHeader."Payment Discount %") / 100;
@@ -1394,7 +1394,7 @@ codeunit 144018 "ERM MISC"
         Vendor: Record Vendor;
         TransactionMode: Record "Transaction Mode";
     begin
-        TransactionMode.FindFirst;
+        TransactionMode.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Transaction Mode Code", TransactionMode.Code);
         Vendor.Validate("Preferred Bank Account Code", CreateVendorBankAccount(Vendor."No."));
@@ -1434,7 +1434,7 @@ codeunit 144018 "ERM MISC"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -1572,7 +1572,7 @@ codeunit 144018 "ERM MISC"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::"Bank Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
@@ -1641,7 +1641,7 @@ codeunit 144018 "ERM MISC"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Transaction Mode Code", ServiceHeader."Transaction Mode Code");
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
     end;

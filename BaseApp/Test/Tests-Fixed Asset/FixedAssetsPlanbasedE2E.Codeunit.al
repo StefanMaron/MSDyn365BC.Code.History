@@ -61,7 +61,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         // [GIVEN] A default depreciation book, FA Posting Group, FA Class, and FA Subclass
         // [GIVEN] A user with a Business Manager Plan
-        Initialize;
+        Initialize();
         CreateFAPostingGroupClassAndSubclass(FASubclass);
 
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
@@ -93,7 +93,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         // [GIVEN] A default depreciation book, FA Posting Group, FA Class, and FA Subclass
         // [GIVEN] A user with a External Accountant Plan
-        Initialize;
+        Initialize();
         CreateFAPostingGroupClassAndSubclass(FASubclass);
 
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
@@ -125,7 +125,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         // [GIVEN] A default depreciation book, FA Posting Group, FA Class, and FA Subclass
         // [GIVEN] A user with a Team Member Plan
-        Initialize;
+        Initialize();
         CreateFAPostingGroupClassAndSubclass(FASubclass);
         Commit();
 
@@ -186,7 +186,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         // [GIVEN] A default depreciation book, FA Posting Group, FA Class, and FA Subclass
         // [GIVEN] A user with a Essential ISV Emb Plan
-        Initialize;
+        Initialize();
         CreateFAPostingGroupClassAndSubclass(FASubclass);
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
@@ -218,7 +218,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         // [GIVEN] A default depreciation book, FA Posting Group, FA Class, and FA Subclass
         // [GIVEN] A user with a Team Member ISV Emb Plan
-        Initialize;
+        Initialize();
         CreateFAPostingGroupClassAndSubclass(FASubclass);
         Commit();
 
@@ -282,7 +282,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         // [GIVEN] A default depreciation book, FA Posting Group, FA Class, and FA Subclass
         // [GIVEN] A user with a Device ISV Emb Plan
-        Initialize;
+        Initialize();
         CreateFAPostingGroupClassAndSubclass(FASubclass);
 
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
@@ -309,7 +309,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FANo: Code[20];
     begin
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
-        FixedAssetCard.OpenNew;
+        FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclassCode);
         FixedAssetCard.DepreciationStartingDate.SetValue(WorkDate);
@@ -450,7 +450,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FAJournalSetup2: Record "FA Journal Setup";
     begin
         FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;
@@ -470,7 +470,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FixedAssetAcquisitionWizard.TypeOfAcquisitions.SetValue(FATypeOfAcquisitionTok);
         FixedAssetAcquisitionWizard.BalancingAccountNo.SetValue(LibraryERM.CreateBankAccountNo);
         if FixedAssetAcquisitionWizard.ExternalDocNo.Visible then
-            FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID);
+            FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID());
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandInt(100));
         FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
@@ -500,7 +500,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FADepreciationBook: Record "FA Depreciation Book";
     begin
         FADepreciationBook.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         CalculateDepreciation.DepreciationBook.SetValue(FADepreciationBook."Depreciation Book Code");
         CalculateDepreciation.PostingDate.SetValue(FADepreciationBook."Depreciation Ending Date");
         CalculateDepreciation.PostingDescription.SetValue(FAJournalTemplateNameTok);

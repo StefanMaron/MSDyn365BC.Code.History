@@ -104,7 +104,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
             PaymentHistoryLine.SetFilter(Status, '%1|%2',
               PaymentHistoryLine.Status::Transmitted, PaymentHistoryLine.Status::"Request for Cancellation");
 
-            if PaymentHistoryLine.FindFirst then begin
+            if PaymentHistoryLine.FindFirst() then begin
                 if (PaymentHistoryLine.Amount = CBGStatementLine.Amount) and
                    ((CBGStatementLine."Account No." = '') or (CBGStatementLine."Account No." = PaymentHistoryLine."Account No."))
                 then begin
@@ -153,7 +153,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             if strFilter <> '' then
                                 CustLedgerEntry.SetFilter("Transaction Mode Code", strFilter);
                             OnMatchCBGStatementLineOnBeforeFindCustLedgEntries(CustLedgerEntry, CBGStatement, CBGStatementLine);
-                            if CustLedgerEntry.FindSet then
+                            if CustLedgerEntry.FindSet() then
                                 repeat
                                     CustLedgerEntry.CalcFields("Remaining Amount");
                                     if Abs(CBGStatementLine.Amount) =
@@ -185,7 +185,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             if strFilter <> '' then
                                 VendorLedgerEntry.SetFilter("Transaction Mode Code", strFilter);
                             OnMatchCBGStatementLineOnBeforeFindVendLedgEntries(VendorLedgerEntry, CBGStatement, CBGStatementLine);
-                            if VendorLedgerEntry.FindSet then
+                            if VendorLedgerEntry.FindSet() then
                                 repeat
                                     VendorLedgerEntry.CalcFields("Remaining Amount");
                                     if Abs(CBGStatementLine.Amount) =
@@ -217,7 +217,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
                             if strFilter <> '' then
                                 EmployeeLedgerEntry.SetFilter("Transaction Mode Code", strFilter);
                             OnMatchCBGStatementLineOnBeforeFindEmployeeLedgEntries(EmployeeLedgerEntry, CBGStatement, CBGStatementLine);
-                            if EmployeeLedgerEntry.FindSet then
+                            if EmployeeLedgerEntry.FindSet() then
                                 repeat
                                     EmployeeLedgerEntry.CalcFields("Remaining Amount");
                                     if (CBGStatementLine.Credit = EmployeeLedgerEntry."Remaining Amount") or
@@ -306,7 +306,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
             repeat
                 NameResultTemp.SetRange("Source Type", TempReconciliationBuffer."Source Type");
                 NameResultTemp.SetRange("Source No.", TempReconciliationBuffer."Source No.");
-                if NameResultTemp.FindFirst then begin
+                if NameResultTemp.FindFirst() then begin
                     AddressResultTemp := NameResultTemp;
                     AddressResultTemp.Insert();
                 end;
@@ -320,7 +320,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
             repeat
                 AddressResultTemp.SetRange("Source Type", TempReconciliationBuffer."Source Type");
                 AddressResultTemp.SetRange("Source No.", TempReconciliationBuffer."Source No.");
-                if AddressResultTemp.FindFirst then begin
+                if AddressResultTemp.FindFirst() then begin
                     CityResultTemp := AddressResultTemp;
                     CityResultTemp.Insert();
                 end;
@@ -545,7 +545,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
         CBGStatementLineAddInfo.SetRange("CBG Statement No.", CBGStatementLine."No.");
         CBGStatementLineAddInfo.SetRange("CBG Statement Line No.", CBGStatementLine."Line No.");
 
-        if CBGStatementLineAddInfo.FindSet then
+        if CBGStatementLineAddInfo.FindSet() then
             repeat
                 case CBGStatementLineAddInfo."Information Type" of
                     CBGStatementLineAddInfo."Information Type"::"Description and Sundries":
@@ -570,7 +570,7 @@ codeunit 11000006 "CBG Statement Reconciliation"
     begin
         OnBeforeUpdateAccount(CBGStatementLine, Identification, NumberOfLinesChanged, RecChanged);
         if CBGStatementLine."Account No." = '' then begin
-            if TempBankAccount.FindFirst then
+            if TempBankAccount.FindFirst() then
                 repeat
                     if CBGStatementLine.Credit > 0 then
                         if FindAccountNumber(TempBankAccount.IBAN, TempReconciliationBuffer."Source Type"::Customer, CBGStatementLine."Account No.") then begin

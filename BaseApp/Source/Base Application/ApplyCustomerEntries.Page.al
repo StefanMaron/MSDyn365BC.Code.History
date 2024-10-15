@@ -1,4 +1,4 @@
-page 232 "Apply Customer Entries"
+﻿page 232 "Apply Customer Entries"
 {
     Caption = 'Apply Customer Entries';
     DataCaptionFields = "Customer No.";
@@ -16,28 +16,28 @@ page 232 "Apply Customer Entries"
             group(General)
             {
                 Caption = 'General';
-                field("ApplyingCustLedgEntry.""Posting Date"""; ApplyingCustLedgEntry."Posting Date")
+                field("ApplyingCustLedgEntry.""Posting Date"""; TempApplyingCustLedgEntry."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date';
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the entry to be applied. This date is used to find the correct exchange rate when applying entries in different currencies.';
                 }
-                field("ApplyingCustLedgEntry.""Document Type"""; ApplyingCustLedgEntry."Document Type")
+                field("ApplyingCustLedgEntry.""Document Type"""; TempApplyingCustLedgEntry."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
                     ToolTip = 'Specifies the document type of the entry to be applied.';
                 }
-                field("ApplyingCustLedgEntry.""Document No."""; ApplyingCustLedgEntry."Document No.")
+                field("ApplyingCustLedgEntry.""Document No."""; TempApplyingCustLedgEntry."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document No.';
                     Editable = false;
                     ToolTip = 'Specifies the document number of the entry to be applied.';
                 }
-                field(ApplyingCustomerNo; ApplyingCustLedgEntry."Customer No.")
+                field(ApplyingCustomerNo; TempApplyingCustLedgEntry."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer No.';
@@ -45,14 +45,15 @@ page 232 "Apply Customer Entries"
                     ToolTip = 'Specifies the customer number of the entry to be applied.';
                     Visible = false;
                 }
-                field(ApplyingCustomerName; ApplyingCustLedgEntry."Customer Name")
+                field(ApplyingCustomerName; TempApplyingCustLedgEntry."Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer Name';
+                    Editable = false;
                     ToolTip = 'Specifies the customer name of the entry to be applied.';
                     Visible = CustNameVisible;
                 }
-                field(ApplyingDescription; ApplyingCustLedgEntry.Description)
+                field(ApplyingDescription; TempApplyingCustLedgEntry.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Description';
@@ -60,21 +61,21 @@ page 232 "Apply Customer Entries"
                     ToolTip = 'Specifies the description of the entry to be applied.';
                     Visible = false;
                 }
-                field("ApplyingCustLedgEntry.""Currency Code"""; ApplyingCustLedgEntry."Currency Code")
+                field("ApplyingCustLedgEntry.""Currency Code"""; TempApplyingCustLedgEntry."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency Code';
                     Editable = false;
                     ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                 }
-                field("ApplyingCustLedgEntry.Amount"; ApplyingCustLedgEntry.Amount)
+                field("ApplyingCustLedgEntry.Amount"; TempApplyingCustLedgEntry.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Amount';
                     Editable = false;
                     ToolTip = 'Specifies the amount on the entry to be applied.';
                 }
-                field("ApplyingCustLedgEntry.""Remaining Amount"""; ApplyingCustLedgEntry."Remaining Amount")
+                field("ApplyingCustLedgEntry.""Remaining Amount"""; TempApplyingCustLedgEntry."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remaining Amount';
@@ -120,6 +121,12 @@ page 232 "Apply Customer Entries"
                     Editable = false;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the entry''s document number.';
+                }
+                field(Prepayment; Rec.Prepayment)
+                {
+                    ApplicationArea = Prepayments;
+                    Editable = false;
+                    ToolTip = 'Specifies if the related payment is a prepayment.';
                 }
                 field("Customer No."; Rec."Customer No.")
                 {
@@ -229,7 +236,7 @@ page 232 "Apply Customer Entries"
                 field("Pmt. Disc. Tolerance Date"; Rec."Pmt. Disc. Tolerance Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the last date the amount in the entry must be paid in order for a payment discount tolerance to be granted.';
+                    ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for a payment discount tolerance to be granted.';
                 }
                 field("Original Pmt. Disc. Possible"; Rec."Original Pmt. Disc. Possible")
                 {
@@ -465,7 +472,7 @@ page 232 "Apply Customer Entries"
                     Image = Navigate;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
@@ -663,7 +670,7 @@ page 232 "Apply Customer Entries"
             CalcApplnAmount();
         PostingDone := false;
 
-        OnAfterOnOpenPage(GenJnlLine, Rec, ApplyingCustLedgEntry);
+        OnAfterOnOpenPage(GenJnlLine, Rec, TempApplyingCustLedgEntry);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -674,12 +681,12 @@ page 232 "Apply Customer Entries"
             LookupOKOnPush();
         if ApplnType = ApplnType::"Applies-to Doc. No." then begin
             if OK then begin
-                RaiseError := ApplyingCustLedgEntry."Posting Date" < "Posting Date";
-                OnBeforeEarlierPostingDateError(ApplyingCustLedgEntry, Rec, RaiseError, CalcType.AsInteger());
+                RaiseError := TempApplyingCustLedgEntry."Posting Date" < Rec."Posting Date";
+                OnBeforeEarlierPostingDateError(TempApplyingCustLedgEntry, Rec, RaiseError, CalcType.AsInteger());
                 if RaiseError then begin
                     OK := false;
                     Error(
-                      EarlierPostingDateErr, ApplyingCustLedgEntry."Document Type", ApplyingCustLedgEntry."Document No.",
+                      EarlierPostingDateErr, TempApplyingCustLedgEntry."Document Type", TempApplyingCustLedgEntry."Document No.",
                       Rec."Document Type", Rec."Document No.");
                 end;
             end;
@@ -690,10 +697,12 @@ page 232 "Apply Customer Entries"
             end;
         end;
         if (CalcType = CalcType::Direct) and not OK and not PostingDone then begin
-            Rec := ApplyingCustLedgEntry;
+            Rec := TempApplyingCustLedgEntry;
             Rec."Applying Entry" := false;
-            Rec."Applies-to ID" := '';
-            Rec."Amount to Apply" := 0;
+            if AppliesToID = '' then begin
+                Rec."Applies-to ID" := '';
+                Rec."Amount to Apply" := 0;
+            end;
 
             OnOnQueryClosePageOnBeforeRunCustEntryEdit(Rec);
             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", Rec);
@@ -701,8 +710,6 @@ page 232 "Apply Customer Entries"
     end;
 
     var
-        Currency: Record Currency;
-        CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
         ServHeader: Record "Service Header";
@@ -720,23 +727,26 @@ page 232 "Apply Customer Entries"
         Navigate: Page Navigate;
         StyleTxt: Text;
         CustEntryApplID: Code[50];
+        AppliesToID: Code[50];
         ValidExchRate: Boolean;
-        Text002: Label 'You must select an applying entry before you can post the application.';
-        ShowAppliedEntries: Boolean;
-        Text003: Label 'You must post the application from the window where you entered the applying entry.';
+        MustSelectEntryErr: Label 'You must select an applying entry before you can post the application.';
+        PostingInWrongContextErr: Label 'You must post the application from the window where you entered the applying entry.';
         CannotSetAppliesToIDErr: Label 'You cannot set Applies-to ID while selecting Applies-to Doc. No.';
+        ShowAppliedEntries: Boolean;
         OK: Boolean;
-        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.';
+        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 - document type, %2 - document number,%3 - document type,%4 - document number';
         [InDataSet]
         AppliesToIDVisible: Boolean;
-        Text012: Label 'The application was successfully posted.';
-        Text013: Label 'The %1 entered must not be before the %1 on the %2.';
-        Text019: Label 'Post application process has been canceled.';
+        ApplicationPostedMsg: Label 'The application was successfully posted.';
+        ApplicationDateErr: Label 'The %1 entered must not be before the %1 on the %2.';
+        ApplicationProcessCanceledErr: Label 'Post application process has been canceled.';
         HasDocumentAttachment: Boolean;
         CustNameVisible: Boolean;
 
     protected var
-        ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        Currency: Record Currency;
+        CurrExchRate: Record "Currency Exchange Rate";
+        TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine2: Record "Gen. Journal Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -854,96 +864,96 @@ page 232 "Apply Customer Entries"
     var
         Customer: Record Customer;
     begin
-        OnBeforeSetApplyingCustLedgEntry(AppliedCustLedgEntry, GenJnlLine, SalesHeader, CalcType, ServHeader);
+        OnBeforeSetApplyingCustLedgEntry(TempApplyingCustLedgEntry, GenJnlLine, SalesHeader, CalcType, ServHeader);
 
         case CalcType of
             CalcType::"Sales Header":
                 begin
-                    ApplyingCustLedgEntry."Entry No." := 1;
-                    ApplyingCustLedgEntry."Posting Date" := SalesHeader."Posting Date";
+                    TempApplyingCustLedgEntry."Entry No." := 1;
+                    TempApplyingCustLedgEntry."Posting Date" := SalesHeader."Posting Date";
                     if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
-                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::"Credit Memo"
+                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::Invoice;
-                    ApplyingCustLedgEntry."Document No." := SalesHeader."No.";
-                    ApplyingCustLedgEntry."Customer No." := SalesHeader."Bill-to Customer No.";
-                    ApplyingCustLedgEntry.Description := SalesHeader."Posting Description";
-                    ApplyingCustLedgEntry."Currency Code" := SalesHeader."Currency Code";
-                    if ApplyingCustLedgEntry."Document Type" = ApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
-                        ApplyingCustLedgEntry.Amount := -TotalSalesLine."Amount Including VAT";
-                        ApplyingCustLedgEntry."Remaining Amount" := -TotalSalesLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::Invoice;
+                    TempApplyingCustLedgEntry."Document No." := SalesHeader."No.";
+                    TempApplyingCustLedgEntry."Customer No." := SalesHeader."Bill-to Customer No.";
+                    TempApplyingCustLedgEntry.Description := SalesHeader."Posting Description";
+                    TempApplyingCustLedgEntry."Currency Code" := SalesHeader."Currency Code";
+                    if TempApplyingCustLedgEntry."Document Type" = TempApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
+                        TempApplyingCustLedgEntry.Amount := -TotalSalesLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry."Remaining Amount" := -TotalSalesLine."Amount Including VAT";
                     end else begin
-                        ApplyingCustLedgEntry.Amount := TotalSalesLine."Amount Including VAT";
-                        ApplyingCustLedgEntry."Remaining Amount" := TotalSalesLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry.Amount := TotalSalesLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry."Remaining Amount" := TotalSalesLine."Amount Including VAT";
                     end;
                     CalcApplnAmount();
                 end;
             CalcType::"Service Header":
                 begin
-                    ApplyingCustLedgEntry."Entry No." := 1;
-                    ApplyingCustLedgEntry."Posting Date" := ServHeader."Posting Date";
+                    TempApplyingCustLedgEntry."Entry No." := 1;
+                    TempApplyingCustLedgEntry."Posting Date" := ServHeader."Posting Date";
                     if ServHeader."Document Type" = ServHeader."Document Type"::"Credit Memo" then
-                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::"Credit Memo"
+                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::"Credit Memo"
                     else
-                        ApplyingCustLedgEntry."Document Type" := ApplyingCustLedgEntry."Document Type"::Invoice;
-                    ApplyingCustLedgEntry."Document No." := ServHeader."No.";
-                    ApplyingCustLedgEntry."Customer No." := ServHeader."Bill-to Customer No.";
-                    ApplyingCustLedgEntry.Description := ServHeader."Posting Description";
-                    ApplyingCustLedgEntry."Currency Code" := ServHeader."Currency Code";
-                    if ApplyingCustLedgEntry."Document Type" = ApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
-                        ApplyingCustLedgEntry.Amount := -TotalServLine."Amount Including VAT";
-                        ApplyingCustLedgEntry."Remaining Amount" := -TotalServLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry."Document Type" := TempApplyingCustLedgEntry."Document Type"::Invoice;
+                    TempApplyingCustLedgEntry."Document No." := ServHeader."No.";
+                    TempApplyingCustLedgEntry."Customer No." := ServHeader."Bill-to Customer No.";
+                    TempApplyingCustLedgEntry.Description := ServHeader."Posting Description";
+                    TempApplyingCustLedgEntry."Currency Code" := ServHeader."Currency Code";
+                    if TempApplyingCustLedgEntry."Document Type" = TempApplyingCustLedgEntry."Document Type"::"Credit Memo" then begin
+                        TempApplyingCustLedgEntry.Amount := -TotalServLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry."Remaining Amount" := -TotalServLine."Amount Including VAT";
                     end else begin
-                        ApplyingCustLedgEntry.Amount := TotalServLine."Amount Including VAT";
-                        ApplyingCustLedgEntry."Remaining Amount" := TotalServLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry.Amount := TotalServLine."Amount Including VAT";
+                        TempApplyingCustLedgEntry."Remaining Amount" := TotalServLine."Amount Including VAT";
                     end;
                     CalcApplnAmount();
                 end;
             CalcType::Direct:
                 begin
                     if Rec."Applying Entry" then begin
-                        if ApplyingCustLedgEntry."Entry No." <> 0 then
-                            CustLedgEntry := ApplyingCustLedgEntry;
+                        if TempApplyingCustLedgEntry."Entry No." <> 0 then
+                            CustLedgEntry := TempApplyingCustLedgEntry;
                         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", Rec);
                         if Rec."Applies-to ID" = '' then
                             SetCustApplId(false);
                         Rec.CalcFields(Amount);
-                        ApplyingCustLedgEntry := Rec;
+                        TempApplyingCustLedgEntry := Rec;
                         if CustLedgEntry."Entry No." <> 0 then begin
                             Rec := CustLedgEntry;
                             Rec."Applying Entry" := false;
                             SetCustApplId(false);
                         end;
-                        Rec.SetFilter("Entry No.", '<> %1', ApplyingCustLedgEntry."Entry No.");
-                        ApplyingAmount := ApplyingCustLedgEntry."Remaining Amount";
-                        ApplnDate := ApplyingCustLedgEntry."Posting Date";
-                        ApplnCurrencyCode := ApplyingCustLedgEntry."Currency Code";
+                        Rec.SetFilter("Entry No.", '<> %1', TempApplyingCustLedgEntry."Entry No.");
+                        ApplyingAmount := TempApplyingCustLedgEntry."Remaining Amount";
+                        ApplnDate := TempApplyingCustLedgEntry."Posting Date";
+                        ApplnCurrencyCode := TempApplyingCustLedgEntry."Currency Code";
                     end;
-                    OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(Rec, ApplyingAmount, ApplyingCustLedgEntry);
+                    OnSetApplyingCustLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(Rec, ApplyingAmount, TempApplyingCustLedgEntry);
                     CalcApplnAmount();
                 end;
             CalcType::"Gen. Jnl. Line":
                 begin
-                    ApplyingCustLedgEntry."Entry No." := 1;
-                    ApplyingCustLedgEntry."Posting Date" := GenJnlLine."Posting Date";
-                    ApplyingCustLedgEntry."Document Type" := GenJnlLine."Document Type";
-                    ApplyingCustLedgEntry."Document No." := GenJnlLine."Document No.";
+                    TempApplyingCustLedgEntry."Entry No." := 1;
+                    TempApplyingCustLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+                    TempApplyingCustLedgEntry."Document Type" := GenJnlLine."Document Type";
+                    TempApplyingCustLedgEntry."Document No." := GenJnlLine."Document No.";
                     if GenJnlLine."Bal. Account Type" = GenJnlLine."Account Type"::Customer then begin
-                        ApplyingCustLedgEntry."Customer No." := GenJnlLine."Bal. Account No.";
-                        Customer.Get(ApplyingCustLedgEntry."Customer No.");
-                        ApplyingCustLedgEntry.Description := Customer.Name;
+                        TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Bal. Account No.";
+                        Customer.Get(TempApplyingCustLedgEntry."Customer No.");
+                        TempApplyingCustLedgEntry.Description := Customer.Name;
                     end else begin
-                        ApplyingCustLedgEntry."Customer No." := GenJnlLine."Account No.";
-                        ApplyingCustLedgEntry.Description := GenJnlLine.Description;
+                        TempApplyingCustLedgEntry."Customer No." := GenJnlLine."Account No.";
+                        TempApplyingCustLedgEntry.Description := GenJnlLine.Description;
                     end;
-                    ApplyingCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
-                    ApplyingCustLedgEntry.Amount := GenJnlLine.Amount;
-                    ApplyingCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
+                    TempApplyingCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
+                    TempApplyingCustLedgEntry.Amount := GenJnlLine.Amount;
+                    TempApplyingCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
                     CalcApplnAmount();
                 end;
         end;
 
-        OnAfterSetApplyingCustLedgEntry(ApplyingCustLedgEntry, GenJnlLine, SalesHeader);
+        OnAfterSetApplyingCustLedgEntry(TempApplyingCustLedgEntry, GenJnlLine, SalesHeader);
     end;
 
     procedure SetCustApplId(CurrentRec: Boolean)
@@ -951,7 +961,7 @@ page 232 "Apply Customer Entries"
         CurrPage.SetSelectionFilter(CustLedgEntry);
         CheckCustLedgEntry(CustLedgEntry);
 
-        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, SalesHeader, ServHeader, ApplyingCustLedgEntry);
+        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, SalesHeader, ServHeader, TempApplyingCustLedgEntry);
 
         SetCustEntryApplID(CurrentRec);
 
@@ -963,17 +973,17 @@ page 232 "Apply Customer Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetCustEntryApplID(Rec, CurrentRec, ApplyingAmount, ApplyingCustLedgEntry, GetAppliesToID(), IsHandled, GenJnlLine);
+        OnBeforeSetCustEntryApplID(Rec, CurrentRec, ApplyingAmount, TempApplyingCustLedgEntry, GetAppliesToID(), IsHandled, GenJnlLine);
         if IsHandled then
             exit;
 
         CustLedgEntry.Copy(Rec);
         if CurrentRec then begin
             CustLedgEntry.SetRecFilter();
-            CustEntrySetApplID.SetApplId(CustLedgEntry, ApplyingCustLedgEntry, "Applies-to ID")
+            CustEntrySetApplID.SetApplId(CustLedgEntry, TempApplyingCustLedgEntry, "Applies-to ID")
         end else begin
             CurrPage.SetSelectionFilter(CustLedgEntry);
-            CustEntrySetApplID.SetApplId(CustLedgEntry, ApplyingCustLedgEntry, GetAppliesToID)
+            CustEntrySetApplID.SetApplId(CustLedgEntry, TempApplyingCustLedgEntry, GetAppliesToID)
         end;
     end;
 
@@ -984,17 +994,17 @@ page 232 "Apply Customer Entries"
         if CustLedgerEntry.FindSet() then
             repeat
                 if CalcType = CalcType::"Gen. Jnl. Line" then begin
-                    RaiseError := ApplyingCustLedgEntry."Posting Date" < CustLedgerEntry."Posting Date";
-                    OnBeforeEarlierPostingDateError(ApplyingCustLedgEntry, CustLedgerEntry, RaiseError, CalcType.AsInteger());
+                    RaiseError := TempApplyingCustLedgEntry."Posting Date" < CustLedgerEntry."Posting Date";
+                    OnBeforeEarlierPostingDateError(TempApplyingCustLedgEntry, CustLedgerEntry, RaiseError, CalcType.AsInteger());
                     if RaiseError then
                         Error(
-                            EarlierPostingDateErr, ApplyingCustLedgEntry."Document Type", ApplyingCustLedgEntry."Document No.",
+                            EarlierPostingDateErr, TempApplyingCustLedgEntry."Document Type", TempApplyingCustLedgEntry."Document No.",
                             CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");
                 end;
 
                 OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(CustLedgerEntry);
 
-                if ApplyingCustLedgEntry."Entry No." <> 0 then
+                if TempApplyingCustLedgEntry."Entry No." <> 0 then
                     GenJnlApply.CheckAgainstApplnCurrency(
                         ApplnCurrencyCode, CustLedgerEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
             until CustLedgerEntry.Next() = 0;
@@ -1030,16 +1040,19 @@ page 232 "Apply Customer Entries"
                     if CustEntryApplID = '' then
                         CustEntryApplID := '***';
 
-                    CustLedgEntry := ApplyingCustLedgEntry;
+                    CustLedgEntry := TempApplyingCustLedgEntry;
 
                     AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
-                    AppliedCustLedgEntry.SetRange("Customer No.", "Customer No.");
+                    AppliedCustLedgEntry.SetRange("Customer No.", Rec."Customer No.");
                     AppliedCustLedgEntry.SetRange(Open, true);
-                    AppliedCustLedgEntry.SetRange("Applies-to ID", CustEntryApplID);
+                    if AppliesToID = '' then
+                        AppliedCustLedgEntry.SetRange("Applies-to ID", CustEntryApplID)
+                    else
+                        AppliedCustLedgEntry.SetRange("Applies-to ID", AppliesToID);
 
-                    if ApplyingCustLedgEntry."Entry No." <> 0 then begin
+                    if TempApplyingCustLedgEntry."Entry No." <> 0 then begin
                         CustLedgEntry.CalcFields("Remaining Amount");
-                        AppliedCustLedgEntry.SetFilter("Entry No.", '<>%1', ApplyingCustLedgEntry."Entry No.");
+                        AppliedCustLedgEntry.SetFilter("Entry No.", '<>%1', TempApplyingCustLedgEntry."Entry No.");
                     end;
 
                     HandleChosenEntries(
@@ -1169,7 +1182,7 @@ page 232 "Apply Customer Entries"
     begin
         ValidExchRate := true;
 
-        if ApplnCurrencyCode = "Currency Code" then
+        if ApplnCurrencyCode = Rec."Currency Code" then
             exit(AmountToApply);
 
         if ApplnDate = 0D then
@@ -1241,15 +1254,18 @@ page 232 "Apply Customer Entries"
                 CustEntryApplID := '***';
 
             CustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open);
-            CustLedgEntry.SetRange("Customer No.", "Customer No.");
-            CustLedgEntry.SetRange("Applies-to ID", CustEntryApplID);
+            CustLedgEntry.SetRange("Customer No.", Rec."Customer No.");
+            if AppliesToID = '' then
+                CustLedgEntry.SetRange("Applies-to ID", CustEntryApplID)
+            else
+                CustLedgEntry.SetRange("Applies-to ID", AppliesToID);
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.SetRange("Applying Entry", true);
             OnFindFindApplyingEntryOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
             if CustLedgEntry.FindFirst() then begin
                 CustLedgEntry.CalcFields(Amount, "Remaining Amount");
-                ApplyingCustLedgEntry := CustLedgEntry;
-                SetFilter("Entry No.", '<>%1', CustLedgEntry."Entry No.");
+                TempApplyingCustLedgEntry := CustLedgEntry;
+                Rec.SetFilter("Entry No.", '<>%1', CustLedgEntry."Entry No.");
                 ApplyingAmount := CustLedgEntry."Remaining Amount";
                 ApplnDate := CustLedgEntry."Posting Date";
                 ApplnCurrencyCode := CustLedgEntry."Currency Code";
@@ -1304,14 +1320,14 @@ page 232 "Apply Customer Entries"
                    (Abs(TempAppliedCustLedgEntry."Amount to Apply") >=
                     Abs(TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible"))
                 then
-                    if (Abs(CurrentAmount) >
-                        Abs(TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible"))
+                    if Abs(CurrentAmount) >
+                       Abs(TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible")
                     then begin
                         PmtDiscAmount += TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
                         CurrentAmount += TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
                     end else
-                        if (Abs(CurrentAmount) =
-                            Abs(TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible"))
+                        if Abs(CurrentAmount) =
+                           Abs(TempAppliedCustLedgEntry."Remaining Amount" - TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible")
                         then begin
                             PmtDiscAmount += TempAppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
                             CurrentAmount +=
@@ -1339,7 +1355,7 @@ page 232 "Apply Customer Entries"
                     if ((CurrentAmount + TempAppliedCustLedgEntry."Amount to Apply") * CurrentAmount) <= 0 then
                         AppliedAmount += CorrectionAmount;
                     CurrentAmount += TempAppliedCustLedgEntry."Amount to Apply";
-                end
+                end;
             end else begin
                 TempAppliedCustLedgEntry.SetRange(Positive);
                 TempAppliedCustLedgEntry.FindFirst();
@@ -1391,52 +1407,67 @@ page 232 "Apply Customer Entries"
 
     local procedure PostDirectApplication(PreviewMode: Boolean)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        NewApplyUnapplyParameters: Record "Apply Unapply Parameters";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
         PostApplication: Page "Post Application";
         Applied: Boolean;
         ApplicationDate: Date;
-        NewApplicationDate: Date;
-        NewDocumentNo: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled, ApplyingCustLedgEntry);
+        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled, TempApplyingCustLedgEntry);
         if IsHandled then
             exit;
 
         if CalcType = CalcType::Direct then begin
-            if ApplyingCustLedgEntry."Entry No." <> 0 then begin
-                Rec := ApplyingCustLedgEntry;
+            if TempApplyingCustLedgEntry."Entry No." <> 0 then begin
+                Rec := TempApplyingCustLedgEntry;
                 ApplicationDate := CustEntryApplyPostedEntries.GetApplicationDate(Rec);
 
                 OnPostDirectApplicationBeforeSetValues(ApplicationDate);
-                PostApplication.SetValues("Document No.", ApplicationDate);
-                if ACTION::OK = PostApplication.RunModal then begin
-                    PostApplication.GetValues(NewDocumentNo, NewApplicationDate);
-                    if NewApplicationDate < ApplicationDate then
-                        Error(Text013, FieldCaption("Posting Date"), TableCaption);
+                Clear(ApplyUnapplyParameters);
+                ApplyUnapplyParameters.CopyFromCustLedgEntry(Rec);
+                GLSetup.GetRecordOnce();
+                ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+                if GLSetup."Journal Templ. Name Mandatory" then begin
+                    GLSetup.TestField("Apply Jnl. Template Name");
+                    GLSetup.TestField("Apply Jnl. Batch Name");
+                    ApplyUnapplyParameters."Journal Template Name" := GLSetup."Apply Jnl. Template Name";
+                    ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
+                end;
+                PostApplication.SetParameters(ApplyUnapplyParameters);
+                if ACTION::OK = PostApplication.RunModal() then begin
+                    PostApplication.GetParameters(NewApplyUnapplyParameters);
+                    if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
+                        Error(ApplicationDateErr, Rec.FieldCaption("Posting Date"), Rec.TableCaption());
                 end else
-                    Error(Text019);
+                    Error(ApplicationProcessCanceledErr);
 
-                OnPostDirectApplicationBeforeApply();
+                OnPostDirectApplicationBeforeApply(GLSetup, NewApplyUnapplyParameters);
                 if PreviewMode then
-                    CustEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate)
+                    CustEntryApplyPostedEntries.PreviewApply(Rec, NewApplyUnapplyParameters)
                 else
-                    Applied := CustEntryApplyPostedEntries.Apply(Rec, NewDocumentNo, NewApplicationDate);
+                    Applied := CustEntryApplyPostedEntries.Apply(Rec, NewApplyUnapplyParameters);
 
                 if (not PreviewMode) and Applied then begin
-                    Message(Text012);
+                    Message(ApplicationPostedMsg);
                     PostingDone := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             end else
-                Error(Text002);
+                Error(MustSelectEntryErr);
         end else
-            Error(Text003);
+            Error(PostingInWrongContextErr);
+    end;
+
+    procedure SetAppliesToID(AppliesToID2: Code[50])
+    begin
+        AppliesToID := AppliesToID2;
     end;
 
 #if not CLEAN18
-    [Obsolete('Replaced by ExchangeLedgerEntryAmounts().', '18.0')]
+    [Obsolete('Replaced by ExchangeLedgerEntryAmounts()', '18.0')]
     procedure ExchangeAmountsOnLedgerEntry(Type: Option Direct,GenJnlLine,SalesHeader; CurrencyCode: Code[10]; var CalcCustLedgEntry: Record "Cust. Ledger Entry"; PostingDate: Date)
     begin
         ExchangeLedgerEntryAmounts("Customer Apply Calculation Type".FromInteger(Type), CurrencyCode, CalcCustLedgEntry, PostingDate);
@@ -1450,7 +1481,7 @@ page 232 "Apply Customer Entries"
         CalcCustLedgEntry.CalcFields("Remaining Amount");
 
         if Type = Type::Direct then
-            CalculateCurrency := ApplyingCustLedgEntry."Entry No." <> 0
+            CalculateCurrency := TempApplyingCustLedgEntry."Entry No." <> 0
         else
             CalculateCurrency := true;
 
@@ -1482,7 +1513,7 @@ page 232 "Apply Customer Entries"
             if CurrPosFilter <> '' then begin
                 SavedAppliedCustLedgerEntry := TempAppliedCustLedgerEntry;
                 SetRange(Positive, not Positive);
-                if FindSet then
+                if FindSet() then
                     repeat
                         CalcFields("Remaining Amount");
                         Result += "Remaining Amount";
@@ -1657,7 +1688,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostDirectApplicationBeforeApply()
+    local procedure OnPostDirectApplicationBeforeApply(GLSetup: Record "General Ledger Setup"; var NewApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
     end;
 }

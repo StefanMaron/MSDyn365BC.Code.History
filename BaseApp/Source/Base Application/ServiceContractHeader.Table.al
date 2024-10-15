@@ -104,7 +104,7 @@ table 5965 "Service Contract Header"
                                                 ServContractLine2.SetCurrentKey("Service Item No.");
                                                 ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
                                                 ServContractLine2.SetRange("Contract Type", "Contract Type"::Contract);
-                                                if ServContractLine2.FindFirst then begin
+                                                if ServContractLine2.FindFirst() then begin
                                                     AnyServItemInOtherContract := true;
                                                     ServContractLine.Mark(true);
                                                 end;
@@ -260,12 +260,7 @@ table 5965 "Service Contract Header"
                 CheckChangeStatus;
                 Modify;
 
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Service Contract Template", "Template No.",
-                  DATABASE::"Service Order Type", "Service Order Type");
+                CreateDimFromDefaultDim(Rec.FieldNo("Salesperson Code"));
             end;
         }
         field(16; "Bill-to Customer No."; Code[20])
@@ -333,12 +328,8 @@ table 5965 "Service Contract Header"
                 Cust.Get("Bill-to Customer No.");
                 "Transaction Mode Code" := Cust."Transaction Mode Code";
                 "Bank Account Code" := Cust."Preferred Bank Account Code";
-                CreateDim(
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Service Contract Template", "Template No.",
-                  DATABASE::"Service Order Type", "Service Order Type");
+
+                CreateDimFromDefaultDim(Rec.FieldNo("Bill-to Customer No."));
             end;
         }
         field(17; "Bill-to Name"; Text[100])
@@ -1017,12 +1008,7 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Service Order Type", "Service Order Type",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Service Contract Template", "Template No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code");
+                CreateDimFromDefaultDim(Rec.FieldNo("Service Order Type"));
             end;
         }
         field(67; "Shortcut Dimension 1 Code"; Code[20])
@@ -1067,12 +1053,7 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Service Contract Template", "Template No.",
-                  DATABASE::"Service Order Type", "Service Order Type");
+                CreateDimFromDefaultDim(Rec.FieldNo("Template No."));
             end;
         }
         field(75; "Price Update Period"; DateFormula)
@@ -1150,12 +1131,7 @@ table 5965 "Service Contract Header"
                       Text040,
                       RespCenter.TableCaption, UserMgt.GetSalesFilter);
 
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Service Contract Template", "Template No.",
-                  DATABASE::"Service Order Type", "Service Order Type");
+                CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
             end;
         }
         field(86; "Phone No."; Text[30])
@@ -1666,7 +1642,7 @@ table 5965 "Service Contract Header"
         OnBeforeApplyServiceContractQuoteTemplate(Rec, IsHandled);
         if not IsHandled then begin
             ServiceContractTemplate.Reset();
-            if ServiceContractTemplate.FindFirst then
+            if ServiceContractTemplate.FindFirst() then
                 if ConfirmManagement.GetResponseOrDefault(Text000, false) then begin
                     Commit();
                     Clear(ServContractQuoteTmplUpd);
@@ -2233,6 +2209,8 @@ table 5965 "Service Contract Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -2260,6 +2238,29 @@ table 5965 "Service Contract Header"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        if "Change Status" <> "Change Status"::Open then
+            exit;
+
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo);
@@ -2621,16 +2622,72 @@ table 5965 "Service Contract Header"
         OnIsInvoicePeriodInTimeSegment(Rec, InvoicePeriodInTimeSegment);
     end;
 
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Customer, Rec."Bill-to Customer No.", FieldNo = Rec.FieldNo("Bill-to Customer No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salesperson Code", FieldNo = Rec.FieldNo("Salesperson Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Service Contract Template", Rec."Template No.", FieldNo = Rec.FieldNo("Template No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Service Order Type", Rec."Service Order Type", FieldNo = Rec.FieldNo("Service Order Type"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Contract Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Contract Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Contract Header") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceContractHeader: Record "Service Contract Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistEdit(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceContractHeader: Record "Service Contract Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterReturnNoOfPer(InvoicePeriod: Enum "Service Contract Header Invoice Period"; var RetPer: Integer)
     begin
@@ -2710,6 +2767,7 @@ table 5965 "Service Contract Header"
     local procedure OnValidateStartingDateOnAfterServContractLineSetFilters(var ServiceContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line")
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalculateEndPeriodDateOnPrepaidCaseElse(var ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
     begin

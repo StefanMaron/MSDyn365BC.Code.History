@@ -24,8 +24,13 @@ codeunit 1652 "Add-in Manifest Management"
     procedure DownloadManifestToClient(var NewOfficeAddin: Record "Office Add-in"; FileName: Text): Boolean
     var
         FileManagement: Codeunit "File Management";
+        PrivacyNotice: Codeunit "Privacy Notice";
+        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         ServerLocation: Text;
     begin
+        if not PrivacyNotice.ConfirmPrivacyNoticeApproval(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId()) then
+            exit(false);
+
         ServerLocation := SaveManifestToServer(NewOfficeAddin);
 
         if TestMode then begin

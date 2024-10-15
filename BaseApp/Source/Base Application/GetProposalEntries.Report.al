@@ -180,7 +180,7 @@ report 11000000 "Get Proposal Entries"
                 if not Found then begin
                     Clear(ProposalLine);
                     ProposalLine.SetRange("Our Bank No.", DetailLine."Our Bank");
-                    if ProposalLine.FindLast then
+                    if ProposalLine.FindLast() then
                         ProposalLine."Line No." := ProposalLine."Line No." + 10000
                     else
                         ProposalLine."Line No." := 10000;

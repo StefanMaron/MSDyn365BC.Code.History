@@ -51,7 +51,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of this test to verify Cash Journal and Bank Journal on Page ID - 279 Source Code Setup Page.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateSourceCodeSetup(SourceCodeSetup);
 
         // Exercise.
@@ -75,7 +75,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo for Country/Region Code 'NL' on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount;
 
         // Exercise.
@@ -95,7 +95,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo for Valid Bank Account No. on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup: Find Bank Account.
-        Initialize;
+        Initialize();
         BankAccountNo := CharacterFilter(UpperCase(FindBankAccountNo), 'PG0123456789');  // Using Hard code value 'PG0123456789' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
     end;
@@ -111,7 +111,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo for Bank Account No. equal to 0 on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup.
-        Initialize;
+        Initialize();
         BankAccountNo := 'P0';  // Using Hard code value 'P0' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
         LibraryVariableStorage.Enqueue(BankAccountNo);
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
@@ -125,7 +125,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo for Bank Account No. of length 8 on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         CheckBankAccNoAccountNoWithLength(CopyStr('P' + CreateBankAccount, 1, 8));  // Using Hard code value 'P' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
     end;
 
@@ -139,7 +139,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo for Bank Account No. of length 10 on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         BankAccountNo := CopyStr(CreateBankAccount, 1, 10);
         LibraryVariableStorage.Enqueue(BankAccountNo);
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
@@ -156,7 +156,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo for Bank Account No. of length 12 on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         BankAccountNo := CopyStr('PG0' + CreateBankAccount, 1, 12);  // Using Hard code value 'PGO' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
         LibraryVariableStorage.Enqueue(BankAccountNo);
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
@@ -190,7 +190,7 @@ codeunit 144013 "UT Cash Bank Giro"
         // Purpose of the test is to hit CheckBankAccNo of not valid Bank Account No on Codeunit ID -11400 Local Functionality Mgt.
 
         // Setup: Create Bank Account.
-        Initialize;
+        Initialize();
         BankAccountNo := CopyStr(LibraryUTUtility.GetNewCode10 + CreateBankAccount, 1, 20);
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue BankAccountNo for MessageHandler.
 
@@ -257,7 +257,7 @@ codeunit 144013 "UT Cash Bank Giro"
         AccountNo: Text[30];
     begin
         // [SCENARIO 331593] CheckBankAccountNo return TRUE for Bank Account No. which does not satisfy MOD11 check.
-        Initialize;
+        Initialize();
 
         AccountNo := Format(387080820);
         Assert.IsTrue(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
@@ -271,7 +271,7 @@ codeunit 144013 "UT Cash Bank Giro"
         AccountNo: Text[30];
     begin
         // [SCENARIO 331593] CheckBankAccountNo return FALSE for Bank Account No. of length 8.
-        Initialize;
+        Initialize();
 
         AccountNo := Format(LibraryRandom.RandIntInRange(10000000, 99999999));
         Assert.IsFalse(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
@@ -285,7 +285,7 @@ codeunit 144013 "UT Cash Bank Giro"
         AccountNo: Text[30];
     begin
         // [SCENARIO 331593] CheckBankAccountNo return TRUE for Bank Account No. of length 9.
-        Initialize;
+        Initialize();
 
         AccountNo := Format(LibraryRandom.RandIntInRange(100000000, 999999999));
         Assert.IsTrue(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
@@ -299,7 +299,7 @@ codeunit 144013 "UT Cash Bank Giro"
         AccountNo: Text[30];
     begin
         // [SCENARIO 331593] CheckBankAccountNo return FALSE for Bank Account No. of length 11.
-        Initialize;
+        Initialize();
 
         AccountNo := Format(LibraryRandom.RandIntInRange(100000000, 999999999)) + '00';
         Assert.IsFalse(LocalFunctionalityMgt.CheckBankAccNo(AccountNo, '', AccountNo), '');
@@ -307,7 +307,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CharacterFilter(Text: Text[250]; "Filter": Text[20]): Text[250]
@@ -345,7 +345,7 @@ codeunit 144013 "UT Cash Bank Giro"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         exit(BankAccount."Bank Account No.");
     end;
 

@@ -109,11 +109,7 @@ report 11000011 "Export SEPA ISO20022"
         XMLDoc.Save(FileNameOnServer);
         ReportChecksum.GenerateChecksum("Payment History", FileNameOnServer, ExportProtocolCode);
 
-#if not CLEAN17
-        FileMgt.DownloadToFile(FileNameOnServer, ExportFileName);
-#else
         FileMgt.DownloadHandler(FileNameOnServer, '', '', '', ExportFileName);
-#endif
 
         Clear(XMLDoc);
     end;
