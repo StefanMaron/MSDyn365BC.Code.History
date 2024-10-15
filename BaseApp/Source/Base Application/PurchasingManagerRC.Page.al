@@ -225,6 +225,15 @@ page 8905 "Purchasing Manager Role Center"
                         RunObject = page "Value Entries";
                         Tooltip = 'Open the Value Entries page.';
                     }
+                    action("Navi&gate")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Find entries...';
+                        Image = Navigate;
+                        RunObject = Page Navigate;
+                        ShortCutKey = 'Ctrl+Alt+Q';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                    }
                 }
                 group("Group3")
                 {

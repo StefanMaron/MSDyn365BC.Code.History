@@ -140,7 +140,7 @@ codeunit 131330 "Library - Fixed Asset"
     procedure CreateFAReclassJournalTemplate(var FAReclassJournalTemplate: Record "FA Reclass. Journal Template")
     begin
         FAReclassJournalTemplate.Init();
-        FAReclassJournalTemplate.Name := LibraryUtility.GenerateGUID;
+        FAReclassJournalTemplate.Name := LibraryUtility.GenerateGUID();
         FAReclassJournalTemplate.Insert();
     end;
 
@@ -314,7 +314,7 @@ codeunit 131330 "Library - Fixed Asset"
     procedure CreateInsuranceJournalTemplate(var InsuranceJournalTemplate: Record "Insurance Journal Template")
     begin
         InsuranceJournalTemplate.Init();
-        InsuranceJournalTemplate.Name := LibraryUtility.GenerateGUID;
+        InsuranceJournalTemplate.Name := LibraryUtility.GenerateGUID();
         InsuranceJournalTemplate.Insert();
     end;
 
@@ -411,7 +411,7 @@ codeunit 131330 "Library - Fixed Asset"
     begin
         DepreciationTableLine.SetRange("Depreciation Table Code", DepreciationTableCode);
         // Check if Lines are alredy exist.
-        if DepreciationTableLine.FindLast then;
+        if DepreciationTableLine.FindLast() then;
         DepreciationTableLine.Init();
         DepreciationTableLine.Validate("Depreciation Table Code", DepreciationTableCode);
         DepreciationTableLine.Validate("Period No.", DepreciationTableLine."Period No." + 1);
@@ -483,12 +483,12 @@ codeunit 131330 "Library - Fixed Asset"
     procedure FindFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch"; JournalTemplateName: Code[10])
     begin
         FAJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
-        FAJournalBatch.FindFirst;
+        FAJournalBatch.FindFirst();
     end;
 
     procedure FindFAJournalTemplate(var FAJournalTemplate: Record "FA Journal Template")
     begin
-        FAJournalTemplate.FindFirst;
+        FAJournalTemplate.FindFirst();
     end;
 
     procedure FindFALocation(var FALocation: Record "FA Location")
@@ -590,13 +590,13 @@ codeunit 131330 "Library - Fixed Asset"
         DocumentNo := 'DP.' + CopyStr(Format(Date2DMY(DeprDate, 3)), 3, 2) + '-' + Format(Date2DMY(DeprDate, 2));
         PostingDescription := 'DP.' + CopyStr(Format(Date2DMY(DeprDate, 3)), 3, 2) + '-' + Format(Date2DMY(DeprDate, 2));
         CalcDepr.InitializeRequest2(DeprBookCode, DeprDate, DeprDate, DocumentNo, PostingDescription, false, 0, false, false, DepreciationBonus);
-        CalcDepr.Run;
+        CalcDepr.Run();
 
         if Post then begin
             GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date");
             GenJournalLine.SetRange("Posting Date", DeprDate);
             GenJournalLine.SetRange("Document No.", DocumentNo);
-            if GenJournalLine.FindSet then begin
+            if GenJournalLine.FindSet() then begin
                 repeat
                     GenJnlPostLine.RunWithCheck(GenJournalLine);
                     DeprAmount := GenJournalLine.Amount;
@@ -606,7 +606,7 @@ codeunit 131330 "Library - Fixed Asset"
 
             FAJournalLine.SetRange("FA Posting Date", DeprDate);
             FAJournalLine.SetRange("Document No.", DocumentNo);
-            if FAJournalLine.FindSet then begin
+            if FAJournalLine.FindSet() then begin
                 repeat
                     FAJnlPostLine.FAJnlPostLine(FAJournalLine, true);
                     DeprAmount := FAJournalLine.Amount;
@@ -631,8 +631,8 @@ codeunit 131330 "Library - Fixed Asset"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
-        FARegister.FindLast;
+        GLRegister.FindLast();
+        FARegister.FindLast();
         Assert.AreEqual(GLRegister."No.", FARegister."G/L Register No.", FARegisterGLRegisterErr);
 
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -651,8 +651,8 @@ codeunit 131330 "Library - Fixed Asset"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
-        FARegister.FindLast;
+        GLRegister.FindLast();
+        FARegister.FindLast();
         Assert.AreEqual(GLRegister."No.", FARegister."G/L Register No.", FARegisterGLRegisterErr);
 
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");

@@ -932,16 +932,16 @@
                         VendLedgEntry.SetCurrentKey("Vendor No.");
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.FindLast then
+                    if VendLedgEntry.FindLast() then
                         Error(Text010, FieldCaption("IC Partner Code"), TableCaption);
 
                     VendLedgEntry.Reset();
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     AccountingPeriod.SetRange(Closed, false);
-                    if AccountingPeriod.FindFirst then begin
+                    if AccountingPeriod.FindFirst() then begin
                         VendLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-                        if VendLedgEntry.FindFirst then
+                        if VendLedgEntry.FindFirst() then
                             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text009, TableCaption), true) then
                                 "IC Partner Code" := xRec."IC Partner Code";
                     end;
@@ -1122,7 +1122,7 @@
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
                 ContBusRel.SetRange("No.", "No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     Cont.SetRange("Company No.", ContBusRel."Contact No.")
                 else
                     Cont.SetRange("No.", '');
@@ -1640,7 +1640,7 @@
                     VendLedgEntry.SetCurrentKey("Vendor No.");
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     VendLedgEntry.SetRange("Agreement No.", '');
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         AgrmtMgt.CreateAgrmtFromVend(Rec, '');
                 end;
                 if "Agreement Posting" = "Agreement Posting"::"No Agreement" then begin
@@ -1649,7 +1649,7 @@
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     VendLedgEntry.SetFilter("Agreement No.", '<> %1', '');
                     VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         Error(Text010, FieldCaption("Agreement Posting"), TableCaption);
                 end;
             end;
@@ -1740,7 +1740,6 @@
     var
         ItemVendor: Record "Item Vendor";
         PurchPrepmtPct: Record "Purchase Prepayment %";
-        SocialListeningSearchTopic: Record "Social Listening Search Topic";
         CustomReportSelection: Record "Custom Report Selection";
         IntrastatSetup: Record "Intrastat Setup";
         ItemReference: Record "Item Reference";
@@ -1780,11 +1779,6 @@
         ItemVendor.SetRange("Vendor No.", "No.");
         if not ItemVendor.IsEmpty() then
             ItemVendor.DeleteAll(true);
-
-        if not SocialListeningSearchTopic.IsEmpty() then begin
-            SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Vendor, "No.");
-            SocialListeningSearchTopic.DeleteAll();
-        end;
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", "No.");
@@ -1876,7 +1870,6 @@
         OrderAddr: Record "Order Address";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         RMSetup: Record "Marketing Setup";
-        ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
         VendAgrmt: Record "Vendor Agreement";
@@ -1967,7 +1960,7 @@
             ContBusRel.SetCurrentKey("Link to Table", "No.");
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
             ContBusRel.SetRange("No.", "No.");
-            if not ContBusRel.FindFirst then begin
+            if not ContBusRel.FindFirst() then begin
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, TableCaption, "No."), true) then
                     exit;
                 UpdateContFromVend.InsertNewContact(Rec, false);
@@ -2087,7 +2080,11 @@
             Action := Text005
         else
             Action := Text006;
-        Error(Text007, Action, Vend2."No.", Vend2.Blocked);
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(Text007, Action, Vend2."No.", Vend2.Blocked),
+                true,
+                Rec));
     end;
 
     procedure VendPrivacyBlockedErrorMessage(Vend2: Record Vendor; Transaction: Boolean)
@@ -2099,7 +2096,11 @@
         else
             Action := Text006;
 
-        Error(PrivacyBlockedActionErr, Action, Vend2."No.");
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(PrivacyBlockedActionErr, Action, Vend2."No."),
+                true,
+                Rec));
     end;
 
     procedure GetPrivacyBlockedGenericErrorText(Vend2: Record Vendor): Text[250]
@@ -2113,7 +2114,7 @@
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnLineMapSetup.SetRange(Enabled, true);
-        if OnLineMapSetup.FindFirst then
+        if OnLineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Vendor, GetPosition)
         else
             Message(Text011);
@@ -2259,6 +2260,28 @@
         exit(false);
     end;
 
+    procedure GetBalanceAsCustomer(var LinkedCustomerNo: Code[20]) BalanceAsCustomer: Decimal;
+    var
+        Customer: Record Customer;
+    begin
+        BalanceAsCustomer := 0;
+        LinkedCustomerNo := GetLinkedCustomer();
+        if Customer.Get(LinkedCustomerNo) then begin
+            Customer.CalcFields("Balance (LCY)");
+            BalanceAsCustomer := Customer."Balance (LCY)";
+        end;
+    end;
+
+    procedure GetLinkedCustomer(): Code[20];
+    var
+        ContBusRel: Record "Contact Business Relation";
+    begin
+        exit(
+            ContBusRel.GetLinkedTables(
+                "Contact Business Relation Link To Table"::Vendor, "No.",
+                "Contact Business Relation Link To Table"::Customer))
+    end;
+
     procedure GetVendorNo(VendorText: Text[100]): Code[20]
     begin
         exit(GetVendorNoOpenCard(VendorText, true));
@@ -2289,14 +2312,14 @@
         Vendor.SetRange(Blocked, Vendor.Blocked::" ");
         Vendor.SetRange(Name, VendorText);
         OnGetVendorNoOpenCardOnBeforeVendorFindSet(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(Vendor."No.");
 
         VendorWithoutQuote := ConvertStr(VendorText, '''', '?');
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
         OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(Vendor."No.");
         Vendor.SetRange(Name);
 
@@ -2306,7 +2329,7 @@
         Vendor.SetFilter("No.", VendorFilterFromStart);
         Vendor.SetFilter(Name, VendorFilterFromStart);
         OnGetVendorNoOpenCardOnAfterVendorSetFilterFromStart(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(Vendor."No.");
 
         VendorFilterContains := '''@*' + VendorWithoutQuote + '*''';
@@ -2323,7 +2346,7 @@
             MarkVendorsWithSimilarName(Vendor, VendorText);
 
         if Vendor.Count = 1 then begin
-            Vendor.FindFirst;
+            Vendor.FindFirst();
             exit(Vendor."No.");
         end;
 
@@ -2371,7 +2394,7 @@
         Vendor.Reset();
         Vendor.Ascending(false); // most likely to search for newest Vendors
         OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(Vendor);
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 VendorCount += 1;
                 if Abs(VendorTextLenght - StrLen(Vendor.Name)) <= Treshold then
@@ -2452,11 +2475,11 @@
 
     local procedure MarkVendorsByFilters(var Vendor: Record Vendor)
     begin
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 Vendor.Mark(true);
             until Vendor.Next() = 0;
-        if Vendor.FindFirst then;
+        if Vendor.FindFirst() then;
         Vendor.MarkedOnly := true;
     end;
 
@@ -2556,10 +2579,10 @@
             Validate("Purchaser Code", UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure SetLastModifiedDateTime()
+    protected procedure SetLastModifiedDateTime()
     begin
-        "Last Modified Date Time" := CurrentDateTime;
-        "Last Date Modified" := Today;
+        "Last Modified Date Time" := CurrentDateTime();
+        "Last Date Modified" := Today();
     end;
 
     procedure ToPriceSource(var PriceSource: Record "Price Source")

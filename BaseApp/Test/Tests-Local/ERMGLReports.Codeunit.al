@@ -36,7 +36,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLCorrGeneralLedger);
         GLCorrGeneralLedger.SetTableView(GLAccount);
-        GLCorrGeneralLedger.Run;
+        GLCorrGeneralLedger.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', DebitGLAccNo);
@@ -58,7 +58,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLCorrJournalOrder);
         GLCorrJournalOrder.SetTableView(GLAccount);
-        GLCorrJournalOrder.Run;
+        GLCorrJournalOrder.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', DebitGLAccNo);
@@ -83,7 +83,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLCorrEntriesAnalysis);
         GLCorrEntriesAnalysis.SetTableView(GLAccount);
-        GLCorrEntriesAnalysis.Run;
+        GLCorrEntriesAnalysis.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('GLAccForReport_No_', DebitGLAccNo);
@@ -110,7 +110,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLAccountTurnover);
         GLAccountTurnover.SetTableView(GLAccount);
-        GLAccountTurnover.Run;
+        GLAccountTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('GLAccNo', DebitGLAccNo);
@@ -137,7 +137,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLAccountCard);
         GLAccountCard.SetTableView(GLAccount);
-        GLAccountCard.Run;
+        GLAccountCard.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('GLAcc_No_', DebitGLAccNo);
@@ -164,7 +164,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLAccountEntriesAnalysis);
         GLAccountEntriesAnalysis.SetTableView(GLAccount);
-        GLAccountEntriesAnalysis.Run;
+        GLAccountEntriesAnalysis.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account_No_', DebitGLAccNo);
@@ -186,7 +186,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(BankAccountGLTurnover);
         BankAccountGLTurnover.SetTableView(BankAccount);
-        BankAccountGLTurnover.Run;
+        BankAccountGLTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account__No__', BankAccount."No.");
@@ -206,7 +206,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(CustomerGLTurnover);
         CustomerGLTurnover.SetTableView(Customer);
-        CustomerGLTurnover.Run;
+        CustomerGLTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Customer__No__', Customer."No.");
@@ -226,7 +226,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(VendorGLTurnover);
         VendorGLTurnover.SetTableView(Vendor);
-        VendorGLTurnover.Run;
+        VendorGLTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Vendor__No__', Vendor."No.");
@@ -246,7 +246,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(FAGLTurnover);
         FAGLTurnover.SetTableView(FixedAsset);
-        FAGLTurnover.Run;
+        FAGLTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Fixed_Asset__No__', FixedAsset."No.");
@@ -266,7 +266,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(CustomerTurnover);
         CustomerTurnover.SetTableView(Customer);
-        CustomerTurnover.Run;
+        CustomerTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Customer__No__', Customer."No.");
@@ -286,7 +286,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(CustomerPostGrTurnover);
         CustomerPostGrTurnover.SetTableView(Customer);
-        CustomerPostGrTurnover.Run;
+        CustomerPostGrTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Customer_Posting_Group_Code', Customer."Customer Posting Group");
@@ -307,7 +307,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(VendorTurnover);
         VendorTurnover.SetTableView(Vendor);
-        VendorTurnover.Run;
+        VendorTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Vendor__No__', Vendor."No.");
@@ -327,7 +327,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(VendorPostGrTurnover);
         VendorPostGrTurnover.SetTableView(Vendor);
-        VendorPostGrTurnover.Run;
+        VendorPostGrTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('VendorPostingGroup_Code', Vendor."Vendor Posting Group");
@@ -370,7 +370,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         // [FEATURE] [FA Turnover]
         // [SCENARIO 215339] REP 12466 "FA Turnover" correctly prints totals for three FAs when the first and third one has amounts and the second one doesn't have any FA Depreciation Book
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset "FA1" with FA Depreciation Book and Acquisition = 1000
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset[1]);
@@ -404,7 +404,7 @@ codeunit 144101 "ERM G/L Reports"
         ItemTurnover: Report "Item Turnover (Qty.)";
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // TFS ID: 310217 (String Length error)
@@ -419,7 +419,7 @@ codeunit 144101 "ERM G/L Reports"
         Item.SetRecFilter;
         Clear(ItemTurnover);
         ItemTurnover.SetTableView(Item);
-        ItemTurnover.Run;
+        ItemTurnover.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Item__No__', Item."No.");
@@ -439,7 +439,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(CustomerAccountingCard);
         CustomerAccountingCard.SetTableView(Customer);
-        CustomerAccountingCard.Run;
+        CustomerAccountingCard.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Customer_No_', Customer."No.");
@@ -459,7 +459,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(CustomerEntriesAnalysis);
         CustomerEntriesAnalysis.SetTableView(Customer);
-        CustomerEntriesAnalysis.Run;
+        CustomerEntriesAnalysis.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Customer_No_', Customer."No.");
@@ -479,7 +479,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(VendorAccountingCard);
         VendorAccountingCard.SetTableView(Vendor);
-        VendorAccountingCard.Run;
+        VendorAccountingCard.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Vendor_No_', Vendor."No.");
@@ -499,7 +499,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(VendorEntriesAnalysis);
         VendorEntriesAnalysis.SetTableView(Vendor);
-        VendorEntriesAnalysis.Run;
+        VendorEntriesAnalysis.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Vendor_No_', Vendor."No.");
@@ -519,7 +519,7 @@ codeunit 144101 "ERM G/L Reports"
 
         Clear(BankAccountCard);
         BankAccountCard.SetTableView(BankAccount);
-        BankAccountCard.Run;
+        BankAccountCard.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account_No_', BankAccount."No.");
@@ -552,7 +552,7 @@ codeunit 144101 "ERM G/L Reports"
         SetGLAccountFilters(GLAccount, DebitGLAccNo);
         Clear(GLAccountCard);
         GLAccountCard.SetTableView(GLAccount);
-        GLAccountCard.Run;
+        GLAccountCard.Run();
 
         // [THEN] 'TotalDebetAmount' = "P", 'TotalCreditAmount' = "N", BalanceEnding = "ABS(P-N)"
         LibraryReportDataset.LoadDataSetFile;
@@ -574,7 +574,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 378116] Report Customer Accounting Card shows positive Balance Amounts in Russian version
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer with positive balance "P" on it's Receivables Account "RA"
         DebitAmount := InitCustomerWithBalanceForReport(Customer, CustomerPostingGroup, 1);
@@ -603,7 +603,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         // [FEATURE] [Reports]
         // [SCENARIO 378116] Report Customer Accounting Card shows negative Balance Amounts in Russian version
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer with negative balance "N" on it's Receivables Account "RA"
         CreditAmount := InitCustomerWithBalanceForReport(Customer, CustomerPostingGroup, -1);
@@ -713,7 +713,7 @@ codeunit 144101 "ERM G/L Reports"
         // [FEATURE] [Reports] [Customer G/L Turnover]
         // [SCENARIO 233086] Customer G/L Turnover report detailed totals should be sum of all "customer lines", no matter how many agreements each of customers has.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create customer with posting group and two customer agreements
         CreateCustomerWithPostingGroupAndAgreements(Customer, CustomerAgreement);
@@ -758,7 +758,7 @@ codeunit 144101 "ERM G/L Reports"
         // [FEATURE] [Reports] [Vendor G/L Turnover]
         // [SCENARIO 233086] Vendor G/L Turnover report detailed totals should be sum of all "vendor lines", no matter how many agreements each of vendors has.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create vendor with posting group and two vendor agreements
         CreateVendorWithPostingGroupAndAgreements(Vendor, VendorAgreement);
@@ -802,10 +802,10 @@ codeunit 144101 "ERM G/L Reports"
     begin
         // [FEATURE] [G/L Account Card]
         // [SCENARIO 275406] G/L Account Card report is affected by Source Type Filter
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with No equal to "Z"
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         // [GIVEN] G/L Entry with Debit Amount "X" and Source Type "Customer"
         DebitAmount := LibraryRandom.RandDec(100, 2);
         CreateGLEntryWithSourceTypeAndSourceNo(GLEntry, GLAccNo, DebitAmount, GLEntry."Source Type"::Customer, '');
@@ -839,17 +839,17 @@ codeunit 144101 "ERM G/L Reports"
     begin
         // [FEATURE] [G/L Account Card]
         // [SCENARIO 275406] G/L Account Card report is affected by Source No Filter
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with No equal to "Z"
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         // [GIVEN] G/L Entry with Debit Amount "X" and Source No "A"
         DebitAmount := LibraryRandom.RandDec(100, 2);
-        CustomerNo := LibraryUtility.GenerateGUID;
+        CustomerNo := LibraryUtility.GenerateGUID();
         CreateGLEntryWithSourceTypeAndSourceNo(GLEntry, GLAccNo, DebitAmount, "Gen. Journal Source Type"::" ", CustomerNo);
         // [GIVEN] G/L Entry2 with Debit Amount "Y" and Source No "B"
         DebitAmount2 := DebitAmount + LibraryRandom.RandDec(100, 2);
-        CustomerNo2 := LibraryUtility.GenerateGUID;
+        CustomerNo2 := LibraryUtility.GenerateGUID();
         CreateGLEntryWithSourceTypeAndSourceNo(GLEntry2, GLAccNo, DebitAmount2, "Gen. Journal Source Type"::" ", CustomerNo2);
 
         // [WHEN] G/L Account Card report is run with Source No Filter is set to "A"
@@ -871,7 +871,7 @@ codeunit 144101 "ERM G/L Reports"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -881,7 +881,7 @@ codeunit 144101 "ERM G/L Reports"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.", 1);
 
@@ -893,7 +893,7 @@ codeunit 144101 "ERM G/L Reports"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.", 1);
 
@@ -905,7 +905,7 @@ codeunit 144101 "ERM G/L Reports"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         LibraryERM.CreateBankAccount(BankAccount);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"Bank Account", BankAccount."No.", 1);
 
@@ -916,7 +916,7 @@ codeunit 144101 "ERM G/L Reports"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"Fixed Asset", FixedAsset."No.", 1);
 
@@ -928,8 +928,8 @@ codeunit 144101 "ERM G/L Reports"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        Initialize();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"G/L Account", GLAccountNo, 1);
     end;
 
@@ -1121,7 +1121,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         with VendorAgreement do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Validate("Vendor No.", Vendor."No.");
             Validate("Expire Date", CalcDate('<1M>', WorkDate));
             Validate("Vendor Posting Group", Vendor."Vendor Posting Group");
@@ -1136,7 +1136,7 @@ codeunit 144101 "ERM G/L Reports"
     begin
         with CustomerAgreement do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Validate("Customer No.", Customer."No.");
             Validate("Expire Date", CalcDate('<1M>', WorkDate));
             Validate("Customer Posting Group", Customer."Customer Posting Group");
@@ -1260,7 +1260,7 @@ codeunit 144101 "ERM G/L Reports"
         Customer: Record Customer;
         CustomerAccountingCard: Report "Customer Accounting Card";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
 
@@ -1270,7 +1270,7 @@ codeunit 144101 "ERM G/L Reports"
         Clear(CustomerAccountingCard);
         CustomerAccountingCard.SetTableView(Customer);
         CustomerAccountingCard.UseRequestPage(true);
-        CustomerAccountingCard.Run;
+        CustomerAccountingCard.Run();
     end;
 
     local procedure RunCustomerGLTurnover(GLAccountNo: Code[20]; ReportDate: Date; SkipZeroLines: Boolean)
@@ -1279,7 +1279,7 @@ codeunit 144101 "ERM G/L Reports"
         CustomerGLTurnover: Report "Customer G/L Turnover";
     begin
         LibraryVariableStorage.Enqueue(SkipZeroLines);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
 
@@ -1287,7 +1287,7 @@ codeunit 144101 "ERM G/L Reports"
         Customer.SetRange("G/L Account Filter", GLAccountNo);
         CustomerGLTurnover.SetTableView(Customer);
         CustomerGLTurnover.UseRequestPage(true);
-        CustomerGLTurnover.Run;
+        CustomerGLTurnover.Run();
     end;
 
     local procedure RunGLAccountCardReport(var GLAccount: Record "G/L Account")
@@ -1297,14 +1297,14 @@ codeunit 144101 "ERM G/L Reports"
         Commit();
         Clear(GLAccountCard);
         GLAccountCard.SetTableView(GLAccount);
-        GLAccountCard.Run;
+        GLAccountCard.Run();
     end;
 
     local procedure RunVendorGLTurnover(GLAccountNo: Code[20]; ReportDate: Date)
     var
         Vendor: Record Vendor;
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         Commit();
 
@@ -1324,7 +1324,7 @@ codeunit 144101 "ERM G/L Reports"
         Commit();
         Clear(FATurnover);
         FATurnover.SetTableView(FixedAsset);
-        FATurnover.Run;
+        FATurnover.Run();
     end;
 
     local procedure VerifyPositiveCustomerAccountingCardValues(StartingBalance: Decimal; Amount: Decimal)

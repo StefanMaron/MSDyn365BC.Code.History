@@ -49,7 +49,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Customer, Item, Sales Header with Dimension and Sales Line, Change Dimension Value for Sales Header Dimension
         // and Select Yes on Confirmation message occurs for updating Dimension on Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithDimension(TempDimensionSetEntry, DimensionValueCode, ShortcutDimensionCode, DimensionSetID);
 
         // [THEN] Verify Dimension Set Entry and Dimension on Sales Line successfully updated.
@@ -74,7 +74,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Create Customer, Item, Sales Header with Dimension and Sales Line, Change Dimension Value for Sales Header Dimension
         // and Select No on Confirmation message occurs for updating Dimension on Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithDimension(TempDimensionSetEntry, DimensionValueCode, ShortcutDimensionCode, DimensionSetID);
 
         // [THEN] Verify Dimension Set Entry and Dimension on Sales Line not updated.
@@ -100,7 +100,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test error occurs on Posting Sales Invoice with Invalid Dimension On Sales Header.
 
         // [GIVEN] Create Customer with Default Dimension, Item, Sales Header and Update value of Dimension on Sales Header.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
           SalesHeader, SalesLine, Dimension.Code, '', DefaultDimension."Value Posting"::"Same Code", SalesHeader."Document Type"::Invoice);
@@ -128,7 +128,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test error occurs on Posting Sales Invoice with Invalid Dimension On Sales Line.
 
         // [GIVEN] Create Customer, Item with Default Dimension, Sales Header and Update value of Dimension on Sales Line.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
           SalesHeader, SalesLine, '', Dimension.Code, DefaultDimension."Value Posting"::"Same Code", SalesHeader."Document Type"::Invoice);
@@ -158,7 +158,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on Sales Order Created from Sales Quote.
 
         // [GIVEN] Stockout warning False on Sales and Receivable Setup, Create Customer and Item with Default Dimension, Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
@@ -193,7 +193,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on Sales Line created from Combine Shipment.
 
         // [GIVEN] Create Customer, Item with Default Dimension, Two Sales Order with Combine Shipment True and Post both as Ship.
-        Initialize;
+        Initialize();
         CustNo := CreateCustWithCombShip;
         CreateAndPostSalesOrder(SalesLine, CustNo);
         CreateAndPostSalesOrder(SalesLine2, CustNo);
@@ -220,7 +220,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on G/L Entry after Posting Sales Invoice.
 
         // [GIVEN] Create Customer, Items and Sales Invoice for different Items.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
           SalesHeader, SalesLine, '', Dimension.Code, DefaultDimension."Value Posting"::" ", SalesHeader."Document Type"::Invoice);
@@ -252,7 +252,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on G/L Entry after Posting Sales Order in Multiple Steps with Change Dimension Value on Sales Line.
 
         // [GIVEN] Create Customer, Item, Create and Post Sales Order Partially.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
           SalesHeader, SalesLine, '', Dimension.Code, DefaultDimension."Value Posting"::" ", SalesHeader."Document Type"::Order);
@@ -281,7 +281,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Sales Header Dimension after change Shortcut Dimension 2 Code on Sales Invoice Header.
 
         // [GIVEN] Create Customer.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibrarySales.CreateCustomer(Customer);
 
@@ -314,7 +314,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Set Stockout warning False on Sales and Receivable Setup, Create Customer with Default Dimension, Item,
         // Create and Post Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
@@ -334,7 +334,7 @@ codeunit 134475 "ERM Dimension Sales"
         SalesLine.SetFilter(Type, '<>''''');
         FindSalesLine(SalesLine, SalesHeader);
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesLine.TestField("Dimension Set ID", SalesShipmentLine."Dimension Set ID");
 
         // 4. Teardown: Rollback Stockout warning on Sales and Receivable Setup.
@@ -354,7 +354,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Update Inv. Rounding Precision (LCY) on General Ledger Setup, Create Customer with Default Dimension, Item,
         // Create Sales Invoice and Update Line Amount on Sales Line.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
 
         LibraryERM.SetInvRoundingPrecisionLCY(0.1);
@@ -384,7 +384,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on Archive Sales Order.
 
         // [GIVEN] Create Customer with Default Dimension, Item, Sales Order.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateSalesOrder(
           SalesHeader, SalesLine, Dimension.Code, '', DefaultDimension."Value Posting"::" ", SalesHeader."Document Type"::Order);
@@ -412,7 +412,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on Standard Sales Code.
 
         // [GIVEN] Create Item and find Dimension.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateItemWithExtendedText(Item, Dimension.Code);
 
@@ -447,7 +447,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimensions are "merged" between the ones coming from Standard Sales Code and Sales Header (customer)
 
         // [GIVEN] Create Item and customer with dimensions
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateItemWithExtendedText(Item, Dimension.Code);
         DifferentDimensionCode := FindDifferentDimension(Dimension.Code);
@@ -483,7 +483,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Check Sales Line Dimension.
 
         // [GIVEN]
-        Initialize;
+        Initialize();
 
         // [WHEN] Create Sales Credit Memo.
         GeneralLedgerSetup.Get();
@@ -509,7 +509,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test Dimension on G/L Entry after Apply from Customer Ledger Entry.
 
         // [GIVEN] Find Dimension, Create and Post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer,
@@ -537,7 +537,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test changed Sales Return Header Shortcut Dimension 1 Code.
 
         // [GIVEN] Create Sales Return Order.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
@@ -565,7 +565,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Test inserted Sales Return Header Shortcut Dimension 2 Code.
 
         // [GIVEN] Create Sales Return Order.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
@@ -593,7 +593,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Verify error while filtering Dimension Set Entry after deleting Sales Return Header Shortcut Dimension 1 Code.
 
         // [GIVEN] Create Sales Return Order, delete Shortcut Dimension 1 Code.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
@@ -624,7 +624,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Verify GL Entry after post Sales Order with Dimension which attached as a Default Dimension on Inventory Account.
 
         // [GIVEN] Update Inventory Setup, create Item, create Location with Inventory Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(UpdateAutomaticCostMessage);  // Enqueue for MessageHandler
         LibraryVariableStorage.Enqueue(UpdateAutomaticCostPeriodMessage);  // Enqueue for MessageHandler
         LibraryInventory.UpdateInventorySetup(
@@ -670,7 +670,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [SCENARIO] Verify GL Entry after post Physical Inventory Journal with Dimension which attached as a Default Dimension on Inventory Account.
 
         // [GIVEN] Update Inventory Setup, create Item, create Location with Inventory Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(UpdateAutomaticCostMessage);  // Enqueue for MessageHandler
         LibraryVariableStorage.Enqueue(UpdateAutomaticCostPeriodMessage);  // Enqueue for MessageHandler
         LibraryInventory.UpdateInventorySetup(
@@ -711,7 +711,7 @@ codeunit 134475 "ERM Dimension Sales"
         DimSetID: array[2] of Integer;
     begin
         // [SCENARIO 122222] Combine Shipment Report combines documents by dimensions
-        Initialize;
+        Initialize();
         DimSetID[1] := CreateDimSetID;
         DimSetID[2] := CreateDimSetID;
 
@@ -752,7 +752,7 @@ codeunit 134475 "ERM Dimension Sales"
         DimensionValue: Record "Dimension Value";
     begin
         // [FEATURE] [Partial Posting]
-        Initialize;
+        Initialize();
 
         // [SCENARIO 378707] Sales Header Shortcut Dimension 1 Code change causes confirmation for partly shipped line
         // [GIVEN] Sales Order with partly shipped Item line
@@ -784,7 +784,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Header Shortcut Dimension 1 Code change causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line with some initial value "InitialDimSetID"
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -816,7 +816,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Header dimension change from Edit Dimension Set Entries page causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -852,7 +852,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Header dimension change from Edit Dimension Set Entries page causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line with some initial value "InitialDimSetID"
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -887,7 +887,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Line Shortcut Dimension 1 Code change causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -916,7 +916,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Line Shortcut Dimension 1 Code change causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line with some initial value "InitialDimSetID"
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -946,7 +946,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Line dimension change from Edit Dimension Set Entries page causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -980,7 +980,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         // [FEATURE] [Partial Posting]
         // [SCENARIO 378707] Sales Line dimension change from Edit Dimension Set Entries page causes confirmation for partly shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with partly shipped Item line with some initial value "InitialDimSetID"
         CreatePartlyShipSalesOrder(SalesHeader, SalesLine);
@@ -1152,6 +1152,20 @@ codeunit 134475 "ERM Dimension Sales"
         VATEntry.TestField(Amount, 0);
     end;
 
+#if not CLEAN20
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTypeToTableID()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+        TableId: Integer;
+    begin
+        TableId := DimensionManagement.TypeToTableID3(2); // Item
+
+        Assert.AreEqual(Database::Item, TableId, 'Retutn value should be 27.');
+    end;
+#endif
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1212,7 +1226,7 @@ codeunit 134475 "ERM Dimension Sales"
         // Update Dimension value on Sales Header.
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, SalesHeader."Dimension Set ID");
         DimensionSetEntry.SetRange("Dimension Code", ShortcutDimensionCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         SalesHeader.Validate(
           "Shortcut Dimension 1 Code",
           FindDifferentDimensionValue(DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
@@ -1280,7 +1294,7 @@ codeunit 134475 "ERM Dimension Sales"
         // Find created Item Journal Line.
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
 
         // Update Item Journal Line and attach Dimension.
         ItemJournalLine.Validate(
@@ -1488,8 +1502,8 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        SalesHeader.Validate("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("Shortcut Dimension 1 Code", ShortcutDimension1Code);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
         SalesLine.Validate("Location Code", SalesHeader."Location Code");
@@ -1607,14 +1621,14 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesOrder(var SalesHeader: Record "Sales Header"; QuoteNo: Code[20])
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Quote No.", QuoteNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure InsertDimOnSalesHdr(var SalesHeader: Record "Sales Header"; ShortcutDimension2Code: Code[20])
@@ -1636,7 +1650,7 @@ codeunit 134475 "ERM Dimension Sales"
         CombineShipments.SetTableView(SalesHeader);
         CombineShipments.InitializeRequest(WorkDate, WorkDate, false, false, false, false);
         CombineShipments.UseRequestPage(false);
-        CombineShipments.Run;
+        CombineShipments.Run();
     end;
 
     local procedure RunCopySalesDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20])
@@ -1648,7 +1662,7 @@ codeunit 134475 "ERM Dimension Sales"
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters("Sales Document Type From"::"Posted Shipment", DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1781,7 +1795,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
         SalesHeaderArchive.TestField("Dimension Set ID", SalesHeader."Dimension Set ID");
     end;
 
@@ -1791,7 +1805,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         SalesLineArchive.SetRange("Document Type", SalesLine."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesLine."Document No.");
-        SalesLineArchive.FindFirst;
+        SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("Dimension Set ID", SalesLine."Dimension Set ID");
     end;
 
@@ -1802,7 +1816,7 @@ codeunit 134475 "ERM Dimension Sales"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Global Dimension 1 Code", GlobalDimension1Code);
     end;
 
@@ -1815,12 +1829,12 @@ codeunit 134475 "ERM Dimension Sales"
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
 
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Invoice Rounding Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Dimension Set ID", SalesHeader."Dimension Set ID");
     end;
 
@@ -1831,7 +1845,7 @@ codeunit 134475 "ERM Dimension Sales"
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         repeat
             DimensionSetEntry.SetRange("Dimension Code", TempDimensionSetEntry."Dimension Code");
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", TempDimensionSetEntry."Dimension Value Code");
         until TempDimensionSetEntry.Next = 0;
     end;
@@ -1843,12 +1857,12 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("No.", SalesLine."No.");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange(Amount, -SalesInvoiceLine.Amount);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Dimension Set ID", SalesLine."Dimension Set ID");
     end;
 
@@ -1858,11 +1872,11 @@ codeunit 134475 "ERM Dimension Sales"
         SalesLine2: Record "Sales Line";
     begin
         SalesShipmentHeader.SetRange("Order No.", SalesLine."Document No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
 
         SalesLine2.SetRange("Shipment No.", SalesShipmentHeader."No.");
         SalesLine2.SetRange("Shipment Line No.", SalesLine."Line No.");
-        SalesLine2.FindFirst;
+        SalesLine2.FindFirst();
         SalesLine2.TestField("Dimension Set ID", SalesLine."Dimension Set ID");
     end;
 
@@ -1895,7 +1909,7 @@ codeunit 134475 "ERM Dimension Sales"
     begin
         DimMgt.GetDimensionSet(TempDimensionSetEntry, DimSetID);
         TempDimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
-        TempDimensionSetEntry.FindFirst;
+        TempDimensionSetEntry.FindFirst();
         TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
     end;
 

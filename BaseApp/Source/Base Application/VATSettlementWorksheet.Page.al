@@ -348,7 +348,7 @@ page 14925 "VAT Settlement Worksheet"
                     begin
                         Clear(VATSettlementJnl);
                         CopySelectionToJnl;
-                        VATSettlementJnl.Run;
+                        VATSettlementJnl.Run();
                     end;
                 }
             }
@@ -365,7 +365,7 @@ page 14925 "VAT Settlement Worksheet"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc("Document Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -477,7 +477,7 @@ page 14925 "VAT Settlement Worksheet"
         VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
         VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
         VATEntries.SetTableView(VATEntry);
-        VATEntries.RunModal;
+        VATEntries.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -491,7 +491,7 @@ page 14925 "VAT Settlement Worksheet"
         CurrRec := Rec;
         Filters.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
-        if FindSet then
+        if FindSet() then
             repeat
                 CalcVATAmount;
                 if "Allocated VAT Amount" <> 0 then begin
@@ -530,7 +530,7 @@ page 14925 "VAT Settlement Worksheet"
         VATAllocationLine.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
         VATAllocationLine.SetFilter("Posting Date Filter", GetFilter("Date Filter"));
         VATAllocation.SetTableView(VATAllocationLine);
-        VATAllocation.RunModal;
+        VATAllocation.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -553,7 +553,7 @@ page 14925 "VAT Settlement Worksheet"
         CurrRec := Rec;
         Filters.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
-        if FindFirst then
+        if FindFirst() then
             repeat
                 EntryNo.Number := "Entry No.";
                 EntryNo.Insert();

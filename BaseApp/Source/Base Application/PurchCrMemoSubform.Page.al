@@ -67,30 +67,6 @@
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN19                
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Advanced;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp();
-                        NoOnAfterValidate();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        NoOnAfterValidate();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -103,7 +79,10 @@
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         NoOnAfterValidate();
+#if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
+#endif
+                        OnItemReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
@@ -201,6 +180,43 @@
 
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                    end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
                     end;
                 }
                 field("Description 2"; "Description 2")
@@ -1021,7 +1037,7 @@
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1045,6 +1061,40 @@
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
                         DocumentAttachmentDetails.RunModal();
+                    end;
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of purchase lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all purchase lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -1129,9 +1179,10 @@
         AmountWithDiscountAllowed: Decimal;
         InvDiscAmountEditable: Boolean;
         UpdateAllowedVar: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
-        UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
@@ -1154,10 +1205,14 @@
         IsBlankNumber: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
+        UnitofMeasureCodeIsChangeable: Boolean;
 
     local procedure SetOpenPage()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         OnBeforeSetOpenPage();
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
     end;
 
     procedure ApproveCalcInvDisc()
@@ -1391,8 +1446,16 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnItemReferenceNoOnLookup', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

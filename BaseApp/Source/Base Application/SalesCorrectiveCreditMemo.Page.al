@@ -554,8 +554,8 @@ page 14973 "Sales Corrective Credit Memo"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
-                        ApprovalEntries.Run;
+                        ApprovalEntries.SetRecordFilters(DATABASE::"Sales Header", Rec."Document Type", Rec."No.");
+                        ApprovalEntries.Run();
                     end;
                 }
                 separator(Action171)
@@ -568,7 +568,9 @@ page 14973 "Sales Corrective Credit Memo"
                     Image = Signature;
                     RunObject = Page "Document Signatures";
                     RunPageLink = "Table ID" = CONST(36),
+#pragma warning disable
                                   "Document Type" = FIELD("Document Type"),
+#pragma warning restore
                                   "Document No." = FIELD("No.");
                     ToolTip = 'View signature information for employees and warranty.';
                 }
@@ -641,7 +643,7 @@ page 14973 "Sales Corrective Credit Memo"
                     trigger OnAction()
                     begin
                         CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
+                        CopySalesDoc.RunModal();
                         Clear(CopySalesDoc);
                     end;
                 }
@@ -657,7 +659,7 @@ page 14973 "Sales Corrective Credit Memo"
                     begin
                         Clear(MoveNegSalesLines);
                         MoveNegSalesLines.SetSalesHeader(Rec);
-                        MoveNegSalesLines.RunModal;
+                        MoveNegSalesLines.RunModal();
                         MoveNegSalesLines.ShowDocument;
                     end;
                 }

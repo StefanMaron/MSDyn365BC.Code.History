@@ -187,7 +187,7 @@ page 17308 "Tax Calc. Section Card"
                         TaxCalcSection := Rec;
                         TaxCalcSection.SetRecFilter;
                         CopyTaxCalcSection.SetTableView(TaxCalcSection);
-                        CopyTaxCalcSection.RunModal;
+                        CopyTaxCalcSection.RunModal();
                         CurrPage.Update(false);
                     end;
                 }
@@ -210,7 +210,7 @@ page 17308 "Tax Calc. Section Card"
                         CreateTaxCalc.SetPeriodStart(
                           TaxCalcMgt.GetNextAvailableBeginDate(Code, DATABASE::"Tax Calc. Accumulation", true));
                         CreateTaxCalc.SetTableView(TaxCalcSection);
-                        CreateTaxCalc.RunModal;
+                        CreateTaxCalc.RunModal();
                     end;
                 }
                 action("Clear Registers")

@@ -43,7 +43,7 @@ codeunit 17204 "Create Tax Register CV Entry"
         TaxRegMgt.ValidateAbsenceCVEntriesDate(StartDate, EndDate, SectionCode);
 
         TaxRegCVEntry.Reset();
-        if not TaxRegCVEntry.FindLast then
+        if not TaxRegCVEntry.FindLast() then
             TaxRegCVEntry."Entry No." := 0;
 
         Window.Open(Text21000900);
@@ -66,7 +66,7 @@ codeunit 17204 "Create Tax Register CV Entry"
 
         Window.Update(4, Customer.TableCaption);
         Total += Customer.Count();
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 Procesing += 1;
                 if (Procesing mod 50) = 1 then
@@ -81,7 +81,7 @@ codeunit 17204 "Create Tax Register CV Entry"
 
                 with DtldCustLedgEntry do begin
                     CustLedgEntry.SetRange(Positive, true);
-                    ExistEntry := CustLedgEntry.FindFirst;
+                    ExistEntry := CustLedgEntry.FindFirst();
 
                     Reset;
                     SetCurrentKey("Customer No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
@@ -114,7 +114,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                     end;
 
                     CustLedgEntry.SetRange(Positive, false);
-                    ExistEntry := CustLedgEntry.FindFirst;
+                    ExistEntry := CustLedgEntry.FindFirst();
 
                     Reset;
                     SetCurrentKey("Customer No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
@@ -138,7 +138,7 @@ codeunit 17204 "Create Tax Register CV Entry"
             until Customer.Next() = 0;
 
         Window.Update(4, Vendor.TableCaption);
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 Procesing += 1;
                 if (Procesing mod 50) = 1 then
@@ -152,7 +152,7 @@ codeunit 17204 "Create Tax Register CV Entry"
 
                 with DtldVendLedgEntry do begin
                     VendLedgEntry.SetRange(Positive, true);
-                    ExistEntry := VendLedgEntry.FindFirst;
+                    ExistEntry := VendLedgEntry.FindFirst();
 
                     Reset;
                     SetCurrentKey("Vendor No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
@@ -185,7 +185,7 @@ codeunit 17204 "Create Tax Register CV Entry"
                     end;
 
                     VendLedgEntry.SetRange(Positive, false);
-                    ExistEntry := VendLedgEntry.FindFirst;
+                    ExistEntry := VendLedgEntry.FindFirst();
 
                     Reset;
                     SetCurrentKey("Vendor No.", "Initial Entry Positive", "Initial Entry Due Date", "Posting Date");
@@ -208,7 +208,7 @@ codeunit 17204 "Create Tax Register CV Entry"
             until Vendor.Next() = 0;
 
         TaxRegAccumulation.Reset();
-        if not TaxRegAccumulation.FindLast then
+        if not TaxRegAccumulation.FindLast() then
             TaxRegAccumulation."Entry No." := 0;
 
         TaxRegAccumulation.Init();
@@ -220,10 +220,10 @@ codeunit 17204 "Create Tax Register CV Entry"
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register CV Entry");
         TaxRegTemplate.SetRange("Section Code", SectionCode);
-        if TaxReg.FindSet then
+        if TaxReg.FindSet() then
             repeat
                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                if TaxRegTemplate.FindSet then
+                if TaxRegTemplate.FindSet() then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TaxRegTemplate."Report Line Code";
                         TaxRegAccumulation."Template Line Code" := TaxRegTemplate."Line Code";

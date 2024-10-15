@@ -18,7 +18,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         Window: Dialog;
         LineCount: Integer;
+        HideProgressWindow: Boolean;
+        SuppressCommit: Boolean;
     begin
+        OnBeforeOnRun(Rec, SuppressCommit, HideProgressWindow);
+
         Rec.TestField("Document Type", Rec."Document Type"::Receipt);
 
         InvtDocHeader := Rec;
@@ -43,9 +47,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             if Location."Require Receive" or Location."Require Put-away" then
                 Error(WarehouseHandlingRequiredErr, "Location Code");
 
-            Window.Open('#1#################################\\' + PostingLinesMsg);
+            if not HideProgressWindow then begin
+                Window.Open('#1#################################\\' + PostingLinesMsg);
 
-            Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+                Window.Update(1, StrSubstNo(PostingDocumentTxt, "No."));
+            end;
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup."Invt. Receipt";
@@ -59,7 +65,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                 CODEUNIT.Run(CODEUNIT::"Release Invt. Document", InvtDocHeader);
                 Status := Status::Open;
                 Modify();
-                Commit();
+                if not SuppressCommit then
+                    Commit();
                 Status := Status::Released;
             end;
 
@@ -84,11 +91,10 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             InvtRcptHeader."Receipt No." := "No.";
             InvtRcptHeader."External Document No." := "External Document No.";
             InvtRcptHeader."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            InvtRcptHeader."No. Series" := InvtSetup."Posted Invt. Receipt Nos.";
-            InvtRcptHeader."No." :=
-              NoSeriesMgt.GetNextNo(
-                InvtSetup."Posted Invt. Receipt Nos.", "Posting Date", true);
-            "Posting No." := InvtRcptHeader."No.";
+            if "Posting No." = '' then
+                "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
+            InvtRcptHeader."No." := "Posting No.";
+            InvtRcptHeader."No. Series" := "Posting No. Series";
             InvtRcptHeader."Posting Description" := "Posting Description";
             InvtRcptHeader.Correction := Correction;
             InvtRcptHeader."Dimension Set ID" := "Dimension Set ID";
@@ -112,7 +118,8 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             if InvtDocLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
+                    if not HideProgressWindow then
+                        Window.Update(2, LineCount);
 
                     if InvtDocLine."Item No." <> '' then begin
                         Item.Get(InvtDocLine."Item No.");
@@ -170,8 +177,10 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             Delete(true);
 
             InsertValueEntryRelation();
-            Commit();
-            Window.Close();
+            if not SuppressCommit then
+                Commit();
+            if not HideProgressWindow then
+                Window.Close();
         end;
 
         UpdateAnalysisView.UpdateAll(0, true);
@@ -383,6 +392,11 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                         WhseJnlPostLine.Run(TempWhseJnlLine2);
                     until TempWhseJnlLine2.Next() = 0;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var InvtDocumentHeader: Record "Invt. Document Header"; var SuppressCommit: Boolean; var HideProgressWindow: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

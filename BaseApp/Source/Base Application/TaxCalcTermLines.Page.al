@@ -43,7 +43,7 @@ page 17317 "Tax Calc. Term Lines"
                                     if "Bal. Account No." <> '' then
                                         if StrPos('|&<>', CopyStr("Account No.", StrLen("Account No."))) = 0 then begin
                                             GLAcc.SetFilter("No.", "Account No.");
-                                            if GLAcc.FindFirst then;
+                                            if GLAcc.FindFirst() then;
                                             GLAcc.SetRange("No.");
                                         end;
                                     if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin
@@ -56,7 +56,7 @@ page 17317 "Tax Calc. Term Lines"
                                     TaxCalcTermName.Reset();
                                     if "Account No." <> '' then begin
                                         TaxCalcTermName.SetFilter("Term Code", "Account No.");
-                                        if TaxCalcTermName.FindFirst then;
+                                        if TaxCalcTermName.FindFirst() then;
                                         TaxCalcTermName.SetRange("Term Code");
                                     end;
                                     if ACTION::LookupOK = PAGE.RunModal(0, TaxCalcTermName) then begin
@@ -104,7 +104,7 @@ page 17317 "Tax Calc. Term Lines"
                             if "Bal. Account No." <> '' then
                                 if StrPos('|&<>', CopyStr("Bal. Account No.", StrLen("Bal. Account No."))) = 0 then begin
                                     GLAcc.SetFilter("No.", "Bal. Account No.");
-                                    if GLAcc.FindFirst then;
+                                    if GLAcc.FindFirst() then;
                                     GLAcc.SetRange("No.");
                                 end;
                             if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin
@@ -117,7 +117,7 @@ page 17317 "Tax Calc. Term Lines"
                             TaxCalcTermName.Reset();
                             if "Bal. Account No." <> '' then begin
                                 TaxCalcTermName.SetFilter("Term Code", "Bal. Account No.");
-                                if TaxCalcTermName.FindFirst then;
+                                if TaxCalcTermName.FindFirst() then;
                                 TaxCalcTermName.SetRange("Term Code");
                             end;
                             if ACTION::LookupOK = PAGE.RunModal(0, TaxCalcTermName) then begin

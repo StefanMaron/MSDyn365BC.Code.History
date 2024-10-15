@@ -41,7 +41,7 @@ codeunit 12404 "G/L Corresp. Management"
         TransNo := 0;
 
         GLEntry.LockTable();
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             repeat
                 if TransNo <> GLEntry."Transaction No." then begin
                     ClearBuffer(GLEntry."Transaction No.");

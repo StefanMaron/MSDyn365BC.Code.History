@@ -27,7 +27,7 @@ codeunit 132500 "Error Message Handling"
         Result: Boolean;
     begin
         // [SCENARIO] The first handler only should show logged errors.
-        Initialize;
+        Initialize();
         // [GIVEN] Two subscribers are subscribed correctly
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
         ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
@@ -55,7 +55,7 @@ codeunit 132500 "Error Message Handling"
         Result: Boolean;
     begin
         // [SCENARIO] Directly subscribed handler before the activated handler should be inactive.
-        Initialize;
+        Initialize();
         // [GIVEN] The unofficial subscriber is subscribed directly
         BindSubscription(ErrorMessageHandler[1]);
         ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
@@ -83,7 +83,7 @@ codeunit 132500 "Error Message Handling"
         Result: Boolean;
     begin
         // [SCENARIO] Directly subscribed handler after the activated handler should be inactive.
-        Initialize;
+        Initialize();
         // [GIVEN] Two subscribers are subscribed, but the second is unofficial
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
         BindSubscription(ErrorMessageHandler[2]);
@@ -110,7 +110,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [SCENARIO] The first activation enabled handling, all others activations and subscriptions are ignored.
-        Initialize;
+        Initialize();
         // [WHEN] Subscribe 1st directly: subscribers - 1, isActive - FALSE
         BindSubscription(ErrorMessageHandler[1]);
         VerifyCountOfActiveSubscribers(1);
@@ -141,7 +141,7 @@ codeunit 132500 "Error Message Handling"
         Result: Boolean;
     begin
         // [SCENARIO] Second activated subscriber is not active and does not show error page.
-        Initialize;
+        Initialize();
         // [GIVEN] Subscriber 'A' is subscribed correctly
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
         // [GIVEN] Subscriber 'B' is subscribed correctly
@@ -239,7 +239,7 @@ codeunit 132500 "Error Message Handling"
         PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
     begin
         // [SCENARIO] Unhandled error should be added to the list if happens after the collected one.
-        Initialize;
+        Initialize();
         PushContext(TempErrorMessage, 'Global Context');
         // [GIVEN] Unhandled error 'B' happens after one error 'A' is collected
         PushContext(TempErrorMessage, 'Local Context');
@@ -273,7 +273,7 @@ codeunit 132500 "Error Message Handling"
         PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
     begin
         // [SCENARIO] First handled error should be thrown if handling is not enabled.
-        Initialize;
+        Initialize();
         // [GIVEN] Unhandled error 'B' happens after one error 'A' is collected, but before error messages are shown
         AddHandledError(TempErrorMessage, HandledErr);
         AddUnhandledError(TempErrorMessage, UnhandledErr);
@@ -301,7 +301,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [Log File]
         // [SCENARIO] Unhandled and handled errors should be written to the file.
-        Initialize;
+        Initialize();
         PushContext(TempErrorMessage, 'Global Context');
         // [GIVEN] Unhandled error 'B' happens after one error 'A' is collected
         PushContext(TempErrorMessage, 'Local Context');
@@ -317,7 +317,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMsg := 'Unhandled Error';
         ExpectedLogLine[1] := 'Local Context : Handled Error 1';
         ExpectedLogLine[2] := StrSubstNo('Global Context : %1.', ErrorMsg);
-        ExpectedLogLine[3] := '"Posting Codeunit Mock"(CodeUnit 132479).OnRun(Trigger) line';
+        ExpectedLogLine[3] := '"Posting Codeunit Mock"(CodeUnit 132479).OnRun';
         Assert.ExpectedError(ErrorMsg);
         Assert.ExpectedError(ExpectedLogLine[3]);
         // [THEN] The handled error 'A' is not thrown
@@ -345,7 +345,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Historical error happened before activation should not be collected
-        Initialize;
+        Initialize();
         // [GIVEN] A historical error 'XX'
         ClearLastError;
         asserterror Error(HandledErr);
@@ -367,7 +367,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Historical error should not be cleared by second activation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subscriber 'A' is subscribed
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
@@ -394,7 +394,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [SCENARIO] Rollback error should not be added to the error list if errors exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Expected one error to be logged
         AddHandledError(TempErrorMessage, HandledErr);
@@ -423,7 +423,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [SCENARIO] Unhandled error should not be collected by AppendTo() if errors do not exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Expected no error to be logged
         AddFinishCall(TempErrorMessage);
@@ -451,7 +451,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [SCENARIO] Unhandled error should be collected by AppendTo() if errors exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Expected unhandled error after a handled one during execution
         AddHandledError(TempErrorMessage, HandledErr);
@@ -481,7 +481,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [SCENARIO] Rollback error should not be added to the error list if errors do not exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Expected unhandled error during execution
         AddUnhandledError(TempErrorMessage, UnhandledErr);
@@ -507,7 +507,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [SCENARIO] Finish method pops context.
-        Initialize;
+        Initialize();
 
         // [WHEN] PushContext on inactive handling
         // [THEN] Context is not pushed
@@ -534,7 +534,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Error happened in the nested Activate-Finish module goes to the outer handler with local context
-        Initialize;
+        Initialize();
 
         // [GIVEN] Initial activation with context '1'
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
@@ -576,11 +576,11 @@ codeunit 132500 "Error Message Handling"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Error logged in the first context is not shown for next contexts
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Invoice Header 'A' and 'B'
-        SalesInvoiceHeader[1]."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader[1]."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader[1].Insert();
-        SalesInvoiceHeader[2]."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader[2]."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader[2].Insert();
         Clear(SalesInvoiceHeader[3]);
 
@@ -623,7 +623,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] IsTransactionStopped is Yes if the last error was COD28.StopTransaction()
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'Context');
         ErrorMessageMgt.LogError(4, 'Error', '');
@@ -641,7 +641,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Finish does not stop transaction if context does not match the logged error.
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'Context');
         ErrorMessageMgt.LogError(4, 'Error', '');
@@ -659,7 +659,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Finish does not stop transaction on a logged warning.
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, 15, 0, 'Context');
         ErrorMessageMgt.LogWarning(0, 'Warning', 15, 0, '');
@@ -678,7 +678,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Finish includes errors logged after the original context with other context.
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
         ErrorMessageMgt.LogError(4, 'Error4', '');
@@ -703,7 +703,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Finish includes errors logged after the original context with other context.
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
         ErrorMessageMgt.LogWarning(0, 'Warning4', 4, 0, '');
@@ -729,7 +729,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Finish includes errors logged after the first usage of the original context
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
         ErrorMessageMgt.LogError(4, 'Error4', ''); // this error should be ignored by Finish(17)
@@ -756,7 +756,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] GetErrorsInContext with blank context returns all logged 'Error' messages
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '4');
         ErrorMessageMgt.LogError(4, 'Error4', '');
@@ -780,14 +780,14 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] If the error logged without additional information it is filled from top of call stack
-        Initialize;
+        Initialize();
         Commit();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         if not CODEUNIT.Run(CODEUNIT::TestCodeunitRunError) then
             ErrorMessageMgt.LogError(0, GetLastErrorText, '');
         Assert.IsTrue(ErrorMessageMgt.GetErrors(TempErrorMessage), 'GetErrors');
-        TempErrorMessage.FindFirst;
-        Assert.ExpectedMessage('(CodeUnit 132441).OnRun(Trigger)', TempErrorMessage."Additional Information");
+        TempErrorMessage.FindFirst();
+        Assert.ExpectedMessage('(CodeUnit 132441).OnRun', TempErrorMessage."Additional Information");
     end;
 
     [Test]
@@ -799,7 +799,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         Assert.AreEqual(0, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, ''), 'PushContext without active error handler');
         Assert.IsFalse(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
     end;
@@ -815,7 +815,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageHandler: Codeunit "Error Message Handler";
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 1, 'PushContext#1'), 'PushContext#1');
         Assert.IsTrue(ErrorMessageMgt.GetTopContext(TempErrorMessage), 'GetTopContext');
@@ -836,7 +836,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageHandler: Codeunit "Error Message Handler";
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 3, 1, 'PushContext#1'), 'PushContext#1');
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 2, 'PushContext#2'), 'PushContext#2');
@@ -858,7 +858,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageHandler: Codeunit "Error Message Handler";
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'PushContext#1'), 'PushContext#1');
         Assert.AreEqual(2, PushLocalContext(4, 'LocalContext#1', ''), 'PushLocalContext#1');
@@ -877,7 +877,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageHandler: Codeunit "Error Message Handler";
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, 'PushContext#1'), 'PushContext#1');
         Assert.AreEqual(2, PushLocalContext(4, 'LocalContext#1', ''), 'PushLocalContext#1');
@@ -898,7 +898,7 @@ codeunit 132500 "Error Message Handling"
         BlankRecID: RecordID;
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, 0, 0, 'PushContext#1'), 'PushContext#1');
 
@@ -922,7 +922,7 @@ codeunit 132500 "Error Message Handling"
         TableNo: Integer;
     begin
         // [FEATURE] [Context] [UT]
-        Initialize;
+        Initialize();
         TableNo := GetNotExistingTableNo;
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, TableNo, 0, 'PushContext#1'), 'PushContext#1');
@@ -946,12 +946,12 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegisterPage: TestPage "Error Message Register";
     begin
         // [FEATURE] [Register] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Error Message Register, where "Description" is 'A', "Created On" is '01.10.19 13:23', "User ID" is 'X'
         ErrorMessageRegister.ID := CreateGuid;
         ErrorMessageRegister."Created On" := CurrentDateTime;
         ErrorMessageRegister."User ID" := UserId;
-        ErrorMessageRegister.Description := LibraryUtility.GenerateGUID;
+        ErrorMessageRegister.Description := LibraryUtility.GenerateGUID();
         ErrorMessageRegister.Insert();
         // [GIVEN] 1 Error Message, where "Message Type" is 'Error'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
@@ -999,7 +999,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegisterPage: TestPage "Error Message Register";
     begin
         // [FEATURE] [Register] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Error Message Register
         ErrorMessageRegister.ID := CreateGuid;
         ErrorMessageRegister.Insert();
@@ -1036,7 +1036,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegisterPage: TestPage "Error Message Register";
     begin
         // [FEATURE] [Register] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Error Message Register
         ErrorMessageRegister.ID := CreateGuid;
         ErrorMessageRegister.Insert();
@@ -1073,7 +1073,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegisterPage: TestPage "Error Message Register";
     begin
         // [FEATURE] [Register] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Error Message Register
         ErrorMessageRegister.ID := CreateGuid;
         ErrorMessageRegister.Insert();
@@ -1107,8 +1107,8 @@ codeunit 132500 "Error Message Handling"
         Description: Text[250];
     begin
         // [FEATURE] [Register] [UT]
-        Initialize;
-        Description := LibraryUtility.GenerateGUID;
+        Initialize();
+        Description := LibraryUtility.GenerateGUID();
         ErrorMessageRegister.New(Description);
         // [THEN] Register is inserted, "ID" is filled automatically, "User ID" and "Created On" are filled with current values.
         ErrorMessageRegister.Find;
@@ -1127,7 +1127,7 @@ codeunit 132500 "Error Message Handling"
         RegisterID: Guid;
     begin
         // [FEATURE] [Register] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] Error message for register 'A'
         RegisterID := CreateGuid;
         ErrorMessage."Register ID" := RegisterID;
@@ -1162,7 +1162,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [FEATURE] [Register] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] Unhandled error 'B' happens after error 'A' are collected
         AddHandledError(TempErrorMessage, StrSubstNo(HandledErr, 2));
         AddUnhandledError(TempErrorMessage, UnhandledErr);
@@ -1173,7 +1173,7 @@ codeunit 132500 "Error Message Handling"
         // [THEN] Error Messages list page open
         ErrorMessagesPage.Close;
         // [THEN] Error Register contains 2 'Error' records: 'A' and 'B'.
-        ErrorMessageRegister.FindFirst;
+        ErrorMessageRegister.FindFirst();
         ErrorMessageRegister.CalcFields(Errors, Warnings);
         ErrorMessageRegister.TestField(Errors, 2);
         ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
@@ -1194,7 +1194,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [FEATURE] [Register] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] Unhandled error 'B' happens after error 'A' are collected
         AddHandledError(TempErrorMessage, StrSubstNo(HandledErr, 2));
         AddUnhandledError(TempErrorMessage, UnhandledErr);
@@ -1228,7 +1228,7 @@ codeunit 132500 "Error Message Handling"
         ForwardLinks: TestPage "Forward Links";
     begin
         // [FEATURE] [UI] [Forward Link]
-        Initialize;
+        Initialize();
 
         NamedForwardLink.DeleteAll();
         NamedForwardLink.Init();
@@ -1255,7 +1255,7 @@ codeunit 132500 "Error Message Handling"
         ForwardLinks: TestPage "Forward Links";
     begin
         // [FEATURE] [UI] [Forward Link]
-        Initialize;
+        Initialize();
         // [GIVEN] No Forward Links
         NamedForwardLink.DeleteAll();
 
@@ -1263,16 +1263,19 @@ codeunit 132500 "Error Message Handling"
         ForwardLinks.OpenView;
         ForwardLinks.Load.Invoke;
 
-        // [THEN] 7 records added
-        Assert.RecordCount(NamedForwardLink, 7);
+        // [THEN] 9 records added
+        Assert.RecordCount(NamedForwardLink, 9);
         // [THEN] 'Allowed Posting Date', 'Working with dims', 'Blocked Item', 'Blocked Customer' links exist
-        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
-        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions);
-        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedCustomer);
-        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedItem);
-        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForSalesLineDropShipmentErr);
-        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount);
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedCustomer());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedItem());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForSalesLineDropShipmentErr());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForTroubleshootingDimensions());
+        // [THEN] 'Blocked Gen./VAT Posting Setup' links exist
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForFinancePostingGroups());
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForFinanceSetupVAT());
 
         // [THEN] none of fields (Name, Description, Link) are blank.
         NamedForwardLink.FilterGroup(-1);
@@ -1289,7 +1292,7 @@ codeunit 132500 "Error Message Handling"
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
     begin
         // [FEATURE] [UT] [Forward Link]
-        Initialize;
+        Initialize();
         // [GIVEN] No Forward Links
         NamedForwardLink.DeleteAll();
         // [GIVEN] Action "A", where Description 'D', Link 'L'
@@ -1313,7 +1316,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [UT] [PopContext]
         // [Scenario 395037] PopContext 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Initial activation with context '1'
         ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
@@ -1338,7 +1341,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegister: Record "Error Message Register";
     begin
         ClearLastError;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ErrorMessageRegister.DeleteAll(true);
     end;
 

@@ -90,7 +90,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [FA Release Act FA-1]
         // [SCENARIO 377339] "Actual Acquisition Period" should be equal '0 months' in FA Release Act report if "Initial Release Date" of Fixed Asset is blank
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with zero "Initial Release Date"
         MockFAWithZeroInitialReleaseDate(FixedAsset);
 
@@ -115,7 +115,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [FA Release Act FA-1]
         // [SCENARIO 377339] "No of months" should be calculated as "No of years" multiplied by 12 when no value is defined in FA Release Act
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with "No. of Depreciation Years" = 2, "No. of Depreciation Months" = 0
         NoOfDeprYears := MockFAWithNoOfDeprYearsAndZeroNoOfDeprMonths(FixedAsset);
 
@@ -139,7 +139,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [FA Posted Release Act FA-1]
         // [SCENARIO 377339] "Actual Acquisition Period" should be equal '0 months' in Posted FA Release Act report if "Initial Release Date" of Fixed Asset is blank
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with zero "Initial Release Date"
         MockFAWithZeroInitialReleaseDate(FixedAsset);
 
@@ -164,7 +164,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [FA Posted Release Act FA-1]
         // [SCENARIO 377339] "No of months" should be calculated as "No of years" multiplied by 12 when no value is defined in Posted FA Release Act
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with "No. of Depreciation Years" = 2, "No. of Depreciation Months" = 0
         NoOfDeprYears := MockFAWithNoOfDeprYearsAndZeroNoOfDeprMonths(FixedAsset);
 
@@ -188,7 +188,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [Sales] [Sales FA Release FA-1]
         // [SCENARIO 377339] "Actual Acquisition Period" should be equal '0 months' in Sales FA Release Act report if "Initial Release Date" of Fixed Asset is blank
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with zero "Initial Release Date"
         MockFAWithZeroInitialReleaseDate(FixedAsset);
 
@@ -213,7 +213,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [Sales] [Sales FA Release FA-1]
         // [SCENARIO 377339] "No of months" should be calculated as "No of years" multiplied by 12 when no value is defined in Sales FA Release Act
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with "No. of Depreciation Years" = 2, "No. of Depreciation Months" = 0
         NoOfDeprYears := MockFAWithNoOfDeprYearsAndZeroNoOfDeprMonths(FixedAsset);
 
@@ -237,7 +237,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [Sales] [Posted Sales FA Release FA-1]
         // [SCENARIO 377339] "Actual Acquisition Period" should be equal '0 months' in Posted Sales FA Release Act report if "Initial Release Date" of Fixed Asset is blank
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with zero "Initial Release Date"
         MockFAWithZeroInitialReleaseDate(FixedAsset);
 
@@ -262,7 +262,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [FEATURE] [Sales] [Posted Sales FA Release FA-1]
         // [SCENARIO 377339] "No of months" should be calculated as "No of years" multiplied by 12 when no value is defined in Posted Sales FA Release Act
 
-        Initialize;
+        Initialize();
         // [GIVEN] Fixed Asset with "No. of Depreciation Years" = 2, "No. of Depreciation Months" = 0
         NoOfDeprYears := MockFAWithNoOfDeprYearsAndZeroNoOfDeprMonths(FixedAsset);
 
@@ -285,7 +285,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         // [FEATURE]  [FA Release Act FA-1]
         // [SCENARIO 382230] Depreciation Book line is empty (FA Release Act - Sheet2 - Table1) in case of zero depreciation amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset with FA Depreciation Books: "FABook1" with zero depreciation amount, "FABook2"
         // [GIVEN] FA Release Act with line: "Depreciation Book Code" = "FABook1", "New Depreciation Book Code" = "FABook2"
@@ -308,7 +308,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         // [FEATURE]  [FA Posted Release Act FA-1]
         // [SCENARIO 382230] Depreciation Book line is empty (FA Posted Release Act FA-1 - Sheet2 - Table1) in case of zero depreciation amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset with FA Depreciation Books: "FABook1" with zero depreciation amount, "FABook2"
         // [GIVEN] Posted FA Release Act with line: "Depreciation Book Code" = "FABook1", "New Depreciation Book Code" = "FABook2"
@@ -331,7 +331,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         // [FEATURE] [Sales] [Sales FA Release FA-1]
         // [SCENARIO 381676] Depreciation Book line is printed (Sales FA Release FA-1 - Sheet2 - Table1) in case of zero amounts
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset "FA" with FA Depreciation Book "FABook1" with zero acquisition, depreciation amounts
         // [GIVEN] Sales Invoice with a line: "Type" = "FA", "Depreciation Book Code" = "FABook1"
@@ -356,7 +356,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         // [FEATURE] [Sales] [Posted Sales FA Release FA-1]
         // [SCENARIO 381676] Depreciation Book line is printed (Posted Sales FA Release FA-1 - Sheet2 - Table1) in case of zero amounts
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset "FA" with FA Depreciation Book "FABook1" with zero acquisition, depreciation amounts
         // [GIVEN] Posted Sales Invoice with a line: "Type" = "FA", "Depreciation Book Code" = "FABook1"
@@ -429,7 +429,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [SCENARIO 382230] COD 14946 "FA-1 Report Helper".IsPrintFADeprBookLine() returns FALSE in case of zero Depreciation amount
         MockFixedAsset(FixedAsset);
         FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         Assert.AreEqual(false, FA1ReportHelper.IsPrintFADeprBookLine(FADepreciationBook), '');
     end;
 
@@ -444,7 +444,7 @@ codeunit 144711 "ERM FA-1 Report"
         // [SCENARIO 382230] COD 14946 "FA-1 Report Helper".IsPrintFADeprBookLine() returns TRUE in case of non-zero Depreciation amount
         MockFixedAsset(FixedAsset);
         FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         FADepreciationBook.Validate(Depreciation, LibraryRandom.RandDec(100, 2));
         Assert.AreEqual(true, FA1ReportHelper.IsPrintFADeprBookLine(FADepreciationBook), '');
     end;
@@ -466,7 +466,7 @@ codeunit 144711 "ERM FA-1 Report"
         FixedAsset: Record "Fixed Asset";
         FADocHeader: Record "FA Document Header";
     begin
-        Initialize;
+        Initialize();
         MockFAWithMultipleDeprBooks(FixedAsset);
         MockFADocument(FADocHeader, FixedAsset."No.");
         RunFAReleaseActReport(FADocHeader);
@@ -480,7 +480,7 @@ codeunit 144711 "ERM FA-1 Report"
         FixedAsset: Record "Fixed Asset";
         PostedFADocHeader: Record "Posted FA Doc. Header";
     begin
-        Initialize;
+        Initialize();
         MockFAWithMultipleDeprBooks(FixedAsset);
         MockPostedFADocument(PostedFADocHeader, FixedAsset);
         RunPostedFAReleaseActReport(PostedFADocHeader);
@@ -494,7 +494,7 @@ codeunit 144711 "ERM FA-1 Report"
         FixedAsset: Record "Fixed Asset";
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
         MockFAWithMultipleDeprBooks(FixedAsset);
         MockSalesInvoice(SalesHeader, FixedAsset."No.");
         RunSalesReleaseActReport(SalesHeader);
@@ -508,7 +508,7 @@ codeunit 144711 "ERM FA-1 Report"
         FixedAsset: Record "Fixed Asset";
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        Initialize;
+        Initialize();
         MockFAWithMultipleDeprBooks(FixedAsset);
         MockPostedSalesInvoice(SalesInvHeader, FixedAsset."No.");
         RunPostedSalesReleaseActReport(SalesInvHeader);
@@ -580,15 +580,15 @@ codeunit 144711 "ERM FA-1 Report"
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Fixed Asset");
             Insert;
-            Description := LibraryUtility.GenerateGUID;
-            "Description 2" := LibraryUtility.GenerateGUID;
-            Manufacturer := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
+            "Description 2" := LibraryUtility.GenerateGUID();
+            Manufacturer := LibraryUtility.GenerateGUID();
             "Initial Release Date" := WorkDate;
             "FA Location Code" := LibraryRUReports.MockFALocation;
             "Depreciation Code" := LibraryRUReports.MockDepreciationCode;
             "Depreciation Group" := LibraryRUReports.MockDepreciationGroup;
-            "Inventory Number" := LibraryUtility.GenerateGUID;
-            "Factory No." := LibraryUtility.GenerateGUID;
+            "Inventory Number" := LibraryUtility.GenerateGUID();
+            "Factory No." := LibraryUtility.GenerateGUID();
             "Manufacturing Year" := Format(Date2DMY(WorkDate, 3));
             Modify;
             InitFADeprBooks("No.");
@@ -601,7 +601,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         MockFAHeader(FADocHeader);
         FADepreciationBook.SetRange("FA No.", FANo);
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         MockFALine(FADocHeader, FADepreciationBook)
     end;
 
@@ -612,7 +612,7 @@ codeunit 144711 "ERM FA-1 Report"
             "Document Type" := "Document Type"::Release;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Document Header");
             Insert;
-            "Reason Document No." := LibraryUtility.GenerateGUID;
+            "Reason Document No." := LibraryUtility.GenerateGUID();
             "Reason Document Date" := WorkDate;
             "Posting Date" := WorkDate;
             "FA Posting Date" := LibraryRandom.RandDate(5);
@@ -643,7 +643,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         MockPostedFAHeader(PostedFADocHeader);
         FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         MockPostedFALine(PostedFADocHeader, FixedAsset, FADepreciationBook)
     end;
 
@@ -654,7 +654,7 @@ codeunit 144711 "ERM FA-1 Report"
             "Document Type" := "Document Type"::Release;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted FA Doc. Header");
             Insert;
-            "Reason Document No." := LibraryUtility.GenerateGUID;
+            "Reason Document No." := LibraryUtility.GenerateGUID();
             "Reason Document Date" := WorkDate;
             "Posting Date" := WorkDate;
             Modify;
@@ -686,7 +686,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         MockSalesHeader(SalesHeader);
         FADepreciationBook.SetRange("FA No.", FANo);
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         MockSalesLine(SalesHeader, FANo, FADepreciationBook);
     end;
 
@@ -726,7 +726,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         MockPostedSalesHeader(SalesInvHeader);
         FADepreciationBook.SetRange("FA No.", FANo);
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         MockPostedSalesLine(SalesInvHeader, FANo, FADepreciationBook);
     end;
 
@@ -836,7 +836,7 @@ codeunit 144711 "ERM FA-1 Report"
         LibraryReportValidation.VerifyCellValue(32, 49, Format(DocDate));
 
         FADeprBook.SetRange("FA No.", FixedAsset."No.");
-        FADeprBook.FindFirst;
+        FADeprBook.FindFirst();
         FAPostingGroup.Get(FADeprBook."FA Posting Group");
 
         LibraryReportValidation.VerifyCellValue(28, 88, Format(FADocDate));
@@ -865,7 +865,7 @@ codeunit 144711 "ERM FA-1 Report"
     begin
         with FADeprBook do begin
             SetRange("FA No.", FANo);
-            FindFirst;
+            FindFirst();
             CalcFields("Acquisition Cost", "Initial Acquisition Cost", Depreciation);
             Evaluate(NoOfDeprMonths, LibraryReportValidation.GetValueByRef('AG', 61, 2));
             Assert.AreEqual(

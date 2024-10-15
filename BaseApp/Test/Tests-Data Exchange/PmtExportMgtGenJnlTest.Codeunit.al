@@ -172,7 +172,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.IsTrue(GenJournalLine."Exported to Payment File", PmtJnlLineExportFlagErr);
     end;
 
@@ -320,7 +320,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
         // [GIVEN] Vendor, Vendor Bank Account and Bank Account created with Country/Region code
         LibraryERM.CreateCountryRegion(CountryRegion);
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
         Currency.Get(CurrencyCode);
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(5, 10, 2));
@@ -368,7 +368,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibraryERM.CreateCurrency(Currency);
 
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateCurrencyWithFactor(Currency);
 
         CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
@@ -414,7 +414,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         LineNo := 1000;
         LibraryERM.CreateCountryRegion(CountryRegion);
 
-        PaymentType := LibraryUtility.GenerateGUID;
+        PaymentType := LibraryUtility.GenerateGUID();
         CreateCurrencyWithFactor(Currency);
         CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
         CreateBankAccountWithExportFormatAndCountryRegion(
@@ -516,8 +516,8 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 
         // [GIVEN] Vendor Bank Account "VBA" County = "C", 'Post Code' = "PC"
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
-        VendorBankAccount.Validate(County, LibraryUtility.GenerateGUID);
-        VendorBankAccount.Validate("Post Code", LibraryUtility.GenerateGUID);
+        VendorBankAccount.Validate(County, LibraryUtility.GenerateGUID());
+        VendorBankAccount.Validate("Post Code", LibraryUtility.GenerateGUID());
         VendorBankAccount.Modify();
 
         // [GIVEN] Payment journal line for Vendor "V", "Bal. Account No." = Bank with Name "BN"
@@ -545,7 +545,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         LibraryPaymentExport.CreateVendorWithBankAccount(Vendor);
         VendorBankAcc.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
-        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID();
         VendorBankAcc."Country/Region Code" := CountryRegionCode;
         VendorBankAcc.Modify(true);
 
@@ -561,7 +561,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
     local procedure CreateBankAccountWithExportFormatAndCountryRegion(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20]; CountryRegionCode: Code[10])
     begin
         LibraryERM.CreateBankAccount(BankAcc);
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Validate("Payment Export Format", PaymentExportFormat);
         BankAcc."Country/Region Code" := CountryRegionCode;
         BankAcc.Modify(true);
@@ -676,7 +676,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
             "Vendor No." := VendorCode;
             "Posting Date" := WorkDate;
             "Document Type" := DocumentType;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Open := true;
             "Due Date" := CalcDate('<1D>', "Posting Date");
             Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
@@ -684,7 +684,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
             "Bal. Account No." := BankAccountCode;
             "Payment Method Code" := VendorPaymentMethodCode;
             "Recipient Bank Account" := VendorBankAccountCode;
-            "Message to Recipient" := LibraryUtility.GenerateGUID;
+            "Message to Recipient" := LibraryUtility.GenerateGUID();
             "Exported to Payment File" := Exported;
             "Currency Code" := Currency.Code;
             "Amount (LCY)" := Amount * Currency."Currency Factor";
@@ -723,7 +723,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         BankExportImportSetup.TestField("Data Exch. Def. Code");
         DataExch.SetRange("Data Exch. Def Code", BankExportImportSetup."Data Exch. Def. Code");
-        DataExch.FindFirst;
+        DataExch.FindFirst();
         exit(DataExch."File Name");
     end;
 

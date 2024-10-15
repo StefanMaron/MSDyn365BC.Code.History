@@ -19,6 +19,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         FileMgt: Codeunit "File Management";
         isInitialized: Boolean;
@@ -32,7 +33,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1.5);
@@ -40,7 +41,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
 
         // Exercise: Add to Match.
         LibraryLowerPermissions.SetBanking;
@@ -61,7 +62,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 2.5);
@@ -69,7 +70,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
 
         // Exercise: Add to Match.
         LibraryLowerPermissions.SetBanking;
@@ -90,7 +91,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
@@ -98,7 +99,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        BankAccReconciliationLine.FindLast;
+        BankAccReconciliationLine.FindLast();
 
         // Exercise: Replace Match.
         LibraryLowerPermissions.SetBanking;
@@ -108,7 +109,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Verify.
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 1, Amount);
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 0, 0);
         VerifyBalance(BankAccReconciliationPage, BankAccReconciliation."Bank Account No.");
     end;
@@ -122,7 +123,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
@@ -141,9 +142,9 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        BankAccReconciliationLine.FindLast;
+        BankAccReconciliationLine.FindLast();
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 0, 0);
-        BankAccReconciliationLine.FindFirst;
+        BankAccReconciliationLine.FindFirst();
         VerifyOneToManyMatch(BankAccReconciliation, BankAccReconciliationLine."Statement Line No.", 0, 0);
         VerifyBalance(BankAccReconciliationPage, BankAccReconciliation."Bank Account No.");
     end;
@@ -159,7 +160,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1.5);
@@ -193,7 +194,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
@@ -216,7 +217,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
@@ -241,7 +242,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupManualMatch(BankAccReconciliation, BankAccReconciliationPage, Amount, 1);
@@ -549,7 +550,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 306156] Gen. Journal Line Description is not changed when line created from bank reconciliation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create bank reconciliation with bank satetement line Description = 'XYZ'
         StatementDescription := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(StatementDescription), 0);
@@ -696,9 +697,9 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GLEntry: Record "G/L Entry";
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateBankAccReconLineWithGLAcc(BankAccReconciliation, BankAccReconciliationLine, GLAccountNo, AmountToApply);
         CreatePaymentApplication(BankAccReconciliationLine, AmountToApply);
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
@@ -713,6 +714,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match Bank Rec. Scenarios");
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -722,8 +724,12 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         isInitialized := true;
+        Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Match Bank Rec. Scenarios");
     end;
 

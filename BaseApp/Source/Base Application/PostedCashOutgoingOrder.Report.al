@@ -30,7 +30,7 @@ report 12457 "Posted Cash Outgoing Order"
                         begin
                             CustomerGeneralLedger.SetCurrentKey("Transaction No.");
                             CustomerGeneralLedger.SetRange("Transaction No.", BAnkGLEntries."Transaction No.");
-                            CustomerGeneralLedger.FindFirst;
+                            CustomerGeneralLedger.FindFirst();
                             CustomerPostingGr.Get(CustomerGeneralLedger."Customer Posting Group");
                             SettlAccNo := CustomerPostingGr."Receivables Account";
                         end;
@@ -38,7 +38,7 @@ report 12457 "Posted Cash Outgoing Order"
                         begin
                             PurchaserGLEntry.SetCurrentKey("Transaction No.");
                             PurchaserGLEntry.SetRange("Transaction No.", BAnkGLEntries."Transaction No.");
-                            PurchaserGLEntry.FindFirst;
+                            PurchaserGLEntry.FindFirst();
                             VendorPostingGr.Get(PurchaserGLEntry."Vendor Posting Group");
                             SettlAccNo := VendorPostingGr."Payables Account";
                         end;

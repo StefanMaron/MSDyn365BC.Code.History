@@ -229,7 +229,7 @@ page 17219 "Tax Register Section Card"
                         Clear(CopyTaxRegSection);
                         TaxRegSection.SetRange(Code, Code);
                         CopyTaxRegSection.SetTableView(TaxRegSection);
-                        CopyTaxRegSection.RunModal;
+                        CopyTaxRegSection.RunModal();
                         Clear(CopyTaxRegSection);
                     end;
                 }

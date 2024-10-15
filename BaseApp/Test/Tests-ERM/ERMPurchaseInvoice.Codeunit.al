@@ -66,7 +66,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Test New Purchase Invoice creation.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Invoice.
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
@@ -89,7 +89,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Create a Purchase Invoice, Calculates applicable VAT for a VAT Posting Group and verify it with VAT Amount Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
 
         // Exercise: Calculate VAT Amount on Purchase Invoice.
@@ -117,7 +117,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Create New Purchase Invoice and save as external file and verify saved files have data.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
 
         // Exercise: Generate Report as external file for Purchase Invoice.
@@ -151,7 +151,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // Setup: Update Purchase and Payable Setup to generate Posted Purchase Receipt document from Purchase Invoice.
         // Create Purchase Invoice, Store Line count of Purchase Invoice, Posted Receipt No. and Posted Invoice No. in a variable.
-        Initialize;
+        Initialize();
         UpdatePurchaseAndPayableSetup(true, false);
         FindVATPostingSetup(VATPostingSetup);
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateAndModifyVendor('', VATPostingSetup."VAT Bus. Posting Group"));
@@ -190,7 +190,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Create and Post Purchase Invoice with Posting No as *** and verify that it gets posted and *** entries are not created.
 
         // Create Purchase Invoice, set 'Posting No.' to ***.
-        Initialize;
+        Initialize();
         FindVATPostingSetup(VATPostingSetup);
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateAndModifyVendor('', VATPostingSetup."VAT Bus. Posting Group"));
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -216,7 +216,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PostedDocumentNo: Code[20];
     begin
         // [SCENARIO 315920] Line is getting refreshed inside posting of a Purchase Invoice.
-        Initialize;
+        Initialize();
         // [GIVEN] Create Purchase Order, where Description is 'A' in the line.
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateVendor(''), PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -236,6 +236,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchInvLine.TestField("Description 2", 'A');
     end;
 
+#if FIX_UNSTABLEREPORTTEST_VSO416487
     [Test]
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoiceReport()
@@ -251,7 +252,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Test if Post a Purchase Invoice and generate Posted Purchase Invoice Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -269,6 +270,34 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify: Verify that Saved files have some data.
         LibraryUtility.CheckFileNotEmpty(FilePath);
     end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseInvoiceWithAlternativeVendorPostingGroup()
+    var
+        VendPostingGroup: Record "Vendor Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        PostedDocumentNo: Code[20];
+    begin
+        // Create Sales Invoice, Post and Verify Sales Invoice Header and Line.
+
+        // Setup: Create Sales Invoice.
+        Initialize();
+        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
+
+        LibraryPurchase.CreateVendorPostingGroup(VendPostingGroup);
+        PurchaseHeader.Validate("Vendor Posting Group", VendPostingGroup.Code);
+
+        // Exercise: Post Sales Invoice.
+        PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Verify vendor posting group in posted document and ledger entries
+        VerifyPurchaseInvoiceVendPostingGroup(PostedDocumentNo, VendPostingGroup);
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -284,8 +313,8 @@ codeunit 134328 "ERM Purchase Invoice"
         // Test if Post a Purchase Invoice with Warehouse Location and verify Posted Purchase Receipt Entry.
 
         // Setup: Update Purchase and Payable Setup to generate Posted Purchase Receipt document from Purchase Invoice.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UpdatePurchaseAndPayableSetup(true, false);
 
         // Exercise: Create Purchase Invoice for Warehouse Location. Using RANDOM Quantity for Purchase Line, value is not important.
@@ -300,7 +329,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // Verify: Verify Quantity Posted Receipt Document.
         PurchRcptLine.SetRange("Document No.", PostedDocumentNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         Assert.AreEqual(PurchaseLine.Quantity, PurchRcptLine.Quantity, FieldErr);
 
         // Tear Down: Rollback Setup changes for Location and Warehouse Employee.
@@ -323,7 +352,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Test Line Discount on Purchase Invoice, Post Invoice and verify Posted GL Entry.
 
         // Setup: Create Line Discount Setup.
-        Initialize;
+        Initialize();
         SetupLineDiscount(PurchaseLineDiscount);
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
@@ -351,7 +380,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Test Line Service Item gets posted and verify Value Entries are non Inventoriable
 
         // Setup: Create Line Discount Setup.
-        Initialize;
+        Initialize();
         Item.Get(CreateServiceItem);
         SetupLineDiscount(PurchaseLineDiscount);
         // Exercise: Create and Post Invoice with Random Quantity. Take Quantity greater than Purchase Line Discount Minimum Quantity.
@@ -369,7 +398,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Test Line Service Item gets posted and verify Value Entries are non Inventoriable
 
         // Setup: Create Line Discount Setup.
-        Initialize;
+        Initialize();
         Item.Get(CreateNonStockItem);
         SetupLineDiscount(PurchaseLineDiscount);
         // Exercise: Create and Post Invoice with Random Quantity. Take Quantity greater than Purchase Line Discount Minimum Quantity.
@@ -389,7 +418,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Create New Invoice Discount Setup for Vendor and make new Purchase Invoice, Post Invoice and verify Posted GL Entry.
 
         // Setup: Create Invoice Discount Setup.
-        Initialize;
+        Initialize();
         SetupInvoiceDiscount(VendorInvoiceDisc, LibraryRandom.RandInt(10));
 
         // Exercise: Create Purchase Invoice using Random value for Quantity, calculate Invoice Discount and Post Invoice.
@@ -423,7 +452,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Create and Post a Purchase Invoice with Currency and verify currency on Posted Purchase Invoice Entry.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Invoice, attach new Currency on Purchase Invoice and Post Invoice.
         CreatePurchaseHeader(PurchaseHeader, CreateVendor(''), PurchaseHeader."Document Type"::Invoice);
@@ -456,7 +485,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Purchase Lines Field after Create and before Release Purchase Invoice with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceCurrency(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
         // Exercise: Calculate Line Discount and Outstanding Amount LCY field  on Purchase Line.
@@ -485,7 +514,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Purchase Lines Field after Create and Release Purchase Invoice with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceCurrency(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
         if Currency.Get(PurchaseLine."Currency Code") then
             RoundingPrecision := Currency."Amount Rounding Precision";
@@ -525,7 +554,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Purchase Lines Field after Create and Calculate Invoice Discount on Purchase order with Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         InvoiceDiscount := CreatePurchaseInvoiceCurrency(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
         PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity / 2);
@@ -560,7 +589,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Invoice Discount Amount on Purchase Order for Partial Posting.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateAndPostPurchaseOrder(PurchaseLine, InvDiscountAmount);
 
@@ -592,7 +621,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Invoice Discount Amount on Purchase Order for Posted Purchase Invoice.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, InvDiscountAmount);
 
@@ -617,10 +646,10 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Invoice Page not editable if no vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Invoice page is opened
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(PurchaseInvoice."Buy-from Contact".Editable, ContactShouldNotBeEditableErr);
@@ -636,7 +665,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Invoice Page  editable if vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -659,7 +688,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Invoice Page not editable if vendor selected equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -688,7 +717,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Invoice Page editable if vendor selected not equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -723,7 +752,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Purchase Invoice Header.
 
         // Setup: Create Currency,Vendor and Update Additional Currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
 
@@ -756,7 +785,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // Setup: Create Currency and Exchange Rate. Update Inv. Rounding Precision LCY and Additional Currency on General Ledger Setup.
         // Run Additional Reporting Currency and create Vendor with Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         LibraryERM.SetInvRoundingPrecisionLCY(1);  // 1 used for Inv. Rounding Precision LCY according to script.
@@ -786,7 +815,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // Setup: Create Currency and Exchange Rate. Update Additional Currency on General Ledger Setup.
         // Run Additional Reporting Currency. Find VAT Posting Setup. Create Vendor and Item.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
         FindVATPostingSetup(VATPostingSetup);
@@ -820,7 +849,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check GL And Vendor Ledger Entry for Amount and Purchaser Code after Posting Purchase Invoice.
 
         // Setup: Create and Post Purchase Invoice with Payment Method and Purchaser Code with Random Values.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account No.", GLAccount."No.");
@@ -861,7 +890,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Line Amount on Purchase Invoice for New Vendor.
 
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Invoice.
         LibraryLowerPermissions.AddVendorEdit;
@@ -881,7 +910,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Total (LCY) and Balance (LCY) of Vendor after post Purchase Invoice.
 
         // Setup: Create Vendor, Item and Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, CreateVendor(''));
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT");
@@ -912,7 +941,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // verify Amount and Additional amount on GL entry.
 
         // Setup: Create G/L Account, Create Currency and its Exchange rate, Create Vendor and Item.
-        Initialize;
+        Initialize();
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
         Vendor.Get(CreateVendor(CreateCurrency));
         LibraryERM.SetAddReportingCurrency(Vendor."Currency Code");
@@ -944,7 +973,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verifying that the posted purchase receipt and posted purchase invoice have been created after posting Purchase Order.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader, CreateVendor(''), PurchaseHeader."Document Type"::Order);
 
         // Using Random Number Generator for Random Quantity.
@@ -969,7 +998,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // open and close Vendor page and verify error message after closing the Vendor page.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorCard.OpenView;
         VendorCard.Close;
 
@@ -992,7 +1021,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Vendor after Creating a new Vendor with Page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Vendor with Page.
         LibraryLowerPermissions.SetVendorEdit;
@@ -1011,7 +1040,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Dimension on Vendor after creating a Vendor with Dimension.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Vendor with Dimension.
         CreateVendorWithDimension(DefaultDimension);
@@ -1035,8 +1064,8 @@ codeunit 134328 "ERM Purchase Invoice"
         // Check Base on VAT Entry after posting Purchase Invoice with IC Partner.
 
         // Setup: Create Purchase Invoice with IC Partner Code.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
         VendorNo :=
           LibraryPurchase.CreateVendorWithBusPostingGroups(GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
@@ -1071,7 +1100,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify Receipts on Get Receipt Lines are filtered according to Buy-from Vendor No. on Purchase Invoice.
 
         // Setup: Create and Receive two Purchase Orders using different Buy-from Vendor No. and same Pay-to Vendor No. and create Purchase Invoice using First Vendor.
-        Initialize;
+        Initialize();
         CreateReceiptsAndPurchaseInvoice(PurchaseHeader);
 
         // Exercise: Open created Purchase Invoice page and do Get Receipt Lines.
@@ -1095,7 +1124,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify the GL Entries when posting the Purchase Invoice after Get Receipt Lines using page.
 
         // Setup: Create and Receive two Purchase Orders using different Vendors and create Purchase Invoice using first Vendor. Open created Purchase Invoice page and do Get Receipt Lines.
-        Initialize;
+        Initialize();
         CreateReceiptsAndPurchaseInvoice(PurchaseHeader);
         OpenPurchaseInvoiceAndGetReceiptLine(PurchaseHeader."No.");
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -1162,7 +1191,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify Get Receipt Lines page that lines are filtered according to Purchase Order.
 
         // Setup: Post the Purchase Order.
-        Initialize;
+        Initialize();
         PartiallyPostPurchaseOrder(PurchaseHeader);
 
         // Exercise: Open Get Receipt Lines page.
@@ -1184,7 +1213,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify Filter on Get Receipt Lines page filtered according to Quantity.
 
         // Setup: Post the Purchase Order.
-        Initialize;
+        Initialize();
         PartiallyPostPurchaseOrder(PurchaseHeader);
 
         // Exercise: Open Get Receipt Lines page.
@@ -1206,7 +1235,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // Verify G/L Entry for Posted Purchase Invoice after Get Receipt Line on Purchase Invoice.
 
         // Setup: Post the Purchase Order and open Get Receipt Lines page.
-        Initialize;
+        Initialize();
         PartiallyPostPurchaseOrder(PurchaseHeader);
         GetReceiptLines.OpenEdit;
 
@@ -1232,7 +1261,7 @@ codeunit 134328 "ERM Purchase Invoice"
         Amount: Decimal;
     begin
         // Verify GL Entry after post Purhcase Invoice without Price Including VAT.
-        Initialize;
+        Initialize();
         SetupLineDiscount(PurchaseLineDiscount);
         CreatePurchInvWithPricesIncludingVAT(PurchaseHeader, PurchaseLineDiscount, false);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -1258,7 +1287,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PostedDocumentNo: Code[20];
     begin
         // Verify GL Entry after post Purhcase Invoice with Price Including VAT.
-        Initialize;
+        Initialize();
         SetupLineDiscount(PurchaseLineDiscount);
         CreatePurchInvWithPricesIncludingVAT(PurchaseHeader, PurchaseLineDiscount, true);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -1300,7 +1329,7 @@ codeunit 134328 "ERM Purchase Invoice"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Unit test
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         asserterror PurchDocLineQtyValidation;
         Assert.ExpectedError(WhseReceiveIsRequiredErr);
 
@@ -1317,8 +1346,8 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Change Global Dimensions] [Job]
         // [SCENARIO 376908] Purchase Line's global dim values are updated after validate Job Task No.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UpdateGlobalDims;
 
         // [GIVEN] Job "X" with global dim1 value = "D1". Job task "Y" with global dim2 value = "D2".
@@ -1346,7 +1375,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Extended Text] [Purchase Order] [Invoice Discount]
         // [SCENARIO 363756] Purchase Line is deleted from Purchase Order when there is Extended Text and "Calc Inv. Discount" is TRUE
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetupCalcInvDisc(true);
 
         // [GIVEN] Vendor and Item "X" with Extended Text
@@ -1386,7 +1415,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Extended Text] [Purchase Order] [Invoice Discount]
         // [SCENARIO 363756] Purchase Line is deleted from Purchase Order when there is Extended Text and Receipt Lines
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetupCalcInvDisc(true);
         LineDiscAmt := LibraryRandom.RandDec(10, 2);
 
@@ -1430,7 +1459,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 360474] Line Discount Amount of with Prices Incl. VAT generated by GetRcptLines function from order with Prices Excl. VAT is increased by VAT %
-        Initialize;
+        Initialize();
         LineDiscAmt := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Received purchase order with line discount OrderLineDiscAmt and Prices Including VAT = FALSE
@@ -1456,7 +1485,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 360474] Line Discount Amount of with Prices Excl. VAT generated by GetRcptLines function from order with Prices Incl. VAT is decreased by VAT %
-        Initialize;
+        Initialize();
         LineDiscAmt := LibraryRandom.RandDec(10, 2);
 
         // [GIVEN] Received purchase order with line discount OrderLineDiscAmt and Prices Including VAT = TRUE
@@ -1479,7 +1508,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseLine: Record "Purchase Line";
     begin
         // [SCENARIO] Outstanding Amounts should be 0 after changing Quanity to 0 in Sales Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Invoice Line with non zero Quantity and Outstanding amount
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -1515,7 +1544,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [Purchase Price] [UT]
         // [SCENARIO 375443] Direct Unit Cost should be updated when change Buy-From Vendor No. with Purchase Prices defined
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Invoice with Vendor "A", Item "X" and "Direct Unit Cost" = 100
         CreatePurchaseHeader(PurchHeader, LibraryPurchase.CreateVendorNo, PurchHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
@@ -1551,7 +1580,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UT]
         // [SCENARIO 375443] Direct Unit Cost should not be updated when change Buy-From Vendor No. without Purchase Prices defined
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Invoice with Vendor "A", Item "X" and "Direct Unit Cost" = 100
         CreatePurchaseHeader(PurchHeader, LibraryPurchase.CreateVendorNo, PurchHeader."Document Type"::Invoice);
         LibraryPurchase.CreatePurchaseLine(
@@ -1583,7 +1612,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Date Order]
         // [SCENARIO 375365] Copy Document from Posted Purchase Invoice and Receipt with Date Order enabled and user not accepted confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Posting Date = "X"
         PostedDocNo :=
@@ -1608,7 +1637,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // [WHEN] Run Copy Document from Posted Purchase Receipt to Purchase Document with Include Header = TRUE
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
         PurchHeader.Find;
@@ -1633,7 +1662,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Date Order]
         // [SCENARIO 375365] Copy Document from Posted Purchase Credit Memo and Return Shipment with Date Order enabled and user not accepted confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo with Posting Date = "X"
         PostedDocNo :=
@@ -1658,7 +1687,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // [WHEN] Run Copy Document from Posted Return Shipment to Purchase Document with Include Header = TRUE
         ReturnShptHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        ReturnShptHeader.FindFirst;
+        ReturnShptHeader.FindFirst();
         LibraryVariableStorage.Enqueue(false);
         CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Return Shipment", ReturnShptHeader."No.");
         PurchHeader.Find;
@@ -1681,7 +1710,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Date Order]
         // [SCENARIO 375365] Copy Document from Purchase Quote with Date Order enabled and user not accepted confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice Nos. has "Date Order" = TRUE
         OldDateOrder := SetNoSeriesDateOrder(true);
@@ -1691,7 +1720,7 @@ codeunit 134328 "ERM Purchase Invoice"
           PurchHeaderSrc, PurchHeaderSrc."Document Type"::Quote, LibraryPurchase.CreateVendorNo);
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchaseHeaderWithPostingNo(
           PurchHeaderDst, VendorNo, LibraryRandom.RandInt(5),
           LibraryUtility.GenerateRandomCode(PurchHeaderDst.FieldNo("Posting No."), DATABASE::"Purchase Header"));
@@ -1722,7 +1751,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Date Order]
         // [SCENARIO 375365] Copy Document from Posted Purchase Invoice and Receipt with Date Order enabled and user accepted confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Posting Date = "X"
         PostedDocNo :=
@@ -1732,7 +1761,7 @@ codeunit 134328 "ERM Purchase Invoice"
         OldDateOrder := SetNoSeriesDateOrder(true);
 
         // [GIVEN] Purchase Document with Posting Date = "X" + 1 day and Posting No. assigned
-        VendorNoDst := LibraryPurchase.CreateVendorNo;
+        VendorNoDst := LibraryPurchase.CreateVendorNo();
         CreatePurchaseHeaderWithPostingNo(PurchHeader1, VendorNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         // [WHEN] Run Copy Document from Posted Purchase Invoice to Purchase Document with Include Header = TRUE
         CopyDocument(PurchHeader1, "Purchase Document Type From"::"Posted Invoice", PostedDocNo);
@@ -1743,7 +1772,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         // [WHEN] Run Copy Document from Posted Purchase Receipt to Purchase Document with Include Header = TRUE
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNoSrc);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         CreatePurchaseHeaderWithPostingNo(PurchHeader2, VendorNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         CopyDocument(PurchHeader2, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
         PurchHeader2.Find;
@@ -1768,7 +1797,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Date Order]
         // [SCENARIO 375365] Copy Document from Posted Purchase Credit Memo and Return Shipment with Date Order enabled and user accepted confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo with Posting Date = "X"
         PostedDocNo :=
@@ -1793,7 +1822,7 @@ codeunit 134328 "ERM Purchase Invoice"
           PurchHeader2, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(5), PostedDocNo);
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        ReturnShipmentHeader.FindFirst;
+        ReturnShipmentHeader.FindFirst();
         CopyDocument(PurchHeader2, "Purchase Document Type From"::"Posted Return Shipment", ReturnShipmentHeader."No.");
         PurchHeader2.Find;
 
@@ -1814,7 +1843,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Date Order]
         // [SCENARIO 375365] Copy Document from Purchase Quote with Date Order enabled and user accepted confirmation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice Nos. has "Date Order" = TRUE
         OldDateOrder := SetNoSeriesDateOrder(true);
@@ -1851,7 +1880,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [SCENARIO 376478] It is not allowed to Copy document when VAT group of source lines does not match VAT group of destination header
         // [FEATURE] [Copy Document]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source Purchase Invoice with "VAT Bus. Posting Group" = "X" in line
         LibraryPurchase.CreatePurchHeader(
@@ -1934,10 +1963,10 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseHeaderNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Invoice with Negative quanity, try to post and then delete.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with an Item with negative quantity
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, -LibraryRandom.RandInt(10));
         PurchaseHeaderNo := PurchaseHeader."No.";
@@ -1969,7 +1998,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UT] [Reverse Charge]
         // [SCENARIO 208584] "Total VAT Amount" field of Purchase Invoice Subform should not inclide "VAT Amount" of lines in case of Reverse Charge VAT Calculation Type
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI" with two lines
         CreatePurchaseHeader(PurchaseHeader, CreateVendor(''), PurchaseHeader."Document Type"::Invoice);
@@ -2011,9 +2040,13 @@ codeunit 134328 "ERM Purchase Invoice"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // [FEATURE] [Deletion]
         // [SCENARIO 226743] If "Posted Invoice Nos." and "Invoice Nos." No. Series are the same, then on deletion of Purchase Invoice before posting, then confirmation for creation of empty posted invoice must appear
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
 
         // [GIVEN] "Posted Invoice Nos." and "Invoice Nos." No. Series are the same
         PurchasesPayablesSetup.Get();
@@ -2048,7 +2081,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Receipt]
         // [SCENARIO 253750] Calculation of "Quantity Invoiced" and "Qty. Invoiced (Base)" in Posted Receipt when posting a purchase with negative quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Receipt on Invoice" = TRUE, "Exact Cost Reversing Mandatory" = FALSE in Purchase Setup
         UpdatePurchaseAndPayableSetup(true, false);
@@ -2065,7 +2098,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [THEN] "Qty. Rcd. Not Invoiced" = 0
         PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchRcptLine.SetRange("No.", PurchaseLine."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("Quantity Invoiced", -1);
         PurchRcptLine.TestField("Qty. Invoiced (Base)", -1);
         PurchRcptLine.TestField("Qty. Rcd. Not Invoiced", 0);
@@ -2081,7 +2114,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Return Shipment]
         // [SCENARIO 257861] Calculation of "Quantity Invoiced" and "Qty. Invoiced (Base)" in Posted Return Shipment when posting credit memo with negative quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Return Shipment on Credit Memo" = TRUE, "Exact Cost Reversing Mandatory" = FALSE in Purchase Setup
         UpdatePurchaseAndPayableSetup(false, true);
@@ -2098,7 +2131,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [THEN] "Return Qty. Shipped Not Invd." = 0
         ReturnShipmentLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         ReturnShipmentLine.SetRange("No.", PurchaseLine."No.");
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
         ReturnShipmentLine.TestField("Quantity Invoiced", -1);
         ReturnShipmentLine.TestField("Qty. Invoiced (Base)", -1);
         ReturnShipmentLine.TestField("Return Qty. Shipped Not Invd.", 0);
@@ -2113,7 +2146,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Page with Prices including VAT disabled was open
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
@@ -2141,7 +2174,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI] [Buy-from Vendor]
         // [SCENARIO 294718] Select second vendor with the same name when lookup "Buy-from Vendor Name" on Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendors "Vend1" and "Vend2" with same name "Amazing"
         CreateVendorsWithSameName(Vendor1, Vendor2);
@@ -2179,7 +2212,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI] [Pay-to Vendor]
         // [SCENARIO 294718] Select second vendor with the same name when lookup "Pay-to Name" on Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendors "Vend1" and "Vend2" with same name "Amazing"
         CreateVendorsWithSameName(Vendor1, Vendor2);
@@ -2219,7 +2252,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 293548] Action "Post and new" opens new invoice after posting the current one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice card is opened with invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
@@ -2254,7 +2287,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [Permissions]
         // [SCENARIO 325667] Purchase Line without type is added when user has limited permissions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard text.
         LibrarySales.CreateStandardText(StandardText);
@@ -2287,7 +2320,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PostingSetupManagement: Codeunit PostingSetupManagement;
     begin
         // [SCENARIO 325667] Notification is shown when Purchase Line is added and G/L Account is missing in posting group.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled notification about missing G/L account.
         MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
@@ -2333,7 +2366,7 @@ codeunit 134328 "ERM Purchase Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 332188]
         // [SCENARIO 391749] The Vendor Lookup page must has Date Filter
-        Initialize;
+        Initialize();
 
         CreateVendorsWithSameName(Vendor1, Vendor2);
 
@@ -2376,7 +2409,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 332188]
-        Initialize;
+        Initialize();
 
         CreateVendorsWithSameName(Vendor1, Vendor2);
 
@@ -2422,7 +2455,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 332188]
-        Initialize;
+        Initialize();
 
         CreateVendorsWithSameName(Vendor1, Vendor2);
 
@@ -2464,7 +2497,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 332188]
-        Initialize;
+        Initialize();
 
         CreateVendorsWithSameName(Vendor1, Vendor2);
         Vendor2.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(100, 0), 1, MaxStrLen(Vendor2.Name));
@@ -2930,8 +2963,8 @@ codeunit 134328 "ERM Purchase Invoice"
         PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Invoice");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         PriceListLine.DeleteAll();
@@ -2940,11 +2973,11 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Invoice");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
 
@@ -3064,7 +3097,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchaseHeader(PurchHeader, VendorNo, DocType);
         LibraryPurchase.CreatePurchaseLine(
           PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
@@ -3266,7 +3299,7 @@ codeunit 134328 "ERM Purchase Invoice"
     var
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.Activate;
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
@@ -3386,7 +3419,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseInvoiceNo: Code[20];
     begin
         // Setup: Create and Post Purchase Order and Create Purchase Document.
-        Initialize;
+        Initialize();
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, CreateVendorWithPaymentTermsCode(PaymentTerms.Code), PurchaseHeader."Document Type"::Order);
@@ -3405,7 +3438,7 @@ codeunit 134328 "ERM Purchase Invoice"
         FixedAsset: Record "Fixed Asset";
     begin
         FixedAsset.SetRange(Blocked, false);
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
         exit(FixedAsset."No.");
     end;
 
@@ -3413,7 +3446,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
@@ -3421,7 +3454,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetFilter(Type, '<>''''');
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindPurchaseLineByType(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; Type: Enum "Purchase Line Type"; ItemNo: Code[20])
@@ -3429,7 +3462,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchLine.SetRange("Document No.", DocumentNo);
         PurchLine.SetRange(Type, Type);
         PurchLine.SetRange("No.", ItemNo);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -3449,7 +3482,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Order No.", OrderNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.");
     end;
 
@@ -3458,7 +3491,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         exit(PurchRcptHeader."No.");
     end;
 
@@ -3468,7 +3501,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         ICGLAccount.SetRange("Account Type", ICGLAccount."Account Type"::Posting);
         ICGLAccount.SetRange(Blocked, false);
-        ICGLAccount.FindFirst;
+        ICGLAccount.FindFirst();
         exit(ICGLAccount."No.");
     end;
 
@@ -3484,9 +3517,9 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure OpenPurchaseInvoiceAndGetReceiptLine(No: Code[20])
@@ -3527,7 +3560,7 @@ codeunit 134328 "ERM Purchase Invoice"
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.SetParameters(DocumentType, DocumentNo, true, ReCalculateLines);
         CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.Run;
+        CopyPurchaseDocument.Run();
     end;
 
     local procedure UpdateFAPostingGroup(FAPostingGroup: Record "FA Posting Group"; VATPostingSetup: Record "VAT Posting Setup")
@@ -3537,7 +3570,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GLAccountNo: Code[20];
     begin
         FAPostingGroup2.SetFilter("Acquisition Cost Account", '<>''''');
-        FAPostingGroup2.FindFirst;
+        FAPostingGroup2.FindFirst();
         FAPostingGroup.TransferFields(FAPostingGroup2, false);
 
         GLAccountNo :=
@@ -3552,7 +3585,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         Location.Validate("Require Receive", RequireReceive);
         Location.Modify(true);
         exit(Location.Code);
@@ -3658,7 +3691,7 @@ codeunit 134328 "ERM Purchase Invoice"
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               AdditionalCurrencyAmount, "Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(
@@ -3673,7 +3706,7 @@ codeunit 134328 "ERM Purchase Invoice"
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption, "Entry No."));
@@ -3687,7 +3720,7 @@ codeunit 134328 "ERM Purchase Invoice"
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode); // required for BE to avoid finding rounding VAT Entry
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               Amount2, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
               StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption, "Entry No."));
@@ -3714,7 +3747,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         with VendorLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             CalcFields("Amount (LCY)");
             Assert.AreNearlyEqual(
               AmountLCY, "Amount (LCY)", LibraryERM.GetInvoiceRoundingPrecisionLCY,
@@ -3728,7 +3761,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Line Amount", LineAmount);
     end;
 
@@ -3814,7 +3847,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base + VATEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption));
@@ -3828,7 +3861,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GeneralLedgerSetup.Get();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreNearlyEqual(
           -Amount, VendorLedgerEntry."Amount (LCY)", GeneralLedgerSetup."Amount Rounding Precision",
@@ -3845,7 +3878,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Purch. Inv. Disc. Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           -InvoiceDiscountAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
@@ -3864,7 +3897,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Purch. Line Disc. Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           -LineDiscountAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
@@ -3878,7 +3911,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         PurchRcptLine.SetRange("Document No.", DocumentNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("No.", PurchaseLine."No.");
         PurchRcptLine.TestField(Quantity, PurchaseLine.Quantity);
     end;
@@ -3888,7 +3921,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", PostedInvoiceNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("No.", PurchaseLine."No.");
         PurchInvLine.TestField(Quantity, PurchaseLine.Quantity);
     end;
@@ -3899,7 +3932,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Base + VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption));
@@ -3911,7 +3944,7 @@ codeunit 134328 "ERM Purchase Invoice"
     begin
         PurchaseHeader2.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseHeader2.SetRange("No.", PurchaseHeader."No.");
-        PurchaseHeader2.FindFirst;
+        PurchaseHeader2.FindFirst();
         PurchaseHeader2.TestField("Due Date", CalcDate(DueDateCalculation, PurchaseHeader."Document Date"));
     end;
 
@@ -3923,6 +3956,29 @@ codeunit 134328 "ERM Purchase Invoice"
         Assert.AreEqual(
           ExpectedLineDiscAmt, PurchLine."Line Discount Amount",
           StrSubstNo(AmountErr, PurchLine.FieldCaption("Line Discount Amount"), PurchLine."Line Discount Amount"));
+    end;
+
+    local procedure VerifyPurchaseInvoiceVendPostingGroup(DocumentNo: Code[20]; VendorPostingGroup: Record "Vendor Posting Group")
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        GLEntry: Record "G/L Entry";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.TestField("Vendor Posting Group", VendorPostingGroup.Code);
+        PurchInvHeader.CalcFields("Amount Including VAT");
+
+        VendLedgerEntry.SetRange("Vendor No.", PurchInvHeader."Buy-from Vendor No.");
+        VendLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendLedgerEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
+        VendLedgerEntry.FindFirst();
+        VendLedgerEntry.TestField("Vendor Posting Group", VendorPostingGroup.Code);
+
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -PurchInvHeader."Amount Including VAT");
     end;
 
     local procedure PurchDocLineQtyValidation()
@@ -3940,7 +3996,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader.Status := PurchaseHeader.Status::Open;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
         i := 0;
         repeat

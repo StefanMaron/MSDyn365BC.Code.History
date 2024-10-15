@@ -217,7 +217,7 @@ page 12423 "Ingoing Cash Order"
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlLine.SetRange("Line No.", "Line No.");
-                        if GenJnlLine.FindFirst then
+                        if GenJnlLine.FindFirst() then
                             REPORT.RunModal(REPORT::"Copy Payment Document", true, true, GenJnlLine);
                     end;
                 }
@@ -283,7 +283,7 @@ page 12423 "Ingoing Cash Order"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(GenJnlLine);
-                        GenJnlLine.FindFirst;
+                        GenJnlLine.FindFirst();
                         if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", GenJnlLine);
                         CurrPage.Update(false);
@@ -302,7 +302,7 @@ page 12423 "Ingoing Cash Order"
                         GenJnlPost: Codeunit "Gen. Jnl.-Post";
                     begin
                         CurrPage.SetSelectionFilter(GenJnlLine);
-                        GenJnlLine.FindFirst;
+                        GenJnlLine.FindFirst();
                         if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
                             GenJnlPost.Preview(GenJnlLine);
                     end;

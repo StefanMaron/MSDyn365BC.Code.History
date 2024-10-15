@@ -47,7 +47,7 @@ page 26589 "Compound XML Element Lines"
                             XMLElementLine.Reset();
                             XMLElementLine.SetRange("Report Code", "Report Code");
                             XMLElementLine.SetRange("Element Name", "XML Element Name");
-                            XMLElementLine.FindFirst;
+                            XMLElementLine.FindFirst();
                             "XML Element Line No." := XMLElementLine."Line No.";
                         end else
                             "XML Element Line No." := 0;

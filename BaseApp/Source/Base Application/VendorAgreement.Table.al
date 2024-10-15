@@ -462,7 +462,7 @@ table 14901 "Vendor Agreement"
         VendAgrmt.Reset();
         VendAgrmt.SetCurrentKey("No.");
         VendAgrmt.SetRange("No.", "No.");
-        if VendAgrmt.FindSet then
+        if VendAgrmt.FindSet() then
             repeat
                 if VendAgrmt."Vendor No." <> "Vendor No." then
                     Error(Text12403, FieldCaption("No."), VendAgrmt."Vendor No.");
@@ -636,7 +636,7 @@ table 14901 "Vendor Agreement"
         DefaultDim.Reset();
         DefaultDim.SetRange("Table ID", DATABASE::Vendor);
         DefaultDim.SetRange("No.", "Vendor No.");
-        if DefaultDim.FindSet then
+        if DefaultDim.FindSet() then
             repeat
                 DefaultDim2.Init();
                 DefaultDim2."Table ID" := DATABASE::"Vendor Agreement";

@@ -129,7 +129,7 @@ codeunit 17303 "Tax Calc. Mgt."
                     Commit();
                 end;
             1:
-                TaxCalcSection.FindFirst;
+                TaxCalcSection.FindFirst();
             else
                 SectionSelected := PAGE.RunModal(0, TaxCalcSection) = ACTION::LookupOK;
         end;
@@ -209,7 +209,7 @@ codeunit 17303 "Tax Calc. Mgt."
 
         TaxCalcHeader.SetRange("Section Code", SectionCode);
         TaxCalcHeader.SetRange("Table ID", DATABASE::"Tax Calc. G/L Entry");
-        if TaxCalcHeader.FindSet then begin
+        if TaxCalcHeader.FindSet() then begin
             repeat
                 TaxCalcAccum.SetRange("Register No.", TaxCalcHeader."No.");
                 if TaxCalcAccum.IsEmpty() then
@@ -232,7 +232,7 @@ codeunit 17303 "Tax Calc. Mgt."
         TaxCalcLine.SetCurrentKey("Section Code", "Starting Date");
         TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcLine.SetFilter("Starting Date", '%1..', DateBegin);
-        if TaxCalcLine.FindFirst then begin
+        if TaxCalcLine.FindFirst() then begin
             if not Confirm(Text1007 + Text1006, false) then
                 Error('');
             TaxCalcLine.DeleteAll();
@@ -256,7 +256,7 @@ codeunit 17303 "Tax Calc. Mgt."
         TaxCalcLine.SetCurrentKey("Section Code", "Ending Date");
         TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcLine.SetFilter("Ending Date", '%1..', DateBegin);
-        if TaxCalcLine.FindFirst then
+        if TaxCalcLine.FindFirst() then
             Error(Text1008);
 
         if DateBegin = TaxCalcSection."Starting Date" then
@@ -266,7 +266,7 @@ codeunit 17303 "Tax Calc. Mgt."
             TaxCalcLine.SetCurrentKey("Section Code", "Ending Date");
             TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
             TaxCalcLine.SetFilter("Ending Date", '%1', DateBegin - 1);
-            if TaxCalcLine.FindFirst then begin
+            if TaxCalcLine.FindFirst() then begin
                 if DateEnd <= TaxCalcSection."No Item Entries Date" then
                     TaxCalcSection."No Item Entries Date" := 0D;
             end else begin
@@ -296,7 +296,7 @@ codeunit 17303 "Tax Calc. Mgt."
         TaxCalcLine.SetCurrentKey("Section Code", "Starting Date");
         TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcLine.SetFilter("Starting Date", '%1..', DateBegin);
-        if TaxCalcLine.FindFirst then begin
+        if TaxCalcLine.FindFirst() then begin
             if not Confirm(Text1007 + Text1006, false) then
                 Error('');
             TaxCalcLine.DeleteAll();
@@ -320,7 +320,7 @@ codeunit 17303 "Tax Calc. Mgt."
         TaxCalcLine.SetCurrentKey("Section Code", "Ending Date");
         TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcLine.SetFilter("Ending Date", '%1..', DateBegin);
-        if TaxCalcLine.FindFirst then
+        if TaxCalcLine.FindFirst() then
             Error(Text1008);
 
         if DateBegin = TaxCalcSection."Starting Date" then
@@ -330,7 +330,7 @@ codeunit 17303 "Tax Calc. Mgt."
             TaxCalcLine.SetCurrentKey("Section Code", "Ending Date");
             TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
             TaxCalcLine.SetFilter("Ending Date", '%1', DateBegin - 1);
-            if TaxCalcLine.FindFirst then begin
+            if TaxCalcLine.FindFirst() then begin
                 if DateEnd <= TaxCalcSection."No FA Entries Date" then
                     TaxCalcSection."No FA Entries Date" := 0D;
             end else begin
@@ -661,7 +661,7 @@ codeunit 17303 "Tax Calc. Mgt."
             Reset;
             SetRange("Period Type", "Period Type"::Month);
             SetRange("Period Start", "Period Start", "Period End");
-            if FindSet then
+            if FindSet() then
                 repeat
                     DateBegin := NormalDate("Period Start");
                     DateEnd := NormalDate("Period End");
@@ -685,7 +685,7 @@ codeunit 17303 "Tax Calc. Mgt."
                         TaxCalcAccumulat.SetRange("Section Code", TaxCalcSectionCode);
                         TaxCalcAccumulat.SetRange("Ending Date", DateEnd);
                         LinkAccumulateRecordRef.SetView(TaxCalcAccumulat.GetView(false));
-                        if TaxCalcHeader.FindSet then
+                        if TaxCalcHeader.FindSet() then
                             repeat
                                 TaxCalcAccumulat.SetRange("Register No.", TaxCalcHeader."No.");
                                 TaxCalcAccumulat.DeleteAll();
@@ -695,13 +695,13 @@ codeunit 17303 "Tax Calc. Mgt."
                         CycleLevel := 1;
                         while CycleLevel <> 0 do begin
                             TaxCalcHeader.SetRange(Level, CycleLevel);
-                            if not TaxCalcHeader.FindSet then
+                            if not TaxCalcHeader.FindSet() then
                                 CycleLevel := 0
                             else begin
                                 repeat
                                     if TaxCalcHeader."Storing Method" = TaxCalcHeader."Storing Method"::Calculation then begin
                                         TaxCalcLine.SetRange(Code, TaxCalcHeader."No.");
-                                        if TaxCalcLine.FindFirst then begin
+                                        if TaxCalcLine.FindFirst() then begin
                                             TaxCalcLine.SetRange("Date Filter", DateBegin, DateEnd);
                                             TemplateRecordRef.GetTable(TaxCalcLine);
                                             TemplateRecordRef.SetView(TaxCalcLine.GetView(false));
@@ -729,7 +729,7 @@ codeunit 17303 "Tax Calc. Mgt."
         TaxCalcAccumulation2: Record "Tax Calc. Accumulation";
         GeneralTermMgt: Codeunit "Tax Register Term Mgt.";
     begin
-        if EntryNoAmountBuffer.FindSet then begin
+        if EntryNoAmountBuffer.FindSet() then begin
             TaxCalcAccumulation.Init();
             TaxCalcAccumulation."Starting Date" := TaxCalcLine.GetRangeMin("Date Filter");
             TaxCalcAccumulation."Ending Date" := TaxCalcLine.GetRangeMax("Date Filter");
@@ -748,7 +748,7 @@ codeunit 17303 "Tax Calc. Mgt."
                     TaxCalcAccumulation."Starting Date", TaxCalcAccumulation."Ending Date", TaxCalcLine0.Period);
                 TaxCalcAccumulation.Amount := EntryNoAmountBuffer.Amount;
                 TaxCalcAccumulation2.Reset();
-                if not TaxCalcAccumulation2.FindLast then
+                if not TaxCalcAccumulation2.FindLast() then
                     TaxCalcAccumulation2."Entry No." := 0;
                 TaxCalcAccumulation."Entry No." := TaxCalcAccumulation2."Entry No." + 1;
                 TaxCalcAccumulation.Insert();

@@ -187,7 +187,7 @@ table 17315 "Tax Calc. G/L Entry"
     begin
         Clear(Navigate);
         Navigate.SetDoc("Posting Date", "Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     [Scope('OnPrem')]
@@ -260,7 +260,7 @@ table 17315 "Tax Calc. G/L Entry"
         TaxCalcHeader.SetRange("Section Code", "Section Code");
         TaxCalcHeader.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
         FilterGroup(0);
-        if TaxCalcHeader.FindSet then
+        if TaxCalcHeader.FindSet() then
             if TaxCalcHeader.Next() = 0 then
                 exit(TaxCalcHeader.Description);
     end;

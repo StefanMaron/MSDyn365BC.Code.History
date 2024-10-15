@@ -111,7 +111,7 @@ codeunit 5760 "Whse.-Post Receipt"
                 if not IsHandled then
                     PostSourceDocument(WhseRcptLine);
 
-                if FindLast then;
+                if FindLast() then;
                 SetRange("Source Type");
                 SetRange("Source Subtype");
                 SetRange("Source No.");
@@ -298,7 +298,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         if PurchLine.Find('-') then
                             repeat
                                 SetRange("Source Line No.", PurchLine."Line No.");
-                                if FindFirst then begin
+                                if FindFirst() then begin
                                     OnAfterFindWhseRcptLineForPurchLine(WhseRcptLine2, PurchLine);
                                     if "Source Document" = "Source Document"::"Purchase Order" then begin
                                         ModifyLine := PurchLine."Qty. to Receive" <> "Qty. to Receive";
@@ -330,7 +330,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         if SalesLine.Find('-') then
                             repeat
                                 SetRange("Source Line No.", SalesLine."Line No.");
-                                if FindFirst then begin
+                                if FindFirst() then begin
                                     OnAfterFindWhseRcptLineForSalesLine(WhseRcptLine2, SalesLine);
                                     if "Source Document" = "Source Document"::"Sales Order" then begin
                                         ModifyLine := SalesLine."Qty. to Ship" <> -"Qty. to Receive";
@@ -359,7 +359,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         if TransLine.Find('-') then
                             repeat
                                 SetRange("Source Line No.", TransLine."Line No.");
-                                if FindFirst then begin
+                                if FindFirst() then begin
                                     OnAfterFindWhseRcptLineForTransLine(WhseRcptLine2, TransLine);
                                     ModifyLine := TransLine."Qty. to Receive" <> "Qty. to Receive";
                                     if ModifyLine then
@@ -490,7 +490,6 @@ codeunit 5760 "Whse.-Post Receipt"
         PurchPost: Codeunit "Purch.-Post";
         SalesPost: Codeunit "Sales-Post";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
-        IsHandled: Boolean;
     begin
         WhseSetup.Get();
         with WhseRcptLine do begin
@@ -693,7 +692,7 @@ codeunit 5760 "Whse.-Post Receipt"
         end;
 
         WhseRcptLine2.SetRange("No.", WhseRcptHeader."No.");
-        if WhseRcptLine2.FindFirst then begin
+        if WhseRcptLine2.FindFirst() then begin
             WhseRcptHeader."Document Status" := WhseRcptHeader.GetHeaderStatus(0);
             WhseRcptHeader.Modify();
         end else begin

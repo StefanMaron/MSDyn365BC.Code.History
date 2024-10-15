@@ -25,7 +25,7 @@ codeunit 144721 "ERM Tax Register Report"
         TotalAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         MockTaxRegister(TaxRegister);
         for i := 1 to LibraryRandom.RandIntInRange(3, 5) do
@@ -50,7 +50,7 @@ codeunit 144721 "ERM Tax Register Report"
         TaxRegSection: Record "Tax Register Section";
     begin
         TaxRegSection.Init();
-        TaxRegSection.Code := LibraryUtility.GenerateGUID;
+        TaxRegSection.Code := LibraryUtility.GenerateGUID();
         TaxRegSection.Insert();
         exit(TaxRegSection.Code);
     end;
@@ -60,7 +60,7 @@ codeunit 144721 "ERM Tax Register Report"
         with TaxRegister do begin
             Init;
             "Section Code" := MockTaxRegSection;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Description := "No.";
             "Table ID" := DATABASE::"Tax Register Item Entry";
             Insert;
@@ -80,7 +80,7 @@ codeunit 144721 "ERM Tax Register Report"
             "Tax Register No." := TaxRegister."No.";
             "Starting Date" := WorkDate;
             "Ending Date" := CalcDate('<1D>', "Starting Date");
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDec(100, 2);
             Insert;
             exit(Amount);
@@ -101,7 +101,7 @@ codeunit 144721 "ERM Tax Register Report"
             "Starting Date" := CalcDate('<CM+1M>', WorkDate);
             "Ending Date" := CalcDate('<1D>', "Starting Date");
             "Amount (Document)" := TotalAmount;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             Insert;
 
             // Inside of period.
@@ -120,7 +120,7 @@ codeunit 144721 "ERM Tax Register Report"
         TaxRegister.SetFilter(
           "Date Filter", '%1..%2', CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         with TaxRegisterRep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);
             InitializeRequest(true);

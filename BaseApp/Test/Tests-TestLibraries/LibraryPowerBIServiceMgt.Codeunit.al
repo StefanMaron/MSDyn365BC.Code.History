@@ -121,7 +121,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
     begin
         // Event handler mock for GetReports, where we ask Power BI for a list of all reports in the user's account.
-        if CanHandle and MockPowerBIReportBuffer.FindSet then begin
+        if CanHandle and MockPowerBIReportBuffer.FindSet() then begin
             repeat
                 Clear(TempPowerBIReportBuffer);
                 TempPowerBIReportBuffer.TransferFields(MockPowerBIReportBuffer);

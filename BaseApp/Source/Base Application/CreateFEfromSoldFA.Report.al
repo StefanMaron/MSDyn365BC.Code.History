@@ -131,11 +131,11 @@ report 17304 "Create FE from Sold FA"
                 FE.Reset();
                 FE.SetCurrentKey("Created by FA No.");
                 FE.SetRange("Created by FA No.", "No.");
-                if FE.FindFirst then
+                if FE.FindFirst() then
                     CurrReport.Skip();
 
                 FATaxDeprBook.SetRange("FA No.", "No.");
-                if FATaxDeprBook.FindSet then
+                if FATaxDeprBook.FindSet() then
                     repeat
                         DeprBook.Get(FATaxDeprBook."Depreciation Book Code");
                     until (FATaxDeprBook.Next() = 0) or (DeprBook."Posting Book Type" = DeprBook."Posting Book Type"::"Tax Accounting");
@@ -244,7 +244,7 @@ report 17304 "Create FE from Sold FA"
 
         with FEDeprBook do begin
             SetRange("FA No.", FETemplateNo);
-            FEDeprBookAccounting.FindFirst;
+            FEDeprBookAccounting.FindFirst();
             repeat
                 FEDeprBookAccounting := FEDeprBook;
                 if not DeprBookAccounting.Get("Depreciation Book Code") then

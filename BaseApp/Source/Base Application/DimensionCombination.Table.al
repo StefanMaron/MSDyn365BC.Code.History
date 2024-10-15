@@ -48,7 +48,7 @@ table 350 "Dimension Combination"
             DimValueComb.SetRange("Dimension 1 Code", "Dimension 2 Code");
             DimValueComb.SetRange("Dimension 2 Code", "Dimension 1 Code");
         end;
-        if DimValueComb.FindFirst then
+        if DimValueComb.FindFirst() then
             DimValueComb.DeleteAll(true);
     end;
 

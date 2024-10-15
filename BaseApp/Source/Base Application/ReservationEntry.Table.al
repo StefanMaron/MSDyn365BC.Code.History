@@ -499,7 +499,7 @@ table 337 "Reservation Entry"
         if "Item No." <> '' then
             Rec2.SetRange("Item No.", "Item No.");
         Rec2.LockTable();
-        if Rec2.FindLast then;
+        if Rec2.FindLast() then;
     end;
 
     procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; LocationCode: Code[10]; VariantCode: Code[10]; QtyPerUoM: Decimal)
@@ -680,9 +680,6 @@ table 337 "Reservation Entry"
         CopyFilter("Lot No.", FilterReservEntry."Lot No.");
 
         OnAfterCopyTrackingFiltersToReservEntry(Rec, FilterReservEntry);
-#if not CLEAN17
-        OnAfterCopyTrackingFiltersToResernEntry(Rec, FilterReservEntry); // Obsoleted
-#endif
     end;
 
     procedure FilterLinesForTracking(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
@@ -696,16 +693,6 @@ table 337 "Reservation Entry"
 
         OnAfterFilterLinesForTracking(Rec, CalcReservEntry, Positive);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
-    procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
-    begin
-        SetRange("Serial No.", SerialNo);
-        SetRange("Lot No.", LotNo);
-        SetRange("Package No.", CDNo);
-    end;
-#endif
 
     procedure SetTrackingFilterBlank()
     begin
@@ -916,7 +903,7 @@ table 337 "Reservation Entry"
     begin
         if OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Surplus then begin
             ActionMessageEntry.FilterFromReservEntry(OldReservEntry);
-            if ActionMessageEntry.FindSet then
+            if ActionMessageEntry.FindSet() then
                 repeat
                     ActionMessageEntry2 := ActionMessageEntry;
                     ActionMessageEntry2.TransferFromReservEntry(Rec);
@@ -1048,7 +1035,7 @@ table 337 "Reservation Entry"
                 if TransferQty = 0 then
                     exit;
                 OldReservEntry.SetRange("Reservation Status", ReservStatus);
-                if OldReservEntry.FindSet then
+                if OldReservEntry.FindSet() then
                     repeat
                         OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
 
@@ -1218,14 +1205,6 @@ table 337 "Reservation Entry"
     local procedure OnAfterClearTrackingFilter(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by OnAfterCopyTrackingFiltersToReservEntry().', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyTrackingFiltersToResernEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFiltersToReservEntry(var ReservEntry: Record "Reservation Entry"; var FilterReservEntry: Record "Reservation Entry")

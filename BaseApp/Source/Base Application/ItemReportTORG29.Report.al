@@ -536,7 +536,7 @@ report 14919 "Item Report TORG-29"
         LocationLookup: Record Location;
     begin
         LocationLookup.SetFilter(Code, LocationCode);
-        LocationLookup.FindFirst;
+        LocationLookup.FindFirst();
         ResponsibleEmployee := LocationLookup."Responsible Employee No.";
 
         if LocationLookup."Last Goods Report No." < 2147483647 then

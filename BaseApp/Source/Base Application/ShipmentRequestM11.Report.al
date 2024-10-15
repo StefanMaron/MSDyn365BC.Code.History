@@ -352,7 +352,7 @@ report 12471 "Shipment Request M-11"
             TransferLine.SetRange("Derived From Line No.", 0);
             LineCount := TransferLine.Count();
 
-            if TransferLine.FindSet then
+            if TransferLine.FindSet() then
                 repeat
                     LineBuffer.Init();
                     LineBuffer."Line No." := TransferLine."Line No.";
@@ -397,7 +397,7 @@ report 12471 "Shipment Request M-11"
         with ItemJournalLine do begin
             LineCount := Count;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     LineBuffer.Init();
                     LineBuffer."Journal Template Name" := "Journal Template Name";
@@ -442,7 +442,7 @@ report 12471 "Shipment Request M-11"
             TransferReceiptLine.SetRange("Document No.", "No.");
             LineCount := TransferReceiptLine.Count();
 
-            if TransferReceiptLine.FindSet then
+            if TransferReceiptLine.FindSet() then
                 repeat
                     LineBuffer.Init();
                     LineBuffer."Line No." := TransferReceiptLine."Line No.";
@@ -488,7 +488,7 @@ report 12471 "Shipment Request M-11"
             TransferShipmentLine.SetRange("Document No.", "No.");
             LineCount := TransferShipmentLine.Count();
 
-            if TransferShipmentLine.FindSet then
+            if TransferShipmentLine.FindSet() then
                 repeat
                     LineBuffer.Init();
                     LineBuffer."Line No." := TransferShipmentLine."Line No.";
@@ -533,7 +533,7 @@ report 12471 "Shipment Request M-11"
         ValueEntry.SetRange("Document No.", ItemJournalLine."Document No.");
         ValueEntry.SetRange("Document Line No.", ItemJournalLine."Line No.");
 
-        if ValueEntry.FindFirst then
+        if ValueEntry.FindFirst() then
             UnitCost := ValueEntry."Cost per Unit"
         else
             UnitCost := 0;
@@ -550,7 +550,7 @@ report 12471 "Shipment Request M-11"
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Document Line No.", DocumentLineNo);
 
-        if ItemLedgerEntry.FindLast then
+        if ItemLedgerEntry.FindLast() then
             EntryNo := ItemLedgerEntry."Entry No."
         else
             EntryNo := 0;

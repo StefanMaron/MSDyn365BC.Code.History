@@ -129,7 +129,7 @@ table 14949 "VAT Entry Type"
     var
         Delimiter: Text[1];
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 SetOfVATEntryType += Delimiter + Code;
                 Delimiter := ';';

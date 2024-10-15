@@ -90,7 +90,7 @@ table 26564 "Statutory Report Data Value"
         StatReportDataChangeLog.SetRange("Excel Sheet Name", "Excel Sheet Name");
         StatReportDataChangeLog.SetRange("Row No.", "Row No.");
         StatReportDataChangeLog.SetRange("Column No.", "Column No.");
-        if StatReportDataChangeLog.FindLast then;
+        if StatReportDataChangeLog.FindLast() then;
         VersionNo := StatReportDataChangeLog."Version No." + 1;
 
         StatReportDataChangeLog.Init();

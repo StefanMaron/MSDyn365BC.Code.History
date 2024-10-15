@@ -24,7 +24,9 @@ permissionset 7568 "Fixed Assets - Admin"
                   tabledata "Insurance Journal Batch" = RIMD,
                   tabledata "Insurance Journal Line" = MD,
                   tabledata "Insurance Journal Template" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = MD,
+#endif
                   tabledata OKATO = Rimd,
                   tabledata "Reason Code" = R,
                   tabledata "Report Selections" = RIMD,

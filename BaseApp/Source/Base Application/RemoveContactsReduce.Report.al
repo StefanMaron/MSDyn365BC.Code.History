@@ -139,7 +139,7 @@ report 5197 "Remove Contacts - Reduce"
         ReduceRefineSegment.SetTableView("Contact Business Relation");
         ReduceRefineSegment.SetTableView("Value Entry");
         ReduceRefineSegment.SetOptions(REPORT::"Remove Contacts - Reduce", EntireCompanies);
-        ReduceRefineSegment.RunModal;
+        ReduceRefineSegment.RunModal();
     end;
 
     var

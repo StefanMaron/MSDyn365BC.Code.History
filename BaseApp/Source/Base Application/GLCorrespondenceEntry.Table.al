@@ -195,7 +195,7 @@ table 12401 "G/L Correspondence Entry"
     procedure Navigate()
     begin
         NavigateForm.SetDoc("Posting Date", "Document No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 }
 

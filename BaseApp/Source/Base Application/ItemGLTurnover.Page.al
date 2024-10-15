@@ -382,7 +382,7 @@ page 12449 "Item G/L Turnover"
     begin
         TempValueEntry.CopyFilters(ValueEntry);
         TempValueEntry.SetFilter("Posting Date", GetFilter("Date Filter"));
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 TempValueEntry.Init();
                 TempValueEntry := ValueEntry;
@@ -406,7 +406,7 @@ page 12449 "Item G/L Turnover"
         CreditQty := 0;
 
         with TempValueEntry do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if IsDebit then begin
                         DebitCost := DebitCost + "Cost Amount (Actual)";

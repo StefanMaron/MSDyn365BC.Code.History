@@ -326,20 +326,20 @@ xmlport 17300 "Tax Differences Registers"
     [Scope('OnPrem')]
     procedure SetData(var TempTaxCalcSection: Record "Tax Calc. Section")
     begin
-        if TempTaxCalcSection.FindSet then
+        if TempTaxCalcSection.FindSet() then
             repeat
                 "Tax Calc. Section" := TempTaxCalcSection;
                 "Tax Calc. Section".Insert();
 
                 TaxCalcHeader.SetRange("Section Code", TempTaxCalcSection.Code);
-                if TaxCalcHeader.FindSet then
+                if TaxCalcHeader.FindSet() then
                     repeat
                         "Tax Calc. Header" := TaxCalcHeader;
                         "Tax Calc. Header".Insert();
 
                         TaxCalcSelectionSetup.SetRange("Section Code", TaxCalcHeader."Section Code");
                         TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeader."No.");
-                        if TaxCalcSelectionSetup.FindSet then
+                        if TaxCalcSelectionSetup.FindSet() then
                             repeat
                                 "Tax Calc. Selection Setup" := TaxCalcSelectionSetup;
                                 "Tax Calc. Selection Setup".Insert();
@@ -347,7 +347,7 @@ xmlport 17300 "Tax Differences Registers"
 
                         TaxCalcLine.SetRange("Section Code", TaxCalcHeader."Section Code");
                         TaxCalcLine.SetRange(Code, TaxCalcHeader."No.");
-                        if TaxCalcLine.FindSet then
+                        if TaxCalcLine.FindSet() then
                             repeat
                                 "Tax Calc. Line" := TaxCalcLine;
                                 "Tax Calc. Line".Insert();
@@ -355,7 +355,7 @@ xmlport 17300 "Tax Differences Registers"
 
                         TaxCalcDimFilter.SetRange("Section Code", TaxCalcHeader."Section Code");
                         TaxCalcDimFilter.SetRange("Register No.", TaxCalcHeader."No.");
-                        if TaxCalcDimFilter.FindSet then
+                        if TaxCalcDimFilter.FindSet() then
                             repeat
                                 "Tax Calc. Dim. Filter" := TaxCalcDimFilter;
                                 "Tax Calc. Dim. Filter".Insert();
@@ -363,14 +363,14 @@ xmlport 17300 "Tax Differences Registers"
                     until TaxCalcHeader.Next() = 0;
 
                 TaxCalcTerm.SetRange("Section Code", TempTaxCalcSection.Code);
-                if TaxCalcTerm.FindSet then
+                if TaxCalcTerm.FindSet() then
                     repeat
                         "Tax Calc. Term" := TaxCalcTerm;
                         "Tax Calc. Term".Insert();
 
                         TaxCalcTermFormula.SetRange("Section Code", TaxCalcTerm."Section Code");
                         TaxCalcTermFormula.SetRange("Term Code", TaxCalcTerm."Term Code");
-                        if TaxCalcTermFormula.FindSet then
+                        if TaxCalcTermFormula.FindSet() then
                             repeat
                                 "Tax Calc. Term Formula" := TaxCalcTermFormula;
                                 "Tax Calc. Term Formula".Insert();
@@ -384,7 +384,7 @@ xmlport 17300 "Tax Differences Registers"
     begin
         with "Tax Calc. Section" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcSection := "Tax Calc. Section";
                     if TaxCalcSection.Find then begin
@@ -397,7 +397,7 @@ xmlport 17300 "Tax Differences Registers"
 
         with "Tax Calc. Header" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcHeader := "Tax Calc. Header";
                     if TaxCalcHeader.Find then begin
@@ -410,7 +410,7 @@ xmlport 17300 "Tax Differences Registers"
 
         with "Tax Calc. Selection Setup" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcSelectionSetup := "Tax Calc. Selection Setup";
                     if TaxCalcSelectionSetup.Find then begin
@@ -423,7 +423,7 @@ xmlport 17300 "Tax Differences Registers"
 
         with "Tax Calc. Line" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcLine := "Tax Calc. Line";
                     if TaxCalcLine.Find then begin
@@ -436,7 +436,7 @@ xmlport 17300 "Tax Differences Registers"
 
         with "Tax Calc. Dim. Filter" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcDimFilter := "Tax Calc. Dim. Filter";
                     if TaxCalcDimFilter.Find then begin
@@ -449,7 +449,7 @@ xmlport 17300 "Tax Differences Registers"
 
         with "Tax Calc. Term" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcTerm := "Tax Calc. Term";
                     if TaxCalcTerm.Find then begin
@@ -462,7 +462,7 @@ xmlport 17300 "Tax Differences Registers"
 
         with "Tax Calc. Term Formula" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     TaxCalcTermFormula := "Tax Calc. Term Formula";
                     if TaxCalcTermFormula.Find then begin

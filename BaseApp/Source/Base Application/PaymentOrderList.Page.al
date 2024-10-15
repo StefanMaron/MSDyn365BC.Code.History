@@ -319,7 +319,7 @@ page 12424 "Payment Order List"
 
                     BankAccount.Reset();
                     BankAccount.SetRange("No.", "Bal. Account No.");
-                    if BankAccount.FindFirst then begin
+                    if BankAccount.FindFirst() then begin
                         if BankAccount."Account Type" <> BankAccount."Account Type"::"Bank Account" then begin
                             GenJnlLine.Reset();
                             GenJnlLine.Copy(Rec);
@@ -347,7 +347,7 @@ page 12424 "Payment Order List"
                     trigger OnAction()
                     begin
                         Reconciliation.SetGenJnlLine(Rec);
-                        Reconciliation.Run;
+                        Reconciliation.Run();
                     end;
                 }
                 action("Test Report")

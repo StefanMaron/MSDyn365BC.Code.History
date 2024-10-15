@@ -34,13 +34,13 @@ report 17301 "Calculate Tax Diff. for Calc."
                     TaxDiffEntry.CalcSums("Amount (Base)", "Amount (Tax)");
                     TaxCalcAccum.SetRange("Register No.", "No.");
                     TaxCalcAccum.SetRange("Tax Diff. Amount (Base)", true);
-                    if TaxCalcAccum.FindFirst then begin
+                    if TaxCalcAccum.FindFirst() then begin
                         AmountBase := TaxCalcAccum.Amount - TaxDiffEntry."Amount (Base)";
                         DisposedFixedAsset := TaxCalcAccum.Disposed;
                     end;
                     TaxCalcAccum.SetRange("Tax Diff. Amount (Base)");
                     TaxCalcAccum.SetRange("Tax Diff. Amount (Tax)", true);
-                    if TaxCalcAccum.FindFirst then begin
+                    if TaxCalcAccum.FindFirst() then begin
                         AmountTax := TaxCalcAccum.Amount - TaxDiffEntry."Amount (Tax)";
                         DisposedFixedAsset := DisposedFixedAsset or TaxCalcAccum.Disposed;
                     end;
@@ -193,7 +193,7 @@ report 17301 "Calculate Tax Diff. for Calc."
                             if TemplateName <> '' then begin
                                 TaxDiffJnlBatch.SetRange("Journal Template Name", TemplateName);
                                 TaxDiffJnlBatch.SetRange(Name, BatchName);
-                                if TaxDiffJnlBatch.FindFirst then;
+                                if TaxDiffJnlBatch.FindFirst() then;
                                 TaxDiffJnlBatch.SetRange(Name);
                                 if ACTION::LookupOK = PAGE.RunModal(0, TaxDiffJnlBatch) then begin
                                     TemplateName := TaxDiffJnlBatch."Journal Template Name";
@@ -248,7 +248,7 @@ report 17301 "Calculate Tax Diff. for Calc."
         TaxDiffJnlLine."Journal Batch Name" := BatchName;
         TaxDiffJnlLine.SetRange("Journal Template Name", TaxDiffJnlLine."Journal Template Name");
         TaxDiffJnlLine.SetRange("Journal Batch Name", TaxDiffJnlLine."Journal Batch Name");
-        if not TaxDiffJnlLine.FindLast then
+        if not TaxDiffJnlLine.FindLast() then
             TaxDiffJnlLine."Line No." := 0;
 
         DisposalDate := 0D;

@@ -26,7 +26,7 @@ codeunit 17207 "Create Tax Register FE Entry"
 
         TaxRegMgt.ValidateAbsenceFEEntriesDate(StartDate, EndDate, SectionCode);
 
-        if not TaxRegFEEntry.FindLast then
+        if not TaxRegFEEntry.FindLast() then
             TaxRegFEEntry."Entry No." := 0;
 
         Window.Open(Text21000900);
@@ -42,7 +42,7 @@ codeunit 17207 "Create Tax Register FE Entry"
             Procesing := 0;
 
             FALedgEntry.SetRange("FA Posting Date", StartDate, EndDate);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Procesing += 1;
                     if (Procesing mod 50) = 1 then
@@ -51,7 +51,7 @@ codeunit 17207 "Create Tax Register FE Entry"
                     FALedgEntry.SetRange("FA No.", "FA No.");
                     FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
 
-                    if FALedgEntry.FindFirst then begin
+                    if FALedgEntry.FindFirst() then begin
                         TaxRegFEEntry.Init();
                         TaxRegFEEntry."Section Code" := SectionCode;
                         TaxRegFEEntry."Starting Date" := StartDate;
@@ -90,7 +90,7 @@ codeunit 17207 "Create Tax Register FE Entry"
         TaxRegTemplate.SetRange("Section Code", SectionCode);
         repeat
             TaxRegTemplate.SetRange(Code, TaxReg."No.");
-            if TaxRegTemplate.FindSet then
+            if TaxRegTemplate.FindSet() then
                 repeat
                     TempTaxRegTemplate := TaxRegTemplate;
                     TempTaxRegTemplate.Value := 0;
@@ -102,9 +102,9 @@ codeunit 17207 "Create Tax Register FE Entry"
         TaxReg.SetRange("Section Code", SectionCode);
         TaxRegFEEntry.SetRange("Ending Date", EndDate);
         TaxRegFEEntry2.SetRange("Date Filter", StartDate, EndDate);
-        if TaxRegFEEntry.FindSet then
+        if TaxRegFEEntry.FindSet() then
             repeat
-                if TempTaxRegTemplate.FindSet then begin
+                if TempTaxRegTemplate.FindSet() then begin
                     TaxRegFEEntry2 := TaxRegFEEntry;
                     TaxRegFEEntry2.CalcFields(
                       "Acquisition Cost", "Valuation Changes", "Depreciation Amount");
@@ -128,7 +128,7 @@ codeunit 17207 "Create Tax Register FE Entry"
             until TaxRegFEEntry.Next() = 0;
 
         TaxRegAccumulation.Reset();
-        if not TaxRegAccumulation.FindLast then
+        if not TaxRegAccumulation.FindLast() then
             TaxRegAccumulation."Entry No." := 0;
 
         TaxRegAccumulation.Init();
@@ -137,7 +137,7 @@ codeunit 17207 "Create Tax Register FE Entry"
         TaxRegAccumulation."Ending Date" := EndDate;
 
         TempTaxRegTemplate.Reset();
-        if TempTaxRegTemplate.FindSet then
+        if TempTaxRegTemplate.FindSet() then
             repeat
                 TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
                 TaxRegAccumulation."Template Line Code" := TempTaxRegTemplate."Line Code";

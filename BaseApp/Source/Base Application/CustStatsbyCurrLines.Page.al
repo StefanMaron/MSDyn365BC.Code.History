@@ -90,7 +90,7 @@ page 486 "Cust. Stats. by Curr. Lines"
     begin
         Code := '';
         Insert;
-        if Currency.FindSet then
+        if Currency.FindSet() then
             repeat
                 Rec := Currency;
                 Insert;

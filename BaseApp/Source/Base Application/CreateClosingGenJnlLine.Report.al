@@ -297,7 +297,7 @@ report 17201 "Create Closing Gen. Jnl. Line"
         GenJnlLine0.Reset();
         GenJnlLine0.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine0.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        if GenJnlLine0.FindLast then;
+        if GenJnlLine0.FindLast() then;
 
         GenJnlLine0.Init();
         GenJnlLine0."Line No." += 10000;

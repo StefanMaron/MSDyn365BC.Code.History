@@ -32,7 +32,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegTemplate: Record "Tax Register Template";
         TaxRegGLEntry: Record "Tax Register G/L Entry";
     begin
-        Initialize;
+        Initialize();
         InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
         TaxDimMgt.SetDimFilters2TaxGLLine(TaxRegTemplate, TaxRegGLEntry);
         Assert.AreEqual(
@@ -49,7 +49,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegTemplate: Record "Tax Register Template";
         TaxRegItemEntry: Record "Tax Register Item Entry";
     begin
-        Initialize;
+        Initialize();
         InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
         TaxDimMgt.SetDimFilters2TaxItemLine(TaxRegTemplate, TaxRegItemEntry);
         Assert.AreEqual(
@@ -68,7 +68,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegRecordRef: RecordRef;
         TaxRegFieldRef: FieldRef;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
         TaxRegRecordRef.Open(DATABASE::"Tax Register G/L Entry");
         TaxDimMgt.SetDimFilters2TaxGLRecordRef(TaxRegTemplate, TaxRegRecordRef);
@@ -89,7 +89,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegRecordRef: RecordRef;
         TaxRegFieldRef: FieldRef;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
         TaxRegRecordRef.Open(DATABASE::"Tax Register Item Entry");
         TaxDimMgt.SetDimFilters2TaxItemRecordRef(TaxRegTemplate, TaxRegRecordRef);
@@ -107,7 +107,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         DimValue: Record "Dimension Value";
         TaxRegTemplate: Record "Tax Register Template";
     begin
-        Initialize;
+        Initialize();
         InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
         Assert.IsFalse(
           TaxDimMgt.ValidateTemplateDimFilters(TaxRegTemplate), DimFiltersAreValidatedErr);
@@ -120,7 +120,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         DimValue: Record "Dimension Value";
         TaxRegTemplate: Record "Tax Register Template";
     begin
-        Initialize;
+        Initialize();
         InitTaxRegTemplateWithFilter(DimValue, TaxRegTemplate);
         TaxDimMgt.SetTaxEntryDim(TaxRegTemplate."Section Code", DimValue.Code, '', '', '');
         Assert.IsTrue(
@@ -152,7 +152,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegIDTotaling: Code[250];
         DimValueCode: array[4] of Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateDimValue(DimValue[1]);
         LibraryTaxAcc.CreateTaxReg(
           TaxRegister, CreateTaxRegSection(DimValue),
@@ -180,7 +180,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
         TaxRegDimValueComb: Record "Tax Register Dim. Value Comb.";
     begin
-        Initialize;
+        Initialize();
         CreatePairedDimValue(DimValue);
         LibraryTaxAcc.CreateTaxReg(
           TaxRegister, CreateTaxRegSection(DimValue),
@@ -203,7 +203,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegister: Record "Tax Register";
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
     begin
-        Initialize;
+        Initialize();
         CreateDimValue(DimValue);
         CreateTaxRegWithDimComb(
           TaxRegister, TaxRegDimComb, DimValue."Dimension Code");
@@ -218,7 +218,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegister: Record "Tax Register";
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
     begin
-        Initialize;
+        Initialize();
         CreateDimValue(DimValue);
         CreateTaxRegWithDimComb(
           TaxRegister, TaxRegDimComb, DimValue."Dimension Code");
@@ -235,7 +235,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
         TaxRegDimValueComb: Record "Tax Register Dim. Value Comb.";
     begin
-        Initialize;
+        Initialize();
         CreateDimValue(DimValue[1]);
         CreateTaxRegWithDimComb(
           TaxRegister, TaxRegDimComb, DimValue[1]."Dimension Code");
@@ -252,7 +252,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         TaxRegDimComb: Record "Tax Register Dim. Comb.";
         TaxRegDimValueComb: Record "Tax Register Dim. Value Comb.";
     begin
-        Initialize;
+        Initialize();
         CreateDimValue(DimValue[1]);
         CreateTaxRegWithDimComb(
           TaxRegister, TaxRegDimComb, DimValue[1]."Dimension Code");
@@ -276,7 +276,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
         i: Integer;
         Index: Integer;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterWithDimCorrFilter(TaxRegister, DimValue, TaxRegDimCorrFilter);
 
         if UseBothValues then
@@ -319,7 +319,7 @@ codeunit 144518 "ERM Tax Dimension Mgt."
     begin
         with TaxRegSection do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "Dimension 1 Code" := DimValue[1]."Dimension Code";
             "Dimension 2 Code" := DimValue[2]."Dimension Code";
             Insert;
@@ -360,8 +360,8 @@ codeunit 144518 "ERM Tax Dimension Mgt."
     begin
         with TaxRegGLCorrEntry do begin
             "Section Code" := SectionCode;
-            "Debit Account No." := LibraryERM.CreateGLAccountNo;
-            "Credit Account No." := LibraryERM.CreateGLAccountNo;
+            "Debit Account No." := LibraryERM.CreateGLAccountNo();
+            "Credit Account No." := LibraryERM.CreateGLAccountNo();
             "Register Type" := "Register Type"::Payroll;
             "Entry No." := 1;
         end;

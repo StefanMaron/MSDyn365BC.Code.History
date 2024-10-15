@@ -49,7 +49,7 @@ codeunit 12422 "Corrective Document Mgt."
             ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
             ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
             ItemChargeAssgntSales.SetRange("Item Charge No.", "No.");
-            if ItemChargeAssgntSales.FindLast then;
+            if ItemChargeAssgntSales.FindLast() then;
             exit(ItemChargeAssgntSales."Line No.");
         end;
     end;
@@ -141,7 +141,7 @@ codeunit 12422 "Corrective Document Mgt."
               "Original Doc. No.",
               "Original Doc. Line No.");
 
-            if SalesInvLine.FindSet then
+            if SalesInvLine.FindSet() then
                 repeat
                     if SalesInvLine.Type = SalesInvLine.Type::Item then
                         GetSalesShptLines(
@@ -152,7 +152,7 @@ codeunit 12422 "Corrective Document Mgt."
                           SalesInvLine."Line No.");
                 until SalesInvLine.Next() = 0;
 
-            if SalesCrMemoLine.FindSet then
+            if SalesCrMemoLine.FindSet() then
                 repeat
                     if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then
                         GetSalesRcptLines(
@@ -178,7 +178,7 @@ codeunit 12422 "Corrective Document Mgt."
         ValueEntry.SetRange("Posting Date", PostingDate);
         ValueEntry.SetRange("Document No.", DocNo);
         ValueEntry.SetRange("Document Line No.", LineNo);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 if (ValueEntry."Item Ledger Entry No." <> 0) and
                    (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost")
@@ -204,7 +204,7 @@ codeunit 12422 "Corrective Document Mgt."
         ValueEntry.SetRange("Posting Date", PostingDate);
         ValueEntry.SetRange("Document No.", DocNo);
         ValueEntry.SetRange("Document Line No.", LineNo);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 if (ValueEntry."Item Ledger Entry No." <> 0) and
                    (ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost")
@@ -233,7 +233,7 @@ codeunit 12422 "Corrective Document Mgt."
         SalesInvLine.Copy(SourceSalesInvLine);
         LineNo := GetSalesLineNo(SalesHeader."Document Type", SalesHeader."No.");
 
-        if SalesInvLine.FindSet then
+        if SalesInvLine.FindSet() then
             repeat
                 CheckSalesLineExists(SalesInvLine."Line No.");
                 CheckSalesLineCorrected(SalesInvLine."Line No.");
@@ -282,7 +282,7 @@ codeunit 12422 "Corrective Document Mgt."
         SalesCrMemoLine.Copy(SourceSalesCrMemoLine);
         LineNo := GetSalesLineNo(SalesHeader."Document Type", SalesHeader."No.");
 
-        if SalesCrMemoLine.FindSet then
+        if SalesCrMemoLine.FindSet() then
             repeat
                 CheckSalesLineExists(SalesCrMemoLine."Line No.");
                 CheckSalesLineCorrected(SalesCrMemoLine."Line No.");
@@ -321,7 +321,7 @@ codeunit 12422 "Corrective Document Mgt."
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
-        if SalesLine.FindLast then;
+        if SalesLine.FindLast() then;
         exit(SalesLine."Line No." + 10000);
     end;
 
@@ -458,13 +458,13 @@ codeunit 12422 "Corrective Document Mgt."
         CorrSalesHeader.SetRange("Corrected Doc. Type", SalesHeader."Corrected Doc. Type");
         CorrSalesHeader.SetRange("Corrected Doc. No.", SalesHeader."Corrected Doc. No.");
         CorrSalesHeader.SetFilter("No.", '<>%1', SalesHeader."No.");
-        if CorrSalesHeader.FindSet then
+        if CorrSalesHeader.FindSet() then
             repeat
                 CorrSalesLine.Reset();
                 CorrSalesLine.SetRange("Document Type", CorrSalesHeader."Document Type");
                 CorrSalesLine.SetRange("Document No.", CorrSalesHeader."No.");
                 CorrSalesLine.SetRange("Corrected Doc. Line No.", CorrLineNo);
-                if CorrSalesLine.FindFirst then
+                if CorrSalesLine.FindFirst() then
                     Error(Text001, CorrLineNo, CorrSalesLine."Document Type", CorrSalesLine."Document No.");
             until CorrSalesHeader.Next() = 0;
     end;
@@ -484,10 +484,10 @@ codeunit 12422 "Corrective Document Mgt."
           SalesHeader."Corrected Doc. No.",
           CorrLineNo);
 
-        if SalesInvLine.FindFirst then
+        if SalesInvLine.FindFirst() then
             Error(Text002, CorrLineNo, SalesInvLine."Document No.");
 
-        if SalesCrMemoLine.FindFirst then
+        if SalesCrMemoLine.FindFirst() then
             Error(Text003, CorrLineNo, SalesCrMemoLine."Document No.");
     end;
 
@@ -758,7 +758,7 @@ codeunit 12422 "Corrective Document Mgt."
                         SalesInvHeader.SetRange("Corrected Doc. Type", GetCorrDocType(CorrSalesHeader));
                         SalesInvHeader.SetRange("Corrected Doc. No.", "No.");
                         SalesInvHeader.SetRange("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-                        if SalesInvHeader.FindFirst then begin
+                        if SalesInvHeader.FindFirst() then begin
                             FillSalesInvCorrHeader(CorrSalesHeader, SalesInvHeader);
                             exit(true);
                         end;
@@ -768,7 +768,7 @@ codeunit 12422 "Corrective Document Mgt."
                         SalesCrMemoHeader.SetRange("Corrected Doc. Type", GetCorrDocType(CorrSalesHeader));
                         SalesCrMemoHeader.SetRange("Corrected Doc. No.", "No.");
                         SalesCrMemoHeader.SetRange("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-                        if SalesCrMemoHeader.FindFirst then begin
+                        if SalesCrMemoHeader.FindFirst() then begin
                             FillSalesCrMemoCorrHeader(CorrSalesHeader, SalesCrMemoHeader);
                             exit(true);
                         end;
@@ -992,7 +992,7 @@ codeunit 12422 "Corrective Document Mgt."
             SetRange("Document Type", "Document Type"::"Credit Memo");
             SetRange("Document No.", PurchCrMemoHdr."No.");
             SetRange("Posting Date", PurchCrMemoHdr."Posting Date");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1004,7 +1004,7 @@ codeunit 12422 "Corrective Document Mgt."
     begin
         SalesInvoiceLine.FilterPstdDocLineValueEntries(ValueEntry);
         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindFirst then begin
+        if ValueEntry.FindFirst() then begin
             ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
             if ItemLedgEntry.TrackingExists then
                 exit;

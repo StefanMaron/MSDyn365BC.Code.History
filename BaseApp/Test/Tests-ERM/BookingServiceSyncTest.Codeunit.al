@@ -244,7 +244,7 @@ codeunit 133782 "Booking Service Sync Test"
         Item.SetRange(Description, Description);
         Item.SetRange("Unit Price", Price);
         Item.SetRange(Type, Item.Type::Service);
-        Item.FindFirst;
+        Item.FindFirst();
     end;
 
     local procedure FindBookingService(var BookingService: Record "Booking Service"; Description: Text; Price: Decimal)
@@ -252,7 +252,7 @@ codeunit 133782 "Booking Service Sync Test"
         Clear(BookingService);
         BookingService.SetRange("Display Name", Description);
         BookingService.SetRange(Price, Price);
-        BookingService.FindFirst;
+        BookingService.FindFirst();
     end;
 
     local procedure UpdateItem(var Item: Record Item; var Price: Decimal)

@@ -28,7 +28,7 @@ codeunit 12415 "EmployeeVendor-Update"
     procedure OnModify(var Employee: Record Employee)
     begin
         Vend.SetRange("Employee No.", Employee."No.");
-        if Vend.FindSet then
+        if Vend.FindSet() then
             repeat
                 Vend.TestField("Vendor Type", Vend."Vendor Type"::"Resp. Employee");
                 EmployeeToVendor(Employee, Vend);

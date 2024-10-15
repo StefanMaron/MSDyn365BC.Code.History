@@ -157,7 +157,7 @@ table 12471 "Posted FA Doc. Header"
 
         PostedFADocLine.SetRange("Document Type", "Document Type");
         PostedFADocLine.SetRange("Document No.", "No.");
-        if PostedFADocLine.FindFirst then
+        if PostedFADocLine.FindFirst() then
             PostedFADocLine.DeleteAll();
     end;
 
@@ -172,7 +172,7 @@ table 12471 "Posted FA Doc. Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("FA Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [Scope('OnPrem')]
@@ -189,7 +189,7 @@ table 12471 "Posted FA Doc. Header"
         PostedFAComment.SetRange("Document No.", "No.");
         PostedFAComment.SetRange("Document Line No.", 0);
         PostedFAComment.SetRange(Type, Type);
-        if PostedFAComment.FindSet then
+        if PostedFAComment.FindSet() then
             repeat
                 Index += 1;
                 Comment[Index] := PostedFAComment.Comment

@@ -350,7 +350,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, DocType, DocNo);
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-        DtldVendLedgEntry.FindFirst;
+        DtldVendLedgEntry.FindFirst();
         VendEntryApplyPostedEntries.PostUnApplyVendor(
           DtldVendLedgEntry, VendLedgEntry."Document No.", DtldVendLedgEntry."Posting Date");
     end;
@@ -361,7 +361,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
             SetRange("Entry Type", EntryType);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -370,7 +370,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Vendor Invoice No.", OrderNo);
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
         exit(PurchInvHeader."Posting Date");
     end;
 
@@ -412,7 +412,7 @@ codeunit 144011 "ERM RU Purch. Unrealized VAT"
         AdjustExchangeRates.InitializeRequest2(
           StartDate, EndDate, '', EndDate, LibraryUtility.GenerateGUID, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure VerifyGainLossAppEntries(InvNo: array[2] of Code[20]; IsRaise: Boolean; IsSummarizeGainsLosses: Boolean; CurrencyCode: Code[10])

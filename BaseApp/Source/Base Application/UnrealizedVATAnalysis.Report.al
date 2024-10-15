@@ -217,7 +217,7 @@ report 14928 "Unrealized VAT Analysis"
                 ChargeVATBase := 0;
                 VATEntry.SetRange("Unrealized VAT Entry No.", "Entry No.");
                 VATEntry.SetFilter("Posting Date", "VAT Entry".GetFilter("Posting Date"));
-                if VATEntry.FindSet then
+                if VATEntry.FindSet() then
                     repeat
                         case VATEntry."VAT Allocation Type" of
                             VATEntry."VAT Allocation Type"::VAT:
@@ -240,7 +240,7 @@ report 14928 "Unrealized VAT Analysis"
 
                 VATAccNo := '';
                 VATEntryLink.SetRange("VAT Entry No.", "Entry No.");
-                if VATEntryLink.FindFirst then begin
+                if VATEntryLink.FindFirst() then begin
                     GLEntry.Get(VATEntryLink."G/L Entry No." + 1);
                     VATAccNo := GLEntry."G/L Account No.";
                     GLAccount.Get(VATAccNo);

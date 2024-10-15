@@ -30,7 +30,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // EXERCISE
         CreateInvtItem(Item);
@@ -66,7 +66,7 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         CreateItemAndTestReplenishmentSystem(Item, true);
@@ -80,9 +80,9 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
         InventoryPostingGr: Record "Inventory Posting Group";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
-        InventoryPostingGr.FindFirst;
+        InventoryPostingGr.FindFirst();
         Item.Validate("Inventory Posting Group", InventoryPostingGr.Code);
 
         CreateItemAndTestInventoryPostingGroup(Item, InventoryPostingGr, true);
@@ -95,7 +95,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
         Item.Validate(Reserve, Item.Reserve::Optional);
 
@@ -141,10 +141,10 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
 
         // EXERCISE
@@ -186,7 +186,7 @@ codeunit 137510 "SMB Service Item"
         SalesLine: Record "Sales Line";
         NonInvStockkeepingUnit: Record "Stockkeeping Unit";
     begin
-        Initialize;
+        Initialize();
 
         CreateNonInvItem(NonInventoryItem);
         NonInventoryItem.Validate("Unit Cost", 10.0);
@@ -219,7 +219,7 @@ codeunit 137510 "SMB Service Item"
         SalesLine: Record "Sales Line";
         ServiceStockkeepingUnit: Record "Stockkeeping Unit";
     begin
-        Initialize;
+        Initialize();
 
         CreateServItem(ServiceItem);
         ServiceItem.Validate("Unit Cost", 10.0);
@@ -252,7 +252,7 @@ codeunit 137510 "SMB Service Item"
         SalesLine: Record "Sales Line";
         InvStockkeepingUnit: Record "Stockkeeping Unit";
     begin
-        Initialize;
+        Initialize();
 
         CreateInvtItem(InventoryItem);
         InventoryItem.Validate("Unit Cost", 10.0);
@@ -281,7 +281,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::LIFO);
 
@@ -331,7 +331,7 @@ codeunit 137510 "SMB Service Item"
         ProdBOMHeader: Record "Production BOM Header";
         LibraryMfg: Codeunit "Library - Manufacturing";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
         CreateInvtItem(ChildItem);
         LibraryMfg.CreateCertifiedProductionBOM(ProdBOMHeader, ChildItem."No.", 1);
@@ -374,10 +374,10 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
         RtngHeader: Record "Routing Header";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
-        RtngHeader.FindFirst;
+        RtngHeader.FindFirst();
         Item.Validate("Routing No.", RtngHeader."No.");
 
         // EXERCISE
@@ -417,7 +417,7 @@ codeunit 137510 "SMB Service Item"
         ChildItem: Record Item;
         BOMComp: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(ChildItem);
         CreateInvtItem(Item);
 
@@ -466,7 +466,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
@@ -499,7 +499,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
@@ -515,7 +515,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
@@ -531,7 +531,7 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         // EXERCISE
@@ -569,7 +569,7 @@ codeunit 137510 "SMB Service Item"
         EntryType: Integer;
     begin
         // [Scenario] You should not be able to use service items on any entry type of item journal line.
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         // EXERCISE
@@ -634,7 +634,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [Scenario] You should only be able to use non-inventory items in item journal line if the entry type is 
         // consumption or assembly consumption.
-        Initialize;
+        Initialize();
         CreateNonInvItem(Item);
 
         // EXERCISE
@@ -694,7 +694,7 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
         ChildItem: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
         CreateInvtItem(ChildItem);
 
@@ -725,7 +725,7 @@ codeunit 137510 "SMB Service Item"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
@@ -757,7 +757,7 @@ codeunit 137510 "SMB Service Item"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         LibrarySales.CreateCustomer(Cust);
@@ -793,7 +793,7 @@ codeunit 137510 "SMB Service Item"
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         LibrarySales.CreateCustomer(Cust);
@@ -834,7 +834,7 @@ codeunit 137510 "SMB Service Item"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         CreateCustWithLocation(Cust);
@@ -862,7 +862,7 @@ codeunit 137510 "SMB Service Item"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         CreateCustWithLocation(Cust);
@@ -886,7 +886,7 @@ codeunit 137510 "SMB Service Item"
         InvtSetup: Record "Inventory Setup";
         OldInvtSetup: Record "Inventory Setup";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         LibrarySales.CreateCustomer(Cust);
@@ -918,7 +918,7 @@ codeunit 137510 "SMB Service Item"
         InvtSetup: Record "Inventory Setup";
         OldInvtSetup: Record "Inventory Setup";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         LibrarySales.CreateCustomer(Cust);
@@ -955,7 +955,7 @@ codeunit 137510 "SMB Service Item"
         PurchLine: Record "Purchase Line";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         LibraryPurch.CreateVendor(Vend);
@@ -986,7 +986,7 @@ codeunit 137510 "SMB Service Item"
         PurchLine: Record "Purchase Line";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         LibraryPurch.CreateVendor(Vend);
@@ -1018,7 +1018,7 @@ codeunit 137510 "SMB Service Item"
         PurchLine: Record "Purchase Line";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
         PurchHeader.DontNotifyCurrentUserAgain(PurchHeader.GetModifyVendorAddressNotificationId);
         PurchHeader.DontNotifyCurrentUserAgain(PurchHeader.GetModifyPayToVendorAddressNotificationId);
         CreateServItem(Item);
@@ -1047,7 +1047,7 @@ codeunit 137510 "SMB Service Item"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         CreateVendWithLocation(Vend);
@@ -1073,7 +1073,7 @@ codeunit 137510 "SMB Service Item"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         CreateVendWithLocation(Vend);
@@ -1098,7 +1098,7 @@ codeunit 137510 "SMB Service Item"
         OldInvtSetup: Record "Inventory Setup";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         LibraryPurch.CreateVendor(Vend);
@@ -1176,7 +1176,7 @@ codeunit 137510 "SMB Service Item"
         OldInvtSetup: Record "Inventory Setup";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         LibraryPurch.CreateVendor(Vend);
@@ -1211,7 +1211,7 @@ codeunit 137510 "SMB Service Item"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         // EXERCISE
@@ -1242,7 +1242,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         CreateAsmOrder(Item);
@@ -1260,7 +1260,7 @@ codeunit 137510 "SMB Service Item"
     [Scope('OnPrem')]
     procedure TestItem_ServDoc()
     begin
-        Initialize;
+        Initialize();
 
         CreateItemAndTestServDoc(true);
     end;
@@ -1269,7 +1269,7 @@ codeunit 137510 "SMB Service Item"
     [Scope('OnPrem')]
     procedure TestNonInventoryItem_ServDoc()
     begin
-        Initialize;
+        Initialize();
 
         CreateItemAndTestServDoc(false);
     end;
@@ -1281,7 +1281,7 @@ codeunit 137510 "SMB Service Item"
         Item: Record Item;
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         // EXERCISE
@@ -1311,7 +1311,7 @@ codeunit 137510 "SMB Service Item"
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         // EXERCISE
@@ -1331,7 +1331,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         // EXERCISE
@@ -1351,7 +1351,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         // EXERCISE
@@ -1372,7 +1372,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         // EXERCISE
@@ -1386,7 +1386,7 @@ codeunit 137510 "SMB Service Item"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateInvtItem(Item);
 
         // EXERCISE
@@ -1419,7 +1419,7 @@ codeunit 137510 "SMB Service Item"
         ItemJnlBatch: Record "Item Journal Batch";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        Initialize;
+        Initialize();
         CreateServItem(Item);
 
         LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
@@ -1452,7 +1452,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Purchase] [Undo Receipt]
         // [SCENARIO 212144] Undo Receipt of item with Type = Service can be posted. The resulting item ledger entry should be closed.
-        Initialize;
+        Initialize();
 
         CreateItemAndTestPostingUndoReceipt(true);
         CreateItemAndTestPostingUndoReceipt(false);
@@ -1674,7 +1674,7 @@ codeunit 137510 "SMB Service Item"
         // [THEN] Reversed item ledger entry is created.
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange(Positive, false);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField(Quantity, -1);
 
         // [THEN] Resulting item ledger entries are closed.
@@ -1692,7 +1692,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Shipment] [Sales] [Order]
         // [SCENARIO 274813] When you run "Create Whse. Shipment" from sales order that contains only items type of "Service", no warehouse shipment lines are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Shipment" on warehouse setup.
         LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
@@ -1725,7 +1725,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Shipment] [Sales] [Order]
         // [SCENARIO 274813] When you run "Create Whse. Shipment" from sales order that contains items of both "Service" and "Inventory" types, warehouse shipment lines only for inventory items are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Shipment" on warehouse setup.
         LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
@@ -1764,7 +1764,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Shipment] [Purchase] [Return Order]
         // [SCENARIO 274813] When you run "Create Whse. Shipment" from purchase return order that contains only items type of "Service", no warehouse shipment lines are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Shipment" on warehouse setup.
         LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
@@ -1797,7 +1797,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Shipment] [Purchase] [Return Order]
         // [SCENARIO 274813] When you run "Create Whse. Shipment" from purchase return order that contains items of both "Service" and "Inventory" types, warehouse shipment lines only for inventory items are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Shipment" on warehouse setup.
         LibraryWarehouse.SetRequireShipmentOnWarehouseSetup(true);
@@ -1838,7 +1838,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Receipt] [Purchase] [Order]
         // [SCENARIO 274813] When you run "Create Whse. Receipt" from purchase order that contains only items type of "Service", no warehouse receipt lines are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Receive" on warehouse setup.
         LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
@@ -1871,7 +1871,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Receipt] [Purchase] [Order]
         // [SCENARIO 274813] When you run "Create Whse. Receipt" from purchase order that contains items of both "Service" and "Inventory" types, warehouse receipt lines only for inventory items are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Receive" on warehouse setup.
         LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
@@ -1912,7 +1912,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Receipt] [Sales] [Return Order]
         // [SCENARIO 274813] When you run "Create Whse. Receipt" from sales return order that contains only items type of "Service", no warehouse receipt lines are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Receive" on warehouse setup.
         LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
@@ -1945,7 +1945,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Warehouse Receipt] [Sales] [Return Order]
         // [SCENARIO 274813] When you run "Create Whse. Receipt" from sales return order that contains items of both "Service" and "Inventory" types, warehouse receipt lines only for inventory items are created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Require Receive" on warehouse setup.
         LibraryWarehouse.SetRequireReceiveOnWarehouseSetup(true);
@@ -1981,7 +1981,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [UT]
         // [SCENARIO 281018] When you set item Type = "Service", this resets "Overhead Rate" and "Indirect Cost %" to 0.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Indirect Cost %", LibraryRandom.RandDec(100, 2));
@@ -2002,7 +2002,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [UT]
         // [SCENARIO 281018] Setting non-zero indirect cost % on non-inventory item raises an error.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateServiceTypeItem(Item);
 
@@ -2019,7 +2019,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [UT]
         // [SCENARIO 281018] Setting non-zero overhead rate on non-inventory item raises an error.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateServiceTypeItem(Item);
 
@@ -2037,7 +2037,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [UI]
         // [SCENARIO 281018] "Indirect Cost %" and "Overhead Rate" fields can be populated on item card only for inventory-typed item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Open item card.
         LibraryInventory.CreateItem(Item);
@@ -2071,7 +2071,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service] [Purchase] [UT]
         // [SCENARIO 281018] Setting "Indirect Cost %" on purchase line for non-inventory item raises an error.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateServiceTypeItem(Item);
 
@@ -2134,7 +2134,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Item Type Service]
         // [SCENARIO 281018] Posting purchase invoice for a non-inventory item with non-zero "Indirect Cost %" value (somehow assigned with the code) does not produce value entry for indirect cost.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Type = Service. Assign a non-zero value to "Indirect Cost %" on the item without field validation.
         LibraryInventory.CreateServiceTypeItem(Item);
@@ -2152,7 +2152,7 @@ codeunit 137510 "SMB Service Item"
 
         // [THEN] No indirect cost has been posted for "I".
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Indirect Cost");
         Assert.RecordIsEmpty(ValueEntry);
@@ -2168,7 +2168,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Location Mandatory]
         // [SCENARIO 286165] Location Mandatory setting in Inventory Setup is not checked when posting non-inventory item that always has blank location code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Location Mandatory" setting in Inventory Setup.
         LibraryInventory.SetLocationMandatory(true);
@@ -2201,7 +2201,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly]
         // [SCENARIO 301348] Assembly line for non-inventory item always has blank location code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L".
         LibraryWarehouse.CreateLocation(Location);
@@ -2223,7 +2223,7 @@ codeunit 137510 "SMB Service Item"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange("No.", CompNonInvtItem."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.TestField("Location Code", '');
 
         // [THEN] No availability warning is shown.
@@ -2242,7 +2242,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly]
         // [SCENARIO 301348] Location Mandatory setting in Inventory Setup is not checked when posting assembly consumption of non-inventory item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Location Mandatory" setting in Inventory Setup.
         LibraryInventory.SetLocationMandatory(true);
@@ -2266,7 +2266,7 @@ codeunit 137510 "SMB Service Item"
         // [THEN] The assembly consumption of non-inventory item "C" is successfully posted.
         PostedAssemblyLine.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyLine.SetRange("No.", CompNonInvtItem."No.");
-        PostedAssemblyLine.FindFirst;
+        PostedAssemblyLine.FindFirst();
         PostedAssemblyLine.TestField("Location Code", '');
     end;
 
@@ -2283,7 +2283,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly] [Availability]
         // [SCENARIO 301348] Assembly availability page does not show non-inventoriable items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly item "A" with two components: an inventoriable item "I" and non-inventoriable item "NI".
         LibraryInventory.CreateItem(AsmItem);
@@ -2326,7 +2326,7 @@ codeunit 137510 "SMB Service Item"
     begin
         // [FEATURE] [Non-Inventory Item] [Assembly]
         // [SCENARIO 309827] When you update location code on assembly header, it does not propagate to assembly lines for non-inventory items.
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetStockoutWarning(false);
 
@@ -2353,7 +2353,7 @@ codeunit 137510 "SMB Service Item"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange("No.", CompNonInvtItem."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.TestField("Location Code", '');
     end;
 
@@ -2548,8 +2548,8 @@ codeunit 137510 "SMB Service Item"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SMB Service Item");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         BOMComponent.DeleteAll();
         RequisitionLine.DeleteAll();
@@ -2562,10 +2562,10 @@ codeunit 137510 "SMB Service Item"
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         SetNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SMB Service Item");
     end;
@@ -2741,7 +2741,7 @@ codeunit 137510 "SMB Service Item"
         ReqLine: Record "Requisition Line";
         PlanningComponent: Record "Planning Component";
     begin
-        ReqWkshName.FindFirst;
+        ReqWkshName.FindFirst();
         ReqLine.Init();
         ReqLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         ReqLine.Validate("Journal Batch Name", ReqWkshName.Name);
@@ -2799,7 +2799,7 @@ codeunit 137510 "SMB Service Item"
     begin
         Location.SetRange("Use As In-Transit", false);
         Location.SetRange("Bin Mandatory", false);
-        Location.FindFirst;
+        Location.FindFirst();
         exit(Location.Code);
     end;
 
@@ -2915,7 +2915,7 @@ codeunit 137510 "SMB Service Item"
                     Modify(true);
                 until Next = 0;
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
     end;
 }
 

@@ -75,7 +75,7 @@ codeunit 12421 "Agreement Management"
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        if DefaultDimension.FindSet then
+        if DefaultDimension.FindSet() then
             repeat
                 DimValue.Get(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
                 TempDimSetEntry."Dimension Code" := DefaultDimension."Dimension Code";

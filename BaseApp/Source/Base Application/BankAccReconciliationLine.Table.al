@@ -169,10 +169,7 @@
             trigger OnValidate()
             begin
                 TestField("Applied Amount", 0);
-                CreateDim(
-                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                  DATABASE::"Salesperson/Purchaser", GetSalepersonPurchaserCode);
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                CreateDimFromDefaultDim();
             end;
         }
         field(23; "Transaction Text"; Text[140])
@@ -671,10 +668,10 @@
                                         Vend.SetRange("VAT Registration No.", VATRegNo);
                                     if KPPCode <> '' then
                                         Vend.SetRange("KPP Code", KPPCode);
-                                    if Vend.FindFirst then begin
+                                    if Vend.FindFirst() then begin
                                         VendBankAcc.SetRange("Vendor No.", Vend."No.");
                                         VendBankAcc.SetRange("Bank Account No.", BankAccountNo);
-                                        if VendBankAcc.FindLast then begin
+                                        if VendBankAcc.FindLast() then begin
                                             "Line Status" := "Line Status"::"Contractor Confirmed";
                                         end else
                                             IncorrectContractor;
@@ -689,10 +686,10 @@
                                         Cust.SetRange("VAT Registration No.", VATRegNo);
                                     if KPPCode <> '' then
                                         Cust.SetRange("KPP Code", KPPCode);
-                                    if Cust.FindFirst then begin
+                                    if Cust.FindFirst() then begin
                                         CustBankAcc.SetRange("Customer No.", Cust."No.");
                                         CustBankAcc.SetRange("Bank Account No.", BankAccountNo);
-                                        if CustBankAcc.FindLast then begin
+                                        if CustBankAcc.FindLast() then begin
                                             "Line Status" := "Line Status"::"Contractor Confirmed";
                                         end else
                                             IncorrectContractor;
@@ -707,7 +704,7 @@
                                         BankAccountDetail.SetRange("VAT Registration No.", VATRegNo);
                                     if KPPCode <> '' then
                                         BankAccountDetail.SetRange("KPP Code", KPPCode);
-                                    if BankAccountDetail.FindFirst then begin
+                                    if BankAccountDetail.FindFirst() then begin
                                         "Document Type" := BankAccountDetail."Document Type";
                                         "Line Status" := "Line Status"::"Contractor Confirmed";
                                     end else
@@ -864,7 +861,7 @@
                         Error(TransactionAmountMustNotBeZeroErr);
                     PaymentApplication.SetBankAccReconcLine(Rec);
                     OnDisplayApplicationOnAfterSetBankAccReconcLine(PaymentApplication);
-                    PaymentApplication.RunModal;
+                    PaymentApplication.RunModal();
                 end;
         end;
     end;
@@ -959,7 +956,7 @@
             VendBankAcc.Reset();
             VendBankAcc.SetCurrentKey("Bank Account No.");
             VendBankAcc.SetRange("Bank Account No.", BankAccountNo);
-            if VendBankAcc.FindSet then
+            if VendBankAcc.FindSet() then
                 repeat
                     Vend.Reset();
                     Vend.SetRange("No.", VendBankAcc."Vendor No.");
@@ -967,13 +964,13 @@
                         Vend.SetRange("VAT Registration No.", VATRegNo);
                     if KPPCode <> '' then
                         Vend.SetRange("KPP Code", KPPCode);
-                    VendorFound := Vend.FindFirst;
+                    VendorFound := Vend.FindFirst();
                 until (VendBankAcc.Next() = 0) or VendorFound;
 
             CustBankAcc.Reset();
             CustBankAcc.SetCurrentKey("Bank Account No.");
             CustBankAcc.SetRange("Bank Account No.", BankAccountNo);
-            if CustBankAcc.FindSet then
+            if CustBankAcc.FindSet() then
                 repeat
                     Cust.Reset();
                     Cust.SetRange("No.", CustBankAcc."Customer No.");
@@ -981,7 +978,7 @@
                         Cust.SetRange("VAT Registration No.", VATRegNo);
                     if KPPCode <> '' then
                         Cust.SetRange("KPP Code", KPPCode);
-                    CustomerFound := Cust.FindFirst;
+                    CustomerFound := Cust.FindFirst();
                 until (CustBankAcc.Next() = 0) or CustomerFound;
 
             BankAccountDetail.Reset();
@@ -990,7 +987,7 @@
                 BankAccountDetail.SetRange("VAT Registration No.", VATRegNo);
             if KPPCode <> '' then
                 BankAccountDetail.SetRange("KPP Code", KPPCode);
-            GLAccountFound := BankAccountDetail.FindFirst;
+            GLAccountFound := BankAccountDetail.FindFirst();
         end;
 
         if (VendorFound and CustomerFound) or (VendorFound and GLAccountFound) or (GLAccountFound and CustomerFound) then begin
@@ -1108,6 +1105,8 @@
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -1129,6 +1128,30 @@
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Payment Reconciliation Journal",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", BankAccReconciliation."Dimension Set ID", DATABASE::"Bank Account");
+
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Payment Reconciliation Journal",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", BankAccReconciliation."Dimension Set ID", DATABASE::"Bank Account");
+
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
     procedure SetUpNewLine()
@@ -1156,7 +1179,7 @@
 
     procedure AcceptAppliedPaymentEntriesSelectedLines()
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 AcceptApplication;
             until Next() = 0;
@@ -1164,7 +1187,7 @@
 
     procedure RejectAppliedPaymentEntriesSelectedLines()
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 RejectAppliedPayment;
             until Next() = 0;
@@ -1672,7 +1695,7 @@
         AppliedPaymentEntry.SetRange("Statement Line No.", "Statement Line No.");
 
         AppliedNumbers := '';
-        if AppliedPaymentEntry.FindSet then begin
+        if AppliedPaymentEntry.FindSet() then begin
             repeat
                 if ApplyType = ApplyType::"Document No." then begin
                     if AppliedPaymentEntry."Document No." <> '' then
@@ -1852,7 +1875,7 @@
 
         AppliedPmtEntry.FilterAppliedPmtEntry(Rec);
         AppliedPmtEntry.SetFilter("Applies-to Entry No.", '<>0');
-        if AppliedPmtEntry.FindSet then begin
+        if AppliedPmtEntry.FindSet() then begin
             DifferenceStatementAmtToApplEntryAmount := "Statement Amount";
             repeat
                 CurrRemAmtAfterPosting :=
@@ -2017,7 +2040,7 @@
 
         AppliedPaymentEntry.FilterAppliedPmtEntry(Rec);
         AppliedPaymentEntry.SetFilter("Applies-to Entry No.", '<>%1', 0);
-        if AppliedPaymentEntry.FindSet then
+        if AppliedPaymentEntry.FindSet() then
             if AppliedPaymentEntry.Next() = 0 then
                 exit(AppliedPaymentEntry.Description);
 
@@ -2029,10 +2052,64 @@
         exit(StrSubstNo(MatchedAutomaticallyFilterLbl, "Match Confidence"::None, "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High));
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1(Rec."Account Type".AsInteger()), Rec."Account No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", GetSalepersonPurchaserCode);
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Bank Acc. Reconciliation Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Bank Acc. Reconciliation Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Bank Acc. Reconciliation Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [IntegrationEvent(false, false)]
+    [Obsolete('Temporary event for compatibility', '20.0')]
     local procedure OnAfterCreateDimTableIDs(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");

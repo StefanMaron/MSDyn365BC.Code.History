@@ -27,6 +27,7 @@ codeunit 136350 "UT T Job"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryMarketing: Codeunit "Library - Marketing";
         IsInitialized: Boolean;
         IncorrectSourceIDErr: Label 'Incorrect Source ID.';
         JobTaskDimDoesNotExistErr: Label 'Job Task Dimension does not exist.';
@@ -45,7 +46,7 @@ codeunit 136350 "UT T Job"
         // Verify that Apply Usage Link is initialized correctly.
 
         // Verify that Apply Usage Link and Allow Schedule/Contract Lines are not set by default, if not set in Jobs Setup.
-        Initialize;
+        Initialize();
         JobsSetup.Get();
         JobsSetup.Validate("Apply Usage Link by Default", false);
         JobsSetup.Validate("Allow Sched/Contract Lines Def", false);
@@ -57,7 +58,7 @@ codeunit 136350 "UT T Job"
         TearDown;
 
         // Verify that Apply Usage Link and Allow Schedule/Contract Lines are set by default, if set in Jobs Setup.
-        Initialize;
+        Initialize();
         JobsSetup.Get();
         JobsSetup.Validate("Apply Usage Link by Default", true);
         JobsSetup.Validate("Allow Sched/Contract Lines Def", true);
@@ -89,7 +90,7 @@ codeunit 136350 "UT T Job"
         JobLedgerEntry: Record "Job Ledger Entry";
         LibraryJob: Codeunit "Library - Job";
     begin
-        Initialize;
+        Initialize();
         SetUp(true);
 
         // Verify that Apply Usage Link can be checked, as long as no Usage has been posted.
@@ -123,7 +124,7 @@ codeunit 136350 "UT T Job"
     var
         JobWIPWarning: Record "Job WIP Warning";
     begin
-        Initialize;
+        Initialize();
         SetUp(true);
 
         // Verify that WIP Warnings is false when no warnings exist.
@@ -146,17 +147,17 @@ codeunit 136350 "UT T Job"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        Initialize;
+        Initialize();
         SetUp(true);
 
         // Verify that update of WIP Method is reflected on Job Tasks as well.
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
         JobTask.SetRange("Job No.", Job."No.");
-        JobTask.FindFirst;
+        JobTask.FindFirst();
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
         JobTask.Modify();
         Job.Validate("WIP Method", JobWIPMethod.Code);
-        JobTask.FindFirst;
+        JobTask.FindFirst();
         Assert.AreEqual(JobWIPMethod.Code, JobTask."WIP Method", 'The WIP Method set on the Job is not propagated to the Job Task Line.');
 
         with Job do begin
@@ -182,7 +183,7 @@ codeunit 136350 "UT T Job"
         JobWIPEntry: Record "Job WIP Entry";
         JobWIPMethod: Record "Job WIP Method";
     begin
-        Initialize;
+        Initialize();
         SetUp(true);
 
         with Job do begin
@@ -197,7 +198,7 @@ codeunit 136350 "UT T Job"
             // Validate that WIP Posting Method can't be changed, if Job WIP Entries exist.
             Clear(JobWIPEntry);
             JobWIPEntry.Init();
-            if JobWIPEntry.FindLast then
+            if JobWIPEntry.FindLast() then
                 JobWIPEntry."Entry No." += 1
             else
                 JobWIPEntry."Entry No." := 1;
@@ -232,7 +233,7 @@ codeunit 136350 "UT T Job"
         JobWIPEntry: Record "Job WIP Entry";
         JobWIPGLEntry: Record "Job WIP G/L Entry";
     begin
-        Initialize;
+        Initialize();
         SetUp(true);
 
         // Verify that CalcAccWIPCostsAmount, CalcAccWIPSalesAmount, CalcRecognizedProfitAmount, CalcRecognizedProfitPercentage,
@@ -240,7 +241,7 @@ codeunit 136350 "UT T Job"
         with Job do begin
             Clear(JobWIPEntry);
             JobWIPEntry.Init();
-            if JobWIPEntry.FindLast then
+            if JobWIPEntry.FindLast() then
                 JobWIPEntry."Entry No." += 1
             else
                 JobWIPEntry."Entry No." := 1;
@@ -252,7 +253,7 @@ codeunit 136350 "UT T Job"
 
             Clear(JobWIPEntry);
             JobWIPEntry.Init();
-            if JobWIPEntry.FindLast then
+            if JobWIPEntry.FindLast() then
                 JobWIPEntry."Entry No." += 1
             else
                 JobWIPEntry."Entry No." := 1;
@@ -263,7 +264,7 @@ codeunit 136350 "UT T Job"
             JobWIPEntry.Insert();
 
             Clear(JobWIPGLEntry);
-            if JobWIPGLEntry.FindLast then
+            if JobWIPGLEntry.FindLast() then
                 JobWIPGLEntry."Entry No." += 1
             else
                 JobWIPGLEntry."Entry No." := 1;
@@ -276,7 +277,7 @@ codeunit 136350 "UT T Job"
 
             Clear(JobWIPGLEntry);
             JobWIPGLEntry.Init();
-            if JobWIPGLEntry.FindLast then
+            if JobWIPGLEntry.FindLast() then
                 JobWIPGLEntry."Entry No." += 1
             else
                 JobWIPGLEntry."Entry No." := 1;
@@ -327,7 +328,7 @@ codeunit 136350 "UT T Job"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        Initialize;
+        Initialize();
         SetUp(true);
 
         // Make sure you can change the currency code on a Job Planning Line through this function.
@@ -346,7 +347,7 @@ codeunit 136350 "UT T Job"
         Job.CurrencyUpdatePlanningLines;
 
         JobPlanningLine.SetRange("Job No.", Job."No.");
-        JobPlanningLine.FindFirst;
+        JobPlanningLine.FindFirst();
 
         Assert.AreEqual('TEST', JobPlanningLine."Currency Code",
           'The Currency Code on the Job Planning Line was not set correctly.');
@@ -374,11 +375,11 @@ codeunit 136350 "UT T Job"
         // [GIVEN] Job = "X"
         // [GIVEN] Reservation Entry with Source ID = "X" and Source Type = "Job Planning Line"
         // [GIVEN] Reservation Entry with Source ID = "X" and Source Type = "Job Journal Line"
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         CreateReservEntry(JobPlanningReservEntry, DATABASE::"Job Planning Line", Job."No.");
         CreateReservEntry(JobJnlLineReservEntry, DATABASE::"Job Journal Line", Job."No.");
-        NewJobNo := LibraryUtility.GenerateGUID;
+        NewJobNo := LibraryUtility.GenerateGUID();
         // [WHEN] Job is renamed from "X" to "Y"
         Job.Rename(NewJobNo);
         // [THEN] Source ID of Reservation Entry with Source Type = "Job Planning Line" is "Y"
@@ -400,7 +401,7 @@ codeunit 136350 "UT T Job"
         // [FEATURE] [Dimension]
         // [SCENARIO 363274] Job Task Global Dimensions are updated when validate global dimension in Job
 
-        Initialize;
+        Initialize();
         // [GIVEN] Job and Job Task with empty global dimensions
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -428,7 +429,7 @@ codeunit 136350 "UT T Job"
         // [FEATURE] [Dimension]
         // [SCENARIO 363274] Job Task Global Dimensions are not updated when validate global dimension in Job and cancel update for lines
 
-        Initialize;
+        Initialize();
         // [GIVEN] Job and Job Task with empty global dimensions
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -454,7 +455,7 @@ codeunit 136350 "UT T Job"
     begin
         // [SCENARIO 302594] "Over Budget" is "Yes" in Job if Total Cost of Job Ledger Entries and input Cost is greater than schedule cost when function UpdateOverBudgetValue is executed
 
-        Initialize;
+        Initialize();
         SetUp(false);
         GetRandomSetOfDecimalsWithDelta(UsageCost, InputCost, ScheduleCost, -1);
 
@@ -474,7 +475,7 @@ codeunit 136350 "UT T Job"
     begin
         // [SCENARIO 302594] "Over Budget" is "No" in Job if Total Cost of Job Ledger Entries and input Cost is less than schedule cost when function UpdateOverBudgetValue is executed
 
-        Initialize;
+        Initialize();
         SetUp(false);
         GetRandomSetOfDecimalsWithDelta(UsageCost, InputCost, ScheduleCost, 1);
 
@@ -494,7 +495,7 @@ codeunit 136350 "UT T Job"
     begin
         // [SCENARIO 302594] "Over Budget" is "Yes" in Job if Total Cost of Job Ledger Entries is greater than schedule cost and input cost when function UpdateOverBudgetValue is executed
 
-        Initialize;
+        Initialize();
         SetUp(false);
         GetRandomSetOfDecimalsWithDelta(InputCost, ScheduleCost, UsageCost, 1);
 
@@ -514,7 +515,7 @@ codeunit 136350 "UT T Job"
     begin
         // [SCENARIO 302594] "Over Budget" is "No" in Job if Total Cost of Job Ledger Entries is less than schedule cost and input cost when function UpdateOverBudgetValue is executed
 
-        Initialize;
+        Initialize();
         SetUp(false);
         GetRandomSetOfDecimalsWithDelta(InputCost, ScheduleCost, UsageCost, -1);
 
@@ -532,7 +533,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217317] Job cannot be deleted if there are Open Time Sheet Lines for that job.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Job.
         SetUp(false);
@@ -559,7 +560,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217317] Job cannot be deleted if there are Submitted Time Sheet Lines for that job.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Job.
         SetUp(false);
@@ -587,7 +588,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217317] Job can be deleted when there are Time Sheet Lines for that Job with Status = Approved.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Job.
         SetUp(false);
@@ -616,7 +617,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 217317] Job can be deleted when there are Time Sheet Lines for that Job with Status = Rejected.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A Job.
         SetUp(false);
@@ -648,7 +649,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [User]
         // [SCENARIO 220218] TAB 9154 "My Job" record has been updated when modify Job."Project Manager"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Users "A", "B", Job "X"
         UserA := MockUser;
@@ -708,7 +709,7 @@ codeunit 136350 "UT T Job"
         // [FEATURE] [Dimension]
         // [SCENARIO 302594] Validation of Job's "Global Dimension 1 Code" and "Global Dimension 1 Code" fields causes single Job's OnModify trigger when job has Job Ledger Entries with total cost.
 
-        Initialize;
+        Initialize();
         SetUp(false);
         GetRandomSetOfDecimalsWithDelta(InputCost, ScheduleCost, UsageCost, 1);
 
@@ -742,7 +743,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 282994] Customer default dimensions copied to job default dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with set of default dimensions "DIMSET"
         CustomerNo := CreateCustomerWithDefDim;
@@ -769,7 +770,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 282994] Job and Job Tasks dimensions updated when Bill-to Customer No. is changed by customer with another dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST1" with set of dimensions "DIMSET1"
         // [GIVEN] Customer "CUST2" with set of dimensions "DIMSET2"
@@ -812,7 +813,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 282994] Job and Job Tasks dimensions updated when Bill-to Customer No. is changed by customer with another global dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST1" with global dimension 1 value "GLOBALDIM1"
         // [GIVEN] Customer "CUST2" with global dimension 2 value "GLOBALDIM2"
@@ -856,7 +857,7 @@ codeunit 136350 "UT T Job"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 282994] Customer default dimensions copied to job default dimensions when job created from customer card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with set of default dimensions "DIMSET"
         CustomerNo := CreateCustomerWithDefDim;
@@ -872,6 +873,163 @@ codeunit 136350 "UT T Job"
         VerifyJobDefaultDimensionsFromCustDefaultDimensions(Job."No.", CustomerNo);
     end;
 
+    [Test]
+    procedure KeepBillToInSyncWithSellTo()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        // [SCENARIO] The bill-to fields should be synced with sell-to fields by default.
+        Initialize();
+
+        // [GIVEN] A customer and empty job.
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        Job.Init();
+
+        // [WHEN] Setting the sell-to customer.
+        Job.Validate("Sell-to Customer No.", Customer."No.");
+
+        // [THEN] Bill-to fields are synced with sell-to.
+        Job.TestField("Bill-to Address", Job."Sell-to Address");
+        Job.TestField("Bill-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Bill-to City", Job."Sell-to City");
+        Job.TestField("Bill-to Contact", Job."Sell-to Contact");
+        Job.TestField("Bill-to Contact No.", Job."Sell-to Contact No.");
+        Job.TestField("Bill-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Bill-to County", Job."Sell-to County");
+        Job.TestField("Bill-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Bill-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Bill-to Customer No.", Job."Sell-to Customer No.");
+
+        // [WHEN] Clearing the sell-to customer.
+        Job.Validate("Sell-to Customer No.", '');
+
+        // [THEN] Sell-to and Bill-to fields are cleared.
+        Job.TestField("Sell-to Address", '');
+        Job.TestField("Sell-to Address 2", '');
+        Job.TestField("Sell-to City", '');
+        Job.TestField("Sell-to Contact", '');
+        Job.TestField("Sell-to Contact No.", '');
+        Job.TestField("Sell-to Country/Region Code", '');
+        Job.TestField("Sell-to County", '');
+        Job.TestField("Sell-to Customer Name", '');
+        Job.TestField("Sell-to Customer Name 2", '');
+
+        Job.TestField("Bill-to Address", '');
+        Job.TestField("Bill-to Address 2", '');
+        Job.TestField("Bill-to City", '');
+        Job.TestField("Bill-to Contact", '');
+        Job.TestField("Bill-to Contact No.", '');
+        Job.TestField("Bill-to Country/Region Code", '');
+        Job.TestField("Bill-to County", '');
+        Job.TestField("Bill-to Name", '');
+        Job.TestField("Bill-to Name 2", '');
+        Job.TestField("Bill-to Customer No.", '');
+    end;
+
+    [Test]
+    procedure WhenSettingBillToSyncSellToWithBillToIfEmpty()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        // [SCENARIO] When setting bill-to, the sell-to fields should be synced with bill-to if 
+        //  no sell-to customer has been set.
+        Initialize();
+
+        // [GIVEN] A customer and empty job.
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        LibrarySales.CreateCustomerAddress(Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        Job.Init();
+
+        // [WHEN] Setting the bill-to customer.
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+
+        // [THEN] Sell-to fields are synced with bill-to.
+        Job.TestField("Sell-to Address", Job."Bill-to Address");
+        Job.TestField("Sell-to Address 2", Job."Bill-to Address 2");
+        Job.TestField("Sell-to City", Job."Bill-to City");
+        Job.TestField("Sell-to Contact", Job."Bill-to Contact");
+        Job.TestField("Sell-to Contact No.", Job."Bill-to Contact No.");
+        Job.TestField("Sell-to Country/Region Code", Job."Bill-to Country/Region Code");
+        Job.TestField("Sell-to County", Job."Bill-to County");
+        Job.TestField("Sell-to Customer Name", Job."Bill-to Name");
+        Job.TestField("Sell-to Customer Name 2", Job."Bill-to Name 2");
+        Job.TestField("Sell-to Customer No.", Job."Bill-to Customer No.");
+    end;
+
+    [Test]
+    procedure BreakBillToSellToSyncWhenChangingBillTo()
+    var
+        Job: Record Job;
+        SellToCustomer: Record Customer;
+        BillToCustomer: Record Customer;
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        // [SCENARIO] We should stop syncing bill-to with sell-to if we change bill-to customer.
+        Initialize();
+
+        // [GIVEN] A sell-to/bill-to customer and empty job.
+        LibraryMarketing.CreateContactWithCustomer(SellToContact, SellToCustomer);
+        LibrarySales.CreateCustomerAddress(SellToCustomer);
+        SellToCustomer.Validate("Primary Contact No.", SellToContact."No.");
+        SellToCustomer.Modify(true);
+
+        LibraryMarketing.CreateContactWithCustomer(BillToContact, BillToCustomer);
+        LibrarySales.CreateCustomerAddress(BillToCustomer);
+        BillToCustomer.Validate("Primary Contact No.", BillToContact."No.");
+        BillToCustomer.Modify(true);
+
+        Job.Init();
+
+        // [WHEN] Setting the sell-to customer.
+        Job.Validate("Sell-to Customer No.", SellToCustomer."No.");
+
+        // [THEN] Bill-to fields are synced with sell-to.
+        Job.TestField("Bill-to Address", Job."Sell-to Address");
+        Job.TestField("Bill-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Bill-to City", Job."Sell-to City");
+        Job.TestField("Bill-to Contact No.", SellToContact."No.");
+        Job.TestField("Bill-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Bill-to County", Job."Sell-to County");
+        Job.TestField("Bill-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Bill-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Bill-to Customer No.", Job."Sell-to Customer No.");
+
+        // [WHEN] Changing the bill-to customer.
+        Job.Validate("Bill-to Customer No.", BillToCustomer."No.");
+
+        // [THEN] Bill-to fields are no longer synced with sell-to.
+        Job.TestField("Sell-to Address", SellToCustomer.Address);
+        Job.TestField("Sell-to Address 2", SellToCustomer."Address 2");
+        Job.TestField("Sell-to City", SellToCustomer.City);
+        Job.TestField("Sell-to Contact No.", SellToContact."No.");
+        Job.TestField("Sell-to Country/Region Code", SellToCustomer."Country/Region Code");
+        Job.TestField("Sell-to County", SellToCustomer.County);
+        Job.TestField("Sell-to Customer Name", SellToCustomer.Name);
+        Job.TestField("Sell-to Customer Name 2", SellToCustomer."Name 2");
+
+        Job.TestField("Bill-to Address", BillToCustomer.Address);
+        Job.TestField("Bill-to Address 2", BillToCustomer."Address 2");
+        Job.TestField("Bill-to City", BillToCustomer.City);
+        Job.TestField("Bill-to Contact No.", BillToContact."No.");
+        Job.TestField("Bill-to Country/Region Code", BillToCustomer."Country/Region Code");
+        Job.TestField("Bill-to County", BillToCustomer.County);
+        Job.TestField("Bill-to Name", BillToCustomer.Name);
+        Job.TestField("Bill-to Name 2", BillToCustomer."Name 2");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -882,7 +1040,7 @@ codeunit 136350 "UT T Job"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 
@@ -898,7 +1056,7 @@ codeunit 136350 "UT T Job"
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", ApplyUsageLink);
-        JobWIPMethod.FindFirst;
+        JobWIPMethod.FindFirst();
         Job.Validate("WIP Method", JobWIPMethod.Code);
         Job.Modify();
 
@@ -922,7 +1080,7 @@ codeunit 136350 "UT T Job"
         DefaultDimension: Record "Default Dimension";
         i: Integer;
     begin
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         for i := 1 to 3 do begin
             LibraryDimension.CreateDimWithDimValue(DimensionValue);
             LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustNo, DimensionValue."Dimension Code", DimensionValue.Code);
@@ -936,7 +1094,7 @@ codeunit 136350 "UT T Job"
         GLSetup: Record "General Ledger Setup";
         Dimension: Record Dimension;
     begin
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         GLSetup.Get();
         case DimIndex of
             1:
@@ -996,7 +1154,7 @@ codeunit 136350 "UT T Job"
     local procedure CreateJob(var Job: Record Job)
     begin
         Job.Init();
-        Job."No." := LibraryUtility.GenerateGUID;
+        Job."No." := LibraryUtility.GenerateGUID();
         Job.Insert();
     end;
 
@@ -1006,7 +1164,7 @@ codeunit 136350 "UT T Job"
     begin
         with TimeSheetHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Owner User ID" := UserId;
             "Starting Date" := WorkDate;
             "Ending Date" := WorkDate + 7;
@@ -1030,7 +1188,7 @@ codeunit 136350 "UT T Job"
     begin
         with UserSetup do begin
             Init;
-            Validate("User ID", LibraryUtility.GenerateGUID);
+            Validate("User ID", LibraryUtility.GenerateGUID());
             Insert(true);
             exit("User ID");
         end;

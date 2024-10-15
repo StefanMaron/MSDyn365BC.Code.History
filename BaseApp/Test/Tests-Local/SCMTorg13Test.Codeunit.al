@@ -26,9 +26,9 @@ codeunit 144720 "SCM Torg-13 Test"
         JournalNo: Code[20];
     begin
         // [FEATURE] [Item Reclass. TORG-13]
-        Initialize;
+        Initialize();
         CreateReclassificationItemJournalBatch(ReclassificationItemJournalBatch);
-        JournalNo := LibraryUtility.GenerateGUID;
+        JournalNo := LibraryUtility.GenerateGUID();
 
         CreateReclassJnlLine(ReclassificationItemJournalBatch, JournalNo);
 
@@ -46,9 +46,9 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount: Decimal;
     begin
         // [FEATURE] [Item Reclass. TORG-13]
-        Initialize;
+        Initialize();
         CreateReclassificationItemJournalBatch(ReclassificationItemJournalBatch);
-        JournalNo := LibraryUtility.GenerateGUID;
+        JournalNo := LibraryUtility.GenerateGUID();
 
         CreateReclassJnlLine(ReclassificationItemJournalBatch, JournalNo);
         CreateReclassJnlLine(ReclassificationItemJournalBatch, JournalNo);
@@ -67,7 +67,7 @@ codeunit 144720 "SCM Torg-13 Test"
         HeaderNo: Code[20];
     begin
         // [FEATURE] [Transfer Order TORG-13]
-        Initialize;
+        Initialize();
 
         HeaderNo := CreateTransferOrder;
 
@@ -85,7 +85,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount: Decimal;
     begin
         // [FEATURE] [Transfer Order TORG-13]
-        Initialize;
+        Initialize();
 
         HeaderNo := CreateTransferOrder;
 
@@ -103,7 +103,7 @@ codeunit 144720 "SCM Torg-13 Test"
     procedure Torg13Print_TransferReceipt_DocNoValid()
     begin
         // [FEATURE] [Transfer Receipt TORG-13]
-        Initialize;
+        Initialize();
 
         LibraryReportValidation.VerifyCellValue(
           11, 16, PostTransferAndPrintTorg13ForTransferReceipt(CreateTransferOrder));
@@ -118,7 +118,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount: Decimal;
     begin
         // [FEATURE] [Transfer Receipt TORG-13]
-        Initialize;
+        Initialize();
 
         HeaderNo := PostTransferAndPrintTorg13ForTransferReceipt(CreateTransferOrder);
         TransferReceiptLine.SetRange("Document No.", HeaderNo);
@@ -133,7 +133,7 @@ codeunit 144720 "SCM Torg-13 Test"
     procedure Torg13Print_TransferShipment_DocNoValid()
     begin
         // [FEATURE] [Transfer Shipment TORG-13]
-        Initialize;
+        Initialize();
 
         LibraryReportValidation.VerifyCellValue(
           11, 16, PostTransferAndPrintTorg13ForTransferShipment(CreateTransferOrder));
@@ -148,7 +148,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount: Decimal;
     begin
         // [FEATURE] [Transfer Shipment TORG-13]
-        Initialize;
+        Initialize();
 
         HeaderNo := PostTransferAndPrintTorg13ForTransferShipment(CreateTransferOrder);
         TransferShipmentLine.SetRange("Document No.", HeaderNo);
@@ -167,7 +167,7 @@ codeunit 144720 "SCM Torg-13 Test"
     begin
         // [FEATURE] [Transfer Order TORG-13]
         // [SCENARIO 377543] "Transfer Order TORG-13" report prints rounded Total Price values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Transfer Order with two lines:
         // [GIVEN] Line1: Quantity = 1, Unit Cost = 3.33333
@@ -202,7 +202,7 @@ codeunit 144720 "SCM Torg-13 Test"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -220,7 +220,7 @@ codeunit 144720 "SCM Torg-13 Test"
         ItemReclassTORG13.InitializeRequest(LibraryReportValidation.GetFileName);
         ItemReclassTORG13.SetTableView(ReclassificationItemJournalLine);
         ItemReclassTORG13.UseRequestPage(false);
-        ItemReclassTORG13.Run;
+        ItemReclassTORG13.Run();
     end;
 
     local procedure PrintTorg13ForTransferOrder(HeaderNo: Code[20])
@@ -233,7 +233,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TransferOrderTORG13.InitializeRequest(LibraryReportValidation.GetFileName);
         TransferOrderTORG13.SetTableView(TransferHeader);
         TransferOrderTORG13.UseRequestPage(false);
-        TransferOrderTORG13.Run;
+        TransferOrderTORG13.Run();
     end;
 
     local procedure PostTransferAndPrintTorg13ForTransferReceipt(HeaderNo: Code[20]): Code[20]
@@ -250,9 +250,9 @@ codeunit 144720 "SCM Torg-13 Test"
         TransferReceiptTORG13.InitializeRequest(LibraryReportValidation.GetFileName);
         TransferReceiptTORG13.SetTableView(TransferReceiptHeader);
         TransferReceiptTORG13.UseRequestPage(false);
-        TransferReceiptTORG13.Run;
+        TransferReceiptTORG13.Run();
 
-        TransferReceiptHeader.FindFirst;
+        TransferReceiptHeader.FindFirst();
         exit(TransferReceiptHeader."No.");
     end;
 
@@ -270,9 +270,9 @@ codeunit 144720 "SCM Torg-13 Test"
         TransferShipmentTORG13.InitializeRequest(LibraryReportValidation.GetFileName);
         TransferShipmentTORG13.SetTableView(TransferShipmentHeader);
         TransferShipmentTORG13.UseRequestPage(false);
-        TransferShipmentTORG13.Run;
+        TransferShipmentTORG13.Run();
 
-        TransferShipmentHeader.FindFirst;
+        TransferShipmentHeader.FindFirst();
         exit(TransferShipmentHeader."No.");
     end;
 
@@ -342,7 +342,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount := 0;
         ReclassificationItemJournalLine.SetRange("Journal Template Name", ReclassificationItemJournalBatch."Journal Template Name");
         ReclassificationItemJournalLine.SetRange("Journal Batch Name", ReclassificationItemJournalBatch.Name);
-        if ReclassificationItemJournalLine.FindSet then
+        if ReclassificationItemJournalLine.FindSet() then
             repeat
                 Item.Get(ReclassificationItemJournalLine."Item No.");
                 TotalAmount += ReclassificationItemJournalLine.Quantity * Item."Unit Cost";
@@ -357,7 +357,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount := 0;
 
         TransferLine.SetRange("Document No.", HeaderNo);
-        if TransferLine.FindSet then
+        if TransferLine.FindSet() then
             repeat
                 Item.Get(TransferLine."Item No.");
                 TotalAmount += TransferLine.Quantity * Item."Unit Cost";
@@ -372,7 +372,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount := 0;
 
         TransferReceiptLine.SetRange("Document No.", HeaderNo);
-        if TransferReceiptLine.FindSet then
+        if TransferReceiptLine.FindSet() then
             repeat
                 Item.Get(TransferReceiptLine."Item No.");
                 TotalAmount += TransferReceiptLine.Quantity * Item."Unit Cost";
@@ -387,7 +387,7 @@ codeunit 144720 "SCM Torg-13 Test"
         TotalAmount := 0;
 
         TransferShipmentLine.SetRange("Document No.", HeaderNo);
-        if TransferShipmentLine.FindSet then
+        if TransferShipmentLine.FindSet() then
             repeat
                 Item.Get(TransferShipmentLine."Item No.");
                 TotalAmount += TransferShipmentLine.Quantity * Item."Unit Cost";

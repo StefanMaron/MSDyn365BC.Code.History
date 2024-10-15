@@ -325,7 +325,7 @@ report 14917 "Act Items Receipt M-7"
                 ExcelReportBuilderMgr.SetSheet('Sheet3');
                 ExcelReportBuilderMgr.AddSection('REPORTHEADER');
 
-                if LocationBuffer.FindSet then
+                if LocationBuffer.FindSet() then
                     repeat
                         FillLocationLine(
                           LocationBuffer."Dimension 1 Code",
@@ -628,7 +628,7 @@ report 14917 "Act Items Receipt M-7"
             PurchLine.SetRange("Document No.", "No.");
             PurchLine.SetFilter(Type, '>0');
             PurchLine.SetFilter(Quantity, '<>0');
-            if PurchLine.FindSet then
+            if PurchLine.FindSet() then
                 repeat
                     TempPurchLine := PurchLine;
                     if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then

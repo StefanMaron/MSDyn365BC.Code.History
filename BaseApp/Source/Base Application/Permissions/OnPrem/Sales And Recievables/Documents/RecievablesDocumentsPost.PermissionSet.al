@@ -44,6 +44,7 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "IC Outbox Sales Line" = RIMD,
                   tabledata "IC Outbox Transaction" = RIMD,
                   tabledata "IC Partner" = R,
+                  tabledata "IC Setup" = R,
                   tabledata "Inventory Posting Group" = r,
                   tabledata "Inventory Posting Setup" = r,
                   tabledata Item = rm,

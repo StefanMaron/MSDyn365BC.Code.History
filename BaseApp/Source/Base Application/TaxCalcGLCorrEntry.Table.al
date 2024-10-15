@@ -92,7 +92,7 @@ table 17319 "Tax Calc. G/L Corr. Entry"
     begin
         TaxCalcGLCorrEntry.SetCurrentKey("Section Code", "Entry No.");
         TaxCalcGLCorrEntry.SetRange("Section Code", "Section Code");
-        if TaxCalcGLCorrEntry.FindLast then
+        if TaxCalcGLCorrEntry.FindLast() then
             "Entry No." := TaxCalcGLCorrEntry."Entry No." + 1
         else
             "Entry No." := 1;
@@ -110,7 +110,7 @@ table 17319 "Tax Calc. G/L Corr. Entry"
         if "Where Used Register IDs" <> '' then begin
             TaxCalcHeader.SetRange("Section Code", "Section Code");
             TaxCalcHeader.SetFilter("Register ID", ConvertStr(DelChr("Where Used Register IDs", '<>', '~'), '~', '|'));
-            if TaxCalcHeader.FindSet then begin
+            if TaxCalcHeader.FindSet() then begin
                 Result := TaxCalcHeader."No.";
                 while TaxCalcHeader.Next <> 0 do
                     Result := CopyStr(StrSubstNo('%1, %2', Result, TaxCalcHeader."No."), 1, MaxStrLen(Result));
@@ -139,7 +139,7 @@ table 17319 "Tax Calc. G/L Corr. Entry"
     begin
         Clear(TaxCalcDimCorFilters);
         TaxCalcDimCorFilters.SetTemplateCorresp("Section Code", "Entry No.");
-        TaxCalcDimCorFilters.RunModal;
+        TaxCalcDimCorFilters.RunModal();
     end;
 }
 

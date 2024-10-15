@@ -74,7 +74,7 @@ report 12481 "Phys. Inventory Form INV-3"
 
                 CheckLocation;
 
-                FindFirst;
+                FindFirst();
                 FillSheet1;
 
                 ExcelReportBuilderMgr.SetSheet('Sheet2');
@@ -238,7 +238,7 @@ report 12481 "Phys. Inventory Form INV-3"
     begin
         ItemJnlLine.SetRange("Journal Template Name", "Item Journal Line"."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", "Item Journal Line"."Journal Batch Name");
-        if ItemJnlLine.FindSet then begin
+        if ItemJnlLine.FindSet() then begin
             LocationCode := ItemJnlLine."Location Code";
             Location.Get(LocationCode);
             RespEmployeeNo := Location."Responsible Employee No.";

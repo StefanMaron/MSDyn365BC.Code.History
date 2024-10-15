@@ -1,4 +1,4 @@
-﻿codeunit 5642 "FA Reclass. Transfer Line"
+codeunit 5642 "FA Reclass. Transfer Line"
 {
 
     trigger OnRun()
@@ -448,7 +448,7 @@
             else begin
                 SetRange("New Fiscal Year", true);
                 SetRange("Starting Date", FAReclassJnlLine."FA Posting Date", DMY2Date(31, 12, 9999));
-                if FindFirst then begin
+                if FindFirst() then begin
                     if "Starting Date" <= 00000101D then
                         Error(Text005, FieldCaption("Starting Date"), TableCaption);
                     DeprUntilDate := "Starting Date" - 1

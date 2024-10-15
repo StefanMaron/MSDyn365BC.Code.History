@@ -74,7 +74,7 @@ report 12475 "Purchase Receipt M-4"
 
                 PurchLine.Reset();
                 PurchLine.SetRange("Document No.", "Purchase Header"."No.");
-                if PurchLine.FindSet then
+                if PurchLine.FindSet() then
                     repeat
                         case PurchLine.Type of
                             PurchLine.Type::"G/L Account":

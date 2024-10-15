@@ -20,7 +20,7 @@ codeunit 12420 "Doc. Signature Management"
             SetRange("Table ID", FromTableID);
             SetRange("Document Type", FromDocType);
             SetRange("Document No.", FromDocNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     ToPostedDocSign.Init();
                     ToPostedDocSign."Table ID" := ToTableID;
@@ -55,7 +55,7 @@ codeunit 12420 "Doc. Signature Management"
         with DefaultSignSetup do begin
             SetRange("Table ID", TableID);
             SetRange("Document Type", DocType);
-            if FindSet then
+            if FindSet() then
                 repeat
                     DocSign.Init();
                     DocSign."Table ID" := "Table ID";
@@ -144,7 +144,7 @@ codeunit 12420 "Doc. Signature Management"
         DefaultSignSetup.SetRange("Table ID", TableID);
         DefaultSignSetup.SetRange("Document Type", DocumentType);
         DefaultSignSetup.SetRange(Mandatory, true);
-        if DefaultSignSetup.FindSet then
+        if DefaultSignSetup.FindSet() then
             repeat
                 if not DocumentSignature.Get(TableID, DocumentType, DocumentNo, DefaultSignSetup."Employee Type") or
                    (DocumentSignature."Employee No." = '')

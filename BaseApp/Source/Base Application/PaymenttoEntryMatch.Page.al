@@ -149,7 +149,7 @@
 
             Evaluate(Quality, GetFilter(Quality));
             BankPmtApplRule.SetRange(Score, Quality);
-            if not BankPmtApplRule.FindFirst then
+            if not BankPmtApplRule.FindFirst() then
                 BankPmtApplRule."Match Confidence" := BankPmtApplRule."Match Confidence"::None;
         end;
 

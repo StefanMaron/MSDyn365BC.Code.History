@@ -45,7 +45,7 @@ codeunit 17300 TaxDiffJnlManagement
                     Commit();
                 end;
             1:
-                TaxDiffJnlTemplate.FindFirst;
+                TaxDiffJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, TaxDiffJnlTemplate) = ACTION::LookupOK;
         end;
@@ -86,7 +86,7 @@ codeunit 17300 TaxDiffJnlManagement
     begin
         TaxDiffJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not TaxDiffJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not TaxDiffJnlBatch.FindFirst then begin
+            if not TaxDiffJnlBatch.FindFirst() then begin
                 TaxDiffJnlBatch.Init();
                 TaxDiffJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 TaxDiffJnlBatch.SetupNewBatch;

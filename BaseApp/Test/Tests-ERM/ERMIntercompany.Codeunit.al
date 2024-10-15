@@ -60,7 +60,7 @@ codeunit 134151 "ERM Intercompany"
         // Check error while creating IC Journal Line for Blocked Vendor with All.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor(Vendor.Blocked::All, CreateICPartner);
 
         // Exercise: Create IC Journal Line with random values, take -1 for sign factor.
@@ -84,14 +84,14 @@ codeunit 134151 "ERM Intercompany"
         // Check values on the IC Outbox Transaction for Blocked Vendor with Payment.
 
         // Setup: Taking -1 for sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
           CreateVendor(Vendor.Blocked::Payment, CreateICPartner), -1);
 
         // Exercise: Post the General Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify values on IC Outbox Transactions.
@@ -101,7 +101,7 @@ codeunit 134151 "ERM Intercompany"
           StrSubstNo(EntryMustExistErr, ICOutboxTransaction.TableCaption));
 
         // Tear Down.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         DeleteGeneralJournalBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
     end;
 
@@ -116,13 +116,13 @@ codeunit 134151 "ERM Intercompany"
         // Check error while creating General Journal Line for Blocked IC Partner and Blocked Vendor with All.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor(Vendor.Blocked::All, CreateICPartner);
 
         // Exercise: Create General Journal Line with random values, take -1 for sign factor.
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         asserterror CreateAndUpdateICJournalLine(
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -1);
 
@@ -141,14 +141,14 @@ codeunit 134151 "ERM Intercompany"
         // Check values on the IC Outbox Transaction for Blocked IC Partner and Blocked Vendor with Payment.
 
         // Setup: Taking -1 for sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
           CreateVendor(Vendor.Blocked::Payment, CreateICPartner), -1);
 
         // Exercise: Post the General Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify values on IC Outbox Transactions.
@@ -158,7 +158,7 @@ codeunit 134151 "ERM Intercompany"
           StrSubstNo(EntryMustExistErr, ICOutboxTransaction.TableCaption));
 
         // Tear Down: Setup default values.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         DeleteGeneralJournalBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
     end;
 
@@ -175,7 +175,7 @@ codeunit 134151 "ERM Intercompany"
         // Check error while posting two General Journal Lines with G/L Account No. and Balance Account Number.
 
         // Setup: Create General Journal Batch and two General Journal Lines, take Random Amount.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch);
         CreateICGLAccount(ICGLAccount);
         LibraryERM.CreateGLAccount(GLAccount);
@@ -192,7 +192,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post the General Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error message.
@@ -215,7 +215,7 @@ codeunit 134151 "ERM Intercompany"
         // Check values on the IC Outbox Transaction after posting of two General Journal Lines with Balance Account No. blank.
 
         // Setup: Create General Journal Batch and General Journal Lines, take Random Amount.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch);
         CreateICGLAccount(ICGLAccount);
         LibraryERM.CreateGeneralJnlLine(
@@ -235,7 +235,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post the General Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Account and IC Partner GL Account Entries in IC Outbox Journal Line.
@@ -260,7 +260,7 @@ codeunit 134151 "ERM Intercompany"
         // Check values on the IC Outbox Transaction after posting of two General Journal Lines.
 
         // Setup: Create General Journal Batch and General Journal Line, take Random Amount.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateICJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -271,7 +271,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post the General Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error message.
@@ -295,7 +295,7 @@ codeunit 134151 "ERM Intercompany"
         // Check error while posting two General Journal Lines without Balance Account No. and IC Partner Number.
 
         // Setup: Create General Journal Batch and two General Journal Lines, take Random Amount.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateICJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -310,7 +310,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post the General Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error message.
@@ -329,11 +329,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check Error Message while using a Customer with blocked All and unblocked IC Partner on IC Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateICJournalLineWithCustomerAndICPartner(Customer.Blocked::All, CreateICPartner);
     end;
 
@@ -344,11 +344,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check error message while using a Customer with blocked Invoice and unblocked IC Partner on IC Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateICJournalLineWithCustomerAndICPartner(Customer.Blocked::Invoice, CreateICPartner);
     end;
 
@@ -359,11 +359,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check error message while using a Customer with blocked All and blocked IC Partner on IC Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateICJournalLineWithCustomerAndICPartner(Customer.Blocked::All, UpdateICPartnerBlocked(CreateICPartner, true));
     end;
 
@@ -374,11 +374,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check error message while using a Customer with blocked Invoice and blocked IC Partner on IC Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateICJournalLineWithCustomerAndICPartner(Customer.Blocked::Invoice, UpdateICPartnerBlocked(CreateICPartner, true));
     end;
 
@@ -411,7 +411,7 @@ codeunit 134151 "ERM Intercompany"
         // Check IC GL Account error while creating IC Journal Lines for a Customer with blocked Ship and Unblocked IC Partner.
 
         // Setup: Create IC Journal Batch and Customer with IC Partner and Blocked Ship, Create IC Journal Line with Balance Account as GL Account.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer(Customer.Blocked::Ship, CreateICPartner);
         LibraryERM.CreateGLAccount(GLAccount);
         CreateICJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, 1);  // Taking 1 for sign factor.
@@ -420,7 +420,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post IC Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
@@ -443,14 +443,14 @@ codeunit 134151 "ERM Intercompany"
         // Check IC Outbox Journal Entries after posting IC Journal Line with Customer blocked Ship and unblocked IC Partner.
 
         // Setup: Create Customer with blocked Ship and unblocked IC Partner, Create and update IC Journal Line, Taking 1 for sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
           CreateCustomer(Customer.Blocked::Ship, CreateICPartner), 1);
 
         // Exercise: Post IC Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Account and IC Partner GL Account Entries in IC Outbox Journal Line.
@@ -472,11 +472,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check Error Message while creating IC Journal Line with Customer blocked Ship and blocked IC Partner.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddJournalsEdit;
         ICJournalLineWithCustomerAndICPartner(Customer.Blocked::Ship);
     end;
@@ -488,11 +488,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check Error Message while creating IC Journal Line with Customer having blocked IC Partner.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         ICJournalLineWithCustomerAndICPartner(Customer.Blocked::" ");
     end;
 
@@ -523,12 +523,12 @@ codeunit 134151 "ERM Intercompany"
         CustomerNo: Code[20];
     begin
         // Check IC Outbox Journal Entries after posting IC Journal Line with Customer having unblocked IC Partner.
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer(Customer.Blocked::" ", CreateICPartner);
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
         PostICPartnerLinkedWithCustomer(GenJournalLine."Account Type"::Customer, CustomerNo);
     end;
@@ -544,7 +544,7 @@ codeunit 134151 "ERM Intercompany"
         // Check Error Message while posting IC Journal Line and IC Partner Blocked after IC General Line creation.
 
         // Setup: Create Customer with unblocked IC Partner, Create and update IC Journal Line, taking 1 for sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
           CreateCustomer(Customer.Blocked::" ", CreateICPartner), 1);
@@ -553,7 +553,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post IC Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
@@ -571,7 +571,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify Error Message when IC Partner is used in IC Journal Line and updated as Blocked before posting IC Journal Line.
 
         // Setup: Create IC Journal Line for IC Partner, Block IC Partner after creating IC Journal Line, taking 1 for sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"IC Partner", CreateICPartner, 1);
         ICPartnerCode := GenJournalLine."Account No.";
@@ -579,7 +579,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise: Post IC Journal Line.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
@@ -600,12 +600,12 @@ codeunit 134151 "ERM Intercompany"
         // Verify Error Message while using blocked IC Partner in IC Journal Line.
 
         // Setup: Create blocked IC Partner.
-        Initialize;
+        Initialize();
         ICPartnerCode := UpdateICPartnerBlocked(CreateICPartner, true);
 
         // Exercise: Create IC Journal Line for IC Partner, taking 1 for sign factor.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror CreateICJournalLine(
             GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"IC Partner", ICPartnerCode, 1);
 
@@ -626,13 +626,13 @@ codeunit 134151 "ERM Intercompany"
         AccountNumber: Code[20];
     begin
         // Check IC Outbox Journal Entries after posting IC Journal Line with unblocked IC Partner linked with unblocked Customer.
-        Initialize;
+        Initialize();
         AccountNumber := CreateICPartner;
         CreateCustomer(Customer.Blocked::" ", AccountNumber);
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
         PostICPartnerLinkedWithCustomer(GenJournalLine."Account Type"::"IC Partner", AccountNumber);
     end;
@@ -648,14 +648,14 @@ codeunit 134151 "ERM Intercompany"
         AccountNumber: Code[20];
     begin
         // Check IC Outbox Journal Entries after posting IC Journal Line with unblocked IC Partner linked with Customer and Vendor Blocked as ALL.
-        Initialize;
+        Initialize();
         AccountNumber := CreateICPartner;
         CreateCustomer(Customer.Blocked::All, AccountNumber);
         CreateVendor(Vendor.Blocked::All, AccountNumber);
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
         PostICPartnerLinkedWithCustomer(GenJournalLine."Account Type"::"IC Partner", AccountNumber);
     end;
@@ -671,7 +671,7 @@ codeunit 134151 "ERM Intercompany"
         // Check error while creating IC Journal Line for Blocked Vendor with Privacy.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor(Vendor.Blocked::All, CreateICPartner);
         Vendor.Get(VendorNo);
         Vendor.Validate("Privacy Blocked", true);
@@ -698,7 +698,7 @@ codeunit 134151 "ERM Intercompany"
         // Check error while creating General Journal Line for Blocked IC Partner and Blocked Vendor with Privacy.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor(Vendor.Blocked::All, CreateICPartner);
         Vendor.Get(VendorNo);
         Vendor.Validate("Privacy Blocked", true);
@@ -707,7 +707,7 @@ codeunit 134151 "ERM Intercompany"
         // Exercise: Create General Journal Line with random values, take -1 for sign factor.
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         asserterror CreateAndUpdateICJournalLine(
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -1);
 
@@ -722,11 +722,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check Error Message while using a Customer with blocked Privacy and unblocked IC Partner on IC Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateICJournalLineWithCustomerAndICPartnerPrivacyBlocked(Customer.Blocked::All, CreateICPartner);
     end;
 
@@ -737,11 +737,11 @@ codeunit 134151 "ERM Intercompany"
         Customer: Record Customer;
     begin
         // Check error message while using a Customer with blocked Privacy and blocked IC Partner on IC Journal Line.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateICJournalLineWithCustomerAndICPartnerPrivacyBlocked(
           Customer.Blocked::All, UpdateICPartnerBlocked(CreateICPartner, true));
     end;
@@ -794,23 +794,23 @@ codeunit 134151 "ERM Intercompany"
     [Scope('OnPrem')]
     procedure ICPartnerUpdationWhenNoOutboxLines()
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         OldICPartnerCode: Code[20];
         ICPartnerCode: Code[20];
     begin
         // Check that any IC Partner can be updated on Company Information when there is no IC Outbox Transaction is present.
 
         // Setup.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartner;
 
         // Exercise.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         OldICPartnerCode := UpdateICPartnerInCompanyInformation(ICPartnerCode);
 
         // Verify: Verify that correct IC Partner Code is updated on Company Information.
-        CompanyInformation.Get();
-        CompanyInformation.TestField("IC Partner Code", ICPartnerCode);
+        ICSetup.Get();
+        ICSetup.TestField("IC Partner Code", ICPartnerCode);
 
         // Tear Down: Roll back Company Information.
         UpdateICPartnerInCompanyInformation(OldICPartnerCode);
@@ -827,7 +827,7 @@ codeunit 134151 "ERM Intercompany"
         // Check Error Message while completing Line Action when Inbox Details for IC Partner is not filled.
 
         // Setup.
-        Initialize;
+        Initialize();
         ICPartnerCode := SetupCompanyInformationAndPostICJournalLine(GenJournalLine);
 
         // Exercise.
@@ -842,7 +842,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine."Account No."));
 
         // Tear Down: Rollback Partner Code updated in Company Information.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         UpdateICPartnerInCompanyInformation(ICPartnerCode);
     end;
 
@@ -851,13 +851,13 @@ codeunit 134151 "ERM Intercompany"
     procedure ICPartnerUpdationWhenOutboxLineExists()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ICPartnerCode: Code[20];
     begin
         // Check Error Message while completing Line Action when IC Partner Code on Company Information is Blank.
 
         // Setup.
-        Initialize;
+        Initialize();
         ICPartnerCode := SetupCompanyInformationAndPostICJournalLine(GenJournalLine);
         UpdateICPartnerInboxDetails(GenJournalLine."Account No.");
 
@@ -869,11 +869,11 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ValueMustExistErr, CompanyInformation.FieldCaption("IC Partner Code"), CompanyInformation.TableCaption,
-            CompanyInformation.FieldCaption("Primary Key"), CompanyInformation."Primary Key"));
+            ValueMustExistErr, ICSetup.FieldCaption("IC Partner Code"), ICSetup.TableCaption,
+            ICSetup.FieldCaption("Primary Key"), ICSetup."Primary Key"));
 
         // Tear Down: Rollback IC Partner Code updated in Company Information.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         UpdateICPartnerInCompanyInformation(ICPartnerCode);
     end;
 
@@ -888,7 +888,7 @@ codeunit 134151 "ERM Intercompany"
         // Check that error message appears while using same IC Partner Code on two different Vendors.
 
         // Setup.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartner;
         VendorNo := CreateVendor(Vendor.Blocked::" ", ICPartnerCode);
 
@@ -914,7 +914,7 @@ codeunit 134151 "ERM Intercompany"
         // Check that Same IC Partner Code can be used by a Customer and Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartner;
         CreateCustomer(Customer.Blocked::" ", ICPartnerCode);
 
@@ -940,7 +940,7 @@ codeunit 134151 "ERM Intercompany"
         // Check error message while updating same IC Partner Code on Vendor that is already used for a Customer and Vendor.
 
         // Setup: Create Customer and Vendor with same IC Partner Code.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartner;
         CreateCustomer(Customer.Blocked::" ", ICPartnerCode);
         VendorNo := CreateVendor(Vendor.Blocked::" ", ICPartnerCode);
@@ -964,8 +964,8 @@ codeunit 134151 "ERM Intercompany"
         // Check that an error message appears when a new IC Partner is created with a blank Code.
 
         // Setup: Create IC Partner with Blank code.
-        Initialize;
-        ICPartnerCard.OpenNew;
+        Initialize();
+        ICPartnerCard.OpenNew();
 
         // Exercise.
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
@@ -985,21 +985,21 @@ codeunit 134151 "ERM Intercompany"
         // Check that IC Partner Code is automatically modified in the General Ledger Entries after modifying the IC Partner Code.
 
         // Setup: Create IC Partner, create and post IC General Journal, taking 1 for positive sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         ICPartner.Get(GenJournalLine."Account No.");
 
         // Exercise: Rename IC Partner using Random Integer value.
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         ICPartner.Rename(ICPartner.Code + Format(LibraryRandom.RandInt(10)));
 
         // Verify: Verify GL Entry for IC Partner Code.
         VerifyGLEntry(GenJournalLine."Document No.", ICPartner.Code);
 
         // Tear Down.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         DeleteGeneralJournalBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
     end;
 
@@ -1013,14 +1013,14 @@ codeunit 134151 "ERM Intercompany"
         // Check that error appears if Delete an IC Partner Code with open Ledger Entries.
 
         // Setup: Create and post IC General Journal Line, taking 1 for positive sign factor.
-        Initialize;
+        Initialize();
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         ICPartner.Get(GenJournalLine."Account No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         asserterror ICPartner.Delete(true);
 
         // Verify: Verify error message.
@@ -1037,12 +1037,12 @@ codeunit 134151 "ERM Intercompany"
         // Check that error appears if Delete the IC Partner Code with is attached to a Customer.
 
         // Setup: Create Customer with IC Partner Code.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomer(Customer.Blocked::" ", CreateICPartner));
         ICPartner.Get(Customer."IC Partner Code");
 
         // Exercise.
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         asserterror ICPartner.Delete(true);
 
         // Verify: Verify error message.
@@ -1059,7 +1059,7 @@ codeunit 134151 "ERM Intercompany"
         // Check that error appears if an IC Partner is deleted when IC Partner Code is used by a Customer with open entries.
 
         // Setup: Create Customer with IC Partner Code, Create and post IC General Journal Line, taking 1 for positive sign factor.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomer(Customer.Blocked::" ", CreateICPartner));
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", 1);
@@ -1083,7 +1083,7 @@ codeunit 134151 "ERM Intercompany"
         // Check that error appears if an IC Partner is deleted when IC Partner Code is used by a Vendor with open entries.
 
         // Setup: Create Vendor with IC Partner Code, Create and post IC General Journal Line, taking -1 for negative sign factor.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateVendor(Vendor.Blocked::" ", CreateICPartner));
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", -1);
@@ -1104,12 +1104,12 @@ codeunit 134151 "ERM Intercompany"
         ICPartner: Record "IC Partner";
     begin
         // Check that error appears when post an IC General Journal with blank Receivable account on the IC Partner.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         ReceivablePayableAccountErrorForICPartner(ICPartner, ICPartner.FieldCaption("Receivables Account"), 1);  // Take 1 as positive sign factor.
     end;
 
@@ -1120,12 +1120,12 @@ codeunit 134151 "ERM Intercompany"
         ICPartner: Record "IC Partner";
     begin
         // Check that error appears when post an IC General Journal with blank Payable account on the IC Partner.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         ReceivablePayableAccountErrorForICPartner(ICPartner, ICPartner.FieldCaption("Payables Account"), -1);  // Take -1 as negative sign factor.
     end;
 
@@ -1156,12 +1156,12 @@ codeunit 134151 "ERM Intercompany"
         ICPartner: Record "IC Partner";
     begin
         // Post IC General Journal Line for an IC Partner with blank Indox Details and Inbox Type 'File Location'.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         PostICJournalLineWithDifferentInboxType(ICPartner."Inbox Type"::"File Location");
     end;
 
@@ -1172,12 +1172,12 @@ codeunit 134151 "ERM Intercompany"
         ICPartner: Record "IC Partner";
     begin
         // Post IC General Journal Line for an IC Partner with blank Indox Details and Inbox Type 'Database'.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         PostICJournalLineWithDifferentInboxType(ICPartner."Inbox Type"::Database);
     end;
 
@@ -1188,12 +1188,12 @@ codeunit 134151 "ERM Intercompany"
         ICPartner: Record "IC Partner";
     begin
         // Post IC General Journal Line for an IC Partner with blank Indox Details and Inbox Type 'E-mail'.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
-        LibraryLowerPermissions.AddJournalsPost;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddJournalsPost();
+        LibraryLowerPermissions.AddO365Setup();
         PostICJournalLineWithDifferentInboxType(ICPartner."Inbox Type"::Email);
     end;
 
@@ -1226,7 +1226,7 @@ codeunit 134151 "ERM Intercompany"
         // Check that an error appears when sending transaction to a blocked IC Partner.
 
         // Setup: Create Blocked IC Partner.
-        Initialize;
+        Initialize();
         ICPartner.Get(UpdateICPartnerBlocked(CreateICPartner, true));
 
         // Exercise: Create IC General Journal Line with Blocked IC Partner, take 1 for positive sign factor.
@@ -1252,12 +1252,12 @@ codeunit 134151 "ERM Intercompany"
         // Check no IC Outbox Transaction is created after posting a non-IC line from IC General Journals.
 
         // Setup: Create Non-IC General Journal Line without IC Partner G/L Account No.
-        Initialize;
+        Initialize();
         CreateNonICJournalLine(GenJournalLine);
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify IC Outbox Transactions.
@@ -1277,7 +1277,7 @@ codeunit 134151 "ERM Intercompany"
         // Check that an error appears when posting a non-IC line with IC Partner G/L Account No.
 
         // Setup: Create Non-IC General Journal Line with IC Partner G/L Account No., take 1 for positive sign factor.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateAndUpdateICJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
@@ -1307,7 +1307,7 @@ codeunit 134151 "ERM Intercompany"
         // Check IC Outbox Journal Lines after posting a non-IC line and an IC line at the same time.
 
         // Setup: Create Non-IC and IC General Journal Lines with Random amount.
-        Initialize;
+        Initialize();
         CreateICGLAccount(ICGLAccount);
         CreateNonICJournalLine(GenJournalLine);
         LibraryERM.CreateGeneralJnlLine(
@@ -1317,7 +1317,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Account and IC Partner GL Account Entries in IC Outbox Journal Line.
@@ -1329,7 +1329,7 @@ codeunit 134151 "ERM Intercompany"
           GenJournalLine."Document No.", -GenJournalLine.Amount);
 
         // Tear Down.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         DeleteGeneralJournalBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
     end;
 
@@ -1346,7 +1346,7 @@ codeunit 134151 "ERM Intercompany"
         // Check IC Dimension Value deletion after deleting IC Dimension.
 
         // Setup: Create new IC Dimension and IC Dimension Values, Map them with existing Dimension and its value.
-        Initialize;
+        Initialize();
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
         LibraryDimension.CreateICDimension(ICDimension);
@@ -1359,7 +1359,7 @@ codeunit 134151 "ERM Intercompany"
         ICDimension.SetRange(Code, ICDimension.Code);
 
         // Exercise: Delete IC Dimension created earlier.
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         ICDimension.Delete(true);
 
         // Verify: Verify that after deleting IC Dimension, IC Dimension Value deleted automatically.
@@ -1381,7 +1381,7 @@ codeunit 134151 "ERM Intercompany"
         // Check Error Message while updating blocked IC Dimension Value after posting IC General Journal Line.
 
         // Setup: Create and map IC Dimension with newly created Dimension, block newly created IC Dimension Value and Post IC Journal Line for the Customer using this Dimension.
-        Initialize;
+        Initialize();
         MapDimensionWithSameICDimension(CreateAndRenameICDimensionAndICDimensionValue(ICDimension, ICDimensionValue));
         ICDimensionValue.Validate(Blocked, true);
         ICDimensionValue.Modify(true);
@@ -1398,7 +1398,7 @@ codeunit 134151 "ERM Intercompany"
           StrSubstNo(BlockedDimValueErr, ICDimensionValue.TableCaption, ICDimensionValue."Dimension Code", ICDimensionValue.Code));
 
         // Tear Down: Rollback IC General Journal Batch created during test case.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         DeleteGeneralJournalBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
     end;
 
@@ -1415,7 +1415,7 @@ codeunit 134151 "ERM Intercompany"
         // Check Error Message while updating blocked IC Dimension after posting IC General Journal Line.
 
         // Setup: Create and map IC Dimension with newly created Dimension, block newly created IC Dimension and Post IC Journal Line for the Customer using this Dimension.
-        Initialize;
+        Initialize();
         MapDimensionWithSameICDimension(CreateAndRenameICDimensionAndICDimensionValue(ICDimension, ICDimensionValue));
         ICDimension.Validate(Blocked, true);
         ICDimension.Modify(true);
@@ -1431,7 +1431,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.ExpectedError(StrSubstNo(BlockedDimensionErr, ICDimension.TableCaption, ICDimension.Code));
 
         // Tear Down: Rollback IC General Journal Batch created during test case.
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         DeleteGeneralJournalBatch(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
     end;
 
@@ -1447,7 +1447,7 @@ codeunit 134151 "ERM Intercompany"
         // Check Out of Balance error while posting General Journal Lines for two IC Partner.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch);
         CreateICGLAccount(ICGLAccount);
 
@@ -1461,11 +1461,11 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify.
-        ICOutboxTransaction.FindLast;
+        ICOutboxTransaction.FindLast();
         Assert.VerifyFailure(RecordExistsErr, InsertDuplicateKeyPassedTxt);
     end;
 
@@ -1479,11 +1479,11 @@ codeunit 134151 "ERM Intercompany"
         // Check Out of Balance error while posting General Journal Lines for IC Partner with IC Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreateICPartner(ICPartner);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
         ICPartnerWithCustomer(CreateCustomer(Customer.Blocked::" ", ICPartner.Code), ICPartner.Code);
     end;
 
@@ -1497,12 +1497,12 @@ codeunit 134151 "ERM Intercompany"
         // Check Out of Balance error while posting General Journal Lines for IC Partner with Non IC Customer.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreateICPartner(ICPartner);
         LibrarySales.CreateCustomer(Customer);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
         ICPartnerWithCustomer(Customer."No.", ICPartner.Code);
     end;
 
@@ -1517,11 +1517,11 @@ codeunit 134151 "ERM Intercompany"
         // Check Out of Balance error while posting General Journal Lines for IC Partner with IC Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreateICPartner(ICPartner);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
         ICCustomerWithVendor(CreateCustomer(Customer.Blocked::" ", ICPartner.Code), CreateVendor(Vendor.Blocked::" ", ICPartner.Code));
     end;
 
@@ -1536,12 +1536,12 @@ codeunit 134151 "ERM Intercompany"
         // Check Out of Balance error while posting General Journal Lines for IC Partner with Non IC Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.CreateICPartner(ICPartner);
         LibraryPurchase.CreateVendor(Vendor);
 
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
+        LibraryLowerPermissions.AddO365Setup();
         ICCustomerWithVendor(CreateCustomer(Customer.Blocked::" ", ICPartner.Code), Vendor."No.");
     end;
 
@@ -1560,7 +1560,7 @@ codeunit 134151 "ERM Intercompany"
         // Setup discount: Post an Invoice to IC Customer and Verify IC Outbox Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch);
         LibraryERM.CreateICPartner(ICPartner);
         CustomerNo := CreateCustomer(Customer.Blocked::" ", ICPartner.Code);
@@ -1574,7 +1574,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
@@ -1600,7 +1600,7 @@ codeunit 134151 "ERM Intercompany"
         // Post an Invoice to IC Vendor and Verify IC Outbox Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch);
         LibraryERM.CreateICPartner(ICPartner);
         VendorNo := CreateVendor(Vendor.Blocked::" ", ICPartner.Code);
@@ -1613,7 +1613,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
@@ -1640,7 +1640,7 @@ codeunit 134151 "ERM Intercompany"
         // Post an IC Invoice with both VAT and Payment discount. Verify IC Outbox Journal Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch);
         LibraryERM.CreateICPartner(ICPartner);
         CustomerNo := CreateCustomer(Customer.Blocked::" ", ICPartner.Code);
@@ -1656,7 +1656,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Exercise.
         LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
@@ -1673,7 +1673,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378528] COD 427 ICInboxOutboxMgt.OutboxTransToInbox() creates ICInboxTrans for a new transaction
-        Initialize;
+        Initialize();
         MockICOutboxTrans(ICOutboxTransaction);
 
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
@@ -1692,7 +1692,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378528] COD 427 ICInboxOutboxMgt.OutboxTransToInbox() throws an error in case when transaction is already in partner's Inbox
-        Initialize;
+        Initialize();
 
         MockICOutboxTrans(ICOutboxTransaction);
         MockICInboxTrans(ICOutboxTransaction);
@@ -1717,7 +1717,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 378528] COD 427 ICInboxOutboxMgt.OutboxTransToInbox() throws an error in case when transaction is already in partner's HandledInbox
-        Initialize;
+        Initialize();
 
         MockICOutboxTrans(ICOutboxTransaction);
         MockHandledICInboxTrans(ICOutboxTransaction);
@@ -1741,7 +1741,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 230162] Stan delete IC Partner if "Customer No." field filled with nonexistent Customer number
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create IC Partner, fill "Customer No." field
         ICPartner.Init();
@@ -1753,7 +1753,7 @@ codeunit 134151 "ERM Intercompany"
         // [GIVEN] Delete Customer
         Customer.Delete();
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
 
         // [WHEN] Delete IC Partner
         ICPartner.Delete(true);
@@ -1771,12 +1771,12 @@ codeunit 134151 "ERM Intercompany"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 230162] Stan can't delete IC Partner if "Vendor No." field filled with existing Vendor number
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create IC Partner, fill "Vendor No." field
         ICPartner.Init();
         ICPartner.Code := LibraryUtility.GenerateRandomCode(ICPartner.FieldNo(Code), DATABASE::"IC Partner");
-        ICPartner."Vendor No." := LibraryPurchase.CreateVendorNo;
+        ICPartner."Vendor No." := LibraryPurchase.CreateVendorNo();
         ICPartner.Insert();
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
 
@@ -1796,7 +1796,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 230162] Stan delete IC Partner if "Vendor No." filled with nonexistent Vendor number
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create IC Partner, fill "Vendor No." field
         ICPartner.Init();
@@ -1808,7 +1808,7 @@ codeunit 134151 "ERM Intercompany"
         // [GIVEN] Delete Vendor
         Vendor.Delete();
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup;
+        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
 
         // [WHEN] Delete IC Partner
         ICPartner.Delete(true);
@@ -1860,10 +1860,10 @@ codeunit 134151 "ERM Intercompany"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Intercompany");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         IsInitialized := true;
         Commit();
@@ -2036,10 +2036,10 @@ codeunit 134151 "ERM Intercompany"
             "Transaction Source" := "Transaction Source"::"Created by Current Company";
             "Document Type" := "Document Type"::Invoice;
             "Source Type" := "Source Type"::"Journal Line";
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Posting Date" := LibraryRandom.RandDate(10);
             "Document Date" := LibraryRandom.RandDate(10);
-            "IC Partner G/L Acc. No." := LibraryUtility.GenerateGUID;
+            "IC Partner G/L Acc. No." := LibraryUtility.GenerateGUID();
             "Source Line No." := LibraryRandom.RandInt(100);
             Insert;
         end;
@@ -2079,7 +2079,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         GenJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalBatch.SetRange(Description, Description);
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         GenJournalBatch.Delete(true);
     end;
 
@@ -2087,7 +2087,7 @@ codeunit 134151 "ERM Intercompany"
     begin
         ICInboxOutboxJnlLineDim.SetRange("IC Partner Code", ICPartnerCode);
         ICInboxOutboxJnlLineDim.SetRange("Dimension Code", DimensionCode);
-        ICInboxOutboxJnlLineDim.FindFirst;
+        ICInboxOutboxJnlLineDim.FindFirst();
     end;
 
     local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerCode: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Boolean
@@ -2104,7 +2104,7 @@ codeunit 134151 "ERM Intercompany"
         ICOutboxJnlLine.SetRange("IC Partner Code", ICPartnerCode);
         ICOutboxJnlLine.SetRange("Account No.", AccountNo);
         ICOutboxJnlLine.SetRange("Document No.", DocumentNo);
-        ICOutboxJnlLine.FindFirst;
+        ICOutboxJnlLine.FindFirst();
     end;
 
     local procedure ICPartnerWithCustomer(CustomerNo: Code[20]; ICPartnerCode: Code[20])
@@ -2218,12 +2218,12 @@ codeunit 134151 "ERM Intercompany"
 
     local procedure UpdateICPartnerInCompanyInformation(ICPartnerCode: Code[20]) OldICPartnerCode: Code[20]
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
     begin
-        CompanyInformation.Get();
-        OldICPartnerCode := CompanyInformation."IC Partner Code";
-        CompanyInformation.Validate("IC Partner Code", ICPartnerCode);
-        CompanyInformation.Modify(true);
+        ICSetup.Get();
+        OldICPartnerCode := ICSetup."IC Partner Code";
+        ICSetup.Validate("IC Partner Code", ICPartnerCode);
+        ICSetup.Modify(true);
     end;
 
     local procedure UpdatePaymentTermOnCustomer(var PaymentTerms: Record "Payment Terms"; No: Code[20])
@@ -2280,7 +2280,7 @@ codeunit 134151 "ERM Intercompany"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("IC Partner Code", ICPartnerCode);
     end;
 

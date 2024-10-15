@@ -10,7 +10,6 @@ codeunit 1201 "Process Data Exch."
         IncorrectFormatOrTypeErr: Label 'The file that you are trying to import, %1, is different from the specified %2, %3.\\The value in line %4, column %5 has incorrect format or type.\Expected format: %6, according to the %7 and %8 of the %9.\Actual value: "%10".', Comment = '%1=File Name;%2=Data Exch.Def Type;%3=Data Exch. Def Code;%4=Line No;%5=Column No;%6=Data Type;%7=Data Type Format;%8=Local;%9=Actual Value';
         MissingValueErr: Label 'The file that you are trying to import, %1, is different from the specified %2, %3.\\The value in line %4, column %5 is missing.', Comment = '%1=File Name;%2=Data Exch.Def Type;%3=Data Exch. Def Code;%4=Line No;%5=Column No';
 
-    [Scope('OnPrem')]
     procedure ProcessColumnMapping(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; RecRefTemplate: RecordRef)
     var
         DataExchField: Record "Data Exch. Field";
@@ -48,7 +47,7 @@ codeunit 1201 "Process Data Exch."
         DataExchFieldGroupByLineNo.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchFieldGroupByLineNo.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchFieldGroupByLineNo.Ascending(true);
-        if not DataExchFieldGroupByLineNo.FindSet then
+        if not DataExchFieldGroupByLineNo.FindSet() then
             exit;
 
         repeat
@@ -67,7 +66,7 @@ codeunit 1201 "Process Data Exch."
                 repeat
                     DataExchField.SetRange("Line No.", CurrLineNo);
                     DataExchField.SetRange("Column No.", DataExchFieldMapping."Column No.");
-                    if DataExchField.FindSet then
+                    if DataExchField.FindSet() then
                         repeat
                             SetField(RecRef, DataExchFieldMapping, DataExchField, TempFieldIdsToNegate)
                         until DataExchField.Next() = 0
@@ -98,7 +97,7 @@ codeunit 1201 "Process Data Exch."
             exit;
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        if DataExchLineDef.FindSet then
+        if DataExchLineDef.FindSet() then
             repeat
                 ProcessColumnMapping(DataExch, DataExchLineDef, RecRef);
             until DataExchLineDef.Next() = 0;
@@ -236,7 +235,7 @@ codeunit 1201 "Process Data Exch."
         SetKeyAsFilter(RecRef);
         FieldRef := RecRef.Field(FieldId);
         FieldRef.SetRange;
-        if RecRef.FindLast then
+        if RecRef.FindLast() then
             exit(RecRef.Field(FieldId).Value);
         exit(0);
     end;
@@ -256,7 +255,7 @@ codeunit 1201 "Process Data Exch."
         end;
     end;
 
-    local procedure SetFieldValue(RecRef: RecordRef; FieldID: Integer; Value: Variant)
+    procedure SetFieldValue(RecRef: RecordRef; FieldID: Integer; Value: Variant)
     var
         FieldRef: FieldRef;
     begin
@@ -279,7 +278,7 @@ codeunit 1201 "Process Data Exch."
         end
     end;
 
-    local procedure GetType(DataExchDefCode: Code[20]): Text
+    procedure GetType(DataExchDefCode: Code[20]): Text
     var
         DataExchDef: Record "Data Exch. Def";
     begin
@@ -306,7 +305,7 @@ codeunit 1201 "Process Data Exch."
         FieldRef: FieldRef;
         Amount: Decimal;
     begin
-        if TempFieldIdsToNegate.FindSet then begin
+        if TempFieldIdsToNegate.FindSet() then begin
             repeat
                 FieldRef := RecRef.Field(TempFieldIdsToNegate.Number);
                 Amount := FieldRef.Value;

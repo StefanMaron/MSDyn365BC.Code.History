@@ -323,7 +323,7 @@ page 12409 "Posted Gen. Journals"
                 trigger OnAction()
                 begin
                     NavigatePage.SetDoc("Posting Date", "Document No.");
-                    NavigatePage.Run;
+                    NavigatePage.Run();
                 end;
             }
         }

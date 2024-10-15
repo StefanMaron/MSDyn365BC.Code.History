@@ -494,7 +494,7 @@ codeunit 144015 "ERM RU Void Check"
         // [FEATURE] [UI] [UT]
         // [SCENARIO 378021] Ffield "Void Payment as Correction" should be editable on "General Ledger Setup" page
 
-        Initialize;
+        Initialize();
         // [WHEN] Open "General Ledger Setup" page
         GeneralLedgerSetup.OpenEdit;
 
@@ -508,11 +508,11 @@ codeunit 144015 "ERM RU Void Check"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
@@ -531,10 +531,10 @@ codeunit 144015 "ERM RU Void Check"
         TotalInvAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
         CashAccountNo := CreateCashAccount;
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
 
         for i := 1 to ArrayLen(InvNo) do
             InvNo[i] := CreatePostInvoice(TotalInvAmount, GenJnlLine."Account Type"::Vendor, VendNo, -1);
@@ -569,10 +569,10 @@ codeunit 144015 "ERM RU Void Check"
         TotalPmtAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
         CashAccountNo := CreateCashAccount;
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
 
         for i := 1 to ArrayLen(PmtNo) do
             TotalPmtAmount += CreatePostPayment(PmtNo[i], GenJnlLine."Account Type"::Vendor, VendNo, 1);
@@ -606,10 +606,10 @@ codeunit 144015 "ERM RU Void Check"
         TotalPmtAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
         CashAccountNo := CreateCashAccount;
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
 
         for i := 1 to ArrayLen(PmtNo) do
             TotalPmtAmount += CreatePostPayment(PmtNo[i], GenJnlLine."Account Type"::Customer, CustNo, -1);
@@ -643,10 +643,10 @@ codeunit 144015 "ERM RU Void Check"
         TotalInvAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupVoidPaymentAsCorrection(VoidPaymentAsCorrection);
         CashAccountNo := CreateCashAccount;
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
 
         for i := 1 to ArrayLen(InvNo) do
             InvNo[i] := CreatePostInvoice(TotalInvAmount, GenJnlLine."Account Type"::Customer, CustNo, 1);
@@ -842,7 +842,7 @@ codeunit 144015 "ERM RU Void Check"
             SetRange("Bank Account No.", BankAccountNo);
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -882,7 +882,7 @@ codeunit 144015 "ERM RU Void Check"
         GenJournalLine.SetRecFilter;
         CashOutgoingOrder.SetTableView(GenJournalLine);
         CashOutgoingOrder.UseRequestPage(false);
-        CashOutgoingOrder.Run;
+        CashOutgoingOrder.Run();
     end;
 
     local procedure PrintCashIngoingOrder(GenJournalLine: Record "Gen. Journal Line")
@@ -893,7 +893,7 @@ codeunit 144015 "ERM RU Void Check"
         GenJournalLine.SetRecFilter;
         CashIngoingOrder.SetTableView(GenJournalLine);
         CashIngoingOrder.UseRequestPage(false);
-        CashIngoingOrder.Run;
+        CashIngoingOrder.Run();
     end;
 
     local procedure VerifyVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedCount: Integer; IsOpen: Boolean)
@@ -925,7 +925,7 @@ codeunit 144015 "ERM RU Void Check"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         repeat
             Assert.IsTrue(GLEntry."Debit Amount" <= 0, ExpectedCorrectionEntriesErr);
@@ -938,7 +938,7 @@ codeunit 144015 "ERM RU Void Check"
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         repeat
             Assert.IsTrue(GLEntry."Debit Amount" >= 0, ExpectedNotCorrectionEntriesErr);

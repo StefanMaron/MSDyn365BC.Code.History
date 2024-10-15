@@ -33,7 +33,7 @@ codeunit 144712 "ERM TORG-29 Report"
         LocationCode: Code[10];
         PostingDate: Date;
     begin
-        Initialize;
+        Initialize();
         PostingDate := GetLastValueEntryDate;
         ItemNo := MockItem;
         LocationCode := MockSimpleLocation;
@@ -317,7 +317,7 @@ codeunit 144712 "ERM TORG-29 Report"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -325,7 +325,7 @@ codeunit 144712 "ERM TORG-29 Report"
 
     local procedure InitData(var PostingDate: Date; var ItemNo: Code[20]; var LocationCode: Code[10])
     begin
-        Initialize;
+        Initialize();
         PostingDate := CalcDate('<1M>', GetLastValueEntryDate);
         ItemNo := MockItem;
         LocationCode := MockSimpleLocation;
@@ -379,7 +379,7 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         with Employee do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             exit("No.");
         end;
@@ -391,7 +391,7 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         with Location do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert;
             exit(Code);
         end;
@@ -405,9 +405,9 @@ codeunit 144712 "ERM TORG-29 Report"
         ValueEntryNo: Integer;
         i: Integer;
     begin
-        ValueEntry.FindLast;
+        ValueEntry.FindLast();
         ValueEntryNo := ValueEntry."Entry No.";
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         ItemEntryNo := ItemLedgEntry."Entry No.";
 
         for i := 1 to 2 do begin
@@ -423,7 +423,7 @@ codeunit 144712 "ERM TORG-29 Report"
             Init;
             "Entry No." := ValueEntryNo;
             "Document Type" := "Document Type"::"Sales Invoice";
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Item No." := ItemNo;
             "Posting Date" := PostingDate;
             "Location Code" := LocationCode;
@@ -466,13 +466,13 @@ codeunit 144712 "ERM TORG-29 Report"
         TORG29Rep: Report "Item Report TORG-29";
         SalesType: Option "Customer Price Group","All Customers",Campaign;
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         TORG29Rep.SetFileNameSilent(LibraryReportValidation.GetFileName);
         TORG29Rep.InitializeRequest(
           LocationCode, '', MockEmployee, MockEmployee, PostingDate, PostingDate, '', 0, ReceiptsDetailing::Document, ShipmentDetailing::Document,
           AmountType::Cost, SalesType::"All Customers", '', true, true);
         TORG29Rep.UseRequestPage(false);
-        TORG29Rep.RunModal;
+        TORG29Rep.RunModal();
     end;
 
     local procedure GetLastValueEntryDate(): Date
@@ -481,7 +481,7 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         with ValueEntry do begin
             SetCurrentKey("Posting Date", "Item No.");
-            FindLast;
+            FindLast();
             exit("Posting Date");
         end;
     end;

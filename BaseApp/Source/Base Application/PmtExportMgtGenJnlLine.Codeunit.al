@@ -49,7 +49,7 @@ codeunit 1206 "Pmt Export Mgt Gen. Jnl Line"
     begin
         GenJnlLine.DeletePaymentFileBatchErrors;
         GenJnlLine2.CopyFilters(GenJnlLine);
-        if GenJnlLine2.FindSet then
+        if GenJnlLine2.FindSet() then
             repeat
                 CODEUNIT.Run(CODEUNIT::"Payment Export Gen. Jnl Check", GenJnlLine2);
                 OnCheckGenJnlLine(GenJnlLine2);

@@ -162,6 +162,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Dynamic Request Page Entity" = RIMD,
                   tabledata "Dynamic Request Page Field" = RIMD,
                   tabledata "Exch. Rate Adjmt. Reg." = d,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = d,
                   tabledata "Exchange Folder" = D,
                   tabledata "Exchange Service Setup" = RIMD,
                   tabledata "Exp. Phys. Invt. Tracking" = RIMD,
@@ -187,6 +188,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "General Ledger Setup" = RIMD,
                   tabledata "General Posting Setup" = RIMD,
                   tabledata "Human Resources Setup" = Rimd,
+                  tabledata "IC Setup" = RIMD,
                   tabledata "Inc. Doc. Attachment Overview" = RIMD,
                   tabledata "Incoming Document" = RIMD,
                   tabledata "Incoming Document Approver" = RIMD,
@@ -273,7 +275,9 @@ permissionset 191 "D365 SETUP"
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
                   tabledata "Phys. Invt. Tracking" = RIMD,
+#if not CLEAN20
                   tabledata "Plan Permission Set" = d,
+#endif
                   tabledata "Planning Assignment" = D,
                   tabledata "Planning Component" = D,
                   tabledata "Positive Pay Entry" = D,
@@ -381,7 +385,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "Shipment Method" = RIMD,
                   tabledata "Shipping Agent" = RIMD,
                   tabledata "Shipping Agent Services" = IMD,
-                  tabledata "Social Listening Setup" = Rimd,
                   tabledata "Source Code" = RIMD,
                   tabledata "Source Code Setup" = RIMD,
                   tabledata "Special Equipment" = IMD,

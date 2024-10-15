@@ -84,7 +84,7 @@ table 17300 "Tax Difference"
                     TaxDiff.SetRange("Calc. Norm Jurisdiction Code", "Calc. Norm Jurisdiction Code");
                     TaxDiff.SetRange("Calc. Norm Code", "Calc. Norm Code");
                     TaxDiff.SetFilter(Code, '<>%1', Code);
-                    if TaxDiff.FindFirst then
+                    if TaxDiff.FindFirst() then
                         Error(Text1001,
                           "Calc. Norm Jurisdiction Code", "Calc. Norm Code", TaxDiff.Code);
                 end;

@@ -23,7 +23,7 @@ report 14910 "Customer - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not TempAppDtldCustLedgEntry.FindSet then
+                            if not TempAppDtldCustLedgEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if TempAppDtldCustLedgEntry.Next() = 0 then
@@ -169,7 +169,7 @@ report 14910 "Customer - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not TempAppDtldCustLedgEntry.FindSet then
+                            if not TempAppDtldCustLedgEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if TempAppDtldCustLedgEntry.Next() = 0 then
@@ -512,7 +512,7 @@ report 14910 "Customer - Reconciliation Act"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not TempAppDtldVendLedgEntry.FindSet then
+                                if not TempAppDtldVendLedgEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if TempAppDtldVendLedgEntry.Next() = 0 then
@@ -625,7 +625,7 @@ report 14910 "Customer - Reconciliation Act"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not TempAppDtldVendLedgEntry.FindSet then
+                                if not TempAppDtldVendLedgEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if TempAppDtldVendLedgEntry.Next() = 0 then
@@ -1184,7 +1184,7 @@ report 14910 "Customer - Reconciliation Act"
             DtldCustLedgEntry.Reset();
             FilterApplDtldCustLedgEntry(DtldCustLedgEntry, "Applied Cust. Ledger Entry No.");
             DtldCustLedgEntry.SetRange("Transaction No.", "Transaction No.");
-            if DtldCustLedgEntry.FindSet then
+            if DtldCustLedgEntry.FindSet() then
                 repeat
                     if GetLedgEntry then
                         CustLedgEntry.Get(DtldCustLedgEntry."Cust. Ledger Entry No.");
@@ -1211,7 +1211,7 @@ report 14910 "Customer - Reconciliation Act"
             DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
             DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
             DtldCustLedgEntry.SetFilter("Posting Date", DateFilter);
-            if DtldCustLedgEntry.FindSet then
+            if DtldCustLedgEntry.FindSet() then
                 repeat
                     CustLedgEntry.Positive := false;
                     GetCustApplicationEntry(DtldCustLedgEntry, ApplDtldCustLedgEntry, false, CustLedgEntry, OtherCurrApplAmount);
@@ -1322,7 +1322,7 @@ report 14910 "Customer - Reconciliation Act"
         DtldCustLedgEntry1.SetRange("Entry Type", DtldCustLedgEntry1."Entry Type"::Application);
         DtldCustLedgEntry1.SetRange(Unapplied, false);
         DtldCustLedgEntry1.SetRange("Posting Date", FromDate, MaxDate);
-        if DtldCustLedgEntry1.FindSet then begin
+        if DtldCustLedgEntry1.FindSet() then begin
             repeat
                 if DtldCustLedgEntry1."Cust. Ledger Entry No." =
                    DtldCustLedgEntry1."Applied Cust. Ledger Entry No."
@@ -1335,7 +1335,7 @@ report 14910 "Customer - Reconciliation Act"
                     DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::Application);
                     DtldCustLedgEntry2.SetRange(Unapplied, false);
                     DtldCustLedgEntry2.SetRange("Prepmt. Diff.", false);
-                    if DtldCustLedgEntry2.FindSet then begin
+                    if DtldCustLedgEntry2.FindSet() then begin
                         repeat
                             CustLedgEntry2.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
                             TempAppDtldCustLedgEntry := DtldCustLedgEntry2;
@@ -1381,7 +1381,7 @@ report 14910 "Customer - Reconciliation Act"
             CustLedgerEntry2.SetRange("Customer No.", "Customer No.");
             CustLedgerEntry2.SetRange("Posting Date", "Posting Date");
             CustLedgerEntry2.SetFilter("Agreement No.", '<>%1&<>%2', '', "Agreement No.");
-            if CustLedgerEntry2.FindSet then
+            if CustLedgerEntry2.FindSet() then
                 repeat
                     CustLedgerEntry2.CalcFields(Amount);
                     if CustLedgerEntry2.Amount = -Amount then
@@ -1429,7 +1429,7 @@ report 14910 "Customer - Reconciliation Act"
             DtldVendLedgEntry.SetFilter("Entry No.", '%1|%2', "Entry No." - 1, "Entry No." + 1);
             DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
             DtldVendLedgEntry.SetRange("Transaction No.", "Transaction No.");
-            if DtldVendLedgEntry.FindSet then
+            if DtldVendLedgEntry.FindSet() then
                 repeat
                     if GetLedgEntry then // Positive is just temporary flag
                         VendLedgEntry.Get(DtldVendLedgEntry."Vendor Ledger Entry No.");
@@ -1454,7 +1454,7 @@ report 14910 "Customer - Reconciliation Act"
             DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Entry No.");
             DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
             DtldVendLedgEntry.SetFilter("Posting Date", DateFilter);
-            if DtldVendLedgEntry.FindSet then
+            if DtldVendLedgEntry.FindSet() then
                 repeat
                     GetVendApplicationEntry(DtldVendLedgEntry, ApplDtldVendLedgEntry, false, VendLedgEntry, OtherCurrApplAmount);
                 until DtldVendLedgEntry.Next() = 0;
@@ -1576,7 +1576,7 @@ report 14910 "Customer - Reconciliation Act"
     begin
         with BankAccountLedgerEntry do begin
             SetRange("Transaction No.", VendLedgEntry."Transaction No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 SetRange("Document Type", "Document Type"::Payment);
                 SetRange("Document No.", "Document No.");
                 SetFilter("Transaction No.", '<>%1', VendLedgEntry."Transaction No.");
@@ -1640,7 +1640,7 @@ report 14910 "Customer - Reconciliation Act"
         SourceDtldVendLedgEntry.SetRange(Unapplied, false);
         SourceDtldVendLedgEntry.SetFilter("Posting Date", '..%1', MaxDate);
         SourceDtldVendLedgEntry.SetRange("Entry Type", SourceDtldVendLedgEntry."Entry Type"::Application);
-        if SourceDtldVendLedgEntry.FindSet then begin
+        if SourceDtldVendLedgEntry.FindSet() then begin
             repeat
                 if SourceDtldVendLedgEntry."Vendor Ledger Entry No." =
                    SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1651,7 +1651,7 @@ report 14910 "Customer - Reconciliation Act"
                       "Applied Vend. Ledger Entry No.", SourceDtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     AppliedDtldVendLedgEntry.SetRange("Entry Type", AppliedDtldVendLedgEntry."Entry Type"::Application);
                     AppliedDtldVendLedgEntry.SetRange(Unapplied, false);
-                    if AppliedDtldVendLedgEntry.FindSet then begin
+                    if AppliedDtldVendLedgEntry.FindSet() then begin
                         repeat
                             if AppliedDtldVendLedgEntry."Vendor Ledger Entry No." <>
                                AppliedDtldVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1735,7 +1735,7 @@ report 14910 "Customer - Reconciliation Act"
     begin
         with DtldVendLedgEntry do begin
             SetRange("Initial Document Type", "Initial Document Type"::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if CurrencyCode <> '' then
                         HandleInitialDebitCreditBal(Amount, InitialDebitAmount, InitialCreditAmount)
@@ -1870,7 +1870,7 @@ report 14910 "Customer - Reconciliation Act"
         if DtldCustLedgEntry."Cust. Ledger Entry No." = DtldCustLedgEntry."Applied Cust. Ledger Entry No." then begin
             DtldCustLedgEntry.SetFilter("Cust. Ledger Entry No.", '<>%1', EntryNo);
             DtldCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.", EntryNo);
-            DtldCustLedgEntry.FindFirst;
+            DtldCustLedgEntry.FindFirst();
             CustLedgEntry2.Get(DtldCustLedgEntry."Cust. Ledger Entry No.");
         end else
             CustLedgEntry2.Get(DtldCustLedgEntry."Applied Cust. Ledger Entry No.");
@@ -1890,7 +1890,7 @@ report 14910 "Customer - Reconciliation Act"
         if DtldVendLedgEntry."Vendor Ledger Entry No." = DtldVendLedgEntry."Applied Vend. Ledger Entry No." then begin
             DtldVendLedgEntry.SetFilter("Vendor Ledger Entry No.", '<>%1', EntryNo);
             DtldVendLedgEntry.SetRange("Applied Vend. Ledger Entry No.", EntryNo);
-            DtldVendLedgEntry.FindFirst;
+            DtldVendLedgEntry.FindFirst();
             VendLedgEntry2.Get(DtldVendLedgEntry."Vendor Ledger Entry No.");
         end else
             VendLedgEntry2.Get(DtldVendLedgEntry."Applied Vend. Ledger Entry No.");

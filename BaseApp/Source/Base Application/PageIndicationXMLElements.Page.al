@@ -47,7 +47,7 @@ page 26583 "Page Indication XML Elements"
                             XMLElementLine.SetRange("Report Code", "Report Code");
                             XMLElementLine.SetRange("Table Code", "Table Code");
                             XMLElementLine.SetRange("Element Name", "XML Element Name");
-                            XMLElementLine.FindFirst;
+                            XMLElementLine.FindFirst();
                             "XML Element Line No." := XMLElementLine."Line No.";
                         end else
                             "XML Element Line No." := 0;

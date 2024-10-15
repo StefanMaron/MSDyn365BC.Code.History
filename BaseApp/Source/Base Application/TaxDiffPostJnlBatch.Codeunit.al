@@ -7,7 +7,7 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
         ClearAll;
         with TaxDiffJnlLine do begin
             Copy(Rec);
-            if FindSet then begin
+            if FindSet() then begin
                 Wnd.Open(Text1001 + Text1002);
                 Total := Count;
                 repeat
@@ -21,7 +21,7 @@ codeunit 17302 "Tax Diff.-Post Jnl. Batch"
                         Delete;
                     end;
                 until Next() = 0;
-                if FindSet then
+                if FindSet() then
                     repeat
                         if "Partial Disposal" then begin
                             Processing += 1;

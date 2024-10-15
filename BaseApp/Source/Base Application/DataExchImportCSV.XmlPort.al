@@ -275,7 +275,7 @@ xmlport 1220 "Data Exch. Import - CSV"
         with DataExchColDef do begin
             SetRange("Data Exch. Def Code", DataExchDefCode);
             SetRange(Name, col1);
-            if FindFirst then begin
+            if FindFirst() then begin
                 DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
                 DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
                 DataExchFieldMapping.SetRange("Column No.", "Column No.");

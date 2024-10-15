@@ -471,7 +471,7 @@ page 160 "Sales Statistics"
                     CreditLimitLCYExpendedPct := Round(Cust."Balance (LCY)" / Cust."Credit Limit (LCY)" * 10000, 1);
 
         SalesLine.CalcVATAmountLines(0, Rec, TempSalesLine, TempVATAmountLine);
-        if TempVATAmountLine.FindSet then
+        if TempVATAmountLine.FindSet() then
             repeat
                 TempVATAmountLine."VAT Amount" := CalcVATAmount(TempSalesLine, TempVATAmountLine);
                 if "Prices Including VAT" then
@@ -498,7 +498,7 @@ page 160 "Sales Statistics"
             TempSalesLine.SetFilter("Line Amount", '>=0')
         else
             TempSalesLine.SetFilter("Line Amount", '<0');
-        if TempSalesLine.FindFirst then
+        if TempSalesLine.FindFirst() then
             TempSalesLine.CalcSums(Amount, "Amount Including VAT");
         TempSalesLine.SetRange("VAT Identifier");
         TempSalesLine.SetRange("VAT Calculation Type");

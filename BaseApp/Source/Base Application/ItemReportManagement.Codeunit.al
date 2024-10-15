@@ -189,7 +189,7 @@ codeunit 12462 "Item Report Management"
 
             CopyDocLinesToTempDocLines(DocumentPrintBuffer, PurchaseLineBuffer);
             ExcelReportBuilderMgr.AddSection('PAGEHEADER');
-            if FindSet then
+            if FindSet() then
                 repeat
                     ClearArrays(DecimalArray, TextArray);
                     if (Quantity <> "Qty. to Receive") or Surplus or
@@ -240,7 +240,7 @@ codeunit 12462 "Item Report Management"
                                     PurchaseLineBuffer.SetRange("No.", "No.");
                                     PurchaseLineBuffer.SetRange(Surplus, false);
                                     DecimalArray[1] := 0;
-                                    if PurchaseLineBuffer.FindSet then
+                                    if PurchaseLineBuffer.FindSet() then
                                         repeat
                                             if PurchaseLineBuffer.Quantity = PurchaseLineBuffer."Qty. to Receive" then begin
                                                 DecimalArray[1] := DecimalArray[1] + PurchaseLineBuffer.Quantity;
@@ -314,7 +314,7 @@ codeunit 12462 "Item Report Management"
     local procedure CalculateNumberOfLines(var LineBuffer2: Record "Purchase Line" temporary; TableID: Integer) Number: Integer
     begin
         with LineBuffer2 do begin
-            if FindFirst then
+            if FindFirst() then
                 repeat
                     if TableID = DATABASE::"Purchase Header" then begin
                         if (Quantity <> "Qty. to Receive") or Surplus then
@@ -337,7 +337,7 @@ codeunit 12462 "Item Report Management"
                     PurchaseLine2.SetRange("Document Type", DocPrintBuffer."Document Type");
                     PurchaseLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
                     PurchaseLine2.SetRange(Type, PurchaseLine2.Type::Item);
-                    if PurchaseLine2.FindSet then
+                    if PurchaseLine2.FindSet() then
                         repeat
                             PurchaseLineBuffer.Init();
                             PurchaseLineBuffer.TransferFields(PurchaseLine2);
@@ -348,7 +348,7 @@ codeunit 12462 "Item Report Management"
                 begin
                     InvtDocumentLine2.SetRange("Document Type", DocPrintBuffer."Document Type");
                     InvtDocumentLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
-                    if InvtDocumentLine2.FindSet then
+                    if InvtDocumentLine2.FindSet() then
                         repeat
                             PurchaseLineBuffer.Init();
                             PurchaseLineBuffer."Line No." := InvtDocumentLine2."Line No.";
@@ -363,7 +363,7 @@ codeunit 12462 "Item Report Management"
             DATABASE::"Invt. Receipt Header":
                 begin
                     InvtReceiptLine2.SetRange("Document No.", DocPrintBuffer."Document No.");
-                    if InvtReceiptLine2.FindSet then
+                    if InvtReceiptLine2.FindSet() then
                         repeat
                             PurchaseLineBuffer.Init();
                             PurchaseLineBuffer."Line No." := InvtReceiptLine2."Line No.";

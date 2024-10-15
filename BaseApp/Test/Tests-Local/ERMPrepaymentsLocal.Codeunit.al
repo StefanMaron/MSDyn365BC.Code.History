@@ -176,7 +176,7 @@ codeunit 144014 "ERM Prepayments Local"
         PostSalesInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
         with CustLedgEntry do begin
             SetRange("Document No.", PrepmtDocNo);
-            FindFirst;
+            FindFirst();
             RunReturnPrepaymentReport("Entry No.", EntryType::Sale);
             VerifyCustLedgEntry(PrepmtDocNo, "Document Type"::" ", true, -Amount);
             VerifyCustLedgEntry(PrepmtDocNo, "Document Type"::Payment, false, Amount);
@@ -197,7 +197,7 @@ codeunit 144014 "ERM Prepayments Local"
         PostPurchInvWithPrepayment(PrepmtDocNo, InvNo, PostingDate, Amount);
         with VendLedgEntry do begin
             SetRange("Document No.", PrepmtDocNo);
-            FindFirst;
+            FindFirst();
             RunReturnPrepaymentReport("Entry No.", EntryType::Purchase);
             VerifyVendLedgEntry(PrepmtDocNo, "Document Type"::" ", true, Amount);
             VerifyVendLedgEntry(PrepmtDocNo, "Document Type"::Payment, false, -Amount);
@@ -216,7 +216,7 @@ codeunit 144014 "ERM Prepayments Local"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 308893] Customer Ledger Entries created on "Return Prepayment" report have correct Dimension Set ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Prepayment "PAY01" with modified "Dimension Set ID" = 123
         Amount := CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate));
@@ -249,7 +249,7 @@ codeunit 144014 "ERM Prepayments Local"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 308893] Vendor Ledger Entries created on "Return Prepayment" report have correct Dimension Set ID
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Prepayment "PAY01" with modified "Dimension Set ID" = 123
         Amount := CreatePurchInvoice(PurchaseHeader, CalcDate('<-1D>', WorkDate));
@@ -277,7 +277,7 @@ codeunit 144014 "ERM Prepayments Local"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
     end;
@@ -287,7 +287,7 @@ codeunit 144014 "ERM Prepayments Local"
         PurchHeader: Record "Purchase Header";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         Amount := CreatePurchInvoice(PurchHeader, CalcDate('<-1D>', WorkDate));
         PostingDate := PurchHeader."Posting Date";
         CreatePostPrepmtGenJnlLine(
@@ -302,7 +302,7 @@ codeunit 144014 "ERM Prepayments Local"
         SalesHeader: Record "Sales Header";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         Amount := CreateSalesInvoice(SalesHeader, CalcDate('<-1D>', WorkDate));
         PostingDate := SalesHeader."Posting Date";
         CreatePostPrepmtGenJnlLine(
@@ -317,7 +317,7 @@ codeunit 144014 "ERM Prepayments Local"
         GenJnlLine: Record "Gen. Journal Line";
         VendNo: Code[20];
     begin
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         Amount := LibraryRandom.RandDec(100, 2);
         PrepmtDocNo :=
           CreatePostPrepmtGenJnlLine(
@@ -352,7 +352,7 @@ codeunit 144014 "ERM Prepayments Local"
         VendNo: Code[20];
         GLAccNo: Code[20];
     begin
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         GLAccNo := LibraryERM.CreateGLAccountWithPurchSetup;
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Invoice, VendNo);
@@ -370,7 +370,7 @@ codeunit 144014 "ERM Prepayments Local"
         CustNo: Code[20];
         GLAccNo: Code[20];
     begin
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         GLAccNo := LibraryERM.CreateGLAccountWithSalesSetup;
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
@@ -497,7 +497,7 @@ codeunit 144014 "ERM Prepayments Local"
     begin
         ReturnPrepayment.InitializeRequest(EntryNo, EntryType);
         ReturnPrepayment.UseRequestPage := false;
-        ReturnPrepayment.Run;
+        ReturnPrepayment.Run();
     end;
 
     local procedure VerifyCustLedgEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; IsPrepayment: Boolean; VerifyAmount: Decimal)
@@ -508,7 +508,7 @@ codeunit 144014 "ERM Prepayments Local"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange(Prepayment, IsPrepayment);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(VerifyAmount, Amount,
               StrSubstNo(FieldValueIncorrectErr, FieldCaption(Amount)));
         end;
@@ -522,7 +522,7 @@ codeunit 144014 "ERM Prepayments Local"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange(Prepayment, IsPrepayment);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(VerifyAmount, Amount,
               StrSubstNo(FieldValueIncorrectErr, FieldCaption(Amount)));
         end;
@@ -536,7 +536,7 @@ codeunit 144014 "ERM Prepayments Local"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange(Prepayment, IsPrepayment);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(VerifyDimSetID, "Dimension Set ID",
               StrSubstNo(FieldValueIncorrectErr, FieldCaption("Dimension Set ID")));
         end;
@@ -550,7 +550,7 @@ codeunit 144014 "ERM Prepayments Local"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange(Prepayment, IsPrepayment);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(VerifyDimSetID, "Dimension Set ID",
               StrSubstNo(FieldValueIncorrectErr, FieldCaption("Dimension Set ID")));
         end;

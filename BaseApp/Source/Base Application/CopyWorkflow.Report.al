@@ -66,7 +66,7 @@ report 1510 "Copy Workflow"
         ToWorkflowStep.DeleteAll(true);
 
         FromWorkflowStep.SetRange("Workflow Code", FromWorkflow.Code);
-        if FromWorkflowStep.FindSet then
+        if FromWorkflowStep.FindSet() then
             repeat
                 ToWorkflowStep.Copy(FromWorkflowStep);
                 ToWorkflowStep."Workflow Code" := ToWorkflow.Code;

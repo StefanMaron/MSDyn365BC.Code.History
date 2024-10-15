@@ -208,7 +208,7 @@ report 17302 "Calculate FE Depreciation"
                             Insert(true);
                             if BalAccount then begin
                                 FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                                if FindLast then;
+                                if FindLast() then;
                                 GenJnlNextLineNo := "Line No.";
                             end;
                         until GenJnlLineTmp.Next() = 0;

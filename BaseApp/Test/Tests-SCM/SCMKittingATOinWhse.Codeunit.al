@@ -59,9 +59,9 @@ codeunit 137102 "SCM Kitting ATO in Whse"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting ATO in Whse");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         GlobalSetup;
 
@@ -326,7 +326,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AssemblyLine.Validate("Bin Code", 'ToBin');
                 AssemblyLine.Modify(true);
@@ -509,7 +509,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
-        if BinContent.FindFirst then begin
+        if BinContent.FindFirst() then begin
             BinContent.CalcFields(Quantity);
             BinContent.TestField(Quantity, Quantity);
         end else
@@ -543,7 +543,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBM()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, '', '', '', DefaultBinCode, false, LibraryRandom.RandInt(1000));
     end;
@@ -552,7 +552,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMLFA()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, FromBinCode, '', FromBinCode, FromBinCode, false, LibraryRandom.RandInt(1000));
     end;
@@ -561,7 +561,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBin()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(false, '', '', '', '', false, LibraryRandom.RandInt(1000));
     end;
@@ -570,7 +570,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMAddInv()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, '', '', InvBinCode, DefaultBinCode, true, LibraryRandom.RandInt(1000));
     end;
@@ -579,7 +579,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMLFAAddInv()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, FromBinCode, '', FromBinCode, FromBinCode, true, LibraryRandom.RandInt(1000));
     end;
@@ -588,7 +588,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMNoQty()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, '', '', '', DefaultBinCode, false, -1);
     end;
@@ -597,7 +597,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinNoQty()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(false, '', '', '', '', false, -1);
     end;
@@ -606,7 +606,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMS()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, '', AsmShipBinCode, AsmShipBinCode, AsmShipBinCode, false, LibraryRandom.RandInt(1000));
     end;
@@ -615,7 +615,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMLFAS()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, FromBinCode, AsmShipBinCode, AsmShipBinCode, AsmShipBinCode, false, LibraryRandom.RandInt(1000));
     end;
@@ -624,7 +624,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMAddInvS()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, '', AsmShipBinCode, AsmShipBinCode, AsmShipBinCode, true, LibraryRandom.RandInt(1000));
     end;
@@ -633,7 +633,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMLFAAddInvS()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, FromBinCode, AsmShipBinCode, AsmShipBinCode, AsmShipBinCode, true, LibraryRandom.RandInt(1000));
     end;
@@ -642,7 +642,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseCopyBinBMNoQtyS()
     begin
-        Initialize;
+        Initialize();
 
         CheckCreatedBin(true, '', AsmShipBinCode, AsmShipBinCode, AsmShipBinCode, false, -1);
     end;
@@ -660,7 +660,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeaderBC: Record "Assembly Header";
         Qty: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, AsmShipBinCode);
         Qty := LibraryRandom.RandInt(1000);
@@ -690,7 +690,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader1: Record "Assembly Header";
         Qty: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, AsmShipBinCode);
         Qty := LibraryRandom.RandInt(1000);
@@ -722,7 +722,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader1: Record "Assembly Header";
         Qty: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, AsmShipBinCode);
         Qty := LibraryRandom.RandInt(1000);
@@ -745,7 +745,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseUpdBinBM()
     begin
-        Initialize;
+        Initialize();
 
         CheckUpdatedBin(AdditionalBinCode1, AdditionalBinCode2, false);
     end;
@@ -754,7 +754,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseUpdBinBMPartShipped()
     begin
-        Initialize;
+        Initialize();
 
         CheckUpdatedBin(AdditionalBinCode1, AdditionalBinCode2, true);
     end;
@@ -763,7 +763,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
     [Scope('OnPrem')]
     procedure ATOWhseDelBinBM()
     begin
-        Initialize;
+        Initialize();
 
         CheckUpdatedBin('', '', false);
     end;
@@ -780,7 +780,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         SalesLineBC: Record "Sales Line";
         NewLocation: Record Location;
     begin
-        Initialize;
+        Initialize();
         UpdateLocation(Location, true, FromBinCode, '');
         SetupLocation(NewLocation);
         UpdateLocation(NewLocation, true, AdditionalBinCode2, '');
@@ -805,7 +805,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         SalesLine1: Record "Sales Line";
         SalesLineBC: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         UpdateLocation(Location, true, FromBinCode, '');
 
         CreateAssembledItem(Item1, Item1."Assembly Policy"::"Assemble-to-Order");
@@ -827,7 +827,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         SalesLine1: Record "Sales Line";
         AssemblyHeader1: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
         UpdateLocation(Location, true, FromBinCode, '');
 
         CreateAssembledItem(Item1, Item1."Assembly Policy"::"Assemble-to-Order");
@@ -849,7 +849,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader1: Record "Assembly Header";
         NewLocation: Record Location;
     begin
-        Initialize;
+        Initialize();
         UpdateLocation(Location, true, FromBinCode, '');
         SetupLocation(NewLocation);
         UpdateLocation(NewLocation, true, AdditionalBinCode2, '');
@@ -874,7 +874,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Qty: Integer;
         NewQtyToShip: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -912,7 +912,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader: Record "Assembly Header";
         Qty: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -947,7 +947,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Qty: Integer;
         ActualError: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -982,7 +982,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         NewQtyToShip: Integer;
         QtyFromStock: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
 
@@ -1034,7 +1034,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         NewQtyToShip: Integer;
         ActualError: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1072,7 +1072,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         ActualError: Text[1024];
     begin
         // Maximum value of "Quantity to Assemble" = Minimum {SalesLine."Qty. to Ship", AsmHeader."Remaining Quantity"}
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1113,7 +1113,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         ActualError: Text[1024];
     begin
         // Minimum value of "Quantity to Assemble" = Maximum {0, SalesLine."Quantity to Ship" - UnshippedNonATOQty}
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1152,7 +1152,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         NewQtyToAsmSO: Integer;
         QtyFromStock: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1192,7 +1192,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         QtyFromStock: Integer;
         NewQtyToShip: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1245,7 +1245,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         QtyFromStock: Integer;
         NewQtyToShip: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1298,7 +1298,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         QtyFromStock: Integer;
         NewQtyToShip: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1355,7 +1355,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         QtyFromStock: Integer;
         NewQtyToShip: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1412,7 +1412,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         NewQtyToShip: Integer;
         ErrMsg: Text[1024];
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1448,7 +1448,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         Qty: Integer;
         NewQtyToAsmSO: Integer;
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
         Qty := LibraryRandom.RandIntInRange(100, 1000);
@@ -1478,7 +1478,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
 
@@ -1510,7 +1510,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         AssemblyHeader: Record "Assembly Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
 
@@ -1543,7 +1543,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
 
         UpdateLocation(Location, true, FromBinCode, '');
 

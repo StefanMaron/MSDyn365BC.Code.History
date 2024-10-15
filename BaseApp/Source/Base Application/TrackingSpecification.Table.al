@@ -1,4 +1,4 @@
-table 336 "Tracking Specification"
+﻿table 336 "Tracking Specification"
 {
     Caption = 'Tracking Specification';
 
@@ -907,20 +907,6 @@ table 336 "Tracking Specification"
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InitTrackingSpecification without tracking parameters.', '17.0')]
-    procedure InitTrackingSpecification(FromType: Integer; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromVariantCode: Code[10]; FromLocationCode: Code[10]; FromSerialNo: Code[50]; FromLotNo: Code[50]; FromCDNo: Code[30]; FromQtyPerUOM: Decimal)
-    begin
-        SetSource(FromType, FromSubtype, FromID, FromRefNo, FromBatchName, FromProdOrderLine);
-        "Variant Code" := FromVariantCode;
-        "Location Code" := FromLocationCode;
-        "Serial No." := FromSerialNo;
-        "Lot No." := FromLotNo;
-        "Package No." := FromCDNo;
-        "Qty. per Unit of Measure" := FromQtyPerUOM;
-    end;
-#endif
-
     procedure InitTrackingSpecification(FromType: Integer; FromSubtype: Integer; FromID: Code[20]; FromBatchName: Code[10]; FromProdOrderLine: Integer; FromRefNo: Integer; FromVariantCode: Code[10]; FromLocationCode: Code[10]; FromQtyPerUOM: Decimal)
     begin
         SetSource(FromType, FromSubtype, FromID, FromRefNo, FromBatchName, FromProdOrderLine);
@@ -1142,18 +1128,6 @@ table 336 "Tracking Specification"
         OnAfterClearTrackingFilter(Rec);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
-    begin
-        "Serial No." := SerialNo;
-        "Lot No." := LotNo;
-        "Package No." := CDNo;
-        "Warranty Date" := WarrantyDate;
-        "Expiration Date" := ExpirationDate;
-    end;
-#endif
-
     procedure SetTrackingBlank()
     begin
         "Serial No." := '';
@@ -1235,16 +1209,6 @@ table 336 "Tracking Specification"
 
         OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
-    procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
-    begin
-        SetRange("Serial No.", SerialNo);
-        SetRange("Lot No.", LotNo);
-        SetRange("Package No.", CDNo);
-    end;
-#endif
 
     procedure SetTrackingFilterBlank()
     begin
@@ -1595,11 +1559,13 @@ table 336 "Tracking Specification"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Event is never raised.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromItemLedgEntry(var TrackingSpecification: Record "Tracking Specification"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record "Job Journal Line")
     begin
@@ -1816,7 +1782,7 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; FromTrackingSpecification: Record "Tracking Specification")
+    local procedure OnBeforeUpdateTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; var FromTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

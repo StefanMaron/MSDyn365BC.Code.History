@@ -77,7 +77,7 @@ report 17306 "Calculate Tax Diff. for FA"
                    (TaxDeprBonusAmount <> 0)
                 then begin
                     DepreciationBook.SetRange("Control FA Acquis. Cost", true);
-                    if DepreciationBook.FindSet then
+                    if DepreciationBook.FindSet() then
                         repeat
                             if FADepreciationBook.Get("No.", DepreciationBook.Code) then begin
                                 FALedgerEntry.Reset();
@@ -93,7 +93,7 @@ report 17306 "Calculate Tax Diff. for FA"
                                   FALedgerEntry."FA Posting Type"::"Salvage Value");
                                 FALedgerEntry.SetRange("Reclassification Entry", false);
                                 FALedgerEntry.SetFilter("Tax Difference Code", '<>%1&<>%2', '', TaxRegisterSetup."Default FA TD Code");
-                                if FALedgerEntry.FindSet then
+                                if FALedgerEntry.FindSet() then
                                     repeat
                                         TaxDiff.Get(FALedgerEntry."Tax Difference Code");
 
@@ -121,7 +121,7 @@ report 17306 "Calculate Tax Diff. for FA"
                     FALedgerEntry.SetRange("FA Posting Date", 0D, EndDate);
                     FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
                     FALedgerEntry.SetRange("Depr. Bonus", true);
-                    if FALedgerEntry.FindSet then
+                    if FALedgerEntry.FindSet() then
                         repeat
                             UpdateTaxDiffPostBuf(
                               TaxDiffFAPostingBuffer.Type::"Depreciation Bonus",
@@ -131,7 +131,7 @@ report 17306 "Calculate Tax Diff. for FA"
                 end;
 
                 TaxDiffFAPostingBuffer.Reset();
-                if TaxDiffFAPostingBuffer.FindSet then begin
+                if TaxDiffFAPostingBuffer.FindSet() then begin
                     repeat
                         TaxDiff.Get(TaxDiffFAPostingBuffer."Tax Diff. Code");
 
@@ -224,7 +224,7 @@ report 17306 "Calculate Tax Diff. for FA"
                 TaxDiffJnlLine."Journal Batch Name" := BatchName;
                 TaxDiffJnlLine.SetRange("Journal Template Name", TemplateName);
                 TaxDiffJnlLine.SetRange("Journal Batch Name", BatchName);
-                if TaxDiffJnlLine.FindLast then;
+                if TaxDiffJnlLine.FindLast() then;
                 LineNo := TaxDiffJnlLine."Line No." + 10000;
             end;
         }
@@ -294,7 +294,7 @@ report 17306 "Calculate Tax Diff. for FA"
                             if TemplateName <> '' then begin
                                 TaxDiffJnlBatch.SetRange("Journal Template Name", TemplateName);
                                 TaxDiffJnlBatch.SetRange(Name, BatchName);
-                                if TaxDiffJnlBatch.FindFirst then;
+                                if TaxDiffJnlBatch.FindFirst() then;
                                 TaxDiffJnlBatch.SetRange(Name);
                                 if ACTION::LookupOK = PAGE.RunModal(0, TaxDiffJnlBatch) then begin
                                     TemplateName := TaxDiffJnlBatch."Journal Template Name";
@@ -435,7 +435,7 @@ report 17306 "Calculate Tax Diff. for FA"
         BatchName := NewBatchName;
         DatePeriod.SetRange("Period Type", DatePeriod."Period Type"::Month);
         DatePeriod.SetRange("Period End", ClosingDate(CalcDate('<CM>', NewEndDate)));
-        DatePeriod.FindFirst;
+        DatePeriod.FindFirst();
     end;
 }
 

@@ -37,7 +37,7 @@ codeunit 144103 "ERM Currency Adjustment"
         ExchRateAdjPostingDate: Date;
     begin
         // [SCENARIO 123183] Exchange Rate Adj assigns Dimension/Dimension Value from "Dimension for Negative" to G/L Entries
-        Initialize;
+        Initialize();
         // [GIVEN] Dimension X with Dimension Values Y and Z
         CreateDimensionWithValues(DimensionValueY, DimensionValueZ);
         // [GIVEN] Currency A with exchange Rate R1 and Rate R2 (R1 < R2)
@@ -45,7 +45,7 @@ codeunit 144103 "ERM Currency Adjustment"
           CreateCurrencyWithExchangeRates(
             WorkDate + 1, 0D, true);
         // [GIVEN] Posted Gen. Journal Line with Currency and Rate R1
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorNo,
@@ -71,7 +71,7 @@ codeunit 144103 "ERM Currency Adjustment"
         ExchRateAdjPostingDate: Date;
     begin
         // [SCENARIO 123183] Exchange Rate Adj assigns Dimension/Dimension Value from "Dimension for Positive" to G/L Entries
-        Initialize;
+        Initialize();
         // [GIVEN] Dimension X with Dimension Values Y and Z
         CreateDimensionWithValues(DimensionValueY, DimensionValueZ);
         // [GIVEN] Currency A with exchange Rate R1 and Rate R2 (R1 > R2)
@@ -79,7 +79,7 @@ codeunit 144103 "ERM Currency Adjustment"
           CreateCurrencyWithExchangeRates(
             WorkDate + 1, 0D, false);
         // [GIVEN] Posted Gen. Journal Line with Currency and Rate R1
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorNo,
@@ -106,7 +106,7 @@ codeunit 144103 "ERM Currency Adjustment"
         ExchRateAdjPostingDate: Date;
     begin
         // [SCENARIO 123183] Exchange Rate Adj assigns Dimension/Dimension Value from "Dimension for Positive/Negative" to G/L Entries
-        Initialize;
+        Initialize();
         // [GIVEN] Dimension X with Dimension Values Y and Z
         CreateDimensionWithValues(DimensionValueY, DimensionValueZ);
         // [GIVEN] Currency with exchange rates (R1 > R3 < R2)
@@ -114,13 +114,13 @@ codeunit 144103 "ERM Currency Adjustment"
           CreateCurrencyWithExchangeRates(
             WorkDate + 1, WorkDate + 2, true);
         // [GIVEN] Posted Gen. Journal Line for Vendor A at Rate R1
-        VendorANo := LibraryPurchase.CreateVendorNo;
+        VendorANo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorANo,
           CurrencyCode, WorkDate);
         // [GIVEN] Posted Gen. Journal Line for Vendor B at Rate R2
-        VendorBNo := LibraryPurchase.CreateVendorNo;
+        VendorBNo := LibraryPurchase.CreateVendorNo();
         CreatePostGenJournalLine(
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, VendorBNo,
@@ -144,7 +144,7 @@ codeunit 144103 "ERM Currency Adjustment"
         DocNo: Code[20];
     begin
         // [SCENARIO 374814] Post FCY payment through the journal with balancing bank account and run Exchange Rate Adjustment
-        Initialize;
+        Initialize();
         // [GIVEN] FCY
         CurrencyCode := CreateCurrencyWithExchangeRates(WorkDate + 1, 0D, true);
         // [GIVEN] Bank Account with FCY
@@ -168,7 +168,7 @@ codeunit 144103 "ERM Currency Adjustment"
         ExchRateAdjPostingDate: Date;
     begin
         // [SCENARIO 132200] GL entry is created on for Bank Account after running Adjust Exchange rate batch job. "Enable Russian Accounting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency A with exchange Rate R1 and Rate R2 (R1 < R2)
         CurrencyCode :=
@@ -191,7 +191,7 @@ codeunit 144103 "ERM Currency Adjustment"
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
     end;
 
@@ -288,7 +288,7 @@ codeunit 144103 "ERM Currency Adjustment"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         BankAccountPostingGroup.SetFilter("G/L Account No.", '<>''''');
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
@@ -320,7 +320,7 @@ codeunit 144103 "ERM Currency Adjustment"
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(StartingDate);
         LibraryVariableStorage.Enqueue(EndingDate);
-        DocNo := LibraryUtility.GenerateGUID;
+        DocNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(DocNo);
         Commit();
         REPORT.Run(REPORT::"Adjust Exchange Rates");

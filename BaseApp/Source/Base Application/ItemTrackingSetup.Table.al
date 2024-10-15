@@ -1,6 +1,6 @@
 ﻿table 6565 "Item Tracking Setup"
 {
-    Caption = 'Item Tracking Code';
+    Caption = 'Item Tracking Setup';
     DataCaptionFields = "Code";
 #pragma warning disable AS0034
     TableType = Temporary;
@@ -144,7 +144,7 @@
         OnAfterCopyTrackingFromBinContentBuffer(Rec, BinContentBuffer);
     end;
 
-#if not CLEAN18
+#if not CLEAN20
     [Obsolete('Please use CopyTrackingFromItemJnlLine().', '18.0')]
     procedure CopyTrackingFromItemJournalLine(ItemJournalLine: Record "Item Journal Line");
     begin
@@ -376,7 +376,8 @@
     begin
     end;
 
-#if not CLEAN18
+#if not CLEAN20
+    [Obsolete('Please use OnAfterCopyTrackingFromItemJnlLine().', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemJournalLine(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemJournalLine: Record "Item Journal Line")
     begin

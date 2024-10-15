@@ -30,7 +30,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
                 FALedgerEntry.SetRange("Canceled from FA No.", '');
                 FALedgerEntry.SetRange(Reversed, false);
-                if FALedgerEntry.FindLast then
+                if FALedgerEntry.FindLast() then
                     DisposalDate := FALedgerEntry."FA Posting Date"
                 else
                     CurrReport.Skip();
@@ -53,7 +53,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Gain/Loss");
                 FALedgerEntry.SetRange("FA Posting Date", 0D, DisposalDate);
                 FALedgerEntry.SetRange("Disposal Entry No.", 1);
-                if FALedgerEntry.FindLast then
+                if FALedgerEntry.FindLast() then
                     AccBookValueOnDisposal := FALedgerEntry.Amount;
 
                 FALedgerEntry.Reset();
@@ -63,7 +63,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Gain/Loss");
                 FALedgerEntry.SetRange("FA Posting Date", 0D, DisposalDate);
                 FALedgerEntry.SetRange("Disposal Entry No.", 1);
-                if FALedgerEntry.FindLast then
+                if FALedgerEntry.FindLast() then
                     TaxBookValueOnDisposal := FALedgerEntry.Amount;
 
                 TaxDiffLedgerEntry.Reset();
@@ -71,13 +71,13 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 TaxDiffLedgerEntry.SetRange("Source Type", SourceType);
                 TaxDiffLedgerEntry.SetRange("Source No.", "No.");
                 TaxDiffLedgerEntry.SetRange("Tax Diff. Type", TaxDiffLedgerEntry."Tax Diff. Type"::"Temporary");
-                if TaxDiffLedgerEntry.FindSet then
+                if TaxDiffLedgerEntry.FindSet() then
                     repeat
                         UpdateTaxDiffPostBuf(TaxDiffLedgerEntry."Tax Diff. Code");
                     until TaxDiffLedgerEntry.Next() = 0;
 
                 TaxDiffFAPostingBuffer.Reset();
-                if TaxDiffFAPostingBuffer.FindSet then begin
+                if TaxDiffFAPostingBuffer.FindSet() then begin
                     repeat
                         TaxDiffLedgerEntry.Reset();
                         TaxDiffLedgerEntry.SetCurrentKey("Tax Diff. Code", "Source Type", "Source No.", "Posting Date");
@@ -143,7 +143,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                 TaxDiffJnlLine."Journal Batch Name" := BatchName;
                 TaxDiffJnlLine.SetRange("Journal Template Name", TemplateName);
                 TaxDiffJnlLine.SetRange("Journal Batch Name", BatchName);
-                if TaxDiffJnlLine.FindLast then;
+                if TaxDiffJnlLine.FindLast() then;
                 LineNo := TaxDiffJnlLine."Line No." + 10000;
             end;
         }
@@ -213,7 +213,7 @@ report 17307 "Calc. Tax Diff.- Disposed FA"
                             if TemplateName <> '' then begin
                                 TaxDiffJnlBatch.SetRange("Journal Template Name", TemplateName);
                                 TaxDiffJnlBatch.SetRange(Name, BatchName);
-                                if TaxDiffJnlBatch.FindFirst then;
+                                if TaxDiffJnlBatch.FindFirst() then;
                                 TaxDiffJnlBatch.SetRange(Name);
                                 if ACTION::LookupOK = PAGE.RunModal(0, TaxDiffJnlBatch) then begin
                                     TemplateName := TaxDiffJnlBatch."Journal Template Name";

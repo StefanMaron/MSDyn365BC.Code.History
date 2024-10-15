@@ -116,7 +116,7 @@ page 35600 "Cash Accounts"
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
                             DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

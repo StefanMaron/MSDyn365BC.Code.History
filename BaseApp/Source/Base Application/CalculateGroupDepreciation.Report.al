@@ -85,7 +85,7 @@ report 14933 "Calculate Group Depreciation"
                     DeprDiff := GroupDeprAmount - TotalDeprAmount;
 
                     with FAJnlLine do begin
-                        if FAJnlLineTmp.FindSet then begin
+                        if FAJnlLineTmp.FindSet() then begin
                             LockTable();
                             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                             NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
@@ -94,7 +94,7 @@ report 14933 "Calculate Group Depreciation"
                             else
                                 DocumentNo2 := DocumentNo;
                         end;
-                        if FAJnlLineTmp.FindSet then begin
+                        if FAJnlLineTmp.FindSet() then begin
                             repeat
                                 Init;
                                 "Line No." := 0;
@@ -138,7 +138,7 @@ report 14933 "Calculate Group Depreciation"
                     end;
 
                     with GenJnlLine do begin
-                        if GenJnlLineTmp.FindSet then begin
+                        if GenJnlLineTmp.FindSet() then begin
                             LockTable();
                             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                             NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
@@ -148,7 +148,7 @@ report 14933 "Calculate Group Depreciation"
                                 DocumentNo2 := DocumentNo;
 
                         end;
-                        if GenJnlLineTmp.FindSet then begin
+                        if GenJnlLineTmp.FindSet() then begin
                             repeat
                                 Init;
                                 "Line No." := 0;
@@ -476,7 +476,7 @@ report 14933 "Calculate Group Depreciation"
         FixedAsset.SetCurrentKey("Depreciation Group");
         FixedAsset.SetRange("Depreciation Group", DepreciationGroupCode);
         FixedAsset.SetRange(Blocked, false);
-        if FixedAsset.FindSet then
+        if FixedAsset.FindSet() then
             repeat
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
                     if CheckDeprBook then
@@ -494,7 +494,7 @@ report 14933 "Calculate Group Depreciation"
         FixedAsset.SetCurrentKey("Depreciation Group");
         FixedAsset.SetRange("Depreciation Group", DepreciationGroupCode);
         FixedAsset.SetRange(Blocked, false);
-        if FixedAsset.FindSet then
+        if FixedAsset.FindSet() then
             repeat
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
                     if CheckDeprBook then
@@ -589,7 +589,7 @@ report 14933 "Calculate Group Depreciation"
         FixedAsset.SetCurrentKey("Depreciation Group");
         FixedAsset.SetRange("Depreciation Group", DeprGroup);
         FixedAsset.SetRange(Blocked, false);
-        if FixedAsset.FindSet then
+        if FixedAsset.FindSet() then
             repeat
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
                     if FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"DB/SL-RU Tax Group" then begin
@@ -603,7 +603,7 @@ report 14933 "Calculate Group Depreciation"
                         FALedgerEntry.SetFilter("FA Posting Date", '%1..%2', DatePeriod."Period Start", DatePeriod."Period End");
                         FALedgerEntry.SetRange("Depr. Group Elimination", true);
                         FALedgerEntry.SetRange(Reversed, false);
-                        if FALedgerEntry.FindFirst then
+                        if FALedgerEntry.FindFirst() then
                             Error(Text002,
                               FixedAsset."No.",
                               FALedgerEntry."FA Posting Date",
@@ -624,13 +624,13 @@ report 14933 "Calculate Group Depreciation"
         FALedgEntry.SetRange("Depr. Bonus", false);
         with FALedgEntry do begin
             SetRange("FA Posting Date", StartDate, CalcDate('<CM>', StartDate));
-            if FindFirst then
+            if FindFirst() then
                 NoOfPeriods := 1; // depreciation for current month already exists
             SetRange("FA Posting Date", CalcDate('<-1M>', StartDate), CalcDate('<-1M+CM>', StartDate));
-            if FindFirst then
+            if FindFirst() then
                 NoOfPeriods := NoOfPeriods + 2; // depreciation for previous month already exists
             SetFilter("FA Posting Date", '%1..', CalcDate('<+1M>', StartDate));
-            if FindFirst then
+            if FindFirst() then
                 NoOfPeriods := 4; // depreciation for next month already exists
         end;
         exit(NoOfPeriods);
@@ -644,7 +644,7 @@ report 14933 "Calculate Group Depreciation"
         FixedAsset.SetCurrentKey("Depreciation Group");
         FixedAsset.SetRange("Depreciation Group", DeprGroup);
         FixedAsset.SetRange(Blocked, false);
-        if FixedAsset.FindSet then
+        if FixedAsset.FindSet() then
             repeat
                 if FADeprBook.Get(FixedAsset."No.", DeprBookCode) then
                     if CheckDeprBook then begin

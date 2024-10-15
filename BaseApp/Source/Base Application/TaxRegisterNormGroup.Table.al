@@ -55,7 +55,7 @@ table 17221 "Tax Register Norm Group"
                 if ("Storing Method" <> xRec."Storing Method") and (xRec."Storing Method" = xRec."Storing Method"::Calculation) then begin
                     TaxRegNormTemplateLine.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
                     TaxRegNormTemplateLine.SetRange("Norm Group Code", Code);
-                    if TaxRegNormTemplateLine.FindFirst then
+                    if TaxRegNormTemplateLine.FindFirst() then
                         if not Confirm(Text1000, false) then
                             Error('');
                     TaxRegNormTemplateLine.DeleteAll(true);
@@ -150,7 +150,7 @@ table 17221 "Tax Register Norm Group"
         TaxRegValueBuffer."Order No." := TaxRegNormGroup.Code;
 
         TaxRegNormTemplateLine.SetRange("Line Type", TaxRegNormTemplateLine."Line Type"::"Amount for Norm");
-        TaxRegNormTemplateLine.FindFirst;
+        TaxRegNormTemplateLine.FindFirst();
         TaxRegNormTemplateLine.SetFilter("Line Code", '<>''''');
         TaxRegNormTemplateLine.SetFilter("Line Type", '<>%1', TaxRegNormTemplateLine."Line Type"::"Norm Value");
         if TaxRegNormTemplateLine.Find('-') then
@@ -159,7 +159,7 @@ table 17221 "Tax Register Norm Group"
                     TaxRegValueBuffer.Quantity := SourceAmount
                 else begin
                     TaxRegNormAccumulation.SetRange("Template Line No.", TaxRegNormTemplateLine."Line No.");
-                    TaxRegNormAccumulation.FindFirst;
+                    TaxRegNormAccumulation.FindFirst();
                     TaxRegValueBuffer.Quantity := TaxRegNormAccumulation.Amount;
                 end;
                 TaxRegValueBuffer."Order Line No." := TaxRegNormTemplateLine."Line No.";
@@ -175,7 +175,7 @@ table 17221 "Tax Register Norm Group"
         if EntryNoAmountBuffer.Find('-') then
             repeat
                 TaxRegNormAccumulation.SetRange("Template Line No.", EntryNoAmountBuffer."Entry No.");
-                TaxRegNormAccumulation.FindFirst;
+                TaxRegNormAccumulation.FindFirst();
                 TaxRegNormAccumulation.Amount := EntryNoAmountBuffer.Amount;
                 TaxRegNormAccumulation.Modify();
                 TaxRegNormTemplateLine.Get(NormJurisdictionCode, NormCode, TaxRegNormAccumulation."Template Line No.");

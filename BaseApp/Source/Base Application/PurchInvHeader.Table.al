@@ -853,17 +853,14 @@ table 122 "Purch. Inv. Header"
     end;
 
     procedure PrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header")
-    var
-        ShowNotificationAction: Boolean;
     begin
-        ShowNotificationAction := PurchInvHeaderLocal.Count() = 1;
         if PurchInvHeaderLocal.FindSet() then
             repeat
-                DoPrintToDocumentAttachment(PurchInvHeaderLocal, ShowNotificationAction);
+                DoPrintToDocumentAttachment(PurchInvHeaderLocal);
             until PurchInvHeaderLocal.Next() = 0;
     end;
 
-    local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header"; ShowNotificationAction: Boolean)
+    local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header")
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -878,7 +875,7 @@ table 122 "Purch. Inv. Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

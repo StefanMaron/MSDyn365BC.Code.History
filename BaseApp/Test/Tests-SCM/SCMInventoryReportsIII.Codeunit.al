@@ -58,7 +58,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory Valuation Report for Cost Posted to G/L after posting Item Journal and Undo the Posted Shipment.
 
         // Setup: Post Item Journal and Undo Sales Shipment.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(UndoShipmentConfirmMessage);
         PostItemJournalAndUndoShipment(SalesLine);
 
@@ -84,7 +84,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory Availability Report for updated Stock Keeping Unit with Reorder Point after posting Item Journal.
 
         // Setup: Create Location, create Item with Reordering Policy Maximum Qty., create Stockkeeping Unit with Reordering Policy Lot-for-Lot and Post Item Journal.
-        Initialize;
+        Initialize();
         MaxInventory := LibraryRandom.RandDec(100, 2);  // Use Random for Maximum Inventory.
         CreateAndUpdateItem(
           Item, Item.Reserve::Never, Item."Reordering Policy"::"Maximum Qty.", MaxInventory, MaxInventory / 2, Item."Costing Method"::FIFO,
@@ -111,7 +111,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Item Expiration Report after posting Purchase Order with Expiration Date.
 
         // Setup: Create and post Purchase Order with Expiration Date.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithItemTracking(PurchaseLine, '', false);  // Use blank value for Location Code.
         UpdateReservationEntryExpirationDate(PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, true);
@@ -133,7 +133,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Item Register Report after posting Item Journal.
 
         // Setup: Create and post Item Journal.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(
           ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, CreateItem, WorkDate, LibraryRandom.RandInt(10),
           LibraryRandom.RandDec(10, 2));  // Use Random value for Unit Amount and Quantity.
@@ -155,7 +155,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Item Substitutions Report after creating Item Substitute.
 
         // Setup: Create item and its substitute.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItemSubstitution(ItemSubstitution, CreateItem);
 
         // Exercise: Run Item Substitutions Report.
@@ -177,7 +177,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory Valuation Cost Specification Report when Item is revalued more than once.
 
         // Setup: Create Item and update Inventory Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(AdjustCostItemEntriesBatchJobMessage);
         CreateAndUpdateItem(Item, Item.Reserve::Never, Item."Reordering Policy"::" ", 0, 0, Item."Costing Method"::FIFO, '', '');  // Pass zero values for Maximum Inventory and Reordering Point.
         UpdateInventorySetup(InventorySetup."Automatic Cost Adjustment"::Always);
@@ -207,7 +207,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory Valuation Cost Specification Report for blank Valuation Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         Commit();
 
         // Exercise: Run Inventory Valuation Cost Specification Report.
@@ -228,7 +228,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Sales Reservation Availability Report after creating Sales Order.
 
         // Setup: Create Item, create and Receive Purchase Order, create Sales Order.
-        Initialize;
+        Initialize();
         CreateAndReceivePurchaseOrder(PurchaseLine);
         CreateSalesOrderAndModifyQuantity(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity);
 
@@ -250,7 +250,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Sales Reservation Availability Report for Show Sales Line as FALSE.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(false);     // Show sales lines
         LibraryVariableStorage.Enqueue(true);      // Show reservation entries
         LibraryVariableStorage.Enqueue(false);     // Modify qty...
@@ -258,7 +258,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Commit();
 
         // Exercise.
-        asserterror SalesReservationAvail.Run;
+        asserterror SalesReservationAvail.Run();
 
         // Verify.
         Assert.ExpectedError(SalesLinesShownError);
@@ -277,7 +277,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Purchase Reservation Availability Report after creating Purchase Order.
 
         // Setup: Create Purchase Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, CreateItem, LibraryRandom.RandDec(10, 2), '');  // Use Random value for Quantity.
 
         // Create and Ship Sales Order.
@@ -306,7 +306,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Purchase Reservation Availability Report for Show Purchase Line as FALSE.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);     // Show purchase line
         LibraryVariableStorage.Enqueue(true);    // Show reservation entries
         LibraryVariableStorage.Enqueue(true);    // Modify qty to ship in order lines
@@ -331,7 +331,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory Availability Plan Report after creating Sales Order.
 
         // Setup: Create Item, create and Receive Purchase Order, create Sales Order.
-        Initialize;
+        Initialize();
         CreateAndReceivePurchaseOrder(PurchaseLine);
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         CreateSalesOrder(SalesLine, PurchaseLine."No.", LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
@@ -359,7 +359,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory Availability Plan Report with Stockkeeping Unit as True.
 
         // Setup: Create Item with Stockkeeping Unit, Location, create and Post Item Journal Line.
-        Initialize;
+        Initialize();
         Item.Get(CreateItem);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Item.SetRange("Location Filter", Location.Code);
@@ -388,7 +388,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Run Adjust Cost Item Entries and Post Inventory Cost to G/L. Verify report Inventory Cost to G/L Report.
 
         // Setup: Create Purchase Order for Production and Component Item. Post as Receive.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         Quantity := 10 + LibraryRandom.RandInt(100);  // Using Random value for Quantity.
         DirectUnitCost := LibraryRandom.RandDec(100, 2);  // Using Random for Direct Unit Cost.
@@ -410,7 +410,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Run Adjust Cost Item Entries and Post Inventory Cost to G/L.
 
         // Setup: Create Purchase Order for Production and Component Item. Post as Receive.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         CurrencyCode := CreateCurrency;
         UpdateAddCurrencySetup(CurrencyCode);
@@ -506,7 +506,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Posting Date error on Calculate Inventory report.
 
         // Setup: Create Item Journal Batch.
-        Initialize;
+        Initialize();
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
 
         // Exercise.
@@ -560,7 +560,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ReservationEntry: Record "Reservation Entry";
     begin
         // Setup: Create Item with Tracking Code, create and post Purchase Order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithItemTracking(PurchaseLine, '', false);  // Blank value is for Location Code.
         FindReservationEntry(ReservationEntry, PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, false);
@@ -587,7 +587,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // Verify the Item Tracking numbers and Quantity on the Physical Inventory List report on multiple batches and templates
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::"Phys. Inventory");
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
 
         LotNo :=
           PhysicalInventoryListReportMultipleTemplatesAndBatches(
@@ -612,7 +612,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         BatchIndex: Integer;
     begin
         // Setup: Create Item with Tracking Code, create and post Purchase Order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal.
-        Initialize;
+        Initialize();
         CreatePurchaseOrderWithItemTracking(PurchaseLine, '', false);  // Blank value is for Location Code.
         FindReservationEntry(ReservationEntry, PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, false);
@@ -649,7 +649,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Physical Inventory List report for non-warehouse location with Bin.
 
         // Setup: Create Item with Tracking Code, create and post Purchase Order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal.
-        Initialize;
+        Initialize();
         CreateLocationWithBin(Bin);
         CreatePurchaseOrder(PurchaseLine, CreateLotTrackedItem(false), LibraryRandom.RandInt(10), Bin."Location Code");  // Use random value for Quantity.
         PurchaseLine.Validate("Bin Code", Bin.Code);
@@ -688,7 +688,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Physical Inventory List report for warehouse location.
 
         // Setup: Create Item with Tracking Code, create and post Purchase Order with Tracking Lines. Run Calculate Inventory on Phys. Inventory Journal.
-        Initialize;
+        Initialize();
         LotNo := CreateAndPostPurchaseOrderWithWMSLocation(PurchaseLine, false);
         RegisterWarehouseActivity(WarehouseActivityLine, PurchaseLine."Document No.");
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
@@ -718,7 +718,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Registering Date error on Whse. Calculate Inventory report.
 
         // Setup: Create Warehouse Location. Create Warehouse Journal Batch.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateFullWMSLocation(Location, 1);  // Use 1 for Bins per Zone.
         CreateWhseJournalBatch(WarehouseJournalBatch, Location.Code);
 
@@ -772,7 +772,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
     begin
         // Setup: Create Item with Tracking Code, create Purchase Order with Tracking Lines. Create and post Warehouse Receipt. Register Put-away. Run Calculate Inventory on Whse. Phys. Inventory Journal.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrderWithWMSLocation(PurchaseLine, LotWarehouseTracking);
         RegisterWarehouseActivity(WarehouseActivityLine, PurchaseLine."Document No.");
         CreateWhseJournalBatch(WarehouseJournalBatch, PurchaseLine."Location Code");
@@ -801,11 +801,11 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory - Cost Variance Report for Item with Costing Method Standard.
 
         // Setup: Create Item with Costing method Standard, Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         PostPurchaseOrderForVariance(Item, Item."Costing Method"::Standard);
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Variance);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         // Exercise.
         RunInventoryCostVarianceReport(Item."No.");
@@ -824,7 +824,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Inventory - Cost Variance Report for Item with Costing Method other than Standard.
 
         // Setup: Create Item with Costing method Standard, Create and Post Purchase Order.
-        Initialize;
+        Initialize();
         PostPurchaseOrderForVariance(Item, Item."Costing Method"::FIFO);
 
         // Exercise.
@@ -857,14 +857,14 @@ codeunit 137350 "SCM Inventory Reports - III"
         PostInvtCostToGLTest: Report "Post Invt. Cost to G/L - Test";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Clear(PostInvtCostToGLTest);
         LibraryVariableStorage.Enqueue(PostToGLMethod);
         LibraryVariableStorage.Enqueue(DocumentNo);
         Commit();  // Commit is required to run the Report.
 
         // Exercise.
-        asserterror PostInvtCostToGLTest.Run;
+        asserterror PostInvtCostToGLTest.Run();
 
         // Verify:
         Assert.ExpectedError(StrSubstNo(Error, PostToGLMethod));
@@ -886,7 +886,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Dimension Entry on Post Invt. Cost to G/L - Test Report.
 
         // Setup: Create Item, create and Post Purchase Order, Adjust Cost Item entries.
-        Initialize;
+        Initialize();
         ItemNo :=
           SetupProductionItem(Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, LibraryRandom.RandDec(10, 2));  // Use Random for Standard Cost.
         UpdateItemDimension(DefaultDimension, ItemNo);
@@ -901,7 +901,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Commit();  // Commit is required to run the Report.
 
         // Exercise: Run Post Invt. Cost To G/L Test Report.
-        PostInvtCostToGLTest.Run;
+        PostInvtCostToGLTest.Run();
 
         // Verify: Verify Dimension Entry on Post Invt. Cost to G/L - Test Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -926,7 +926,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // [FEATURE] [Post Inventory Cost to GL] [Dimension]
         // [SCENARIO 223070] Post Inventory Cost to G/L report run per posting group should show sum of posted amounts by dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with default dimension code "D" and its value "V".
         ItemNo := CreateItem;
@@ -971,7 +971,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // [FEATURE] [Post Inventory Cost to GL]
         // [SCENARIO 379969] Dimension check of G/L Account, which will be used on posting to G/L, should be performed on new Value Entry with zero Cost Amount (Actual).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Automatic Cost Posting is set to TRUE in Inventory Setup.
         LibraryInventory.UpdateInventorySetup(
@@ -1009,7 +1009,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // [FEATURE] [Post Inventory Cost to GL]
         // [SCENARIO 303697] G/L Posting check performed on new Value Entry with zero Cost Amount (Actual) when Post Shipment where no G/L Entries are created
-        Initialize;
+        Initialize();
 
         // [GIVEN] Automatic Cost Posting is set to TRUE in Inventory Setup.
         LibraryInventory.UpdateInventorySetup(
@@ -1044,7 +1044,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // [FEATURE] [Post Inventory Cost to GL]
         // [SCENARIO 379963] "Gen. Bus. Posting Group" column in skipped value entries section of "Post Inventory Cost to G/L" report should show "Gen. Bus. Posting Group" of Value Entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Order with "Receive & Invoice" option.
         ItemNo := CreateItem;
@@ -1054,7 +1054,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // [GIVEN] Set "Cost Posted to G/L" = "Cost Amount (Actual)" in Value Entry so it will be skipped during posting to G/L.
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             GenBusPostingGroupCode := "Gen. Bus. Posting Group";
             "Cost Posted to G/L" := "Cost Amount (Actual)";
             "Cost Posted to G/L (ACY)" := "Cost Amount (Actual) (ACY)";
@@ -1084,7 +1084,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Check Inventory Value exist on Inventory Valuation Report.
 
         // Setup: Create Item, Post Item Journal and Run Adjust Cost Item Entries.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemAndRunAdjustCostItemEntries;
 
         // Exercise: Run  Inventory Valuation Report.
@@ -1107,7 +1107,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Check Inventory Value exist on Item Age Composition Value Report.
 
         // Setup: Create Item, Post Item Journal and Run Adjust Cost Item Entries.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemAndRunAdjustCostItemEntries;
 
         // Exercise: Run Item Age Composition Value Report.
@@ -1131,7 +1131,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Test Inventory Value on Item Age Composition - Value Report as equal to Inventory Valuation after executing the Adjust Cost Item Entries.
 
         // Setup: Create Item, Post Item Journal,Run Adjust Cost Item Entries and Get Inventory Value from Item Age Composition - Value Report.
-        Initialize;
+        Initialize();
         ItemNo := CreateItemAndRunAdjustCostItemEntries;
         RunItemAgeCompositionValueReport(ItemNo);
         LibraryReportDataset.LoadDataSetFile;
@@ -1168,7 +1168,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify values on generated report should be Zero.
 
         // Setup: Update Automatic Cost Posting on Inventory Setup.
-        Initialize;
+        Initialize();
         ExecuteUIHandlers;
         LibraryInventory.UpdateInventorySetup(InventorySetup, true, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
@@ -1215,7 +1215,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Verify Descriptions for Item Substitution are correct after checking Interchangeable.
 
         // Setup: Create Item and Item Substitution.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryAssembly.CreateItemSubstitution(ItemSubstitution, Item."No.");
         Item2.Get(ItemSubstitution."Substitute No.");
@@ -1240,8 +1240,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Test the filter "Journal Batch Name" set on Item Register is correct.
 
         // Setup: Create a Item Journal Batch.
-        Initialize;
-        ItemJournalBatch.FindFirst;
+        Initialize();
+        ItemJournalBatch.FindFirst();
         ItemJournalBatch.CalcFields("Template Type");
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalBatch."Template Type");
         LibraryVariableStorage.Enqueue(ItemJournalBatch.Name); // Enqueue value for ItemJournalBatchesPageHandler.
@@ -1265,8 +1265,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         // Test the filter "Journal Batch Name" set on Warehouse Register is correct.
 
         // Setup: Create a Item Journal Batch.
-        Initialize;
-        ItemJournalBatch.FindFirst;
+        Initialize();
+        ItemJournalBatch.FindFirst();
         ItemJournalBatch.CalcFields("Template Type");
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate, ItemJournalBatch."Template Type");
         LibraryVariableStorage.Enqueue(ItemJournalBatch.Name); // Enqueue value for ItemJournalBatchesPageHandler.
@@ -1293,7 +1293,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // Setup: Create Inventory for Child Item and Update Production BOM No. on Parent Item.
         // Create and Refresh two Prod. Orders. Post Production Jounral with Item Tracking. Finish the 1st Prod. Order.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
         ProdItemNo := InitSetupForProdItem(Qty);
         FinishedProdOrderNo := PostProdJournalForRelProdOrderWithTracking(ProdItemNo, Qty);
@@ -1320,7 +1320,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         InventorySetup: Record "Inventory Setup";
     begin
         // Setup: Post Purchase Order as Received
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
         InventorySetup."Expected Cost Posting to G/L" := true;
@@ -1410,7 +1410,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         // [FEATURE] [Post Inventory Cost to GL]
         // [SCENARIO 210793] Multiple value entries for capacity that are not capable of posting due to blank posting groups should be listed in skipped section of Post Inventory to G/L resulting report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two value entries with blank posting groups.
         for i := 1 to ArrayLen(ValueEntry) do
@@ -1538,21 +1538,24 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - III");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - III");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        UpdateInventorySetupCostPosting;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        UpdateInventorySetupCostPosting();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - III");
     end;
 
@@ -1905,7 +1908,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        LibraryUtility.GenerateGUID; // To rectify the error 'The Item Journal Batch already exists'.
+        LibraryUtility.GenerateGUID(); // To rectify the error 'The Item Journal Batch already exists'.
     end;
 
     local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -1969,7 +1972,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry."Entry No.");
     end;
 
@@ -1982,14 +1985,14 @@ codeunit 137350 "SCM Inventory Reports - III"
     local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20])
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
     end;
 
     local procedure FindSalesShipment(var SalesShipmentLine: Record "Sales Shipment Line"; DocumentNo: Code[20]; ItemNo: Code[20])
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
@@ -1997,14 +2000,14 @@ codeunit 137350 "SCM Inventory Reports - III"
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure OpenPurchaseOrderToReserve(No: Code[20])
@@ -2087,14 +2090,14 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
 
         ProductionJournalMgt.InitSetupValues;
         ProductionJournalMgt.SetTemplateAndBatchName;
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
 
@@ -2128,7 +2131,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Enqueue(Postingdate);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
@@ -2140,7 +2143,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         with ProdOrderLine do begin
             SetRange(Status, ProductionOrder.Status::Released);
             SetRange("Prod. Order No.", ProductionOrder."No.");
-            FindFirst;
+            FindFirst();
             ProductionJournalMgt.Handling(ProductionOrder, "Line No.");
         end;
     end;
@@ -2158,7 +2161,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Revalued)" - 1);  // Revalue with less than the original Unit Cost.
         ItemJournalLine.Modify(true);
     end;
@@ -2170,7 +2173,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine."Document No." := LibraryUtility.GenerateGUID;
+        ItemJournalLine."Document No." := LibraryUtility.GenerateGUID();
         Item.SetRange("No.", No);
         Item.SetRange("Location Filter", LocationCode);
         LibraryInventory.CalculateInventory(ItemJournalLine, Item, PostingDate, false, false);
@@ -2186,7 +2189,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         InventoryAvailability.SetTableView(Item);
         InventoryAvailability.InitializeRequest(true);     // Use TRUE for 'Use stockkeeping unit' field
         InventoryAvailability.CalcNeed(Item, '', '', 0);
-        InventoryAvailability.Run;
+        InventoryAvailability.Run();
     end;
 
     local procedure RunInventoryCostVarianceReport(No: Code[20])
@@ -2257,7 +2260,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         Clear(InvtValuationCostSpec);
         InvtValuationCostSpec.UseRequestPage(true);
-        InvtValuationCostSpec.Run;
+        InvtValuationCostSpec.Run();
     end;
 
     local procedure RunInventoryValuationReportWithPage(ItemNo: Code[20])
@@ -2347,7 +2350,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         Commit();  // Commit required before running this Report.
         Clear(WhsePhysInventoryList);
         WhsePhysInventoryList.SetTableView(WarehouseJournalBatch);
-        WhsePhysInventoryList.Run;
+        WhsePhysInventoryList.Run();
     end;
 
     local procedure RunInventoryValuationWIPReport(ProductionOrderNo: Code[20])
@@ -2396,7 +2399,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         StockkeepingUnit.SetRange("Location Code", LocationCode);
         StockkeepingUnit.SetRange("Item No.", ItemNo);
-        StockkeepingUnit.FindFirst;
+        StockkeepingUnit.FindFirst();
         StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
         StockkeepingUnit.Modify(true);
     end;
@@ -2527,7 +2530,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Positive, Positive);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)");
         ItemLedgerEntry.TestField(Quantity, Quantity);
         ItemLedgerEntry.TestField("Cost Amount (Expected) (ACY)", 0);
@@ -2643,7 +2646,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ItemSubstitution: Record "Item Substitution";
     begin
         ItemSubstitution.SetRange("Substitute No.", ItemNo);
-        ItemSubstitution.FindFirst;
+        ItemSubstitution.FindFirst();
         ItemSubstitution.TestField(Description, Desc);
     end;
 
@@ -2874,7 +2877,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Dequeue(PostingDate);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Posting Date", PostingDate);
         ItemJournalLine.Modify(true);
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
@@ -2891,7 +2894,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         with ItemJournalLine do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Output);
-            FindFirst;
+            FindFirst();
             OpenItemTrackingLines(false);
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
         end;

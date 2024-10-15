@@ -34,7 +34,7 @@ codeunit 130404 "CAL Test Project Mgt."
 
         CALTestLine.SetRange("Test Suite", CALTestSuite.Name);
         CALTestLine.SetRange("Line Type", CALTestLine."Line Type"::Codeunit);
-        if CALTestLine.FindSet then
+        if CALTestLine.FindSet() then
             repeat
                 TestNode := ProjectXML.CreateElement('Codeunit');
                 XMLDOMMgt.AddAttribute(TestNode, 'ID', Format(CALTestLine."Test Codeunit"));

@@ -488,7 +488,7 @@ table 14902 "Customer Agreement"
         CustLedgEntry.Reset();
         CustLedgEntry.SetRange("Customer No.", "Customer No.");
         CustLedgEntry.SetRange("Agreement No.", "No.");
-        if CustLedgEntry.FindFirst then
+        if CustLedgEntry.FindFirst() then
             Error(Text001);
 
         SalesSetup.Get();
@@ -509,7 +509,7 @@ table 14902 "Customer Agreement"
         CustAgrmt.Reset();
         CustAgrmt.SetCurrentKey("No.");
         CustAgrmt.SetRange("No.", "No.");
-        if CustAgrmt.FindSet then
+        if CustAgrmt.FindSet() then
             repeat
                 if CustAgrmt."Customer No." <> "Customer No." then
                     Error(Text12403, FieldCaption("No."), CustAgrmt."Customer No.");
@@ -703,7 +703,7 @@ table 14902 "Customer Agreement"
         DefaultDim.Reset();
         DefaultDim.SetRange("Table ID", DATABASE::Customer);
         DefaultDim.SetRange("No.", "Customer No.");
-        if DefaultDim.FindSet then
+        if DefaultDim.FindSet() then
             repeat
                 DefaultDim2.Init();
                 DefaultDim2."Table ID" := DATABASE::"Customer Agreement";

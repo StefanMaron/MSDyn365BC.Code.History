@@ -33,7 +33,7 @@ codeunit 5153 "API - Upd. Ref. Fields Binder"
     end;
 
     // Binding will go out of scope on CompanyClose, hence no subscription need for it.
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterCompanyOpen', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure OnAfterCompanyOpen()
     begin
         BindApiUpdateRefFields();

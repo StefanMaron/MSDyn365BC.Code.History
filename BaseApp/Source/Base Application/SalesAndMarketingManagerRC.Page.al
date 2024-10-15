@@ -79,8 +79,8 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Production Forecast';
-                        RunObject = page "Demand Forecast";
-                        Tooltip = 'Open the Production Forecast page.';
+                        RunObject = page "Demand Forecast Names";
+                        Tooltip = 'Open the Production Forecasts page.';
                     }
                     action("Item Dimensions - Detail")
                     {
@@ -470,6 +470,15 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Value Entries';
                         RunObject = page "Value Entries";
                         Tooltip = 'Open the Value Entries page.';
+                    }
+                    action("Navigate")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Find entries...';
+                        Image = Navigate;
+                        RunObject = Page Navigate;
+                        ShortCutKey = 'Ctrl+Alt+Q';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                 }
                 group("Group10")

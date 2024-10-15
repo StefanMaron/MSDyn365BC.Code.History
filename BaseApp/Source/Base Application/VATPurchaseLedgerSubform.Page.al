@@ -198,7 +198,7 @@ page 12414 "VAT Purchase Ledger Subform"
     procedure NavigateDocument()
     begin
         Navigate.SetDoc("Document Date", "Origin. Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 }
 

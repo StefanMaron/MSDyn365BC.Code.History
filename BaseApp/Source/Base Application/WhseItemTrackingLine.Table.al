@@ -168,8 +168,8 @@
         {
             Caption = 'Source Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Movement Worksheet,Assembly';
-            OptionMembers = " ",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Movement Worksheet",Assembly;
+            OptionCaption = ' ,Receipt,Shipment,Internal Put-away,Internal Pick,Production,Movement Worksheet,Assembly,Job';
+            OptionMembers = " ",Receipt,Shipment,"Internal Put-away","Internal Pick",Production,"Movement Worksheet",Assembly,Job;
         }
         field(91; "Qty. Registered (Base)"; Decimal)
         {
@@ -178,7 +178,9 @@
         field(92; "Put-away Qty. (Base)"; Decimal)
         {
             CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER("Put-away"),
+#pragma warning disable AL0603
                                                                                          "Whse. Document Type" = FIELD("Source Type Filter"),
+#pragma warning restore AL0603
                                                                                          "Whse. Document No." = FIELD("Source ID"),
                                                                                          "Whse. Document Line No." = FIELD("Source Ref. No."),
                                                                                          "Serial No." = FIELD("Serial No."),
@@ -191,7 +193,9 @@
         field(93; "Pick Qty. (Base)"; Decimal)
         {
             CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(Pick | Movement),
+#pragma warning disable AL0603
                                                                                          "Whse. Document Type" = FIELD("Source Type Filter"),
+#pragma warning restore AL0603
                                                                                          "Whse. Document No." = FIELD("Source ID"),
                                                                                          "Whse. Document Line No." = FIELD("Source Ref. No."),
                                                                                          "Serial No." = FIELD("Serial No."),

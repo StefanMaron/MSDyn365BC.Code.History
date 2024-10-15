@@ -203,7 +203,7 @@ page 17307 "Tax Diff. Ledger Entries"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

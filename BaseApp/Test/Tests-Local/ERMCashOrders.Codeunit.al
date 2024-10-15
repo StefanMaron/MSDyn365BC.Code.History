@@ -37,7 +37,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377209] Export "Cash Outgoing Order" report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank payment "Gen. Journal Line" where "Posting Date" = 21 December 2015
         CreateBankOrder(GenJournalLine, LibraryRandom.RandInt(100));
@@ -67,7 +67,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377327] Export "Cash Ingoing Order" report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank payment "Gen. Journal Line" where "Posting Date" = 21 December 2015
         CreateBankOrder(GenJournalLine, LibraryRandom.RandInt(100));
@@ -92,7 +92,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 377210] Substitute '%' with amounts in "Reason Code", "Cash Order Including" and "Cash Order Supplement" fields in Cash Outgoing Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard Text "ST" with "Description" = 'Amount %1, including VAT %2'
         CreateStandardTextCode(StandardText);
@@ -122,7 +122,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 377210] Substitute '%' with amounts in "Reason Code", "Cash Order Including" and "Cash Order Supplement" fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Standard Text "ST" with "Description" = 'Amount %1, including VAT %2'
         CreateStandardTextCode(StandardText);
@@ -161,7 +161,7 @@ codeunit 144723 "ERM Cash Orders"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // [SCENARIO 377210] Update "Payment Purpose", "Cash Order Including" and "Cash Order Supplement" fields' value considering "Standard Text".Description format
-        Initialize;
+        Initialize();
         CreateBankOrder(GenJournalLine, LibraryRandom.RandInt(100));
         CreateStandardTextCode(StandardText);
 
@@ -178,7 +178,7 @@ codeunit 144723 "ERM Cash Orders"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // [SCENARIO 377210] Call UpdatePaymentVATInfo using Default "Payment Purpose"
-        Initialize;
+        Initialize();
         InitUpdatePaymentVATInfoUseDefaultPaymentPurpose(GenJournalLine, StandardText, VendorBankAccount);
 
         RunUpdatePaymentVATInfoScenario(
@@ -194,7 +194,7 @@ codeunit 144723 "ERM Cash Orders"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // [SCENARIO 377210] Call UpdatePaymentVATInfo using Default "Payment Purpose" when "Vendor Bank Account"."Bank Branch No." is blank
-        Initialize;
+        Initialize();
         InitUpdatePaymentVATInfoUseDefaultPaymentPurpose(GenJournalLine, StandardText, VendorBankAccount);
 
         VendorBankAccount.Get(GenJournalLine."Account No.", GenJournalLine."Beneficiary Bank Code");
@@ -214,7 +214,7 @@ codeunit 144723 "ERM Cash Orders"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // [SCENARIO 377210] Call UpdatePaymentVATInfo using Default "Payment Purpose" when "Gen. Journal Line"."Beneficiary Bank Code" is blank
-        Initialize;
+        Initialize();
         InitUpdatePaymentVATInfoUseDefaultPaymentPurpose(GenJournalLine, StandardText, VendorBankAccount);
 
         GenJournalLine."Beneficiary Bank Code" := '';
@@ -232,11 +232,11 @@ codeunit 144723 "ERM Cash Orders"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         // [SCENARIO 377210] Call UpdatePaymentVATInfo using Default "Payment Purpose" when "Gen. Journal Line"."Account Type" is not Vendor
-        Initialize;
+        Initialize();
         InitUpdatePaymentVATInfoUseDefaultPaymentPurpose(GenJournalLine, StandardText, VendorBankAccount);
 
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Customer;
-        GenJournalLine."Account No." := LibrarySales.CreateCustomerNo;
+        GenJournalLine."Account No." := LibrarySales.CreateCustomerNo();
         GenJournalLine.Modify();
 
         RunUpdatePaymentVATInfoScenario(GenJournalLine, StandardText, VendorBankAccount, true, StandardText.Description);
@@ -252,7 +252,7 @@ codeunit 144723 "ERM Cash Orders"
         BankAccount: Record "Bank Account";
     begin
         // [SCENARIO 377210] Call UpdatePaymentVATInfo using Default "Payment Purpose" when balance Bank Account has "Cash Account" type
-        Initialize;
+        Initialize();
         InitUpdatePaymentVATInfoUseDefaultPaymentPurpose(GenJournalLine, StandardText, VendorBankAccount);
 
         BankAccount.Get(GenJournalLine."Bal. Account No.");
@@ -273,8 +273,8 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377232] Print "Cash Report CO - 4" with type "Cash Report CO-4"
-        Initialize;
-        SetAccountantNameInCompanyInformation(LibraryUtility.GenerateGUID);
+        Initialize();
+        SetAccountantNameInCompanyInformation(LibraryUtility.GenerateGUID());
 
         // [GIVEN] "Company Information"."Accountant Name" = "A"
         // [GIVEN] Cash Order Journal
@@ -303,8 +303,8 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377232] Print "Cash Report CO - 4" with type "Cash Additional Sheet"
-        Initialize;
-        SetAccountantNameInCompanyInformation(LibraryUtility.GenerateGUID);
+        Initialize();
+        SetAccountantNameInCompanyInformation(LibraryUtility.GenerateGUID());
 
         // [GIVEN] "Company Information"."Accountant Name" = "A"
         // [GIVEN] Cash Order Journal
@@ -336,7 +336,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377232,377258] "Cash Report CO - 4" with 70 lines split on 3 pages when printing
-        Initialize;
+        Initialize();
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
 
         // [GIVEN] Cash Order Journal
@@ -411,7 +411,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377257] "Cash Report CO - 4" without lines must not update "Last Cash Report Page No." of Cash Account
-        Initialize;
+        Initialize();
         PageNumber := LibraryRandom.RandIntInRange(5, 10);
 
         // [GIVEN] Empty Cash Order Journal
@@ -442,7 +442,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377267] Page numbering in "Cash Report CO - 4" must consider "Last Cash Report Page No." of Cash Account
-        Initialize;
+        Initialize();
         NoSeriesCode := LibraryERM.CreateNoSeriesCode;
         PageNumber := LibraryRandom.RandIntInRange(5, 10);
 
@@ -495,7 +495,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 377267] Page numbering in "Cash Report CO - 4" must consider "Last Cash Report Page No." of a certain Cash Account
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Bank Account" "BA1" where "Last Cash Report Page No." = '000'
         // [GIVEN] Posted "Cash Order Journal" "COJ1" with 15 lines for "BA1"
@@ -532,8 +532,8 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report] [Cash Report CO-4] [UT]
         // [SCENARIO 377473] Cash Report CO-4 doesn't print reversed Bank Account Ledger Entries
-        Initialize;
-        Description := LibraryUtility.GenerateGUID;
+        Initialize();
+        Description := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Bank Account with two Ledger Entries: Reversed and Not Reversed.
         CreateBankAccount(BankAccount, BankAccount."Account Type"::"Cash Account");
@@ -562,7 +562,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report] [Cash Report CO-4]
         // [SCENARIO 378705] Cash Report CO-4 doesn't print voided Bank Account Ledger Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with voided Ledger Entry
         CreateCashOrderForVendor(GenJournalLine, LibraryERM.CreateNoSeriesCode, BankAccountNo);
@@ -591,7 +591,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 378506] Additional Sheet "Cash Report CO - 4" with 70 lines skips "Last Cash Report Page No." updating
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders
         // [GIVEN] "Last Cash Report Page No." = "A"
@@ -616,7 +616,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 378506] Preview "Cash Report CO - 4" with 70 lines skips "Last Cash Report Page No." updating
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders
         // [GIVEN] "Last Cash Report Page No." = "A"
@@ -641,7 +641,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 378506] Preview Additional Sheet "Cash Report CO - 4" with 70 lines skips "Last Cash Report Page No." updating
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders
         // [GIVEN] "Last Cash Report Page No." = "A"
@@ -666,7 +666,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 379052] "Cash Report CO - 4" with 70 lines including reprinted update "Last Cash Report Page No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders for 3 pages report
         CreateCheckLedgerEntries(BankAccount, PageNumber, 70);
@@ -694,7 +694,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 379052] Preview "Cash Report CO - 4" with 70 lines including reprinted does not update "Last Cash Report Page No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders for 3 pages report
         CreateCheckLedgerEntries(BankAccount, PageNumber, 70);
@@ -722,7 +722,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 379052] Additional Sheet "CO4" with 70 lines including reprinted does not update "Last Cash Report Page No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders for 3 pages report
         CreateCheckLedgerEntries(BankAccount, PageNumber, 70);
@@ -750,7 +750,7 @@ codeunit 144723 "ERM Cash Orders"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 379052] Preview Additional Sheet "CO4" with 70 lines including reprinted does not update "Last Cash Report Page No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Cash Order Journal with 70 Printed Cash Outgoing Orders for 3 pages report
         CreateCheckLedgerEntries(BankAccount, PageNumber, 70);
@@ -771,8 +771,8 @@ codeunit 144723 "ERM Cash Orders"
     local procedure Initialize()
     begin
         Clear(LibraryReportValidation);
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if not IsInitialized then
             exit;
@@ -840,7 +840,7 @@ codeunit 144723 "ERM Cash Orders"
     local procedure CreateStandardTextCode(var StandardText: Record "Standard Text")
     begin
         StandardText.Init();
-        StandardText.Code := LibraryUtility.GenerateGUID;
+        StandardText.Code := LibraryUtility.GenerateGUID();
         StandardText.Description := StdTextTok;
         StandardText.Insert(true);
     end;
@@ -849,8 +849,8 @@ codeunit 144723 "ERM Cash Orders"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
-        VendorBankAccount."Bank Branch No." := LibraryUtility.GenerateGUID;
-        VendorBankAccount."Personal Account No." := LibraryUtility.GenerateGUID;
+        VendorBankAccount."Bank Branch No." := LibraryUtility.GenerateGUID();
+        VendorBankAccount."Personal Account No." := LibraryUtility.GenerateGUID();
         VendorBankAccount."Def. Payment Purpose" := DefaultPaymentPurposeTok;
         VendorBankAccount."Bank Account No." := LibraryERM.CreateBankAccountNo;
         VendorBankAccount.Modify();
@@ -960,7 +960,7 @@ codeunit 144723 "ERM Cash Orders"
             SetRange("Bank Account No.", BankAccountNo);
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 144723 "ERM Cash Orders"
 
         CreateVendorWithBankAccount(Vendor, VendorBankAccount);
 
-        GenJournalLine."Applies-to Doc. No." := LibraryUtility.GenerateGUID;
+        GenJournalLine."Applies-to Doc. No." := LibraryUtility.GenerateGUID();
         GenJournalLine."Applies-to Doc. Date" := LibraryRandom.RandDate(10);
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
         GenJournalLine."Account No." := Vendor."No.";
@@ -1069,7 +1069,7 @@ codeunit 144723 "ERM Cash Orders"
         CashOutgoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
         CashOutgoingOrder.SetTableView(GenJournalLine);
         CashOutgoingOrder.UseRequestPage(false);
-        CashOutgoingOrder.Run;
+        CashOutgoingOrder.Run();
     end;
 
     local procedure RunCashIngoingOrderReport(var GenJournalLine: Record "Gen. Journal Line")
@@ -1081,7 +1081,7 @@ codeunit 144723 "ERM Cash Orders"
         CashIngoingOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
         CashIngoingOrder.SetTableView(GenJournalLine);
         CashIngoingOrder.UseRequestPage(false);
-        CashIngoingOrder.Run;
+        CashIngoingOrder.Run();
     end;
 
     local procedure RunCashReportCO4(BankAccountNo: Code[20]; CashReportType: Option; PrintTitleSheet: Boolean; PrintLastSheet: Boolean; ReportDate: Date)
@@ -1093,7 +1093,7 @@ codeunit 144723 "ERM Cash Orders"
         CashReportCO4.InitializeRequest(BankAccountNo, ReportDate, PrintTitleSheet, PrintLastSheet, CashReportType);
         CashReportCO4.SetFileNameSilent(LibraryReportValidation.GetFileName);
         CashReportCO4.UseRequestPage(false);
-        CashReportCO4.Run;
+        CashReportCO4.Run();
     end;
 
     local procedure RunCashReportCO4WithRequestPage(BankAccountNo: Code[20]; CashReportType: Option; PrintTitleSheet: Boolean; PrintLastSheet: Boolean; ReportDate: Date)
@@ -1104,7 +1104,7 @@ codeunit 144723 "ERM Cash Orders"
         LibraryReportValidation.SetFullFileName(FileManagement.ServerTempFileName('xlsx'));
         CashReportCO4.InitializeRequest(BankAccountNo, ReportDate, PrintTitleSheet, PrintLastSheet, CashReportType);
         CashReportCO4.SetFileNameSilent(LibraryReportValidation.GetFileName);
-        CashReportCO4.Run;
+        CashReportCO4.Run();
     end;
 
     local procedure SetAccountantNameInCompanyInformation(NewAccountantName: Text[50])
@@ -1170,7 +1170,7 @@ codeunit 144723 "ERM Cash Orders"
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckLedgerEntry.Validate("Cashier Report Printed", LibraryRandom.RandIntInRange(1, 5));
         CheckLedgerEntry.Validate("Cashier Report No.", PageNo);
         CheckLedgerEntry.Modify(true);

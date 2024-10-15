@@ -107,7 +107,7 @@ page 5511 "Attachments Entity"
 
             GraphMgtAttachmentBuffer.LoadAttachments(Rec, DocumentIdFilter, AttachmentIdFilter);
             SetView(FilterView);
-            AttachmentsFound := FindFirst;
+            AttachmentsFound := FindFirst();
             if not AttachmentsFound then
                 exit(false);
             AttachmentsLoaded := true;

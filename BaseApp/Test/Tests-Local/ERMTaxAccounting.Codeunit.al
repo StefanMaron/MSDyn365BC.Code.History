@@ -20,7 +20,7 @@ codeunit 144515 "ERM Tax Accounting"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -42,7 +42,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxDiffJnlBatchName: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryTaxAcc.PrepareTaxDiffDeprBonusSetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
@@ -66,7 +66,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxDiffJnlBatchName: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryTaxAcc.PrepareTaxDiffFASetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
@@ -90,7 +90,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxDiffJnlBatchName: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryTaxAcc.PrepareTaxDiffDisposalSetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
@@ -114,7 +114,7 @@ codeunit 144515 "ERM Tax Accounting"
         TaxDiffJnlBatchName: Code[10];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryTaxAcc.PrepareTaxDiffDeprFESetup;
         LibraryTaxAcc.CreateTaxDiffJnlSetup(TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
@@ -201,7 +201,7 @@ codeunit 144515 "ERM Tax Accounting"
         CalcTaxDiffDeprBonusReport.InitializeRequest(
           StartDate, EndDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CalcTaxDiffDeprBonusReport.UseRequestPage(false);
-        CalcTaxDiffDeprBonusReport.Run;
+        CalcTaxDiffDeprBonusReport.Run();
     end;
 
     local procedure RunCalcTaxDiffFAReport(FixedAsset: Record "Fixed Asset"; EndDate: Date; TaxDiffJnlTemplateName: Code[10]; TaxDiffJnlBatchName: Code[10])
@@ -214,7 +214,7 @@ codeunit 144515 "ERM Tax Accounting"
         CalcTaxDiffFAReport.InitializeRequest(
           EndDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CalcTaxDiffFAReport.UseRequestPage(false);
-        CalcTaxDiffFAReport.Run;
+        CalcTaxDiffFAReport.Run();
     end;
 
     local procedure RunCalcTaxDiffDisposedFAReport(FixedAsset: Record "Fixed Asset"; StartDate: Date; EndDate: Date; TaxDiffJnlTemplateName: Code[10]; TaxDiffJnlBatchName: Code[10])
@@ -227,7 +227,7 @@ codeunit 144515 "ERM Tax Accounting"
         CalcTaxDiffDisposedFAReport.InitializeRequest(
           StartDate, EndDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName);
         CalcTaxDiffDisposedFAReport.UseRequestPage(false);
-        CalcTaxDiffDisposedFAReport.Run;
+        CalcTaxDiffDisposedFAReport.Run();
     end;
 
     local procedure RunCalcTaxDiffDeprFEReport(FutureExpense: Record "Fixed Asset"; StartDate: Date; EndDate: Date; TaxDiffJnlTemplateName: Code[10]; TaxDiffJnlBatchName: Code[10])
@@ -240,7 +240,7 @@ codeunit 144515 "ERM Tax Accounting"
         CalcTaxDiffFEReport.InitializeRequest(
           StartDate, EndDate, TaxDiffJnlTemplateName, TaxDiffJnlBatchName, true, true);
         CalcTaxDiffFEReport.UseRequestPage(false);
-        CalcTaxDiffFEReport.Run;
+        CalcTaxDiffFEReport.Run();
     end;
 
     local procedure CreateTaxCalcAccum(TaxCalcSectionCode: Code[10]; UseGLEntry: Boolean; UseFAEntry: Boolean; UseItemEntry: Boolean; UseTemplate: Boolean; StartingDate: Date)
@@ -265,7 +265,7 @@ codeunit 144515 "ERM Tax Accounting"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        if FALedgerEntry.FindLast then
+        if FALedgerEntry.FindLast() then
             exit(FALedgerEntry."Entry No.");
         exit(0);
     end;
@@ -471,7 +471,7 @@ codeunit 144515 "ERM Tax Accounting"
     var
         GLCorrEntry: Record "G/L Correspondence Entry";
     begin
-        if GLCorrEntry.FindLast then
+        if GLCorrEntry.FindLast() then
             exit(GLCorrEntry."Entry No.");
         exit(0);
     end;
@@ -597,7 +597,7 @@ codeunit 144515 "ERM Tax Accounting"
         WriteOffForTaxLedger: Report "Write-off for Tax Ledger";
         DocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         if GLIntegration then
             TaxDeprBookGLIntegration(true);
 
@@ -611,7 +611,7 @@ codeunit 144515 "ERM Tax Accounting"
         WriteOffForTaxLedger.SetTableView(PostedFADocHeader);
         WriteOffForTaxLedger.InitializeRequest(false, 0D, true);
         WriteOffForTaxLedger.UseRequestPage(false);
-        WriteOffForTaxLedger.Run;
+        WriteOffForTaxLedger.Run();
 
         TaxRegisterSetup.Get();
         with FALedgerEntry do begin

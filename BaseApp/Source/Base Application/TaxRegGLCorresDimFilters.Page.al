@@ -73,7 +73,7 @@ page 17242 "Tax Reg G/L Corres Dim Filters"
         if TaxRegDimCorrFilter.Find('-') then
             repeat
                 TaxRegDimFilter.SetRange("Entry No.", TaxRegDimCorrFilter."Connection Entry No.");
-                if TaxRegDimFilter.FindFirst then begin
+                if TaxRegDimFilter.FindFirst() then begin
                     Rec := TaxRegDimFilter;
                     Insert;
                 end;

@@ -96,10 +96,10 @@ codeunit 134225 "ERM CreateAndTestGLAccount"
     begin
         GLAccount.SetFilter(Totaling, '<>%1', '');
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::"End-Total");  // required for BE
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
 
         GLAccount2.SetFilter("No.", GLAccount.Totaling);
-        GLAccount2.FindFirst;
+        GLAccount2.FindFirst();
         Evaluate(GLAccountNo1, CopyStr(GLAccount2."No.", 4, 4));
 
         GLAccount2.Next;

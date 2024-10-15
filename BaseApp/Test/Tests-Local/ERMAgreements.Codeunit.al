@@ -513,7 +513,7 @@ codeunit 144508 "ERM Agreements"
         DimValueCode2: Code[20];
     begin
         // Check Vendor Default Dimensions are copied to new Agreement
-        Initialize;
+        Initialize();
         GLSetup.Get();
         CreateGlobalDimensionValues(DimValueCode1, DimValueCode2);
         with Vendor do begin
@@ -541,7 +541,7 @@ codeunit 144508 "ERM Agreements"
         DimValueCode2: Code[20];
     begin
         // Check Customer Default Dimensions are copied to new Agreement
-        Initialize;
+        Initialize();
         GLSetup.Get();
         CreateGlobalDimensionValues(DimValueCode1, DimValueCode2);
         with Customer do begin
@@ -569,10 +569,10 @@ codeunit 144508 "ERM Agreements"
             Init;
             "Vendor No." := CreateVendor(AgreementPosting::Mandatory);
             Insert(true);
-            Validate("No.", LibraryUtility.GenerateGUID);
+            Validate("No.", LibraryUtility.GenerateGUID());
             Assert.IsTrue("No. Series" = '', StrSubstNo(FieldValueIncorrectErr, FieldCaption("No. Series")));
             "Vendor No." := '';
-            asserterror Validate("No.", LibraryUtility.GenerateGUID);
+            asserterror Validate("No.", LibraryUtility.GenerateGUID());
             Assert.ExpectedError(StrSubstNo(VendorDoesNotExistErr, "Vendor No."));
         end;
     end;
@@ -588,10 +588,10 @@ codeunit 144508 "ERM Agreements"
             Init;
             "Customer No." := CreateCustomer(AgreementPosting::Mandatory);
             Insert(true);
-            Validate("No.", LibraryUtility.GenerateGUID);
+            Validate("No.", LibraryUtility.GenerateGUID());
             Assert.IsTrue("No. Series" = '', StrSubstNo(FieldValueIncorrectErr, FieldCaption("No. Series")));
             "Customer No." := '';
-            asserterror Validate("No.", LibraryUtility.GenerateGUID);
+            asserterror Validate("No.", LibraryUtility.GenerateGUID());
             Assert.ExpectedError(StrSubstNo(CustomerDoesNotExistErr, "Customer No."));
         end;
     end;
@@ -609,7 +609,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // [FEATURE] [Purchase] [Dimensions]
         // [SCENARIO 379392] Purchase document shortcut dimensions match to global dimension fields of vendor agreement
-        Initialize;
+        Initialize();
 
         // [GIVEN] Active vendor agreement with global dimensions
         VendorNo := CreateVendor(AgreementPosting::Mandatory);
@@ -640,7 +640,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // [FEATURE] [Sales] [Dimensions]
         // [SCENARIO 379392] Sales document shortcut dimensions match to global dimension fields of customer agreement
-        Initialize;
+        Initialize();
 
         // [GIVEN] Active customer agreement with global dimensions
         CustomerNo := CreateCustomer(AgreementPosting::Mandatory);
@@ -668,7 +668,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 205759] System allows consecutive filling of "Agreement No." field for a new general journal line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with active agreement "A" having "Agreement Posting" = "Mandatory"
         CustomerNo := CreateCustomer(AgreementPosting::Mandatory);
@@ -705,7 +705,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // [FEATURE] [Sales] [Customer Ledger Entry] [Apply] [Unapply] [Prepayment]
         // [SCENARIO 307988] G/L Entries created on Apply and Unapply of Customer Ledger Entries for prepayment have correct agreement
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with Agreement Posting = Mandatory and Agreement No. "AG01"
         // [GIVEN] Released Sales Order "USO01" with Agreement No. "AG01"
@@ -749,7 +749,7 @@ codeunit 144508 "ERM Agreements"
     begin
         // [FEATURE] [Purchase] [Vendor Ledger Entry] [Apply] [Unapply] [Prepayment]
         // [SCENARIO 307988] G/L Entries created on Apply and Unapply of Vendor Ledger Entries for prepayment have correct agreement
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Agreement Posting = Mandatory and Agreement No. "AG01"
         // [GIVEN] Released Purchase Order "UPO01" with Agreement No. "AG01"
@@ -901,7 +901,7 @@ codeunit 144508 "ERM Agreements"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
     end;
@@ -924,7 +924,7 @@ codeunit 144508 "ERM Agreements"
         Item: Record Item;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer(AgreementPosting);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         if AddLine then begin
@@ -954,7 +954,7 @@ codeunit 144508 "ERM Agreements"
         Item: Record Item;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor(AgreementPosting);
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         if AddLine then begin
@@ -1053,7 +1053,7 @@ codeunit 144508 "ERM Agreements"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("No.", SalesDocNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         Assert.AreEqual(AgreementNo, SalesInvoiceHeader."Agreement No.", AgrmtNoIncorrectErr);
     end;
 
@@ -1062,7 +1062,7 @@ codeunit 144508 "ERM Agreements"
         PurchInvoiceHeader: Record "Purch. Inv. Header";
     begin
         PurchInvoiceHeader.SetRange("No.", PurchDocNo);
-        PurchInvoiceHeader.FindFirst;
+        PurchInvoiceHeader.FindFirst();
         Assert.AreEqual(AgreementNo, PurchInvoiceHeader."Agreement No.", AgrmtNoIncorrectErr);
     end;
 
@@ -1073,7 +1073,7 @@ codeunit 144508 "ERM Agreements"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document No.", PurchDocNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorAgreement.Get(VendorLedgerEntry."Buy-from Vendor No.", AgreementNo);
         VendorLedgerEntry.TestField("Vendor Posting Group", VendorAgreement."Vendor Posting Group");
     end;
@@ -1125,7 +1125,7 @@ codeunit 144508 "ERM Agreements"
               AccountType, CVNo, "Bal. Account Type"::"Bank Account", BankAccount."No.", -AmountValue);
             Validate("Agreement No.", AgreementNo);
             Validate(Prepayment, true);
-            Validate("External Document No.", LibraryUtility.GenerateGUID);
+            Validate("External Document No.", LibraryUtility.GenerateGUID());
             Validate("Prepayment Document No.", PrepaymentDocNo);
             Modify(true);
         end;
@@ -1140,7 +1140,7 @@ codeunit 144508 "ERM Agreements"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         CreateApplyPayment(
           GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.",
@@ -1154,7 +1154,7 @@ codeunit 144508 "ERM Agreements"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", PrepmtDocNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         exit(
           CreatePostPrepayment(
             GenJnlLine."Account Type"::Customer, SalesLine."Sell-to Customer No.",
@@ -1167,7 +1167,7 @@ codeunit 144508 "ERM Agreements"
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendLedgerEntry.FindFirst;
+        VendLedgerEntry.FindFirst();
         VendLedgerEntry.CalcFields(Amount);
         CreateApplyPayment(
           GenJnlLine."Account Type"::Vendor, VendLedgerEntry."Vendor No.",
@@ -1181,7 +1181,7 @@ codeunit 144508 "ERM Agreements"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", PrepmtDocNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         exit(
           CreatePostPrepayment(
             GenJnlLine."Account Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
@@ -1211,41 +1211,41 @@ codeunit 144508 "ERM Agreements"
     begin
         with CustomerAgreement do begin
             Get(SalesHeader."Sell-to Customer No.", AgreementNo);
-            Language.FindFirst;
+            Language.FindFirst();
             Validate("Language Code", Language.Code);
-            Currency.FindFirst;
+            Currency.FindFirst();
             Validate("Currency Code", Currency.Code);
-            SalesPerson.FindFirst;
+            SalesPerson.FindFirst();
             Validate("Salesperson Code", SalesPerson.Code);
-            PaymentTerms.FindFirst;
+            PaymentTerms.FindFirst();
             Validate("Payment Terms Code", PaymentTerms.Code);
-            PaymentMethod.FindFirst;
+            PaymentMethod.FindFirst();
             Validate("Payment Method Code", PaymentMethod.Code);
             LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
             Validate("Customer Price Group", CustomerPriceGroup.Code);
-            CustomerPostingGroup.FindFirst;
+            CustomerPostingGroup.FindFirst();
             Validate("Customer Posting Group", CustomerPostingGroup.Code);
-            CustomerDiscGroup.FindFirst;
+            CustomerDiscGroup.FindFirst();
             Validate("Customer Disc. Group", CustomerDiscGroup.Code);
             LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
             Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
             LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
             Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
-            Location.FindFirst;
+            Location.FindFirst();
             Validate("Location Code", Location.Code);
             LibrarySales.CreateShipToAddress(ShipToAddress, SalesHeader."Sell-to Customer No.");
             Validate("Ship-to Code", ShipToAddress.Code);
-            ResponsibilityCenter.FindFirst;
+            ResponsibilityCenter.FindFirst();
             Validate("Responsibility Center", ResponsibilityCenter.Code);
-            ShippingAgent.FindFirst;
+            ShippingAgent.FindFirst();
             Validate("Shipping Agent Code", ShippingAgent.Code);
             Evaluate(DateFormula, '<1D>');
             Validate("Shipping Time", DateFormula);
             ShippingAgentService.SetRange("Shipping Agent Code", ShippingAgent.Code);
-            ShippingAgentService.FindFirst;
+            ShippingAgentService.FindFirst();
             Validate("Shipping Agent Service Code", ShippingAgentService.Code);
             Validate("Shipping Advice", "Shipping Advice"::Complete);
-            ShipmentMethodCode.FindFirst;
+            ShipmentMethodCode.FindFirst();
             Validate("Shipment Method Code", ShipmentMethodCode.Code);
             Modify(true);
         end;
@@ -1269,25 +1269,25 @@ codeunit 144508 "ERM Agreements"
     begin
         with VendorAgreement do begin
             Get(PurchHeader."Buy-from Vendor No.", AgreementNo);
-            Language.FindFirst;
+            Language.FindFirst();
             Validate("Language Code", Language.Code);
-            Currency.FindFirst;
+            Currency.FindFirst();
             Validate("Currency Code", Currency.Code);
-            SalesPerson.FindFirst;
+            SalesPerson.FindFirst();
             Validate("Purchaser Code", SalesPerson.Code);
-            PaymentTerms.FindFirst;
+            PaymentTerms.FindFirst();
             Validate("Payment Terms Code", PaymentTerms.Code);
-            PaymentMethod.FindFirst;
+            PaymentMethod.FindFirst();
             Validate("Payment Method Code", PaymentMethod.Code);
-            VendorPostingGroup.FindFirst;
+            VendorPostingGroup.FindFirst();
             Validate("Vendor Posting Group", VendorPostingGroup.Code);
             LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
             Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
             LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
             Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
-            Location.FindFirst;
+            Location.FindFirst();
             Validate("Location Code", Location.Code);
-            ResponsibilityCenter.FindFirst;
+            ResponsibilityCenter.FindFirst();
             Validate("Responsibility Center", ResponsibilityCenter.Code);
             Modify(true);
         end;
@@ -1465,7 +1465,7 @@ codeunit 144508 "ERM Agreements"
         PurchSetup: Record "Purchases & Payables Setup";
         Dimension: Record Dimension;
     begin
-        Dimension.FindFirst;
+        Dimension.FindFirst();
         with PurchSetup do begin
             Get;
             "Synch. Agreement Dimension" := SynchAgmtDim;
@@ -1479,7 +1479,7 @@ codeunit 144508 "ERM Agreements"
         SalesSetup: Record "Sales & Receivables Setup";
         Dimension: Record Dimension;
     begin
-        Dimension.FindFirst;
+        Dimension.FindFirst();
         with SalesSetup do begin
             Get;
             "Synch. Agreement Dimension" := SynchAgmtDim;
@@ -1542,7 +1542,7 @@ codeunit 144508 "ERM Agreements"
 
     local procedure InitVendorAgreement(var VendorAgreement: Record "Vendor Agreement"; SynchAgmtDim: Boolean)
     begin
-        Initialize;
+        Initialize();
         PurchSetupInit(SynchAgmtDim);
         CreateSimpleVendorAgreement(
           VendorAgreement, CreateVendor(AgreementPosting::Mandatory));
@@ -1550,7 +1550,7 @@ codeunit 144508 "ERM Agreements"
 
     local procedure InitCustomerAgreement(var CustomerAgreement: Record "Customer Agreement"; SynchAgmtDim: Boolean)
     begin
-        Initialize;
+        Initialize();
         SalesSetupInit(SynchAgmtDim);
         CreateSimpleCustomerAgreement(
           CustomerAgreement, CreateCustomer(AgreementPosting::Mandatory));

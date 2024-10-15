@@ -31,7 +31,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         "Count": Integer;
     begin
         // [SCENARIO] User can retrieve all Item Category records from the Item Categories API.
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 item categories in the Item Category Table
         for Count := 1 to 2 do
@@ -58,7 +58,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create an item category through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed an item category JSON object to send to the service.
         ItemCategoryJSON := GetItemCategoryJSON(TempItemCategory);
@@ -86,12 +86,12 @@ codeunit 135508 "Item Category Entity E2E Test"
         ItemCategoryCode: Text;
     begin
         // [SCENARIO] User can modify an item category through a PATCH request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Item Category exists.
         ItemCategoryCode := CreateItemCategory;
         ItemCategory.Get(ItemCategoryCode);
-        ItemCategory.Description := LibraryUtility.GenerateGUID;
+        ItemCategory.Description := LibraryUtility.GenerateGUID();
         RequestBody := GetItemCategoryJSON(ItemCategory);
 
         // [WHEN] The user makes a patch request to the service.
@@ -116,7 +116,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO] User can delete an item category by making a DELETE request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item category exists.
         ItemCategoryCode := CreateItemCategory;
@@ -164,7 +164,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         ItemCategory: Record "Item Category";
     begin
         ItemCategory.SetFilter(Code, StrSubstNo('%1*', ItemCategoryPrefixTxt));
-        if ItemCategory.FindLast then
+        if ItemCategory.FindLast() then
             exit(IncStr(ItemCategory.Code));
 
         exit(CopyStr(ItemCategoryPrefixTxt + '00001', 1, 20));
@@ -180,7 +180,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         if ItemCategory.Code = '' then
             ItemCategory.Code := GetNextItemCategoryID;
         if ItemCategory.Description = '' then
-            ItemCategory.Description := LibraryUtility.GenerateGUID;
+            ItemCategory.Description := LibraryUtility.GenerateGUID();
         JSONManagement.AddJPropertyToJObject(JsonObject, 'code', ItemCategory.Code);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'displayName', ItemCategory.Description);
         ItemCategoryJSON := JSONManagement.WriteObjectToString;

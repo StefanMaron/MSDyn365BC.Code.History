@@ -25,7 +25,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 231729] Lookup purchase "VAT Ledger Line"."Tariff No." field in case of empty value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase VAT Ledger Line with "Tariff No." = ""
         LibraryVATLedger.MockVendorVATLedgerLine(VATLedgerLine, VendorNo);
@@ -48,7 +48,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 231729] Lookup purchase "VAT Ledger Line"."Tariff No." field in case of single value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase VAT Ledger Line with single "Tariff No." = "X"
         LibraryVATLedger.MockVendorVATLedgerLineWithTariffNo(VATLedgerLine, TariffNo);
@@ -70,7 +70,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 231729] Lookup purchase "VAT Ledger Line"."Tariff No." field in case of multiple values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase VAT Ledger Line with several "Tariff No." = "X";"Y"
         MockVendorVATLedgerLineWithTwoTariffNo(VATLedgerLine, TariffNo);
@@ -93,7 +93,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 231729] Lookup sales "VAT Ledger Line"."Tariff No." field in case of empty value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales VAT Ledger Line with "Tariff No." = ""
         LibraryVATLedger.MockCustomerVATLedgerLine(VATLedgerLine, CustomerNo);
@@ -116,7 +116,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 231729] Lookup sales "VAT Ledger Line"."Tariff No." field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales VAT Ledger Line with "Tariff No." = "X"
         LibraryVATLedger.MockCustomerVATLedgerLineWithTariffNo(VATLedgerLine, TariffNo);
@@ -138,7 +138,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO 231729] Lookup sales "VAT Ledger Line"."Tariff No." field in case of multiple values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales VAT Ledger Line with several "Tariff No." = "X";"Y"
         MockCustomerVATLedgerLineWithTwoTariffNo(VATLedgerLine, TariffNo);
@@ -161,7 +161,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 231729] Delete purchase "VAT Ledger Line" record with "Tariff No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase VAT Ledger Line with "Tariff No." = "X"
         LibraryVATLedger.MockVendorVATLedgerLineWithTariffNo(VATLedgerLine, TariffNo);
@@ -186,7 +186,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 231729] Delete purchase "VAT Ledger Line" record with several "Tariff No." values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase VAT Ledger Line with several "Tariff No." values
         MockVendorVATLedgerLineWithTwoTariffNo(VATLedgerLine, TariffNo);
@@ -211,7 +211,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 231729] Delete sales "VAT Ledger Line" record with "Tariff No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales VAT Ledger Line with "Tariff No." = "X"
         LibraryVATLedger.MockCustomerVATLedgerLineWithTariffNo(VATLedgerLine, TariffNo);
@@ -236,7 +236,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 231729] Delete sales "VAT Ledger Line" record with several "Tariff No." values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales VAT Ledger Line with several "Tariff No." values
         MockCustomerVATLedgerLineWithTwoTariffNo(VATLedgerLine, TariffNo);
@@ -262,10 +262,10 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         DocumentNo: Code[20];
     begin
         // [SCENARIO 231729] COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for a document without "Tariff No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted document "D" without "Tariff No."
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         LibraryVATLedger.MockCustomerValueEntryWithTariffNo(CustomerNo, DocumentNo, '');
 
         // [GIVEN] VAT Ledger Line
@@ -295,7 +295,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         TariffNo: Code[20];
     begin
         // [SCENARIO 231729] COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for a single "Tariff No." case
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted document "D" with item tracking "Tariff No." = "X"
         // [GIVEN] VAT Ledger Line
@@ -327,7 +327,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         TariffNo: array[2] of Code[20];
     begin
         // [SCENARIO 231729] COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for a multiple "Tariff No." case
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted document "D" with two item tracking "Tariff No." = "X";"Y"
         // [GIVEN] VAT Ledger Line
@@ -361,7 +361,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         TariffNo: Code[20];
     begin
         // [SCENARIO 231729] COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for a multiple "Tariff No." having the same value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted document "D" with two item lines having the same tracking "Tariff No." = "X"
         // [GIVEN] VAT Ledger Line
@@ -395,7 +395,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         i: Integer;
     begin
         // [SCENARIO 231729] COD 12423 "VAT Ledger Management".InsertVATLedgerLineTariffNoList() for a multiple "Tariff No." having the same values and different values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted document "D" with two item lines having the same tracking "Tariff No." = "X" and two item lines having the same tracking "Tariff No." = "Y"
         // [GIVEN] VAT Ledger Line
@@ -429,7 +429,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerMgt: Codeunit "VAT Ledger Management";
     begin
         // [SCENARIO 231729] COD 12423 "VAT Ledger Management".DeleteVATLedgerLines() deletes both normal and add. sheet VAT Ledger Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Ledger
         // [GIVEN] VAT Ledger Line with "Tariff No." value and "Additional Sheet" = FALSE
@@ -477,12 +477,12 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
         VATLedgerLine.SetRange("Additional Sheet", false);
         Assert.RecordCount(VATLedgerLine, 1);
-        VATLedgerLine.FindFirst;
+        VATLedgerLine.FindFirst();
 
         VATLedgerLineTariffNo.SetRange(Type, VATLedger.Type);
         VATLedgerLineTariffNo.SetRange(Code, VATLedger.Code);
         Assert.RecordCount(VATLedgerLineTariffNo, 1);
-        VATLedgerLineTariffNo.FindFirst;
+        VATLedgerLineTariffNo.FindFirst();
 
         Assert.AreEqual(VATLedgerLine."Line No.", VATLedgerLineTariffNo."Line No.", VATLedgerLineTariffNo.FieldCaption("Line No."));
     end;
@@ -501,7 +501,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Purchase]
         // [SCENARIO 231729] REP 12455 "Create VAT Purchase Ledger" creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] one related "VAT Ledger Line Tariff No." record for a purchase document with a single "Tariff No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase document: "Vendor No." = "V", "Document No." = "D", "Tariff No." = "X"
         MockPostedPurchaseInvoiceWithTariffNo(VendorNo, DocumentNo, TariffNo);
@@ -537,7 +537,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Purchase]
         // [SCENARIO 231729] REP 12455 "Create VAT Purchase Ledger" creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] several related "VAT Ledger Line Tariff No." records for a purchase document with several "Tariff No." values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase document: "Vendor No." = "V", "Document No." = "D", two "Tariff No." = "X";"Y"
         MockPostedPurchaseInvoiceWithTwoTariffNo(VendorNo, DocumentNo, TariffNo);
@@ -572,7 +572,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 231729] REP 12455 "Create VAT Purchase Ledger" clears existing "VAT Ledger Line" and "VAT Ledger Line Tariff No." records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase document
         MockPostedPurchaseInvoiceWithTariffNo(VendorNo, DocumentNo, TariffNo);
@@ -606,7 +606,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Sales]
         // [SCENARIO 231729] REP 12456 "Create VAT Sales Ledger" creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] one related "VAT Ledger Line Tariff No." record for a sales document with a single "Tariff No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales document: "Customer No." = "C", "Document No." = "D", "Tariff No." = "X"
         MockPostedSalesInvoiceWithTariffNo(CustomerNo, DocumentNo, TariffNo);
@@ -640,7 +640,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Sales]
         // [SCENARIO 231729] REP 12456 "Create VAT Sales Ledger" creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] several related "VAT Ledger Line Tariff No." records for a sales document with several "Tariff No." values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales document: "Customer No." = "C", "Document No." = "D", two "Tariff No." = "X";"Y"
         MockPostedSalesInvoiceWithTwoTariffNo(CustomerNo, DocumentNo, TariffNo);
@@ -674,7 +674,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 231729] REP 12456 "Create VAT Sales Ledger" clears existing "VAT Ledger Line" and "VAT Ledger Line Tariff No." records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales document
         MockPostedSalesInvoiceWithTariffNo(CustomerNo, DocumentNo, TariffNo);
@@ -709,7 +709,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Purchase] [Add. Sheet]
         // [SCENARIO 231729] REP 14962 "Create VAT Purch. Led. Ad. Sh." creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] one related "VAT Ledger Line Tariff No." record for a purchase document with a single "Tariff No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase document: "Vendor No." = "V", "Document No." = "D", "Tariff No." = "X"
         MockPostedPurchaseInvoiceWithTariffNoAddSheet(VendorNo, DocumentNo, TariffNo);
@@ -746,7 +746,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Purchase] [Add. Sheet]
         // [SCENARIO 231729] REP 14962 "Create VAT Purch. Led. Ad. Sh." creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] several related "VAT Ledger Line Tariff No." records for a purchase document with several "Tariff No." values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase document: "Vendor No." = "V", "Document No." = "D", two "Tariff No." = "X";"Y"
         MockPostedPurchaseInvoiceWithTwoTariffNoAddSheet(VendorNo, DocumentNo, TariffNo);
@@ -782,7 +782,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Purchase] [Add. Sheet]
         // [SCENARIO 231729] REP 14962 "Create VAT Purch. Led. Ad. Sh." clears existing "VAT Ledger Line" and "VAT Ledger Line Tariff No." records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase document
         MockPostedPurchaseInvoiceWithTariffNoAddSheet(VendorNo, DocumentNo, TariffNo);
@@ -816,7 +816,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Sales] [Add. Sheet]
         // [SCENARIO 231729] REP 14963 "Create VAT Sales Led. Ad. Sh." creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] one related "VAT Ledger Line Tariff No." record for a sales document with a single "Tariff No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales document: "Customer No." = "C", "Document No." = "D", "Tariff No." = "X"
         MockPostedSalesInvoiceWithTariffNoAddSheet(CustomerNo, DocumentNo, TariffNo);
@@ -851,7 +851,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         // [FEATURE] [Sales] [Add. Sheet]
         // [SCENARIO 231729] REP 14963 "Create VAT Sales Led. Ad. Sh." creates one "VAT Ledger Line" record and
         // [SCENARIO 231729] several related "VAT Ledger Line Tariff No." records for a sales document with several "Tariff No." values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales document: "Customer No." = "C", "Document No." = "D", two "Tariff No." = "X";"Y"
         MockPostedSalesInvoiceWithTwoTariffNoAddSheet(CustomerNo, DocumentNo, TariffNo);
@@ -886,7 +886,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
     begin
         // [FEATURE] [Sales] [Add. Sheet]
         // [SCENARIO 231729] REP 14963 "Create VAT Sales Led. Ad. Sh." clears existing "VAT Ledger Line" and "VAT Ledger Line Tariff No." records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales document
         MockPostedSalesInvoiceWithTariffNoAddSheet(CustomerNo, DocumentNo, TariffNo);
@@ -909,7 +909,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -1089,7 +1089,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerLineTariffNo: Record "VAT Ledger Line Tariff No.";
     begin
         FilterVATLedgerLineTariffNo(VATLedgerLineTariffNo, VATLedgerLine);
-        VATLedgerLineTariffNo.FindFirst;
+        VATLedgerLineTariffNo.FindFirst();
         Assert.AreEqual(TariffNo, VATLedgerLineTariffNo."Tariff No.", VATLedgerLineTariffNo.FieldCaption("Tariff No."));
     end;
 
@@ -1098,7 +1098,7 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
         VATLedgerLineTariffNo: Record "VAT Ledger Line Tariff No.";
     begin
         FilterVATLedgerLineTariffNo(VATLedgerLineTariffNo, VATLedgerLine);
-        VATLedgerLineTariffNo.FindFirst;
+        VATLedgerLineTariffNo.FindFirst();
         Assert.AreEqual(TariffNo, VATLedgerLineTariffNo."Tariff No.", VATLedgerLineTariffNo.FieldCaption("Tariff No."));
         Assert.RecordCount(VATLedgerLineTariffNo, 1);
     end;

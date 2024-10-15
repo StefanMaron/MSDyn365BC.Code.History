@@ -39,7 +39,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
             InventorySetup.Modify();
         end;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
 
         IsInitialized := true;
@@ -61,7 +61,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
     begin
         // Create new Customer
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
-        Initialize;
+        Initialize();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate);
         Period."Period End" := CalcDate('<+CM>', WorkDate);
@@ -102,7 +102,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create new Customer
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
         // Create and Post Credit Memo(02.01.10) applied to Invoice Above - full reverse.
-        Initialize;
+        Initialize();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate);
         Period."Period End" := CalcDate('<+CM>', WorkDate);
@@ -142,7 +142,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create new Customer
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
         // Create and Post Credit Memo(02.01.10) applied to Invoice Above - partial reverse.
-        Initialize;
+        Initialize();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate);
         Period."Period End" := CalcDate('<+CM>', WorkDate);
@@ -188,7 +188,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create new Customer
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
         // Create and Post Credit Memo(02.01.10, Include in Purch. VAT Ledger = True) applied to Invoice Above - full reverse.
-        Initialize;
+        Initialize();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate);
         Period."Period End" := CalcDate('<+CM>', WorkDate);
@@ -207,7 +207,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         CrMemoNo := PostSalesCrMemo(SalesInvoiceNo, CustomerNo, CrMemoDate, 0, true);
 
         SalesCreditMemoHeader.SetRange("Pre-Assigned No.", CrMemoNo);
-        SalesCreditMemoHeader.FindFirst;
+        SalesCreditMemoHeader.FindFirst();
 
         GatherReportRecords(VendorLedgerEntry, '-', CustomerNo, 0, Period, true);
 
@@ -237,7 +237,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create new Customer
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
         // Create and Post Credit Memo(02.01.10 Include in Purch. VAT Ledger=True ) applied to Invoice Above - partial reverse.
-        Initialize;
+        Initialize();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate);
         Period."Period End" := CalcDate('<+CM>', WorkDate);
@@ -255,7 +255,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         CrMemoNo := PostSalesCrMemo(SalesInvoiceNo, CustomerNo, CrMemoDate, 3, true);
 
         SalesCreditMemoHeader.SetRange("Pre-Assigned No.", CrMemoNo);
-        SalesCreditMemoHeader.FindFirst;
+        SalesCreditMemoHeader.FindFirst();
 
         GatherReportRecords(VendorLedgerEntry, '', CustomerNo, 0, Period, true);
 
@@ -301,7 +301,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create new Customer
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00)
         // Create and Post Credit Memo(02.01.10 Include in Purch. VAT Ledger=True ) applied to Invoice Above - partial reverse.
-        Initialize;
+        Initialize();
 
         Period."Period Start" := CalcDate('<-CM>', WorkDate);
         Period."Period End" := CalcDate('<+CM>', WorkDate);
@@ -323,7 +323,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         CrMemoNo := PostSalesCrMemo(SalesInvoiceNo1, CustomerNo, CrMemoDate, 5, true);
 
         SalesCreditMemoHeader.SetRange("Pre-Assigned No.", CrMemoNo);
-        SalesCreditMemoHeader.FindFirst;
+        SalesCreditMemoHeader.FindFirst();
 
         ApplyCustomerCreditMemoToInvoice(SalesCreditMemoHeader."No.", SalesInvoiceNo2);
 
@@ -379,7 +379,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         // Create and Post Sales Invoice (01.01.10, 80001, 1500.00), Currency = EUR(1:35,9332)
         // Create and post Prepayment, Apply to Posted Invoice
         // clear VAT reinstatement journal
-        Initialize;
+        Initialize();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Create Prepayment Invoice" := true;
@@ -416,7 +416,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
 
         SalesInvoiceHeader.SetRange("Order No.", SalesInvoiceNo1);
         SalesInvoiceHeader.SetRange("Posting Date", PrepaymentDate);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceNo2 := SalesInvoiceHeader."No.";
 
         SalesInvoiceNo1 := GetSalesPostedInvoiceNo(SalesInvoiceNo1);
@@ -460,7 +460,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
 
         Item.Get(ItemNo);
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", Item."Inventory Posting Group");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
         SalesLine.SetHideValidationDialog(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -495,7 +495,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         with SalesInvoiceHeader do begin
             Init;
             SetRange("Pre-Assigned No.", SalesInvoiceNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -518,7 +518,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         SalesHeader.Modify(true);
 
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         temp1 := 0;
         temp2 := false;
         CopyDocMgt.CopySalesInvLinesToDoc(SalesHeader, SalesInvoiceLine, temp1, temp2);
@@ -528,7 +528,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
                 SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
                 SetRange("Document No.", SalesHeader."No.");
                 SetRange("Sell-to Customer No.", CustomerNo);
-                FindFirst;
+                FindFirst();
                 Validate(Quantity, Qty);
                 Modify(true);
             end;
@@ -546,7 +546,7 @@ codeunit 147124 "ERM VAT Lists Reporting"
         InventoryLib.CreateItem(Item);
 
         GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
 
         Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");

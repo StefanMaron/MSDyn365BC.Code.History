@@ -181,7 +181,7 @@ page 12470 "FA Writeoff Act"
                     trigger OnAction()
                     begin
                         CopyFADoc.SetFADocHeader(Rec);
-                        CopyFADoc.RunModal;
+                        CopyFADoc.RunModal();
                         CopyFADoc.GetFADocHeader(Rec);
                         CurrPage.Update(true);
                         Clear(CopyFADoc);

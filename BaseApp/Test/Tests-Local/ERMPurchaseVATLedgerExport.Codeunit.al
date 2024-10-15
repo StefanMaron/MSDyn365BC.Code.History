@@ -31,7 +31,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO ID.1] Purchase Book Basic - VAT 18%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with new vendor VAT 18%
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', VATLedgerMgt.GetVATPctRate2018, false);
@@ -52,7 +52,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 303035] Purchase Book Basic - VAT 20%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with new vendor VAT 20%
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', VATLedgerMgt.GetVATPctRate2019, false);
@@ -72,7 +72,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO ID.3] Purchase Book Basic - VAT 10%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with new vendor VAT 10%
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', 10, false);
@@ -93,7 +93,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO ID.4] Purchase Book 18+10+0%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with 3 lines VAT 18%, 10% and 0%
         InvNo := CreateAndPostPurchInvoiceMultiLines(VendorNo, '', VATLedgerMgt.GetVATPctRate2018);
@@ -114,7 +114,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 303035] Purchase Book 20+10+0%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with 3 lines VAT 20%, 10% and 0%
         InvNo := CreateAndPostPurchInvoiceMultiLines(VendorNo, '', VATLedgerMgt.GetVATPctRate2019);
@@ -134,7 +134,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO ID.5] Purchase Book FCY (VAT 18%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with currency code
         InvNo := CreateAndPostPurchInvoice(VendorNo, CreateCurrency(false), VATLedgerMgt.GetVATPctRate2018, false);
@@ -155,7 +155,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 303035] Purchase Book FCY (VAT 20%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with currency code
         InvNo := CreateAndPostPurchInvoice(VendorNo, CreateCurrency(false), VATLedgerMgt.GetVATPctRate2019, false);
@@ -175,7 +175,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 124073] Purchase Book Conventional Currency (VAT 18%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice "X" with conventional currency
         // [GIVEN] where "Amount Including VAT (LCY)" = "A", "Amount (LCY)" = "B".
@@ -198,7 +198,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 124073] Purchase Book Conventional Currency (VAT 20%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice "X" with conventional currency
         // [GIVEN] where "Amount Including VAT (LCY)" = "A", "Amount (LCY)" = "B".
@@ -221,7 +221,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 362467]  Purchase VAT Ledger Export Report for Purchase Invoice with FCY having Relational Currency Code (VAT 18%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with FCY having Relational Currency Code
         // [GIVEN] where "Amount Including VAT (LCY)" = 118, "Amount (LCY)" = 100
@@ -244,7 +244,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: Code[20];
     begin
         // [SCENARIO 362467]  Purchase VAT Ledger Export Report for Purchase Invoice with FCY having Relational Currency Code (VAT 20%)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with FCY having Relational Currency Code
         // [GIVEN] where "Amount Including VAT (LCY)" = 120, "Amount (LCY)" = 100
@@ -267,7 +267,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         VendorNo: Code[20];
     begin
         // [SCENARIO ID.16] Purchase Book Basic with additional sheet
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with additional sheet
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', VATLedgerMgt.GetVATPctRate2019, true);
@@ -289,7 +289,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         CorInvNo: Code[20];
     begin
         // [SCENARIO ID.17] Purchase Book with correction
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with correction
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', VATLedgerMgt.GetVATPctRate2019, false);
@@ -312,7 +312,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RevInvNo: Code[20];
     begin
         // [SCENARIO ID.18] Purchase Book with revision
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with revision
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', VATLedgerMgt.GetVATPctRate2019, false);
@@ -336,7 +336,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         RevInvNo: Code[20];
     begin
         // [SCENARIO ID.19] Purchase Book with revision for correction
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post purchase invoice with revision for correction
         InvNo := CreateAndPostPurchInvoice(VendorNo, '', VATLedgerMgt.GetVATPctRate2019, false);
@@ -361,7 +361,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         Amount: Decimal;
     begin
         // [SCENARIO 361962] Full VAT on import operation in Purchase VAT Ledger
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase invoice "X" with Full VAT
         DocNo := CreateAndPostPurchInvoiceFullVAT(VendorNo, Amount, '', 0D);
@@ -393,7 +393,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         Amount: Decimal;
     begin
         // [SCENARIO 362667] Full VAT on import operation in Purchase VAT Ledger, Use External Doc No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase invoice "X" with Full VAT
         // [GIVEN] "Vendor VAT Invoice No." = A, "Vendor VAT Invoice Date" = B
@@ -426,7 +426,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         // [FEATURE] [Full VAT] [Apply]
         // [SCENARIO 374725] Export VAT Purchase Ledger with two applied payments involving Full VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Full VAT
         DocNo := CreateAndPostPurchInvoiceFullVAT(VendorNo, Amount, '', 0D);
@@ -452,7 +452,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         Amount: Decimal;
     begin
         // [SCENARIO 362579] Purchase VAT Ledger with VAT Agent on import operation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase invoice "X" with Vendor is VAT Agent
         DocNo := CreateAndPostPurchInvoiceVATAgent(VendorNo, Amount, '', 0D);
@@ -483,7 +483,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 362579] Sales VAT Ledger with VAT Agent on import operation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase invoice "X" with Full VAT
         DocNo := CreateAndPostPurchInvoiceVATAgent(VendorNo, Amount, '', 0D);
@@ -513,7 +513,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         // [FEATURE] [Prepayment] [FCY] [VAT Agent]
         // [SCENARIO 374732] Export Purchase VAT Ledger for posted prepayment from foreign non-resident Vendor as VAT Agent with blank KPP Code and VAT Reg. No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Foreign Non-Resident Vendor as VAT Agent "V" with blank
         // [GIVEN] "V"."KPP Code" = '' (blank)
@@ -549,7 +549,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 374736] Exported sales prepayment via VAT Purchase Ledger has company's VAT Reg No. and KPP Code
-        Initialize;
+        Initialize();
         LibraryERM.SetCancelPrepmtAdjmtinTA(true);
 
         // [GIVEN] "Company Information"."VAT Registration No." = "X"
@@ -580,7 +580,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         InvNo: array[2] of Code[20];
     begin
         // [FEATURE] [Purch] [Additional sheet] Purchase Book add. sheet 2 periods
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post 2 purchase invoices with different periods
         PurchVATLedgerAddSheetTwoPeriodsScenario(VendorNo, InvNo);
@@ -602,7 +602,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         // [FEATURE] [Purch]
         // [SCENARIO 379551] VAT Purchase Ledger report in scenario with prepayment from VAT Agent on invoice date
-        Initialize;
+        Initialize();
         LibraryERM.SetCancelPrepmtAdjmtinTA(true);
         DeleteVATEntriesOnDate(WorkDate, WorkDate);
 
@@ -627,7 +627,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         // [FEATURE] [Purch]
         // [SCENARIO 379551] VAT Purchase Ledger report in scenario with prepayment from VAT Agent on prepayment date
-        Initialize;
+        Initialize();
         LibraryERM.SetCancelPrepmtAdjmtinTA(true);
         DeleteVATEntriesOnDate(WorkDate, WorkDate);
 
@@ -645,11 +645,11 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         // "Posted VAT Agent No. Series" is blank in standard DB
         // We need keep the same series for the whole codeunit scope to avoid numbering conflict
         UpdatePostedVATAgentNoSeriesInPurchSetup(LibraryERM.CreateNoSeriesCode);
@@ -690,7 +690,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         Vendor.Get(VendorNo);
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
     end;
 
     local procedure FormatValue(Value: Decimal): Text
@@ -777,7 +777,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         with PurchHeader do begin
             UpdateCorrectionInfo(PurchHeader, "Corrective Doc. Type"::Revision, CorrDocType, CorrDocNo);
-            Validate("Revision No.", LibraryUtility.GenerateGUID);
+            Validate("Revision No.", LibraryUtility.GenerateGUID());
             Validate("Posting Date", CalcDate('<1D>', WorkDate));
             Modify(true);
         end;
@@ -788,7 +788,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Currency Code", RelationalCurrCode);
         CurrencyExchangeRate.Modify(true);
     end;
@@ -819,7 +819,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         if AddSheet then
             LibraryPurchase.CreatePurchaseVATLedgerAddSheet(VATLedgerCode, 0);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FileName := LibraryReportValidation.GetFileName;
 
         LibraryPurchase.ExportPurchaseVATLedger(VATLedgerCode, AddSheet, FileName);
@@ -912,7 +912,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Document Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliedInvoiceNo);
         GenJournalLine.Validate("Initial Document No.", AppliedInvoiceNo);
-        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify(true);
     end;
@@ -931,7 +931,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Document Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", DocNo);
         GenJournalLine.Validate("Initial Document No.", DocNo);
-        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -953,7 +953,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
         VATEntry.SetFilter("Unrealized Amount", '<>0');
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         CreateVATSettlementJnlLine(VATEntry);
     end;
 
@@ -998,7 +998,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
-        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
+        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo();
         GenJournalBatch.Modify();
     end;
 
@@ -1105,7 +1105,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         PurchInvHeader.Get(InvNo);
         PurchInvHeader.CalcFields("Amount Including VAT", Amount);
         PurchInvLine.SetRange("Document No.", InvNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure GetSalesInvHeader(CustomerNo: Code[20]; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1113,7 +1113,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange("Prepayment Invoice", false);
-            FindFirst;
+            FindFirst();
             CalcFields("Amount Including VAT", Amount);
         end;
     end;
@@ -1126,7 +1126,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
             SetRange("Customer No.", CustomerNo);
             SetRange(Prepayment, true);
             SetRange("Document Type", "Document Type"::Payment);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
             exit(Abs(Amount));
         end;
@@ -1144,7 +1144,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         with VATEntry do begin
             SetRange("Bill-to/Pay-to No.", VendorNo);
             SetFilter("Unrealized Amount", '<>0');
-            if FindLast then
+            if FindLast() then
                 exit(Amount + "Unrealized Amount");
         end;
     end;

@@ -180,21 +180,24 @@ page 623 "Unapply Customer Entries"
 
                 trigger OnAction()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
                     ConfirmManagement: Codeunit "Confirm Management";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         Error(Text010);
                     if not ConfirmManagement.GetResponseOrDefault(Text011, true) then
                         exit;
 
-                    CustEntryApplyPostedEntries.PostUnApplyCustomer(DtldCustLedgEntry2, DocNo, PostingDate);
+                    ApplyUnapplyParameters."Document No." := DocNo;
+                    ApplyUnapplyParameters."Posting Date" := PostingDate;
+                    CustEntryApplyPostedEntries.PostUnApplyCustomer(DtldCustLedgEntry2, ApplyUnapplyParameters);
                     PostingDate := 0D;
                     DocNo := '';
-                    DeleteAll();
+                    Rec.DeleteAll();
                     Message(Text009);
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action(Preview)
@@ -209,12 +212,15 @@ page 623 "Unapply Customer Entries"
 
                 trigger OnAction()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
                 begin
-                    if IsEmpty() then
+                    if Rec.IsEmpty() then
                         Error(Text010);
 
-                    CustEntryApplyPostedEntries.PreviewUnapply(DtldCustLedgEntry2, DocNo, PostingDate);
+                    ApplyUnapplyParameters."Document No." := DocNo;
+                    ApplyUnapplyParameters."Posting Date" := PostingDate;
+                    CustEntryApplyPostedEntries.PreviewUnapply(DtldCustLedgEntry2, ApplyUnapplyParameters);
                 end;
             }
         }
@@ -226,14 +232,16 @@ page 623 "Unapply Customer Entries"
     end;
 
     var
+        Text009: Label 'The entries were successfully unapplied.';
+        Text010: Label 'There is nothing to unapply.';
+        Text011: Label 'To unapply these entries, correcting entries will be posted.\Do you want to unapply the entries?';
+
+    protected var
         DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         Cust: Record Customer;
         DocNo: Code[20];
         PostingDate: Date;
         CustLedgEntryNo: Integer;
-        Text009: Label 'The entries were successfully unapplied.';
-        Text010: Label 'There is nothing to unapply.';
-        Text011: Label 'To unapply these entries, correcting entries will be posted.\Do you want to unapply the entries?';
 
     procedure SetDtldCustLedgEntry(EntryNo: Integer)
     begin
@@ -258,7 +266,7 @@ page 623 "Unapply Customer Entries"
         DtldCustLedgEntry.SetRange("Customer No.", DtldCustLedgEntry2."Customer No.");
         OnInsertEntriesOnAfterSetFilters(DtldCustLedgEntry, DtldCustLedgEntry2);
         DeleteAll();
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 if (DtldCustLedgEntry."Entry Type" <> DtldCustLedgEntry."Entry Type"::"Initial Entry") and
                    not DtldCustLedgEntry.Unapplied

@@ -107,7 +107,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                                 GLCorrespondenceEntry.SetFilter("Posting Date",
                                   AccSchedManagement.GetPostingDateFilter(AccSchedLine, SourceColumnLayout));
                                 GLCorrespondenceEntries.SetTableView(GLCorrespondenceEntry);
-                                GLCorrespondenceEntries.Run;
+                                GLCorrespondenceEntries.Run();
                             end else
                                 case "Totaling Type" of
                                     "Totaling Type"::Constant:
@@ -115,7 +115,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                                     "Totaling Type"::Formula:
                                         begin
                                             FormulaDrillDown.InitParameters(AccSchedLine, SourceColumnLayout, AccSchedCellValue);
-                                            FormulaDrillDown.Run;
+                                            FormulaDrillDown.Run();
                                         end;
                                     "Totaling Type"::Custom:
                                         AccSchedExtensionManagement.DrillDownAmount(
@@ -191,7 +191,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                                                 Clear(ChartofAccAnalysisView);
                                                 ChartofAccAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
                                                 ChartofAccAnalysisView.SetTableView(GLAccAnalysisView);
-                                                ChartofAccAnalysisView.Run;
+                                                ChartofAccAnalysisView.Run();
                                             end;
                                         end;
                                 end;
@@ -229,7 +229,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
         SourceColumnLayout := ColumnLayout;
         Formula := AccSchedLine.Totaling;
 
-        if Buffer.FindSet then
+        if Buffer.FindSet() then
             repeat
                 AccSchedCellValue.TransferFields(Buffer);
                 if AccSchedCellValue.Insert() then;
@@ -337,14 +337,14 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                             AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
                             AccSchedLine.SetFilter("Row No.", Expression);
                             AccSchedLineID := AccSchedLine."Line No.";
-                            if AccSchedLine.FindSet then
+                            if AccSchedLine.FindSet() then
                                 repeat
                                     if AccSchedLine."Line No." <> AccSchedLineID then
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
                                 until AccSchedLine.Next() = 0
                             else begin
                                 AccSchedLine.SetRange("Schedule Name", GLSetup."Shared Account Schedule");
-                                if AccSchedLine.FindFirst then
+                                if AccSchedLine.FindFirst() then
                                     repeat
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
                                     until AccSchedLine.Next() = 0;
@@ -353,7 +353,7 @@ page 26591 "Acc. Sched. Formula Drill-Down"
                             ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
                             ColumnLayout.SetFilter("Column No.", Expression);
                             AccSchedLineID := ColumnLayout."Line No.";
-                            if ColumnLayout.FindSet then
+                            if ColumnLayout.FindSet() then
                                 repeat
                                     if ColumnLayout."Line No." <> AccSchedLineID then
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);

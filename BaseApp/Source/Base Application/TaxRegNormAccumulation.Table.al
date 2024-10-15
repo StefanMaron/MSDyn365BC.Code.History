@@ -130,7 +130,7 @@ table 17242 "Tax Reg. Norm Accumulation"
                     TaxRegNormAccumulation.SetRange("Norm Group Code", TaxRegNormTemplateLine."Link Group Code");
                     TaxRegNormAccumulation.SetRange("Ending Date", "Ending Date");
                     TaxRegNormAccumulation.SetRange("Template Line Code", TaxRegNormTemplateLine.Expression);
-                    if TaxRegNormAccumulation.FindFirst then;
+                    if TaxRegNormAccumulation.FindFirst() then;
                     TaxRegNormAccumulation.SetRange("Template Line Code");
                     PAGE.Run(0, TaxRegNormAccumulation);
                 end;
@@ -139,7 +139,7 @@ table 17242 "Tax Reg. Norm Accumulation"
                 begin
                     Clear(TaxRegNormCalcBuffer);
                     TaxRegNormCalcBuffer.BuildCalcBuffer(Rec);
-                    TaxRegNormCalcBuffer.Run;
+                    TaxRegNormCalcBuffer.Run();
                 end;
         end;
     end;

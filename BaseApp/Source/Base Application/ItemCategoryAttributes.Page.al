@@ -96,12 +96,12 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");
         ItemAttributeValueMapping.SetRange("No.", ItemCategoryCode);
         ItemAttributeValueMapping.SetRange("Item Attribute ID", "Attribute ID");
-        ItemAttributeValueMapping.FindFirst;
+        ItemAttributeValueMapping.FindFirst();
         if ItemAttributeManagement.SearchCategoryItemsForAttribute(ItemCategoryCode, "Attribute ID") then
             if Confirm(StrSubstNo(DeleteItemInheritedParentCategoryAttributesQst, ItemCategoryCode, ItemCategoryCode)) then begin
                 ItemAttributeValue.SetRange("Attribute ID", "Attribute ID");
                 ItemAttributeValue.SetRange(ID, ItemAttributeValueMapping."Item Attribute Value ID");
-                ItemAttributeValue.FindFirst;
+                ItemAttributeValue.FindFirst();
                 TempItemAttributeValueToDelete.TransferFields(ItemAttributeValue);
                 TempItemAttributeValueToDelete.Insert();
                 DeleteRecentlyItemAttributeValueMapping("Attribute ID");
@@ -159,7 +159,7 @@ page 5734 "Item Category Attributes"
         repeat
             if ItemCategory.Get(CurrentCategoryCode) then begin
                 ItemAttributeValueMapping.SetRange("No.", CurrentCategoryCode);
-                if ItemAttributeValueMapping.FindSet then
+                if ItemAttributeValueMapping.FindSet() then
                     repeat
                         if ItemAttributeValue.Get(
                              ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID")
@@ -268,7 +268,7 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");
         ItemAttributeValueMapping.SetRange("No.", ItemCategoryCode);
         ItemAttributeValueMapping.SetRange("Item Attribute ID", "Attribute ID");
-        if ItemAttributeValueMapping.FindFirst then begin
+        if ItemAttributeValueMapping.FindFirst() then begin
             ItemAttributeValueMapping."Item Attribute Value ID" := GetAttributeValueID(TempItemAttributeValueToInsert);
             ItemAttributeValueMapping.Modify();
         end;
@@ -297,12 +297,12 @@ page 5734 "Item Category Attributes"
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
         TempRecentlyItemAttributeValueMapping.SetRange("Item Attribute ID", TempItemAttributeValueToInsert."Attribute ID");
-        if TempRecentlyItemAttributeValueMapping.FindSet then
+        if TempRecentlyItemAttributeValueMapping.FindSet() then
             repeat
                 ItemAttributeValueMapping.SetRange("Table ID", TempRecentlyItemAttributeValueMapping."Table ID");
                 ItemAttributeValueMapping.SetRange("No.", TempRecentlyItemAttributeValueMapping."No.");
                 ItemAttributeValueMapping.SetRange("Item Attribute ID", TempRecentlyItemAttributeValueMapping."Item Attribute ID");
-                ItemAttributeValueMapping.FindFirst;
+                ItemAttributeValueMapping.FindFirst();
                 ItemAttributeValueMapping.Validate("Item Attribute Value ID", TempItemAttributeValueToInsert.ID);
                 ItemAttributeValueMapping.Modify();
             until TempRecentlyItemAttributeValueMapping.Next() = 0;

@@ -794,7 +794,7 @@ page 14940 "G/L Corr. Analysis by Dim."
         DimVal.Get(DimCode, Code);
         DimValList.SetTableView(DimVal);
         DimValList.SetRecord(DimVal);
-        DimValList.RunModal;
+        DimValList.RunModal();
     end;
 
     local procedure LookUpDimFilter(Dim: Code[20]; var Text: Text[250]): Boolean
@@ -906,7 +906,7 @@ page 14940 "G/L Corr. Analysis by Dim."
         SetCommonFilters(GLCorrAnalysisViewEntry);
         SetDimFilters(GLCorrAnalysisViewEntry, DimCodeToOption(LineDimCode, GroupType));
         GLCorrByDim.InitParameters(GLCorrAnalysisViewEntry);
-        GLCorrByDim.RunModal;
+        GLCorrByDim.RunModal();
     end;
 
     local procedure ValidateGLCorrAnalysisViewCode()
@@ -1128,7 +1128,7 @@ page 14940 "G/L Corr. Analysis by Dim."
           CreditDim2Filter,
           CreditDim3Filter);
 
-        AnalyticAccountCardByDim.RunModal;
+        AnalyticAccountCardByDim.RunModal();
     end;
 
     [Scope('OnPrem')]

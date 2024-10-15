@@ -254,7 +254,7 @@ report 14926 "Inventory for Deferrals INV-11"
         ExcelReportBuilderMgr.AddDataToSection('OKPO', CompanyInfo."OKPO Code");
 
         CompanyAddress.SetRange("Address Type", CompanyAddress."Address Type"::Legal);
-        if CompanyAddress.FindFirst then
+        if CompanyAddress.FindFirst() then
             ExcelReportBuilderMgr.AddDataToSection('CompanyName', CompanyAddress.Name + ' ' + CompanyAddress."Name 2")
         else
             ExcelReportBuilderMgr.AddDataToSection('CompanyName', StdRepMgt.GetCompanyName);

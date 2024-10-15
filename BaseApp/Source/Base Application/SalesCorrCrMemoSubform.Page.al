@@ -236,7 +236,7 @@ page 14974 "Sales Corr. Cr. Memo Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()

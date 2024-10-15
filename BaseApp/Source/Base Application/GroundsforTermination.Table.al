@@ -11,12 +11,10 @@ table 5217 "Grounds for Termination"
             Caption = 'Code';
             NotBlank = true;
         }
-#pragma warning disable AS0080
         field(2; Description; Text[100])
         {
             Caption = 'Description';
         }
-#pragma warning restore AS0080
     }
 
     keys

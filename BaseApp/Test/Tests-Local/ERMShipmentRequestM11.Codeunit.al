@@ -236,7 +236,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -250,7 +250,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         Qty: array[5] of Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         for i := 1 to LineQty do begin
             ItemNo[i] := LibraryRUReports.CreateItemWithCost;
@@ -259,11 +259,11 @@ codeunit 144705 "ERM Shipment Request M-11"
         CreateTransferOrder(TransferHeader, LibraryRUReports.CreateLocation(false), ItemNo, Qty, LineQty);
 
         TransferHeader.SetRange("No.", TransferHeader."No.");
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ShipmentRequestM11.SetTableView(TransferHeader);
         ShipmentRequestM11.UseRequestPage(false);
-        ShipmentRequestM11.Run;
+        ShipmentRequestM11.Run();
 
         exit(TransferHeader."No.");
     end;
@@ -277,20 +277,20 @@ codeunit 144705 "ERM Shipment Request M-11"
         ItemNo: array[5] of Code[20];
         Qty: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         FromLocationCode := InitItemInventory(ItemNo, Qty, LineQty);
 
         CreatePostTransferOrder(TransferHeader, FromLocationCode, ItemNo, Qty, LineQty, true, false);
 
         TransferShipmentHeader.SetRange("Transfer-from Code", FromLocationCode);
-        TransferShipmentHeader.FindFirst;
+        TransferShipmentHeader.FindFirst();
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ShipmentRequestM11.SetTableView(TransferShipmentHeader);
         ShipmentRequestM11.UseRequestPage(false);
-        ShipmentRequestM11.Run;
+        ShipmentRequestM11.Run();
 
         exit(TransferShipmentHeader."No.");
     end;
@@ -304,20 +304,20 @@ codeunit 144705 "ERM Shipment Request M-11"
         ItemNo: array[5] of Code[20];
         Qty: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         FromLocationCode := InitItemInventory(ItemNo, Qty, LineQty);
 
         CreatePostTransferOrder(TransferHeader, FromLocationCode, ItemNo, Qty, LineQty, true, true);
 
         TransferReceiptHeader.SetRange("Transfer-from Code", FromLocationCode);
-        TransferReceiptHeader.FindFirst;
+        TransferReceiptHeader.FindFirst();
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ShipmentRequestM11.SetTableView(TransferReceiptHeader);
         ShipmentRequestM11.UseRequestPage(false);
-        ShipmentRequestM11.Run;
+        ShipmentRequestM11.Run();
 
         exit(TransferReceiptHeader."No.");
     end;
@@ -330,9 +330,9 @@ codeunit 144705 "ERM Shipment Request M-11"
         Qty: array[5] of Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
 
         for i := 1 to LineQty do begin
             ItemNo[i] := LibraryRUReports.CreateItemWithCost;
@@ -342,11 +342,11 @@ codeunit 144705 "ERM Shipment Request M-11"
 
         ItemJnlLine.SetRange("Document No.", DocumentNo);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ShipmentRequestM11.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ShipmentRequestM11.SetTableView(ItemJnlLine);
         ShipmentRequestM11.UseRequestPage(false);
-        ShipmentRequestM11.Run;
+        ShipmentRequestM11.Run();
     end;
 
     local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; FromLocationCode: Code[10]; ItemNo: array[3] of Code[20]; Quantity: array[3] of Decimal; LineQty: Integer)
@@ -407,7 +407,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with TransferLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             exit(Format(Quantity));
         end;
     end;
@@ -419,7 +419,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with TransferLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             Item.Get("Item No.");
             exit(Format(Round(Quantity * Item."Unit Cost")));
         end;
@@ -431,7 +431,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with TransferShipmentLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             exit(Format(Quantity));
         end;
     end;
@@ -443,7 +443,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with TransferShipmentLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             Item.Get("Item No.");
             exit(Format(Round(Quantity * Item."Unit Cost")));
         end;
@@ -455,7 +455,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with TransferReceiptLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             exit(Format(Quantity));
         end;
     end;
@@ -467,7 +467,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with TransferReceiptLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             Item.Get("Item No.");
             exit(Format(Round(Quantity * Item."Unit Cost")));
         end;
@@ -479,7 +479,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with ItemJnlLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             exit(Format(Quantity));
         end;
     end;
@@ -491,7 +491,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     begin
         with ItemJnlLine do begin
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             Item.Get("Item No.");
             exit(Format(Round(Quantity * Item."Unit Cost")));
         end;
@@ -504,7 +504,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         DimensionValue: Record "Dimension Value";
         ShipmentRequestM11Report: Report "Shipment Request M-11";
     begin
-        Initialize;
+        Initialize();
 
         CreateTransferOrderWithDimension(TransferHeader, DimensionValue);
         AssignReportAndExpectedDimValues(DimensionValue, AnotherDimValue);
@@ -524,7 +524,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         DimensionValue: Record "Dimension Value";
         ShipmentRequestM11Report: Report "Shipment Request M-11";
     begin
-        Initialize;
+        Initialize();
 
         CreateTransferShipmentWithDimension(TransferShipmentHeader, DimensionValue);
         AssignReportAndExpectedDimValues(DimensionValue, AnotherDimValue);
@@ -544,7 +544,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         DimensionValue: Record "Dimension Value";
         ShipmentRequestM11Report: Report "Shipment Request M-11";
     begin
-        Initialize;
+        Initialize();
 
         CreateTransferReceiptWithDimension(TransferReceiptHeader, DimensionValue);
         AssignReportAndExpectedDimValues(DimensionValue, AnotherDimValue);
@@ -564,7 +564,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         DimensionValue: Record "Dimension Value";
         ShipmentRequestM11Report: Report "Shipment Request M-11";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemJnlLineWithDimension(ItemJnlLine, DimensionValue);
         AssignReportAndExpectedDimValues(DimensionValue, AnotherDimValue);
@@ -581,7 +581,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     var
         TransferLine: Record "Transfer Line";
     begin
-        TransferHeader."No." := LibraryUtility.GenerateGUID;
+        TransferHeader."No." := LibraryUtility.GenerateGUID();
         TransferHeader.Insert();
         TransferHeader.SetRange("No.", TransferHeader."No.");
 
@@ -599,7 +599,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     var
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
-        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID();
         TransferShipmentHeader.Insert();
         TransferShipmentHeader.SetRange("No.", TransferShipmentHeader."No.");
 
@@ -617,7 +617,7 @@ codeunit 144705 "ERM Shipment Request M-11"
     var
         TransferReceiptLine: Record "Transfer Receipt Line";
     begin
-        TransferReceiptHeader."No." := LibraryUtility.GenerateGUID;
+        TransferReceiptHeader."No." := LibraryUtility.GenerateGUID();
         TransferReceiptHeader.Insert();
         TransferReceiptHeader.SetRange("No.", TransferReceiptHeader."No.");
 
@@ -636,7 +636,7 @@ codeunit 144705 "ERM Shipment Request M-11"
         CreateDimValue(DimensionValue);
 
         with ItemJnlLine do begin
-            "Journal Template Name" := LibraryUtility.GenerateGUID;
+            "Journal Template Name" := LibraryUtility.GenerateGUID();
             "Item No." := LibraryRUReports.CreateItemWithCost;
             "Dimension Set ID" := LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code);
             Insert;
@@ -661,7 +661,7 @@ codeunit 144705 "ERM Shipment Request M-11"
             exit;
 
         Dimension.SetFilter(Code, '<>%1', DimensionValue."Dimension Code");
-        Dimension.FindFirst;
+        Dimension.FindFirst();
         DimensionValue."Dimension Code" := Dimension.Code;
         DimensionValue.Code := '';
     end;

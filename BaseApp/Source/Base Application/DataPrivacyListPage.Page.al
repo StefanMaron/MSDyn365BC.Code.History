@@ -70,16 +70,16 @@ page 1181 "Data Privacy ListPage"
             ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
             ConfigProgressBar.Init(ConfigPackageTable.Count, 1, CreatingPreviewDataTxt);
             ConfigPackageTable.SetAutoCalcFields("Table Name");
-            if ConfigPackageTable.FindSet then
+            if ConfigPackageTable.FindSet() then
                 repeat
                     ConfigProgressBar.Update(ConfigPackageTable."Table Name");
                     RecRef.Open(ConfigPackageTable."Table ID");
                     ConfigXMLExchange.ApplyPackageFilter(ConfigPackageTable, RecRef);
-                    if RecRef.FindSet then
+                    if RecRef.FindSet() then
                         repeat
                             ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
                             ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
-                            if ConfigPackageField.FindSet then
+                            if ConfigPackageField.FindSet() then
                                 repeat
                                     FieldRef := RecRef.Field(ConfigPackageField."Field ID");
                                     Init;

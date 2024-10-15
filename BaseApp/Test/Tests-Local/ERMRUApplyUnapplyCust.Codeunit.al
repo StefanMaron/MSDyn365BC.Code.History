@@ -36,10 +36,10 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
     begin
         // [FEATURE] [Prepayment] [Unapply]
         // [SCENARIO 123864] Unapply Customer Ledger Entry with Prepayment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted and Applied Customer Ledger Entries with PaymentNo = "X" and prepayment Amount = "A"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         PostApplyCustLedgerEntries(PaymentNo, InvoiceNo, Amount, CustomerNo);
 
         // [WHEN] Unapply Vendor Ledger Entry for PaymentNo = "X"
@@ -60,7 +60,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
     begin
         // [FEATURE] [Apply]
         // [SCENARIO 376250] Apply Sales Invoice to Payment with different date should generate an error when "Check Application Date" is enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Check Application Date" is enabled in Sales Setup
         UpdateSalesSetup(true, false);
@@ -87,7 +87,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
     begin
         // [FEATURE] [Apply]
         // [SCENARIO 376250] Apply Sales Invoice to Payment with the same date when "Check Application Date" is enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Check Application Date" is enabled in Sales Setup
         UpdateSalesSetup(true, false);
@@ -112,7 +112,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
     begin
         // [FEATURE] [Apply]
         // [SCENARIO 376250] Apply Sales Invoice to Payment with different date should generate an error when "Check Application Period" is enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Check Application Period" is enabled in Sales Setup
         UpdateSalesSetup(false, true);
@@ -137,7 +137,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
     begin
         // [FEATURE] [Apply]
         // [SCENARIO 376250] Apply Sales Invoice to Payment with the same date when "Check Application Period" is enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Check Application Period" is enabled in Sales Setup
         UpdateSalesSetup(false, true);
@@ -154,12 +154,12 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
     end;
@@ -226,7 +226,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
         GenJournalLine: Record "Gen. Journal Line";
         CustomerNo: Code[20];
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         CreateSalesInvoice(SalesHeader, CustomerNo);
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -271,7 +271,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
             SetRange("G/L Account No.", FindPrepaymentAcc(SourceNo));
             SetRange("Source No.", SourceNo);
             SetRange("Source Code", SourceCodeSetup."Unapplied Sales Entry Appln.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(Amount, GLAmount, WrongCustBackPrepaymentErr);
         end;
     end;

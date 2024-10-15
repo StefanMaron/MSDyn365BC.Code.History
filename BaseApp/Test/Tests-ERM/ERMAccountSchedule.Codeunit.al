@@ -67,6 +67,11 @@ codeunit 134902 "ERM Account Schedule"
         Dim1FilterErr: Label 'Incorrect Dimension 1 Filter was created.';
         PeriodTextCaptionLbl: Label 'Period: ';
         ClearDimTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
+        AccSchedPrefixTxt: Label 'ACC.SCHED.', MaxLength = 10, Comment = 'Part of the name for the confguration package, stands for Account Schedule';
+        TwoPosTxt: Label '%1%2', Locked = true;
+        AlreadyExistsErr: Label 'Account schedule %1 will be overwritten.', Comment = '%1 - name of the account schedule.';
+        ColLayoutAlreadyExistsErr: Label 'Column layout %1 will be overwritten.', Comment = '%1 - name of the column layout.';
+        NoTablesAndErrorsMsg: Label '%1 tables are processed.\%2 errors found.\%3 records inserted.\%4 records modified.', Comment = '%1 = number of tables processed, %2 = number of errors, %3 = number of records inserted, %4 = number of records modified';
 
     [Test]
     [Scope('OnPrem')]
@@ -78,9 +83,9 @@ codeunit 134902 "ERM Account Schedule"
         // Test error occurs on running Account Schedule Report with wrong Formula on Column Layout.
 
         // 1. Setup: Create Column Layout Name, Column Layout and Account Schedule with Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         CreateColumnLayoutAndLine(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
 
@@ -97,9 +102,9 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccountScheduleOverviewByAccountingPeriod()
     begin
         // Check that correct values updated in the newly created column on Account Schedule Overview Page when View By Period is Accounting Period.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         AccountScheduleOverviewByPeriod(ViewByRef::"Accounting Period");
     end;
 
@@ -109,9 +114,9 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccountScheduleOverviewByDay()
     begin
         // Check that Account Schedule Overview shows correct Amount under the newly created column when View By Period is Day.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         AccountScheduleOverviewByPeriod(ViewByRef::Day);
     end;
 
@@ -121,9 +126,9 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccountScheduleOverviewByMonth()
     begin
         // Check that correct values updated in the newly created column on Account Schedule Overview Page when View By Period is Month.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         AccountScheduleOverviewByPeriod(ViewByRef::Month);
     end;
 
@@ -140,7 +145,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // Setup: Create Account Schedule, Account Schedule Line, Column Layout. Take random amount for General Journal Line.
         Amount := LibraryRandom.RandDec(100, 2);
-        HeaderCaption := LibraryUtility.GenerateGUID;
+        HeaderCaption := LibraryUtility.GenerateGUID();
         LayoutName := CreateColumnLayoutWithName(HeaderCaption);
         LibraryVariableStorage.Enqueue(LayoutName);
         LibraryERM.CreateGLAccount(GLAccount);
@@ -172,9 +177,9 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccountScheduleOverviewByQuarter()
     begin
         // Check that correct values updated in the newly created column on Account Schedule Overview Page when View By Period is Quarter.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         AccountScheduleOverviewByPeriod(ViewByRef::Quarter);
     end;
 
@@ -184,9 +189,9 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccountScheduleOverviewByWeek()
     begin
         // Check that correct values updated in the newly created column on Account Schedule Overview Page when View By Period is Week.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         AccountScheduleOverviewByPeriod(ViewByRef::Week);
     end;
 
@@ -196,9 +201,9 @@ codeunit 134902 "ERM Account Schedule"
     procedure AccountScheduleOverviewByYear()
     begin
         // Check that correct values updated in the newly created column on Account Schedule Overview Page when View By Period is Year.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
         AccountScheduleOverviewByPeriod(ViewByRef::Year);
     end;
 
@@ -217,8 +222,8 @@ codeunit 134902 "ERM Account Schedule"
         // Test Value on Account Schedule Overview for Cost Accounting
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryCostAccounting.CreateCostType(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         CreateColumnLayout(ColumnLayout);
@@ -252,7 +257,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Value on Account Schedule Matrix.
 
         // 1. Setup: Create Customer, G/L Account, Column Layout Name, Column Layout and Account Schedule Lines with created G/L Account.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryLowerPermissions.SetFinancialReporting;
@@ -262,7 +267,7 @@ codeunit 134902 "ERM Account Schedule"
         Amount := LibraryRandom.RandDec(10, 2);  // Use Random because value is not important.
 
         // 2. Exercise: Create and Post General Journal.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateAndPostJournal(Customer."No.", GLAccount."No.", Amount);
 
         // 3. Verify: Verify Account Schedule Matrix cell value with the Amount posted on General Journal.
@@ -281,7 +286,7 @@ codeunit 134902 "ERM Account Schedule"
         // Check that Program allows to change the column layout name on Account Schedule Overview window.
 
         // 1. Setup: Create Account Schedule Name and Column Layout Name.
-        Initialize;
+        Initialize();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
@@ -302,9 +307,9 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleName: Record "Acc. Schedule Name";
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CostAccountingSetup.DeleteAll();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryVariableStorage.Enqueue(AccScheduleName.Name);
@@ -326,7 +331,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // Check that Program allows to change the column layout name on Account Schedule Overview window.
 
-        Initialize;
+        Initialize();
         // 1. Setup: Create Account Schedule Name and Column Layout Name.
         Amount := LibraryRandom.RandDec(100, 2);
 
@@ -359,7 +364,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test error occurs on running Account Schedule Report with wrong Totaling on Account Schedule Line.
 
         // 1. Setup: Create Column Layout Name, Column Layout and Account Schedule with Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -386,8 +391,8 @@ codeunit 134902 "ERM Account Schedule"
         // The filtered result is always empty since a cost entry canot have both a Cost Center and a Cost Object defined
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -419,8 +424,8 @@ codeunit 134902 "ERM Account Schedule"
         // The result in Acc Schedule Overview is always empty since a cost entry canot have both a Cost Center and a Cost Object defined
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -450,8 +455,8 @@ codeunit 134902 "ERM Account Schedule"
         // Test Cost Center filter on Account Schedule Overview
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -483,8 +488,8 @@ codeunit 134902 "ERM Account Schedule"
         // Test Cost Center Totaling field from Account Schedule Line and the result in Acc Schedule Overview
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -518,8 +523,8 @@ codeunit 134902 "ERM Account Schedule"
         // Test Cost Center Totaling field from Account Schedule Line and the result in Acc Schedule Overview
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
 
@@ -554,8 +559,8 @@ codeunit 134902 "ERM Account Schedule"
         // Test Cost Object filter on Account Schedule Overview
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -563,7 +568,7 @@ codeunit 134902 "ERM Account Schedule"
         Amount := LibraryRandom.RandDec(10, 2);
 
         // 2. Exercise:
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateAndPostCostJournal(CostType."No.", CostCenter.Code, '', LibraryRandom.RandDec(10, 2));
         CreateAndPostCostJournal(CostType."No.", '', CostObject.Code, Amount);
 
@@ -588,8 +593,8 @@ codeunit 134902 "ERM Account Schedule"
         // Test Cost Object Totaling field from Account Schedule Line and the result in Acc Schedule Overview
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type.
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         SetupCostAccObjects(CostType, CostCenter, CostObject);
         CreateColumnLayout(ColumnLayout);
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
@@ -601,7 +606,7 @@ codeunit 134902 "ERM Account Schedule"
         CreateAndPostCostJournal(CostType."No.", '', CostObject.Code, Amount);
 
         // 3. Verify: Verify Account Schedule Overview cell value (NetChange column)  with the Amount posted on Cost Journal.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         AccScheduleLine.SetRange("Date Filter", WorkDate);
         Assert.AreEqual(Amount, LibraryAccSchedule.CalcCell(AccScheduleLine, ColumnLayout, false, false), UnknownErr);
     end;
@@ -620,8 +625,8 @@ codeunit 134902 "ERM Account Schedule"
         // Verify amounts for created cost type on Account Schedule Overview.
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type as Cost type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Amount := LibraryRandom.RandDec(10, 2);
         CostTypeNo := CreateCostType(CostType.Type::"Cost Type", false);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
@@ -633,6 +638,156 @@ codeunit 134902 "ERM Account Schedule"
 
         // 3. Verify: Verify Account Schedule Overview cell value (NetChange column) with the Amount posted on Cost Journal.
         VerifyAccSchedulLIneAmount(AccScheduleLine, ColumnLayout, Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccScheduleWithTypeAsAccountCategory()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccount1: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        Amount1: Decimal;
+        Amount2: Decimal;
+    begin
+        // [SCENARIO] An account schedule by category is created, for a category with two accounts with different entries.
+        // [GIVEN] An account category
+        GLAccountCategory.Init();
+        GLAccountCategory."Entry No." := 0;
+        GLAccountCategory."System Generated" := false;
+        GLAccountCategory.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(GLAccountCategory.Description)));
+        GLAccountCategory.Insert();
+        // [GIVEN] Two accounts with G/L entries belonging to the category.
+        MockGLAccountWithGLEntries(GLAccount1, Amount1);
+        GLAccount1.Validate("Income/Balance", GLAccountCategory."Income/Balance");
+        GLAccount1.Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount1.Modify(true);
+        MockGLAccountWithGLEntries(GLAccount2, Amount2);
+        GLAccount2.Validate("Income/Balance", GLAccountCategory."Income/Balance");
+        GLAccount2.Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount2.Modify(true);
+        // [WHEN] An account schedule is created with a line of totaling type account category and filtering this category.
+        CreateColumnLayout(ColumnLayout);
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, Format(GLAccountCategory."Entry No."));
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Account Category");
+        AccScheduleLine.Modify(true);
+        // [WHEN] When consulting the calculation for this line for the amount added
+        AccScheduleLine.SetRange("Date Filter", WorkDate);
+        // [THEN] The value should be the sum of the amounts.
+        Assert.AreEqual(
+            Amount1 + Amount2,
+            LibraryAccSchedule.CalcCell(AccScheduleLine, ColumnLayout, false, false),
+            'The amounts of the entries of the accounts on the category were not reported as expected.'
+        );
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccSchedWithTypeAsAccountCategoryAddsNewAccounts()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccount1: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GLAccount3: Record "G/L Account";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        AccSchedManagement: Codeunit AccSchedManagement;
+        Amount1: Decimal;
+        Amount2: Decimal;
+        Amount3: Decimal;
+        Total1: Decimal;
+        Total2: Decimal;
+    begin
+        // [SCENARIO] An account schedule by category is created, the calculation is performed before and after adding a new account to the category.
+        // [GIVEN] An account category
+        GLAccountCategory.Init();
+        GLAccountCategory."Entry No." := 0;
+        GLAccountCategory."System Generated" := false;
+        GLAccountCategory.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(GLAccountCategory.Description)));
+        GLAccountCategory.Insert();
+        // [GIVEN] A G/L entry belonging to the category
+        MockGLAccountWithGLEntries(GLAccount1, Amount1);
+        GLAccount1.Validate("Income/Balance", GLAccountCategory."Income/Balance");
+        GLAccount1.Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount1.Modify(true);
+        // [GIVEN] The amount calculated for an account schedule of that category
+        CreateColumnLayout(ColumnLayout);
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, Format(GLAccountCategory."Entry No."));
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::"Account Category");
+        AccScheduleLine.Modify(true);
+        AccScheduleLine.SetRange("Date Filter", WorkDate);
+        Total1 := AccSchedManagement.CalcCell(AccScheduleLine, columnLayout, false);
+        Assert.AreEqual(Total1, Amount1, 'Account schedule does not have expected value');
+        // [WHEN] Adding two more accounts afterwards to the category
+        MockGLAccountWithGLEntries(GLAccount2, Amount2);
+        GLAccount2.Validate("Income/Balance", GLAccountCategory."Income/Balance");
+        GLAccount2.Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount2.Modify(true);
+        MockGLAccountWithGLEntries(GLAccount3, Amount3);
+        GLAccount3.Validate("Income/Balance", GLAccountCategory."Income/Balance");
+        GLAccount3.Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount3.Modify(true);
+        Commit();
+        // [THEN] The new amount should include the totals of this 2 accounts.
+        AccSchedManagement.ForceRecalculate(true);
+        Total2 := AccSchedManagement.CalcCell(AccScheduleLine, columnLayout, false);
+        Assert.AreEqual(Total2 - Total1, Amount2 + Amount3, 'The amount after adding accounts to the category was not updated as expected.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccScheduleWithTypeAccCategorySupportsMultipleNested()
+    var
+        ParentGLAccCat: Record "G/L Account Category";
+        ChildGLAccCat: Record "G/L Account Category";
+        GLAccount: Record "G/L Account";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        Amount: Decimal;
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        AccountScheduleOverview: TestPage "Acc. Schedule Overview";
+        ChartOfAccounts: TestPage "Chart of Accounts (G/L)";
+    begin
+        // [SCENARIO] When an acc. schedule line with totaling type "account category" has as totaling a category with it's  subcategory, we should be able to see the overview page
+
+        // [GIVEN] An account category
+        ParentGLAccCat.Init();
+        ParentGLAccCat."Entry No." := 0;
+        ParentGLAccCat."System Generated" := false;
+        ParentGLAccCat.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ParentGLAccCat.Description)));
+        ParentGLAccCat.Insert();
+
+        // [GIVEN] A subcategory of that category
+        ChildGLAccCat.Init();
+        ChildGLAccCat."Entry No." := 0;
+        ChildGLAccCat."System Generated" := false;
+        ChildGLAccCat."Parent Entry No." := ParentGLAccCat."Entry No.";
+        ChildGLAccCat.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ChildGLAccCat.Description)));
+        ChildGLAccCat.Insert();
+
+        // [GIVEN] A G/L entry belonging to the child category
+        MockGLAccountWithGLEntries(GLAccount, Amount);
+        GLAccount.Validate("Income/Balance", ChildGLAccCat."Income/Balance");
+        GLAccount.Validate("Account Subcategory Entry No.", ChildGLAccCat."Entry No.");
+        GLAccount.Modify(true);
+
+        // [GIVEN] A Acc Sched Line with totaling type "account category" and totaling these two categories
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, Format(ParentGLAccCat."Entry No.") + '|' + Format(ChildGLAccCat."Entry No."));
+
+        // [WHEN] Visiting the account schedule page
+        AccountScheduleOverview.OpenView();
+
+        // [THEN] We should be able to open this line
+        AccountScheduleNames.OpenEdit();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleLine."Schedule Name");
+        AccountScheduleOverview.Trap();
+        AccountScheduleNames.Overview.Invoke();
+        AccountScheduleOverview.DateFilter.SetValue(WorkDate());
+
+        // [THEN] We should be able to do a drilldown
+        ChartOfAccounts.Trap();
+        AccountScheduleOverview.ColumnValues1.Drilldown();
     end;
 
     [Test]
@@ -652,8 +807,8 @@ codeunit 134902 "ERM Account Schedule"
         // Verify amounts for created cost type on Account Schedule Overview.
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type as Total.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Amount1 := LibraryRandom.RandDec(10, 2) + 10;  // To test with different amount.
         Amount2 := LibraryRandom.RandDec(10, 2);
         CostTypeNo1 := CreateCostType(CostType.Type::"Cost Type", false);
@@ -693,8 +848,8 @@ codeunit 134902 "ERM Account Schedule"
         // Verify amounts for created cost type on Account Schedule Overview.
 
         // 1. Setup: Create Cost Type and Account Schedule Lines with created Cost Type as End-Total.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Amount1 := LibraryRandom.RandDec(10, 2) + 10;  // To test with different amount.
         Amount2 := LibraryRandom.RandDec(10, 2) + 20;  // To test with different amount.
         Amount3 := LibraryRandom.RandDec(10, 2);
@@ -732,8 +887,8 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO] Verify amounts for created Cash Flow Account as Entry Account Type on Account Schedule Overview.
 
         // [GIVEN] Create Cash Flow Account as Entry Account Type and Account Schedule Lines with created Cash Flow Account as Entry Account Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Amount := LibraryRandom.RandDec(10, 2);
         CashFlowAccountNo := CreateCashFlowAccount(CashFlowAccount."Account Type"::Entry);
         CreateColumnLayout(ColumnLayout);
@@ -764,8 +919,8 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO] Verify amounts for created Cash Flow Account as Total Account Type on Account Schedule Overview.
 
         // [GIVEN] Create Cash Flow Account as Total Account Type and Account Schedule Lines with created Cash Flow Account as Total Account Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Amount1 := LibraryRandom.RandDec(10, 2) + 10;  // To test with different amount.
         Amount2 := LibraryRandom.RandDec(10, 2);
         CashFlowAccountNo1 := CreateCashFlowAccount(CashFlowAccount."Account Type"::Entry);
@@ -804,7 +959,7 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [Cash Flow]
         // [SCENARIO] Verify amounts for created Cash Flow Account as End Total Account Type on Account Schedule Overview.
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Create Cash Flow Account as End Total Account Type and Account Schedule Lines with created Cash Flow Account as End Total Account Type.
         Amount1 := LibraryRandom.RandDec(10, 2) + 10;  // To test with different amount.
         Amount2 := LibraryRandom.RandDec(10, 2) + 20;  // To test with different amount.
@@ -842,9 +997,9 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [Cash Flow]
         // [SCENARIO 378872] Calculation of amount in Column with Comparision Date Formula when Account Schedule Overview is filtered with period.
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Column Layout with Comparision Date Formula <-1Y> for Account Schedule Line with Cash Flow Account
-        Initialize;
+        Initialize();
         CashFlowAccountNo := CreateCashFlowAccount(CashFlowAccount."Account Type"::Entry);
         CreateColumnLayout(ColumnLayout);
         Evaluate(ColumnLayout."Comparison Date Formula", '<-1Y>');
@@ -875,9 +1030,9 @@ codeunit 134902 "ERM Account Schedule"
         Amount2: Decimal;
     begin
         // Verify amounts for Totaling Type as Formula and Totaling contains % operator on Account Schedule Overview.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // 1. Setup: Create Account Schedule Lines with Totaling Type as Formula and Totaling contains % operator.
-        Initialize;
+        Initialize();
         Amount1 := LibraryRandom.RandDec(100, 2) + 100;  // To test with different amount.
         Amount2 := LibraryRandom.RandDec(100, 2);
 
@@ -899,7 +1054,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test error occurs on running Account Schedule form with Blank Account Schedule Name.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
 
         // 2. Exercise: Update Blank Account Schedule Name on Account Schedule Form.
@@ -920,7 +1075,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test error occurs on running Column Layout form with Blank Column Layout Name.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // 2. Exercise: Update Blank Column Layout Name on Column Layout Form.
         asserterror AccSchedManagement.CheckColumnName('');
@@ -942,9 +1097,9 @@ codeunit 134902 "ERM Account Schedule"
         // Check that correct caption header updated on Account Schedule Overview Page.
 
         // Setup: Create Account Schedule.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        HeaderCaption := LibraryUtility.GenerateGUID;
+        HeaderCaption := LibraryUtility.GenerateGUID();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
 
         // Exercise: Create Column Layout with a column having column header.
@@ -975,7 +1130,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Update formula on Column Layout.
         asserterror AccScheduleLine.CheckFormula(Formula);
@@ -1036,7 +1191,7 @@ codeunit 134902 "ERM Account Schedule"
         // Check that Program allows to change the column layout name on Column layout window.
 
         // 1. Setup: Create Column Layout Name.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
 
@@ -1053,7 +1208,7 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
     begin
         // 1. Setup: Create Column Layout Name and Column Layout.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
 
@@ -1063,7 +1218,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // 3. Verify: Verify Column Layout successfully created.
         ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
         ColumnLayout.TestField(Show, Show);
     end;
 
@@ -1076,7 +1231,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test error occurs on update Show other than the available options.
 
         // 1. Setup: Create Column Layout Name.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
 
@@ -1107,7 +1262,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Creation of Account Schedule Name.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Account Schedule Name.
         LibraryLowerPermissions.SetFinancialReporting;
@@ -1127,7 +1282,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Creation of Account Schedule Line.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // 2. Exercise: Create Account Schedule Name and Account Schedule Line.
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -1135,7 +1290,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // 3. Verify: Verify Account Schedule Line successfully created.
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
     end;
 
     [Test]
@@ -1147,7 +1302,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Creation of Column Layout.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Column Layout Name and Column Layout.
         LibraryLowerPermissions.SetFinancialReporting;
@@ -1155,7 +1310,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // 3. Verify: Verify Column Layout successfully created.
         ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
     end;
 
     [Test]
@@ -1167,7 +1322,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Creation of Column Layout Name.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Column Layout Name.
         LibraryLowerPermissions.SetFinancialReporting;
@@ -1186,7 +1341,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test error occurs on updating Comparison Date Formula without any Numerical value.
 
         // 1. Setup: Create Column Layout Name and Column Layout.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
 
@@ -1206,7 +1361,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Account Schedule Name successfully deleted.
 
         // 1. Setup: Create Account Schedule Name.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateAccScheduleName(AccScheduleName);
 
@@ -1228,7 +1383,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Account Schedule Line Successfully deleted.
 
         // 1. Setup: Create Account Schedule Name and Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
@@ -1251,7 +1406,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test Column Layout Name Successfully deleted.
 
         // 1. Setup: Create Column Layout Name.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
 
@@ -1275,8 +1430,8 @@ codeunit 134902 "ERM Account Schedule"
         // Unit Test - Check Account Schedule Line Amount for corresponding Cost Budget Filter.
 
         // 1.Setup: Create Column Layout and Cost Budget Entry.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateColumnLayout(ColumnLayout);
         UpdateColumnLayout(ColumnLayout);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -1305,7 +1460,7 @@ codeunit 134902 "ERM Account Schedule"
         // Unit test - Check Account Schedule Line Amount for corresponding Date Filter.
 
         // 1.Setup: Create and Post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(100, 2));  // Take random for Amount.
@@ -1341,7 +1496,7 @@ codeunit 134902 "ERM Account Schedule"
         // Unit test - Check Account Schedule Line Amount for corresponding G/L Budget Filter.
 
         // 1.Setup: Create Column Layout and Cost Budget Entry.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
         UpdateColumnLayout(ColumnLayout);
@@ -1375,8 +1530,8 @@ codeunit 134902 "ERM Account Schedule"
         // Unit test - Check Cost Budget Filter is set correctly on Account Schedule Overview Matrix.
 
         // 1.Setup: Create Cost Budget Entry.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
@@ -1402,7 +1557,7 @@ codeunit 134902 "ERM Account Schedule"
         // Unit test - Check Date Filter is set correctly on Account Schedule Overview.
 
         // 1.Setup: Create and Post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(100, 2));  // Take random Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
@@ -1425,7 +1580,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         // 1.Setup: Create and Post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(100, 2));  // Take random Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
@@ -1451,7 +1606,7 @@ codeunit 134902 "ERM Account Schedule"
         // Unit test - Check G/L Budget Filter is set correctly on Account Schedule Overview Page.
 
         // 1.Setup: Create G/L Budget Entry.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -1478,7 +1633,7 @@ codeunit 134902 "ERM Account Schedule"
         // Test that system inserts the row in the next line while using the function InsertGLAccounts in Acc. Schedule Line.
 
         // Setup: Create Acc. Schedule name and Acc. Schedule line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.FindGLAccountDataSet(GLAccount);
@@ -1490,7 +1645,7 @@ codeunit 134902 "ERM Account Schedule"
 
         // Verify that system insert the record in the next line.
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.FindLast;
+        AccScheduleLine.FindLast();
         AccScheduleLine.TestField("Row No.", GLAccount."No.");
     end;
 
@@ -1502,7 +1657,7 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
     begin
         // Verify Account Schedule Overview Page with Column Layout Show option "When Negative".
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         AccountScheduleOverviewShowOption(ColumnLayout.Show::"When Negative", -1);  // Take -1 for sign factor.
     end;
@@ -1515,7 +1670,7 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
     begin
         // Verify Account Schedule Overview Page with Column Layout Show option "When Positive".
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         AccountScheduleOverviewShowOption(ColumnLayout.Show::"When Positive", 1);  // Take 1 for sign factor.
     end;
@@ -1624,7 +1779,7 @@ codeunit 134902 "ERM Account Schedule"
         Amount: Decimal;
     begin
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         Amount := LibraryRandom.RandDec(10000000, 2);  // Take large random value for Amount.
         SetupForAccountScheduleOverviewPage(AccScheduleLine, ColumnLayout.Show::Always, Amount, RoundingFactor, '');
@@ -1646,7 +1801,7 @@ codeunit 134902 "ERM Account Schedule"
         Amount: Decimal;
     begin
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         MaxAmount := 1000; // any random 1..1000 number will be divided by 10000000 thus we will have quite smal number
         Amount := LibraryRandom.RandDec(MaxAmount, 2);
@@ -1771,8 +1926,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // Verifies that Account Schedule Overview show Amounts in Additional Report Currency correctly for all Column Values with ACY.
         // Setup: Update Add. Reporting currency on general ledger setup and create acc. schedule line.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         Amount := LibraryRandom.RandDec(100, 2);
         LibraryERM.FindCurrency(Currency);
         UpdateCurrencyWithResidualAccount(Currency);
@@ -1811,7 +1966,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT] [Account Schedule]
         // [SCENARIO] Timestamp in report "Account Schedule" is calculated via function GetFormattedCurrentDateTimeInUserTimeZone in codeunit "Type Helper".
-        Initialize;
+        Initialize();
 
         // [GIVEN] ExpectedTimestamp string acquired via function GetFormattedCurrentDateTimeInUserTimeZone in codeunit "Type Helper"
         ExpectedTimeStamp := TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('d');
@@ -1889,7 +2044,7 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
     begin
         // Setup: Create and post General Line.Create Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         SetupForAccScheduleReportWithFormula(ColumnLayout, Amount);
         CreateColumnLayoutLine(ColumnLayout, ColumnLayout."Column Layout Name", ColumnLayout."Column No." + Formula);
@@ -1956,7 +2111,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Account Schedule Report with Column Layout formula for cross calculation.
 
         // Setup: Create and post General Line.Create Account Schedule Line.
-        Initialize;
+        Initialize();
         SetupForAccScheduleReportWithFormula(ColumnLayout, Amount);
         CreateColumnLayoutLine(
           ColumnLayout2, ColumnLayout."Column Layout Name",
@@ -1986,7 +2141,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Account Schedule Report with Column Layout formula for sum with odd order.
 
         // Setup: Create and post General Line.Create Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         Amount := LibraryRandom.RandDec(10, 2);  // Take random for Amount.
         SetupForAccScheduleReportWithFormula(ColumnLayout, Amount);
@@ -2169,7 +2324,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         // 1.Setup: Create Column Layout, create and Post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
         SetupForAccScheduleLinetWithFormula(AccScheduleLine, Amount, FormulaValue, ColumnLayout."Column Layout Name", RowNo, false);
@@ -2189,7 +2344,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify error while creating formula on Account Schedule Line with use of consecutive arithmetic operators.
 
         // Setup: Create Column Layout.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
 
@@ -2217,7 +2372,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify error while creating formula on Account Schedule Line with missing Parenthesis.
 
         // Setup: Create Column Layout.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
 
@@ -2245,7 +2400,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify error while creating formula on Account Schedule Line with extra Left Parenthesis.
 
         // Setup: Create Column Layout.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
 
@@ -2271,7 +2426,7 @@ codeunit 134902 "ERM Account Schedule"
         RowNo: Code[10];
     begin
         // Verify cross and same Row No used in Formula on Account Schedule.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         RowNo := Format(LibraryRandom.RandInt(5));  // Using Random value for Row No.
         CrossRowsFormulaOnAccountSchedule(RowNo, RowNo + StrSubstNo(AvoidBlankTok, 0.01), RowNo, Format(0.01, 0, 1));  // Using 0.01 in case of output is 0 or blank.
@@ -2285,7 +2440,7 @@ codeunit 134902 "ERM Account Schedule"
         RowNo: Code[10];
     begin
         // Verify cross Row No and and numeric value used in Formula on Account Schedule.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         RowNo := Format(1 + LibraryRandom.RandInt(5));  // Using Random value for Row No.
         CrossRowsFormulaOnAccountSchedule(RowNo, Format(1), IncStr(RowNo), Format(1.0, 0, '<Sign><Integer Thousand><Decimals,3>'));
@@ -2323,7 +2478,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify error while using cross row no in formula on Account Schedule Line.
 
         // Setup: Create Column Layout, create two Account Schedule Line with Totaling Type Formula.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
         RowNo := Format(LibraryRandom.RandInt(5));  // Using Random value for Row No.
@@ -2374,9 +2529,9 @@ codeunit 134902 "ERM Account Schedule"
         // Verify error while running Account Schedule report with circular reference Column Layout.
 
         // Setup: Create Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, LibraryUtility.GenerateGUID);
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, LibraryUtility.GenerateGUID());
 
         // Create and modify Column Layout.
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
@@ -2404,15 +2559,15 @@ codeunit 134902 "ERM Account Schedule"
         // Verify no row found on Account Schedule Report when value in all Columns are zero and Account Schedule Line Show option is set If Any Column Not Zero.
 
         // Setup: Create and modify Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, LibraryUtility.GenerateGUID);
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, LibraryUtility.GenerateGUID());
         AccScheduleLine.Validate(Show, AccScheduleLine.Show::"If Any Column Not Zero");
         AccScheduleLine.Modify(true);
 
         // Create Column Layout.
-        ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(LibraryUtility.GenerateGUID));
-        ColumnLayout.FindFirst;
+        ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(LibraryUtility.GenerateGUID()));
+        ColumnLayout.FindFirst();
         CreateColumnLayoutLine(
           ColumnLayout, ColumnLayout."Column Layout Name", Format(LibraryRandom.RandDec(10, 2)));  // Take random for formula value.
         EnqueueValuesForAccScheduleReport(
@@ -2437,7 +2592,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Account Schedule report with New Page True on Account Schedule Line.
 
         // Setup: Create Column Layout, create Account Schedule Line with New Page True, take random value for Amount and Row No.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateColumnLayout(ColumnLayout);
         SetupForAccScheduleLinetWithFormula(
@@ -2473,9 +2628,9 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Account Schedule report with Column Layout circular reference formula.
 
         // Setup: Create Account Schedule Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
-        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, LibraryUtility.GenerateGUID);
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, LibraryUtility.GenerateGUID());
 
         // Create and modify Column Layout, take random Formula Value.
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
@@ -2505,7 +2660,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Account Schedule report when Comparison Date Formula is defined for Column Layout.
 
         // Setup: Create and post General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         CreateGeneralLineWithGLAccount(GenJournalLine, LibraryRandom.RandDec(10, 2));  // Take random Amount.
         UpdateGenJournalLine(GenJournalLine, LibraryERM.CreateGLAccountNo);
@@ -2517,7 +2672,7 @@ codeunit 134902 "ERM Account Schedule"
         // Create Account Schedule Line, create and modify Column Layout.
         CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, GenJournalLine."Account No.");
         ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(GenJournalLine."Account No."));
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
         ColumnLayout.Validate("Comparison Date Formula", ComparisionDateFormula);
         ColumnLayout.Modify(true);
         EnqueueValuesForAccScheduleReport(ColumnLayout."Column Layout Name", AccScheduleLine."Schedule Name");
@@ -2539,7 +2694,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Debit amount for created GL Account on Account Schedule Line.
 
         // Create Acc. Schedule Line by using InsertGLAccounts function.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         GLAccountNo := AccountScheduleInsertGLAccount(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Debit Amount");
 
@@ -2562,7 +2717,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Credit amount for created GL Account on Account Schedule Line.
 
         // Create Acc. Schedule Line by using InsertGLAccounts function.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         GLAccountNo := AccountScheduleInsertGLAccount(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Credit Amount");
 
@@ -2585,7 +2740,7 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Net Amount for created GL Account on Account Schedule Line.
 
         // Create Acc. Schedule Line by using InsertGLAccounts function
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         GLAccountNo := AccountScheduleInsertGLAccount(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Net Amount");
 
@@ -2610,8 +2765,8 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO] Verify Net Amount for created Ash Flow Account on Account Schedule Line.
 
         // [GIVEN] Create Cash Flow Account as Entry Account Type and Account Schedule Lines with created Cash Flow Account as Entry Account Type.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CashFlowAccountNo := CreateCashFlowAccount(CashFlowAccount."Account Type"::Entry);
         CreateColumnLayoutWithAmountType(ColumnLayout, ColumnLayout."Amount Type"::"Net Amount", CashFlowAccountNo);
         CreateAndPostCashFlowJournal(CashFlowAccountNo, LibraryRandom.RandDec(10, 2), WorkDate);
@@ -2640,8 +2795,8 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Debit amount for created Cost type Account on Account Schedule Line.
 
         // Create Acc. Schedule Line by using InsertCostType function
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CostTypeNo := AccScheduleWithInsertCostType(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Debit Amount");
 
         // Verify Debit amount on Account Schedule Line.
@@ -2663,8 +2818,8 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Credit amount for created Cost type Account on Account Schedule Line.
 
         // Create Acc. Schedule Line by using InsertCostType function
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CostTypeNo := AccScheduleWithInsertCostType(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Credit Amount");
 
         // Verify Credit amount on Account Schedule Line.
@@ -2686,8 +2841,8 @@ codeunit 134902 "ERM Account Schedule"
         // Verify Net amount for created Cost type Account on Account Schedule Line.
 
         // Create Acc. Schedule Line by using InsertCostType function
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CostTypeNo := AccScheduleWithInsertCostType(AccScheduleLine, ColumnLayout, ColumnLayout."Amount Type"::"Debit Amount");
 
         // Verify Net amount on Account Schedule Line.
@@ -2708,8 +2863,8 @@ codeunit 134902 "ERM Account Schedule"
         // but was used for printing in other company or deleted
 
         // Setup: create and print first account schedule. Delete it after that
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateAndPrintAccountSchedule(AccScheduleName, ColumnLayoutName, false);
 
         AccScheduleName.Delete(true);
@@ -2731,8 +2886,8 @@ codeunit 134902 "ERM Account Schedule"
         // Check column clean up on Column Layout switching
 
         // Setup
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreateGLAccount(GLAccount);
         LibrarySales.CreateCustomer(Customer);
 
@@ -2751,7 +2906,7 @@ codeunit 134902 "ERM Account Schedule"
     procedure DrillDownWithDimensionTotalingFromAccScheduleLine()
     begin
         // Verify G/L Entries are filtered with correct Dimension filter defined in Acc. Schedule Line
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         DrillDownWithDimensionTotaling(DATABASE::"Acc. Schedule Line");
     end;
 
@@ -2761,7 +2916,7 @@ codeunit 134902 "ERM Account Schedule"
     procedure DrillDownWithDimensionTotalingFromColumnLayout()
     begin
         // Verify G/L Entries are filtered with correct Dimension filter defined in Column Layout
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         DrillDownWithDimensionTotaling(DATABASE::"Column Layout");
     end;
 
@@ -2775,8 +2930,8 @@ codeunit 134902 "ERM Account Schedule"
         RowNo: array[2] of Code[10];
         i: Integer;
     begin
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         for i := 1 to ArrayLen(RowNo) do begin
             RowNo[i] := Format(i);
@@ -2807,8 +2962,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [SCENARIO 360737] Column values on Account Schedule Overview calculated based on Cost Center setup in Column Layout
 
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Simple Budget and Cost Type
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         CostTypeNo := CreateCostType(CostType.Type::"Cost Type", false);
@@ -2840,7 +2995,7 @@ codeunit 134902 "ERM Account Schedule"
         RowNo: Text[10];
     begin
         // [SCENARIO 379134] Drill Down on Account Schedule cell with Formula in Acc. Schedule line shows Acc. Sched. Formula Drill-Down page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Acc. Schedule Line with Totaling Type = Formula has "R1" as formula
         CreateColumnLayout(ColumnLayout);
@@ -2869,7 +3024,7 @@ codeunit 134902 "ERM Account Schedule"
         CashFlowAccountNo: Code[20];
     begin
         // [SCENARIO 379134] Drill Down on Account Schedule cell without Formula in Acc. Schedule line opens Chart of Accounts page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule for Cash Flow account
         CashFlowAccountNo := CreateCashFlowAccount(CashFlowAccount."Account Type"::Entry);
@@ -2899,8 +3054,8 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO 361759] Calculate Balance at Date in G/L Account in Acc. Schedule Line with "Beginning Balance" as row type in "Net Change" column
 
         // [GIVEN] G/L Account with posted amount X
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreateGLAccount(GLAccount);
         Amount := LibraryRandom.RandDec(100, 2);
         PostGenJournalLine(GLAccount."No.", Amount, LibraryRandom.RandDate(-10));
@@ -2929,8 +3084,8 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO 361759] Calculate Balance at Date in G/L Account in Acc. Schedule Line with "Beginning Balance" as row type in "Year to Date" column
 
         // [GIVEN] G/L Account with posted amount X
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreateGLAccount(GLAccount);
         Amount := LibraryRandom.RandDec(100, 2);
         PostGenJournalLine(GLAccount."No.", Amount, LibraryRandom.RandDate(-10));
@@ -2959,8 +3114,8 @@ codeunit 134902 "ERM Account Schedule"
         // [SCENARIO 361759] Calculate Balance at Date in G/L Account in Acc. Schedule Line with "Beginning Balance" as row type in "Entire Fiscal Year" column
 
         // [GIVEN] G/L Account with posted amount X
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryERM.CreateGLAccount(GLAccount);
         Amount := LibraryRandom.RandDec(100, 2);
         PostGenJournalLine(GLAccount."No.", Amount, LibraryRandom.RandDate(-10));
@@ -2992,11 +3147,11 @@ codeunit 134902 "ERM Account Schedule"
         i: Integer;
     begin
         // [SCENARIO 121895] Verify amount in Acc. Schedule Overview page is filtered by totalling dimension value
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Create G/L Account
         LibraryERM.CreateGLAccount(GLAccount);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Create new Acc. Schedule for the G/L Account
         CreateColumnLayout(ColumnLayout);
         CreateAndUpdateAccountSchedule(
@@ -3037,7 +3192,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Drill Down cell with Formula in Acc. Schedule Overview shows error message in case of division by zero
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // [GIVEN] Account Schedule with "Formula" = "1 / 0" in Column Layuot
         Formula := '1/0';
@@ -3075,7 +3230,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [SCENARIO 123662] Unit test checks function LookupCostCenterFilter from Cost Center Table, Action = LookupOK
         // [GIVEN] Cost Center "X"
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryVariableStorage.Enqueue(ResponseRef::LookupOK);
         LibraryVariableStorage.Enqueue(CostCenter.Code);
@@ -3098,8 +3253,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [SCENARIO 123662] Unit test checks function LookupCostCenterFilter from Center Table, Action = LookupCancel
         // [GIVEN] Initial Text = "Y"
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        OldText := LibraryUtility.GenerateGUID;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        OldText := LibraryUtility.GenerateGUID();
         Text := OldText;
         // [GIVEN] Cost Center "X"
         LibraryCostAccounting.CreateCostCenter(CostCenter);
@@ -3123,7 +3278,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [SCENARIO 123662] Unit test checks function LookupCostObjectFilter from Cost Object Table, Action = LookupOK
         // [GIVEN] Cost Object "X"
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         LibraryCostAccounting.CreateCostObject(CostObject);
         LibraryVariableStorage.Enqueue(ResponseRef::LookupOK);
         LibraryVariableStorage.Enqueue(CostObject.Code);
@@ -3146,8 +3301,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [SCENARIO 123662] Unit test checks function LookupCostObjectFilter from Cost Object Table, Action = LookupCancel
         // [GIVEN] Initial Text = "Y"
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        OldText := LibraryUtility.GenerateGUID;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        OldText := LibraryUtility.GenerateGUID();
         Text := OldText;
         // [GIVEN] Cost Object "X"
         LibraryCostAccounting.CreateCostObject(CostObject);
@@ -3174,10 +3329,10 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 371849] Force Recalculate for CalcCell function on 'Acc. Schedule Overview' page when G/L Budget Entry is changed
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // [GIVEN] Account Schedule for Budget Entries with G/L Account No. = "A"
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateAccountScheduleAndLine(AccScheduleLine, ColumnLayout."Column Layout Name");
         UpdateAccScheduleLine(
           AccScheduleLine, GLAccountNo, AccScheduleLine."Totaling Type"::"Posting Accounts", Format(LibraryRandom.RandInt(5)));
@@ -3220,14 +3375,14 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [UI]
         // [SCENARIO 375287] G/L Account should be inserted in "Account Schedule" page as last acc. schedule line when cursor is set after the last line
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // [GIVEN] Account Schedule with two lines
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
         // [GIVEN] G/L Account = "X"
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(GLAccNo);
 
         // [GIVEN] Account schedule page with cursor set after the last line
@@ -3255,13 +3410,13 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [UI]
         // [SCENARIO 377023] G/L Account should be inserted in "Account Schedule" page when Acc. Schedule is empty
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // [GIVEN] Account Schedule Name "A" without lines
         LibraryERM.CreateAccScheduleName(AccScheduleName);
 
         // [GIVEN] New G/L Account = "X"
-        GLAccNo := LibraryERM.CreateGLAccountNo;
+        GLAccNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(GLAccNo);
 
         // [GIVEN] Account Schedule Page is opened for Account Schedule Name "A"
@@ -3285,7 +3440,7 @@ codeunit 134902 "ERM Account Schedule"
         Result: Integer;
     begin
         // [SCENARIO 377447] Amount of Expression should be calculated if the expression has lenght is 250 symbols
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
         // [GIVEN] Acc. Schedule Line with Totaling of length 250
         // [GIVEN] Result of totaling = "X"
@@ -3314,7 +3469,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT] [ACY]
         // [SCENARIO 380474] Cell value of Account Schedule Line for G/L Budget Entries should be calculated in Additional Report Currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Acc. Schedule Line with Totaling G/L Account
         MockAccScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Posting Accounts");
@@ -3351,7 +3506,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT] [ACY]
         // [SCENARIO 380474] Cell value of Account Schedule Line for Cost Budget Entries should be calculated in Additional Report Currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Acc. Schedule Line with Totaling G/L Account
         MockAccScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Cost Type");
@@ -3386,7 +3541,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT] [ACY]
         // [SCENARIO 380474] Cell value of Account Schedule Line for G/L Entries should be calculated from "Additional-Currency Amount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Acc. Schedule Line with Totaling G/L Account
         MockAccScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Posting Accounts");
@@ -3416,7 +3571,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT] [ACY]
         // [SCENARIO 380474] Cell value of Account Schedule Line for Cost Entries should be calculated from "Additional-Currency Amount"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Acc. Schedule Line with Totaling G/L Account
         MockAccScheduleLine(AccScheduleLine, AccScheduleLine."Totaling Type"::"Cost Type");
@@ -3445,7 +3600,7 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [UT] [ACY]
         // [SCENARIO 377318] The option "Show Amounts in Add. Reporting Currency" should not be saved on page "Account Schedule Overview"
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Additional Reporting Currency" is blank in General Ledger Setup
         LibraryERM.SetAddReportingCurrency('');
 
@@ -3480,7 +3635,7 @@ codeunit 134902 "ERM Account Schedule"
         // [GIVEN] "G/L Account" = "A"
         // [GIVEN] "G/L Entry" with Posting Date = "C31122017" and Amount = 200 for "A"
         // [GIVEN] "G/L Entry" with Posting Date = "01012018"  and Amount = 100 for "A"
-        Initialize;
+        Initialize();
         MockGLAccountWithGLEntries(GLAccount, Amount);
 
         // [GIVEN] Account Schedule Line with Row Type = "Beginning Balance" and Column Layout with type "Net Change"
@@ -3513,7 +3668,7 @@ codeunit 134902 "ERM Account Schedule"
         // [GIVEN] "G/L Account" = "A"
         // [GIVEN] "G/L Entry" with Posting Date = "C31122017" and Amount = 200 for "A"
         // [GIVEN] "G/L Entry" with Posting Date = "01012018"  and Amount = 100 for "A"
-        Initialize;
+        Initialize();
         MockGLAccountWithGLEntries(GLAccount, Amount);
 
         // [GIVEN] Account Schedule Line with Row Type = "Beginning Balance" and Column Layout with type "Year to Date"
@@ -3546,7 +3701,7 @@ codeunit 134902 "ERM Account Schedule"
         // [GIVEN] "G/L Account" = "A"
         // [GIVEN] "G/L Entry" with Posting Date = "C31122017" and Amount = 200 for "A"
         // [GIVEN] "G/L Entry" with Posting Date = "01012018"  and Amount = 100 for "A"
-        Initialize;
+        Initialize();
         MockGLAccountWithGLEntries(GLAccount, Amount);
 
         // [GIVEN] Account Schedule Line with Row Type = "Beginning Balance" and Column Layout with type "Entire Fiscal Year"
@@ -3576,7 +3731,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201171] Request page of Account Schedule report should have column layout value according to the value set on Account Schedule Overview page
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
 
         // [GIVEN] Account Schedule has "Col1" as default column layout name
@@ -3607,7 +3762,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201171] Request page of Account Schedule report should have not changed column layout value when Account Schedule Name without setup is changed
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
 
         // [GIVEN] Account Schedule "Acc1" has "Col1" as default column layout name, Account Schedule "Acc2" has not defined column layout name
@@ -3639,7 +3794,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201171] Request page of Account Schedule report should have column layout value according to the value of changed Account Schedule Name
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
 
         // [GIVEN] Account Schedule "Acc1" has "Col1" as default column layout name, Account Schedule "Acc2" has "Col2" as default column layout name
@@ -3669,7 +3824,7 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
     begin
         // [SCENARIO 210321] Account Schedule report should match settings when it runs sequentially using G/L Account Category Mgt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Acc. Sched. for Balance Sheet" in G/L Setup defined as "Bal" Acc. Schedule
         // [GIVEN] "Acc. Sched. for Income Stmt." in G/L Setup defined as "IncSt" Acc. Schedule with "Col" as Column Name
@@ -3678,8 +3833,8 @@ codeunit 134902 "ERM Account Schedule"
         GeneralLedgerSetup.Validate("Acc. Sched. for Balance Sheet", AccScheduleName.Name);
         CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
-        ColumnLayout.FindFirst;
-        ColumnLayout."Column Header" := LibraryUtility.GenerateGUID;
+        ColumnLayout.FindFirst();
+        ColumnLayout."Column Header" := LibraryUtility.GenerateGUID();
         ColumnLayout.Modify();
         GeneralLedgerSetup.Validate("Acc. Sched. for Income Stmt.", AccScheduleName.Name);
         GeneralLedgerSetup.Modify(true);
@@ -3710,8 +3865,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 221835] Verify Dimension Filter created from range with only Standard and Heading Dimension Values
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create new Acc. Schedule for G/L Account
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
@@ -3758,8 +3913,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 221835] Verify Dimension Filter created from range with multiple Total Dimension Values
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create new Acc. Schedule for G/L Account
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
@@ -3811,8 +3966,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 221835] Verify Dimension Filter created from range with nested Total Dimension Values
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create new Acc. Schedule for G/L Account
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
@@ -3860,8 +4015,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 221835] Verify Dimension Filter created from range with looping Total Dimension Values
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create new Acc. Schedule for G/L Account
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
@@ -3908,8 +4063,8 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [Dimension]
         // [SCENARIO 221835] Verify Dimension Filter created from range with Begin/End Total Dimension Values
         // Begin-Total is allowed dimension value type that can be posted and filtered
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create new Acc. Schedule for G/L Account
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
@@ -3961,8 +4116,8 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 229097] Verify created Dimension Filter with more than 250 characters
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create new Acc. Schedule for G/L Account
         CreateAccountScheduleWithGLAccount(AccScheduleLine);
@@ -4027,7 +4182,7 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [ACY] [UI]
         // [SCENARIO 221698] "Show Amounts in Add. Reporting Currency" is not visible on Page 490 "Acc. Schedule Overview"
         // [SCENARIO 221698] in case of blanked G/L Setup "Additional Reporting Currency"
-        Initialize;
+        Initialize();
 
         // [GIVEN] blanked G/L Setup "Additional Reporting Currency"
         LibraryERM.SetAddReportingCurrency('');
@@ -4063,7 +4218,7 @@ codeunit 134902 "ERM Account Schedule"
         // [FEATURE] [ACY] [UI]
         // [SCENARIO 221698] "Show Amounts in Add. Reporting Currency" is visible on Page 490 "Acc. Schedule Overview"
         // [SCENARIO 221698] in case of G/L Setup "Additional Reporting Currency"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Setup "Additional Reporting Currency"
         LibraryERM.SetAddReportingCurrency(LibraryERM.CreateCurrencyWithRandomExchRates);
@@ -4124,7 +4279,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 252304] In Account Schedule report RequestPage "Starting Date" field ENABLED property is updated when the user updates the Acc. Schedule Name value.
-        Initialize;
+        Initialize();
         AccScheduleName[1].DeleteAll();
         ColumnLayoutName.DeleteAll();
 
@@ -4171,7 +4326,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 257940] Change Account Column Name when Overview page has column offset
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetFinancialReporting;
 
         // [GIVEN] Account Schedule has Column Layout "Col1" with 15 lines
@@ -4218,12 +4373,12 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension] [Dimension Value]
         // [SCENARIO 272616] Verify Dimension Filter created with using blank values on a Acc. Schedule Overview page
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] G/L Account and Customer
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Acc. Schedule for the G/L Account.
         CreateColumnLayout(ColumnLayout);
@@ -4276,12 +4431,12 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension] [Dimension Value]
         // [SCENARIO 280107] Verify Dimension Filter created with excluded G/L Account that is included in the Totaling value
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] G/L Account and Customer
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Acc. Schedule for the G/L Account.
         CreateColumnLayout(ColumnLayout);
@@ -4335,12 +4490,12 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension] [Dimension Value]
         // [SCENARIO 280107] Verify Dimension Filter created with excluded G/L Account that is included in the Totaling value
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] G/L Account and Customer
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Acc. Schedule for the G/L Account.
         CreateColumnLayout(ColumnLayout);
@@ -4405,11 +4560,11 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [Dimension] [Dimension Value]
         // [SCENARIO 312912] Dimension Filter validation on page Acc. Schedule Overview in case Dimension Values Codes from the filter are put between single quotes and contain chars &.@<>=.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Acc. Schedule for the G/L Account.
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateColumnLayout(ColumnLayout);
         CreateAndUpdateAccountSchedule(
           AccScheduleLine, ColumnLayout."Column Layout Name",
@@ -4422,7 +4577,7 @@ codeunit 134902 "ERM Account Schedule"
         DimValueFilter := '''' + DimensionValue[1].Code + '''|''' + DimensionValue[2].Code + '''|''' + DimensionValue[3].Code + '''';
 
         // [GIVEN] Posted documents with Dimension values "A","B","C","X" and Amounts "M1","M2","M3","X1".
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         for i := 1 to ArrayLen(DimensionValue) do begin
             Amount[i] := LibraryRandom.RandDecInRange(100, 200, 2);
             UpdateGLAccountWithDefaultDimensionCode(GLAccountNo, DimensionValue[i].Code);
@@ -4452,11 +4607,11 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 314039] Changing Account Schedule Name on page "Acc. Schedule Overview" changes Column Captions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule Names "A1"/"A2" with Column Layouts with Column Headers "H1"/"H2".
         CreateAccountScheduleNameAndColumn(AccScheduleName[1], ColumnLayoutName[1]);
-        ColumnHeader := LibraryUtility.GenerateGUID;
+        ColumnHeader := LibraryUtility.GenerateGUID();
         ColumnLayoutName[2].Get(CreateColumnLayoutWithName(ColumnHeader));
         LibraryERM.CreateAccScheduleName(AccScheduleName[2]);
         UpdateDefaultColumnLayoutOnAccSchNameRec(AccScheduleName[2], ColumnLayoutName[2].Name);
@@ -4482,11 +4637,11 @@ codeunit 134902 "ERM Account Schedule"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 314039] Changing Column Layout Name on page "Acc. Schedule Overview" changes Column Captions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule Name with two Column Layouts "C1"/"C2" with Column Headers "H1"/"H2".
-        ColumnHeader[1] := LibraryUtility.GenerateGUID;
-        ColumnHeader[2] := LibraryUtility.GenerateGUID;
+        ColumnHeader[1] := LibraryUtility.GenerateGUID();
+        ColumnHeader[2] := LibraryUtility.GenerateGUID();
         ColumnLayoutName[1].Get(CreateColumnLayoutWithName(ColumnHeader[1]));
         ColumnLayoutName[2].Get(CreateColumnLayoutWithName(ColumnHeader[2]));
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -4513,7 +4668,7 @@ codeunit 134902 "ERM Account Schedule"
         EndDate: Date;
     begin
         // [SCENARIO 315882] Account Schedule report uses first date of month as start date when start date field is empty within request.
-        Initialize;
+        Initialize();
 
         // [WHEN] Run Account Schedule report with february end date and where start date has blank value (AccountScheduleSetStartEndDatesRequestHandler).
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -4561,7 +4716,7 @@ codeunit 134902 "ERM Account Schedule"
         GLAccount: Record "G/L Account";
     begin
         // [SCENARIO 316070] Account Schedule report prints lines with 0 amounts when SkipEmptyLines = false
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule Name with Posting line Totaling = "GLACC1" with description "Line1"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -4594,7 +4749,7 @@ codeunit 134902 "ERM Account Schedule"
         GLAccount: Record "G/L Account";
     begin
         // [SCENARIO 316070] Account Schedule report does not print lines with 0 amounts when SkipEmptyLines = true
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule Name with Posting line Totaling = "GLACC1" with description "Line1"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -4983,21 +5138,469 @@ codeunit 134902 "ERM Account Schedule"
         LibraryReportDataset.AssertElementWithValueExists('PeriodText', PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportAccSchedule()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageFilter: Record "Config. Package Filter";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        PackageCode: Code[20];
+    begin
+        // [SCENARIO] Export Account Schedule as rapidstart package.
+        Initialize();
+
+        // [GIVEN] Account Schedule 'X'
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+        // [GIVEN] Find 'X' in "Account Schedule Names" page
+        AccountScheduleNames.OpenView();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleLine."Schedule Name");
+
+        // [WHEN] Export Account Schedule 'X'
+        AccountScheduleNames.ExportAccountSchedule.Invoke();
+
+        // [THEN] Config Package 'ACC.SCHED.X' exists, where "Exclude Config. Tables" is Yes
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleLine."Schedule Name");
+        ConfigPackage.Get(PackageCode);
+        ConfigPackage.TestField("Exclude Config. Tables", true);
+        // [THEN] Includes lines for 2 tables "Acc. Schedule Name", "Acc. Schedule Line" 
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        Assert.RecordCount(ConfigPackageTable, 2);
+        ConfigPackageTable.SetFilter("Table ID", '%1|%2', Database::"Acc. Schedule Name", Database::"Acc. Schedule Line");
+        Assert.RecordCount(ConfigPackageTable, 2);
+        // [THEN] both with field filter 'X'
+        ConfigPackageFilter.SetRange("Package Code", PackageCode);
+        Assert.RecordCount(ConfigPackageFilter, 2);
+        ConfigPackageFilter.SetRange("Field Filter", AccScheduleLine."Schedule Name");
+        Assert.RecordCount(ConfigPackageFilter, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleWithAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageFilter: Record "Config. Package Filter";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        PackageCode: Code[20];
+    begin
+        // [SCENARIO] Export Account Schedule with Analysis View as rapidstart package.
+        Initialize();
+
+        // [GIVEN] Account Schedule 'X' with "Analysis View Name" 'AV'
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+        LibraryERM.CreateAnalysisView(AnalysisView);
+        AccScheduleName.Get(AccScheduleLine."Schedule Name");
+        AccScheduleName."Analysis View Name" := AnalysisView.Name;
+        AccScheduleName.Modify();
+        // [GIVEN] Find 'X' in "Account Schedule Names" page
+        AccountScheduleNames.OpenView();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleLine."Schedule Name");
+
+        // [WHEN] Export Account Schedule 'X'
+        AccountScheduleNames.ExportAccountSchedule.Invoke();
+
+        // [THEN] Config Package 'ACC.SCHED.X' exists, where "Exclude Config. Tables" is Yes
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleLine."Schedule Name");
+        ConfigPackage.Get(PackageCode);
+        ConfigPackage.TestField("Exclude Config. Tables", true);
+        // [THEN] Includes lines for 3 tables: "Acc. Schedule Name", "Acc. Schedule Line", "Analysis View"
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        Assert.RecordCount(ConfigPackageTable, 3);
+        ConfigPackageTable.SetFilter(
+            "Table ID", '%1|%2|%3',
+            Database::"Acc. Schedule Name", Database::"Acc. Schedule Line", Database::"Analysis View");
+        Assert.RecordCount(ConfigPackageTable, 3);
+        // [THEN] "Acc. Schedule Name", "Acc. Schedule Line" with field filter 'X'
+        ConfigPackageFilter.SetRange("Package Code", PackageCode);
+        Assert.RecordCount(ConfigPackageFilter, 3);
+        ConfigPackageFilter.SetRange("Field Filter", AccScheduleLine."Schedule Name");
+        Assert.RecordCount(ConfigPackageFilter, 2);
+        // [THEN] "Analysis View" with field filter 'AV'
+        ConfigPackageFilter.SetRange("Field Filter", AnalysisView.Name);
+        Assert.RecordCount(ConfigPackageFilter, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleWithColumnLayout()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AnalysisView: Record "Analysis View";
+        ColumnLayoutName: Record "Column Layout Name";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageFilter: Record "Config. Package Filter";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        PackageCode: Code[20];
+    begin
+        // [SCENARIO] Export Account Schedule with Column Layout as rapidstart package.
+        Initialize();
+
+        // [GIVEN] Account Schedule 'X' with Column Layout 'CL'
+        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
+        LibraryERM.CreateAnalysisView(AnalysisView);
+        ColumnLayoutName."Analysis View Name" := AnalysisView.Name;
+        ColumnLayoutName.Modify();
+
+        // [GIVEN] Find 'X' in "Account Schedule Names" page
+        AccountScheduleNames.OpenView();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+
+        // [WHEN] Export Account Schedule 'X'
+        AccountScheduleNames.ExportAccountSchedule.Invoke();
+
+        // [THEN] Config Package 'ACC.SCHED.X' exists, where "Exclude Config. Tables" is Yes
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleName.Name);
+        ConfigPackage.Get(PackageCode);
+        ConfigPackage.TestField("Exclude Config. Tables", true);
+        // [THEN] Includes lines for 4 tables: "Acc. Schedule Name", "Acc. Schedule Line", "Column Layout Name", "Column Layout"
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        Assert.RecordCount(ConfigPackageTable, 4);
+        ConfigPackageTable.SetFilter(
+            "Table ID", '%1|%2',
+            Database::"Acc. Schedule Name", Database::"Acc. Schedule Line",
+            Database::"Column Layout Name", Database::"Column Layout");
+        Assert.RecordCount(ConfigPackageTable, 2);
+        // [THEN] "Acc. Schedule Name", "Acc. Schedule Line" with field filter 'X'
+        ConfigPackageFilter.SetRange("Package Code", PackageCode);
+        Assert.RecordCount(ConfigPackageFilter, 4);
+        ConfigPackageFilter.SetRange("Field Filter", AccScheduleName.Name);
+        Assert.RecordCount(ConfigPackageFilter, 2);
+        // [THEN] "Column Layout Name", "Column Layout" with field filter 'CL'
+        ConfigPackageFilter.SetRange("Field Filter", ColumnLayoutName.Name);
+        Assert.RecordCount(ConfigPackageFilter, 2);
+        // [THEN] "Analysis View Name" is skipped for table "Column Layout Name"
+        Assert.IsFalse(ConfigPackageField.Get(
+            PackageCode, Database::"Column Layout Name", AccScheduleName.FieldNo("Analysis View Name")),
+            'Analysis View Name should be skipped');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('DtldMessageHandler')]
+    procedure ImportAccScheduleUniqueName()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        AnalysisView: Record "Analysis View";
+        ColumnLayout: Record "Column Layout";
+        ColumnLayoutName: Record "Column Layout Name";
+        ConfigPackage: Record "Config. Package";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        PackageCode: Code[20];
+        NoOfLines: Array[2] of Integer;
+    begin
+        // [SCENARIO] Import Account Schedule as rapidstart package with a unique name.
+        Initialize();
+        // [GIVEN] Account Schedule 'X' with Column Layout 'CL'
+        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        NoOfLines[1] := AccScheduleLine.Count();
+        LibraryERM.CreateAnalysisView(AnalysisView);
+        ColumnLayoutName."Analysis View Name" := AnalysisView.Name;
+        ColumnLayoutName.Modify();
+        ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
+        ColumnLayout.FindFirst();
+        ColumnLayout."Line No." += 10000;
+        ColumnLayout."Column Header" := Format(ColumnLayout."Line No.");
+        ColumnLayout.Insert();
+        NoOfLines[2] := ColumnLayout.Count();
+        // [GIVEN] Find 'X' in "Account Schedule Names" page
+        AccountScheduleNames.OpenView();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+        // [GIVEN] Export Account Schedule 'X'
+        AccountScheduleNames.ExportAccountSchedule.Invoke();
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleName.Name);
+
+        // [WHEN] Import Account Schedule 'X' (simulating import as the action cannot be tested directly)
+        Assert.IsTrue(AccountScheduleNames.ImportAccountSchedule.Enabled(), 'ImportAccountSchedule.Enabled');
+        ExportToXMLImport(PackageCode, AccScheduleName.Name);
+        AccScheduleName.ApplyPackage(PackageCode);
+
+        // [THEN] Message: '4 tables are processed.\0 errors found.\5 records inserted.\0 records modified.'
+        Assert.ExpectedMessage(
+            StrSubstNo(NoTablesAndErrorsMsg, 4, 0, 5, 0), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Config Package for 'Z' is imported
+        Assert.IsTrue(ConfigPackage.Get(PackageCode), 'Package must be imported');
+        // [THEN] Account Schedule 'Z' with lines and Column Layout is imported
+        Assert.IsTrue(AccScheduleName.Get(AccScheduleName.Name), 'Acc Schedule must be imported');
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        Assert.RecordCount(AccScheduleLine, NoOfLines[1]);
+        ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
+        Assert.RecordCount(ColumnLayout, NoOfLines[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('NewAccScheduleNameModalPageHandler,DtldMessageHandler')]
+    procedure ImportAccScheduleNameConflict()
+    var
+        ColumnLayout: Record "Column Layout";
+        ConfigPackage: Record "Config. Package";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        PackageCode: Code[20];
+        NewName: Code[10];
+        NoOfLines: Integer;
+    begin
+        // [SCENARIO] Import Account Schedule as rapidstart package with a duplicate name.
+        Initialize();
+        // [GIVEN] Account Schedule 'X', where "Default Column Layout" is blank, with lines
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+
+        AccScheduleLine."Line No." += 10000;
+        AccScheduleLine.Description := Format(AccScheduleLine."Line No.");
+        AccScheduleLine.Insert();
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleLine."Schedule Name");
+        NoOfLines := AccScheduleLine.Count();
+
+        AccScheduleName.Get(AccScheduleLine."Schedule Name");
+        AccScheduleName."Default Column Layout" := '';
+        AccScheduleName.Modify();
+        // [GIVEN] Find 'X' in "Account Schedule Names" page
+        AccountScheduleNames.OpenView();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleLine."Schedule Name");
+        // [GIVEN] Export Account Schedule 'X'
+        AccountScheduleNames.ExportAccountSchedule.Invoke();
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleLine."Schedule Name");
+
+        // [WHEN] Import Account Schedule 'X' (simulating import as the action cannot be tested directly)
+        Assert.IsTrue(AccountScheduleNames.ImportAccountSchedule.Enabled(), 'ImportAccountSchedule.Enabled');
+        ExportToXMLImport(PackageCode, '');
+        AccScheduleName.ApplyPackage(PackageCode);
+
+        // [THEN] "New Account Schedule Name" page pops up, where New name is set as 'Z'
+        NewName := LibraryVariableStorage.DequeueText(); // from NewAccScheduleNameModalPageHandler
+        // [THEN] Message: '2 tables are processed.\0 errors found.\3 records inserted.\0 records modified.'
+        Assert.ExpectedMessage(
+            StrSubstNo(NoTablesAndErrorsMsg, 2, 0, 3, 0), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Config Package for 'Z' is imported
+        Assert.IsTrue(ConfigPackage.Get(PackageCode), 'Package must be imported');
+        // [THEN] Account Schedule 'Z' with lines is imported
+        Assert.IsTrue(AccScheduleName.Get(NewName), 'Acc Schedule must be imported');
+        AccScheduleLine.SetRange("Schedule Name", NewName);
+        Assert.RecordCount(AccScheduleLine, NoOfLines);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('NewAccScheduleNameModalPageHandler,DtldMessageHandler')]
+    procedure ImportAccScheduleNameColumnLayoutConflict()
+    var
+        ColumnLayout: Record "Column Layout";
+        ColumnLayoutName: Record "Column Layout Name";
+        ConfigPackage: Record "Config. Package";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        PackageCode: Code[20];
+        NewName: Code[10];
+        NewColLayoutName: Code[10];
+        NoOfLines: Integer;
+        NoOfColLayoutLines: Integer;
+    begin
+        // [SCENARIO] Import Account Schedule as rapidstart package with a duplicate name.
+        Initialize();
+        // [GIVEN] Column Layout 'CL' with lines
+        CreateColumnLayoutAndLine(ColumnLayout);
+        ColumnLayoutName.Get(ColumnLayout."Column Layout Name");
+        ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
+        NoOfColLayoutLines := ColumnLayout.Count();
+        // [GIVEN] Account Schedule 'X', where "Default Column Layout" is 'CL', with lines
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+        AccScheduleLine."Line No." += 10000;
+        AccScheduleLine.Description := Format(AccScheduleLine."Line No.");
+        AccScheduleLine.Insert();
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleLine."Schedule Name");
+        NoOfLines := AccScheduleLine.Count();
+
+        AccScheduleName.Get(AccScheduleLine."Schedule Name");
+        AccScheduleName."Default Column Layout" := ColumnLayoutName.Name;
+        AccScheduleName.Modify();
+        // [GIVEN] Find 'X' in "Account Schedule Names" page
+        AccountScheduleNames.OpenView();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleLine."Schedule Name");
+        // [GIVEN] Export Account Schedule 'X'
+        AccountScheduleNames.ExportAccountSchedule.Invoke();
+        PackageCode := StrSubstNo(TwoPosTxt, AccSchedPrefixTxt, AccScheduleLine."Schedule Name");
+
+        // [WHEN] Import Account Schedule 'X' (simulating import as the action cannot be tested directly)
+        Assert.IsTrue(AccountScheduleNames.ImportAccountSchedule.Enabled(), 'ImportAccountSchedule.Enabled');
+        ExportToXMLImport(PackageCode, '');
+        AccScheduleName.ApplyPackage(PackageCode);
+
+        // [THEN] "New Account Schedule Name" page pops up, where New name is set as 'Z', new column layout  as 'Y'
+        NewName := LibraryVariableStorage.DequeueText(); // from NewAccScheduleNameModalPageHandler
+        NewColLayoutName := LibraryVariableStorage.DequeueText(); // from NewAccScheduleNameModalPageHandler
+        // [THEN] Message: '4 tables are processed.\0 errors found.\5 records inserted.\0 records modified.'
+        Assert.ExpectedMessage(
+            StrSubstNo(NoTablesAndErrorsMsg, 4, 0, 5, 0), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Config Package for 'Z' is imported
+        Assert.IsTrue(ConfigPackage.Get(PackageCode), 'Package must be imported');
+        // [THEN] Account Schedule 'Z' with lines is imported, "Default Column Layout" is 'Y'
+        Assert.IsTrue(AccScheduleName.Get(NewName), 'Acc Schedule must be imported');
+        AccScheduleName.TestField("Default Column Layout", NewColLayoutName);
+        AccScheduleLine.SetRange("Schedule Name", NewName);
+        Assert.RecordCount(AccScheduleLine, NoOfLines);
+        // [THEN] Column Layout 'Y' with lines is imported
+        Assert.IsTrue(ColumnLayoutName.Get(NewColLayoutName), 'ColumnLayout must be imported');
+        ColumnLayout.SetRange("Column Layout Name", NewColLayoutName);
+        Assert.RecordCount(ColumnLayout, NoOfColLayoutLines);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewAccScheduleNamePage()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        NewAccountScheduleName: Page "New Account Schedule Name";
+        NewAccountScheduleNamePage: TestPage "New Account Schedule Name";
+    begin
+        // [SCENARIO] "New Account Schedule Name" shows if the name is already exists.
+        Initialize();
+
+        // [GIVEN] Account Schedule 'X'
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+
+        // [WHEN] Open "New Account Schedule Name" for Name 'X', "Column layout Name" is ''
+        NewAccountScheduleName.Set(AccScheduleLine."Schedule Name", '');
+        NewAccountScheduleNamePage.Trap();
+        NewAccountScheduleName.Run();
+        // [THEN] Control OldName and NewName are 'X', 'Acc Schedule exists' is visible
+        Assert.IsFalse(NewAccountScheduleNamePage.SourceAccountScheduleName.Enabled(), 'OldName.Enabled');
+        Assert.AreEqual(AccScheduleLine."Schedule Name", NewAccountScheduleNamePage.SourceAccountScheduleName.Value(), 'OldName.Value');
+        Assert.IsTrue(NewAccountScheduleNamePage.NewAccountScheduleName.Editable(), 'NewName.Editable');
+        Assert.AreEqual(AccScheduleLine."Schedule Name", NewAccountScheduleNamePage.NewAccountScheduleName.Value(), 'NewName.Value');
+        Assert.AreEqual(
+            StrSubstNo(AlreadyExistsErr, AccScheduleLine."Schedule Name"),
+            NewAccountScheduleNamePage.AlreadyExistsText.Value(), 'AlreadyExistsText should be visible');
+        // [THEN] Controls for Coulum Layout is invisible
+        Assert.IsFalse(NewAccountScheduleNamePage.SourceColumnLayoutName.Visible(), 'SourceColumnLayoutName.Visible');
+        Assert.IsFalse(NewAccountScheduleNamePage.NewColumnLayoutName.Visible(), 'NewColumnLayoutName.Visible');
+        Assert.IsFalse(NewAccountScheduleNamePage.AlreadyExistsColumnLayoutText.Visible(), 'AlreadyExistsColumnLayoutText.Visible');
+
+        // [WHEN] Change "New Name" to 'Z'
+        NewAccountScheduleNamePage.NewAccountScheduleName.SetValue(LibraryUtility.GenerateGUID());
+
+        // [THEN] Control 'Acc Schedule exists' is blank
+        Assert.AreEqual('', NewAccountScheduleNamePage.AlreadyExistsText.Value(), 'AlreadyExistsText should be blank');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewColumnLayoutNamePage()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayout: Record "Column Layout";
+        NewAccountScheduleName: Page "New Account Schedule Name";
+        NewAccountScheduleNamePage: TestPage "New Account Schedule Name";
+    begin
+        // [SCENARIO] "New Account Schedule Name" shows if the  name is already exists.
+        Initialize();
+
+        // [GIVEN] Account Schedule 'X', where "Default Column Layout" is 'DCL'
+        CreateAccountScheduleWithGLAccount(AccScheduleLine);
+        // [GIVEN] Column Layout 'CL' with lines
+        CreateColumnLayoutAndLine(ColumnLayout);
+        AccScheduleName.Get(AccScheduleLine."Schedule Name");
+        AccScheduleName."Default Column Layout" := ColumnLayout."Column Layout Name";
+        AccScheduleName.Modify();
+
+        // [WHEN] Open "New Account Schedule Name" for Name 'X', "Column Layout" is 'DCL'
+        NewAccountScheduleName.Set(AccScheduleLine."Schedule Name", AccScheduleName."Default Column Layout");
+        NewAccountScheduleNamePage.Trap();
+        NewAccountScheduleName.Run();
+        // [THEN] Control OldName and NewName are 'X', 'Acc Schedule exists' is visible
+        Assert.IsFalse(NewAccountScheduleNamePage.SourceAccountScheduleName.Enabled(), 'OldName.Enabled');
+        Assert.AreEqual(AccScheduleLine."Schedule Name", NewAccountScheduleNamePage.SourceAccountScheduleName.Value(), 'OldName.Value');
+        Assert.IsTrue(NewAccountScheduleNamePage.NewAccountScheduleName.Editable(), 'NewName.Editable');
+        Assert.AreEqual(AccScheduleLine."Schedule Name", NewAccountScheduleNamePage.NewAccountScheduleName.Value(), 'NewName.Value');
+        Assert.AreEqual(
+            StrSubstNo(AlreadyExistsErr, AccScheduleLine."Schedule Name"),
+            NewAccountScheduleNamePage.AlreadyExistsText.Value(), 'AlreadyExistsText should be visible');
+        // [THEN] Controls for Column Layout are visible, OldName and NewName are 'DCL'
+        Assert.IsFalse(NewAccountScheduleNamePage.SourceColumnLayoutName.Enabled(), 'SourceColumnLayoutName.Enabled');
+        Assert.AreEqual(
+            AccScheduleName."Default Column Layout", NewAccountScheduleNamePage.SourceColumnLayoutName.Value(), 'SourceColumnLayoutName.Value');
+        Assert.IsTrue(NewAccountScheduleNamePage.NewColumnLayoutName.Editable(), 'NewColumnLayoutName.Editable');
+        Assert.AreEqual(
+            AccScheduleName."Default Column Layout", NewAccountScheduleNamePage.NewColumnLayoutName.Value(), 'NewColumnLayoutName.Value');
+        Assert.AreEqual(
+            StrSubstNo(ColLayoutAlreadyExistsErr, AccScheduleName."Default Column Layout"),
+            NewAccountScheduleNamePage.AlreadyExistsColumnLayoutText.Value(), 'AlreadyExistsColumnLayoutText should be visible');
+
+        // [WHEN] Change "NewColumnLayoutName" to 'Z'
+        NewAccountScheduleNamePage.NewColumnLayoutName.SetValue(LibraryUtility.GenerateGUID());
+
+        // [THEN] Control 'Column layout exists' is blank
+        Assert.AreEqual('', NewAccountScheduleNamePage.AlreadyExistsColumnLayoutText.Value(), 'AlreadyExistsColumnLayoutText should be blank');
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithExpectedRowNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewIncludesLinesWithShowNoWithOptionEnabled()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [SCENARIO 310744] Stan can enable showing lines with "Show = No" in Account Schedule Overview to check those, by setting a control on the page.
+        Initialize();
+
+        // [GIVEN] Account Schedule was created
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+
+        // [GIVEN] Account Schedule Line was created  with Show = No
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", Format(LibraryRandom.RandInt(100)));
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::No);
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Account Schedule Overviw page is open for this Account Schedule
+        LibraryVariableStorage.Enqueue(AccScheduleLine."Row No.");
+        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
+
+        // [THEN] Account Schedule Line with Row No. = XXX is visible
+        // Verification done in AccScheduleOverviewWithExpectedRowNoPageHandler
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Account Schedule");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         ObjectOptions.DeleteAll();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Account Schedule");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         IsInitialized := true;
         Commit();
@@ -5116,7 +5719,7 @@ codeunit 134902 "ERM Account Schedule"
         with ColumnLayout do begin
             CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, AccountNo);
             SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
-            FindFirst;
+            FindFirst();
             Evaluate(ComparisionDateFormula, '<-1Y>');
             Validate("Comparison Date Formula", ComparisionDateFormula);
             Modify(true);
@@ -5161,7 +5764,7 @@ codeunit 134902 "ERM Account Schedule"
     var
         CashFlowAccount: Record "Cash Flow Account";
     begin
-        AccountNo := LibraryUtility.GenerateGUID;
+        AccountNo := LibraryUtility.GenerateGUID();
         CashFlowAccount.Init();
         CashFlowAccount.Validate("No.", AccountNo);
         CashFlowAccount.Validate("Account Type", AccountType);
@@ -5273,7 +5876,7 @@ codeunit 134902 "ERM Account Schedule"
     local procedure CreateColumnLayoutLine(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10]; Formula: Code[80])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
-        ColumnLayout.Validate("Column No.", Format(LibraryUtility.GenerateGUID));
+        ColumnLayout.Validate("Column No.", Format(LibraryUtility.GenerateGUID()));
         ColumnLayout.Validate("Column Header", ColumnLayout."Column No.");
         ColumnLayout.Validate("Column Type", ColumnLayout."Column Type"::Formula);
         ColumnLayout.Validate(Formula, Formula);
@@ -5287,7 +5890,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
-        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID);
+        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID());
         ColumnLayout.Validate("Column Header", ColumnHeader);
         ColumnLayout.Modify(true);
         exit(ColumnLayoutName.Name);
@@ -5370,7 +5973,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         with ColumnLayout do begin
             SetRange("Column Layout Name", CreateColumnLayoutWithName(AccountNo));
-            FindFirst;
+            FindFirst();
             Validate("Amount Type", AmountType);
             Modify(true);
         end;
@@ -5426,7 +6029,7 @@ codeunit 134902 "ERM Account Schedule"
     begin
         AccScheduleLine.Init();
         AccScheduleLine.SetFilter("Date Filter", Format(WorkDate));
-        AccScheduleLine.Totaling := LibraryUtility.GenerateGUID;
+        AccScheduleLine.Totaling := LibraryUtility.GenerateGUID();
         AccScheduleLine."Totaling Type" := TotalingType;
     end;
 
@@ -5652,7 +6255,7 @@ codeunit 134902 "ERM Account Schedule"
             SetupAccountScheduleWithFormula(AccScheduleLine, Totaling);
 
         ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(GenJournalLine."Account No."));
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
         ColumnLayout.Validate("Rounding Factor", RoundingFactor);
         ColumnLayout.Validate(Show, Show);
         ColumnLayout.Modify(true);
@@ -5698,7 +6301,7 @@ codeunit 134902 "ERM Account Schedule"
         // Create Account Schedule Line, create Column Layout Name,.
         CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, GenJournalLine."Account No.");
         ColumnLayout.SetRange("Column Layout Name", CreateColumnLayoutWithName(GenJournalLine."Account No."));
-        ColumnLayout.FindFirst;
+        ColumnLayout.FindFirst();
 
         // Enqueue for AccountScheduleRequestPageHandler.
         LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
@@ -5870,7 +6473,7 @@ codeunit 134902 "ERM Account Schedule"
         ColumnLayout: Record "Column Layout";
     begin
         // Setup: Create and modify Column Layout Name, create and post General Line, create Account Schedule Line.
-        Initialize;
+        Initialize();
         SetupForAccountScheduleOverviewPage(
           AccScheduleLine,
           ColumnLayout.Show::Always,
@@ -5908,9 +6511,9 @@ codeunit 134902 "ERM Account Schedule"
         Dimension1Value: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // Create and post 2 documents for the same G/L Account with different Global Dimension 1 Code
         CreateAndPostJournalWithDimension(CustomerNo, GLAccount."No.", LibraryRandom.RandDec(100, 2));
@@ -5951,6 +6554,36 @@ codeunit 134902 "ERM Account Schedule"
         CreateAndPostJournal(CustomerNo, GlAccountNo, Amount);
     end;
 
+    local procedure ExportToXMLImport(PackageCode: Code[20]; Name: Code[10])
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        FileMgt: Codeunit "File Management";
+        FilePath: Text;
+    begin
+        FilePath := FileMgt.ServerTempFileName('xml');
+        ConfigPackageTable.SetRange("Package Code", PackageCode);
+        ConfigXMLExchange.SetCalledFromCode(true);
+        ConfigXMLExchange.SetHideDialog(true);
+        ConfigXMLExchange.ExportPackageXML(ConfigPackageTable, FilePath);
+
+        ConfigPackage.SetRange(Code, PackageCode);
+        ConfigPackage.DeleteAll(true);
+        Assert.IsFalse(ConfigPackage.Get(PackageCode), 'Package must be deleted');
+
+        if Name <> '' then begin
+            AccScheduleName.Get(Name);
+            AccScheduleName.Delete(true);
+            if ColumnLayoutName.Get(AccScheduleName."Default Column Layout") then
+                ColumnLayoutName.Delete(true);
+        end;
+
+        ConfigXMLExchange.ImportPackageXML(FilePath);
+    end;
+
     local procedure UpdateGLAccountWithDefaultDimension(GLAccountNo: Code[20]): Code[20]
     var
         DimensionValue: Record "Dimension Value";
@@ -5983,9 +6616,9 @@ codeunit 134902 "ERM Account Schedule"
 
     local procedure GenerateRandomLongFilterOnCODE10() Result: Text[250]
     begin
-        Result := Format(LibraryUtility.GenerateGUID);
+        Result := Format(LibraryUtility.GenerateGUID());
         while StrLen(Result) < LibraryRandom.RandIntInRange(100, 200) do
-            Result += '|' + Format(LibraryUtility.GenerateGUID);
+            Result += '|' + Format(LibraryUtility.GenerateGUID());
     end;
 
     local procedure VerifyAccScheduleOverviewAmountsWithTotalDimValue(var AccScheduleOverview: TestPage "Acc. Schedule Overview"; ColumnLayoutName: Code[10]; DimValues: array[2] of Code[20]; TotalDimValue: Code[20]; Amounts: array[2] of Decimal)
@@ -6279,6 +6912,15 @@ codeunit 134902 "ERM Account Schedule"
 
     [PageHandler]
     [Scope('OnPrem')]
+    procedure AccScheduleOverviewWithExpectedRowNoPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    begin
+        AccScheduleOverview.ShowLinesWithShowNo.SetValue(true);
+        AccScheduleOverview.First();
+        AccScheduleOverview."Row No.".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
     procedure AccScheduleOverviewPageDrillDownHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
     var
         ChartOfCostTypes: TestPage "Chart of Cost Types";
@@ -6384,7 +7026,7 @@ codeunit 134902 "ERM Account Schedule"
         ResponseOption := DequeueVar;
         LibraryVariableStorage.Dequeue(DequeueVar);
         CostCenter.SetRange(Code, DequeueVar);
-        CostCenter.FindFirst;
+        CostCenter.FindFirst();
         ChartOfCostCenters.SetRecord(CostCenter);
         case ResponseOption of
             ResponseRef::LookupOK:
@@ -6406,7 +7048,7 @@ codeunit 134902 "ERM Account Schedule"
         ResponseOption := DequeueVar;
         LibraryVariableStorage.Dequeue(DequeueVar);
         CostObject.SetRange(Code, DequeueVar);
-        CostObject.FindFirst;
+        CostObject.FindFirst();
         ChartOfCostObjects.SetRecord(CostObject);
         case ResponseOption of
             ResponseRef::LookupOK:
@@ -6433,6 +7075,13 @@ codeunit 134902 "ERM Account Schedule"
 
     [MessageHandler]
     [Scope('OnPrem')]
+    procedure DtldMessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
     procedure VerifyMessageHandler(Message: Text[1024])
     var
         ExpectedMessage: Variant;
@@ -6449,6 +7098,27 @@ codeunit 134902 "ERM Account Schedule"
     begin
         GLAccountList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
         GLAccountList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure NewAccScheduleNameModalPageHandler(var NewAccountScheduleName: TestPage "New Account Schedule Name")
+    var
+        NewName: Code[10];
+        NewColLayoutName: Code[10];
+    begin
+        NewName := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(NewName);
+        NewAccountScheduleName.NewAccountScheduleName.SetValue(NewName);
+        Assert.AreEqual('', NewAccountScheduleName.AlreadyExistsText.Value(), 'AlreadyExistsText should be blank');
+
+        if NewAccountScheduleName.SourceColumnLayoutName.Value() <> '' then begin
+            NewColLayoutName := LibraryUtility.GenerateGUID();
+            LibraryVariableStorage.Enqueue(NewColLayoutName);
+            NewAccountScheduleName.NewColumnLayoutName.SetValue(NewColLayoutName);
+            Assert.AreEqual('', NewAccountScheduleName.AlreadyExistsColumnLayoutText.Value(), 'AlreadyExistsColumnLayoutText should be blank');
+        end;
+        NewAccountScheduleName.OK.Invoke;
     end;
 
     [RequestPageHandler]

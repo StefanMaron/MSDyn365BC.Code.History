@@ -97,7 +97,7 @@ table 14908 "Invent. Act Header"
         TestStatus;
 
         InventActLine.SetRange("Act No.", "No.");
-        if InventActLine.FindFirst then
+        if InventActLine.FindFirst() then
             InventActLine.DeleteAll();
     end;
 

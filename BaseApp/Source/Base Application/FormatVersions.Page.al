@@ -275,7 +275,7 @@ page 26586 "Format Versions"
 
         PathName := GetPathName(FileName);
 
-        if FormatVersion.FindSet then
+        if FormatVersion.FindSet() then
             repeat
                 FormatVersion.ExportExcelTemplate(PathName + FormatVersion."Excel File Name");
                 FormatVersion.ExportXMLSchema(PathName + FormatVersion."XML Schema File Name");

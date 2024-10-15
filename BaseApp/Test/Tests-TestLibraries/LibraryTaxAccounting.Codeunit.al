@@ -280,7 +280,7 @@ codeunit 143015 "Library - Tax Accounting"
         with TaxCalcLine do begin
             SetRange("Section Code", TaxCalcSectionCode);
             SetRange(Code, TaxCalcHeaderNo);
-            if FindLast then
+            if FindLast() then
                 exit("Line No.");
             exit(0);
         end;
@@ -308,7 +308,7 @@ codeunit 143015 "Library - Tax Accounting"
         with TaxCalcSelectionSetup do begin
             SetRange("Section Code", TaxCalcSectionCode);
             SetRange("Register No.", TaxCalcHeaderNo);
-            if FindLast then
+            if FindLast() then
                 exit("Line No.");
             exit(0);
         end;
@@ -352,7 +352,7 @@ codeunit 143015 "Library - Tax Accounting"
             Validate(Description, "No.");
             Validate("Table ID", TableId);
             Validate("Storing Method", StoringMethod);
-            Validate("Register ID", LibraryUtility.GenerateGUID);
+            Validate("Register ID", LibraryUtility.GenerateGUID());
             Insert(true);
         end;
     end;
@@ -479,7 +479,7 @@ codeunit 143015 "Library - Tax Accounting"
             SetRange("Period Type", "Period Type"::Month);
             SetFilter("Period Start", '..%1', StartDate);
             SetFilter("Period End", '%1..', StartDate);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -518,7 +518,7 @@ codeunit 143015 "Library - Tax Accounting"
         with TaxDiffJnlLine do begin
             Init;
             "Posting Date" := WorkDate;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             CreateTaxDifference(TaxDifference);
             "Tax Diff. Code" := TaxDifference.Code;
             CreateTaxDiffPostingGroup(TaxDiffPostingGroup);
@@ -571,8 +571,8 @@ codeunit 143015 "Library - Tax Accounting"
     begin
         with TaxCalcCorrespEntry do begin
             "Section Code" := SectionCode;
-            "Debit Account No." := LibraryERM.CreateGLAccountNo;
-            "Credit Account No." := LibraryERM.CreateGLAccountNo;
+            "Debit Account No." := LibraryERM.CreateGLAccountNo();
+            "Credit Account No." := LibraryERM.CreateGLAccountNo();
             "Register Type" := "Register Type"::Item;
             "Entry No." := 1;
         end;

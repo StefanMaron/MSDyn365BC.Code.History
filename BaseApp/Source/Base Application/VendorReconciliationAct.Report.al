@@ -23,7 +23,7 @@ report 14911 "Vendor - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not AppldVendLedgEntryTmp.FindSet then
+                            if not AppldVendLedgEntryTmp.FindSet() then
                                 CurrReport.Break();
                         end else
                             if AppldVendLedgEntryTmp.Next(1) = 0 then
@@ -148,7 +148,7 @@ report 14911 "Vendor - Reconciliation Act"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not AppldVendLedgEntryTmp.FindSet then
+                            if not AppldVendLedgEntryTmp.FindSet() then
                                 CurrReport.Break();
                         end else
                             if AppldVendLedgEntryTmp.Next(1) = 0 then
@@ -1142,7 +1142,7 @@ report 14911 "Vendor - Reconciliation Act"
             DetailedVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Entry No.");
             DetailedVendLedgEntry.SetRange("Entry Type", DetailedVendLedgEntry."Entry Type"::Application);
             DetailedVendLedgEntry.SetFilter("Posting Date", DateFilter);
-            if DetailedVendLedgEntry.FindSet then
+            if DetailedVendLedgEntry.FindSet() then
                 repeat
                     GetVendApplicationEntry(DetailedVendLedgEntry, ApplDetailedVendLedgEntry, false, VendLedgEntry, OtherCurrApplAmount);
                 until DetailedVendLedgEntry.Next() = 0;
@@ -1418,7 +1418,7 @@ report 14911 "Vendor - Reconciliation Act"
     begin
         with BankAccountLedgerEntry do begin
             SetRange("Transaction No.", VendLedgEntry."Transaction No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 SetRange("Document Type", "Document Type"::Payment);
                 SetRange("Document No.", "Document No.");
                 SetFilter("Transaction No.", '<>%1', VendLedgEntry."Transaction No.");
@@ -1482,7 +1482,7 @@ report 14911 "Vendor - Reconciliation Act"
         SrcDetailedVendLedgEntry.SetRange(Unapplied, false);
         SrcDetailedVendLedgEntry.SetFilter("Posting Date", '..%1', MaxDate);
         SrcDetailedVendLedgEntry.SetRange("Entry Type", SrcDetailedVendLedgEntry."Entry Type"::Application);
-        if SrcDetailedVendLedgEntry.FindSet then begin
+        if SrcDetailedVendLedgEntry.FindSet() then begin
             repeat
                 if SrcDetailedVendLedgEntry."Vendor Ledger Entry No." =
                    SrcDetailedVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1493,7 +1493,7 @@ report 14911 "Vendor - Reconciliation Act"
                       "Applied Vend. Ledger Entry No.", SrcDetailedVendLedgEntry."Applied Vend. Ledger Entry No.");
                     AppliedDetailedVendLedgEntry.SetRange("Entry Type", AppliedDetailedVendLedgEntry."Entry Type"::Application);
                     AppliedDetailedVendLedgEntry.SetRange(Unapplied, false);
-                    if AppliedDetailedVendLedgEntry.FindSet then begin
+                    if AppliedDetailedVendLedgEntry.FindSet() then begin
                         repeat
                             if AppliedDetailedVendLedgEntry."Vendor Ledger Entry No." <>
                                AppliedDetailedVendLedgEntry."Applied Vend. Ledger Entry No."
@@ -1573,7 +1573,7 @@ report 14911 "Vendor - Reconciliation Act"
     begin
         with DetailedVendLedgEntry do begin
             SetRange("Initial Document Type", "Initial Document Type"::" ");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if CurrencyCode <> '' then
                         HandleInitialDebitCreditBal("Entry Type", Amount, InitialDebitAmount, InitialCreditAmount)

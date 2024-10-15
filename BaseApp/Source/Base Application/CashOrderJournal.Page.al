@@ -610,7 +610,7 @@ page 12438 "Cash Order Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action("Test Report")

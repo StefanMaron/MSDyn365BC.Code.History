@@ -391,13 +391,13 @@ table 12405 "VAT Ledger Line"
         DetailedVendorLedgEntryPayment: Record "Detailed Vendor Ledg. Entry";
     begin
         VendorLedgerEntry.SetRange("Document No.", "Origin. Document No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
 
         DetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
         DetailedVendorLedgEntry.SetRange(Unapplied, false);
         DetailedVendorLedgEntry.SetFilter("Posting Date", '..%1', EndDate);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
-        if DetailedVendorLedgEntry.FindSet then begin
+        if DetailedVendorLedgEntry.FindSet() then begin
             repeat
                 if DetailedVendorLedgEntry."Vendor Ledger Entry No." =
                    DetailedVendorLedgEntry."Applied Vend. Ledger Entry No."
@@ -406,7 +406,7 @@ table 12405 "VAT Ledger Line"
                       "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntry."Applied Vend. Ledger Entry No.");
                     DetailedVendorLedgEntryPayment.SetRange("Entry Type", DetailedVendorLedgEntryPayment."Entry Type"::Application);
                     DetailedVendorLedgEntryPayment.SetRange(Unapplied, false);
-                    if DetailedVendorLedgEntryPayment.FindSet then begin
+                    if DetailedVendorLedgEntryPayment.FindSet() then begin
                         repeat
                             if DetailedVendorLedgEntryPayment."Vendor Ledger Entry No." <>
                                DetailedVendorLedgEntryPayment."Applied Vend. Ledger Entry No."
@@ -441,7 +441,7 @@ table 12405 "VAT Ledger Line"
         VATLedgerLineCDNo: Record "VAT Ledger Line CD No.";
     begin
         VATLedgerLineCDNo.SetFilterVATLedgerLine(Rec);
-        if VATLedgerLineCDNo.FindSet then begin
+        if VATLedgerLineCDNo.FindSet() then begin
             Result := VATLedgerLineCDNo."CD No.";
             while VATLedgerLineCDNo.Next <> 0 do
                 Result += ';' + VATLedgerLineCDNo."CD No.";

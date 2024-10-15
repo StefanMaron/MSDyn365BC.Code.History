@@ -166,7 +166,7 @@ page 7358 "Whse. Internal Pick Line"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Shift+Ctrl+I'; // bug 427462
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -204,11 +204,6 @@ page 7358 "Whse. Internal Pick Line"
         if WhseInternalPickHeader.Status = WhseInternalPickHeader.Status::Open then
             ReleaseWhseInternalPick.Release(WhseInternalPickHeader);
         CreatePickDoc(WhseInternalPickLine, WhseInternalPickHeader);
-    end;
-
-    local procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines();
     end;
 
     local procedure GetActualSortMethod(): Enum "Warehouse Internal Sorting Method"

@@ -61,7 +61,7 @@ codeunit 14949 "TORG-29 Helper"
         ValueEntryReceipts.SetRange("Posting Date", StartDate, EndDate);
         ValueEntryReceipts.SetRange("Location Code", LocationCode);
 
-        if ValueEntryReceipts.FindSet then
+        if ValueEntryReceipts.FindSet() then
             repeat
                 if ValueEntryReceipts.IsDebit then begin
                     case PassedReceiptsDetailing of
@@ -101,7 +101,7 @@ codeunit 14949 "TORG-29 Helper"
 
                     if (PassedAmountType = AmountType::Cost) and (PassedReceiptsDetailing = ReceiptsDetailing::Operation) then begin
                         GLItemRelation.SetRange("Value Entry No.", ValueEntryReceipts."Entry No.");
-                        if GLItemRelation.FindSet then
+                        if GLItemRelation.FindSet() then
                             repeat
                                 if GLEntry.Get(GLItemRelation."G/L Entry No.") then
                                     if (GLEntry.Amount > 0) xor ((GLEntry."Debit Amount" < 0) or (GLEntry."Credit Amount" < 0)) then
@@ -207,7 +207,7 @@ codeunit 14949 "TORG-29 Helper"
 
         ValueEntryShipment.SetRange("Posting Date", StartDate, EndDate);
         ValueEntryShipment.SetRange("Location Code", LocationCode);
-        if ValueEntryShipment.FindSet then
+        if ValueEntryShipment.FindSet() then
             repeat
                 if not ValueEntryShipment.IsDebit then begin
                     case PassedShipmentDetailing of
@@ -250,7 +250,7 @@ codeunit 14949 "TORG-29 Helper"
 
                     if (PassedAmountType = AmountType::Cost) and (PassedShipmentDetailing = ShipmentDetailing::Operation) then begin
                         GLItemRelation.SetRange("Value Entry No.", ValueEntryShipment."Entry No.");
-                        if GLItemRelation.FindSet then
+                        if GLItemRelation.FindSet() then
                             repeat
                                 if GLEntry.Get(GLItemRelation."G/L Entry No.") then
                                     if (GLEntry.Amount > 0) xor ((GLEntry."Debit Amount" < 0) or (GLEntry."Credit Amount" < 0)) then
@@ -383,7 +383,7 @@ codeunit 14949 "TORG-29 Helper"
             SetCurrentKey("Item No.", "Posting Date");
             SetFilter("Posting Date", '<%1', StartDate);
             SetFilter("Location Code", LocationCode);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if IsDebit then
                         if PassedAmountType = AmountType::Cost then

@@ -53,7 +53,7 @@ codeunit 5638 FAJnlManagement
                     Commit();
                 end;
             1:
-                FAJnlTemplate.FindFirst;
+                FAJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, FAJnlTemplate) = ACTION::LookupOK;
         end;
@@ -113,14 +113,14 @@ codeunit 5638 FAJnlManagement
         FAJnlBatch.FilterGroup(0);
 
         if not FAJnlBatch.Find('-') then begin
-            if not FAJnlTemplate.FindFirst then
+            if not FAJnlTemplate.FindFirst() then
                 TemplateSelection(0, 0, false, FAJnlLine, JnlSelected);
-            if FAJnlTemplate.FindFirst then
+            if FAJnlTemplate.FindFirst() then
                 CheckTemplateName(FAJnlTemplate.Name, FAJnlBatch.Name);
             FAJnlTemplate.SetRange(Recurring, true);
-            if not FAJnlTemplate.FindFirst then
+            if not FAJnlTemplate.FindFirst() then
                 TemplateSelection(0, 0, true, FAJnlLine, JnlSelected);
-            if FAJnlTemplate.FindFirst then
+            if FAJnlTemplate.FindFirst() then
                 CheckTemplateName(FAJnlTemplate.Name, FAJnlBatch.Name);
             FAJnlTemplate.SetRange(Recurring);
         end;
@@ -132,7 +132,7 @@ codeunit 5638 FAJnlManagement
             FAJnlTemplate.SetRange(Name, FAJnlBatch.GetFilter("Journal Template Name"));
         case FAJnlTemplate.Count of
             1:
-                FAJnlTemplate.FindFirst;
+                FAJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, FAJnlTemplate) = ACTION::LookupOK;
         end;
@@ -181,7 +181,7 @@ codeunit 5638 FAJnlManagement
     begin
         if not FAJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             FAJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
-            if not FAJnlBatch.FindFirst then begin
+            if not FAJnlBatch.FindFirst() then begin
                 FAJnlBatch.Init();
                 FAJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 FAJnlBatch.SetupNewBatch;

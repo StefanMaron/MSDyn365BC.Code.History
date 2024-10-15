@@ -78,6 +78,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
         GenJnlLine.Init();
         GenJnlLine."Source Code" := SourceCodeSetup.Reversal;
+        GenJnlLine."Journal Template Name" := GLEntry2."Journal Templ. Name";
 
         OnReverseOnBeforeStartPosting(GenJnlLine, ReversalEntry2, GLEntry2);
 
@@ -99,7 +100,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         if GLSetup."Enable Russian Accounting" then
             CopyValueEntry(ValueEntry, TempValueEntry);
 
-        if TempRevertTransactionNo.FindSet then;
+        if TempRevertTransactionNo.FindSet() then;
         repeat
             if ReversalEntry2."Reversal Type" = ReversalEntry2."Reversal Type"::Transaction then
                 GLEntry2.SetRange("Transaction No.", TempRevertTransactionNo.Number);
@@ -111,12 +112,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
               ReversalEntry, TempTaxDiffLedgEntry, ReversalEntry2, GLReg);
         until TempRevertTransactionNo.Next() = 0;
 
-        if FALedgEntry.FindSet then
+        if FALedgEntry.FindSet() then
             repeat
                 FAInsertLedgEntry.CheckFAReverseEntry(FALedgEntry)
             until FALedgEntry.Next() = 0;
 
-        if MaintenanceLedgEntry.FindFirst then
+        if MaintenanceLedgEntry.FindFirst() then
             repeat
                 FAInsertLedgEntry.CheckMaintReverseEntry(MaintenanceLedgEntry)
             until FALedgEntry.Next() = 0;
@@ -215,7 +216,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     if GLSetup."Enable Russian Accounting" and (GLEntry.Amount <> 0) then begin
                         GLItemLedgerRelation.Reset();
                         GLItemLedgerRelation.SetRange("G/L Entry No.", "Entry No.");
-                        if GLItemLedgerRelation.FindFirst then
+                        if GLItemLedgerRelation.FindFirst() then
                             if ValueEntry.Get(GLItemLedgerRelation."Value Entry No.") then begin
                                 GLItemLedgerRelation."G/L Entry No." := GLEntry."Entry No.";
                                 GLItemLedgerRelation."Value Entry No." :=
@@ -227,12 +228,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
                     if GLSetup."Enable Russian Tax Accounting" then begin
                         DetailedCustLedgEntry.SetRange("Tax Diff. Transaction No.", "Transaction No.");
-                        if DetailedCustLedgEntry.FindFirst then begin
+                        if DetailedCustLedgEntry.FindFirst() then begin
                             DetailedCustLedgEntry."Tax Diff. Transaction No." := 0;
                             DetailedCustLedgEntry.Modify();
                         end;
                         DetailedVendorLedgEntry.SetRange("Tax Diff. Transaction No.", "Transaction No.");
-                        if DetailedVendorLedgEntry.FindFirst then begin
+                        if DetailedVendorLedgEntry.FindFirst() then begin
                             DetailedVendorLedgEntry."Tax Diff. Transaction No." := 0;
                             DetailedVendorLedgEntry.Modify();
                         end;
@@ -336,7 +337,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
 
             if NextDtldCustLedgEntryEntryNo = 0 then begin
-                DtldCustLedgEntry.FindLast;
+                DtldCustLedgEntry.FindLast();
                 NextDtldCustLedgEntryEntryNo := DtldCustLedgEntry."Entry No." + 1;
             end;
             DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
@@ -418,7 +419,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             OnReverseVendLedgEntryOnAfterInsertVendLedgEntry(NewVendLedgEntry);
 
             if NextDtldVendLedgEntryEntryNo = 0 then begin
-                DtldVendLedgEntry.FindLast;
+                DtldVendLedgEntry.FindLast();
                 NextDtldVendLedgEntryEntryNo := DtldVendLedgEntry."Entry No." + 1;
             end;
             DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
@@ -498,7 +499,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
     begin
         GLEntryVATEntryLink.SetRange("G/L Entry No.", GLEntry."Reversed Entry No.");
-        if GLEntryVATEntryLink.FindSet then
+        if GLEntryVATEntryLink.FindSet() then
             repeat
                 VATEntry.Get(GLEntryVATEntryLink."VAT Entry No.");
                 if VATEntry."Reversed by Entry No." <> 0 then
@@ -605,7 +606,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             NewDtldVendLedgEntry.Insert(true);
     end;
 
-    local procedure CheckDimComb(EntryNo: Integer; DimSetID: Integer; TableID1: Integer; AccNo1: Code[20]; TableID2: Integer; AccNo2: Code[20])
+    procedure CheckDimComb(EntryNo: Integer; DimSetID: Integer; TableID1: Integer; AccNo1: Code[20]; TableID2: Integer; AccNo2: Code[20])
     var
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
@@ -631,7 +632,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     local procedure CopyCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary)
     begin
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 if CustLedgEntry."Reversed by Entry No." <> 0 then
                     Error(CannotReverseErr);
@@ -642,7 +643,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     local procedure CopyVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary)
     begin
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 if VendLedgEntry."Reversed by Entry No." <> 0 then
                     Error(CannotReverseErr);
@@ -653,7 +654,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     local procedure CopyBankAccLedgEntry(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var TempBankAccLedgEntry: Record "Bank Account Ledger Entry" temporary)
     begin
-        if BankAccLedgEntry.FindSet then
+        if BankAccLedgEntry.FindSet() then
             repeat
                 if BankAccLedgEntry."Reversed by Entry No." <> 0 then
                     Error(CannotReverseErr);
@@ -667,7 +668,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         ReversalEntry: Record "Reversal Entry";
     begin
         FilterReversalEntry(ReversalEntry, RecVar);
-        if ReversalEntry.FindFirst then
+        if ReversalEntry.FindFirst() then
             Description := ReversalEntry.Description;
     end;
 
@@ -677,7 +678,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     begin
         ReversalEntry.SetCurrentKey("Transaction No.");
         ReversalEntry.SetFilter("Transaction No.", '<%1', 0);
-        if ReversalEntry.FindFirst then;
+        if ReversalEntry.FindFirst() then;
         exit(ReversalEntry."Transaction No." - 1);
     end;
 
@@ -687,7 +688,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     begin
         GLRegister.SetCurrentKey("To Entry No.");
         GLRegister.SetRange("To Entry No.", ReversalEntry."Entry No.");
-        if GLRegister.FindFirst then;
+        if GLRegister.FindFirst() then;
         exit(GLRegister."No.");
     end;
 
@@ -748,7 +749,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     var
         ReversalEntry: Record "Reversal Entry";
     begin
-        if TempReversalEntry.FindSet then
+        if TempReversalEntry.FindSet() then
             repeat
                 ReversalEntry := TempReversalEntry;
                 ReversalEntry."Transaction No." := TransactionKey;
@@ -777,7 +778,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     local procedure CopyTaxDiffLedgEntry(var TaxDiffLedgEntry: Record "Tax Diff. Ledger Entry"; var TempTaxDiffLedgEntry: Record "Tax Diff. Ledger Entry" temporary)
     begin
-        if TaxDiffLedgEntry.FindSet then
+        if TaxDiffLedgEntry.FindSet() then
             repeat
                 if TaxDiffLedgEntry.Reversed then
                     Error(CannotReverseErr);
@@ -804,7 +805,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         VATEntry2.Reset();
         VATEntry2.DeleteAll();
         GLEntryVATEntryLink.SetRange("G/L Entry No.", GLEntry."Reversed Entry No.");
-        if GLEntryVATEntryLink.FindSet then
+        if GLEntryVATEntryLink.FindSet() then
             repeat
                 VATEntry.Get(GLEntryVATEntryLink."VAT Entry No.");
                 if VATEntry."Reversed by Entry No." <> 0 then

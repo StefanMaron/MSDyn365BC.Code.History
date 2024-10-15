@@ -40,7 +40,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         UoMOKEICode: Code[3];
     begin
         // [SCENARIO] Export REP 14966 "Sales Corr. Factura-Invoice" for open corrective sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company address with "Post Code" = "A", County = "B", City = "C", "Address" = "D", "Address 2" = "E"
         // [GIVEN] Corrective sales invoice for customer with "Post Code" = "F", County = "G", City = "H", "Address" = "I", "Address 2" = "J"
@@ -90,7 +90,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         UoMOKEICode: Code[3];
     begin
         // [SCENARIO] Export REP 14967 "Pstd. Sales Corr. Fact. Inv." for posted corrective sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company address with "Post Code" = "A", County = "B", City = "C", "Address" = "D", "Address 2" = "E"
         // [GIVEN] Posted corrective sales invoice for customer with "Post Code" = "F", County = "G", City = "H", "Address" = "I", "Address 2" = "J"
@@ -139,7 +139,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         UoMOKEICode: Code[3];
     begin
         // [SCENARIO] Export REP 14968 "Pstd. Sales Corr. Cr. M. Fact." for posted corrective sales credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company address with "Post Code" = "A", County = "B", City = "C", "Address" = "D", "Address 2" = "E"
         // [GIVEN] Posted corrective sales credit memo for customer with "Post Code" = "F", County = "G", City = "H", "Address" = "I", "Address 2" = "J"
@@ -183,7 +183,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         // [FEATURE] [Factura-Invoice] [Credit Memo]
         // [SCENARIO 201525] Verify REP 12484 "Posted Cr. M. Factura-Invoice" base values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales credit memo "CrMemoNo" with Item "X" (with description "Desc"), Quantity = 10, "Unit Price" = 80, "Line Amount" = 800, "VAT %" = 25, "Total Amount Incl. VAT" = 1000
         DocumentNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -227,7 +227,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         // [FEATURE] [Factura-Invoice] [Credit Memo] [Prepayment]
         // [SCENARIO 201525] Verify REP 12484 "Posted Cr. M. Factura-Invoice" base values in case of prepayment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted prepayment sales credit memo "CrM-No" with Item "X" (with description "Desc"), Quantity = 10, "Unit Price" = 80, "Line Amount" = 800, "VAT %" = 25, "Total Amount Incl. VAT" = 1000
         DocumentNo := CreatePostPrepmtSalesCrMemo;
@@ -263,15 +263,15 @@ codeunit 144718 "ERM Corr. Factura Test"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryVariableStorage);
         LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        UpdateSalesReceivablesSetup();
         LibraryRUReports.UpdateCompanyAddress;
 
         isInitialized := true;
@@ -282,12 +282,12 @@ codeunit 144718 "ERM Corr. Factura Test"
     var
         SalesCorrFacturaInvoice: Report "Sales Corr. Factura-Invoice";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         CorrSalesHeader.SetRecFilter;
         SalesCorrFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName);
         SalesCorrFacturaInvoice.SetTableView(CorrSalesHeader);
         SalesCorrFacturaInvoice.UseRequestPage(false);
-        SalesCorrFacturaInvoice.Run;
+        SalesCorrFacturaInvoice.Run();
     end;
 
     local procedure RunPostedCorrInvoiceReport(InvNo: Code[20])
@@ -295,12 +295,12 @@ codeunit 144718 "ERM Corr. Factura Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PstdSalesCorrFactInv: Report "Pstd. Sales Corr. Fact. Inv.";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesInvoiceHeader.SetRange("No.", InvNo);
         PstdSalesCorrFactInv.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PstdSalesCorrFactInv.SetTableView(SalesInvoiceHeader);
         PstdSalesCorrFactInv.UseRequestPage(false);
-        PstdSalesCorrFactInv.Run;
+        PstdSalesCorrFactInv.Run();
     end;
 
     local procedure RunPostedCorrCrMemoReport(InvNo: Code[20])
@@ -308,12 +308,12 @@ codeunit 144718 "ERM Corr. Factura Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PstdSalesCorrCrMFact: Report "Pstd. Sales Corr. Cr. M. Fact.";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesCrMemoHeader.SetRange("No.", InvNo);
         PstdSalesCorrCrMFact.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PstdSalesCorrCrMFact.SetTableView(SalesCrMemoHeader);
         PstdSalesCorrCrMFact.UseRequestPage(false);
-        PstdSalesCorrCrMFact.Run;
+        PstdSalesCorrCrMFact.Run();
     end;
 
     local procedure RunPostedCrMemoFacturaInvoice(InvNo: Code[20])
@@ -321,12 +321,12 @@ codeunit 144718 "ERM Corr. Factura Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedCrMFacturaInvoice: Report "Posted Cr. M. Factura-Invoice";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesCrMemoHeader.SetRange("No.", InvNo);
         PostedCrMFacturaInvoice.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedCrMFacturaInvoice.SetTableView(SalesCrMemoHeader);
         PostedCrMFacturaInvoice.UseRequestPage(false);
-        PostedCrMFacturaInvoice.Run;
+        PostedCrMFacturaInvoice.Run();
     end;
 
     local procedure CreatePostSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"): Code[20]
@@ -346,7 +346,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
         SalesCrMemoHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         exit(SalesCrMemoHeader."No.");
     end;
 
@@ -419,7 +419,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         with TariffNumber do begin
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
             exit("No.");
         end;
@@ -432,7 +432,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         with Currency do begin
             Get(LibraryERM.CreateCurrencyWithRandomExchRates);
             Validate("RU Bank Digital Code", 'RUB');
-            Validate(Description, LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
             Modify(true);
             exit(Code);
         end;
@@ -472,7 +472,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         with SalesCrMemoLine do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -480,7 +480,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         with SalesInvoiceLine do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -517,7 +517,7 @@ codeunit 144718 "ERM Corr. Factura Test"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         SalesInvoiceLine.SetRange("Document No.", InvNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         QtyBefore := SalesInvoiceLine."Quantity (Before)";
         QtyAfter := SalesInvoiceLine."Quantity (After)";
         UnitOfMeasure.Get(SalesInvoiceLine."Unit of Measure Code");

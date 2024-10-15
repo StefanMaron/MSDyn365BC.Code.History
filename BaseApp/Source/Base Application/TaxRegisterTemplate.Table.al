@@ -312,7 +312,7 @@ table 17202 "Tax Register Template"
                     TaxRegLineSetup.SetRange("Section Code", "Section Code");
                     TaxRegLineSetup.SetRange("Tax Register No.", "Link Tax Register No.");
                     TaxRegLineSetup.SetRange("Line Code", "Term Line Code");
-                    if not TaxRegLineSetup.FindFirst then
+                    if not TaxRegLineSetup.FindFirst() then
                         FieldError("Term Line Code");
                 end;
             end;
@@ -499,7 +499,7 @@ table 17202 "Tax Register Template"
         Field.Reset();
         Field.SetRange(TableNo, TaxRegTableNo);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-        if Field.FindSet then begin
+        if Field.FindSet() then begin
             repeat
                 if TaxRegGLEntry.SetFieldFilter(Field."No.") then
                     FilterText := StrSubstNo('%1|%2', FilterText, Field."No.");

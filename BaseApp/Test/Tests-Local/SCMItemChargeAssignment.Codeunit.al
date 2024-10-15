@@ -33,7 +33,7 @@ codeunit 147110 "SCM Item Charge Assignment"
     begin
         // Verify Item Charge Assignment (Purch) table after
         // item charge suggestion with Amount option
-        Initialize;
+        Initialize();
 
         ReproPurchScenario1(PurchHeader);
         ItemChargeLineNo := FindChargeItemPurchLine(PurchLine, PurchHeader."No.", PurchHeader."Buy-from Vendor No.");
@@ -53,7 +53,7 @@ codeunit 147110 "SCM Item Charge Assignment"
     begin
         // Verify Item Charge Assignment (Purch) table after
         // item charge suggestion with Amount option and modification
-        Initialize;
+        Initialize();
 
         ReproPurchScenario2(PurchHeader);
         ItemChargeLineNo := FindChargeItemPurchLine(PurchLine, PurchHeader."No.", PurchHeader."Buy-from Vendor No.");
@@ -74,7 +74,7 @@ codeunit 147110 "SCM Item Charge Assignment"
     begin
         // Verify Item Charge Assignment (Sales) table after
         // item charge suggestion with Amount option
-        Initialize;
+        Initialize();
 
         ReproSalesScenario1(SalesHeader);
         ItemChargeLineNo := FindChargeItemSalesLine(SalesLine, SalesHeader."No.", SalesHeader."Sell-to Customer No.");
@@ -94,7 +94,7 @@ codeunit 147110 "SCM Item Charge Assignment"
     begin
         // Verify Item Charge Assignment (Sales) table after
         // item charge suggestion with Amount option and modification
-        Initialize;
+        Initialize();
 
         ReproSalesScenario2(SalesHeader);
         ItemChargeLineNo := FindChargeItemSalesLine(SalesLine, SalesHeader."No.", SalesHeader."Sell-to Customer No.");
@@ -113,7 +113,7 @@ codeunit 147110 "SCM Item Charge Assignment"
         ModifyUserSetup;
 
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
     end;
@@ -283,7 +283,7 @@ codeunit 147110 "SCM Item Charge Assignment"
         with PurchHeader do begin
             LibraryPurchase.CreatePurchHeader(PurchHeader, "Document Type"::Invoice, VendorNo);
             SetHideValidationDialog(true);
-            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+            Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;
@@ -374,7 +374,7 @@ codeunit 147110 "SCM Item Charge Assignment"
         i: Integer;
     begin
         for i := 1 to Qty do
-            Items[i] := LibraryInventory.CreateItemNo;
+            Items[i] := LibraryInventory.CreateItemNo();
     end;
 
     local procedure FindChargeItemPurchLine(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; VendorNo: Code[20]): Integer
@@ -384,7 +384,7 @@ codeunit 147110 "SCM Item Charge Assignment"
             SetRange("Document No.", DocumentNo);
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange(Type, Type::"Charge (Item)");
-            FindLast;
+            FindLast();
         end;
         exit(PurchLine."Line No.");
     end;
@@ -396,7 +396,7 @@ codeunit 147110 "SCM Item Charge Assignment"
             SetRange("Document No.", DocumentNo);
             SetRange("Sell-to Customer No.", CustNo);
             SetRange(Type, Type::"Charge (Item)");
-            FindLast;
+            FindLast();
         end;
         exit(SalesLine."Line No.");
     end;
@@ -411,8 +411,8 @@ codeunit 147110 "SCM Item Charge Assignment"
         with ItemChargeAssPurch do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            if FindSet then begin
-                FindFirst;
+            if FindSet() then begin
+                FindFirst();
                 ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[1], AmtToAssign[1]);
                 Next;
                 ModifyItemChargeAssPurchLine(ItemChargeAssPurch, QtyToAssign[2], AmtToAssign[2]);
@@ -439,8 +439,8 @@ codeunit 147110 "SCM Item Charge Assignment"
         with ItemChargeAssSales do begin
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocumentNo);
-            if FindSet then begin
-                FindFirst;
+            if FindSet() then begin
+                FindFirst();
                 ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[1], AmtToAssign[1]);
                 Next;
                 ModifyItemChargeAssSalesLine(ItemChargeAssSales, QtyToAssign[2], AmtToAssign[2]);

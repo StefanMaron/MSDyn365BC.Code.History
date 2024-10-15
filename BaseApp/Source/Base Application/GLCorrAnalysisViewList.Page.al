@@ -97,7 +97,7 @@ page 14942 "G/L Corr. Analysis View List"
                 begin
                     Clear(GLCorrAnalysisByDim);
                     GLCorrAnalysisByDim.SetAnalysisViewCode(Code);
-                    GLCorrAnalysisByDim.Run;
+                    GLCorrAnalysisByDim.Run();
                 end;
             }
             action("&Update")

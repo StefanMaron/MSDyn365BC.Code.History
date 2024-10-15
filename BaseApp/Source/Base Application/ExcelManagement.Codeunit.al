@@ -449,18 +449,12 @@ codeunit 12416 "Excel Management"
     [Scope('OnPrem')]
     procedure BLOBImportSilent(var TempBlob: Codeunit "Temp Blob"; ClientFileName: Text)
     var
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
         NVInStream: InStream;
         NVOutStream: OutStream;
         UploadResult: Boolean;
         ServerFileName: Text;
         ServerFile: File;
     begin
-#if not CLEAN17
-        ServerFileName := FileMgt.UploadFileSilent(ClientFileName);
-#endif
         ServerFile.Open(ServerFileName);
         ServerFile.CreateInStream(NVInStream);
         TempBlob.CreateOutStream(NVOutStream);

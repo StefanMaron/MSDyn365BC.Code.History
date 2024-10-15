@@ -266,7 +266,7 @@ page 116 "G/L Registers"
                     begin
                         GLEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                         CreateGLCorr.SetTableView(GLEntry);
-                        CreateGLCorr.Run;
+                        CreateGLCorr.Run();
                     end;
                 }
                 action("Delete Empty Registers")
@@ -327,7 +327,7 @@ page 116 "G/L Registers"
 
     trigger OnOpenPage()
     begin
-        if FindSet then;
+        if FindSet() then;
     end;
 
     trigger OnAfterGetRecord()

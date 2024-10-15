@@ -45,7 +45,7 @@ codeunit 147111 "SCM Item Documents"
         // [FEATURE] [Item G/L Turnover]
         // [SCENARIO 376914] Inbound item entries without cost are included in "Debit Qty." in "Item G/L Turnover", outbound entries - in credit qty.
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -79,7 +79,7 @@ codeunit 147111 "SCM Item Documents"
         // [FEATURE] [Item G/L Turnover]
         // [SCENARIO 376914] "Item G/L Turnover" should show invoiced inbound item entries' Quantity and Amount in Debit columns, Outbound - in Credit columns
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandInt(100);
@@ -118,7 +118,7 @@ codeunit 147111 "SCM Item Documents"
         // [FEATURE] [Item G/L Turnover]
         // [SCENARIO 376914] Item entries with expected cost not invoiced are not included in Inventory G/L Turnover
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post inbound item entry with quantity <> 0, expected cost amount <> 0
         LibraryInventory.CreateItem(Item);
@@ -157,7 +157,7 @@ codeunit 147111 "SCM Item Documents"
         // [FEATURE] [Item G/L Turnover] [Revaluation]
         // [SCENARIO 376914] Calculate "Item G/L Turnover" for positive item entry with negative revaluation
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Amount[1] := LibraryRandom.RandDecInRange(101, 200, 2);
@@ -191,7 +191,7 @@ codeunit 147111 "SCM Item Documents"
         // [FEATURE] [Item G/L Turnover] [Red Storno]
         // [SCENARIO 376914] Outbound item entry posted with "Red Storno" and cost amount = 0 is tallied in debit amount in "Item G/L Turnover"
 
-        Initialize;
+        Initialize();
         EnableRedStorno;
 
         LibraryInventory.CreateItem(Item);
@@ -226,7 +226,7 @@ codeunit 147111 "SCM Item Documents"
         // [FEATURE] [Item G/L Turnover] [Red Storno]
         // [SCENARIO 376914] Outbound item entry posted with "Red Storno" and positive cost amount is tallied in debit amount in "Item G/L Turnover"
 
-        Initialize;
+        Initialize();
         EnableRedStorno;
 
         LibraryInventory.CreateItem(Item);
@@ -262,7 +262,7 @@ codeunit 147111 "SCM Item Documents"
     begin
         // [FEATURE] [Item Shipment] [Fixed Asset]
         // [SCENARIO 379130] Write-off of items in the value of the fixed asset fills source info on acquisition cost G/L Entry
-        Initialize;
+        Initialize();
 
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
         LibraryInventory.CreateItem(Item);

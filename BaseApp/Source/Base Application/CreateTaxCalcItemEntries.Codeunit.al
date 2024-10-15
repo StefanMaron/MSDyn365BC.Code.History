@@ -32,7 +32,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
     begin
         TaxCalcMgt.ValidateAbsenceItemEntriesDate(StartDate, EndDate, TaxCalcSectionCode);
 
-        if not TaxCalcItemEntry.FindLast then
+        if not TaxCalcItemEntry.FindLast() then
             TaxCalcItemEntry."Entry No." := 0;
 
         Clear(TaxDimMgt);
@@ -56,7 +56,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
             Total := Count;
             Procesing := 0;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     Procesing += 1;
                     if (Procesing mod 50) = 1 then
@@ -107,7 +107,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                             end;
                         end else begin
                             ItemApplEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-                            if ItemApplEntry.FindSet then
+                            if ItemApplEntry.FindSet() then
                                 repeat
                                     if ItemApplEntry.Quantity < 0 then begin
                                         if not ItemLedgEntry0.Get(ItemApplEntry."Inbound Item Entry No.") then
@@ -115,7 +115,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                         if ItemLedgEntry0."Entry Type" = ItemLedgEntry0."Entry Type"::Transfer then
                                             repeat
                                                 ItemApplEntry0.SetRange("Item Ledger Entry No.", ItemLedgEntry0."Entry No.");
-                                                ItemApplEntry0.FindFirst;
+                                                ItemApplEntry0.FindFirst();
                                                 if not ItemLedgEntry0.Get(ItemApplEntry0."Transferred-from Entry No.") then
                                                     ItemLedgEntry0.Init();
                                             until ItemLedgEntry0."Entry Type" <> ItemLedgEntry0."Entry Type"::Transfer;
@@ -340,7 +340,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
         TaxCalcItemEntry0.SetRange("Ending Date", TaxCalcItemEntry1."Ending Date");
         TaxCalcItemEntry0.SetRange("Appl. Entry No.", TaxCalcItemEntry1."Appl. Entry No.");
         TaxCalcItemEntry0.SetRange("Ledger Entry No.", TaxCalcItemEntry1."Ledger Entry No.");
-        if TaxCalcItemEntry0.FindFirst then begin
+        if TaxCalcItemEntry0.FindFirst() then begin
             TaxCalcItemEntry0.Quantity += TaxCalcItemEntry1.Quantity;
             TaxCalcItemEntry0."Amount (Tax)" += TaxCalcItemEntry1."Amount (Tax)";
             TaxCalcItemEntry0."Debit Quantity" += TaxCalcItemEntry1."Debit Quantity";
@@ -375,7 +375,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
         GLCorrespondEntryTmp.Insert();
 
         TaxCalcAccumul.Reset();
-        if not TaxCalcAccumul.FindLast then
+        if not TaxCalcAccumul.FindLast() then
             TaxCalcAccumul."Entry No." := 0;
 
         TaxCalcAccumul.Reset();
@@ -392,11 +392,11 @@ codeunit 17306 "Create Tax Calc. Item Entries"
         TaxCalcHeader.FindSet();
         repeat
             TaxCalcSelectionSetup.SetRange("Register No.", TaxCalcHeader."No.");
-            if TaxCalcSelectionSetup.FindFirst then begin
+            if TaxCalcSelectionSetup.FindFirst() then begin
                 TaxCalcLineTmp.DeleteAll();
                 TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
                 TaxCalcLine.SetRange(Code, TaxCalcHeader."No.");
-                if TaxCalcLine.FindSet then
+                if TaxCalcLine.FindSet() then
                     repeat
                         TaxCalcLineTmp := TaxCalcLine;
                         TaxCalcLineTmp.Value := 0;
@@ -408,7 +408,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                 TaxCalcItemEntry.SetRange("Section Code", TaxCalcSectionCode);
                 TaxCalcItemEntry.SetRange("Ending Date", EndDate);
                 TaxCalcItemEntry.SetFilter("Where Used Register IDs", '*~' + TaxCalcHeader."Register ID" + '~*');
-                if TaxCalcItemEntry.FindSet then
+                if TaxCalcItemEntry.FindSet() then
                     repeat
                         TaxDimMgt.SetTaxCalcEntryDim(TaxCalcSectionCode,
                           TaxCalcItemEntry."Dimension 1 Value Code", TaxCalcItemEntry."Dimension 2 Value Code",
@@ -433,7 +433,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                                     TaxCalcLineTmp.SetRange(Code, TaxCalcSelectionSetup."Register No.");
                                     TaxCalcLineTmp.SetFilter("Selection Line Code", '%1|%2', '', TaxCalcSelectionSetup."Line Code");
                                     TaxCalcLineTmp.SetRange("Line Type", TaxCalcLineTmp."Line Type"::" ");
-                                    if TaxCalcLineTmp.FindSet then
+                                    if TaxCalcLineTmp.FindSet() then
                                         repeat
                                             if TaxDimMgt.ValidateTaxCalcDimFilters(TaxCalcLineTmp) then begin
                                                 case TaxCalcLineTmp."Sum Field No." of
@@ -464,7 +464,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
                     until TaxCalcItemEntry.Next() = 0;
 
                 TaxCalcLineTmp.Reset();
-                if TaxCalcLineTmp.FindSet then
+                if TaxCalcLineTmp.FindSet() then
                     repeat
                         TaxCalcAccumul."Template Line Code" := TaxCalcLineTmp."Line Code";
                         TaxCalcAccumul."Section Code" := TaxCalcLineTmp."Section Code";
@@ -515,7 +515,7 @@ codeunit 17306 "Create Tax Calc. Item Entries"
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry1."Entry No.");
         ValueEntry.SetFilter("Item Charge No.", '<>''''');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemCharge.Get(ValueEntry."Item Charge No.");
                 if ItemCharge."Exclude Cost for TA" then

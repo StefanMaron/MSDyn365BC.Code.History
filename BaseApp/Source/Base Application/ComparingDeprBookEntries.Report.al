@@ -290,7 +290,7 @@ report 14970 "Comparing Depr. Book Entries"
 
                     FixedAsset.SetCurrentKey("Depreciation Group");
                     FixedAsset.CopyFilters(FA);
-                    if FixedAsset.FindFirst then
+                    if FixedAsset.FindFirst() then
                         PrevGroup := FixedAsset."Depreciation Group"
                 end;
 

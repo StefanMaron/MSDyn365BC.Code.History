@@ -131,6 +131,8 @@ table 14925 "VAT Allocation Line"
             TableRelation = "G/L Account";
 
             trigger OnValidate()
+            var
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 if "Account No." = '' then
                     GLAcc.Init
@@ -140,7 +142,8 @@ table 14925 "VAT Allocation Line"
                 end;
                 Description := GLAcc.Name;
 
-                CreateDim(DATABASE::"G/L Account", "Account No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", "Account No.");
+                CreateDim(DefaultDimSource);
             end;
         }
         field(6; "VAT Amount"; Decimal)
@@ -369,6 +372,8 @@ table 14925 "VAT Allocation Line"
             Find;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -384,6 +389,20 @@ table 14925 "VAT Allocation Line"
         "Dimension Set ID" :=
           DimMgt.GetDefaultDimID(
             TableID, No, SourceCodeSetup."VAT Settlement",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetDefaultDimID(
+            DefaultDimSource, SourceCodeSetup."VAT Settlement",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
@@ -496,7 +515,7 @@ table 14925 "VAT Allocation Line"
         TotalAmountRnded: Decimal;
     begin
         VATAllocLine.SetRange("VAT Entry No.", "VAT Entry No.");
-        if VATAllocLine.FindSet then
+        if VATAllocLine.FindSet() then
             repeat
                 if VATAllocLine."Line No." = "Line No." then begin
                     VATAllocLine."Allocation %" := NewAllocPercent;
@@ -519,7 +538,7 @@ table 14925 "VAT Allocation Line"
     begin
         VATAllocLine.SetRange("VAT Entry No.", "VAT Entry No.");
         VATAllocLine.SetFilter("Line No.", '<>%1', "Line No.");
-        if VATAllocLine.FindFirst then begin
+        if VATAllocLine.FindFirst() then begin
             NewBase := VATAllocLine.Base;
             exit(true);
         end;

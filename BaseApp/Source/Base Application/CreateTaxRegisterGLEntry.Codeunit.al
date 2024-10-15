@@ -39,7 +39,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         TaxRegSetup.Get();
 
         TaxRegAccumulation.Reset();
-        if not TaxRegAccumulation.FindLast then
+        if not TaxRegAccumulation.FindLast() then
             TaxRegAccumulation."Entry No." := 0;
 
         TaxRegAccumulation.Reset();
@@ -50,13 +50,13 @@ codeunit 17203 "Create Tax Register GL Entry"
 
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register G/L Entry");
-        if TaxReg.FindSet then
+        if TaxReg.FindSet() then
             repeat
                 if TaxReg."G/L Corr. Analysis View Code" <> '' then
                     GLCorrAnalysisView.Get(TaxReg."G/L Corr. Analysis View Code");
                 TaxRegTemplate.SetRange("Section Code", TaxReg."Section Code");
                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                if TaxRegTemplate.FindSet then
+                if TaxRegTemplate.FindSet() then
                     repeat
                         TempTaxRegTemplate := TaxRegTemplate;
 
@@ -66,7 +66,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
                             if TaxRegTemplate."Term Line Code" <> '' then
                                 TaxRegLineSetup.SetRange("Line Code", TaxRegTemplate."Term Line Code");
-                            if TaxRegLineSetup.FindSet then
+                            if TaxRegLineSetup.FindSet() then
                                 repeat
                                     if TaxReg."G/L Corr. Analysis View Code" <> '' then begin
                                         GLCorrAnalysisViewEntry.Reset();
@@ -189,7 +189,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                         TempTaxRegTemplate.Insert();
                     until TaxRegTemplate.Next() = 0;
 
-                if TempTaxRegTemplate.FindSet then
+                if TempTaxRegTemplate.FindSet() then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
                         TaxRegAccumulation."Template Line Code" := TempTaxRegTemplate."Line Code";
@@ -269,7 +269,7 @@ codeunit 17203 "Create Tax Register GL Entry"
             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
             TaxRegLineSetup.SetRange("Check Exist Entry", TaxRegLineSetup."Check Exist Entry"::Item);
             TaxRegLineSetup.SetRange("Account Type", TaxRegLineSetup."Account Type"::"G/L Account");
-            if TaxRegLineSetup.FindSet then
+            if TaxRegLineSetup.FindSet() then
                 repeat
                     Procesing += 1;
                     Window.Update(3, Round((Procesing / Total) * 10000, 1));
@@ -289,14 +289,14 @@ codeunit 17203 "Create Tax Register GL Entry"
                     end;
                     TaxRegGLCorresp."Register Type" := TaxRegGLCorresp."Register Type"::Item;
                     TaxRegGLCorresp."Credit Account No." := '';
-                    if DebitGLAcc.FindSet then
+                    if DebitGLAcc.FindSet() then
                         repeat
                             TaxRegGLCorresp."Debit Account No." := DebitGLAcc."No.";
                             InsertTaxRegGLCorrespondLine(
                               TaxRegGLCorresp, TmpTaxRegDimCorrFilter, TaxRegLineSetup."Tax Register No.", TaxRegLineSetup."Line No.");
                         until DebitGLAcc.Next() = 0;
                     TaxRegGLCorresp."Debit Account No." := '';
-                    if CreditGLAcc.FindSet then
+                    if CreditGLAcc.FindSet() then
                         repeat
                             TaxRegGLCorresp."Credit Account No." := CreditGLAcc."No.";
                             InsertTaxRegGLCorrespondLine(
@@ -320,7 +320,7 @@ codeunit 17203 "Create Tax Register GL Entry"
             SetRange("Debit Account No.", "Debit Account No.");
             SetRange("Credit Account No.", "Credit Account No.");
             SetRange("Register Type", "Register Type");
-            if not FindLast then begin
+            if not FindLast() then begin
                 "Tax Register ID Totaling" := '';
                 "Where Used Register IDs" := '~';
                 Insert(true);
@@ -336,7 +336,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                     "Ending Date" := TaxRegGLCorrEntry."Ending Date";
             end;
             TmpTaxRegDimCorrFilter.SetRange("Connection Type", TmpTaxRegDimCorrFilter."Connection Type"::Filters);
-            if TmpTaxRegDimCorrFilter.FindFirst then begin
+            if TmpTaxRegDimCorrFilter.FindFirst() then begin
                 if StrPos("Tax Register ID Totaling", '~' + TaxRegGLCorrEntry."Tax Register ID Totaling" + '~') <> 0 then
                     Error(Text21000901);
                 case CheckDimValueFilter(TmpTaxRegDimCorrFilter, "Entry No.", TaxRegNo, TaxEntrySetupLineNo) of
@@ -357,7 +357,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                       StrSubstNo('%1%2~', "Tax Register ID Totaling", TaxRegGLCorrEntry."Tax Register ID Totaling");
             end;
             TmpTaxRegDimCorrFilter.SetRange("Connection Type", TmpTaxRegDimCorrFilter."Connection Type"::Combinations);
-            if TmpTaxRegDimCorrFilter.FindSet then
+            if TmpTaxRegDimCorrFilter.FindSet() then
                 repeat
                     TaxRegDimCorrFilter := TmpTaxRegDimCorrFilter;
                     TaxRegDimCorrFilter."G/L Corr. Entry No." := "Entry No.";
@@ -384,7 +384,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         TaxRegDimFilter.SetRange(Define, TaxRegDimFilter.Define::"Entry Setup");
         TaxRegDimFilter.SetRange("Line No.", TaxRegLineSetup."Line No.");
         TempTaxRegDimCorrFilter."Connection Type" := TempTaxRegDimCorrFilter."Connection Type"::Filters;
-        if TaxRegDimFilter.FindSet then
+        if TaxRegDimFilter.FindSet() then
             repeat
                 TempTaxRegDimCorrFilter."Connection Entry No." := TaxRegDimFilter."Entry No.";
                 TempTaxRegDimCorrFilter.Insert();
@@ -394,7 +394,7 @@ codeunit 17203 "Create Tax Register GL Entry"
         TaxRegDimComb.SetRange("Section Code", TaxRegLineSetup."Section Code");
         TaxRegDimComb.SetRange("Tax Register No.", TaxRegLineSetup."Tax Register No.");
         TaxRegDimComb.SetRange("Line No.", TaxRegLineSetup."Line No.");
-        if TaxRegDimComb.FindSet then
+        if TaxRegDimComb.FindSet() then
             repeat
                 TempTaxRegDimCorrFilter."Connection Entry No." := TaxRegDimComb."Entry No.";
                 TempTaxRegDimCorrFilter.Insert();
@@ -422,7 +422,7 @@ codeunit 17203 "Create Tax Register GL Entry"
             OldTaxRegDimFilter.SetCurrentKey("Section Code", "Entry No.");
             OldTaxRegDimFilter.SetRange("Section Code", TempTaxRegDimCorrFilter."Section Code");
             OldTaxRegDimFilter.SetRange("Entry No.", TaxRegDimCorrFilter."Connection Entry No.");
-            OldExist := OldTaxRegDimFilter.FindFirst;
+            OldExist := OldTaxRegDimFilter.FindFirst();
             while OldExist and NewExist do
                 if (OldTaxRegDimFilter."Dimension Code" <> NewTaxRegDimFilter."Dimension Code") or
                    (OldTaxRegDimFilter."Dimension Value Filter" <> NewTaxRegDimFilter."Dimension Value Filter")
@@ -433,7 +433,7 @@ codeunit 17203 "Create Tax Register GL Entry"
                     OldExist := TaxRegDimCorrFilter.Next(1) <> 0;
                     if OldExist then begin
                         OldTaxRegDimFilter.SetRange("Entry No.", TaxRegDimCorrFilter."Connection Entry No.");
-                        OldExist := OldTaxRegDimFilter.FindFirst;
+                        OldExist := OldTaxRegDimFilter.FindFirst();
                     end;
                 end;
             if OldExist <> NewExist then
@@ -452,12 +452,12 @@ codeunit 17203 "Create Tax Register GL Entry"
         if not TaxRegSetup."Create Data for Printing Forms" then
             exit;
 
-        if TaxRegGLEntry.FindLast then
+        if TaxRegGLEntry.FindLast() then
             EntryNo := TaxRegGLEntry."Entry No." + 1
         else
             EntryNo := 0;
 
-        if GLCorrEntry.FindSet then
+        if GLCorrEntry.FindSet() then
             repeat
                 WhereUsedRegisterID := '~' + TaxRegID + '~';
                 if CheckTaxRegGLEntryPresence(WhereUsedRegisterID, GLCorrEntry."Debit Entry No.") then begin
@@ -491,17 +491,17 @@ codeunit 17203 "Create Tax Register GL Entry"
         if not TaxRegSetup."Create Data for Printing Forms" then
             exit;
 
-        if TaxRegGLEntry.FindLast then
+        if TaxRegGLEntry.FindLast() then
             EntryNo := TaxRegGLEntry."Entry No." + 1
         else
             EntryNo := 0;
 
-        if GLCorrAnalysisViewEntry.FindSet then
+        if GLCorrAnalysisViewEntry.FindSet() then
             repeat
                 TempGLCorrEntry.Reset();
                 TempGLCorrEntry.DeleteAll();
                 GLCorrAnViewEntrToGLCorrEntr.GetGLCorrEntries(GLCorrAnalysisViewEntry, TempGLCorrEntry);
-                if TempGLCorrEntry.FindSet then
+                if TempGLCorrEntry.FindSet() then
                     repeat
                         WhereUsedRegisterID := '~' + TaxRegID + '~';
                         if CheckTaxRegGLEntryPresence(WhereUsedRegisterID, TempGLCorrEntry."Debit Entry No.") then begin

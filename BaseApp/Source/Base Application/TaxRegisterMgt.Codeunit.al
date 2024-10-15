@@ -170,7 +170,7 @@ codeunit 17201 "Tax Register Mgt."
                     Commit();
                 end;
             1:
-                TaxRegSection.FindFirst;
+                TaxRegSection.FindFirst();
             else
                 SectionSelected := PAGE.RunModal(0, TaxRegSection) = ACTION::LookupOK;
         end;
@@ -250,7 +250,7 @@ codeunit 17201 "Tax Register Mgt."
 
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", TableID);
-        if TaxReg.FindSet then begin
+        if TaxReg.FindSet() then begin
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                 if TaxRegAccumulation.IsEmpty() then
@@ -273,7 +273,7 @@ codeunit 17201 "Tax Register Mgt."
         TaxRegCVEntry.SetCurrentKey("Section Code", "Starting Date");
         TaxRegCVEntry.SetRange("Section Code", SectionCode);
         TaxRegCVEntry.SetFilter("Starting Date", '%1..', StartDate);
-        if TaxRegCVEntry.FindFirst then begin
+        if TaxRegCVEntry.FindFirst() then begin
             if not Confirm(Text1007, false, StartDate, TaxRegCVEntry.TableCaption) then
                 Error('');
             TaxRegCVEntry.DeleteAll();
@@ -281,7 +281,7 @@ codeunit 17201 "Tax Register Mgt."
 
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register CV Entry");
-        if TaxReg.FindSet then begin
+        if TaxReg.FindSet() then begin
             SetAccumulationFilter(TaxRegAccumulation, SectionCode, StartDate);
             repeat
                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
@@ -303,7 +303,7 @@ codeunit 17201 "Tax Register Mgt."
             TaxRegCVEntry.SetCurrentKey("Section Code", "Ending Date");
             TaxRegCVEntry.SetRange("Section Code", SectionCode);
             TaxRegCVEntry.SetFilter("Ending Date", '%1', StartDate - 1);
-            if TaxRegCVEntry.FindFirst then begin
+            if TaxRegCVEntry.FindFirst() then begin
                 if EndDate <= TaxRegSection."Absence CV Entries Date" then
                     TaxRegSection."Absence CV Entries Date" := 0D;
             end else begin
@@ -333,7 +333,7 @@ codeunit 17201 "Tax Register Mgt."
         TaxRegItemEntry.SetCurrentKey("Section Code", "Starting Date");
         TaxRegItemEntry.SetRange("Section Code", SectionCode);
         TaxRegItemEntry.SetFilter("Starting Date", '%1..', StartDate);
-        if TaxRegItemEntry.FindFirst then begin
+        if TaxRegItemEntry.FindFirst() then begin
             if not Confirm(Text1007, false, StartDate, TaxRegItemEntry.TableCaption) then
                 Error('');
             TaxRegItemEntry.DeleteAll();
@@ -363,7 +363,7 @@ codeunit 17201 "Tax Register Mgt."
             TaxRegItemEntry.SetCurrentKey("Section Code", "Ending Date");
             TaxRegItemEntry.SetRange("Section Code", SectionCode);
             TaxRegItemEntry.SetFilter("Ending Date", '%1', StartDate - 1);
-            if TaxRegItemEntry.FindFirst then begin
+            if TaxRegItemEntry.FindFirst() then begin
                 if EndDate <= TaxRegSection."Absence Item Entries Date" then
                     TaxRegSection."Absence Item Entries Date" := 0D;
             end else begin
@@ -444,7 +444,7 @@ codeunit 17201 "Tax Register Mgt."
         TaxRegFEEntry.SetCurrentKey("Section Code", "Starting Date");
         TaxRegFEEntry.SetRange("Section Code", SectionCode);
         TaxRegFEEntry.SetFilter("Starting Date", '%1..', StartDate);
-        if TaxRegFEEntry.FindFirst then begin
+        if TaxRegFEEntry.FindFirst() then begin
             if not Confirm(Text1007, false, StartDate, TaxRegFEEntry.TableCaption) then
                 Error('');
             TaxRegFEEntry.DeleteAll();
@@ -474,7 +474,7 @@ codeunit 17201 "Tax Register Mgt."
             TaxRegFEEntry.SetCurrentKey("Section Code", "Ending Date");
             TaxRegFEEntry.SetRange("Section Code", SectionCode);
             TaxRegFEEntry.SetFilter("Ending Date", '%1', StartDate - 1);
-            if TaxRegFEEntry.FindFirst then begin
+            if TaxRegFEEntry.FindFirst() then begin
                 if EndDate <= TaxRegSection."Absence FE Entries Date" then
                     TaxRegSection."Absence FE Entries Date" := 0D;
             end else begin
@@ -792,7 +792,7 @@ codeunit 17201 "Tax Register Mgt."
             Reset;
             SetRange("Period Type", "Period Type"::Month);
             SetRange("Period Start", "Period Start", "Period End");
-            if FindSet then
+            if FindSet() then
                 repeat
                     StartDate := NormalDate("Period Start");
                     EndDate := NormalDate("Period End");
@@ -818,7 +818,7 @@ codeunit 17201 "Tax Register Mgt."
                                 TaxRegAccumulation.SetRange("Section Code", TaxRegSection.Code);
                                 TaxRegAccumulation.SetRange("Ending Date", EndDate);
                                 LinkAccumulateRecordRef.SetView(TaxRegAccumulation.GetView(false));
-                                if TaxReg.FindSet then
+                                if TaxReg.FindSet() then
                                     repeat
                                         TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                                         TaxRegAccumulation.DeleteAll();
@@ -828,13 +828,13 @@ codeunit 17201 "Tax Register Mgt."
                                 CycleLevel := 1;
                                 while CycleLevel <> 0 do begin
                                     TaxReg.SetRange(Level, CycleLevel);
-                                    if not TaxReg.FindSet then
+                                    if not TaxReg.FindSet() then
                                         CycleLevel := 0
                                     else begin
                                         repeat
                                             if TaxReg."Storing Method" = TaxReg."Storing Method"::Calculation then begin
                                                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                                                if TaxRegTemplate.FindFirst then begin
+                                                if TaxRegTemplate.FindFirst() then begin
                                                     TaxRegTemplate.SetRange("Date Filter", StartDate, EndDate);
                                                     TemplateRecordRef.GetTable(TaxRegTemplate);
                                                     TemplateRecordRef.SetView(TaxRegTemplate.GetView(false));
@@ -862,7 +862,7 @@ codeunit 17201 "Tax Register Mgt."
         TaxRegAccumulation2: Record "Tax Register Accumulation";
         TaxRegTermMgt: Codeunit "Tax Register Term Mgt.";
     begin
-        if EntryNoAmountBuffer.FindSet then begin
+        if EntryNoAmountBuffer.FindSet() then begin
             TaxRegAccumulation.Init();
             TaxRegAccumulation."Starting Date" := TaxRegTemplate.GetRangeMin("Date Filter");
             TaxRegAccumulation."Ending Date" := TaxRegTemplate.GetRangeMax("Date Filter");
@@ -883,7 +883,7 @@ codeunit 17201 "Tax Register Mgt."
                     TaxRegAccumulation."Ending Date",
                     TaxRegTemplate2.Period);
                 TaxRegAccumulation.Amount := EntryNoAmountBuffer.Amount;
-                if not TaxRegAccumulation2.FindLast then
+                if not TaxRegAccumulation2.FindLast() then
                     TaxRegAccumulation2."Entry No." := 0;
                 TaxRegAccumulation."Entry No." := TaxRegAccumulation2."Entry No." + 1;
                 TaxRegAccumulation.Insert();

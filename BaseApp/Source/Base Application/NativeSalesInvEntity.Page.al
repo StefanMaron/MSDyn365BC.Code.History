@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2810 "Native - Sales Inv. Entity"
 {
     Caption = 'nativeInvoicingSalesInvoices', Locked = true;
@@ -5,6 +6,9 @@ page 2810 "Native - Sales Inv. Entity"
     ODataKeyFields = SystemId;
     PageType = List;
     SourceTable = "Sales Invoice Entity Aggregate";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -60,7 +64,6 @@ page 2810 "Native - Sales Inv. Entity"
                     var
                         Contact: Record Contact;
                         Customer: Record Customer;
-                        GraphIntContact: Codeunit "Graph Int. - Contact";
                     begin
                         CheckStatus;
 
@@ -71,9 +74,6 @@ page 2810 "Native - Sales Inv. Entity"
 
                         if "Contact Graph Id" = '' then
                             Error(ContactIdHasToHaveValueErr);
-
-                        if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Contact Graph Id", Customer, Contact) then
-                            exit;
 
                         UpdateCustomerFromGraphContactId(Customer);
 
@@ -627,7 +627,7 @@ page 2810 "Native - Sales Inv. Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -674,7 +674,7 @@ page 2810 "Native - Sales Inv. Entity"
         if not UpdateCustomer then begin
             TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
-            UpdateCustomer := not TempFieldBuffer.FindFirst;
+            UpdateCustomer := not TempFieldBuffer.FindFirst();
             TempFieldBuffer.Reset();
         end;
 
@@ -757,7 +757,7 @@ page 2810 "Native - Sales Inv. Entity"
             O365Discounts.ApplyInvoiceDiscountPercentage(SalesHeader, InvoiceDiscountPct);
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
-            if SalesLine.FindFirst then begin
+            if SalesLine.FindFirst() then begin
                 SalesInvoiceAggregator.RedistributeInvoiceDiscounts(Rec);
                 DocumentTotals.CalculateSalesTotals(TotalSalesLine, VatAmount, SalesLine);
                 "Invoice Discount Amount" := TotalSalesLine."Inv. Discount Amount";
@@ -962,15 +962,13 @@ page 2810 "Native - Sales Inv. Entity"
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure SendPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
-        O365SetupEmail: Codeunit "O365 Setup Email";
         O365SalesEmailManagement: Codeunit "O365 Sales Email Management";
     begin
-        O365SetupEmail.SilentSetup;
         CheckSendToEmailAddress(SalesInvoiceHeader."No.");
         O365SalesEmailManagement.NativeAPISaveEmailBodyText(Id);
 
@@ -985,12 +983,10 @@ page 2810 "Native - Sales Inv. Entity"
         DummyO365SalesDocument: Record "O365 Sales Document";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         O365SendResendInvoice: Codeunit "O365 Send + Resend Invoice";
-        O365SetupEmail: Codeunit "O365 Setup Email";
         O365SalesEmailManagement: Codeunit "O365 Sales Email Management";
     begin
         O365SendResendInvoice.CheckDocumentIfNoItemsExists(SalesHeader, false, DummyO365SalesDocument);
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-        O365SetupEmail.SilentSetup;
         CheckSendToEmailAddress(SalesHeader."No.");
 
         CheckAttachmentsSize(SalesHeader);
@@ -1003,12 +999,10 @@ page 2810 "Native - Sales Inv. Entity"
     local procedure SendCanceledInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         JobQueueEntry: Record "Job Queue Entry";
-        O365SetupEmail: Codeunit "O365 Setup Email";
         O365SalesEmailManagement: Codeunit "O365 Sales Email Management";
         O365SalesCancelInvoice: Codeunit "O365 Sales Cancel Invoice";
         GraphMail: Codeunit "Graph Mail";
     begin
-        O365SetupEmail.SilentSetup;
         CheckSendToEmailAddress(SalesInvoiceHeader."No.");
         O365SalesEmailManagement.NativeAPISaveEmailBodyText(Id);
 
@@ -1035,10 +1029,10 @@ page 2810 "Native - Sales Inv. Entity"
         CheckInvoiceCanBeCanceled(SalesInvoiceHeader);
         if not CODEUNIT.Run(CODEUNIT::"Correct Posted Sales Invoice", SalesInvoiceHeader) then begin
             SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-            if SalesCrMemoHeader.FindFirst then
+            if SalesCrMemoHeader.FindFirst() then
                 Error(CancelingInvoiceFailedCreditMemoCreatedAndPostedErr, GetLastErrorText);
             SalesHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
-            if SalesHeader.FindFirst then
+            if SalesHeader.FindFirst() then
                 Error(CancelingInvoiceFailedCreditMemoCreatedButNotPostedErr, GetLastErrorText);
             Error(CancelingInvoiceFailedNothingCreatedErr, GetLastErrorText);
         end;
@@ -1131,4 +1125,4 @@ page 2810 "Native - Sales Inv. Entity"
         O365SalesAttachmentMgt.AssertIncomingDocumentSizeBelowMax(IncomingDocumentAttachment);
     end;
 }
-
+#endif

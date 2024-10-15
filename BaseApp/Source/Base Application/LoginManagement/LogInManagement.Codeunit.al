@@ -1,9 +1,12 @@
 codeunit 40 LogInManagement
 {
-    Permissions = TableData "G/L Entry" = r,
+    Permissions = TableData "Company Information" = r,
+                  TableData "G/L Entry" = r,
+                  TableData "General Ledger Setup" = r,
                   TableData Customer = r,
                   TableData Vendor = r,
                   TableData Item = r,
+                  TableData User = r,
                   TableData "User Time Register" = rimd,
                   TableData "My Customer" = rimd,
                   TableData "My Vendor" = rimd,
@@ -35,7 +38,9 @@ codeunit 40 LogInManagement
     begin
         OnShowTermsAndConditions;
 
+#if not CLEAN20
         OnBeforeCompanyOpen;
+#endif
 
         if GuiAllowed and (ClientTypeManagement.GetCurrentClientType() <> ClientType::Background) then
             LogInStart;
@@ -48,7 +53,9 @@ codeunit 40 LogInManagement
 
         AzureADPlan.CheckMixedPlans();
 
+#if not CLEAN20
         OnAfterCompanyOpen;
+#endif
     end;
 
     procedure CompanyClose()
@@ -64,7 +71,6 @@ codeunit 40 LogInManagement
     local procedure LogInStart()
     var
         Language: Record "Windows Language";
-        UserLoginTimeTracker: Codeunit "User Login Time Tracker";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         IdentityManagement: Codeunit "Identity Management";
         LanguageManagement: Codeunit Language;
@@ -84,11 +90,11 @@ codeunit 40 LogInManagement
         if not User.IsEmpty() then begin
             if IdentityManagement.IsUserNamePasswordAuthentication then begin
                 User.SetRange("User Security ID", UserSecurityId);
-                User.FindFirst;
+                User.FindFirst();
                 if User."Change Password" then begin
                     REPORT.Run(REPORT::"Change Password");
                     SelectLatestVersion;
-                    User.FindFirst;
+                    User.FindFirst();
                     if User."Change Password" then
                         Error(PasswordChangeNeededErr);
                 end;
@@ -97,9 +103,10 @@ codeunit 40 LogInManagement
             User.SetRange("User Security ID");
         end;
 
+#if not CLEAN20
         OnBeforeLogInStart;
+#endif
 
-        InitializeCompany;
         UpdateUserPersonalization;
 
         LogInDate := Today;
@@ -110,7 +117,9 @@ codeunit 40 LogInManagement
 
         ApplicationAreaMgmtFacade.SetupApplicationArea;
 
+#if not CLEAN20
         OnAfterLogInStart;
+#endif
     end;
 
     local procedure LogInEnd()
@@ -162,14 +171,19 @@ codeunit 40 LogInManagement
             end;
         end;
 
+#if not CLEAN20
         OnAfterLogInEnd;
+#endif
     end;
 
+#if not CLEAN20
+    [Obsolete('No longer used, Company-Initialize runs on System Initialize''s event OnAfterLogin', '20.0')]
     procedure InitializeCompany()
     begin
         if not GLSetup.Get then
             CODEUNIT.Run(CODEUNIT::"Company-Initialize");
     end;
+#endif
 
     local procedure GetGLSetup(): Boolean
     begin
@@ -178,21 +192,21 @@ codeunit 40 LogInManagement
         exit(GLSetupRead);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Entry", 'r')]
     procedure GetDefaultWorkDate(): Date
     var
         GLEntry: Record "G/L Entry";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        if CompanyInformationMgt.IsDemoCompany then
-            if GLEntry.ReadPermission then begin
-                GLEntry.SetCurrentKey("Posting Date");
-                if GLEntry.FindLast then begin
-                    LogInWorkDate := NormalDate(GLEntry."Posting Date");
-                    exit(NormalDate(GLEntry."Posting Date"));
-                end;
+        if CompanyInformationMgt.IsDemoCompany() then begin
+            GLEntry.SetCurrentKey("Posting Date");
+            if GLEntry.FindLast() then begin
+                LogInWorkDate := NormalDate(GLEntry."Posting Date");
+                exit(NormalDate(GLEntry."Posting Date"));
             end;
+        end;
 
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"UI Helper Triggers", 'GetSystemIndicator', '', false, false)]
@@ -211,7 +225,6 @@ codeunit 40 LogInManagement
         AllObjWithCaption: Record AllObjWithCaption;
         PermissionManager: Codeunit "Permission Manager";
         EnvironmentInfo: Codeunit "Environment Information";
-        AppID: Guid;
     begin
         if not UserPersonalization.Get(UserSecurityId) then
             exit;
@@ -266,30 +279,37 @@ codeunit 40 LogInManagement
         CompanyClose;
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
     local procedure OnAfterLogInStart()
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
     local procedure OnAfterLogInEnd()
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
     local procedure OnBeforeLogInStart()
     begin
     end;
 
+    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompanyOpen()
     begin
     end;
 
+    [Obsolete('Replaced with OnAfterLogin in codeunit "System Initialization"', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCompanyOpen()
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompanyClose()

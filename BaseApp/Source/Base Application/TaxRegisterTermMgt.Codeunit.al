@@ -97,7 +97,7 @@ codeunit 17200 "Tax Register Term Mgt."
         GenTermProfile.TestField("Amount Type (Line)");
         GenTermProfile.TestField("Date Filter (Hdr)");
 
-        if TermLineRecordRef.FindSet then
+        if TermLineRecordRef.FindSet() then
             repeat
                 FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Account Type (Line)");
                 TermLineAccountType := TermLineFieldRef.Value;
@@ -143,7 +143,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
                             if NoGlobalDimFilterNeed then begin
                                 Operand := 0;
-                                if FindSet then
+                                if FindSet() then
                                     repeat
                                         if ValidateGLEntryDimFilters("Debit Dimension Set ID", TempDimBuf) then
                                             Operand += Amount;
@@ -187,7 +187,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                         Error(ErrorType, SectionCode, TermCode, TermLineFieldRef.Value);
                                 end;
                                 Operand := 0;
-                                if FindSet then
+                                if FindSet() then
                                     repeat
                                         if ValidateGLEntryDimFilters("Dimension Set ID", TempDimBuf) then
                                             case TermLineAmountType of
@@ -237,11 +237,11 @@ codeunit 17200 "Tax Register Term Mgt."
                             TaxRegNormGroup.Find;
                             if TaxRegNormGroup."Search Detail" = TaxRegNormGroup."Search Detail"::"To Date" then begin
                                 TaxRegNormDetail.SetFilter("Effective Date", '..%1', TaxRegNormDetail.GetRangeMax("Effective Date"));
-                                if TaxRegNormDetail.FindLast then
+                                if TaxRegNormDetail.FindLast() then
                                     Operand := TaxRegNormDetail.Norm;
                             end else begin
                                 TaxRegNormDetail.SetRange("Effective Date", TaxRegNormDetail.GetRangeMax("Effective Date"));
-                                TaxRegNormDetail.FindLast;
+                                TaxRegNormDetail.FindLast();
                                 Operand := TaxRegNormDetail.Norm;
                             end;
                         end;
@@ -253,7 +253,7 @@ codeunit 17200 "Tax Register Term Mgt."
                             RecurciveTermFieldRef.SetRange(SectionCode);
                             RecurciveTermFieldRef := RecurciveTermRecordRef.Field(GenTermProfile."Term Code (Hdr)");
                             RecurciveTermFieldRef.SetRange(TermLineFieldRef.Value);
-                            FindUniqueRecursiveTerm := RecurciveTermRecordRef.FindFirst;
+                            FindUniqueRecursiveTerm := RecurciveTermRecordRef.FindFirst();
                             if FindUniqueRecursiveTerm then
                                 FindUniqueRecursiveTerm := RecurciveTermRecordRef.Next(1) = 0;
                             if FindUniqueRecursiveTerm then begin
@@ -372,7 +372,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                     TermLineFieldRef.SetRange(20000)
                                 else
                                     TermLineFieldRef.SetRange(30000);
-                            FindUniqueRecursiveTerm := TermLineRecordRef.FindFirst;
+                            FindUniqueRecursiveTerm := TermLineRecordRef.FindFirst();
                             if FindUniqueRecursiveTerm then
                                 FindUniqueRecursiveTerm := TermLineRecordRef.Next(1) = 0;
                             if FindUniqueRecursiveTerm then begin
@@ -383,7 +383,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                 GenTermProfile.TestField("Bal. Account No. (Line)");
                                 FieldRefValue(TermLineFieldRef, TermLineRecordRef, GenTermProfile."Bal. Account No. (Line)");
                                 RecurciveTermFieldRef.SetRange(TermLineFieldRef.Value);
-                                FindUniqueRecursiveTerm := RecurciveTermRecordRef.FindFirst;
+                                FindUniqueRecursiveTerm := RecurciveTermRecordRef.FindFirst();
                                 if FindUniqueRecursiveTerm then
                                     FindUniqueRecursiveTerm := RecurciveTermRecordRef.Next(1) = 0;
                             end;
@@ -475,11 +475,11 @@ codeunit 17200 "Tax Register Term Mgt."
                             TaxRegNormGroup.Find;
                             if TaxRegNormGroup."Search Detail" = TaxRegNormGroup."Search Detail"::"To Date" then begin
                                 TaxRegNormDetail.SetFilter("Effective Date", '..%1', TaxRegNormDetail.GetRangeMax("Effective Date"));
-                                if TaxRegNormDetail.FindLast then
+                                if TaxRegNormDetail.FindLast() then
                                     TaxRegValueBuffer.Quantity := TaxRegNormDetail.Norm;
                             end else begin
                                 TaxRegNormDetail.SetRange("Effective Date", TaxRegNormDetail.GetRangeMax("Effective Date"));
-                                if TaxRegNormDetail.FindLast then
+                                if TaxRegNormDetail.FindLast() then
                                     TaxRegValueBuffer.Quantity := TaxRegNormDetail.Norm;
                             end;
                         end;
@@ -495,7 +495,7 @@ codeunit 17200 "Tax Register Term Mgt."
                             GenTermProfile.TestField("Term Code (Hdr)");
                             TermNameFieldRef := TermNameRecordRef.Field(GenTermProfile."Term Code (Hdr)");
                             TermNameFieldRef.SetRange(Expression);
-                            FindUniqueTerm := TermNameRecordRef.FindFirst;
+                            FindUniqueTerm := TermNameRecordRef.FindFirst();
                             if FindUniqueTerm then
                                 FindUniqueTerm := TermNameRecordRef.Next(1) = 0;
                             if FindUniqueTerm then begin
@@ -518,7 +518,7 @@ codeunit 17200 "Tax Register Term Mgt."
                             LinkTableFieldRef.SetRange(TemplateFieldRef.Value);
                             LinkTableFieldRef := LinkTableRecordRef.Field(GenTemplateProfile."Line Code (Link)");
                             LinkTableFieldRef.SetRange(Expression);
-                            if LinkTableRecordRef.FindFirst then begin
+                            if LinkTableRecordRef.FindFirst() then begin
                                 FieldRefValue(LinkTableFieldRef, LinkTableRecordRef, GenTemplateProfile."Value (Link)");
                                 TaxRegValueBuffer.Quantity := LinkTableFieldRef.Value;
                             end;
@@ -696,7 +696,7 @@ codeunit 17200 "Tax Register Term Mgt."
                         GenTemplateProfile.TestField("Line Code (Line)");
                         TemplateFieldRef := TemplateRecordRef.Field(GenTemplateProfile."Line Code (Line)");
                         TemplateFieldRef.SetFilter(Expression);
-                        if TemplateRecordRef.FindFirst then begin
+                        if TemplateRecordRef.FindFirst() then begin
                             GenTemplateProfile.TestField("Date Filter");
                             TemplateFieldRef := TemplateRecordRef.Field(GenTemplateProfile."Date Filter");
                             TemplateFieldRef.SetFilter(GlobalDateFilter);
@@ -772,7 +772,7 @@ codeunit 17200 "Tax Register Term Mgt."
         TermNameRecordRef.Open(TermNameTableNo);
         TermNameFieldRef := TermNameRecordRef.Field(GenTermProfile."Section Code (Hdr)");
         TermNameFieldRef.SetRange(SectionCode);
-        if not TermNameRecordRef.FindFirst then begin
+        if not TermNameRecordRef.FindFirst() then begin
             TermNameRecordRef.Close;
             exit;
         end;
@@ -796,13 +796,13 @@ codeunit 17200 "Tax Register Term Mgt."
         TermNameFieldRef.SetRange(true);
         repeat
             AnythingChange := false;
-            if TermNameRecordRef.FindSet then
+            if TermNameRecordRef.FindSet() then
                 repeat
                     FoundTerm := false;
                     TermNameFieldRef := TermNameRecordRef.Field(GenTermProfile."Term Code (Hdr)");
                     TermLineFieldRef := TermLineRecordRef.Field(GenTermProfile."Term Code (Line)");
                     TermLineFieldRef.SetRange(Format(TermNameFieldRef.Value));
-                    if TermLineRecordRef.FindSet then
+                    if TermLineRecordRef.FindSet() then
                         repeat
                             TermLineFieldRef := TermLineRecordRef.Field(GenTermProfile."Account Type (Line)");
                             AccountType := TermLineFieldRef.Value;
@@ -812,7 +812,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                 TermNameFieldRef1 := TermNameRecordRef1.Field(GenTermProfile."Term Code (Hdr)");
                                 TermLineFieldRef := TermLineRecordRef.Field(GenTermProfile."Account No. (Line)");
                                 TermNameFieldRef1.SetRange(Format(TermLineFieldRef.Value));
-                                if TermNameRecordRef1.FindFirst then begin
+                                if TermNameRecordRef1.FindFirst() then begin
                                     TermNameFieldRef1 := TermNameRecordRef1.Field(GenTermProfile."Check (Hdr)");
                                     Evaluate(FoundTerm, Format(TermNameFieldRef1.Value));
                                 end;
@@ -826,7 +826,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                     TermNameFieldRef1 := TermNameRecordRef1.Field(GenTermProfile."Term Code (Hdr)");
                                     TermLineFieldRef := TermLineRecordRef.Field(GenTermProfile."Bal. Account No. (Line)");
                                     TermNameFieldRef1.SetRange(Format(TermLineFieldRef.Value));
-                                    if TermNameRecordRef1.FindFirst then begin
+                                    if TermNameRecordRef1.FindFirst() then begin
                                         TermNameFieldRef1 := TermNameRecordRef1.Field(GenTermProfile."Check (Hdr)");
                                         Evaluate(FoundTerm, Format(TermNameFieldRef1.Value));
                                     end;
@@ -848,10 +848,10 @@ codeunit 17200 "Tax Register Term Mgt."
         Window.Close;
 
         if ErrorCycleLink then begin
-            if TermNameRecordRef.FindFirst then
+            if TermNameRecordRef.FindFirst() then
                 Error(ReportTest2, TermNameRecordRef.Count);
         end else
-            if not TermNameRecordRef.FindFirst then
+            if not TermNameRecordRef.FindFirst() then
                 Message(ReportTest1)
             else
                 Message(ReportTest2, TermNameRecordRef.Count);
@@ -879,7 +879,7 @@ codeunit 17200 "Tax Register Term Mgt."
         TemplateHeaderRecordRef.Open(TemplateProfile."Template Header Table No.");
         TemplateHeaderFieldRef := TemplateHeaderRecordRef.Field(TemplateProfile."Section Code (Hdr)");
         TemplateHeaderFieldRef.SetRange(SectionCode);
-        if not TemplateHeaderRecordRef.FindFirst then begin
+        if not TemplateHeaderRecordRef.FindFirst() then begin
             TemplateHeaderRecordRef.Close;
             exit;
         end;
@@ -915,7 +915,7 @@ codeunit 17200 "Tax Register Term Mgt."
         repeat
             AnythingChange := false;
             LinkLevel += 1;
-            if TemplateHeaderRecordRef.FindSet then
+            if TemplateHeaderRecordRef.FindSet() then
                 repeat
                     FoundLink := false;
                     FieldRefValue(TemplateHeaderFieldRef, TemplateHeaderRecordRef, TemplateProfile."Code (Hdr)");
@@ -923,7 +923,7 @@ codeunit 17200 "Tax Register Term Mgt."
                     TemplateLineFieldRef.SetRange(Format(TemplateHeaderFieldRef.Value));
                     TemplateLineFieldRef := TemplateLineRecordRef.Field(TemplateProfile."Expression Type");
                     TemplateLineFieldRef.SetRange(ExpressionType::Link);
-                    if TemplateLineRecordRef.FindSet then
+                    if TemplateLineRecordRef.FindSet() then
                         repeat
                             FieldRefValue(TemplateLineFieldRef, TemplateLineRecordRef, TemplateProfile."Link Code");
                             TemplateHeaderFieldRef1 := TemplateHeaderRecordRef1.Field(TemplateProfile."Code (Hdr)");
@@ -932,7 +932,7 @@ codeunit 17200 "Tax Register Term Mgt."
                                 TemplateHeaderFieldRef1 := TemplateHeaderRecordRef1.Field(TemplateProfile."Storing Method (Hdr)");
                                 TemplateHeaderFieldRef1.SetRange(1);
                             end;
-                            if TemplateHeaderRecordRef1.FindFirst then begin
+                            if TemplateHeaderRecordRef1.FindFirst() then begin
                                 FieldRefValue(TemplateHeaderFieldRef1, TemplateHeaderRecordRef1, TemplateProfile."Check (Hdr)");
                                 Evaluate(FoundLink, Format(TemplateHeaderFieldRef1.Value));
                                 if not FoundLink then begin
@@ -959,10 +959,10 @@ codeunit 17200 "Tax Register Term Mgt."
         Window.Close;
 
         if ErrorCycleLink then begin
-            if TemplateHeaderRecordRef.FindFirst then
+            if TemplateHeaderRecordRef.FindFirst() then
                 Error(ReportTest2, TemplateHeaderRecordRef.Count);
         end else
-            if not TemplateHeaderRecordRef.FindFirst then
+            if not TemplateHeaderRecordRef.FindFirst() then
                 Message(ReportTest1)
             else
                 Message(ReportTest2, TemplateHeaderRecordRef.Count);
@@ -1007,7 +1007,7 @@ codeunit 17200 "Tax Register Term Mgt."
             LinkTableRecordRef.SetView(LinlkAccumulateRecordRef.GetView(false));
         end;
 
-        if TemplateRecordRef1.FindSet then
+        if TemplateRecordRef1.FindSet() then
             repeat
                 FieldRefValue(TemplateFieldRef, TemplateRecordRef1, GenTemplateProfile.Period);
                 TemplatePeriod := TemplateFieldRef.Value;
@@ -1057,7 +1057,7 @@ codeunit 17200 "Tax Register Term Mgt."
 
         TaxRegValueBuffer.Reset();
         TaxRegValueBuffer.DeleteAll();
-        if TmpEntryValueBuffer.FindSet then
+        if TmpEntryValueBuffer.FindSet() then
             repeat
                 TaxRegValueBuffer := TmpEntryValueBuffer;
                 TaxRegValueBuffer.Insert();
@@ -1068,7 +1068,7 @@ codeunit 17200 "Tax Register Term Mgt."
             LinkTableRecordRef.SetView(LinlkAccumulateRecordRef.GetView(false));
         end;
 
-        if TemplateRecordRef1.FindSet then
+        if TemplateRecordRef1.FindSet() then
             repeat
                 FieldRefValue(TemplateFieldRef, TemplateRecordRef1, GenTemplateProfile.Period);
                 TemplatePeriod := TemplateFieldRef.Value;
@@ -1156,11 +1156,11 @@ codeunit 17200 "Tax Register Term Mgt."
                         TaxRegNormGroup.Find;
                         if TaxRegNormGroup."Search Detail" = TaxRegNormGroup."Search Detail"::"To Date" then begin
                             TaxRegNormDetail.SetFilter("Effective Date", '..%1', TaxRegNormDetail.GetRangeMax("Effective Date"));
-                            if TaxRegNormDetail.FindLast then
+                            if TaxRegNormDetail.FindLast() then
                                 TempTaxRegCalcBuf.Amount := TaxRegNormDetail.Norm;
                         end else begin
                             TaxRegNormDetail.SetRange("Effective Date", TaxRegNormDetail.GetRangeMax("Effective Date"));
-                            TaxRegNormDetail.FindLast;
+                            TaxRegNormDetail.FindLast();
                             TempTaxRegCalcBuf.Amount := TaxRegNormDetail.Norm;
                         end;
                     end;
@@ -1173,7 +1173,7 @@ codeunit 17200 "Tax Register Term Mgt."
                         GenTermProfile.TestField("Term Code (Hdr)");
                         TermNameFieldRef := TermNameRecordRef.Field(GenTermProfile."Term Code (Hdr)");
                         TermNameFieldRef.SetRange(Expression);
-                        FindUniqueTerm := TermNameRecordRef.FindFirst;
+                        FindUniqueTerm := TermNameRecordRef.FindFirst();
                         if FindUniqueTerm then
                             FindUniqueTerm := TermNameRecordRef.Next(1) = 0;
                         if FindUniqueTerm then begin
@@ -1213,7 +1213,7 @@ codeunit 17200 "Tax Register Term Mgt."
         TaxRegCalcBuffer.DeleteAll();
 
         TempTaxRegCalcBuf.Reset();
-        if TempTaxRegCalcBuf.FindSet then
+        if TempTaxRegCalcBuf.FindSet() then
             repeat
                 TaxRegCalcBuffer := TempTaxRegCalcBuf;
                 TaxRegCalcBuffer.Insert();
@@ -1397,7 +1397,7 @@ codeunit 17200 "Tax Register Term Mgt."
         TermLineFieldRef := TermLineRecordRef.Field(TermProfile."Term Code (Line)");
         TermLineFieldRef.SetRange(TermCode);
         ExpressionLength := 0;
-        if TermLineRecordRef.FindSet then
+        if TermLineRecordRef.FindSet() then
             repeat
                 OperationCaption[1] := '+';
                 OperationCaption[2] := '-';
@@ -1487,7 +1487,7 @@ codeunit 17200 "Tax Register Term Mgt."
     begin
         TempDimBuf.Reset();
         TempDimBuf.SetRange("Entry No.", 0);
-        if TempDimBuf.FindSet then begin
+        if TempDimBuf.FindSet() then begin
             GLSetup.Get();
             repeat
                 if TempDimBuf."Dimension Code" = GLSetup."Global Dimension 1 Code" then
@@ -1508,7 +1508,7 @@ codeunit 17200 "Tax Register Term Mgt."
     begin
         TempDimBuf.Reset();
         TempDimBuf.SetRange("Entry No.", 1);
-        if TempDimBuf.FindSet then
+        if TempDimBuf.FindSet() then
             repeat
                 if DimensionSetEntry.Get(DimSetID, TempDimBuf."Dimension Code") then begin
                     DimensionValue."Dimension Code" := TempDimBuf."Dimension Code";
@@ -1545,7 +1545,7 @@ codeunit 17200 "Tax Register Term Mgt."
         end;
         DimFilterFieldRef := DimFilterRecordRef.Field(GenTemplateProfile."Line No. (Dim)");
         DimFilterFieldRef.SetRange(TemplateLineNo);
-        if DimFilterRecordRef.FindSet then begin
+        if DimFilterRecordRef.FindSet() then begin
             GLSetup.Get();
             repeat
                 FieldRefValue(DimFilterFieldRef, DimFilterRecordRef, GenTemplateProfile."Dimension Code (Dim)");

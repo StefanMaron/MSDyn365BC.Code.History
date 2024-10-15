@@ -18,7 +18,7 @@ codeunit 5932 "Service-Get Shipment"
         GetServiceShipments.SetTableView(ServiceShptLine);
         GetServiceShipments.SetServiceHeader(ServiceHeader);
         GetServiceShipments.LookupMode(true);
-        GetServiceShipments.RunModal;
+        GetServiceShipments.RunModal();
     end;
 
     var

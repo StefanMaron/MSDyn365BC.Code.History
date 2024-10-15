@@ -30,7 +30,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for customer
-        Initialize;
+        Initialize();
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateCustomer(Customer);
 
@@ -62,7 +62,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [Purchase] [Prepayment]
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for vendor with "Prepayment" vat entry
-        Initialize;
+        Initialize();
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateVendor(Vendor);
 
@@ -96,8 +96,8 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [Purchase] [Prepayment]
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for vendor with "Credit Memo" vat entry
-        Initialize;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        Initialize();
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted "Credit Memo" VAT Entry for vendor "V" with "Full Name" = "X", "VAT Registration No." = "Y", "KPP Code" = "Z"
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -125,11 +125,11 @@ codeunit 147130 "ERM Sales VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreatePurchVATReinstVATEntry(VATPostingSetup, VendorNo, WorkDate, WorkDate);
 
         // Excercise:
@@ -150,7 +150,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [Purchase] [VAT Agent]
         // [SCENARIO] Sales VAT Ledger Line is created when run REP12456 "Create VAT Sales Ledger" for "VAT Agent" vendor
-        Initialize;
+        Initialize();
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateVendor(Vendor);
 
@@ -183,11 +183,11 @@ codeunit 147130 "ERM Sales VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         CreateRevisionVATEntry(VATPostingSetup, VendorNo, WorkDate, WorkDate);
 
         // Excercise:
@@ -213,12 +213,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 376533] Navigate button opens Navigate page with information for selected line in list part
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Sales Ledger with 2 posted documents "X1" and "X2"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         Count := LibraryRandom.RandIntInRange(5, 10);
         for Index := 1 to Count do
             MockSaleVATEntry(VATPostingSetup, CustomerNo, WorkDate, WorkDate);
@@ -249,12 +249,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // [SCENARIO 377011] Sales VAT entry with Amount = 0 should be included in sales VAT ledger
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales entry with normal VAT, VAT Rate = 0%, VAT Amount = 0
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InsertSaleVATEntryWithVATAmount(VATEntry, VATPostingSetup, CustomerNo, WorkDate, WorkDate, LibraryRandom.RandInt(1000), 0);
 
         // [WHEN] Create sales VAT ledger
@@ -275,12 +275,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [Prepayment]
         // [SCENARIO 377011] Sales prepayment VAT entry with Amount = 0 should not be included in sales VAT ledger
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales prepayment entry with normal VAT, VAT Rate = 0%, VAT Amount = 0
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         InsertSaleVATEntryWithVATAmount(VATEntry, VATPostingSetup, CustomerNo, WorkDate, WorkDate, LibraryRandom.RandInt(1000), 0);
         VATEntry.Prepayment := true;
         VATEntry.Modify();
@@ -303,12 +303,12 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [Prepayment] [Unrealized VAT]
         // [SCENARIO 377011] Unrealized sales prepayment VAT entry should be included in sales VAT ledger
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post sales prepayment entry with unrealized VAT
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateUnrealizedSalesPrepmtVATEntry(VATEntry, VATPostingSetup, CustomerNo, WorkDate, WorkDate);
 
         // [WHEN] Create sales VAT ledger
@@ -330,14 +330,14 @@ codeunit 147130 "ERM Sales VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // [SCENARIO 377995]  Posted 2 documents that generated 4 VAT Entries, where VAT groups are different, but same VAT%.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create VAT entry with 2 posted documents with lines VAT different setup
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup[2], VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         DocumentNo[1] := LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry");
         DocumentNo[2] := LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry");
@@ -369,7 +369,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 303035] Sales VAT Ledger has visible fields Total Base20, Total Amount20
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateCustomer(Customer);
@@ -398,7 +398,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -492,7 +492,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
         InsertPurchaseVATEntry(VATEntry, VATPostingSetup, CVNo, PostingDate, DocumentDate);
         VATEntry."Unrealized VAT Entry No." := MockPurchaseVATEntry(VATPostingSetup, CVNo, PostingDate, DocumentDate);
         VATEntry.Prepayment := true;
-        VATEntry."External Document No." := LibraryUtility.GenerateGUID;
+        VATEntry."External Document No." := LibraryUtility.GenerateGUID();
         VATEntry."CV Ledg. Entry No." := MockVendorLedgerEntry(VATEntry);
         VATEntry.Modify();
     end;
@@ -521,7 +521,7 @@ codeunit 147130 "ERM Sales VAT Ledger"
     begin
         InsertPurchaseVATEntry(VATEntry, VATPostingSetup, CVNo, PostingDate, DocumentDate);
         VATEntry."VAT Agent" := true;
-        VATEntry."External Document No." := LibraryUtility.GenerateGUID;
+        VATEntry."External Document No." := LibraryUtility.GenerateGUID();
         VATEntry."CV Ledg. Entry No." := MockVendorLedgerEntry(VATEntry);
         VATEntry.Modify();
     end;

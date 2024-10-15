@@ -75,7 +75,7 @@ page 17336 "FA Tax Differences Detailed"
     [Scope('OnPrem')]
     procedure FillBuffer(var TaxDiffFABuffer: Record "Tax Diff. FA Buffer")
     begin
-        if TaxDiffFABuffer.FindSet then
+        if TaxDiffFABuffer.FindSet() then
             repeat
                 Rec := TaxDiffFABuffer;
                 Insert;

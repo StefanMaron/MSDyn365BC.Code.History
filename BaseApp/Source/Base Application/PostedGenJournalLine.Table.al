@@ -1,4 +1,4 @@
-table 181 "Posted Gen. Journal Line"
+﻿table 181 "Posted Gen. Journal Line"
 {
     Caption = 'Posted Gen. Journal Line';
     LookupPageId = "Posted General Journal";
@@ -626,6 +626,19 @@ table 181 "Posted Gen. Journal Line"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Base Before Pmt. Disc.';
+            Editable = false;
+        }
+        field(126; "Orig. Pmt. Disc. Possible"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Original Pmt. Disc. Possible';
+            Editable = false;
+        }
+        field(127; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Orig. Pmt. Disc. Possible (LCY)';
             Editable = false;
         }
         field(160; "Job Queue Status"; Option)

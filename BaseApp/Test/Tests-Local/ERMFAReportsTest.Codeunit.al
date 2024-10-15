@@ -258,7 +258,7 @@ codeunit 144714 "ERM FA Reports Test"
 
         with MainAssetComponent do begin
             SetRange("Main Asset No.", FADeprBook."FA No.");
-            FindFirst;
+            FindFirst();
             Assert.IsTrue(
               LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Format(Quantity)),
               StrSubstNo(ValueNotExistErr, Quantity, 2));
@@ -284,7 +284,7 @@ codeunit 144714 "ERM FA Reports Test"
         with ItemFAPreciousMetal do begin
             SetRange("Item Type", "Item Type"::FA);
             SetRange("No.", FADeprBook."FA No.");
-            FindFirst;
+            FindFirst();
             Assert.IsTrue(
               LibraryReportValidation.CheckIfValueExistsOnSpecifiedWorksheet(2, Format(Quantity)),
               StrSubstNo(ValueNotExistErr, Quantity, 2));
@@ -304,7 +304,7 @@ codeunit 144714 "ERM FA Reports Test"
     begin
         // [FEATURE] [FA Journal]
         // [SCENARIO 201939] List of reports defined in Report Selections should be shown when Print button is pushed on FA Journal page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] FA Journal page.
         FixedAssetJournal.OpenEdit;
@@ -319,7 +319,7 @@ codeunit 144714 "ERM FA Reports Test"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -366,7 +366,7 @@ codeunit 144714 "ERM FA Reports Test"
         with FADocHeader do begin
             Init;
             "Document Type" := "Document Type"::Movement;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert(true);
             "Posting Date" := WorkDate;
             "FA Posting Date" := WorkDate;
@@ -389,7 +389,7 @@ codeunit 144714 "ERM FA Reports Test"
             Quantity := LibraryRandom.RandInt(10);
             Amount := LibraryRandom.RandInt(100);
             "Book Value" := LibraryRandom.RandInt(1000);
-            "FA Posting Group" := LibraryUtility.GenerateGUID;
+            "FA Posting Group" := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -399,7 +399,7 @@ codeunit 144714 "ERM FA Reports Test"
         with PostedFADocHeader do begin
             Init;
             "Document Type" := "Document Type"::Movement;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Posting Date" := WorkDate;
             "FA Posting Date" := WorkDate;
             "FA Location Code" := CreateLocation;
@@ -421,7 +421,7 @@ codeunit 144714 "ERM FA Reports Test"
             Quantity := LibraryRandom.RandInt(10);
             Amount := LibraryRandom.RandInt(100);
             "Book Value" := LibraryRandom.RandInt(1000);
-            "FA Posting Group" := LibraryUtility.GenerateGUID;
+            "FA Posting Group" := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -444,7 +444,7 @@ codeunit 144714 "ERM FA Reports Test"
     begin
         FALocation.Init();
         FALocation.Code := LibraryUtility.GenerateRandomCode(FALocation.FieldNo(Code), DATABASE::"FA Location");
-        FALocation.Name := LibraryUtility.GenerateGUID;
+        FALocation.Name := LibraryUtility.GenerateGUID();
         FALocation.Insert();
         exit(FALocation.Code);
     end;
@@ -454,13 +454,13 @@ codeunit 144714 "ERM FA Reports Test"
         FADocHeader: Record "FA Document Header";
         FA2Report: Report "FA Movement FA-2";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         FADocHeader.SetRange("No.", FADocNo);
         FA2Report.SetTableView(FADocHeader);
         FA2Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FA2Report.UseRequestPage(false);
-        FA2Report.Run;
+        FA2Report.Run();
     end;
 
     local procedure PrintPostedFAMovement(PostedFADocNo: Code[20])
@@ -468,13 +468,13 @@ codeunit 144714 "ERM FA Reports Test"
         PostedFADocHeader: Record "Posted FA Doc. Header";
         PostedFA2Report: Report "FA Posted Movement FA-2";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         PostedFADocHeader.SetRange("No.", PostedFADocNo);
         PostedFA2Report.SetTableView(PostedFADocHeader);
         PostedFA2Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedFA2Report.UseRequestPage(false);
-        PostedFA2Report.Run;
+        PostedFA2Report.Run();
     end;
 
     local procedure VerifyFA2ReportValues(DocNo: Code[20]; PostingDate: Date; Qty: Decimal; Amount: Decimal; BookValue: Decimal)
@@ -491,13 +491,13 @@ codeunit 144714 "ERM FA Reports Test"
         PurchHeader: Record "Purchase Header";
         FA14Report: Report "Purch. FA Receipt FA-14";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         PurchHeader.SetRange("No.", DocumentNo);
         FA14Report.SetTableView(PurchHeader);
         FA14Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FA14Report.UseRequestPage(false);
-        FA14Report.Run;
+        FA14Report.Run();
 
         VerifyFA14ReportLineAmounts(NoOfLines, Amounts);
     end;
@@ -507,13 +507,13 @@ codeunit 144714 "ERM FA Reports Test"
         PurchInvHeader: Record "Purch. Inv. Header";
         FA14Report: Report "Posted Purch. FA Receipt FA-14";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         PurchInvHeader.SetRange("No.", DocumentNo);
         FA14Report.SetTableView(PurchInvHeader);
         FA14Report.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FA14Report.UseRequestPage(false);
-        FA14Report.Run;
+        FA14Report.Run();
 
         VerifyFA14ReportLineAmounts(NoOfLines, Amounts);
     end;
@@ -576,7 +576,7 @@ codeunit 144714 "ERM FA Reports Test"
         FixedAsset.Modify();
         FADeprBook.SetRange("FA No.", FixedAsset."No.");
         FADeprBook.SetRange("Depreciation Book Code", LibraryRUReports.GetFirstFADeprBook(FixedAsset."No."));
-        FADeprBook.FindFirst;
+        FADeprBook.FindFirst();
         LibraryRUReports.MockFADepreciationBook(FADeprBook);
     end;
 
@@ -607,14 +607,14 @@ codeunit 144714 "ERM FA Reports Test"
         FixedAsset: Record "Fixed Asset";
         FAInvCardFA6: Report "FA Inventory Card FA-6";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         FixedAsset.SetRange("No.", FANo);
         FAInvCardFA6.SetTableView(FixedAsset);
         FAInvCardFA6.InitializeRequest(WorkDate, LibraryRUReports.GetFirstFADeprBook(FANo));
         FAInvCardFA6.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FAInvCardFA6.UseRequestPage(false);
-        FAInvCardFA6.Run;
+        FAInvCardFA6.Run();
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text
@@ -688,13 +688,13 @@ codeunit 144714 "ERM FA Reports Test"
         FADocumentHeader: Record "FA Document Header";
         FAMovementFA15: Report "FA Movement FA-15";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         FADocumentHeader.SetRange("No.", DocumentNo);
         FAMovementFA15.SetTableView(FADocumentHeader);
         FAMovementFA15.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FAMovementFA15.UseRequestPage(false);
-        FAMovementFA15.Run;
+        FAMovementFA15.Run();
     end;
 
     local procedure PrintPostedFA15(DocumentNo: Code[20])
@@ -702,13 +702,13 @@ codeunit 144714 "ERM FA Reports Test"
         PostedFADocHeader: Record "Posted FA Doc. Header";
         PostedFAMovementFA15: Report "Posted FA Movement FA-15";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         PostedFADocHeader.SetRange("No.", DocumentNo);
         PostedFAMovementFA15.SetTableView(PostedFADocHeader);
         PostedFAMovementFA15.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedFAMovementFA15.UseRequestPage(false);
-        PostedFAMovementFA15.Run;
+        PostedFAMovementFA15.Run();
     end;
 
     local procedure VerifyFA15ReportValues(DocumentNo: Code[20]; BookValue: Decimal; Amount: Decimal)

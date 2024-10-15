@@ -138,7 +138,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
             SetHideValidationDialog(true);
             Validate("Posting Date", PostingDate);
             Validate("Prices Including VAT", true);
-            Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+            Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;

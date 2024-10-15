@@ -209,7 +209,7 @@ codeunit 12410 "VAT Prepayment-Post"
             SalesLine.SetRange("Document No.", TemplateDocumentNo);
             SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
             SalesLine.SetFilter("VAT %", '<>%1', GenJnlLine."VAT %");
-            if SalesLine.FindFirst then
+            if SalesLine.FindFirst() then
                 SalesLine.TestField("VAT %", GenJnlLine."VAT %");
             SalesLine.SetRange("VAT %");
 
@@ -247,7 +247,7 @@ codeunit 12410 "VAT Prepayment-Post"
             TotalAmount := -GenJnlLine.Amount + GenJnlLine."VAT Amount";
         end;
 
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 SalesInvLine.TransferFields(SalesLine);
                 SalesInvLine."Document No." := SalesInvHeader."No.";
@@ -551,7 +551,7 @@ codeunit 12410 "VAT Prepayment-Post"
         VATEntry.SetRange("CV Ledg. Entry No.", EntryNo);
         VATEntry.SetRange("Unrealized VAT Entry No.", 0);
         VATEntry.SetRange(Reversed, false);
-        if VATEntry.FindFirst then
+        if VATEntry.FindFirst() then
             Error(Text001,
               VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."), VATEntry."Entry No.",
               VendLedgEntry.TableCaption, VendLedgEntry.FieldCaption("Entry No."), EntryNo);
@@ -596,7 +596,7 @@ codeunit 12410 "VAT Prepayment-Post"
             PurchHeader.CalcFields(Amount);
             PurchHeaderAmount := PurchHeader.Amount;
             PurchLine.SetRange("Document No.", PurchHeader."No.");
-            if PurchLine.FindSet then
+            if PurchLine.FindSet() then
                 repeat
                     TempOrigPurchInvLine.Init();
                     TempOrigPurchInvLine.TransferFields(PurchLine);
@@ -608,7 +608,7 @@ codeunit 12410 "VAT Prepayment-Post"
             TempOrigPurchInvHeader.TransferFields(OrigPurchInvHeader);
             TempOrigPurchInvHeader.Insert();
             OrigPurchInvLine.SetRange("Document No.", GenJnlLine."Initial Document No.");
-            if OrigPurchInvLine.FindSet then
+            if OrigPurchInvLine.FindSet() then
                 repeat
                     TempOrigPurchInvLine.Init();
                     TempOrigPurchInvLine.TransferFields(OrigPurchInvLine);
@@ -679,7 +679,7 @@ codeunit 12410 "VAT Prepayment-Post"
         RemTotalAmountInclVATLCY := GenJnlLine."Amount (LCY)";
 
         VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group");
-        if InitialPurchInvLine.FindSet then
+        if InitialPurchInvLine.FindSet() then
             repeat
                 PurchInvLine.Init();
                 PurchInvLine.TransferFields(InitialPurchInvLine);

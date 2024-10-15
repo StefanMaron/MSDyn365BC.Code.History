@@ -41,6 +41,7 @@ permissionset 5759 "D365 BANKING"
                   tabledata "Direct Debit Collection Entry" = RIMD,
                   tabledata "Duplicate Search String Setup" = R,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Entry - VAT Entry Link" = Rimd,
                   tabledata "G/L Entry" = Rim,

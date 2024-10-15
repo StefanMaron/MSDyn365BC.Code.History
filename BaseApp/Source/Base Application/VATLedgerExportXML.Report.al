@@ -221,7 +221,6 @@ report 12461 "VAT Ledger Export XML"
         VATLedgerType: Option;
         VATLedgerCode: Code[20];
         AddSheet: Boolean;
-        FileNameSilent: Text[360];
         FileId: Text[100];
         CorrectionNo: Integer;
         [InDataSet]
@@ -416,7 +415,7 @@ report 12461 "VAT Ledger Export XML"
             SetRange(Type, VATLedger.Type);
             SetRange(Code, VATLedger.Code);
             SetRange("Additional Sheet", AddSheet);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TotalVATLCY += Amount10 + Amount18 + Amount20;
                 until Next() = 0;
@@ -499,7 +498,7 @@ report 12461 "VAT Ledger Export XML"
                 "Full VAT Amount" <> 0:
                     begin
                         GetPmtVendorDtldLedgerLines(VATLedger."End Date", TempVendorLedgerEntry);
-                        if TempVendorLedgerEntry.FindSet then
+                        if TempVendorLedgerEntry.FindSet() then
                             repeat
                                 XMLAddComplexElement(DocPdtvUplTxt);
                                 XMLAddAttribute(XMLCurrNode, NomDocPdtvUplTxt, TempVendorLedgerEntry."External Document No.");
@@ -557,7 +556,7 @@ report 12461 "VAT Ledger Export XML"
             SetRange(Type, VATLedger.Type);
             SetRange(Code, VATLedger.Code);
             SetRange("Additional Sheet", AddSheet);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not Prepayment then begin
                         TotalBase20 += Base20;
@@ -678,7 +677,7 @@ report 12461 "VAT Ledger Export XML"
     begin
         with VATLedgerLineCDNo do begin
             SetFilterVATLedgerLine(VATLedgerLine);
-            if FindSet then
+            if FindSet() then
                 repeat
                     XMLAddComplexElement(SvRegNomTxt);
                     XMLAddAttribute(XMLCurrNode, RegNomProslTxt, Format("CD No."));
@@ -776,12 +775,7 @@ report 12461 "VAT Ledger Export XML"
           Encoding.GetEncoding('windows-1251'));
 
         FileId += '.xml';
-#if not CLEAN17
-        if FileManagement.IsLocalFileSystemAccessible then
-            FileManagement.DownloadToFile(ServerFileNameWindows1251, FileName)
-        else
-#endif
-            Download(ServerFileNameWindows1251, '', '', '(*.xml)|*.xml', FileId);
+        Download(ServerFileNameWindows1251, '', '', '(*.xml)|*.xml', FileId);
 
         FileManagement.DeleteServerFile(ServerFileNameUTF8);
         FileManagement.DeleteServerFile(ServerFileNameWindows1251);

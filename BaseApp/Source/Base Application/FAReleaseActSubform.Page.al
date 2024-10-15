@@ -129,7 +129,7 @@ page 12475 "FA Release Act Subform"
                         FADocLine.SetRecFilter;
                         FAReleaseActRep.SetTableView(FADocHeader);
                         FAReleaseActRep.SetTableView(FADocLine);
-                        FAReleaseActRep.Run;
+                        FAReleaseActRep.Run();
                     end;
                 }
             }

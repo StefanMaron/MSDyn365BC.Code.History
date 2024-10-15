@@ -186,9 +186,11 @@ page 5414 "Item Availability by Variant"
     var
         Calendar: Record Date;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        LastVariant: Code[10];
+
+    protected var
         PeriodType: Enum "Analysis Period Type";
         AmountType: Enum "Analysis Amount Type";
-        LastVariant: Code[10];
         DateFilter: Text;
 
     local procedure FindPeriod(SearchText: Text[3])

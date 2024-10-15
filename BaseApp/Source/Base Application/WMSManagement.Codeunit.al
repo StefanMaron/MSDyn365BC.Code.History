@@ -688,7 +688,7 @@
             WhseEmployee.SetCurrentKey(Default);
             WhseEmployee.SetRange(Default, true);
             WhseEmployee.SetRange("User ID", UserId);
-            if not WhseEmployee.FindFirst then
+            if not WhseEmployee.FindFirst() then
                 Error(Text003, UserId);
             exit(WhseEmployee."Location Code");
         end;
@@ -760,7 +760,7 @@
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
-        if BinContent.FindFirst then begin
+        if BinContent.FindFirst() then begin
             BinCode := BinContent."Bin Code";
             exit(true);
         end;
@@ -992,7 +992,7 @@
         WarehouseEmployee.SetFilter("Location Code", '<>%1', '');
         IF WarehouseEmployee.Count > 1000 then  // if more, later filter length will exceed allowed length and it will use all values anyway
             exit(''); // can't filter to that many locations. Then remove filter
-        IF WarehouseEmployee.FINDSET THEN
+        IF WarehouseEmployee.FindSet() then
             REPEAT
                 AssignedLocations.Add(WarehouseEmployee."Location Code");
                 LocationAllowed := true;
@@ -1235,6 +1235,14 @@
         PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
     end;
 
+    local procedure ShowJobPlanningLine(WhseDocLineNo: Integer)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.SetRange("Job Contract Entry No.", WhseDocLineNo);
+        PAGE.RunModal(PAGE::"Job Planning Lines", JobPlanningLine);
+    end;
+
     procedure ShowWhseActivityDocLine(WhseActivityDocType: Enum "Warehouse Activity Document Type"; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
         case WhseActivityDocType of
@@ -1252,6 +1260,8 @@
                 ;
             WhseActivityDocType::Assembly:
                 ShowAssemblyLine(WhseDocNo, WhseDocLineNo);
+            WhseActivityDocType::Job:
+                ShowJobPlanningLine(WhseDocLineNo);
         end;
     end;
 
@@ -1323,6 +1333,8 @@
                     if not IsHandled then
                         PAGE.RunModal(PAGE::"Assembly Lines", AssemblyLine);
                 end;
+            DATABASE::Job:
+                ShowJobPlanningLine(SourceLineNo);
             DATABASE::"Service Line":
                 begin
                     ServiceLine.SetRange("Document Type", SourceSubType);
@@ -1337,14 +1349,6 @@
                 OnShowSourceDocLine(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by ShowPostedSourceDocument()', '17.0')]
-    procedure ShowPostedSourceDoc(PostedSourceDoc: Option " ","Posted Receipt",,"Posted Return Receipt",,"Posted Shipment",,"Posted Return Shipment",,"Posted Transfer Receipt","Posted Transfer Shipment"; PostedSourceNo: Code[20])
-    begin
-        ShowPostedSourceDocument("Warehouse Shipment Posted Source Document".FromInteger(PostedSourceDoc), PostedSourceNo);
-    end;
-#endif
 
     procedure ShowPostedSourceDocument(PostedSourceDoc: Enum "Warehouse Shipment Posted Source Document"; PostedSourceNo: Code[20])
     var
@@ -1404,6 +1408,7 @@
         TransHeader: Record "Transfer Header";
         ProdOrder: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
+        Job: Record Job;
     begin
         case SourceType of
             DATABASE::"Sales Line":
@@ -1441,6 +1446,9 @@
                     if AssemblyHeader.Get(SourceSubType, SourceNo) then
                         PAGE.RunModal(PAGE::"Assembly Order", AssemblyHeader);
                 end;
+            Database::Job:
+                if Job.Get(SourceNo) then
+                    Page.RunModal(Page::"Job Card", Job);
             else
                 OnShowSourceDocCard(SourceType, SourceSubType, SourceNo);
         end;
@@ -1723,19 +1731,6 @@
         exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, DummyItemTrackingSetup, CurrBinCode));
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by BinContentLookup() with parameter WhseItemTrackingSetup.', '17.0')]
-    procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; CDNo: Code[30]; CurrBinCode: Code[20]): Code[20]
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        WhseItemTrackingSetup."Serial No." := SerialNo;
-        WhseItemTrackingSetup."Lot No." := LotNo;
-        WhseItemTrackingSetup."Package No." := CDNo;
-        exit(BinContentLookUp(LocationCode, ItemNo, VariantCode, ZoneCode, WhseItemTrackingSetup, CurrBinCode));
-    end;
-#endif
-
     procedure BinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]) BinCode: Code[20]
     var
         BinContent: Record "Bin Content";
@@ -1756,7 +1751,7 @@
         if ZoneCode <> '' then
             BinContent.SetRange("Zone Code", ZoneCode);
         BinContent.SetRange("Bin Code", CurrBinCode);
-        if BinContent.FindFirst then;
+        if BinContent.FindFirst() then;
         BinContent.SetRange("Bin Code");
 
         if PAGE.RunModal(0, BinContent) = ACTION::LookupOK then
@@ -1793,7 +1788,7 @@
         BinContent.SetRange("Variant Code", VariantCode);
         if ZoneCode <> '' then
             BinContent.SetRange("Zone Code", ZoneCode);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
     end;
 
     procedure CalcLineReservedQtyNotonInvt(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer): Decimal
@@ -1895,14 +1890,6 @@
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetDestinationEntityName', '17.0')]
-    procedure GetDestinationName(DestType: Option " ",Customer,Vendor,Location,Item,Family,"Sales Order"; DestNo: Code[20]): Text[100]
-    begin
-        exit(GetDestinationEntityName("Warehouse Destination Type".FromInteger(DestType), DestNo));
-    end;
-#endif
-
     procedure GetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]): Text[100]
     var
         Vendor: Record Vendor;
@@ -1959,19 +1946,6 @@
         SetFiltersOnATOInvtPick(SalesLine, WhseActivityLine);
         exit(not WhseActivityLine.IsEmpty);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by CalcQtyBaseOnATOInvtPick with parameter ItemTrackingSetup.', '17.0')]
-    procedure CalcQtyBaseOnATOInvtPick(SalesLine: Record "Sales Line"; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]) QtyBase: Decimal
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        WhseItemTrackingSetup."Serial No." := SerialNo;
-        WhseItemTrackingSetup."Lot No." := LotNo;
-        WhseItemTrackingSetup."Package No." := CDNo;
-        exit(CalcQtyBaseOnATOInvtPick(SalesLine, WhseItemTrackingSetup));
-    end;
-#endif
 
     procedure CalcQtyBaseOnATOInvtPick(SalesLine: Record "Sales Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBase: Decimal
     var
@@ -2053,7 +2027,7 @@
         with RoutingLine do begin
             SetRange("Routing No.", RoutingNo);
             SetRange("Version Code", RoutingVersionCode);
-            if FindLast then
+            if FindLast() then
                 exit(GetProdCenterLocationCode(Type, "No."));
         end;
     end;
@@ -2065,20 +2039,10 @@
         with RoutingLine do begin
             SetRange("Routing No.", RoutingNo);
             SetRange("Version Code", RoutingVersionCode);
-            if FindLast then
+            if FindLast() then
                 exit(GetProdCenterBinCode(Type, "No.", LocationCode, UseFlushingMethod, FlushingMethod));
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetProdRoutingLastOperationFromBinCode with enum Production Order Status.', '17.0')]
-    procedure GetProdRtngLastOperationFromBinCode(ProdOrderStatus: Option; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
-    begin
-        exit(
-            GetProdRoutingLastOperationFromBinCode(
-                "Production Order Status".FromInteger(ProdOrderStatus), ProdOrderNo, RoutingRefNo, RoutingNo, LocationCode));
-    end;
-#endif
 
     procedure GetProdRoutingLastOperationFromBinCode(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
     var
@@ -2100,7 +2064,7 @@
             SetRange("Worksheet Template Name", WkshTemplateName);
             SetRange("Worksheet Batch Name", WkshBatchName);
             SetRange("Worksheet Line No.", WkshLineNo);
-            if FindLast then
+            if FindLast() then
                 exit(GetProdCenterBinCode(Type, "No.", LocationCode, false, 0));
         end;
     end;

@@ -176,7 +176,7 @@ table 440 "Handled IC Inbox Purch. Header"
         HndlICInboxPurchLine.SetRange("IC Partner Code", "IC Partner Code");
         HndlICInboxPurchLine.SetRange("IC Transaction No.", "IC Transaction No.");
         HndlICInboxPurchLine.SetRange("Transaction Source", "Transaction Source");
-        if HndlICInboxPurchLine.FindFirst then
+        if HndlICInboxPurchLine.FindFirst() then
             HndlICInboxPurchLine.DeleteAll(true);
         DimMgt.DeleteICDocDim(
           DATABASE::"Handled IC Inbox Purch. Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);

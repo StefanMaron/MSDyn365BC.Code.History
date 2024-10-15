@@ -86,7 +86,7 @@ report 14973 "Copy to VAT Reinst. Journal"
     [Scope('OnPrem')]
     procedure SetParameters(var NewEntryToPost: Record "VAT Document Entry Buffer"; var NewVATEntry: Record "VAT Entry"; NewPostingDate: Date)
     begin
-        if NewEntryToPost.FindFirst then
+        if NewEntryToPost.FindFirst() then
             repeat
                 EntryToPost := NewEntryToPost;
                 EntryToPost.Insert();

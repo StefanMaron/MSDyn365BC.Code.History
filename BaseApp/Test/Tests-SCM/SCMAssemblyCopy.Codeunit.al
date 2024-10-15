@@ -44,7 +44,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure QuoteToQuote()
     begin
-        Initialize;
+        Initialize();
         // Test 1
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Quote, "Assembly Document Type"::Quote);
     end;
@@ -53,7 +53,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure QuoteToOrder()
     begin
-        Initialize;
+        Initialize();
         // Test 2
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Quote, "Assembly Document Type"::Order);
     end;
@@ -62,7 +62,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure QuoteToBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         // Test 3
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Quote, "Assembly Document Type"::"Blanket Order");
     end;
@@ -71,7 +71,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure OrderToQuote()
     begin
-        Initialize;
+        Initialize();
         // Test 4
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Order, "Assembly Document Type"::Quote);
     end;
@@ -80,7 +80,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure OrderToOrder()
     begin
-        Initialize;
+        Initialize();
         // Test 5
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Order, "Assembly Document Type"::Order);
     end;
@@ -89,7 +89,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure OrderToBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         // Test 6
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::Order, "Assembly Document Type"::"Blanket Order");
     end;
@@ -98,7 +98,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure BlanketOrderToQuote()
     begin
-        Initialize;
+        Initialize();
         // Test 7
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::"Blanket Order", "Assembly Document Type"::Quote);
     end;
@@ -107,7 +107,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure BlanketOrderToOrder()
     begin
-        Initialize;
+        Initialize();
         // Test 8
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::"Blanket Order", "Assembly Document Type"::Order);
     end;
@@ -116,7 +116,7 @@ codeunit 137927 "SCM Assembly Copy"
     [Scope('OnPrem')]
     procedure BlanketOrderToBlanketOrder()
     begin
-        Initialize;
+        Initialize();
         // Test 9
         CheckCopyingBtwNonPostedSalesDocs("Assembly Document Type"::"Blanket Order", "Assembly Document Type"::"Blanket Order");
     end;
@@ -130,7 +130,7 @@ codeunit 137927 "SCM Assembly Copy"
         ToDocNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 10
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -148,7 +148,7 @@ codeunit 137927 "SCM Assembly Copy"
     var
         ToDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 11
         CheckInit;
         PostOrderAsShip(CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true), 4);
@@ -167,7 +167,7 @@ codeunit 137927 "SCM Assembly Copy"
         EmptyBlanketOrderNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 12
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -189,7 +189,7 @@ codeunit 137927 "SCM Assembly Copy"
         EmptyQuoteNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 13
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -209,7 +209,7 @@ codeunit 137927 "SCM Assembly Copy"
         ToDocNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 14
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -228,7 +228,7 @@ codeunit 137927 "SCM Assembly Copy"
         ToDocNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 15
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -247,7 +247,7 @@ codeunit 137927 "SCM Assembly Copy"
         ToDocNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 16
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -268,7 +268,7 @@ codeunit 137927 "SCM Assembly Copy"
         EmptyBlanketOrderNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 17
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -288,7 +288,7 @@ codeunit 137927 "SCM Assembly Copy"
         ToDocNo: Code[20];
         FromDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 18
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -308,7 +308,7 @@ codeunit 137927 "SCM Assembly Copy"
         EmptyAssemblyOrderNo: Code[20];
         FullAssemblyOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 19
         CheckInit;
         SalesOrderNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -332,7 +332,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [Bin]
         // [SCENARIO 267924] When a user copies an assembly order, the program transfers "Bin Code" field value from the source assembly, regardless of "From-Assembly Bin Code" setting on the location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L" with two bins "B1", "B2".
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
@@ -369,7 +369,7 @@ codeunit 137927 "SCM Assembly Copy"
         FromDocNo: Code[20];
         FullAssemblyOrderNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Test 20
         CheckInit;
         FromDocNo := CreateAssemblySalesDocument(4, "Assembly Document Type"::Order, true);
@@ -394,7 +394,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [Dimension] [Assemble-to-Order]
         // [SCENARIO 282922] Dimensions are transferred from Assembly Order to new Assembly Order when Sales Order is copied to new Sales Order with Recalculate Lines = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assemble-to-Order Item with Default Dimension
         ItemNo := CreateAsmItemWithDimension;
@@ -444,7 +444,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [Dimension] [Assemble-to-Order]
         // [SCENARIO 282922] Dimensions are recalculated in Assembly Order when Sales Order is copied to new Sales Order with Recalculate Lines = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assemble-to-Order Item with Default Dimension
         ItemNo := CreateAsmItemWithDimension;
@@ -492,7 +492,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [Dimension] [Assemble-to-Stock]
         // [SCENARIO 282922] Dimensions are transferred from Assembly Order to new Assembly Order when Assembly Order is copied with Include Header = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Item with Dimension
         ItemNo := CreateAsmItemWithDimension;
@@ -508,7 +508,7 @@ codeunit 137927 "SCM Assembly Copy"
         // [GIVEN] New Assembly Order
         ToAssemblyHeader.Init();
         ToAssemblyHeader.Validate("Document Type", AssemblyHeader."Document Type");
-        ToAssemblyHeader.Validate("No.", LibraryUtility.GenerateGUID);
+        ToAssemblyHeader.Validate("No.", LibraryUtility.GenerateGUID());
         ToAssemblyHeader.Insert(true);
 
         // [WHEN] Copy Assembly Order to new Assembly Order with Include Header = Yes
@@ -533,7 +533,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [Dimension] [Assemble-to-Stock]
         // [SCENARIO 282922] Dimensions are recalculated in new Assembly Order when Assembly Order is copied with Include Header = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Item with Dimension
         ItemNo := CreateAsmItemWithDimension;
@@ -577,7 +577,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [UI] [Sales] [Order]
         // [SCENARIO 311686] When Stan changes Shortcut Dimension in Sales Order Line then Shortcut Dimension is changed in Assembly Order Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension with Values "V1" and "V2" was set as Shortcut Dimension 3 in General Ledger Setup
         LibraryDimension.CreateDimension(Dimension);
@@ -630,7 +630,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [UI] [Sales] [Quote]
         // [SCENARIO 315711] When Stan changes Shortcut Dimension in Sales Quote Line then Shortcut Dimension is changed in Assembly Quote Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension with Values "V1" and "V2" was set as Shortcut Dimension 3 in General Ledger Setup
         LibraryDimension.CreateDimension(Dimension);
@@ -682,7 +682,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         // [FEATURE] [UI] [Sales] [Blanket Order]
         // [SCENARIO 315711] When Stan changes Shortcut Dimension in Sales Blanket Order Line then Shortcut Dimension is changed in Assembly Blanket Order Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension with Values "V1" and "V2" was set as Shortcut Dimension 3 in General Ledger Setup
         LibraryDimension.CreateDimension(Dimension);
@@ -723,15 +723,15 @@ codeunit 137927 "SCM Assembly Copy"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Copy");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if Initialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Copy");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         Initialized := true;
@@ -778,7 +778,7 @@ codeunit 137927 "SCM Assembly Copy"
 
     local procedure CreateCustomer()
     begin
-        SellToCustomerNo := LibrarySales.CreateCustomerNo;
+        SellToCustomerNo := LibrarySales.CreateCustomerNo();
     end;
 
     local procedure CreateCustomerWithDimension(): Code[20]
@@ -939,24 +939,24 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         ATOLink.SetRange("Document Type", SalesHeader."Document Type");
         ATOLink.SetRange("Document No.", SalesHeader."No.");
-        ATOLink.FindFirst;
+        ATOLink.FindFirst();
         AssemblyHeader.SetRange("Document Type", ATOLink."Assembly Document Type");
         AssemblyHeader.SetRange("No.", ATOLink."Assembly Document No.");
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
     end;
 
     local procedure FindAsmLineByAsmHeader(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header")
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure FindSalesLineBySalesHeader(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure ModifyDimensionInSalesLine(SalesHeader: Record "Sales Header")
@@ -995,7 +995,7 @@ codeunit 137927 "SCM Assembly Copy"
         AssemblyHeader.Modify(true);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
         AssemblyLine.Validate("Shortcut Dimension 1 Code", AssemblyHeader."Shortcut Dimension 1 Code");
         AssemblyLine.Validate("Shortcut Dimension 2 Code", AssemblyHeader."Shortcut Dimension 2 Code");
         AssemblyLine.Modify(true);
@@ -1247,13 +1247,13 @@ codeunit 137927 "SCM Assembly Copy"
         end;
 
         AssembleToOrderLink.SetRange("Document No.", SalesOrderNo);
-        if not AssembleToOrderLink.FindSet then
+        if not AssembleToOrderLink.FindSet() then
             exit;
         FullAssemblyOrderHeaderNo := AssembleToOrderLink."Assembly Document No.";
         repeat
             AsmLine.SetRange("Document Type", AssembleToOrderLink."Assembly Document Type");
             AsmLine.SetRange("Document No.", AssembleToOrderLink."Assembly Document No.");
-            if AsmLine.FindSet then
+            if AsmLine.FindSet() then
                 repeat
                     TempAsmLine := AsmLine;
                     TempAsmLine.Insert();
@@ -1270,12 +1270,12 @@ codeunit 137927 "SCM Assembly Copy"
         TempAsmLine.DeleteAll();
         PostedAssembleToOrderLink.SetRange("Document Type", PostedAssembleToOrderLink."Document Type"::"Sales Shipment");
         PostedAssembleToOrderLink.SetRange("Document No.", ShipmentNo);
-        if not PostedAssembleToOrderLink.FindSet then
+        if not PostedAssembleToOrderLink.FindSet() then
             exit;
         FullAssemblyOrderNo := PostedAssembleToOrderLink."Assembly Document No.";
         repeat
             PostedAsmLine.SetRange("Document No.", PostedAssembleToOrderLink."Assembly Document No.");
-            if PostedAsmLine.FindSet then
+            if PostedAsmLine.FindSet() then
                 repeat
                     TempAsmLine.TransferFields(PostedAsmLine);
                     TempAsmLine."Document Type" := TempAsmLine."Document Type"::Order;
@@ -1307,7 +1307,7 @@ codeunit 137927 "SCM Assembly Copy"
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::"Blanket Order");
         end;
         AssembleToOrderLink.SetRange("Document No.", NewSalesHeaderNo);
-        AssembleToOrderLink.FindFirst;
+        AssembleToOrderLink.FindFirst();
         case NewDocType of
             NewDocType::Quote:
                 ToAsmLine.SetRange("Document Type", ToAsmLine."Document Type"::Quote);
@@ -1348,7 +1348,7 @@ codeunit 137927 "SCM Assembly Copy"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesShipmentHeader.SetCurrentKey("Order No.");
         SalesShipmentHeader.SetRange("Order No.", NonEmptySalesOrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentNo := SalesShipmentHeader."No.";
         exit(SalesShipmentNo);
     end;
@@ -1364,11 +1364,11 @@ codeunit 137927 "SCM Assembly Copy"
         ItemLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
         ItemLedgerEntry.SetRange("Document No.", SalesShipmentNo);
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         SalesInvoiceNo := ValueEntry."Document No.";
         exit(SalesInvoiceNo);
     end;
@@ -1401,7 +1401,7 @@ codeunit 137927 "SCM Assembly Copy"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", OrderNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             exit(0);
         exit(SalesLine."Line No.");
     end;

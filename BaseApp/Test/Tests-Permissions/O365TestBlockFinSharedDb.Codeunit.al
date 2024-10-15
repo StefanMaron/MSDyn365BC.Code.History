@@ -23,7 +23,7 @@ codeunit 138999 "O365 Test Block Fin SharedDb"
         ExtensionManagement: TestPage "Extension Management";
     begin
         // [GIVEN] An tenant has been provisioned under a O365 license, therefore is in sharedDB with burntin extensions
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
 
         // [WHEN] The user tries to access PAG2500 Extension Management

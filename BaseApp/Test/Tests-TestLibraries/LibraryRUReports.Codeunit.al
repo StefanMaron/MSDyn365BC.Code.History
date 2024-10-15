@@ -274,7 +274,7 @@ codeunit 143016 "Library RU Reports"
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostGroup);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
 
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Item.Modify(true);
@@ -296,10 +296,10 @@ codeunit 143016 "Library RU Reports"
             Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
             Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
             "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-            Validate("KPP Code", LibraryUtility.GenerateGUID);
+            Validate("KPP Code", LibraryUtility.GenerateGUID());
             Validate("Post Code", PostCode.Code);
-            Validate(Address, LibraryUtility.GenerateGUID);
-            Validate("Address 2", LibraryUtility.GenerateGUID);
+            Validate(Address, LibraryUtility.GenerateGUID());
+            Validate("Address 2", LibraryUtility.GenerateGUID());
             Modify(true);
             exit("No.");
         end;
@@ -319,10 +319,10 @@ codeunit 143016 "Library RU Reports"
             Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
             Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
             "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-            Validate("KPP Code", LibraryUtility.GenerateGUID);
+            Validate("KPP Code", LibraryUtility.GenerateGUID());
             Validate("Post Code", PostCode.Code);
-            Validate(Address, LibraryUtility.GenerateGUID);
-            Validate("Address 2", LibraryUtility.GenerateGUID);
+            Validate(Address, LibraryUtility.GenerateGUID());
+            Validate("Address 2", LibraryUtility.GenerateGUID());
             Modify(true);
             exit("No.");
         end;
@@ -346,7 +346,7 @@ codeunit 143016 "Library RU Reports"
         LibraryERM.CreatePostCode(PostCode);
         with PostCode do begin
             Validate("Country/Region Code", CompanyInformation."Country/Region Code");
-            Validate(County, LibraryUtility.GenerateGUID);
+            Validate(County, LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;
@@ -400,7 +400,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with DepreciationCode do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert;
             exit(Code);
         end;
@@ -413,7 +413,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with DepreciationGroup do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert;
             exit(Code);
         end;
@@ -447,7 +447,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with FALocation do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert;
             exit(Code);
         end;
@@ -460,7 +460,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with FAPostingGroup do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "Acquisition Cost Account" := MockGLAccount;
             Insert;
             exit(Code);
@@ -474,7 +474,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with GLAccount do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             exit("No.");
         end;
@@ -488,7 +488,7 @@ codeunit 143016 "Library RU Reports"
         with MainAssetComponent do begin
             Init;
             "Main Asset No." := FANo;
-            "FA No." := LibraryUtility.GenerateGUID;
+            "FA No." := LibraryUtility.GenerateGUID();
             Description := "FA No.";
             Quantity := LibraryRandom.RandInt(100);
             Insert;
@@ -517,7 +517,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with PreciousMetal do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Name := Code;
             Insert;
             exit(Code);
@@ -632,7 +632,7 @@ codeunit 143016 "Library RU Reports"
     begin
         with FADepreciationBook do begin
             SetRange("FA No.", FANo);
-            FindFirst;
+            FindFirst();
             exit("Depreciation Book Code");
         end;
     end;
@@ -739,7 +739,7 @@ codeunit 143016 "Library RU Reports"
             Validate("Name 2", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), 0));
             Validate("Full Name", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Full Name"), 0));
             "VAT Registration No." := LibraryERM.GenerateVATRegistrationNo("Country/Region Code");
-            Validate("KPP Code", LibraryUtility.GenerateGUID);
+            Validate("KPP Code", LibraryUtility.GenerateGUID());
             Modify;
         end;
     end;
@@ -783,11 +783,11 @@ codeunit 143016 "Library RU Reports"
     begin
         CreatePostCode(PostCode);
         with CompanyAddress do begin
-            FindFirst;
+            FindFirst();
             Validate("Post Code", PostCode.Code);
-            Validate("Region Name", LibraryUtility.GenerateGUID);
-            Validate(Address, LibraryUtility.GenerateGUID);
-            Validate("Address 2", LibraryUtility.GenerateGUID);
+            Validate("Region Name", LibraryUtility.GenerateGUID());
+            Validate(Address, LibraryUtility.GenerateGUID());
+            Validate("Address 2", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;
@@ -813,11 +813,11 @@ codeunit 143016 "Library RU Reports"
         VATPostingSetup.Validate("VAT Identifier", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.Insert(true);
 
-        GLAccount.Validate("No.", LibraryUtility.GenerateGUID);
+        GLAccount.Validate("No.", LibraryUtility.GenerateGUID());
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Insert(true);
 
-        CustomerPostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        CustomerPostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
         CustomerPostingGroup.Validate("Prepayment Account", GLAccount."No.");
         CustomerPostingGroup.Insert(true);
 
@@ -898,7 +898,7 @@ codeunit 143016 "Library RU Reports"
             SetRange(Type, LedgerType);
             SetRange(Code, VATLedgerCode);
             SetRange("C/V No.", CVNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

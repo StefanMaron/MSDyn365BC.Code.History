@@ -106,7 +106,7 @@ page 26552 "Statutory Report Tables"
                             TableIndividualRequisite.SetRange("Report Code", "Report Code");
                             TableIndividualRequisite.SetRange("Table Code", Code);
                             TableIndividualRequisite.SetRange("Row Code", PageIndicRowNo);
-                            TableIndividualRequisite.FindFirst;
+                            TableIndividualRequisite.FindFirst();
                             "Page Indic. Requisite Line No." := TableIndividualRequisite."Line No.";
                         end else
                             "Page Indic. Requisite Line No." := 0;
@@ -310,7 +310,7 @@ page 26552 "Statutory Report Tables"
         StatutoryReportTable.SetRange("Report Code", "Report Code");
 
         if BelowxRec then begin
-            if StatutoryReportTable.FindLast then;
+            if StatutoryReportTable.FindLast() then;
             "Sequence No." := StatutoryReportTable."Sequence No." + 1;
         end else begin
             SequenceNo := xRec."Sequence No.";
@@ -340,7 +340,7 @@ page 26552 "Statutory Report Tables"
         UpperStatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
         UpperStatutoryReportTable.SetRange("Report Code", "Report Code");
         UpperStatutoryReportTable.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
-        if UpperStatutoryReportTable.FindLast then begin
+        if UpperStatutoryReportTable.FindLast() then begin
             SequenceNo := UpperStatutoryReportTable."Sequence No.";
             UpperStatutoryReportTable."Sequence No." := "Sequence No.";
             UpperStatutoryReportTable.Modify();
@@ -359,7 +359,7 @@ page 26552 "Statutory Report Tables"
         LowerStatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
         LowerStatutoryReportTable.SetRange("Report Code", "Report Code");
         LowerStatutoryReportTable.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
-        if LowerStatutoryReportTable.FindFirst then begin
+        if LowerStatutoryReportTable.FindFirst() then begin
             SequenceNo := LowerStatutoryReportTable."Sequence No.";
             LowerStatutoryReportTable."Sequence No." := "Sequence No.";
             LowerStatutoryReportTable.Modify();
@@ -377,7 +377,7 @@ page 26552 "Statutory Report Tables"
         PageIndicationForXML := '';
         PageIndicationXMLElement.SetRange("Report Code", "Report Code");
         PageIndicationXMLElement.SetRange("Table Code", Code);
-        if PageIndicationXMLElement.FindSet then
+        if PageIndicationXMLElement.FindSet() then
             repeat
                 if PageIndicationForXML = '' then
                     PageIndicationForXML := PageIndicationXMLElement."XML Element Name"

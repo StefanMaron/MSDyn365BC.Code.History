@@ -53,7 +53,7 @@ page 17280 "Tax Reg. Norm Details (Calc)"
         NormAccumulation.SetRange("Norm Group Code", "Norm Group Code");
         NormAccumulation.SetRange("Ending Date", "Effective Date");
         NormAccumulation.SetRange("Line Type", NormAccumulation."Line Type"::"Norm Value");
-        if NormAccumulation.FindFirst then;
+        if NormAccumulation.FindFirst() then;
         NormAccumulation.SetRange("Line Type");
         PAGE.RunModal(0, NormAccumulation);
     end;

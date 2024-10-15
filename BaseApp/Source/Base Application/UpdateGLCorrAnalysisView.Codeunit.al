@@ -65,7 +65,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
             exit;
 
         GLCorrAnalysisView2.LockTable();
-        if GLCorrAnalysisView2.FindSet then
+        if GLCorrAnalysisView2.FindSet() then
             repeat
                 UpdateOne(GLCorrAnalysisView2, not DirectlyFromPosting);
             until GLCorrAnalysisView2.Next() = 0;
@@ -91,7 +91,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
 
         GLCorrEntry.Reset();
         GLCorrEntry.SetRange("Entry No.", GLCorrAnalysisView."Last Entry No." + 1, MaxNumber);
-        if GLCorrEntry.FindLast then begin
+        if GLCorrEntry.FindLast() then begin
             LastEntryNo := GLCorrEntry."Entry No.";
             if ShowProgressWindow then
                 UpdateWindowHeader(DATABASE::"G/L Corr. Analysis View Entry", GLCorrEntry."Entry No.");
@@ -192,7 +192,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
     begin
         if ShowProgressWindow then
             Window.Update(6, Text011);
-        if TempGLCorrAnalysisViewEntry.FindSet then
+        if TempGLCorrAnalysisViewEntry.FindSet() then
             repeat
                 GLCorrAnalysisViewEntry.Init();
                 GLCorrAnalysisViewEntry := TempGLCorrAnalysisViewEntry;
@@ -279,7 +279,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
             exit(true);
 
         GLCorrAnalysisViewFilter.SetRange("Filter Group", GLCorrAnalysisViewFilter."Filter Group"::Debit);
-        if GLCorrAnalysisViewFilter.FindSet then
+        if GLCorrAnalysisViewFilter.FindSet() then
             repeat
                 DimSetEntry.SetRange("Dimension Set ID", GLCorrEntry."Debit Dimension Set ID");
                 DimSetEntry.SetRange("Dimension Code", GLCorrAnalysisViewFilter."Dimension Code");
@@ -289,7 +289,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
             until GLCorrAnalysisViewFilter.Next() = 0;
 
         GLCorrAnalysisViewFilter.SetRange("Filter Group", GLCorrAnalysisViewFilter."Filter Group"::Credit);
-        if GLCorrAnalysisViewFilter.FindSet then
+        if GLCorrAnalysisViewFilter.FindSet() then
             repeat
                 DimSetEntry.SetRange("Dimension Set ID", GLCorrEntry."Credit Dimension Set ID");
                 DimSetEntry.SetRange("Dimension Code", GLCorrAnalysisViewFilter."Dimension Code");
@@ -322,7 +322,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast then begin
+                        if AccountingPeriod.FindLast() then begin
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
                         end else
                             PrevCalculatedPostingDate := PostingDate;
@@ -364,7 +364,7 @@ codeunit 14940 "Update G/L Corr. Analysis View"
             exit(TempDimEntryBuffer."Dimension Entry No." <> 0);
 
         InFilters := true;
-        if GLCorrAnalysisViewFilter.FindSet then
+        if GLCorrAnalysisViewFilter.FindSet() then
             repeat
                 if DimSetEntry.Get(DimSetID, GLCorrAnalysisViewFilter."Dimension Code") then
                     InFilters :=

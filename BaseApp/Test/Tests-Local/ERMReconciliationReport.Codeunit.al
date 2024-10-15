@@ -223,7 +223,7 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] 2 posted journal lines with "Posting Date" = WORKDATE and Amount = "IA2" * 2:
         // [GIVEN] Line1."Document No." = Line2."Document No.", Line1."Document Type" = Line2."Document Type" = '',
         // [GIVEN] Line1."Agreement No." = "A2", Line2."Agreement No." = "A1", Line2."Applies-to Doc. No." = "I2"
-        Initialize;
+        Initialize();
         PaymentCoeff := 2;
         CustomerNo :=
           CreateDataForSalesWithAgreements(WorkDate, '', InvoiceAmount1, InvoiceAmount2, PaymentCoeff, SkippedInvoiceNo, SkippedCreditMemoNo);
@@ -280,7 +280,7 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] 2 posted journal lines with "Posting Date" = WORKDATE and Amount = "IA2" * 2:
         // [GIVEN] Line1."Document No." = Line2."Document No.", Line1."Document Type" = Line2."Document Type" = '',
         // [GIVEN] Line1."Agreement No." = "A2", Line2."Agreement No." = "A1", Line2."Applies-to Doc. No." = "I2".
-        Initialize;
+        Initialize();
         PaymentCoeff := 2;
         ExchRate1 := LibraryRandom.RandIntInRange(70, 90);
         ExchRate2 := LibraryRandom.RandIntInRange(70, 90);
@@ -326,7 +326,7 @@ codeunit 144719 "ERM Reconciliation Report"
         // [GIVEN] Customer with "Agreement Posting" = "No Agreement" and empty "Currency Code",
         // [GIVEN] Posted Sales Invoice "I1" with "Posting Date" = (WORKDATE - 1) and Amount = "IA1",
         // [GIVEN] Posted Payment "P1" for "I1" with "Posting Date" = (WORKDATE + 1) and Amount = "IA1", applied to "I1"
-        Initialize;
+        Initialize();
         CustomerNo :=
           CreateDataForSalesWithFuturePayment(WorkDate, InvoiceAmount);
 
@@ -352,9 +352,9 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 379645] Report "Customer - Reconciliation Act" shows closed invoice and it's applied payment in the previous period section
-        Initialize;
+        Initialize();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Posted invoice "Inv" on April with amount 1180
         InvoiceNo := CreatePostSalesInvoice(CustomerNo, InvoiceAmount, '', GetRandomDateWithMonthShift(3));
 
@@ -385,9 +385,9 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 380823] Report "Customer - Reconciliation Act" doesn't show closed invoice and it's applied payment in the previous period section for old payments
-        Initialize;
+        Initialize();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Posted invoice "Inv" on April with amount 1180
         InvoiceNo := CreatePostSalesInvoice(CustomerNo, InvoiceAmount, '', GetRandomDateWithMonthShift(3));
 
@@ -414,10 +414,10 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 380825] Second customer has zero turnover after first customer with partial correction Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] First customer with:
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Sales Invoice (Amount = 1000)
         InvoiceNo := CreatePostSalesInvoice(CustomerNo, InvoiceAmount, '', WorkDate);
         // [GIVEN] Sales Credit Memo (Amount = 200) applied to the Invoice
@@ -443,10 +443,10 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 380825] Second customer has zero turnover after first customer with partial correction Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] First customer with:
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Sales Credit Memo (Amount = 1000)
         CrMemoNo := CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
         // [GIVEN] Sales Invoice (Amount = 200) applied to the Credit Memo
@@ -471,12 +471,12 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 380824] Sales Credit Memo is printed with positive credit amount in case when it is not a correction
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Mark Cr. Memos as Corrections" = FALSE
         UpdateGLSetupMarkCrMemosAsCorrections(false);
         // [GIVEN] Posted Sales Credit Memo
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
@@ -495,12 +495,12 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Correction]
         // [SCENARIO 380824] Sales Credit Memo is printed with negative debit amount in case when it is a correction
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Mark Cr. Memos as Corrections" = TRUE
         UpdateGLSetupMarkCrMemosAsCorrections(true);
         // [GIVEN] Posted Sales Credit Memo
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act"
@@ -519,12 +519,12 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 380824] Sales Credit Memo is printed with positive credit amount in case when it is not a correction for previous reporting period
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Mark Cr. Memos as Corrections" = FALSE
         UpdateGLSetupMarkCrMemosAsCorrections(false);
         // [GIVEN] Sales Credit Memo posted in previous period
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for current month
@@ -543,12 +543,12 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Correction]
         // [SCENARIO 380824] Sales Credit Memo is printed with negative debit amount in case when it is a correction for previous reporting period
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup."Mark Cr. Memos as Corrections" = TRUE
         UpdateGLSetupMarkCrMemosAsCorrections(true);
         // [GIVEN] Sales Credit Memo posted in previous period
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreatePostSalesCrMemoWithTwoLines(WorkDate, CustomerNo, CrMemoAmount);
 
         // [WHEN] Printing report "Customer - Reconciliation Act" for current month
@@ -571,7 +571,7 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 298588] Applied payments of current period are included in Vendor's Debit Turnover in case when applied payments for previous period exist
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor "V01"
         LibraryPurchase.CreateVendor(Vendor);
@@ -610,7 +610,7 @@ codeunit 144719 "ERM Reconciliation Report"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 298588] Applied payments of current period are included in Vendor's Debit Turnover in case when applied payments for previous period exist
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Vendor "V01"
         // [GIVEN] Created Customer "CU01" with "Vendor No." = "V01"
@@ -707,12 +707,12 @@ codeunit 144719 "ERM Reconciliation Report"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
@@ -844,7 +844,7 @@ codeunit 144719 "ERM Reconciliation Report"
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
             SetRange("Document Type", "Document Type"::Payment);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -873,13 +873,13 @@ codeunit 144719 "ERM Reconciliation Report"
         Vendor: Record Vendor;
         VendorReconciliationAct: Report "Vendor - Reconciliation Act";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         VendorReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName, true);
         Vendor.SetRange("No.", VendorNo);
         VendorReconciliationAct.UseRequestPage(UseRequestPage);
         VendorReconciliationAct.SetTableView(Vendor);
         Commit();
-        VendorReconciliationAct.Run;
+        VendorReconciliationAct.Run();
     end;
 
     local procedure PrintCustomerReconciliation(CustomerNo1: Code[20]; CustomerNo2: Code[20]; ReportDate: Date)
@@ -892,7 +892,7 @@ codeunit 144719 "ERM Reconciliation Report"
         Customer: Record Customer;
         CustomerReconciliationAct: Report "Customer - Reconciliation Act";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Clear(CustomerReconciliationAct);
         CustomerReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName, true);
         if CustomerNo2 = '' then
@@ -902,7 +902,7 @@ codeunit 144719 "ERM Reconciliation Report"
         CustomerReconciliationAct.UseRequestPage(UseRequestPage);
         CustomerReconciliationAct.SetTableView(Customer);
         Commit();
-        CustomerReconciliationAct.Run;
+        CustomerReconciliationAct.Run();
     end;
 
     local procedure PrintCustomerReconciliationWithCurrency(CustomerNo: Code[20]; ReportDate: Date; CurrencyCode: Code[10])
@@ -911,14 +911,14 @@ codeunit 144719 "ERM Reconciliation Report"
         CustomerReconciliationAct: Report "Customer - Reconciliation Act";
     begin
         LibraryVariableStorage.Enqueue(CurrencyCode);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Clear(CustomerReconciliationAct);
         CustomerReconciliationAct.InitializeRequest(ReportDate, ReportDate, LibraryReportValidation.GetFileName, true);
         Customer.SetRange("No.", CustomerNo);
         CustomerReconciliationAct.UseRequestPage(true);
         CustomerReconciliationAct.SetTableView(Customer);
         Commit();
-        CustomerReconciliationAct.Run;
+        CustomerReconciliationAct.Run();
     end;
 
     local procedure PrintReconciliation(IsVendorReconciliation: Boolean; VendorNo: Code[20]; CustomerNo: Code[20]; ReportDate: Date)
@@ -935,7 +935,7 @@ codeunit 144719 "ERM Reconciliation Report"
         Customer: Record Customer;
         InvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerVendor(Vendor, Customer);
         InvoiceNo := CreatePostPurchInvoice(Vendor."No.", InvoiceAmount, WorkDate);
@@ -951,7 +951,7 @@ codeunit 144719 "ERM Reconciliation Report"
         Customer: Record Customer;
         InvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomerVendor(Vendor, Customer);
         InvoiceNo := CreatePostSalesInvoice(Customer."No.", InvoiceAmount, '', WorkDate);
@@ -1123,7 +1123,7 @@ codeunit 144719 "ERM Reconciliation Report"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindLast;
+            FindLast();
             Delete(true);
         end;
     end;

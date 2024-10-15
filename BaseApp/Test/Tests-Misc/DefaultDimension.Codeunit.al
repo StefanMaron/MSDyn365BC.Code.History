@@ -30,7 +30,7 @@ codeunit 134487 "Default Dimension"
     begin
         // [FEATURE] [UI] [UT]
         // [GIVEN] Master table record 'A', where are Global Dimension fields.
-        TableWithDefaultDim."No." := LibraryUtility.GenerateGUID;
+        TableWithDefaultDim."No." := LibraryUtility.GenerateGUID();
         TableWithDefaultDim.Insert();
         // [GIVEN] Run 'Dimension - Single' action on the card page
         MockMasterWithDimsCard.OpenView;
@@ -58,7 +58,7 @@ codeunit 134487 "Default Dimension"
     begin
         // [FEATURE] [UI] [UT]
         // [GIVEN] Master table record 'A', where are no Global Dimension fields.
-        MockMasterTable."No." := LibraryUtility.GenerateGUID;
+        MockMasterTable."No." := LibraryUtility.GenerateGUID();
         MockMasterTable.Insert();
         // [GIVEN] Subscribed to COD408.OnAfterSetupObjectNoList to add table to the allowed table ID list
         BindSubscription(DefaultDimensionCodeunit);
@@ -88,7 +88,7 @@ codeunit 134487 "Default Dimension"
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
         TempAllObjWithCaption.SetFilter("Object ID", '<>%1&<>%2', DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
         with TempAllObjWithCaption do
-            if FindSet then
+            if FindSet() then
                 repeat
                     TableMetadata.Get("Object ID");
                     if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
@@ -111,7 +111,7 @@ codeunit 134487 "Default Dimension"
         // [SCENARIO] (Except RU local tables "Vendor Agreement" and "Customer Agreement")
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
         TempAllObjWithCaption.SetFilter("Object ID", '<>%1&<>%2', DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
-        if TempAllObjWithCaption.FindSet then
+        if TempAllObjWithCaption.FindSet() then
             repeat
                 TableMetadata.Get(TempAllObjWithCaption."Object ID");
                 if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::No then
@@ -142,9 +142,9 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [Country:RU] [Agreement]
         // [SCENARIO] "Vendor Agreement" cannot be renamed (no need to rename Default Dimensions)
         VendorAgreement.Init();
-        VendorAgreement."No." := LibraryUtility.GenerateGUID;
+        VendorAgreement."No." := LibraryUtility.GenerateGUID();
         VendorAgreement.Insert();
-        asserterror VendorAgreement.Rename('', LibraryUtility.GenerateGUID);
+        asserterror VendorAgreement.Rename('', LibraryUtility.GenerateGUID());
         Assert.ExpectedError(StrSubstNo(RenameErr, VendorAgreement.TableCaption));
     end;
 
@@ -157,9 +157,9 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [Country:RU] [Agreement]
         // [SCENARIO] "Customer Agreement" cannot be renamed (no need to rename Default Dimensions)
         CustomerAgreement.Init();
-        CustomerAgreement."No." := LibraryUtility.GenerateGUID;
+        CustomerAgreement."No." := LibraryUtility.GenerateGUID();
         CustomerAgreement.Insert();
-        asserterror CustomerAgreement.Rename('', LibraryUtility.GenerateGUID);
+        asserterror CustomerAgreement.Rename('', LibraryUtility.GenerateGUID());
         Assert.ExpectedError(StrSubstNo(RenameErr, CustomerAgreement.TableCaption));
     end;
 
@@ -189,7 +189,7 @@ codeunit 134487 "Default Dimension"
             // [GIVEN] Dimension value for Global Dimension 1 Code was extracted.
             GeneralLedgerSetup.Get();
             DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
-            DimensionValue.FindFirst;
+            DimensionValue.FindFirst();
 
             // [WHEN] Configuration Template Line is created.
             LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
@@ -252,7 +252,7 @@ codeunit 134487 "Default Dimension"
         KeyRef: KeyRef;
         RecRef: RecordRef;
     begin
-        PK := LibraryUtility.GenerateGUID;
+        PK := LibraryUtility.GenerateGUID();
         RecRef.Open(TableID);
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
@@ -267,12 +267,12 @@ codeunit 134487 "Default Dimension"
         KeyRef: KeyRef;
         RecRef: RecordRef;
     begin
-        NewPK := LibraryUtility.GenerateGUID;
+        NewPK := LibraryUtility.GenerateGUID();
         RecRef.Open(TableID);
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
         FieldRef.SetRange(PK);
-        RecRef.FindFirst;
+        RecRef.FindFirst();
         Assert.IsTrue(RecRef.Rename(NewPK), 'RENAME has failed');
         RecRef.Close;
     end;
@@ -318,7 +318,7 @@ codeunit 134487 "Default Dimension"
         Field.Reset();
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, 'Global Dimension 1 Code');
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."No.");
     end;
 

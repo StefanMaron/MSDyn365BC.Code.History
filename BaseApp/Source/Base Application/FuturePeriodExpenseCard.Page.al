@@ -201,7 +201,7 @@ page 17331 "Future Period Expense Card"
                         CopyFA: Report "Copy Fixed Asset";
                     begin
                         CopyFA.SetFANo("No.");
-                        CopyFA.RunModal;
+                        CopyFA.RunModal();
                     end;
                 }
                 action("Create FE Depreciation Books")
@@ -215,7 +215,7 @@ page 17331 "Future Period Expense Card"
                     begin
                         FA.Reset();
                         FA.SetRange("No.", "No.");
-                        if FA.FindFirst then
+                        if FA.FindFirst() then
                             REPORT.Run(REPORT::"Create FA Depreciation Books", true, true, FA);
                     end;
                 }

@@ -107,7 +107,7 @@ codeunit 147127 "ERM Bank Statement RU"
         DataExch: Record "Data Exch.";
         FileName: Text[1024];
     begin
-        //Initialize;
+        //Initialize();
 
         // Setup
         InsertDataExchLinesWithColumnsAsRows(DataExch);
@@ -124,7 +124,7 @@ codeunit 147127 "ERM Bank Statement RU"
         BankAccReconLine.Reset();
         BankAccReconLine.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
         BankAccReconLine.SetRange("Statement No.", BankAccRecon."Statement No.");
-        if BankAccReconLine.FindFirst then;
+        if BankAccReconLine.FindFirst() then;
         Assert.IsTrue(BankAccReconLine."Entity No." = VendorNo, ExpectedVendorErr);
     end;
 
@@ -135,7 +135,7 @@ codeunit 147127 "ERM Bank Statement RU"
         i: Integer;
         j: Integer;
     begin
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
         DataExchDef."Columns as Rows" := true;
         DataExchDef.Insert();
 
@@ -220,7 +220,7 @@ codeunit 147127 "ERM Bank Statement RU"
         LinesRead := ExportFile.ReadAllLines(Filename);
 
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
-        if DataExchField.FindSet then begin
+        if DataExchField.FindSet() then begin
             LineNo := 1;
             repeat
                 case DataExchField."Column Type" of

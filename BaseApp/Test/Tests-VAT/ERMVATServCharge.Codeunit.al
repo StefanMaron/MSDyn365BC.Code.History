@@ -32,7 +32,7 @@
     begin
         // Check Sales Line for Invoice Discount with VAT and Service Charge after Create and Release Sales Order with 1 Fix
         // Value for Invoice Discount.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         ServiceCharge := CreateSalesOrderWithInvDisc(SalesHeader, 1);
 
@@ -49,7 +49,7 @@
         SalesLine: Record "Sales Line";
     begin
         // Check that Sales Line not lead to Service charge Line after Create Sales Order and Change Unit Price.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithInvDisc(SalesHeader, -1);
 
         // Verify: Verify Sales Line.
@@ -68,7 +68,7 @@
     begin
         // Check GL Entry for Invoice Discount with Modified VAT and Service Charge after Create and Release Sales Order with 1 Fix
         // Value for Invoice Discount.
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
         ServiceCharge := CreateSalesOrderWithInvDisc(SalesHeader, 1);
         FindSalesLine(SalesLine, SalesHeader."No.");
@@ -88,7 +88,7 @@
     begin
         // Check Purchase Credit memo Line for Invoice Discount with modified VAT and Service Charge after Create
         // Purchase Credit memo with 1 Fix Value for Invoice Discount.
-        Initialize;
+        Initialize();
         ServiceCharge := CreatePurchCreditMemoInvDisc(PurchaseHeader, 1);
 
         // Verify: Verify Purchase Line for VAT Amount.
@@ -104,7 +104,7 @@
         PurchaseLine: Record "Purchase Line";
     begin
         // Check that Purchase Line not lead to Service charge Line after Create Purchase Order and Change Direct Unit Cost.
-        Initialize;
+        Initialize();
         CreatePurchCreditMemoInvDisc(PurchaseHeader, -1);
 
         // Verify: Verify Purchase Line.
@@ -122,7 +122,7 @@
         VATAmount: Decimal;
     begin
         // Check GL Entry for Invoice Discount and VAT Amount with Modified Service Charge after Create and Release Purchase Credit memo.
-        Initialize;
+        Initialize();
         ServiceCharge := CreatePurchCreditMemoInvDisc(PurchaseHeader, 1);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         VATAmount := (ServiceCharge * PurchaseLine."VAT %") / 100;
@@ -142,7 +142,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Service charge line is created with Prepayment % = 100 from Sales Order
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -166,7 +166,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Update Prepayment % in Service charge line
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 0 % with Amount = 1000 and Service Charge = 100
@@ -194,7 +194,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Reset Prepayment % in Service charge line to zero
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -221,7 +221,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Post Sales Order with Service charge line and Prepayment % = 100
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -246,7 +246,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Post Sales Order with Service charge line and Prepayment % = 50
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 50 % with Amount = 1000 and Service Charge = 100
@@ -274,7 +274,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Update quantity on Sales Line when prepayment invoice is posted and service charge is not changed
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -310,7 +310,7 @@
     begin
         // [FEATURE] [Prepayment] [Sales]
         // [SCENARIO 278599] Sales Line cannot be updated when prepayment invoice is posted and service charge is changed
-        Initialize;
+        Initialize();
         LibrarySales.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Sales Order with 100 % with Amount = 1000 and Service Charge = 100 with Min Amount = 1000
@@ -347,7 +347,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Service charge line is created with Prepayment % = 100 from Purchase Order
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -371,7 +371,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Update Prepayment % in Service charge line
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 0 % with Amount = 1000 and Service Charge = 100
@@ -400,7 +400,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Reset Prepayment % in Service charge line to zero
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -427,7 +427,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Post Purchase Order with Service charge line and Prepayment % = 100
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -452,7 +452,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Post Purchase Order with Service charge line and Prepayment % = 50
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 50 % with Amount = 1000 and Service Charge = 100
@@ -480,7 +480,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Update quantity on Purchase Line when prepayment invoice is posted and service charge is not changed
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 100 % with Amount = 1000 and Service Charge = 100
@@ -516,7 +516,7 @@
     begin
         // [FEATURE] [Prepayment] [Purchase]
         // [SCENARIO 278599] Purchase Line cannot be updated when prepayment invoice is posted and service charge is changed
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
 
         // [GIVEN] Prepayment Purchase Order with 100 % with Amount = 1000 and Service Charge = 100 with Min Amount = 1000
@@ -549,17 +549,17 @@
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Serv. Charge");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Serv. Charge");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         IsInitialized := true;
@@ -727,7 +727,7 @@
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, Type);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]): Boolean
@@ -743,7 +743,7 @@
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, Type);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; VATAmount: Decimal; AmountRoundingPrecision: Decimal): Decimal
@@ -753,7 +753,7 @@
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("VAT Amount", VATAmount - AmountRoundingPrecision, VATAmount + AmountRoundingPrecision);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         exit(GLEntry."VAT Amount");
     end;
 
@@ -839,7 +839,7 @@
     begin
         GeneralLedgerSetup.Get();
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         GLVatAmount :=
           FindGLEntry(
             GLEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.", -VATAmount, GeneralLedgerSetup."Amount Rounding Precision");

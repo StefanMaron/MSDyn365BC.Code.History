@@ -72,7 +72,7 @@ page 26568 "Stat. Report Excel Sheets"
         Sheet.SetRange("Report Code", "Report Code");
         Sheet.SetRange("Report Data No.", "Report Data No.");
         Sheet.SetRange("Table Code", "Table Code");
-        if Sheet.FindLast then;
+        if Sheet.FindLast() then;
         "Sequence No." := Sheet."Sequence No." + 1;
         StatutoryReportTable.Get("Report Code", "Table Code");
         "Parent Sheet Name" := StatutoryReportTable."Excel Sheet Name";
@@ -91,7 +91,7 @@ page 26568 "Stat. Report Excel Sheets"
             UpperSheet.SetRange("Table Code", "Table Code");
             UpperSheet.SetFilter("Parent Sheet Name", '<>''''');
             UpperSheet.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
-            if UpperSheet.FindLast then begin
+            if UpperSheet.FindLast() then begin
                 SequenceNo := UpperSheet."Sequence No.";
                 UpperSheet."Sequence No." := "Sequence No.";
                 UpperSheet.Modify();
@@ -115,7 +115,7 @@ page 26568 "Stat. Report Excel Sheets"
             LowerSheet.SetRange("Table Code", "Table Code");
             LowerSheet.SetFilter("Parent Sheet Name", '<>''''');
             LowerSheet.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
-            if LowerSheet.FindFirst then begin
+            if LowerSheet.FindFirst() then begin
                 SequenceNo := LowerSheet."Sequence No.";
                 LowerSheet."Sequence No." := "Sequence No.";
                 LowerSheet.Modify();

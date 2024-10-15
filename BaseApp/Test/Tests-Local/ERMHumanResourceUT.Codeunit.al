@@ -25,7 +25,7 @@ codeunit 147202 "ERM Human Resource UT"
     begin
         // [FEATURE] [Employee] [Posted Purchase Invoice]
         // [SCENARIO 225488] "Buy From Vendor History" FactBox drilldown on "Pstd. Invoices" field opens Posted Purch. Advance Reports list for Responsible Employees.
-        Initialize;
+        Initialize();
 
         MockVendorWithPurchInvHeader(Vendor, PurchInvHeader);
         UpdateVendorWithPurchInvoicHeaderForResponsibleEmployee(Vendor, PurchInvHeader);
@@ -51,7 +51,7 @@ codeunit 147202 "ERM Human Resource UT"
     begin
         // [FEATURE] [Employee] [Posted Purchase Invoice]
         // [SCENARIO 225488] "Buy From Vendor History" FactBox drilldown on "Pstd. Invoices" field opens Posted Purch. Advance Reports list for Vendors.
-        Initialize;
+        Initialize();
 
         MockVendorWithPurchInvHeader(Vendor, PurchInvHeader);
 
@@ -66,20 +66,20 @@ codeunit 147202 "ERM Human Resource UT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure MockVendorWithPurchInvHeader(var Vendor: Record Vendor; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
         with Vendor do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
         end;
 
         with PurchInvHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "Buy-from Vendor No." := Vendor."No.";
             Insert;
         end;

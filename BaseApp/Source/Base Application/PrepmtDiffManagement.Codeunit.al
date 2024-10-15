@@ -111,7 +111,7 @@ codeunit 12412 PrepmtDiffManagement
     begin
         with AdvAdjmtEntryBuff do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     case "Gen. Posting Type" of
                         "Gen. Posting Type"::Purchase:

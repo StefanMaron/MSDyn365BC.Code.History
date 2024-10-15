@@ -38,8 +38,8 @@ codeunit 144716 "ERM FA Inventory Test"
     begin
         // [FEATURE] [FA Phys. Inventory INV-1]
         // [SCENARIO 252751] Print REP 12486 "FA Phys. Inventory INV-1"
-        Initialize;
-        InventoryDocNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        InventoryDocNo := LibraryUtility.GenerateGUID();
         EmployeeNo := CreateEmployee;
         FALocationCode := CreateFALocation(CreateEmployee);
 
@@ -69,7 +69,7 @@ codeunit 144716 "ERM FA Inventory Test"
     begin
         // [FEATURE] [FA Phys. Inventory INV-1a]
         // [SCENARIO] Print REP 14921 "FA Phys. Inventory INV-1a"
-        Initialize;
+        Initialize();
 
         CreateFAJournalBatch(FAJournalBatch);
         for i := 1 to LibraryRandom.RandIntInRange(2, 5) do
@@ -87,7 +87,7 @@ codeunit 144716 "ERM FA Inventory Test"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure PrepareINV1RequestValues(var InventoryDate: Date; var DocumentNo: Code[20]; var DocumentDate: Date; var StartingDate: Date; var EndingDate: Date; var Chairman: Code[20]; var Commision: array[3] of Code[20]; var WhoCheck: Code[20])
@@ -95,7 +95,7 @@ codeunit 144716 "ERM FA Inventory Test"
         i: Integer;
     begin
         InventoryDate := LibraryRandom.RandDate(LibraryRandom.RandInt(100));
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         DocumentDate := LibraryRandom.RandDate(LibraryRandom.RandInt(100));
         StartingDate := LibraryRandom.RandDate(LibraryRandom.RandInt(100));
         EndingDate := LibraryRandom.RandDateFrom(StartingDate, 100);
@@ -121,7 +121,7 @@ codeunit 144716 "ERM FA Inventory Test"
         FA: Record "Fixed Asset";
     begin
         with FA do begin
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             "FA Type" := "FA Type"::"Intangible Asset";
             Insert;
             exit("No.");
@@ -169,11 +169,11 @@ codeunit 144716 "ERM FA Inventory Test"
     begin
         with Employee do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
-            "Org. Unit Name" := LibraryUtility.GenerateGUID;
-            "Job Title" := LibraryUtility.GenerateGUID;
-            "Last Name" := LibraryUtility.GenerateGUID;
-            Initials := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
+            "Org. Unit Name" := LibraryUtility.GenerateGUID();
+            "Job Title" := LibraryUtility.GenerateGUID();
+            "Last Name" := LibraryUtility.GenerateGUID();
+            Initials := LibraryUtility.GenerateGUID();
             Insert;
             exit("No.");
         end;
@@ -185,8 +185,8 @@ codeunit 144716 "ERM FA Inventory Test"
     begin
         with FALocation do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
-            Name := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
+            Name := LibraryUtility.GenerateGUID();
             Validate("Employee No.", EmployeeNo);
             Insert;
             exit(Code);
@@ -229,7 +229,7 @@ codeunit 144716 "ERM FA Inventory Test"
         FAJournalLine: Record "FA Journal Line";
         FAPhysInventoryINV1: Report "FA Phys. Inventory INV-1";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FilterFAJnlLine(FAJournalLine, FAJournalBatch);
         FAJournalLine.SetRange("Employee No.", EmployeeNo);
         FAJournalLine.SetRange("Location Code", FALocationCode);
@@ -239,7 +239,7 @@ codeunit 144716 "ERM FA Inventory Test"
         FAPhysInventoryINV1.SetTableView(FAJournalLine);
         FAPhysInventoryINV1.UseRequestPage(true);
         Commit();
-        FAPhysInventoryINV1.Run;
+        FAPhysInventoryINV1.Run();
     end;
 
     local procedure RunFAINV1aReport(FAJournalBatch: Record "FA Journal Batch")
@@ -248,13 +248,13 @@ codeunit 144716 "ERM FA Inventory Test"
         FAPhysInventoryINV1a: Report "FA Phys. Inventory INV-1a";
     begin
         ClearPrintingData(FAJournalBatch);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FilterFAJnlLine(FAJournalLine, FAJournalBatch);
         Clear(FAPhysInventoryINV1a);
         FAPhysInventoryINV1a.SetFileNameSilent(LibraryReportValidation.GetFileName);
         FAPhysInventoryINV1a.SetTableView(FAJournalLine);
         FAPhysInventoryINV1a.UseRequestPage(false);
-        FAPhysInventoryINV1a.Run;
+        FAPhysInventoryINV1a.Run();
     end;
 
     local procedure VerifyINV1FirstPageValues(EmployeeNo: Code[20]; FALocationCode: Code[10]; InventoryDocNo: Code[20]; InventoryDate: Date; DocumentNo: Code[20]; DocumentDate: Date; StartingDate: Date; EndingDate: Date)

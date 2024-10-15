@@ -21,7 +21,7 @@ report 5178 "Delete Purchase Order Versions"
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
                 PurchHeader.SetRange("No.", "No.");
                 PurchHeader.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                if not PurchHeader.FindFirst then begin
+                if not PurchHeader.FindFirst() then begin
                     Delete(true);
                     DeletedDocuments += 1;
                 end;

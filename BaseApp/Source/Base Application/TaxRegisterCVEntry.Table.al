@@ -183,7 +183,7 @@ table 17210 "Tax Register CV Entry"
                     end else
                         TaxVendorLedgerEntries.BuildTmpVendLedgerEntry(
                           "C/V No.", CalcDate('<-CY>', GetRangeMax("Date Filter")), GetRangeMax("Date Filter"), FilterDueDate, PositiveEntry);
-                    TaxVendorLedgerEntries.RunModal;
+                    TaxVendorLedgerEntries.RunModal();
                 end;
             "Object Type"::Customer:
                 begin
@@ -200,7 +200,7 @@ table 17210 "Tax Register CV Entry"
                     end else
                         TaxCustomerLedgerEntries.BuildTmpCustLedgerEntry(
                           "C/V No.", CalcDate('<-CY>', GetRangeMax("Date Filter")), GetRangeMax("Date Filter"), FilterDueDate, PositiveEntry);
-                    TaxCustomerLedgerEntries.RunModal;
+                    TaxCustomerLedgerEntries.RunModal();
                 end;
         end;
     end;

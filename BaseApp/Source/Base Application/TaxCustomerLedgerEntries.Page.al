@@ -230,7 +230,7 @@ page 17243 "Tax Customer Ledger Entries"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -273,7 +273,7 @@ page 17243 "Tax Customer Ledger Entries"
         SetRange("Customer No.", CustNo);
         SetRange("Posting Date", DateBegin, DateEnd);
         SetRange(Positive, PositiveEntry);
-        if FindSet then
+        if FindSet() then
             repeat
                 TmpCustLedgerEntry := Rec;
                 TmpCustLedgerEntry.Insert();
@@ -285,7 +285,7 @@ page 17243 "Tax Customer Ledger Entries"
         SetRange(Positive, PositiveEntry);
         SetFilter("Due Date", DueFilter);
         SetFilter("Date Filter", '..%1', DateBegin - 1);
-        if FindSet then
+        if FindSet() then
             repeat
                 CalcFields("Remaining Amt. (LCY)");
                 if "Remaining Amt. (LCY)" <> 0 then begin
@@ -300,7 +300,7 @@ page 17243 "Tax Customer Ledger Entries"
         SetRange(Positive, PositiveEntry);
         SetFilter("Due Date", DueFilter);
         SetFilter("Date Filter", '..%1', DateEnd);
-        if FindSet then
+        if FindSet() then
             repeat
                 CalcFields("Remaining Amt. (LCY)");
                 if "Remaining Amt. (LCY)" <> 0 then begin

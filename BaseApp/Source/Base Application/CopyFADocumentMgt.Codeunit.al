@@ -98,7 +98,7 @@ codeunit 12472 "Copy FA Document Mgt."
                     end;
             end;
 
-            if ToFADocLine.FindLast then
+            if ToFADocLine.FindLast() then
                 NextLineNo := ToFADocLine."Line No."
             else
                 NextLineNo := 0;
@@ -134,7 +134,7 @@ codeunit 12472 "Copy FA Document Mgt."
                         FromFADocLine.Reset();
                         FromFADocLine.SetRange("Document Type", FromFADocHeader."Document Type");
                         FromFADocLine.SetRange("Document No.", FromFADocHeader."No.");
-                        if FromFADocLine.FindSet then
+                        if FromFADocLine.FindSet() then
                             repeat
                                 CopyFADocLine(ToFADocHeader, ToFADocLine, FromFADocLine, NextLineNo, LinesNotCopied);
                             until FromFADocLine.Next() = 0;
@@ -147,7 +147,7 @@ codeunit 12472 "Copy FA Document Mgt."
                         FromFADocHeader.TransferFields(FromPostedFADocHeader);
                         FromPostedFADocLine.Reset();
                         FromPostedFADocLine.SetRange("Document No.", FromPostedFADocHeader."No.");
-                        if FromPostedFADocLine.FindSet then
+                        if FromPostedFADocLine.FindSet() then
                             repeat
                                 FromFADocLine.TransferFields(FromPostedFADocLine);
                                 CopyFADocLine(

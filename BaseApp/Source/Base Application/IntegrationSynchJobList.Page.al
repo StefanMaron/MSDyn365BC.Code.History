@@ -94,7 +94,7 @@ page 5338 "Integration Synch. Job List"
                         IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", ID);
                         IntegrationSynchJobErrors.FilterGroup(0);
 
-                        IntegrationSynchJobErrors.FindFirst;
+                        IntegrationSynchJobErrors.FindFirst();
                         PAGE.Run(PAGE::"Integration Synch. Error List", IntegrationSynchJobErrors);
                     end;
                 }

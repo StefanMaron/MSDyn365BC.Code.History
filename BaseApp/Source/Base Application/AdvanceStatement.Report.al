@@ -113,7 +113,7 @@ report 12452 "Advance Statement"
                 VendLedgerEntry2.SetRange("Vendor No.", "Buy-from Vendor No.");
                 VendLedgerEntry2.SetFilter("Posting Date", '<= %1', "Posting Date");
                 VendLedgerEntry2.SetRange(Positive, false);
-                if VendLedgerEntry2.FindLast then;
+                if VendLedgerEntry2.FindLast() then;
 
                 Vend.Get("Buy-from Vendor No.");
                 Vend.SetRange("Date Filter", 0D, GetEndFilterDate("Buy-from Vendor No."));
@@ -173,7 +173,7 @@ report 12452 "Advance Statement"
                     VendLedgerEntry3.Reset();
                     VendLedgerEntry3.SetCurrentKey("Document No.");
                     VendLedgerEntry3.SetRange("Document No.", "Remaining/Overdraft Doc. No.");
-                    if VendLedgerEntry3.FindFirst then begin
+                    if VendLedgerEntry3.FindFirst() then begin
                         VendLedgerEntry3.CalcFields("Amount (LCY)");
                         Temp := VendLedgerEntry3."Amount (LCY)";
                         if Temp < 0 then
@@ -367,7 +367,7 @@ report 12452 "Advance Statement"
             VATPostingSetup.Reset();
             VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
             VATPostingSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-            if VATPostingSetup.FindFirst then begin
+            if VATPostingSetup.FindFirst() then begin
                 if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
                     VATPostingSetup.TestField("Purch. VAT Unreal. Account");
                     exit(VATPostingSetup."Purch. VAT Unreal. Account");
@@ -391,7 +391,7 @@ report 12452 "Advance Statement"
         EndFilterDate := 0D;
         PurchInvHeader.SetCurrentKey("Posting Date");
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        if PurchInvHeader.FindLast then
+        if PurchInvHeader.FindLast() then
             EndFilterDate := PurchInvHeader."Posting Date";
     end;
 }

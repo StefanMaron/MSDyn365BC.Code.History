@@ -18,7 +18,9 @@ report 14934 "Write-off for Tax Ledger"
                     FixedAsset: Record "Fixed Asset";
                     GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
                     FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
+                    DimMgt: Codeunit DimensionManagement;
                     BookValue: Decimal;
+                    DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
                 begin
                     FixedAsset.Get("FA No.");
                     Window.Update(1, "FA No.");
@@ -49,7 +51,7 @@ report 14934 "Write-off for Tax Ledger"
                             Validate(Amount, BookValue);
                             "Location Code" := FixedAsset."FA Location Code";
                             "Employee No." := FixedAsset."Responsible Employee";
-                            CreateDim("FA Posting Type".AsInteger(), "FA No.");
+                            CreateDimFromDefaultDim();
                             if Post then
                                 FAJnlPostLine.FAJnlPostLine(FAJnlLine, true)
                             else
@@ -76,7 +78,8 @@ report 14934 "Write-off for Tax Ledger"
                             Validate(Amount, BookValue);
                             "Employee No." := FixedAsset."Responsible Employee";
                             "FA Location Code" := FixedAsset."FA Location Code";
-                            CreateDim("Account Type".AsInteger(), "Account No.", 0, '', 0, '', 0, '', 0, '');
+                            DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.");
+                            CreateDim(DefaultDimSource);
                             if Post then
                                 GenJnlPostLine.RunWithCheck(GenJnlLine)
                             else

@@ -552,9 +552,9 @@ report 12460 "VAT Ledger Export"
         VATLedgerLine.SetRange(Type, VATLedgerType);
         VATLedgerLine.SetRange(Code, VATLedgerCode);
         VATLedgerLine.SetRange("Additional Sheet", true);
-        if VATLedgerLine.FindFirst then
+        if VATLedgerLine.FindFirst() then
             MinDate := VATLedgerLine."Corr. VAT Entry Posting Date";
-        if VATLedgerLine.FindLast then
+        if VATLedgerLine.FindLast() then
             MaxDate := VATLedgerLine."Corr. VAT Entry Posting Date";
 
         if MinDate <> 0D then
@@ -605,23 +605,23 @@ report 12460 "VAT Ledger Export"
             VATLedgerLine.SetRange(Code, VATLedger.Code);
             VATLedgerLine.SetRange("Additional Sheet", true);
             VATLedgerLine.SetRange("Corr. VAT Entry Posting Date", PeriodStartDate, PeriodEndDate);
-            if VATLedgerLine.FindSet then
+            if VATLedgerLine.FindSet() then
                 repeat
                     VATLedgerConnection.Reset();
                     VATLedgerConnection.SetRange("Connection Type", VATLedgerConnection."Connection Type"::Purchase);
                     VATLedgerConnection.SetRange("Purch. Ledger Code", VATLedger.Code);
                     VATLedgerConnection.SetRange("Purch. Ledger Line No.", VATLedgerLine."Line No.");
-                    if VATLedgerConnection.FindFirst then begin
+                    if VATLedgerConnection.FindFirst() then begin
                         SourceVATEntry.Get(VATLedgerConnection."VAT Entry No.");
                         TransferFields(VATLedgerLine);
 
                         if SourceVATEntry."Adjusted VAT Entry No." = 0 then begin
                             AdjustingVATEntry.SetRange("Adjusted VAT Entry No.", SourceVATEntry."Entry No.");
                             AdjustingVATEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
-                            if AdjustingVATEntry.FindFirst then begin
+                            if AdjustingVATEntry.FindFirst() then begin
                                 VATLedgerConnection.SetRange("Purch. Ledger Line No.");
                                 VATLedgerConnection.SetRange("VAT Entry No.", AdjustingVATEntry."Entry No.");
-                                if VATLedgerConnection.FindFirst then begin
+                                if VATLedgerConnection.FindFirst() then begin
                                     if AdjustingVATLedgerLine.Get(
                                       VATLedger.Type, VATLedger.Code, VATLedgerConnection."Purch. Ledger Line No.")
                                     then begin
@@ -653,13 +653,13 @@ report 12460 "VAT Ledger Export"
             Reset;
             DeleteAll();
 
-            if VATLedgerLineBuffer.FindSet then
+            if VATLedgerLineBuffer.FindSet() then
                 repeat
                     SetRange("Payment Date", VATLedgerLineBuffer."Payment Date");
                     SetRange("Document No.", VATLedgerLineBuffer."Document No.");
                     SetRange("C/V No.", VATLedgerLineBuffer."C/V No.");
                     SetRange(Correction, VATLedgerLineBuffer.Correction);
-                    if not FindFirst then begin
+                    if not FindFirst() then begin
                         TransferFields(VATLedgerLineBuffer);
                         Insert;
                     end else begin
@@ -689,12 +689,12 @@ report 12460 "VAT Ledger Export"
         Period.SetRange("Period Type", Period."Period Type"::Month);
         Period.SetRange("Period Start", StartDate, EndDate);
         if Period.Count = 1 then begin
-            Period.FindFirst;
+            Period.FindFirst();
             MainPeriodDescription := Period."Period Name" + ' ' + Format(Date2DMY(EndDate, 3));
         end else begin
             Period.SetRange("Period Type", Period."Period Type"::Quarter);
             if Period.Count = 1 then begin
-                Period.FindFirst;
+                Period.FindFirst();
                 MainPeriodDescription :=
                   Period."Period Name" + ' ' + Text12405 + ' ' + Format(Date2DMY(EndDate, 3));
             end else
@@ -738,7 +738,7 @@ report 12460 "VAT Ledger Export"
         PaymentDocNoDate: Text;
     begin
         VATLedgerLine.GetPmtVendorDtldLedgerLines(VATLedger."End Date", TempVendorLedgerEntry);
-        if TempVendorLedgerEntry.FindSet then
+        if TempVendorLedgerEntry.FindSet() then
             repeat
                 PaymentDocNoDate :=
                   LocalReportMgt.FormatCompoundExpr(

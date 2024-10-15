@@ -88,7 +88,7 @@ table 17215 "Tax Register Dim. Comb."
 
         TaxRegDimComb.Reset();
         TaxRegDimComb.SetCurrentKey("Section Code", "Entry No.");
-        if TaxRegDimComb.FindLast then
+        if TaxRegDimComb.FindLast() then
             "Entry No." := TaxRegDimComb."Entry No." + 1
         else
             "Entry No." := 1;

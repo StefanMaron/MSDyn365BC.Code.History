@@ -46,9 +46,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -73,9 +73,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -104,9 +104,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         PostedSalesInvoices: TestPage "Posted Sales Invoices";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -131,9 +131,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         PostedSalesInvoices: TestPage "Posted Sales Invoices";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -161,13 +161,13 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LastItemLedgEntry: Record "Item Ledger Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(-1, LastItemLedgEntry."Shipped Qty. Not Returned", '');
 
         // EXERCISE
@@ -198,9 +198,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -224,13 +224,13 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         Quantity: Decimal;
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         Quantity := 2;
         CreateAndPostSalesInvForNewJobResAndCust(Resource, Cust, 1, Quantity, SalesInvoiceHeader);
 
-        ResLedgerEntry.FindLast;
+        ResLedgerEntry.FindLast();
         Assert.AreEqual(ResLedgerEntry."Document No.", SalesInvoiceHeader."No.",
           'Document No. on Res. Ledger Entry and Sales Inv Header are different');
         Assert.AreEqual(-ResLedgerEntry.Quantity, Quantity,
@@ -254,9 +254,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -281,13 +281,13 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         Quantity: Decimal;
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         Quantity := 2;
         CreateAndPostSalesInvForNewJobResAndCust(Resource, Cust, 1, Quantity, SalesInvoiceHeader);
 
-        ResLedgerEntry.FindLast;
+        ResLedgerEntry.FindLast();
         Assert.AreEqual(ResLedgerEntry."Document No.", SalesInvoiceHeader."No.",
           'Document No. on Res. Ledger Entry and Sales Inv Header are different');
         Assert.AreEqual(-ResLedgerEntry.Quantity, Quantity,
@@ -316,9 +316,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         StrPosition: Integer;
     begin
         // [FEATURE] [Corrective Credit Memo]
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -335,7 +335,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeaderCorrection."No.");
 
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         ExpectedAmount := 0;
         StrPosition := StrPos(SalesLine.Description, SalesInvoiceHeader."No.");
 
@@ -343,7 +343,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.AreEqual(ExpectedAmount, SalesLine.Amount, 'Wrong amount for Credit Memo Sales Line');
 
         // Last Sales Line expect to be the Item created.
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         ExpectedAmount := 1;
         DescText := Item.Description;
         Assert.AreEqual(DescText, SalesLine.Description, 'Wrong description text for Credit Memo Sales Line');
@@ -367,9 +367,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         StrPosition: Integer;
     begin
         // [FEATURE] [Corrective Credit Memo]
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -386,7 +386,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // VERIFY: New Sales Credit Memo must match Posted Sales Invoice
         SalesHeaderCorrection.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
         SalesHeaderCorrection.SetRange("Applies-to Doc. Type", SalesHeaderCorrection."Applies-to Doc. Type"::Invoice);
-        SalesHeaderCorrection.FindFirst;
+        SalesHeaderCorrection.FindFirst();
 
         // Created customer match Sales Header
         Assert.AreEqual(Cust."No.", SalesHeaderCorrection."Sell-to Customer No.", 'Wrong Customer for Credit Memo');
@@ -395,7 +395,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", SalesHeaderCorrection."No.");
 
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         ExpectedAmount := 0;
         StrPosition := StrPos(SalesLine.Description, SalesInvoiceHeader."No.");
 
@@ -403,7 +403,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.AreEqual(ExpectedAmount, SalesLine.Amount, 'Wrong amount for Credit Memo Sales Line');
 
         // Last Sales Line expect to be the Item created.
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         ExpectedAmount := 1;
         DescText := Item.Description;
         Assert.AreEqual(DescText, SalesLine.Description, 'Wrong description text for Credit Memo Sales Line');
@@ -422,9 +422,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         NoOfCancellationsOnSameInvoice: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -435,7 +435,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
                 CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
                 CheckEverythingIsReverted(Item, Cust, GLEntry);
             end else begin
-                if GLEntry.FindLast then;
+                if GLEntry.FindLast() then;
                 SalesInvoiceHeader.Find;
 
                 // VERIFY : It should not be possible to cancel a posted invoice twice
@@ -460,9 +460,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         NoOfRecreatedInvoices: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
@@ -490,9 +490,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateItemsWithPrice(Item, 1);
 
@@ -502,7 +502,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CheckSomethingIsPosted(Item, BillToCust);
 
         BillToCust.Find;
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         BillToCust.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         BillToCust.Modify(true);
         Commit();
@@ -526,7 +526,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
@@ -537,7 +537,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SellToCust.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -564,7 +564,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
@@ -575,7 +575,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         BillToCust.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
@@ -601,7 +601,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
@@ -612,7 +612,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SellToCust.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -639,7 +639,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
@@ -650,7 +650,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         BillToCust.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
 
@@ -675,7 +675,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
@@ -684,7 +684,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Item.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -710,7 +710,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc: Record "G/L Account";
         InvtPostingSetup: Record "Inventory Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 1);
 
@@ -738,7 +738,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc: Record "G/L Account";
         CustPostingGroup: Record "Customer Posting Group";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
 
@@ -766,7 +766,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLAcc: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 1);
 
@@ -794,7 +794,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GenPostingSetup: Record "General Posting Setup";
         TempGLAcc: Record "G/L Account" temporary;
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 1);
         CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
@@ -831,13 +831,13 @@ codeunit 138015 "O365 Correct Sales Invoice"
         StandardText: Record "Standard Text";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
 
-        StandardText.FindFirst;
+        StandardText.FindFirst();
 
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 1);
         SalesLine.Validate(Type, SalesLine.Type::" ");
@@ -866,7 +866,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeaderTmp: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
 
@@ -883,7 +883,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // // EXERCISE
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -902,7 +902,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesHeader, SalesLine);
 
@@ -919,7 +919,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         SalesInvoiceHeader.Get(LibrarySmallBusiness.PostSalesInvoice(SalesHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
@@ -938,7 +938,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
 
@@ -947,7 +947,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLSetup.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -975,7 +975,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
 
@@ -992,7 +992,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         InvtPeriod.Insert();
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
@@ -1014,7 +1014,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Item: Record Item;
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        Initialize;
+        Initialize();
 
         // EXERCISE
         asserterror CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 10, -1, SalesInvoiceHeader);
@@ -1038,12 +1038,12 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 0);
         LibrarySmallBusiness.CreateCustomer(Cust);
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         SalesSetup.Get();
         SalesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -1062,7 +1062,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesSetup.Modify(true);
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -1097,11 +1097,11 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         LibrarySales: Codeunit "Library - Sales";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 2, 1, SalesInvoiceHeader);
 
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(-1, LastItemLedgEntry."Shipped Qty. Not Returned", '');
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Cust."No.");
@@ -1117,7 +1117,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // Introduce new cost
         CreateAndPostPurchInvForItem(Item, 1000, 1);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -1145,7 +1145,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemsWithPrice(Item, 1);
 
@@ -1157,7 +1157,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesInvoiceHeader.CalcFields(Closed);
         Assert.IsTrue(SalesInvoiceHeader.Closed, 'Cash Payment should have closed the Posted Invoice');
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -1186,9 +1186,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
     begin
         // [SCENARIO] Correcting a sales invoice paid in cash where the payment has been manually unapplied
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // [GIVEN] An item
         CreateItemsWithPrice(Item, 1);
@@ -1227,9 +1227,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesOrderForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -1252,9 +1252,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesHeaderCorrection: Record "Sales Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostSalesOrderForNewItemAndCust(Item, Cust, 1, 1, SalesInvoiceHeader);
         CheckSomethingIsPosted(Item, Cust);
@@ -1278,7 +1278,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 168492] "Posted Sales Credit Memo" page is opened when drill down field "Cancelled" on "Posted Sales Invoice" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo "B" cancelled Posted Invoice "A"
         CancelInvoice(SalesInvHeader, SalesCrMemoHeader);
@@ -1307,7 +1307,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // [FEATURE] [UI]
         // [SCENARIO 168492] "Posted Sales Credit Memo" page is opened when drill down field "Cancelled" on "Posted Sales Invoices" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo "B" cancelled Posted Invoice "A"
         CancelInvoice(SalesInvHeader, SalesCrMemoHeader);
@@ -1439,7 +1439,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesInvoiceHeader.GET(PostedSalesInvoiceNo);
 
         // [WHEN] Correct Posted Invoice is invoked
-        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
 
         // [THEN] New Sales Invoice created lines equal to PSI1
         SalesLine.Reset();
@@ -1685,18 +1685,18 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Sales Invoice");
         // Initialize setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Correct Sales Invoice");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
@@ -1707,7 +1707,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         SalesSetup.Modify();
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
@@ -1723,7 +1723,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         BlockGLAcc(GLAcc);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -1752,7 +1752,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
           DefaultDim, DATABASE::"G/L Account", GLAcc."No.", DefaultDim."Value Posting"::"Code Mandatory");
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
@@ -1965,10 +1965,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
         CheckNothingIsCreated(SalesInvoiceHeader."Bill-to Customer No.", GLEntry);
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         CheckNothingIsCreated(SalesInvoiceHeader."Bill-to Customer No.", GLEntry);
     end;
@@ -1991,7 +1991,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         // Get a Cash Payment method
         PaymentMethod.SetRange("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
         PaymentMethod.SetFilter("Bal. Account No.", '<>%1', '');
-        if not PaymentMethod.FindFirst then begin
+        if not PaymentMethod.FindFirst() then begin
             LibraryERM.CreatePaymentMethod(PaymentMethod);
             PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
             PaymentMethod.Modify(true);

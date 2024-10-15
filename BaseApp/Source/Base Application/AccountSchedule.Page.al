@@ -57,12 +57,22 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the extension source table associated with account schedule line.';
                 }
-                field(Totaling; Totaling)
+                field(Totaling; TotalingDisplayed)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Totaling';
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
+                    Lookup = true;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnValidate()
+                    begin
+                        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+                            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+                        else
+                            Rec.Validate(Totaling, TotalingDisplayed);
+                    end;
+
+                    trigger OnLookup(var Text: Text): boolean
                     var
                         AccScheduleLine: Record "Acc. Schedule Line";
                         GLSetup: Record "General Ledger Setup";
@@ -80,6 +90,8 @@ page 104 "Account Schedule"
                                 exit(false);
 
                             Text := GLAccList.GetSelectionFilter;
+                            TotalingDisplayed := CopyStr(Text, 1, 250);
+                            Rec.Validate(Totaling, TotalingDisplayed);
                         end;
 
                         case "Totaling Type" of
@@ -95,6 +107,8 @@ page 104 "Account Schedule"
                                         if AccScheduleLines.RunModal = ACTION::LookupOK then begin
                                             AccScheduleLines.GetRecord(AccScheduleLine);
                                             Text := AccScheduleLine."Row No.";
+                                            TotalingDisplayed := CopyStr(Text, 1, 250);
+                                            Rec.Validate(Totaling, TotalingDisplayed);
                                             exit(true);
                                         end else
                                             exit(false)
@@ -119,14 +133,22 @@ page 104 "Account Schedule"
                                         else begin
                                             AccScheduleExtensions.GetRecord(AccScheduleExtension);
                                             Text := AccScheduleExtension.Code;
+                                            TotalingDisplayed := CopyStr(Text, 1, 250);
+                                            Rec.Validate(Totaling, TotalingDisplayed);
                                             exit(true);
                                         end;
                                     end;
                                 end;
                         end;
 
-                        exit(false);
+                        Rec.LookupTotaling();
+                        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+                            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+                        else
+                            TotalingDisplayed := Rec.Totaling;
+
                     end;
+
                 }
                 field("Row Type"; "Row Type")
                 {
@@ -243,6 +265,12 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
                 }
+                field(HideCurrencySymbol; "Hide Currency Symbol")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -280,7 +308,7 @@ page 104 "Account Schedule"
                     AccSchedOverview: Page "Acc. Schedule Overview";
                 begin
                     AccSchedOverview.SetAccSchedName(CurrentSchedName);
-                    AccSchedOverview.Run;
+                    AccSchedOverview.Run();
                 end;
             }
         }
@@ -303,7 +331,7 @@ page 104 "Account Schedule"
                     AccScheduleLine: Record "Acc. Schedule Line";
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleLine);
-                    if AccScheduleLine.FindSet then
+                    if AccScheduleLine.FindSet() then
                         repeat
                             AccScheduleLine.Indent;
                             AccScheduleLine.Modify();
@@ -328,7 +356,7 @@ page 104 "Account Schedule"
                     AccScheduleLine: Record "Acc. Schedule Line";
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleLine);
-                    if AccScheduleLine.FindSet then
+                    if AccScheduleLine.FindSet() then
                         repeat
                             AccScheduleLine.Outdent;
                             AccScheduleLine.Modify();
@@ -466,6 +494,10 @@ page 104 "Account Schedule"
     begin
         if not DimCaptionsInitialized then
             DimCaptionsInitialized := true;
+        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+        else
+            TotalingDisplayed := Rec.Totaling;
     end;
 
     trigger OnOpenPage()
@@ -483,6 +515,7 @@ page 104 "Account Schedule"
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentSchedName: Code[10];
         DimCaptionsInitialized: Boolean;
+        TotalingDisplayed: Text[250];
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
     begin
@@ -505,11 +538,16 @@ page 104 "Account Schedule"
             if AccSchedLine.Next() = 0 then
                 AccSchedLine."Line No." := xRec."Line No." + 10000
             else begin
-                if AccSchedLine.FindLast then
+                if AccSchedLine.FindLast() then
                     AccSchedLine."Line No." += 10000;
                 AccSchedLine.SetRange("Schedule Name");
             end;
         end;
+    end;
+
+    procedure GetAccountCategoryTotalingToDisplay(): Text[250]
+    begin
+        exit(AccSchedManagement.GLAccCategoryText(Rec));
     end;
 
     procedure GetAccSchedName(): Code[10]

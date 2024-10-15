@@ -68,7 +68,7 @@ report 14902 "Cash Report CO-4"
 
                     if not Preview then begin
                         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", "Entry No.");
-                        if CheckLedgEntry.FindFirst then begin
+                        if CheckLedgEntry.FindFirst() then begin
                             CheckLedgEntry."Cashier Report No." := PageNo;
                             CheckLedgEntry."Cashier Report Printed" := CheckLedgEntry."Cashier Report Printed" + 1;
                             CheckMgt.ModifyCheckLedgEntry(CheckLedgEntry);
@@ -136,7 +136,7 @@ report 14902 "Cash Report CO-4"
                 CheckLedgEntry.SetRange("Posting Date", CreateDate);
                 CheckLedgEntry.SetRange("Bank Account No.", "No.");
 
-                if CheckLedgEntry.FindSet then
+                if CheckLedgEntry.FindSet() then
                     repeat
                         if CheckLedgEntry."Cashier Report No." <> '' then
                             PageNo := CheckLedgEntry."Cashier Report No."

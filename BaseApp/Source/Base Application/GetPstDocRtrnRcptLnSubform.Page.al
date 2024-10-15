@@ -48,17 +48,6 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the cross-reference number related to the item.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -221,7 +210,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -267,10 +256,10 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
         TempReturnRcptLine.Reset();
         TempReturnRcptLine.CopyFilters(Rec);
         TempReturnRcptLine.SetRange("Document No.", "Document No.");
-        if not TempReturnRcptLine.FindFirst then begin
+        if not TempReturnRcptLine.FindFirst() then begin
             ReturnRcptLine.CopyFilters(Rec);
             ReturnRcptLine.SetRange("Document No.", "Document No.");
-            if not ReturnRcptLine.FindFirst then
+            if not ReturnRcptLine.FindFirst() then
                 exit(false);
             TempReturnRcptLine := ReturnRcptLine;
             TempReturnRcptLine.Insert();

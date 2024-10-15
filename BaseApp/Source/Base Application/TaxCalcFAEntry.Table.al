@@ -294,7 +294,7 @@ table 17318 "Tax Calc. FA Entry"
         TaxRegName.SetRange("Section Code", "Section Code");
         TaxRegName.SetFilter("Register ID", DelChr(GetFilter("Where Used Register IDs"), '=', '~'));
         FilterGroup(0);
-        if TaxRegName.FindSet then
+        if TaxRegName.FindSet() then
             if TaxRegName.Next() = 0 then
                 exit(TaxRegName.Description);
     end;

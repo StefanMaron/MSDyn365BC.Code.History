@@ -350,7 +350,7 @@ table 17310 "Tax Calc. Line"
                     TaxCalcSelectionSetup.SetRange("Section Code", "Section Code");
                     TaxCalcSelectionSetup.SetRange("Register No.", Code);
                     TaxCalcSelectionSetup.SetRange("Line Code", "Selection Line Code");
-                    if not TaxCalcSelectionSetup.FindFirst then
+                    if not TaxCalcSelectionSetup.FindFirst() then
                         FieldError("Selection Line Code");
                 end;
             end;
@@ -472,7 +472,7 @@ table 17310 "Tax Calc. Line"
         Fields.Reset();
         Fields.SetRange(TableNo, DATABASE::"Tax Calc. G/L Entry");
         Fields.SetFilter(ObsoleteState, '<>%1', Fields.ObsoleteState::Removed);
-        if Fields.FindSet then begin
+        if Fields.FindSet() then begin
             repeat
                 if TaxCalcGLEntry.SetFieldFilter(Fields."No.", TypeField) then
                     FilterText := StrSubstNo('%1|%2', FilterText, Fields."No.");
@@ -498,7 +498,7 @@ table 17310 "Tax Calc. Line"
     begin
         Fields.Reset();
         Fields.SetRange(TableNo, DATABASE::"Tax Calc. Item Entry");
-        if Fields.FindSet then begin
+        if Fields.FindSet() then begin
             repeat
                 if TaxCalcItemEntry.SetFieldFilter(Fields."No.", TypeField) then
                     FilterText := StrSubstNo('%1|%2', FilterText, Fields."No.");
@@ -511,7 +511,7 @@ table 17310 "Tax Calc. Line"
     begin
         Fields.Reset();
         Fields.SetRange(TableNo, DATABASE::"Tax Calc. FA Entry");
-        if Fields.FindSet then begin
+        if Fields.FindSet() then begin
             repeat
                 if TaxCalcFAEntry.SetFieldFilter(Fields."No.", TypeField) then
                     FilterText := StrSubstNo('%1|%2', FilterText, Fields."No.");
@@ -577,7 +577,7 @@ table 17310 "Tax Calc. Line"
             if TaxCalcHeader.Get("Section Code", Code) then begin
                 Fields.Reset();
                 Fields.SetFilter("No.", MakeFieldFilter(TaxCalcHeader."Table ID"));
-                if Fields.FindFirst then
+                if Fields.FindFirst() then
                     if Fields.Next() = 0 then begin
                         "Sum Field No." := Fields."No.";
                         "Field Name" := Fields."Field Caption";

@@ -168,7 +168,7 @@ table 12472 "Posted FA Doc. Line"
         PostedFAComment.SetRange("Document No.", "Document No.");
         PostedFAComment.SetRange("Document Line No.", "Line No.");
         PostedFAComments.SetTableView(PostedFAComment);
-        PostedFAComments.RunModal;
+        PostedFAComments.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -185,7 +185,7 @@ table 12472 "Posted FA Doc. Line"
         PostedFAComment.SetRange("Document No.", "Document No.");
         PostedFAComment.SetRange("Document Line No.", "Line No.");
         PostedFAComment.SetRange(Type, Type);
-        if PostedFAComment.FindSet then
+        if PostedFAComment.FindSet() then
             repeat
                 Index += 1;
                 Comment[Index] := PostedFAComment.Comment
@@ -202,7 +202,7 @@ table 12472 "Posted FA Doc. Line"
     begin
         if not Confirm(Text14700, false) then
             exit;
-        if PstdFADocLine.FindSet then
+        if PstdFADocLine.FindSet() then
             repeat
                 if PstdFADocLine.Canceled then
                     Error(Text14704, PstdFADocLine."Line No.");
@@ -217,7 +217,7 @@ table 12472 "Posted FA Doc. Line"
                 FALedgEntry.SetCurrentKey("FA No.", "Entry No.", "Document No.");
                 FALedgEntry.SetRange("Document No.", PstdFADocLine."Document No.");
                 FALedgEntry.SetFilter("FA No.", PstdFADocLine."FA No.");
-                if FALedgEntry.FindFirst then begin
+                if FALedgEntry.FindFirst() then begin
                     FA.Get(PstdFADocLine."FA No.");
                     FA.Validate("FA Location Code", FALedgEntry."FA Location Code");
                     FA.Validate("Responsible Employee", FALedgEntry."Employee No.");

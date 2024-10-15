@@ -7,14 +7,12 @@ table 5205 "Employee Relative"
 
     fields
     {
-#pragma warning disable AS0005
         field(1; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';
             NotBlank = true;
             TableRelation = Employee;
         }
-#pragma warning restore AS0005
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
@@ -45,16 +43,14 @@ table 5205 "Employee Relative"
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
         }
-#pragma warning disable AS0005
         field(9; "Relative's Employee No."; Code[20])
         {
             Caption = 'Relative''s Employee No.';
             TableRelation = Employee;
         }
-#pragma warning restore AS0005
         field(10; Comment; Boolean)
         {
-            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST("Employee Relative"),
+            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST("Employee Relative"),
                                                                      "No." = FIELD("Employee No."),
                                                                      "Table Line No." = FIELD("Line No.")));
             Caption = 'Comment';

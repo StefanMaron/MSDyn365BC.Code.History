@@ -15,7 +15,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
 
     local procedure CreatePaymentApplicationProposalFromAppliedPmtEntry(var AppliedPmtEntry: Record "Applied Payment Entry"; var PaymentApplicationProposal: Record "Payment Application Proposal")
     begin
-        if AppliedPmtEntry.FindSet then
+        if AppliedPmtEntry.FindSet() then
             repeat
                 PaymentApplicationProposal.CreateFromAppliedPaymentEntry(AppliedPmtEntry);
             until AppliedPmtEntry.Next() = 0;
@@ -119,7 +119,7 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
         PaymentApplicationProposal.Reset();
         TempBankStmtMatchingBuffer.Reset();
         TempBankStmtMatchingBuffer.SetRange("One to Many Match", false);
-        if TempBankStmtMatchingBuffer.FindSet then
+        if TempBankStmtMatchingBuffer.FindSet() then
             repeat
                 PaymentApplicationProposal.CreateFromBankStmtMacthingBuffer(TempBankStmtMatchingBuffer, BankAccReconLine, BankAccount);
                 if not PaymentApplicationProposal.Insert(true) then begin

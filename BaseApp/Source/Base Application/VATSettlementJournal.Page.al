@@ -356,7 +356,7 @@ page 12437 "VAT Settlement Journal"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -473,7 +473,7 @@ page 12437 "VAT Settlement Journal"
         VATAllocation.SetRange("VAT Entry No.", "Unrealized VAT Entry No.");
         VATAllocForm.SetTableView(VATAllocation);
         VATAllocForm.SetCurrGenJnlLine(Rec);
-        VATAllocForm.RunModal;
+        VATAllocForm.RunModal();
 
         CalcFields("Allocated VAT Amount");
         Amount := -"Allocated VAT Amount";

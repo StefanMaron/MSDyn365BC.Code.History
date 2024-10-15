@@ -1,4 +1,4 @@
-﻿page 5805 "Item Charge Assignment (Purch)"
+page 5805 "Item Charge Assignment (Purch)"
 {
     AutoSplitKey = true;
     Caption = 'Item Charge Assignment (Purch)';
@@ -246,13 +246,13 @@
                         OnGetReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, PurchRcptLine, PurchLine);
 
                         ReceiptLines.SetTableView(PurchRcptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             ReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             ReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
 
                         ReceiptLines.LookupMode(true);
-                        ReceiptLines.RunModal;
+                        ReceiptLines.RunModal();
                     end;
                 }
                 action(GetTransferReceiptLines)
@@ -279,13 +279,13 @@
                         OnGetTransferReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, TransferRcptLine, PurchLine);
 
                         PostedTransferReceiptLines.SetTableView(TransferRcptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             PostedTransferReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             PostedTransferReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
 
                         PostedTransferReceiptLines.LookupMode(true);
-                        PostedTransferReceiptLines.RunModal;
+                        PostedTransferReceiptLines.RunModal();
                     end;
                 }
                 action(GetReturnShipmentLines)
@@ -307,13 +307,13 @@
                         OnGetReturnShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnShptLine, PurchLine);
 
                         ShipmentLines.SetTableView(ReturnShptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             ShipmentLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             ShipmentLines.Initialize(Rec, PurchLine2."Unit Cost");
 
                         ShipmentLines.LookupMode(true);
-                        ShipmentLines.RunModal;
+                        ShipmentLines.RunModal();
                     end;
                 }
                 action(GetSalesShipmentLines)
@@ -335,13 +335,13 @@
                         OnGetSalesShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, SalesShptLine, PurchLine);
 
                         SalesShipmentLines.SetTableView(SalesShptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             SalesShipmentLines.InitializePurchase(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             SalesShipmentLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
 
                         SalesShipmentLines.LookupMode(true);
-                        SalesShipmentLines.RunModal;
+                        SalesShipmentLines.RunModal();
                     end;
                 }
                 action(GetReturnReceiptLines)
@@ -363,13 +363,13 @@
                         OnGetReturnReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnRcptLine, PurchLine);
 
                         ReturnRcptLines.SetTableView(ReturnRcptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             ReturnRcptLines.InitializePurchase(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             ReturnRcptLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
 
                         ReturnRcptLines.LookupMode(true);
-                        ReturnRcptLines.RunModal;
+                        ReturnRcptLines.RunModal();
                     end;
                 }
                 action(SuggestItemChargeAssignment)
@@ -437,26 +437,28 @@
     var
         Text000: Label 'The sign of %1 must be the same as the sign of %2 of the item charge.';
         PurchLine: Record "Purchase Line";
-        PurchLine2: Record "Purchase Line";
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        ReturnShptLine: Record "Return Shipment Line";
-        TransferRcptLine: Record "Transfer Receipt Line";
-        SalesShptLine: Record "Sales Shipment Line";
-        ReturnRcptLine: Record "Return Receipt Line";
         AssignableQty: Decimal;
         TotalQtyToAssign: Decimal;
         RemQtyToAssign: Decimal;
         AssgntAmount: Decimal;
         TotalAmountToAssign: Decimal;
         RemAmountToAssign: Decimal;
-        QtyToReceiveBase: Decimal;
-        QtyReceivedBase: Decimal;
-        QtyToShipBase: Decimal;
-        QtyShippedBase: Decimal;
         DataCaption: Text[250];
         Text001: Label 'The remaining amount to assign is %1. It must be zero before you can post %2 %3.\ \Are you sure that you want to close the window?', Comment = '%2 = Document Type, %3 = Document No.';
         GrossWeight: Decimal;
         UnitVolume: Decimal;
+
+    protected var
+        PurchLine2: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ReturnShptLine: Record "Return Shipment Line";
+        TransferRcptLine: Record "Transfer Receipt Line";
+        SalesShptLine: Record "Sales Shipment Line";
+        ReturnRcptLine: Record "Return Receipt Line";
+        QtyToReceiveBase: Decimal;
+        QtyReceivedBase: Decimal;
+        QtyToShipBase: Decimal;
+        QtyShippedBase: Decimal;
 
     local procedure UpdateQtyAssgnt()
     var

@@ -25,7 +25,7 @@ codeunit 135525 "Aged AR Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] User can retrieve Aged Accounts Payable Report information from the agedAccountsPayable API.
-        Initialize;
+        Initialize();
 
         // [WHEN] A GET request is made to the agedAccountsPayable API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Aged AR Entity", ServiceNameTxt);
@@ -46,7 +46,7 @@ codeunit 135525 "Aged AR Entity E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a agedAccountsPayable record through a POST method and check if it was created
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has constructed a agedAccountsPayable JSON object to send to the service.
         AgedReportEntityJSON := GetAgedARJSON(TempAgedReportEntity);
@@ -64,7 +64,7 @@ codeunit 135525 "Aged AR Entity E2E Test"
         if IsInitialized then
             exit;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         IsInitialized := true;
     end;
 

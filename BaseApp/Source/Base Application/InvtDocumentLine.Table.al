@@ -66,9 +66,7 @@
 
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
-                CreateDim(
-                  DATABASE::Item, "Item No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
             end;
         }
         field(4; "Posting Date"; Date)
@@ -114,6 +112,7 @@
                 end;
 
                 ReserveInvtDocLine.VerifyChange(Rec, xRec);
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(10; "Inventory Posting Group"; Code[20])
@@ -201,9 +200,7 @@
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Item, "Item No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(26; "Source Code"; Code[10])
@@ -753,7 +750,7 @@
         end;
     end;
 
-    local procedure CheckItemAvailable(CalledByFieldNo: Integer)
+    procedure CheckItemAvailable(CalledByFieldNo: Integer)
     begin
         if (CurrFieldNo = 0) or (CurrFieldNo <> CalledByFieldNo) then // Prevent two checks on quantity
             exit;
@@ -844,6 +841,8 @@
         ReserveInvtDocLine.CallItemTracking(Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -861,6 +860,22 @@
         "Dimension Set ID" :=
           DimMgt.GetDefaultDimID(
             TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+            InvtDocHeader."Dimension Set ID", DATABASE::"Invt. Document Header");
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        GetInvtDocHeader();
+        "Dimension Set ID" :=
+          DimMgt.GetDefaultDimID(
+            DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
             InvtDocHeader."Dimension Set ID", DATABASE::"Invt. Document Header");
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
@@ -1101,6 +1116,28 @@
     begin
         ReservEntry.SetSourceFilter(DATABASE::"Invt. Document Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', 0);
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var InvtDocumentLine: Record "Invt. Document Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

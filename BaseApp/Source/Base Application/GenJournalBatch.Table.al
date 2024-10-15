@@ -208,6 +208,14 @@ table 232 "Gen. Journal Batch"
         field(9000; "Background Error Check"; Boolean)
         {
             Caption = 'Background Error Check';
+            ObsoleteReason = 'Replaced with GLSetup.Enable Data Check';
+#if CLEAN20
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#endif
         }
     }
 

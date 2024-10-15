@@ -116,7 +116,7 @@ report 12414 "Posted Ship. Shipment TORG-12"
 
                 SalesLine1.Reset();
                 SalesLine1.SetRange("Document No.", "No.");
-                if SalesLine1.FindSet then begin
+                if SalesLine1.FindSet() then begin
                     SalesShptLine.CalcVATAmountLines(Header, SalesLine1, TempVATAmountLine);
                     SalesShptLine.UpdateVATOnLines(Header, SalesLine1, TempVATAmountLine);
                 end;

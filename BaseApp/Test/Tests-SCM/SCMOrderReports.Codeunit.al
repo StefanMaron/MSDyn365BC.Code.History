@@ -30,7 +30,7 @@ codeunit 137303 "SCM Order Reports"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Sales Order.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Exercise : Generate the Work Order report.
@@ -52,7 +52,7 @@ codeunit 137303 "SCM Order Reports"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Sales Return Order.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // Exercise : Generate the Return Order Confirmation report.
@@ -74,7 +74,7 @@ codeunit 137303 "SCM Order Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Purchase Return Order.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         // Exercise : Generate the Return Order report.
@@ -95,7 +95,7 @@ codeunit 137303 "SCM Order Reports"
         BinCreationWorksheetLine: Record "Bin Creation Worksheet Line";
     begin
         // Setup : Create Bin Creation Worksheet Line.
-        Initialize;
+        Initialize();
         CreateBinCreationWorksheetLine(BinCreationWorksheetLine);
 
         // Exercise : Generate the Bin Creation Worksheet Report.
@@ -117,7 +117,7 @@ codeunit 137303 "SCM Order Reports"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup : Create Item Journal Line.
-        Initialize;
+        Initialize();
         CreateAndModifyItemJournalLine(ItemJournalLine);
 
         // Exercise : Generate Physical Inventory List.
@@ -135,7 +135,7 @@ codeunit 137303 "SCM Order Reports"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup : Create Item Journal Line.
-        Initialize;
+        Initialize();
         CreateAndModifyItemJournalLine(ItemJournalLine);
 
         // Exercise : Generate Physical Inventory List.
@@ -187,7 +187,7 @@ codeunit 137303 "SCM Order Reports"
         ItemJournalTemplate: Record "Item Journal Template";
     begin
         // Setup: Create Item Journal Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item."No.", EntryType);
@@ -212,7 +212,7 @@ codeunit 137303 "SCM Order Reports"
         "Count": Integer;
     begin
         // Setup : Create Item  Array.
-        Initialize;
+        Initialize();
         for Count := 1 to ArrayLen(Item) do begin
             LibraryInventory.CreateItem(Item[Count]);
             Item[Count].Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -281,13 +281,13 @@ codeunit 137303 "SCM Order Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Reports");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Reports");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -319,12 +319,12 @@ codeunit 137303 "SCM Order Reports"
     begin
         // Taking Random value for Maximum Cubage and Maximum Weight.
         BinCreationWkshTemplate.SetRange(Type, BinCreationWkshTemplate.Type::Bin);
-        BinCreationWkshTemplate.FindFirst;
-        BinCreationWkshName.FindFirst;
+        BinCreationWkshTemplate.FindFirst();
+        BinCreationWkshName.FindFirst();
         Location.SetRange("Bin Mandatory", true);
-        Location.FindFirst;
+        Location.FindFirst();
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindFirst;
+        Bin.FindFirst();
         LibraryWarehouse.CreateBinCreationWorksheetLine(
           BinCreationWorksheetLine, BinCreationWkshTemplate.Name, BinCreationWkshName.Name, Location.Code, Bin.Code);
         BinCreationWorksheetLine.Validate("Maximum Cubage", LibraryRandom.RandDec(100, 2));
@@ -347,7 +347,7 @@ codeunit 137303 "SCM Order Reports"
         Location: Record Location;
     begin
         // Taking Random value for Quantity.
-        Location.FindFirst;
+        Location.FindFirst();
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine,
           ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, LibraryRandom.RandInt(10));

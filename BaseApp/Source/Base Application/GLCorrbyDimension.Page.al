@@ -51,7 +51,7 @@ page 14945 "G/L Corr. by Dimension"
     procedure InitParameters(var SourceGLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry")
     begin
         GLCorrAnalysisViewEntry.Copy(SourceGLCorrAnalysisViewEntry);
-        if GLCorrAnalysisViewEntry.FindSet then
+        if GLCorrAnalysisViewEntry.FindSet() then
             repeat
                 if not Get(GLCorrAnalysisViewEntry."Debit Account No.", GLCorrAnalysisViewEntry."Credit Account No.") then begin
                     "Debit Account No." := GLCorrAnalysisViewEntry."Debit Account No.";

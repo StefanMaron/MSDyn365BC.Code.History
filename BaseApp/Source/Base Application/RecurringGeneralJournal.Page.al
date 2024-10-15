@@ -729,7 +729,7 @@ page 283 "Recurring General Journal"
                         CalcRecurringJournal: Report "Calc. Recurring Journal";
                     begin
                         CalcRecurringJournal.SetParameters(Rec);
-                        CalcRecurringJournal.RunModal;
+                        CalcRecurringJournal.RunModal();
                     end;
                 }
             }

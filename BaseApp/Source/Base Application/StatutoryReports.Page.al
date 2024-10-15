@@ -192,11 +192,7 @@ page 26550 "Statutory Reports"
                         StatutoryReportMgt: Codeunit "Statutory Report Management";
                         FileName: Text;
                     begin
-#if not CLEAN17
-                        FileName := FileMgt.OpenFileDialog(Text007, '.xml', FileName);
-#else
                         FileName := FileMgt.UploadFile(Text007, '.xml');
-#endif
 
                         if FileName <> '' then
                             StatutoryReportMgt.ImportReportSettings(FileName);
@@ -328,7 +324,7 @@ page 26550 "Statutory Reports"
         StatutoryReport.SetCurrentKey("Sequence No.");
 
         if BelowxRec then begin
-            if StatutoryReport.FindLast then;
+            if StatutoryReport.FindLast() then;
             "Sequence No." := StatutoryReport."Sequence No." + 1;
         end else begin
             SequenceNo := xRec."Sequence No.";
@@ -362,7 +358,7 @@ page 26550 "Statutory Reports"
     begin
         UpperStatutoryReport.SetCurrentKey("Sequence No.");
         UpperStatutoryReport.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
-        if UpperStatutoryReport.FindLast then begin
+        if UpperStatutoryReport.FindLast() then begin
             SequenceNo := UpperStatutoryReport."Sequence No.";
             UpperStatutoryReport."Sequence No." := "Sequence No.";
             UpperStatutoryReport.Modify();
@@ -380,7 +376,7 @@ page 26550 "Statutory Reports"
     begin
         LowerStatutoryReport.SetCurrentKey("Sequence No.");
         LowerStatutoryReport.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
-        if LowerStatutoryReport.FindFirst then begin
+        if LowerStatutoryReport.FindFirst() then begin
             SequenceNo := LowerStatutoryReport."Sequence No.";
             LowerStatutoryReport."Sequence No." := "Sequence No.";
             LowerStatutoryReport.Modify();

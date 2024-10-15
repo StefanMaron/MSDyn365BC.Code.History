@@ -73,7 +73,7 @@ table 12470 "FA Document Header"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist ("FA Comment" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("FA Comment" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -352,6 +352,8 @@ table 12470 "FA Document Header"
         exit(not FADocLine.IsEmpty);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
@@ -374,6 +376,18 @@ table 12470 "FA Document Header"
         "Shortcut Dimension 2 Code" := '';
         DimMgt.GetDefaultDimID(
           TableID, No, SourceCodeSetup."Fixed Asset G/L Journal", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        DimMgt.GetDefaultDimID(
+            DefaultDimSource, SourceCodeSetup."Fixed Asset G/L Journal", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     [Scope('OnPrem')]
@@ -426,7 +440,7 @@ table 12470 "FA Document Header"
         FAComment.SetRange("Document No.", "No.");
         FAComment.SetRange("Document Line No.", 0);
         FAComment.SetRange(Type, Type);
-        if FAComment.FindSet then
+        if FAComment.FindSet() then
             repeat
                 Index += 1;
                 Comment[Index] := FAComment.Comment
@@ -440,7 +454,7 @@ table 12470 "FA Document Header"
     begin
         FADocLine.SetRange("Document Type", "Document Type");
         FADocLine.SetRange("Document No.", "No.");
-        if FADocLine.FindSet then
+        if FADocLine.FindSet() then
             repeat
                 FADocLine.Check("FA Location Code", "New FA Location Code", "FA Employee No.");
             until FADocLine.Next() = 0;

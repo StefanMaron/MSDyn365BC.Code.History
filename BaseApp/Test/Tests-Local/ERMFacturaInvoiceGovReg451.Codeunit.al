@@ -27,7 +27,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         GenJournalLine: Record "Gen. Journal Line";
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        Initialize;
+        Initialize();
 
         // Verify Dash fields filling if Factura printed from Prepayment Invoice
         CreateReleaseInvoice(
@@ -36,7 +36,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
           GenJournalLine, SalesHeader."Sell-to Customer No.", SalesHeader."No.", SalesHeader."Amount Including VAT");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         SalesInvHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         PostedFacturaInvoiceExcelExport(SalesInvHeader."No.");
         VerifyAddress(DashTxt, DashTxt);
         VerifyPrepFacturaLineValues(SalesInvHeader."No.");
@@ -50,7 +50,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Verify Dash Address filling if Invoice Item line Qty = 0
         CreateReleaseInvoice(
@@ -109,7 +109,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         UpdateStockOutWarning;
 
         IsInitialized := true;
@@ -133,7 +133,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
 
     local procedure CreateInvoice(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var Item: Record Item)
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -224,7 +224,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         OrderFacturaInvoice.InitializeRequest(1, 1, false, true, false);
         OrderFacturaInvoice.SetFileNameSilent(FileName);
         OrderFacturaInvoice.UseRequestPage(false);
-        OrderFacturaInvoice.Run;
+        OrderFacturaInvoice.Run();
     end;
 
     local procedure PostedFacturaInvoiceExcelExport(DocumentNo: Code[20])
@@ -239,7 +239,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         PostedFacturaInvoice.SetTableView(SalesInvHeader);
         PostedFacturaInvoice.SetFileNameSilent(FileName);
         PostedFacturaInvoice.UseRequestPage(false);
-        PostedFacturaInvoice.Run;
+        PostedFacturaInvoice.Run();
     end;
 
     local procedure ResourceGLMixedOrderFacturaDashPrint(SalesLine1Type: Enum "Sales Line Type"; ResourceFANo: Code[20])
@@ -248,7 +248,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         SalesLine: Record "Sales Line";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateReleaseInvoice(SalesHeader, SalesLine1Type, ResourceFANo, 1, false);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, LibraryInventory.CreateItemNo, 1);
@@ -265,7 +265,7 @@ codeunit 144514 "ERM FacturaInvoiceGovReg451"
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateReleaseInvoice(
           SalesHeader, SalesLine1Type, ResourceFANo, 1, true);

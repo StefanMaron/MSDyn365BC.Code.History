@@ -1,4 +1,4 @@
-table 110 "Sales Shipment Header"
+﻿table 110 "Sales Shipment Header"
 {
     Caption = 'Sales Shipment Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -457,6 +457,11 @@ table 110 "Sales Shipment Header"
             Caption = 'Quote No.';
             Editable = false;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -612,7 +617,6 @@ table 110 "Sales Shipment Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
-        TrackingInternetAddr: Text;
         DocSignMgt: Codeunit "Doc. Signature Management";
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
@@ -669,7 +673,7 @@ table 110 "Sales Shipment Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure StartTrackingSite()
@@ -681,7 +685,9 @@ table 110 "Sales Shipment Header"
         if IsHandled then
             exit;
 
-        HyperLink(GetTrackingInternetAddr());
+        TestField("Shipping Agent Code");
+        ShippingAgent.Get("Shipping Agent Code");
+        HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure ShowDimensions()
@@ -752,21 +758,6 @@ table 110 "Sales Shipment Header"
     begin
         SalesSetup.Get();
         exit(SalesSetup.GetLegalStatement());
-    end;
-
-    [Obsolete('Moved to table 291 Shipping Agent GetTrackingInternetAddr()', '17.0')]
-    procedure GetTrackingInternetAddr(): Text
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetTrackingInternetAddr(Rec, TrackingInternetAddr, IsHandled);
-        if IsHandled then
-            exit;
-
-        TestField("Shipping Agent Code");
-        ShippingAgent.Get("Shipping Agent Code");
-        exit(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure GetWorkDescription(): Text
@@ -848,12 +839,6 @@ table 110 "Sales Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendProfile(var DocumentSendingProfile: Record "Document Sending Profile"; var SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Moved to table 291 Shipping Agent OnBeforeGetTrackingInternetAddr', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTrackingInternetAddr(var SalesShipmentHeader: Record "Sales Shipment Header"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
     begin
     end;
 

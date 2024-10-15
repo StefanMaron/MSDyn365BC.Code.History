@@ -466,7 +466,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         // Setup - Move to last row
-        TempWorkflowStepBuffer.FindLast;
+        TempWorkflowStepBuffer.FindLast();
         TempWorkflowStepBuffer.SetxRec(TempWorkflowStepBuffer);
 
         // Exercise
@@ -528,7 +528,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         CreateAnyEventWorkflowStep(LeafEventWorkflowStep2, Workflow, RootEventWorkflowStep.ID);
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
-        TempWorkflowStepBuffer.FindLast;
+        TempWorkflowStepBuffer.FindLast();
         TempWorkflowStepBuffer.SetxRec(TempWorkflowStepBuffer);
 
         // Exercise
@@ -596,7 +596,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveLeft;
@@ -629,7 +629,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EntryEventWorkflowStep2.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveRight;
@@ -666,7 +666,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveLeft;
@@ -703,7 +703,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EntryEventWorkflowStep2.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveRight;
@@ -757,7 +757,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", ThirdWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveRight;
@@ -768,7 +768,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
 
         // Exercise
         TempWorkflowStepBuffer.SetRange("Event Step ID", ThirdWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         TempWorkflowStepBuffer.MoveLeft;
 
@@ -830,7 +830,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", ThirdWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveLeft;
@@ -841,7 +841,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
           'The third step should be an entry point.');
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", FourthWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
         Assert.AreEqual(ThirdResponseWorkflowStep.ID, TempWorkflowStepBuffer."Previous Workflow Step ID",
           'The last step should point to the third events response');
 
@@ -849,7 +849,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
 
         // Exercise
         TempWorkflowStepBuffer.SetRange("Event Step ID", ThirdWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         TempWorkflowStepBuffer.MoveRight;
 
@@ -859,7 +859,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
           'The thirs step should point to the first events response');
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", FourthWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", 0);
     end;
 
@@ -886,7 +886,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EntryEventWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveRight;
@@ -921,7 +921,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise
         TempWorkflowStepBuffer.MoveRight;
@@ -962,7 +962,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.PopulateTable(Workflow.Code);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
 
         // Exercise.
         TempWorkflowStepBuffer.MoveLeft;
@@ -972,12 +972,12 @@ codeunit 134312 "Workflow Step Buffer Tests"
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", 0);
 
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep2.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
         TempWorkflowStepBuffer.TestField("Previous Workflow Step ID", EventWorkflowStep.ID);
 
         // Exercise
         TempWorkflowStepBuffer.SetRange("Event Step ID", EventWorkflowStep.ID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
         TempWorkflowStepBuffer.MoveRight;
 
         // Verify
@@ -1103,7 +1103,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event")
     begin
         WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
         WorkflowEvent.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowEvent.Description)), 1,
             MaxStrLen(WorkflowEvent.Description));
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
@@ -1113,7 +1113,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
         WorkflowResponse.Init();
-        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
+        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
         WorkflowResponse.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowResponse.Description)), 1,
             MaxStrLen(WorkflowResponse.Description));
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
@@ -1207,7 +1207,7 @@ codeunit 134312 "Workflow Step Buffer Tests"
     local procedure DeleteTempWorkflowStepBufferEntry(var TempWorkflowStepBuffer: Record "Workflow Step Buffer" temporary; StepID: Integer)
     begin
         TempWorkflowStepBuffer.SetRange("Event Step ID", StepID);
-        TempWorkflowStepBuffer.FindFirst;
+        TempWorkflowStepBuffer.FindFirst();
         TempWorkflowStepBuffer.Delete(true);
     end;
 

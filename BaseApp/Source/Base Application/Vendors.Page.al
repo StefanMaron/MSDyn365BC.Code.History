@@ -260,7 +260,7 @@ page 35603 Vendors
                         begin
                             CurrPage.SetSelectionFilter(Vend);
                             DefaultDimMultiple.SetMultiRecord(Vend, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -343,20 +343,6 @@ page 35603 Vendors
                 separator(Action61)
                 {
                 }
-#if not CLEAN19
-                action("Cross Re&ferences")
-                {
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Vendor),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 separator(Action1470000)
                 {
                 }
@@ -386,7 +372,7 @@ page 35603 Vendors
                         JoinEntries: Report "Combine Customer/Vendor";
                     begin
                         JoinEntries.ChangeVendor(Rec);
-                        JoinEntries.Run;
+                        JoinEntries.Run();
                     end;
                 }
 #endif

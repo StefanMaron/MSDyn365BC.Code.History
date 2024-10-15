@@ -35,7 +35,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         // Check Analysis By Dimension Matrix with Rounding Factor None.
 
         // Setup: Create General Line and Analysis View with Dimension.
-        Initialize;
+        Initialize();
         CreateGeneralLineWithGLAccount(GenJournalLine);
         LibraryVariableStorage.Enqueue(-GenJournalLine.Amount);
         AnalysisViewCode := CreateAnalysisViewWithDimension(GenJournalLine."Bal. Account No.");
@@ -54,7 +54,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         // Check Analysis By Dimension Matrix with Rounding Factor 1 with Rounding Value 1.
         // Rounding Value is required as per Page.
-        Initialize;
+        Initialize();
         OpenAndVerifyAnalysisByDimension(1, 1);
     end;
 
@@ -65,7 +65,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         // Check Analysis By Dimension Matrix with Rounding Factor 1000 with Rounding Value 0.1.
         // Rounding Value is required as per Page.
-        Initialize;
+        Initialize();
         OpenAndVerifyAnalysisByDimension(1000, 0.1);
     end;
 
@@ -76,7 +76,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         // Check Analysis By Dimension Matrix with Rounding Factor 1000000 with Rounding Value 0.1.
         // Rounding Value is required as per Page.
-        Initialize;
+        Initialize();
         OpenAndVerifyAnalysisByDimension(1000000, 0.1);
     end;
 
@@ -88,7 +88,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         GenJournalLine: Record "Gen. Journal Line";
         AnalysisViewCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         CreateGeneralLineWithGLAccount(GenJournalLine);
         LibraryVariableStorage.Enqueue(-GenJournalLine.Amount);
 
@@ -109,7 +109,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         GenJournalLine: Record "Gen. Journal Line";
         AnalysisViewCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreateGeneralLineWithGLAccount(GenJournalLine);
         GenJournalLine.Validate("Posting Date", FindLastFYClosingDate);
@@ -133,7 +133,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         AnalysisViewCode: Code[10];
     begin
         // [SCENARIO 122162] Analysis By Dimension Matrix shows Amounts in LCY after Gen. Journal posting with Currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post general journal line with Currency and AmountLCY = "A"
         CreateGeneralLineWithGLAccount(GenJournalLine);
@@ -167,10 +167,10 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         // [FEATURE] [Analysis by Dimensions] [UI]
         // [SCENARIO 372110] Filter Dimension Value with type End-Total in the Analysis by Dimension Matrix page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Analysis View for G/L Account = "G" and "Dimension 1 Code" = new Dimension "Dim"
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         GLCorrAnalysisView.Get(
           CreateAnalysisViewWithCertainDimension(GLAccountNo, DimensionCategory::"Dimension 1"));
 
@@ -208,7 +208,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         GLCorrAnalysisView: Record "G/L Corr. Analysis View";
     begin
         // Verify Last Entry No updated with Update G/L Corr. Analysis View
-        Initialize;
+        Initialize();
         InitGLCorrView(GLCorrAnalysisView);
 
         Assert.AreNotEqual(
@@ -226,7 +226,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         EntryCount: Integer;
     begin
         // Check GLCorrAnalysisViewEntry descreased after filtering by G/L Account
-        Initialize;
+        Initialize();
         InitGLCorrView(GLCorrAnalysisView);
         EntryCount := GLCorrAnalysisViewEntry.Count();
 
@@ -244,7 +244,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry";
     begin
         // Check GLCorrAnalysisViewEntry is empty after filtering with new Business Unit
-        Initialize;
+        Initialize();
         InitGLCorrView(GLCorrAnalysisView);
 
         UpdateCorrViewBusUnit(GLCorrAnalysisView);
@@ -262,7 +262,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         EntryCount: Integer;
     begin
         // Check GLCorrAnalysisViewEntry has different count after changing "Debit Dimension 1 Code"
-        Initialize;
+        Initialize();
         InitGLCorrView(GLCorrAnalysisView);
         EntryCount := GLCorrAnalysisViewEntry.Count();
 
@@ -323,7 +323,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         // Unit test to verify Amount in GLCorrAnalysisViewEntry matches GLCorrEntry.Amount
         InitGLCorrView(GLCorrAnalysisView);
-        GLCorrAnalysisViewEntry.FindFirst;
+        GLCorrAnalysisViewEntry.FindFirst();
         GLCorrAnViewEntrToGLCorrEntr.GetGLCorrEntries(GLCorrAnalysisViewEntry, GLCorrEntry);
 
         GLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.", "Posting Date");
@@ -349,7 +349,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         with GLCorrAnalysisView do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert(true);
         end;
     end;
@@ -483,7 +483,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     begin
         AccountingPeriod.SetCurrentKey("New Fiscal Year");
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         exit(ClosingDate(AccountingPeriod."Starting Date" - 1));
     end;
 
@@ -501,7 +501,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         LibraryDimension.FindDimension(Dimension);
 
         with GLCorrAnalysisView do begin
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             Insert(true);
             Validate("Debit Dimension 1 Code", Dimension.Code);
             Modify(true);
@@ -512,7 +512,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
     var
         GLCorrEntry: Record "G/L Correspondence Entry";
     begin
-        GLCorrEntry.FindFirst;
+        GLCorrEntry.FindFirst();
         GLCorrAnalysisView.Validate("Debit Account Filter", GLCorrEntry."Debit Account No.");
         GLCorrAnalysisView.Modify(true);
     end;
@@ -531,7 +531,7 @@ codeunit 144100 "ERM G/L Corr. Analysis View"
         Dimension: Record Dimension;
     begin
         Dimension.SetFilter(Code, '<>%1', GLCorrAnalysisView."Debit Dimension 1 Code");
-        Dimension.FindFirst;
+        Dimension.FindFirst();
         GLCorrAnalysisView.Validate("Debit Dimension 1 Code", Dimension.Code);
         GLCorrAnalysisView.Modify(true);
     end;

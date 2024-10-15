@@ -234,7 +234,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::"Acquisition Cost");
         FALedgerEntry.SetRange("Depreciation Book Code", TaxDeprBookCode);
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         FALedgerEntry.UnMarkAsDeprBonusBase(FALedgerEntry, true);
 
         FADeprDate := CalcDate('<CM+2M>', WorkDate);
@@ -263,7 +263,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         // Validate correct Depr. Bonus % from Group Assigned to Fixed Assset
         Setup;
 
-        FADeprGroup.FindFirst;
+        FADeprGroup.FindFirst();
         FADeprBonusPct := LibraryRandom.RandDec(99, 2);
         FADeprGroup.Validate("Depr. Bonus %", FADeprBonusPct);
         FADeprGroup.Modify();
@@ -333,7 +333,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         Clear(ComparingDeprBookEntries);
         FixedAsset.SetFilter("No.", '%1|%2', FixedAssetNo1, FixedAssetNo2);
         ComparingDeprBookEntries.SetTableView(FixedAsset);
-        ComparingDeprBookEntries.Run;
+        ComparingDeprBookEntries.Run();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
@@ -349,7 +349,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         with FALedgerEntry do begin
             SetRange("FA No.", FixedAssetNo);
             SetRange("FA Posting Type", FAPostingType);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -482,7 +482,7 @@ codeunit 144507 "ERM FA Depreciation Bonus"
         FindFADeprLedgerEntry(FixedAssetNo, FALedgerEntry, FALedgerEntry."FA Posting Type"::Appreciation);
         FALedgerEntry.UnMarkAsDeprBonusBase(FALedgerEntry, Mark);
 
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         Assert.AreEqual(Mark, FALedgerEntry."Depr. Bonus", DeprBonusFieldErr);
     end;
 

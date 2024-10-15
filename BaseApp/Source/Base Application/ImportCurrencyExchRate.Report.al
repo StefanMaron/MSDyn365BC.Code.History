@@ -237,14 +237,14 @@ report 14900 "Import Currency Exch. Rate"
     [Scope('OnPrem')]
     procedure ImportExchRates()
     begin
-        if Company.FindSet then
+        if Company.FindSet() then
             repeat
                 CompanyInformation.ChangeCompany(Company.Name);
                 CompanyInformation.Get();
                 if CompanyInformation."Import Curr. Exch. Rates" then begin
                     Currency.ChangeCompany(Company.Name);
                     Currency.SetRange(Import, true);
-                    if Currency.FindSet then
+                    if Currency.FindSet() then
                         repeat
                             Currency.TestField("RU Bank Code");
 

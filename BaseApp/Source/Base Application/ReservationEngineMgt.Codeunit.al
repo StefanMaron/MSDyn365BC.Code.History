@@ -1,4 +1,4 @@
-﻿codeunit 99000831 "Reservation Engine Mgt."
+codeunit 99000831 "Reservation Engine Mgt."
 {
     Permissions = TableData "Item Ledger Entry" = rm,
                   TableData "Reservation Entry" = rimd,
@@ -470,7 +470,7 @@
 
         ReservEntry2.SetSourceFilterFromReservEntry(ReservEntry);
 
-        if ReservEntry2.FindSet then
+        if ReservEntry2.FindSet() then
             if NewQtyPerUnitOfMeasure <> ReservEntry2."Qty. per Unit of Measure" then
                 repeat
                     ReservEntry2.Validate("Qty. per Unit of Measure", NewQtyPerUnitOfMeasure);
@@ -717,7 +717,7 @@
                 ItemTrackingCode, EntryMismatch, true);
 
         TempSurplusEntry.Reset();
-        if TempSurplusEntry.FindSet then begin
+        if TempSurplusEntry.FindSet() then begin
             GetItem(TempSurplusEntry."Item No.");
             if Item."Order Tracking Policy" = Item."Order Tracking Policy"::"Tracking & Action Msg." then
                 repeat
@@ -767,7 +767,7 @@
         TempSurplusEntry.Reset();
         TempReservEntry.Reset();
 
-        if not TempSurplusEntry.FindSet then
+        if not TempSurplusEntry.FindSet() then
             exit(false);
 
         repeat
@@ -884,19 +884,6 @@
         exit(InitRecordSet(ReservEntry, DummyItemTrackingSetup));
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InitRecordSet with parameter ItemTrackingSetup', '17.0')]
-    procedure InitRecordSet(var ReservEntry: Record "Reservation Entry"; CurrSerialNo: Code[50]; CurrLotNo: Code[50]; CurrCDNo: Code[30]): Boolean
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        ItemTrackingSetup."Serial No." := CurrSerialNo;
-        ItemTrackingSetup."Lot No." := CurrLotNo;
-        ItemTrackingSetup."Package No." := CurrCDNo;
-        InitRecordSet(ReservEntry, ItemTrackingSetup);
-    end;
-#endif
-
     procedure InitRecordSet(var ReservEntry: Record "Reservation Entry"; CurrItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
         IsDemand: Boolean;
@@ -904,7 +891,7 @@
         IsHandled: Boolean;
     begin
         // Used for combining sorting of reservation entries with priorities
-        if not ReservEntry.FindSet then
+        if not ReservEntry.FindSet() then
             exit(false);
 
         IsDemand := ReservEntry."Quantity (Base)" < 0;
@@ -960,18 +947,18 @@
         Found: Boolean;
     begin
         // Used for combining sorting of reservation entries with priorities
-        if not TempSortRec1.FindFirst then
+        if not TempSortRec1.FindFirst() then
             exit(0);
 
         if TempSortRec1."Reservation Status" = TempSortRec1."Reservation Status"::Reservation then
             if not TempSortRec4.IsEmpty() then begin // Reservations with item tracking against inventory
-                TempSortRec4.FindFirst;
+                TempSortRec4.FindFirst();
                 TempSortRec1 := TempSortRec4;
                 TempSortRec4.Delete();
                 Found := true;
             end else
                 if not TempSortRec3.IsEmpty() then begin // Reservations with no item tracking against inventory
-                    TempSortRec3.FindFirst;
+                    TempSortRec3.FindFirst();
                     TempSortRec1 := TempSortRec3;
                     TempSortRec3.Delete();
                     Found := true;
@@ -981,13 +968,13 @@
             TempSortRec2.SetRange("Reservation Status", TempSortRec1."Reservation Status");
             OnNextRecordOnAfterFilterTempSortRec2(TempSortRec2, TempSortRec1);
             if not TempSortRec2.IsEmpty() then begin // Records carrying item tracking
-                TempSortRec2.FindFirst;
+                TempSortRec2.FindFirst();
                 TempSortRec1 := TempSortRec2;
                 TempSortRec2.Delete();
             end else begin
                 TempSortRec2.SetRange("Reservation Status");
                 if not TempSortRec2.IsEmpty() then begin // Records carrying item tracking
-                    TempSortRec2.FindFirst;
+                    TempSortRec2.FindFirst();
                     TempSortRec1 := TempSortRec2;
                     TempSortRec2.Delete();
                 end;
@@ -1009,7 +996,7 @@
           "Source Batch Name", "Source Prod. Order Line", "Reservation Status",
           "Shipment Date", "Expected Receipt Date");
 
-        if ReservEntry.FindFirst then
+        if ReservEntry.FindFirst() then
             ReservEntry.SetPointerFilter;
     end;
 
@@ -1057,7 +1044,7 @@
 
         ReservEntry.Lock;
 
-        if ReservEntry.FindSet then begin
+        if ReservEntry.FindSet() then begin
             W.Open(Text007);
             repeat
                 NewReservEntry := ReservEntry;

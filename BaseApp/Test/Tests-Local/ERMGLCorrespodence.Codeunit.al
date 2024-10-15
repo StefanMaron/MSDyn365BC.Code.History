@@ -77,7 +77,7 @@ codeunit 144016 "ERM G/L Correspodence"
         // [FEATURE] [Purchase] [Prepayment]
         // [SCENARIO 362545] G/L Correspondence Entry is created when running Return Purchase Prepayment
 
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor with default posting group where "Payables Account" = "X" and "Prepayment Account" = "Y"
         LibraryPurchase.CreateVendor(Vendor);
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
@@ -99,7 +99,7 @@ codeunit 144016 "ERM G/L Correspodence"
         TransactionNo: Integer;
     begin
         // [SCENARIO 380769] G/L Correspondence entries should be created as long as there are G/L entries left to be paired. The sum of G/L Correspondence should be equal to the sum of debit G/L entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pairs of debit and credit G/L Entries with single Transaction No. are created and shuffled thus all amounts are messed.
         MockMixedPairsOfGLEntriesInSingleTransaction(TransactionNo);
@@ -122,7 +122,7 @@ codeunit 144016 "ERM G/L Correspodence"
         Amount: Decimal;
     begin
         // [SCENARIO 380769] Creation of G/L Correspondence entries is stopped when there is a pair of G/L entries split between transactions. The sum of G/L Corresp. should be less than the sum of debit G/L entries by the amount of the split entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pairs of debit and credit G/L Entries with single Transaction No. "T" are created, then all entries are shuffled so the paired entries would not have adjacent Entry Nos.
         MockMixedPairsOfGLEntriesInSingleTransaction(TransactionNo);
@@ -154,9 +154,9 @@ codeunit 144016 "ERM G/L Correspodence"
     begin
         // [FEATURE] [Reverse]
         // [SCENARIO 201071] Initial and reversed G/L Correspondence Entries are identical except amount sign
-        Initialize;
+        Initialize();
         for i := 1 to ArrayLen(GLAccountNo) do
-            GLAccountNo[i] := LibraryERM.CreateGLAccountNo;
+            GLAccountNo[i] := LibraryERM.CreateGLAccountNo();
         CreateGenJournalBatch(GenJournalBatch);
 
         // [GIVEN] General journal with several lines having the same Document No., empty Bal. Account No.:
@@ -176,7 +176,7 @@ codeunit 144016 "ERM G/L Correspodence"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Reverse the last G/L Register. "Reversed" G/L Correspondence Entries have been created.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -259,7 +259,7 @@ codeunit 144016 "ERM G/L Correspodence"
         SetAutomaticGLCorrespondence(false);
 
         // [GIVEN] G/L Account "X".
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGenJournalBatch(GenJournalBatch);
 
         // [GIVEN] Post two gen. journal lines on G/L Account "X" and opposite amounts.
@@ -405,8 +405,8 @@ codeunit 144016 "ERM G/L Correspodence"
         Amount: Decimal;
         i: Integer;
     begin
-        DebitGLAccountNo := LibraryERM.CreateGLAccountNo;
-        CreditGLAccountNo := LibraryERM.CreateGLAccountNo;
+        DebitGLAccountNo := LibraryERM.CreateGLAccountNo();
+        CreditGLAccountNo := LibraryERM.CreateGLAccountNo();
         TransactionNo := LibraryUtility.GetLastTransactionNo + 1;
 
         AmountString := '-38,-19,10,6,-10,-20,20,-6,-4,-25,-30,19,4,30,38,25';
@@ -442,7 +442,7 @@ codeunit 144016 "ERM G/L Correspodence"
         GLAccountArray: array[4] of Code[20];
         AmountArray: array[2] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseInvoice(GLAccountArray, PurchaseInvoiceHeaderNo, AmountArray, TransVATType);
         VerifyPurchaseInvoiceGLCorrespondence(
           GLAccountArray, PurchaseInvoiceHeaderNo, AmountArray, TransVATType);
@@ -466,7 +466,7 @@ codeunit 144016 "ERM G/L Correspodence"
         GLAccountArray: array[4] of Code[20];
         AmountArray: array[2] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(GLAccountArray, SalesInvoiceHeaderNo, AmountArray, TransVATType);
         VerifySalesInvoiceGLCorrespondence(
           GLAccountArray, SalesInvoiceHeaderNo, AmountArray, TransVATType);
@@ -498,7 +498,7 @@ codeunit 144016 "ERM G/L Correspodence"
     begin
         ReturnPrepayment.InitializeRequest(EntryNo, EntryType);
         ReturnPrepayment.UseRequestPage := false;
-        ReturnPrepayment.Run;
+        ReturnPrepayment.Run();
     end;
 
     local procedure VerifyPurchaseInvoiceGLCorrespondence(GLAccountArray: array[4] of Code[20]; DocumentNo: Code[20]; AmountArray: array[2] of Decimal; TransVATType: Option " ","Amount + Tax","Amount & Tax")

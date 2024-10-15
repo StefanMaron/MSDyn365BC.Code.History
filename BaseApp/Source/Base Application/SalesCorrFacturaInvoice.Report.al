@@ -148,7 +148,7 @@ report 14966 "Sales Corr. Factura-Invoice"
                 SalesLine1.SetRange("Document Type", "Document Type");
                 SalesLine1.SetRange("Document No.", "No.");
                 SalesLine1.SetFilter("Attached to Line No.", '<>%1', 0);
-                if SalesLine1.FindSet then
+                if SalesLine1.FindSet() then
                     repeat
                         AttachedSalesLine := SalesLine1;
                         AttachedSalesLine.Insert();

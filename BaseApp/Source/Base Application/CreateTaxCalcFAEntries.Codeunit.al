@@ -32,7 +32,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
 
         TaxCalcMgt.ValidateAbsenceFAEntriesDate(StartDate, EndDate, TaxCalcSectionCode);
 
-        if not TaxCalcFAEntry.FindLast then
+        if not TaxCalcFAEntry.FindLast() then
             TaxCalcFAEntry."Entry No." := 0;
 
         Window.Open(Text21000900);
@@ -45,7 +45,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
           DepreciationBook."Posting Book Type"::Accounting, DepreciationBook."Posting Book Type"::"Tax Accounting");
         Total := FixedAsset.Count * DepreciationBook.Count();
         Procesing := 0;
-        if FixedAsset.FindSet then
+        if FixedAsset.FindSet() then
             repeat
                 Disposed := DepreciationBook.FindSet();
                 if Disposed then begin
@@ -132,13 +132,13 @@ codeunit 17307 "Create Tax Calc. FA Entries"
     begin
         TaxCalcHeader.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcHeader.SetRange("Table ID", DATABASE::"Tax Calc. FA Entry");
-        if not TaxCalcHeader.FindFirst then
+        if not TaxCalcHeader.FindFirst() then
             exit;
 
         TaxCalcLine.SetRange("Section Code", TaxCalcSectionCode);
         repeat
             TaxCalcLine.SetRange(Code, TaxCalcHeader."No.");
-            if TaxCalcLine.FindSet then
+            if TaxCalcLine.FindSet() then
                 repeat
                     TempTaxCalcLine := TaxCalcLine;
                     TempTaxCalcLine.Value := 0;
@@ -151,14 +151,14 @@ codeunit 17307 "Create Tax Calc. FA Entries"
         TaxCalcFAEntry.SetCurrentKey("Section Code", "Ending Date");
         TaxCalcFAEntry.SetRange("Section Code", TaxCalcSectionCode);
         TaxCalcFAEntry.SetRange("Ending Date", DateEnd);
-        if TaxCalcFAEntry.FindSet then
+        if TaxCalcFAEntry.FindSet() then
             repeat
                 TempTaxCalcLine.SetFilter("Depreciation Group", '%1|%2', '', TaxCalcFAEntry."Depreciation Group");
                 TempTaxCalcLine.SetFilter("Belonging to Manufacturing", '%1|%2',
                   TempTaxCalcLine."Belonging to Manufacturing"::" ", TaxCalcFAEntry."Belonging to Manufacturing");
                 TempTaxCalcLine.SetFilter("FA Type", '%1|%2',
                   TempTaxCalcLine."FA Type"::" ", TaxCalcFAEntry."FA Type" + 1);
-                if TempTaxCalcLine.FindSet then begin
+                if TempTaxCalcLine.FindSet() then begin
                     TaxCalcFAEntry0 := TaxCalcFAEntry;
                     TaxCalcFAEntry0.CalcFields(
                       "Total Depr. Amount (Base)", "Total Depr. Amount (Tax)",
@@ -190,7 +190,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
             until TaxCalcFAEntry.Next() = 0;
 
         TaxCalcAccumulation.Reset();
-        if not TaxCalcAccumulation.FindLast then
+        if not TaxCalcAccumulation.FindLast() then
             TaxCalcAccumulation."Entry No." := 0;
 
         TaxCalcAccumulation.Init();
@@ -199,7 +199,7 @@ codeunit 17307 "Create Tax Calc. FA Entries"
         TaxCalcAccumulation."Ending Date" := DateEnd;
 
         TempTaxCalcLine.Reset();
-        if TempTaxCalcLine.FindSet then
+        if TempTaxCalcLine.FindSet() then
             repeat
                 TaxCalcAccumulation."Template Line Code" := TempTaxCalcLine."Line Code";
                 TaxCalcAccumulation."Register No." := TempTaxCalcLine.Code;

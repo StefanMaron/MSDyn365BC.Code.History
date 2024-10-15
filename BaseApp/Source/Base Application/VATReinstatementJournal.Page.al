@@ -344,7 +344,7 @@ page 14946 "VAT Reinstatement Journal"
             SourceVATEntry.Get(VATEntry."Unrealized VAT Entry No.");
             Navigate.SetDoc(SourceVATEntry."Posting Date", "Document No.");
         end;
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     local procedure AmountOnAfterValidate()

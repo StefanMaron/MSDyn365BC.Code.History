@@ -55,7 +55,7 @@ report 12486 "FA Phys. Inventory INV-1"
             trigger OnPreDataItem()
             begin
                 CompanyInf.Get();
-                if FindFirst then
+                if FindFirst() then
                     InvSheetNo := "Document No.";
 
                 if FALocation.Get(GetFilter("Location Code")) then;

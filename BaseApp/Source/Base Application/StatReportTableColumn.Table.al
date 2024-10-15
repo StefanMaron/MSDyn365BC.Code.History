@@ -83,7 +83,7 @@ table 26554 "Stat. Report Table Column"
             StatutoryReportDataValue.SetRange("Report Code", "Report Code");
             StatutoryReportDataValue.SetRange("Table Code", "Table Code");
             StatutoryReportDataValue.SetRange("Column No.", "Line No.");
-            if StatutoryReportDataValue.FindFirst then
+            if StatutoryReportDataValue.FindFirst() then
                 Error(Text001, "Report Code", GetRecDescription);
         end;
     end;

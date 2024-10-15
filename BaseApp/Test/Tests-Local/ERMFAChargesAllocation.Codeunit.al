@@ -198,7 +198,7 @@ codeunit 144510 "ERM FA Charges Allocation"
             SetRange("FA No.", FixedAssetNo);
             SetRange("FA Charge No.", FAChargeNo);
             SetRange("Depreciation Book Code", DeprBookCode);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -308,12 +308,12 @@ codeunit 144510 "ERM FA Charges Allocation"
         PurchaseHeader.Reset();
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
 
         AllocateFACharges.SetTableView(PurchaseHeader);
         AllocateFACharges.UseRequestPage(false);
         AllocateFACharges.SetParameters(2, DocumentNo, AmountToAllocate, FAChargeCode);
-        AllocateFACharges.Run;
+        AllocateFACharges.Run();
 
         PurchaseHeader.CalcFields(Amount);
 
@@ -329,7 +329,7 @@ codeunit 144510 "ERM FA Charges Allocation"
         with FADocLine do begin
             SetRange("Document Type", "Document Type"::Release);
             SetRange("FA No.", FANo);
-            FindFirst;
+            FindFirst();
             Validate("Depreciation Book Code", FASetup."Release Depr. Book");
             Validate("New Depreciation Book Code", FASetup."Default Depr. Book");
             Modify(true);
@@ -451,7 +451,7 @@ codeunit 144510 "ERM FA Charges Allocation"
     begin
         FALedgerEntry.Reset();
         FALedgerEntry.SetRange("FA Charge No.", FAChargeNo);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         FindDefaultDimension(DefaultDimension, DATABASE::"FA Charge", FAChargeNo);
         VerifyDimensionSetID(DefaultDimension, FALedgerEntry."Dimension Set ID");
     end;

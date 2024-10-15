@@ -460,7 +460,7 @@ page 179 "Reverse Entries"
 
     local procedure InitializeFilter()
     begin
-        FindFirst;
+        FindFirst();
         ReversalEntry := Rec;
         if "Reversal Type" = "Reversal Type"::Transaction then begin
             CurrPage.Caption := Text000;
@@ -483,7 +483,7 @@ page 179 "Reverse Entries"
     begin
         Reset;
         SetFilter("Entry Type", '<>%1&<>%2', "Entry Type"::"G/L Account", "Entry Type"::VAT);
-        if FindFirst then
+        if FindFirst() then
             FieldError("Entry Type",
               StrSubstNo(Text12400, GLEntry.TableCaption, VATEntry.TableCaption));
 
@@ -501,7 +501,7 @@ page 179 "Reverse Entries"
 
                 ModifyAll("Corrected Period Date", "Posting Date");
                 ModifyAll("Posting Date", PostingDate);
-                FindFirst;
+                FindFirst();
                 ReversalEntry := Rec;
             end;
             Post(false);

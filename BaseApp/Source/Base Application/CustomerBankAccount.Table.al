@@ -105,7 +105,7 @@ table 287 "Customer Bank Account"
                 if "Country/Region Code" = '' then
                     ValidateAccountNo;
 		    
-		        OnValidateBankAccount(Rec, 'Bank Branch No.');
+		        OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])

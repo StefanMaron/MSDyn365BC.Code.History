@@ -779,7 +779,7 @@ page 9277 "FA Posting Types Overv. Matrix"
         DP_Book2.SetRange("FA No.", "FA No.");
         DP_Book2.SetRange("Depreciation Book Code", "Depreciation Book Code");
 
-        if DP_Book2.FindFirst then
+        if DP_Book2.FindFirst() then
             FALedgerEntry.SetRange("Depreciation Book Code", DP_Book2."Depreciation Book Code")
         else
             FALedgerEntry.SetRange("Depreciation Book Code");
@@ -854,67 +854,67 @@ page 9277 "FA Posting Types Overv. Matrix"
             case MatrixRecords[MATRIX_ColumnOrdinal]."Entry No." of
                 1:// 'Book Value'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcBookValue;
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Book Value", RoundingFactor);
                     end;
                 10:// 'Depreciable Basis'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Depreciable Basis");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Depreciable Basis", RoundingFactor);
                     end;
                 2:// 'Acquisition Cost'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Acquisition Cost");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Acquisition Cost", RoundingFactor);
                     end;
                 3:// 'Depreciation'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields(Depreciation);
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount(Depreciation, RoundingFactor);
                     end;
                 4:// 'Write-Down'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Write-Down");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Write-Down", RoundingFactor);
                     end;
                 5:// 'Appreciation'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields(Appreciation);
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount(Appreciation, RoundingFactor);
                     end;
                 6:// 'Custom 1'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Custom 1");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Custom 1", RoundingFactor);
                     end;
                 7:// 'Custom 2'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Custom 2");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Custom 2", RoundingFactor);
                     end;
                 9:// 'Gain/Loss'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Gain/Loss");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Gain/Loss", RoundingFactor);
                     end;
                 8:// 'Proceeds on Disposal'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Proceeds on Disposal");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Proceeds on Disposal", RoundingFactor);
                     end;
                 11:// 'Salvage Value'
                     begin
-                        if FindFirst then
+                        if FindFirst() then
                             CalcFields("Salvage Value");
                         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixMgt.RoundAmount("Salvage Value", RoundingFactor);
                     end;

@@ -103,7 +103,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // [FEATURE] [Shipment]
         // [SCENARIO 201939] Torg-16 write off act report should be started when Print button is pushed on Item Shipment page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item shipment document.
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment);
@@ -131,7 +131,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // [FEATURE] [Receipt]
         // [SCENARIO 201939] List of reports defined in Report Selections should be shown when Print button is pushed on Item Receipt page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item receipt document.
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt);
@@ -159,7 +159,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 201939] List of reports defined in Report Selections should be shown when Print button is pushed on Posted Sales Invoice page for non-corrective invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice of non-corrective type.
         MockPostedSalesInvHeader(SalesInvoiceHeader, false, SalesInvoiceHeader."Corrective Doc. Type"::" ");
@@ -186,7 +186,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 201939] Corrective invoice report should be started when Print button is pushed on Posted Sales Invoice page for corrective invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice of corrective type.
         MockPostedSalesInvHeader(SalesInvoiceHeader, true, SalesInvoiceHeader."Corrective Doc. Type"::Correction);
@@ -213,7 +213,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // [FEATURE] [Purchase] [Order] [UI] [TORG2]
         // [SCENARIO 221850] report "Receipt Deviations TORG-2" is printed for Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -224,7 +224,7 @@ codeunit 144102 "SCM Inventory reports"
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Order");
         ReportSelections.ModifyAll(Default, false);
         ReportSelections.SetRange("Report ID", REPORT::"Receipt Deviations TORG-2");
-        ReportSelections.FindFirst;
+        ReportSelections.FindFirst();
         ReportSelections.Validate("Excel Export", true);
         ReportSelections.Validate(Default, true);
         ReportSelections.Modify(true);
@@ -257,7 +257,7 @@ codeunit 144102 "SCM Inventory reports"
         for I := 1 to ArrayLen(ItemLedgerEntry) do
             MockItemLedgerEntry(
               ItemLedgerEntry[I], LibraryRandom.RandDateFromInRange(WorkDate, 10 * (I - 1), 10 * I),
-              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID);
+              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Item Shipment with an Item Shipment Line
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment);
@@ -299,7 +299,7 @@ codeunit 144102 "SCM Inventory reports"
         for I := 1 to ArrayLen(ItemLedgerEntry) do
             MockItemLedgerEntry(
               ItemLedgerEntry[I], LibraryRandom.RandDateFromInRange(WorkDate, 10 * (I - 1), 10 * I),
-              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID);
+              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID());
 
         // [GIVEN] Item Shipment with an Item Shipment Line
         MockInvtShipHeader(InvtShipmentHeader);
@@ -355,12 +355,12 @@ codeunit 144102 "SCM Inventory reports"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
 
         IsInitialized := true;
@@ -373,7 +373,7 @@ codeunit 144102 "SCM Inventory reports"
         Members: array[5, 2] of Text;
         TotalQtys: array[5] of Decimal;
     begin
-        Initialize;
+        Initialize();
 
         TotalQtys[1] := LibraryRandom.RandInt(10);
         CreateInvtDocumentWithLines(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, PostDocument, Members, TotalQtys);
@@ -399,7 +399,7 @@ codeunit 144102 "SCM Inventory reports"
         InvtDocumentHeader: Record "Invt. Document Header";
         Members: array[5, 2] of Text;
     begin
-        Initialize;
+        Initialize();
 
         TotalAmtQtys[1] := LibraryRandom.RandInt(100);
         CreateInvtDocumentWithLines(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, false, Members, TotalAmtQtys);
@@ -412,7 +412,7 @@ codeunit 144102 "SCM Inventory reports"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
         PurchaseHeader."Location Code" := CreateLocation;
@@ -623,7 +623,7 @@ codeunit 144102 "SCM Inventory reports"
         ItemWriteOffActTorg16.SetTableView(InvtDocumentHeader);
         ItemWriteOffActTorg16.SetFileNameSilent(FileName);
         ItemWriteOffActTorg16.UseRequestPage(false);
-        ItemWriteOffActTorg16.Run;
+        ItemWriteOffActTorg16.Run();
     end;
 
     local procedure RunPostedTorg16Report(ItemShipmentNo: Code[20]; OperationType: Text; OrderNo: Text; OrderDate: Date; WriteOffSource: Text)
@@ -640,7 +640,7 @@ codeunit 144102 "SCM Inventory reports"
         PostedItemWriteOffActTorg16.SetTableView(InvtShipmentHeader);
         PostedItemWriteOffActTorg16.SetFileNameSilent(FileName);
         PostedItemWriteOffActTorg16.UseRequestPage(false);
-        PostedItemWriteOffActTorg16.Run;
+        PostedItemWriteOffActTorg16.Run();
     end;
 
     local procedure RunUnpostedTorg1Report(PurchaseDocNo: Code[20]; ShowActualQty: Boolean; ReportNo: Text; ReportDate: Date; ReportOperationType: Text)
@@ -657,7 +657,7 @@ codeunit 144102 "SCM Inventory reports"
         ItemsReceiptActTORG1.SetTableView(PurchaseHeader);
         ItemsReceiptActTORG1.SetFileNameSilent(FileName);
         ItemsReceiptActTORG1.UseRequestPage(false);
-        ItemsReceiptActTORG1.Run;
+        ItemsReceiptActTORG1.Run();
     end;
 
     local procedure RunReceiptDeviationsTorg2Report(DocumentNo: Code[20]; OrderNo: Text; OrderDate: Date; OperationType: Text; TableId: Integer; DocumentType: Integer)
@@ -673,7 +673,7 @@ codeunit 144102 "SCM Inventory reports"
         Commit();
         ReceiptDeviationsTORG2.SetFileNameSilent(FileName);
         ReceiptDeviationsTORG2.UseRequestPage(false);
-        ReceiptDeviationsTORG2.Run;
+        ReceiptDeviationsTORG2.Run();
     end;
 
     local procedure AddEmployeeSignatures(var Members: array[5, 2] of Text; ItemDocumentNo: Code[20])
@@ -787,7 +787,7 @@ codeunit 144102 "SCM Inventory reports"
         InvtShipmentHeader: Record "Invt. Shipment Header";
     begin
         InvtShipmentHeader.SetRange("Shipment No.", ItemDocumentNo);
-        InvtShipmentHeader.FindFirst;
+        InvtShipmentHeader.FindFirst();
         exit(InvtShipmentHeader."No.");
     end;
 
@@ -796,7 +796,7 @@ codeunit 144102 "SCM Inventory reports"
         ItemReceiptHeader: Record "Invt. Receipt Header";
     begin
         ItemReceiptHeader.SetRange("Receipt No.", ItemDocumentNo);
-        ItemReceiptHeader.FindFirst;
+        ItemReceiptHeader.FindFirst();
         exit(ItemReceiptHeader."No.");
     end;
 
@@ -823,7 +823,7 @@ codeunit 144102 "SCM Inventory reports"
         InvtDocumentHeader: Record "Invt. Document Header";
     begin
         InvtDocumentHeader.SetRange("No.", DocumentNo);
-        InvtDocumentHeader.FindFirst;
+        InvtDocumentHeader.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Invt. Doc.-Post (Yes/No)", InvtDocumentHeader);
         if InvtDocumentHeader."Document Type" = InvtDocumentHeader."Document Type"::Shipment then
             PostedDocumentNo := FindPostedItemShpt(InvtDocumentHeader."No.")

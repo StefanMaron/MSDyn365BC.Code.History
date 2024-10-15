@@ -105,6 +105,10 @@ table 271 "Bank Account Ledger Entry"
         {
             Caption = 'Closed at Date';
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -358,6 +362,7 @@ table 271 "Bank Account Ledger Entry"
         "Dimension Set ID" := GenJnlLine."Dimension Set ID";
         "Our Contact Code" := GenJnlLine."Salespers./Purch. Code";
         "Source Code" := GenJnlLine."Source Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "Currency Code" := GenJnlLine."Currency Code";
@@ -366,6 +371,7 @@ table 271 "Bank Account Ledger Entry"
         "Bal. Account No." := GenJnlLine."Bal. Account No.";
         if GenJnlLine."Linked Table ID" <> 0 then
             SetBankAccReconciliationLine(GenJnlLine);
+
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
     end;
 

@@ -34,7 +34,7 @@ report 14920 "Calculate Assessed Tax"
                                 // Property Type = 1
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
                                 TempFixedAsset.SetRange("Property Type", TempFixedAsset."Property Type"::"Immovable UGSS Property");
-                                if TempFixedAsset.FindSet then begin
+                                if TempFixedAsset.FindSet() then begin
                                     FillTitle[1] := true;
                                     repeat
                                         Clear(DeprCost);
@@ -47,7 +47,7 @@ report 14920 "Calculate Assessed Tax"
 
                                 if ReportingPeriod = 3 then begin
                                     TempFixedAsset.SetFilter("Tax Amount Paid Abroad", '<>0');
-                                    if TempFixedAsset.FindSet then begin
+                                    if TempFixedAsset.FindSet() then begin
                                         FillTitle[1] := true;
                                         repeat
                                             Clear(DeprCost);
@@ -62,10 +62,10 @@ report 14920 "Calculate Assessed Tax"
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
                                 end;
 
-                                if AssessedTaxCodeExempt.FindSet then
+                                if AssessedTaxCodeExempt.FindSet() then
                                     repeat
                                         TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCodeExempt.Code);
-                                        if TempFixedAsset.FindSet then begin
+                                        if TempFixedAsset.FindSet() then begin
                                             FillTitle[1] := true;
                                             repeat
                                                 Clear(DeprCost);
@@ -80,7 +80,7 @@ report 14920 "Calculate Assessed Tax"
                                 // Property Type = 2
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
                                 TempFixedAsset.SetRange("Property Type", TempFixedAsset."Property Type"::"Immovable Distributed Property");
-                                if TempFixedAsset.FindSet then begin
+                                if TempFixedAsset.FindSet() then begin
                                     FillTitle[2] := true;
                                     repeat
                                         Clear(DeprCost);
@@ -93,7 +93,7 @@ report 14920 "Calculate Assessed Tax"
 
                                 if ReportingPeriod = 3 then begin
                                     TempFixedAsset.SetFilter("Tax Amount Paid Abroad", '<>0');
-                                    if TempFixedAsset.FindSet then begin
+                                    if TempFixedAsset.FindSet() then begin
                                         FillTitle[2] := true;
                                         repeat
                                             Clear(DeprCost);
@@ -108,10 +108,10 @@ report 14920 "Calculate Assessed Tax"
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
                                 end;
 
-                                if AssessedTaxCodeExempt.FindSet then
+                                if AssessedTaxCodeExempt.FindSet() then
                                     repeat
                                         TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCodeExempt.Code);
-                                        if TempFixedAsset.FindSet then begin
+                                        if TempFixedAsset.FindSet() then begin
                                             FillTitle[2] := true;
                                             repeat
                                                 Clear(DeprCost);
@@ -126,7 +126,7 @@ report 14920 "Calculate Assessed Tax"
                                 // Property Type = 3
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
                                 TempFixedAsset.SetRange("Property Type", TempFixedAsset."Property Type"::"Other Property");
-                                if TempFixedAsset.FindSet then begin
+                                if TempFixedAsset.FindSet() then begin
                                     Clear(DeprCost);
                                     FillTitle[2] := true;
                                     PageCounter[2] := PageCounter[2] + 1;
@@ -140,7 +140,7 @@ report 14920 "Calculate Assessed Tax"
 
                                 if ReportingPeriod = 3 then begin
                                     TempFixedAsset.SetFilter("Tax Amount Paid Abroad", '<>0');
-                                    if TempFixedAsset.FindSet then begin
+                                    if TempFixedAsset.FindSet() then begin
                                         Clear(DeprCost);
                                         FillTitle[2] := true;
                                         PageCounter[2] := PageCounter[2] + 1;
@@ -155,10 +155,10 @@ report 14920 "Calculate Assessed Tax"
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
                                 end;
 
-                                if AssessedTaxCodeExempt.FindSet then
+                                if AssessedTaxCodeExempt.FindSet() then
                                     repeat
                                         TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCodeExempt.Code);
-                                        if TempFixedAsset.FindSet then begin
+                                        if TempFixedAsset.FindSet() then begin
                                             FillTitle[2] := true;
                                             PageCounter[2] := PageCounter[2] + 1;
                                             DeleteSheet[2] := true;
@@ -173,7 +173,7 @@ report 14920 "Calculate Assessed Tax"
                                 // Property Type = 5
                                 TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCode.Code);
                                 TempFixedAsset.SetRange("Property Type", TempFixedAsset."Property Type"::"Special Economic Zone Property");
-                                if TempFixedAsset.FindSet then begin
+                                if TempFixedAsset.FindSet() then begin
                                     Clear(DeprCost);
                                     FillTitle[2] := true;
                                     PageCounter[2] := PageCounter[2] + 1;
@@ -186,7 +186,7 @@ report 14920 "Calculate Assessed Tax"
 
                                 if ReportingPeriod = 3 then begin
                                     TempFixedAsset.SetFilter("Tax Amount Paid Abroad", '<>0');
-                                    if TempFixedAsset.FindSet then begin
+                                    if TempFixedAsset.FindSet() then begin
                                         Clear(DeprCost);
                                         FillTitle[2] := true;
                                         PageCounter[2] := PageCounter[2] + 1;
@@ -201,10 +201,10 @@ report 14920 "Calculate Assessed Tax"
                                     TempFixedAsset.SetRange("Tax Amount Paid Abroad");
                                 end;
 
-                                if AssessedTaxCodeExempt.FindSet then
+                                if AssessedTaxCodeExempt.FindSet() then
                                     repeat
                                         TempFixedAsset.SetRange("Assessed Tax Code", AssessedTaxCodeExempt.Code);
-                                        if TempFixedAsset.FindSet then begin
+                                        if TempFixedAsset.FindSet() then begin
                                             Clear(DeprCost);
                                             FillTitle[2] := true;
                                             PageCounter[2] := PageCounter[2] + 1;
@@ -320,7 +320,7 @@ report 14920 "Calculate Assessed Tax"
                         FixedAsset.SetFilter("Property Type", '<>%1', FixedAsset."Property Type"::" ");
                         FixedAsset.SetFilter("Assessed Tax Code", '<>%1', '');
                         FixedAsset.SetFilter("Main Asset/Component", '<>%1', FixedAsset."Main Asset/Component"::"Main Asset");
-                        if FixedAsset.FindFirst then begin
+                        if FixedAsset.FindFirst() then begin
                             repeat
                                 InsertTempFA := false;
                                 ReportingDate := StartingDate;

@@ -167,7 +167,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
         PmtAmount: Decimal;
         i: Integer;
     begin
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         for i := 1 to ArrayLen(InvNo) do begin
             InvNo[i] := CreatePostInvoice(SalesLine, CustNo, PostingDate, CurrencyCode);
             PmtAmount += SalesLine."Amount Including VAT";
@@ -350,7 +350,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
         LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, DocType, DocNo);
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
-        DtldCustLedgEntry.FindFirst;
+        DtldCustLedgEntry.FindFirst();
         CustEntryApplyPostedEntries.PostUnApplyCustomer(
           DtldCustLedgEntry, CustLedgEntry."Document No.", DtldCustLedgEntry."Posting Date");
     end;
@@ -361,7 +361,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
             SetRange("Entry Type", EntryType);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -370,7 +370,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
         SalesInvHeader: Record "Sales Invoice Header";
     begin
         SalesInvHeader.SetRange("Pre-Assigned No.", OrderNo);
-        SalesInvHeader.FindLast;
+        SalesInvHeader.FindLast();
         exit(SalesInvHeader."Posting Date");
     end;
 
@@ -412,7 +412,7 @@ codeunit 144012 "ERM RU Sales Unrealized VAT"
         AdjustExchangeRates.InitializeRequest2(
           StartDate, EndDate, '', EndDate, LibraryUtility.GenerateGUID, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure VerifyGainLossAppEntries(InvNo: array[2] of Code[20]; IsRaise: Boolean; IsSummarizeGainsLosses: Boolean; CurrencyCode: Code[10])

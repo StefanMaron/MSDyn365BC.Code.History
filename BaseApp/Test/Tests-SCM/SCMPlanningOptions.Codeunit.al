@@ -33,7 +33,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -65,7 +65,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -96,7 +96,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -128,7 +128,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -159,7 +159,7 @@ codeunit 137008 "SCM Planning Options"
         RequisitionLine: Record "Requisition Line";
         MfgSetup: Record "Manufacturing Setup";
     begin
-        Initialize;
+        Initialize();
 
         MfgSetup.Get();
         Evaluate(MfgSetup."Default Dampener Period", '<5D>');
@@ -197,7 +197,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -228,7 +228,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -262,7 +262,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -293,7 +293,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
@@ -327,7 +327,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
@@ -366,7 +366,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
@@ -405,7 +405,7 @@ codeunit 137008 "SCM Planning Options"
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -435,7 +435,7 @@ codeunit 137008 "SCM Planning Options"
         RequisitionLine: Record "Requisition Line";
         MfgSetup: Record "Manufacturing Setup";
     begin
-        Initialize;
+        Initialize();
 
         MfgSetup.Get();
         MfgSetup."Default Dampener %" := 10;
@@ -476,7 +476,7 @@ codeunit 137008 "SCM Planning Options"
         DemandDateValue: array[3] of Date;
         DemandQuantityValue: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         Evaluate(LotAccumulationPeriod, '<1W>');
         Evaluate(ReschedulingPeriod, '<1M>');
 
@@ -546,7 +546,7 @@ codeunit 137008 "SCM Planning Options"
         // [SCENARIO 364400] Chainging "Due Date" in the Requisition Line updates Unit Cost
 
         // [GIVEN] Item replenished via purchase order
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -591,7 +591,7 @@ codeunit 137008 "SCM Planning Options"
     begin
         // [FEATURE] [Net Change Plan] [Stockkeeping Unit]
         // [SCENARIO 220546] Net change planning should plan a stockkeping unit that has planning parameters configured, and the item is not set up for planning
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" without planning parameters (Reordering Policy is blank)
         LibraryInventory.CreateItem(Item);
@@ -631,7 +631,7 @@ codeunit 137008 "SCM Planning Options"
     begin
         // [FEATURE] [Net Change Plan] [Stockkeeping Unit]
         // [SCENARIO 220546] Net change planning should not plan a stockkeping unit that has no planning parameters configured when the item is set up for planning
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with planning parameters ("Reordering Policy" = "Lot-for-Lot")
         LibraryInventory.CreateItem(Item);
@@ -676,7 +676,7 @@ codeunit 137008 "SCM Planning Options"
         // [FEATURE] [Net Change Plan] [Stockkeeping Unit]
         // [SCENARIO 220546] Net change planning should suggest replenishment when demand for the stockkeeping unit is changed after planning
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" without planning parameters (Reordering Policy is blank)
         LibraryInventory.CreateItem(Item);
@@ -704,7 +704,7 @@ codeunit 137008 "SCM Planning Options"
         // [THEN] Suggested quantity for replenishment is "X" + "Y"
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
 
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", Item."No.");
@@ -725,7 +725,7 @@ codeunit 137008 "SCM Planning Options"
         // [FEATURE] [Stockkeeping Unit]
         // [SCENARIO] Default vendor no. and vendor item no. should be copied to the requisition line from the stockkeeping unit card if the SKU exists for item and location
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with a stockkeeping unit on location "L"
         LibraryInventory.CreateItem(Item);
@@ -734,7 +734,7 @@ codeunit 137008 "SCM Planning Options"
 
         // [GIVEN] "Vendor No." is "X" and "Vendor Item No." is "Y" in the SKU card
         StockkeepingUnit.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
-        StockkeepingUnit.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        StockkeepingUnit.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         StockkeepingUnit.Modify(true);
 
         // [GIVEN] Manually create a requisition line in the planning worksheet and set "Item No." = "I"
@@ -764,7 +764,7 @@ codeunit 137008 "SCM Planning Options"
     begin
         // [FEATURE] [Stockkeeping Unit]
         // [SCENARIO 232937] Manually set Vendor No. on requisition line is not cleared but validated with its current value, if Vendor No. is blank on stockkeeping unit.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with a stockkeeping unit on location "L". "Vendor No." and "Vendor Item No." are blank on the SKU.
         LibraryInventory.CreateItem(Item);
@@ -782,7 +782,7 @@ codeunit 137008 "SCM Planning Options"
 
         // [GIVEN] Item Vendor for "V" and "I". "Vendor Item No." = "VI".
         LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
-        ItemVendor.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        ItemVendor.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         ItemVendor.Modify(true);
 
         // [WHEN] Set "Location Code" = "L" on the requisition line.
@@ -835,7 +835,7 @@ codeunit 137008 "SCM Planning Options"
         // [FEATURE] [Requisition Worksheet]
         // [SCENARIO 259107] Replenishment via transfer should be planned for item on a location with inbound handling time and "Respect Planning Parameters for Supply Triggered Safety Stock"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "A"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -881,7 +881,7 @@ codeunit 137008 "SCM Planning Options"
     begin
         // [FEATURE] [Requisition Worksheet]
         // [SCENARIO 290080] When a Vendor with no default location code is entered on the Requisition Line the Location Code previously entered is not overwritten to blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item
         LibraryInventory.CreateItem(Item);
@@ -917,7 +917,7 @@ codeunit 137008 "SCM Planning Options"
     begin
         // [FEATURE] [Requisition Worksheet]
         // [SCENARIO 290080] When a Vendor with a default location code is entered on the Requisition Line the Location Code previously entered is overwritten
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item
         LibraryInventory.CreateItem(Item);
@@ -955,9 +955,9 @@ codeunit 137008 "SCM Planning Options"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning Options");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
 
         Commit();
 
@@ -1045,7 +1045,7 @@ codeunit 137008 "SCM Planning Options"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

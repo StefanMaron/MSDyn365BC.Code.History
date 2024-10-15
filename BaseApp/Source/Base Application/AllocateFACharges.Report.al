@@ -24,14 +24,14 @@ report 14912 "Allocate FA Charges"
 
                 CreatePurchLineBuffer;
 
-                if SourcePurchLine.FindSet then begin
+                if SourcePurchLine.FindSet() then begin
                     repeat
                         SourceDocAmount += SourcePurchLine."Direct Unit Cost";
                     until SourcePurchLine.Next() = 0;
 
                     PurchLine.SetRange("Document Type", "Document Type");
                     PurchLine.SetRange("Document No.", "No.");
-                    if PurchLine.FindLast then;
+                    if PurchLine.FindLast() then;
                     LineNo := PurchLine."Line No." + 10000;
 
                     SourcePurchLine.FindSet();
@@ -53,7 +53,7 @@ report 14912 "Allocate FA Charges"
                     until SourcePurchLine.Next() = 0;
 
                     if TotalAmount <> AmountToAllocate then begin
-                        PurchLine.FindLast;
+                        PurchLine.FindLast();
                         PurchLine.Validate("Direct Unit Cost",
                           PurchLine."Direct Unit Cost" + AmountToAllocate - TotalAmount);
                         PurchLine.Modify();

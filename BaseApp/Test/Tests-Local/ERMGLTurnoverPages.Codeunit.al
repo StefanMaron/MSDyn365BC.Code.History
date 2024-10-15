@@ -34,7 +34,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         DebitAmount: Decimal;
         CreditAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateGLAccountWithBalance(DebitGLAccNo, DebitAmount);
         CreditAmount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"G/L Account", DebitGLAccNo, '', -1);
@@ -45,7 +45,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         Clear(GLAccountTurnover);
         GLAccountTurnover.SetTableView(GLAccount);
-        GLAccountTurnover.Run;
+        GLAccountTurnover.Run();
     end;
 
     [Test]
@@ -58,7 +58,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         CustomerGLTurnover: Page "Customer G/L Turnover";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Customer, Customer."No.", '', 1);
@@ -69,7 +69,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         Clear(CustomerGLTurnover);
         CustomerGLTurnover.SetTableView(Customer);
-        CustomerGLTurnover.Run;
+        CustomerGLTurnover.Run();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         VendorGLTurnover: Page "Vendor G/L Turnover";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::Vendor, Vendor."No.", '', 1);
@@ -93,7 +93,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         Clear(VendorGLTurnover);
         VendorGLTurnover.SetTableView(Vendor);
-        VendorGLTurnover.Run;
+        VendorGLTurnover.Run();
     end;
 
     [Test]
@@ -107,7 +107,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         CustomerGLTurnoverAgr: Page "Customer G/L Turnover Agr.";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         Customer."Agreement Posting" := Customer."Agreement Posting"::Mandatory;
@@ -121,7 +121,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         Clear(CustomerGLTurnoverAgr);
         CustomerGLTurnoverAgr.SetTableView(CustomerAgreement);
-        CustomerGLTurnoverAgr.Run;
+        CustomerGLTurnoverAgr.Run();
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         VendorGLTurnoverAgr: Page "Vendor G/L Turnover Agr.";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor."Agreement Posting" := Vendor."Agreement Posting"::Mandatory;
@@ -149,7 +149,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         Clear(VendorGLTurnoverAgr);
         VendorGLTurnoverAgr.SetTableView(VendorAgreement);
-        VendorGLTurnoverAgr.Run;
+        VendorGLTurnoverAgr.Run();
     end;
 
     [Test]
@@ -162,7 +162,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         FAGLTurnover: Page "FA G/L Turnover";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"Fixed Asset", FixedAsset."No.", '', 1);
@@ -173,7 +173,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
 
         Clear(FAGLTurnover);
         FAGLTurnover.SetTableView(FixedAsset);
-        FAGLTurnover.Run;
+        FAGLTurnover.Run();
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         ItemGLTurnover: Page "Item G/L Turnover";
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandDecInRange(10, 20, 2);
         LibraryRUReports.CreateAndPostItemJournalLine('', Item."No.", Qty, false);
@@ -195,7 +195,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
         Item.SetRecFilter;
         Clear(ItemGLTurnover);
         ItemGLTurnover.SetTableView(Item);
-        ItemGLTurnover.Run;
+        ItemGLTurnover.Run();
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 253909] Page 12405 "G/L Account Turnover" filters the result by SourceType, SourceNo when it is reopened after filter set
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -261,7 +261,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with blanked Source Type\No filters
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -300,7 +300,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with Source Type filter = "Customer", Source No = ""
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -340,7 +340,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with Source Type filter = "Vendor", Source No = ""
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -380,7 +380,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with Source Type filter = "", Source No = 10000 (customer)
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -420,7 +420,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with Source Type filter = "", Source No = 10000 (vendor)
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -460,7 +460,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with Source Type filter = "Customer", Source No = 10000
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -500,7 +500,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     begin
         // [FEATURE] [UI] [Report] [G/L Account Entries Analysis]
         // [SCENARIO 253908] Run REP 12438 "G/L Account Entries Analysis" from the G/L Account Turnover page with Source Type filter = "Vendor", Source No = 10000
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A"
         // [GIVEN] Posted customer "C1" journal with balance G/L Account "A" and Amount = 100
@@ -529,11 +529,11 @@ codeunit 144104 "ERM G/L Turnover Pages"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -544,13 +544,13 @@ codeunit 144104 "ERM G/L Turnover Pages"
         GenJournalLine: Record "Gen. Journal Line";
         i: Integer;
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         for i := 1 to ArrayLen(CustomerNo) do begin
-            VendorNo[i] := LibraryPurchase.CreateVendorNo;
+            VendorNo[i] := LibraryPurchase.CreateVendorNo();
             DebitAmount[i] :=
               CreatePostGenJnlLineWithGivenBalanceGLAccount(GenJournalLine."Account Type"::Vendor, VendorNo[i], '', -1, GLAccountNo);
 
-            CustomerNo[i] := LibrarySales.CreateCustomerNo;
+            CustomerNo[i] := LibrarySales.CreateCustomerNo();
             CreditAmount[i] :=
               CreatePostGenJnlLineWithGivenBalanceGLAccount(GenJournalLine."Account Type"::Customer, CustomerNo[i], '', 1, GLAccountNo);
         end;
@@ -560,7 +560,7 @@ codeunit 144104 "ERM G/L Turnover Pages"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         Amount := CreatePostGenJnlLine(GenJnlLine."Account Type"::"G/L Account", GLAccountNo, '', 1);
     end;
 

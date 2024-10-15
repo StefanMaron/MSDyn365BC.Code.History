@@ -274,7 +274,7 @@ codeunit 17301 "Tax Diff.-Post Jnl. Line"
                 if "Amount (Tax)" <> -FALedgerEntry.Amount then
                     FieldError("Amount (Tax)", StrSubstNo(Text1005, -FALedgerEntry.Amount));
 
-                if FALedgerEntry.FindSet then
+                if FALedgerEntry.FindSet() then
                     repeat
                         if FALedgerEntry."Depr. Bonus Recovery Date" <> 0D then
                             Error(Text1006, "Source No.");

@@ -42,7 +42,7 @@ codeunit 144008 "ERM VAT Allocation"
         SettlementDocNo: Code[20];
         PostingDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -59,7 +59,7 @@ codeunit 144008 "ERM VAT Allocation"
         PurchaseLine.ModifyAll("Direct Unit Cost", 60);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         SettlementDocNo :=
           CreateVATSettlement(VATEntry, PostingDate, PostingDate, VATEntry."Document No.", SettlementType::Purchase);
         FindGenJnlLine(GenJnlLine, VATPostingSetup, SettlementDocNo);
@@ -68,7 +68,7 @@ codeunit 144008 "ERM VAT Allocation"
         PostVATSettlement(GenJnlLine);
         DeleteVATAllocationLine(0);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.AreEqual(
           126.36, GLEntry.Amount, StrSubstNo(WrongValueErr, GLEntry.Amount, GLEntry.TableName, GLEntry."Entry No."));
         VerifyMultipleValueEntry(55.08, 42.12, 29.16);
@@ -90,7 +90,7 @@ codeunit 144008 "ERM VAT Allocation"
         PostingDate: Date;
         ReleaseDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -108,7 +108,7 @@ codeunit 144008 "ERM VAT Allocation"
         ReleaseDate := PostingDate + 5;
         CreateAndPostFAReleaseDoc(FA."No.", ReleaseDate);
 
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         SettlementDocNo :=
           CreateVATSettlement(VATEntry, 0D, ReleaseDate, VATEntry."Document No.", SettlementType::FA);
 
@@ -119,7 +119,7 @@ codeunit 144008 "ERM VAT Allocation"
         DeleteVATAllocationLine(0);
 
         VATEntry.Reset();
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         VerifyVATBaseAndAmount(VATEntry, 3000, 540);
 
         FALedgEntry.Reset();
@@ -128,7 +128,7 @@ codeunit 144008 "ERM VAT Allocation"
         FALedgEntry.SetRange("Posting Date", ReleaseDate);
         FALedgEntry.SetRange("Document Type", VATEntry."Document Type");
         FALedgEntry.SetRange("Document No.", VATEntry."Document No.");
-        FALedgEntry.FindLast;
+        FALedgEntry.FindLast();
         Assert.AreEqual(
           540, FALedgEntry.Amount, StrSubstNo(WrongValueErr, FALedgEntry.Amount, FALedgEntry.TableName, FALedgEntry."Entry No."));
     end;
@@ -151,7 +151,7 @@ codeunit 144008 "ERM VAT Allocation"
         PostingDate: Date;
         ReleaseDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -173,7 +173,7 @@ codeunit 144008 "ERM VAT Allocation"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         VATEntry.Reset();
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         PurchInvNo := VATEntry."Document No.";
 
         ReleaseDate := PostingDate + 5;
@@ -196,7 +196,7 @@ codeunit 144008 "ERM VAT Allocation"
         DeleteVATAllocationLine(0);
 
         GLEntry.SetRange("G/L Account No.", VATPostingSetup."Purch. VAT Unreal. Account");
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.AreEqual(
           -720, GLEntry.Amount, StrSubstNo(WrongValueErr, GLEntry.Amount, GLEntry.TableName, GLEntry."Entry No."));
 
@@ -229,7 +229,7 @@ codeunit 144008 "ERM VAT Allocation"
         ChargeAmount: Decimal;
         WriteoffAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -265,7 +265,7 @@ codeunit 144008 "ERM VAT Allocation"
             SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
             SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
             SetRange("Document No.", TempVATDocEntryBuffer."Document No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     TestField("Unrealized VAT Entry No.");
                     CreateUpdateVATAllocationLine(GenJnlLine, 0.8, VATAllocationLineRef.Type::Charge);
@@ -278,7 +278,7 @@ codeunit 144008 "ERM VAT Allocation"
             SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
             SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
             SetFilter("Document No.", '%1|%2', PurchInvNo, PurchInvNo2);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TestField("Unrealized VAT Entry No.");
                     if Abs(Amount) = 180 then begin
@@ -316,7 +316,7 @@ codeunit 144008 "ERM VAT Allocation"
         PostingDate: Date;
         DimSetID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -335,7 +335,7 @@ codeunit 144008 "ERM VAT Allocation"
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         SettlementDocNo :=
           CreateVATSettlement(VATEntry, PostingDate, PostingDate, VATEntry."Document No.", SettlementType::Purchase);
         FindGenJnlLine(GenJnlLine, VATPostingSetup, SettlementDocNo);
@@ -359,7 +359,7 @@ codeunit 144008 "ERM VAT Allocation"
         DimSetID: Integer;
     begin
         // Verify that dimensions are inherited from advance statement to VAT Allocation through VAT Settlement Worksheet.
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -386,7 +386,7 @@ codeunit 144008 "ERM VAT Allocation"
         i: Integer;
     begin
         // Verify that dimensions from Default VAT Allocation and Advance Statement are combined in VAT Allocation through VAT Settlement Worksheet.
-        Initialize;
+        Initialize();
 
         CreateVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -418,7 +418,7 @@ codeunit 144008 "ERM VAT Allocation"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 380807] Purchase Invoice line's dimension is used when Suggest/CopyToJnl/Post VAT Settlement lines
-        Initialize;
+        Initialize();
         CreateTwoVATPostingSetups(VATPostingSetup);
 
         // [GIVEN] Purchase Invoice with header "Dimension Set ID" = "A" two lines:
@@ -470,7 +470,7 @@ codeunit 144008 "ERM VAT Allocation"
         InventorySetup."Automatic Cost Posting" := true;
         InventorySetup.Modify();
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
     end;
@@ -507,7 +507,7 @@ codeunit 144008 "ERM VAT Allocation"
     begin
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GenPostingSetup, GenBusPostGroupCode, GenProductPostingGroup.Code);
-        GenPostingSetup."Sales Account" := LibraryERM.CreateGLAccountNo;
+        GenPostingSetup."Sales Account" := LibraryERM.CreateGLAccountNo();
         GenPostingSetup.Modify();
     end;
 
@@ -781,7 +781,7 @@ codeunit 144008 "ERM VAT Allocation"
             SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
             SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             TestField("Unrealized VAT Entry No.");
         end;
     end;
@@ -796,7 +796,7 @@ codeunit 144008 "ERM VAT Allocation"
             SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             SetRange("Unrealized VAT Entry No.", UnrealizedVATEntryNo);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -822,7 +822,7 @@ codeunit 144008 "ERM VAT Allocation"
         with VATEntry do begin
             SetCurrentKey("Document No.");
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
 
             VerifyUnrealVATBaseAndAmount(VATEntry, 10000, 1800, 1);
             VerifyUnrealVATBaseAndAmount(VATEntry, 2340, 421.2, 1);
@@ -838,7 +838,7 @@ codeunit 144008 "ERM VAT Allocation"
         VATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            FindLast;
+            FindLast();
             DocNo := "Document No.";
             VerifyUnrealVATBaseAndAmount(VATEntry, 1000, 180, -1);
             VerifyUnrealVATBaseAndAmount(VATEntry, 2000, 360, -1);
@@ -853,7 +853,7 @@ codeunit 144008 "ERM VAT Allocation"
         VATEntry: Record "VAT Entry";
     begin
         with VATEntry do begin
-            FindLast;
+            FindLast();
             DocNo := "Document No.";
             // VerifyUnrealVATBaseAndAmount(VATEntry,3960,712.8,-1);
             // VerifyUnrealVATBaseAndAmount(VATEntry,1100,198,-1);
@@ -906,12 +906,12 @@ codeunit 144008 "ERM VAT Allocation"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             Assert.AreEqual(DimSetID, GLEntry."Dimension Set ID", WrongDimSetIDErr);
 
         GLEntry.Reset();
         GLEntry.SetRange("Bal. Account No.", AccountNo);
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             Assert.AreEqual(DimSetID, GLEntry."Dimension Set ID", WrongDimSetIDErr);
     end;
 
@@ -935,7 +935,7 @@ codeunit 144008 "ERM VAT Allocation"
     begin
         with VATAllocationLine do begin
             SetRange("VAT Entry No.", VATEntryNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedDimSetID, "Dimension Set ID", FieldCaption("Dimension Set ID"));
         end;
     end;
@@ -949,7 +949,7 @@ codeunit 144008 "ERM VAT Allocation"
             SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
             SetRange("Document No.", DocumentNo);
             SetRange("Unrealized VAT Entry No.", VATEntryNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedDimSetID, "Dimension Set ID", FieldCaption("Dimension Set ID"));
         end;
     end;
@@ -961,7 +961,7 @@ codeunit 144008 "ERM VAT Allocation"
     begin
         GLRegister.SetRange("From VAT Entry No.", VATEntryNo);
         GLRegister.SetRange("To VAT Entry No.", VATEntryNo);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
 
         GLEntry.Get(GLRegister."From Entry No.");
         Assert.AreEqual(ExpectedDimSetID, GLEntry."Dimension Set ID", GLEntry.FieldCaption("Dimension Set ID"));

@@ -228,7 +228,7 @@ report 17200 "Copy Tax Register Section"
                 if FromSectionCode = '' then
                     Error(Text1000);
 
-                if FindFirst then
+                if FindFirst() then
                     if Next <> 0 then
                         Error(Text1001);
 

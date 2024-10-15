@@ -71,7 +71,7 @@ codeunit 144001 "ERM RU - Base"
         // SETUP
         CreateGenJournalLine(GenJournalLine);
         Clear(LibraryReportValidation);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // EXERCISE
         ExecuteBankPaymentOrderReport(GenJournalLine);
@@ -117,7 +117,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".GetVendorName() returns Vendor."Full Name" in case of Vendor."Full Name" <> ''
-        CreateVendor(Vendor, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID);
+        CreateVendor(Vendor, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
         Assert.AreEqual(Vendor."Full Name", LocalReportMgt.GetVendorName(Vendor."No."), '');
     end;
 
@@ -181,7 +181,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".IsForeignCurrency() returns FALSE in case of non-foreign currency
-        Initialize;
+        Initialize();
         LibraryERM.CreateCurrency(Currency);
 
         GLSetup.Get();
@@ -201,7 +201,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".IsForeignCurrency() returns TRUE in case of foreign currency
-        Initialize;
+        Initialize();
         LibraryERM.CreateCurrency(Currency);
 
         GLSetup.Get();
@@ -219,7 +219,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns FALSE in case of empty currency code
-        Initialize;
+        Initialize();
         Assert.IsFalse(LocalReportMgt.HasRelationalCurrCode('', WorkDate), '');
     end;
 
@@ -258,7 +258,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Report] [UT]
         // [SCENARIO] COD 12401 "Local Report Management".HasRelationalCurrCode() returns TRUE in case of currency with relational currency code
         CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
         CurrencyExchangeRate.Modify();
 
@@ -384,7 +384,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO 166062] COD 12401 "Local Report Management".GetVATLedgerXMLFileName() returns correct VAT Ledger XML File Name
-        Initialize;
+        Initialize();
 
         SONOAdmin[1] := '';
         SONOAdmin[2] := Format(LibraryRandom.RandIntInRange(1000, 9999));
@@ -479,7 +479,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 234588] Page 10 "Countries/Regions" shows "EAEU Country/Region Code" field
-        Initialize;
+        Initialize();
         CountriesRegions.OpenEdit;
         Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Visible, '');
         Assert.IsTrue(CountriesRegions."EAEU Country/Region Code".Enabled, '');
@@ -495,7 +495,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 234588] TAB 9 "Country/Region".IsEAEUCountry() returns TRUE only in case of EAEU Country <> CompanyInformation EAEU Country
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // Both EAEU, different
@@ -543,7 +543,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] EAEU customer, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -577,7 +577,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] EAEU customer, Non-EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with EAEU customer, Non-EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -611,7 +611,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] EAEU customer, ship-to address with blanked country\region code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with EAEU customer, header's ship-to address with blanked country\region code
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -645,7 +645,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] Non-EAEU customer, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Non-EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -679,7 +679,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] Non-EAEU customer, Non-EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Non-EAEU customer, Non-EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -713,7 +713,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] Non-EAEU customer, ship-to address with blanked country\region code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Non-EAEU customer, header's ship-to address with blanked country\region code
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -747,7 +747,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] customer with blanked country\region code, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Non-EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -781,7 +781,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] customer with blanked country\region code, Non-EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Non-EAEU customer, Non-EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -815,7 +815,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesLine() in case of
         // [SCENARIO 234588] customer with blanked country\region code, ship-to address with blanked country\region code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document with Non-EAEU customer, header's ship-to address with blanked country\region code
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -849,7 +849,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT] [Invoice]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesInvLine() in case of
         // [SCENARIO 234588] sales invoice, EAEU customer, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -883,7 +883,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT] [Credit Memo]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_SalesCrMemoLine() in case of
         // [SCENARIO 234588] sales credit memo, EAEU customer, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales credit memo with EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -917,7 +917,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT] [Invoice]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_ValueEntry() in case of
         // [SCENARIO 234588] sales invoice, EAEU customer, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -951,7 +951,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Tariff No.] [UT] [Credit Memo]
         // [SCENARIO 234588] COD 12401 "Local Report Management".GetEAEUItemTariffNo_ValueEntry() in case of
         // [SCENARIO 234588] sales credit memo, EAEU customer, EAEU ship-to address
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales credit memo with EAEU customer, EAEU header's ship-to address
         // [GIVEN] Sales line1: item with tariff "A" and EAEU location
@@ -1033,7 +1033,7 @@ codeunit 144001 "ERM RU - Base"
         // [SCENARIO 251306] COD 140316 "Library RU Reports".UpdateCompanyAddress()
         LibraryRUReports.UpdateCompanyAddress;
         with CompanyAddress do begin
-            FindFirst;
+            FindFirst();
             TestField("Country/Region Code");
             TestField(City);
             TestField("Region Name");
@@ -1069,7 +1069,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [UI] [Post Code]
         // [SCENARIO 251306] "County" is visible on "Post Codes" page
-        Initialize;
+        Initialize();
         LibraryRUReports.CreatePostCode(PostCode);
 
         PostCodes.OpenEdit;
@@ -1092,7 +1092,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Address] [UT] [UI] [Customer]
         // [SCENARIO 267176] "County" is visible on "Customer Card" page in case Contry/Region has Address Format = "City+County+Post Code".
         // [SCENARIO 251306] "County" is validated after "Post Code" type.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryRUReports.CreatePostCode(PostCode);
 
@@ -1108,7 +1108,7 @@ codeunit 144001 "ERM RU - Base"
         Assert.IsTrue(CustomerCard.County.Editable, '');
         CustomerCard.County.AssertEquals(Customer.County);
 
-        NewCountyValue := LibraryUtility.GenerateGUID;
+        NewCountyValue := LibraryUtility.GenerateGUID();
         CustomerCard.County.SetValue(NewCountyValue);
         CustomerCard.Close;
         Customer.Find;
@@ -1125,7 +1125,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [UI] [Customer]
         // [SCENARIO 267176] "County" is not visible on "Customer Card" page in case Contry/Region has Address Format <> "City+County+Post Code".
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryRUReports.CreatePostCode(PostCode);
 
@@ -1150,7 +1150,7 @@ codeunit 144001 "ERM RU - Base"
         // [FEATURE] [Address] [UT] [UI] [Vendor]
         // [SCENARIO 251306] "County" is visible on "Vendor Card" page in case Contry/Region has Address Format = "City+County+Post Code".
         // [SCENARIO 251306] "County" is validated after "Post Code" type.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryRUReports.CreatePostCode(PostCode);
 
@@ -1166,7 +1166,7 @@ codeunit 144001 "ERM RU - Base"
         Assert.IsTrue(VendorCard.County.Editable, '');
         VendorCard.County.AssertEquals(Vendor.County);
 
-        NewCountyValue := LibraryUtility.GenerateGUID;
+        NewCountyValue := LibraryUtility.GenerateGUID();
         VendorCard.County.SetValue(NewCountyValue);
         VendorCard.Close;
         Vendor.Find;
@@ -1183,7 +1183,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [UI] [Vendor]
         // [SCENARIO 267176] "County" is not visible on "Vendor Card" page in case Contry/Region has Address Format <> "City+County+Post Code".
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryRUReports.CreatePostCode(PostCode);
 
@@ -1205,10 +1205,10 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [UI] [Company Information]
         // [SCENARIO 251306] "County" is visible on "Company Address" page and validated after "Post Code" type
-        Initialize;
+        Initialize();
 
-        CompanyAddress.FindFirst;
-        CompanyAddress.Validate(County, LibraryUtility.GenerateGUID);
+        CompanyAddress.FindFirst();
+        CompanyAddress.Validate(County, LibraryUtility.GenerateGUID());
         CompanyAddress.Modify(true);
 
         CompanyAddressPage.OpenEdit;
@@ -1232,13 +1232,13 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetFullAddr()
-        Initialize;
-        PostCode := LibraryUtility.GenerateGUID;
-        City := LibraryUtility.GenerateGUID;
-        Address := LibraryUtility.GenerateGUID;
-        Address2 := LibraryUtility.GenerateGUID;
-        Region := LibraryUtility.GenerateGUID;
-        County := LibraryUtility.GenerateGUID;
+        Initialize();
+        PostCode := LibraryUtility.GenerateGUID();
+        City := LibraryUtility.GenerateGUID();
+        Address := LibraryUtility.GenerateGUID();
+        Address2 := LibraryUtility.GenerateGUID();
+        Region := LibraryUtility.GenerateGUID();
+        County := LibraryUtility.GenerateGUID();
 
         Assert.AreEqual(
           PostCode + ', ' + Region + ', ' + County + ', ' + City + ', ' + Address + ', ' + Address2,
@@ -1254,7 +1254,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Vendor]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetVendorAddress()
-        Initialize;
+        Initialize();
         LibraryRUReports.CreateVendor(Vendor);
 
         with Vendor do
@@ -1272,11 +1272,11 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Company Information]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetLegalAddress()
-        Initialize;
+        Initialize();
         LibraryRUReports.UpdateCompanyAddress;
 
         with CompanyAddress do begin
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(
               LocalReportMgt.GetFullAddr("Post Code", City, Address, "Address 2", "Region Name", County),
               LocalReportMgt.GetLegalAddress, '');
@@ -1294,7 +1294,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Order]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of Sales Order
-        Initialize;
+        Initialize();
         CreateSalesDocWithDiffSellToShipToBillTo(
           SalesHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::Order);
         VerifySalesDocDiffSellToShipToBillToAddress(SalesHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo);
@@ -1311,7 +1311,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Invoice]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of Sales Invoice
-        Initialize;
+        Initialize();
         CreateSalesDocWithDiffSellToShipToBillTo(
           SalesHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::Invoice);
         VerifySalesDocDiffSellToShipToBillToAddress(SalesHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo);
@@ -1328,7 +1328,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Credit Memo]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of Sales Credit Memo
-        Initialize;
+        Initialize();
         CreateSalesDocWithDiffSellToShipToBillTo(
           SalesHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::"Credit Memo");
         VerifySalesDocDiffSellToShipToBillToAddress(SalesHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo);
@@ -1346,7 +1346,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Invoice]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of posted Sales Invoice
-        Initialize;
+        Initialize();
         SalesInvoiceHeader.Get(
           CreatePostSalesDocWithDiffSellToShipToBillTo(
             SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::Invoice));
@@ -1365,7 +1365,7 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Credit Memo]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of posted Sales Credit Memo
-        Initialize;
+        Initialize();
         SalesCrMemoHeader.Get(
           CreatePostSalesDocWithDiffSellToShipToBillTo(
             SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::"Credit Memo"));
@@ -1384,11 +1384,11 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Shipment]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of Shipment
-        Initialize;
+        Initialize();
         CreatePostSalesDocWithDiffSellToShipToBillTo(
           SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::Invoice);
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         VerifySalesDocDiffSellToShipToBillToAddress(SalesShipmentHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo);
     end;
 
@@ -1404,11 +1404,11 @@ codeunit 144001 "ERM RU - Base"
     begin
         // [FEATURE] [Address] [UT] [Sales] [Return Receipt]
         // [SCENARIO 251306] COD 12401 "Local Report Management".GetCustInfo() in case of Return Receipt
-        Initialize;
+        Initialize();
         CreatePostSalesDocWithDiffSellToShipToBillTo(
           SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo, SalesHeader."Document Type"::"Credit Memo");
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
         VerifySalesDocDiffSellToShipToBillToAddress(ReturnReceiptHeader, SellToCustomerNo, ShipToCustomerNo, BillToCustomerNo);
     end;
 
@@ -1426,7 +1426,7 @@ codeunit 144001 "ERM RU - Base"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1485,7 +1485,7 @@ codeunit 144001 "ERM RU - Base"
         GenJournalLine.SetRecFilter;
         BankPaymentOrder.SetTableView(GenJournalLine);
         BankPaymentOrder.SetFileNameSilent(LibraryReportValidation.GetFileName);
-        BankPaymentOrder.RunModal;
+        BankPaymentOrder.RunModal();
     end;
 
     local procedure CreateStandardText(): Text[250]
@@ -1495,7 +1495,7 @@ codeunit 144001 "ERM RU - Base"
         with StandardText do begin
             Init;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Standard Text");
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
             exit(Description);
         end

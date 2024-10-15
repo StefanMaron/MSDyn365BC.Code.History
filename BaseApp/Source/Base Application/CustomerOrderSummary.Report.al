@@ -259,7 +259,7 @@ report 107 "Customer - Order Summary"
         if not PrintAmountsInLCY then begin
             Currency.SetFilter(Code, Customer.GetFilter("Currency Filter"));
             if Currency.Count = 1 then
-                Currency.FindFirst;
+                Currency.FindFirst();
         end;
         for i := 1 to 3 do
             PeriodStartDate[i + 1] := CalcDate('<1M>', PeriodStartDate[i]);

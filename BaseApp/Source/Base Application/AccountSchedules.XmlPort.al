@@ -373,13 +373,13 @@ xmlport 26552 "Account Schedules"
     begin
         "Acc. Schedule Name".Reset();
         "Acc. Schedule Name".DeleteAll();
-        if TempAccScheduleName.FindSet then
+        if TempAccScheduleName.FindSet() then
             repeat
                 "Acc. Schedule Name" := TempAccScheduleName;
                 "Acc. Schedule Name".Insert();
 
                 AccScheduleLine.SetRange("Schedule Name", TempAccScheduleName.Name);
-                if AccScheduleLine.FindSet then
+                if AccScheduleLine.FindSet() then
                     repeat
                         "Acc. Schedule Line" := AccScheduleLine;
                         "Acc. Schedule Line".Insert();
@@ -400,7 +400,7 @@ xmlport 26552 "Account Schedules"
                         "Column Layout Name".Insert();
 
                         ColumnLayout.SetRange("Column Layout Name", TempAccScheduleName."Default Column Layout");
-                        if ColumnLayout.FindSet then
+                        if ColumnLayout.FindSet() then
                             repeat
                                 "Column Layout" := ColumnLayout;
                                 "Column Layout".Insert();
@@ -416,7 +416,7 @@ xmlport 26552 "Account Schedules"
         UpdateValue: Boolean;
     begin
         "Acc. Schedule Name".Reset();
-        if "Acc. Schedule Name".FindSet then
+        if "Acc. Schedule Name".FindSet() then
             repeat
                 if AccScheduleName.Get("Acc. Schedule Name".Name) then
                     AccScheduleName.Delete(true);
@@ -425,7 +425,7 @@ xmlport 26552 "Account Schedules"
             until "Acc. Schedule Name".Next() = 0;
 
         "Acc. Schedule Line".Reset();
-        if "Acc. Schedule Line".FindSet then
+        if "Acc. Schedule Line".FindSet() then
             repeat
                 if AccScheduleLine.Get("Acc. Schedule Line"."Schedule Name", "Acc. Schedule Line"."Line No.") then
                     AccScheduleLine.Delete(true);
@@ -434,7 +434,7 @@ xmlport 26552 "Account Schedules"
             until "Acc. Schedule Line".Next() = 0;
 
         "Column Layout Name".Reset();
-        if "Column Layout Name".FindSet then
+        if "Column Layout Name".FindSet() then
             repeat
                 if ColumnLayoutName.Get("Column Layout Name".Name) then
                     ColumnLayoutName.Delete();
@@ -443,7 +443,7 @@ xmlport 26552 "Account Schedules"
             until "Column Layout Name".Next() = 0;
 
         "Column Layout".Reset();
-        if "Column Layout".FindSet then
+        if "Column Layout".FindSet() then
             repeat
                 if ColumnLayout.Get("Column Layout"."Column Layout Name", "Column Layout"."Line No.") then
                     ColumnLayout.Delete(true);
@@ -452,7 +452,7 @@ xmlport 26552 "Account Schedules"
             until "Column Layout".Next() = 0;
 
         "Acc. Schedule Extension".Reset();
-        if "Acc. Schedule Extension".FindSet then
+        if "Acc. Schedule Extension".FindSet() then
             repeat
                 if AccScheduleExtension.Get("Acc. Schedule Extension".Code) then
                     AccScheduleExtension.Delete(true);

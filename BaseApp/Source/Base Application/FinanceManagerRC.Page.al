@@ -353,7 +353,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite, FixedAssets, CostAccounting;
                         Caption = 'Find entries...';
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+Q';
                         ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                         RunObject = page "Navigate";
                     }
@@ -618,12 +618,16 @@ page 8901 "Finance Manager Role Center"
                             RunObject = report "Foreign Currency Balance";
                             Tooltip = 'Run the Foreign Currency Balance report.';
                         }
+#if not CLEAN20
                         action("XBRL Spec. 2 Instance Document")
                         {
                             ApplicationArea = XBRL;
                             Caption = 'XBRL Spec. 2 Instance Document';
                             RunObject = report "XBRL Export Instance - Spec. 2";
                             Tooltip = 'Run the XBRL Spec. 2 Instance Document report.';
+                            ObsoleteReason = 'XBRL feature will be discontinued';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '20.0';
                         }
                         action("XBRL Mapping of G/L Accounts")
                         {
@@ -631,7 +635,11 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'XBRL Mapping of G/L Accounts';
                             RunObject = report "XBRL Mapping of G/L Accounts";
                             Tooltip = 'Run the XBRL Mapping of G/L Accounts report.';
+                            ObsoleteReason = 'XBRL feature will be discontinued';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '20.0';
                         }
+#endif
                         action("Reconcile Cust. and Vend. Accs")
                         {
                             ApplicationArea = Basic, Suite;
@@ -698,13 +706,18 @@ page 8901 "Finance Manager Role Center"
                         Tooltip = 'Open the G/L Account Categories page.';
                         AccessByPermission = TableData "G/L Account Category" = R;
                     }
+#if not CLEAN20
                     action("XBRL Taxonomies")
                     {
                         ApplicationArea = XBRL;
                         Caption = 'XBRL Taxonomies';
                         RunObject = page "XBRL Taxonomies";
                         Tooltip = 'Open the XBRL Taxonomies page.';
+                        ObsoleteReason = 'XBRL feature will be discontinued';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '20.0';
                     }
+#endif
                     action("VAT Report Setup")
                     {
                         ApplicationArea = Basic, Suite;
@@ -744,6 +757,18 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Cash Accounts';
                     RunObject = page "Cash Accounts";
                     Tooltip = 'Open the Cash Accounts page.';
+                }
+                action("Deposit")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Deposits';
+                    RunObject = codeunit "Open Deposits Page";
+                }
+                action("Posted Bank Deposit")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Posted Bank Deposits';
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
                 }
                 group("Group14")
                 {
@@ -3170,7 +3195,11 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Intercompany;
                         Caption = 'Intercompany Setup';
+#if not CLEAN20
                         RunObject = page "IC Setup";
+#else
+                        RunObject = page "Intercompany Setup";
+#endif
                         Tooltip = 'Open the Intercompany Setup page.';
                     }
                     action("Partner Code")

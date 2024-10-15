@@ -119,31 +119,6 @@ table 26569 "Statutory Report Setup"
 
     var
         CompanyAddress: Record "Company Address";
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
         CompanyAddressList: Page "Company Address List";
-#if not CLEAN17
-        SelectFolderTxt: Label 'Select %1', Comment = '%1 = folder name';
-        FolderDoesNotExistErr: Label 'Folder %1 does not exist.', Comment = '%1 = folder name';
-
-    local procedure CheckIfFolderExists(FolderName: Text[250])
-    begin
-        if FolderName <> '' then
-            if not FileMgt.ClientDirectoryExists(FolderName) then
-                Error(FolderDoesNotExistErr, FolderName);
-    end;
-
-    local procedure BrowseFoFolderDialog(TemplateFolderFieldCaption: Text[250]; FolderName: Text[250]; FolderMaxStrLength: Integer): Text[250]
-    var
-        DefaultFolderName: Text;
-        WindowTitleText: Text[50];
-    begin
-        WindowTitleText := CopyStr(StrSubstNo(SelectFolderTxt, TemplateFolderFieldCaption), 1, MaxStrLen(WindowTitleText));
-        DefaultFolderName := FileMgt.BrowseForFolderDialog(WindowTitleText, FolderName, true);
-        exit(CopyStr(DefaultFolderName, 1, FolderMaxStrLength));
-    end;
-#endif
-
 }
 

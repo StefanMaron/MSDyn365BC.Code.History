@@ -61,11 +61,11 @@ report 12455 "Create VAT Purchase Ledger"
                     VendLedgEntry.SetCurrentKey("Transaction No.");
                     VendLedgEntry.SetRange("Transaction No.", TransNo);
 
-                    if UseExternal and VendLedgEntry.FindFirst then
+                    if UseExternal and VendLedgEntry.FindFirst() then
                         if VendLedgEntry."Vendor VAT Invoice No." = '' then
                             CurrReport.Skip();
 
-                    if VendLedgEntry.FindFirst then begin
+                    if VendLedgEntry.FindFirst() then begin
                         if UseExternal and not CorrDocMgt.IsCorrVATEntry(PurchVATEntry) then begin
                             if VendLedgEntry."Vendor VAT Invoice No." <> '' then
                                 DocumentNo := VendLedgEntry."Vendor VAT Invoice No.";
@@ -876,7 +876,7 @@ report 12455 "Create VAT Purchase Ledger"
             exit;
 
         MakePurchLedgerSetFilters(VATEntry, TempVATLedgerLineBuffer);
-        if not TempVATLedgerLineBuffer.FindFirst then begin
+        if not TempVATLedgerLineBuffer.FindFirst() then begin
             MakePurchLedgerMapValues(VATEntry, TempVATLedgerLineBuffer);
             MakePurchLedgMapTypeSpecificValues(VATEntry, TempVATLedgerLineBuffer);
             MakePurchLedgMapCorrectionValues(VATEntry, TempVATLedgerLineBuffer);
@@ -910,7 +910,7 @@ report 12455 "Create VAT Purchase Ledger"
         PrepmtDiffVATEntry.SetRange("Document Line No.", VATEntry."Document Line No.");
         PrepmtDiffVATEntry.SetRange("Prepmt. Diff.", true);
         PrepmtDiffVATEntry.SetRange("Additional VAT Ledger Sheet", false);
-        if PrepmtDiffVATEntry.FindSet then
+        if PrepmtDiffVATEntry.FindSet() then
             repeat
                 if (PrepmtDiffVATEntry.Base <> 0) or (PrepmtDiffVATEntry.Amount <> 0) then
                     if Check(PrepmtDiffVATEntry) then
@@ -993,7 +993,7 @@ report 12455 "Create VAT Purchase Ledger"
         ExternalDocNo: Code[35];
     begin
         with VATEntry do
-            if not TempVATLedgerLineBuffer.FindFirst then begin
+            if not TempVATLedgerLineBuffer.FindFirst() then begin
                 TempVATLedgerLineBuffer.Init();
                 LineNo := LineNo + 1;
                 TempVATLedgerLineBuffer.Type := VATLedgerName.Type;

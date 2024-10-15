@@ -776,7 +776,7 @@ codeunit 137405 "SCM Item Tracking"
         // Setup: Create and post Purchase Order with Expiration Date and find Item Ledger Entry.
         Initialize();
         ItemLedgerEntry.SetRange("Document No.", CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate));
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         // Exercise: Create and post Sales Order with Posting Date as after Expiration Date.
         asserterror CreateAndPostSalesOrderWithItemTracking(
@@ -1203,7 +1203,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // Verify: Verify a Purchase Line with negative quantity is generated.
-        PurchRcptLine.FindLast;
+        PurchRcptLine.FindLast();
         PurchRcptLine.TestField(Quantity, -PurchaseLine.Quantity);
     end;
 
@@ -1302,7 +1302,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [WHEN] Undo receipt
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
-        PurchRcptLine.FindLast;
+        PurchRcptLine.FindLast();
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // [THEN] Tracked quantity in the purchase order is restored: "X1" in the 1st line, "X2" in the 2nd line
@@ -1639,7 +1639,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
 
         // [THEN] "Expiration Date" = "D" in undo Item Ledger Entry.
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         ItemLedgerEntry.TestField("Expiration Date", ExpirationDate);
     end;
 
@@ -1974,7 +1974,7 @@ codeunit 137405 "SCM Item Tracking"
         CreateAndPostPurchaseOrderWithItemTracking(PurchaseLine, WorkDate);
 
         ItemLedgerEntry.SetRange("Item No.", PurchaseLine."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         // [GIVEN] Create purchase return order for item "I" with posting date 02.03.YY.
         CreatePurchaseHeaderWithPostingDate(
@@ -2184,7 +2184,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [WHEN] Retrieve item tracking from the posted purchase receipt
         PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         Assert.AreEqual(
           ArrayLen(LotNos),
           ItemTrackingDocManagement.RetrieveDocumentItemTracking(
@@ -2194,7 +2194,7 @@ codeunit 137405 "SCM Item Tracking"
         for I := 1 to ArrayLen(Item) do
             for J := 1 to ArrayLen(LotNos[I]) do begin
                 TempTrackingSpecification.SetRange("Lot No.", LotNos[I, J]);
-                TempTrackingSpecification.FindFirst;
+                TempTrackingSpecification.FindFirst();
                 TempTrackingSpecification.TestField("Item No.", Item[I]."No.");
                 TempTrackingSpecification.TestField("Quantity (Base)", LotQtys[I, J]);
             end;
@@ -2724,7 +2724,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryApplicationArea.EnableEssentialSetup;
 
         // [WHEN] Open Item Tracking Code Card
-        ItemTrackingCodeCard.OpenNew;
+        ItemTrackingCodeCard.OpenNew();
 
         // [THEN] Both Lot and SN Warehouse Tracking are visible
         Assert.IsTrue(ItemTrackingCodeCard."Lot Warehouse Tracking".Visible, '');
@@ -2745,7 +2745,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryApplicationArea.EnableBasicSetup;
 
         // [WHEN] Open Item Tracking Code Card
-        ItemTrackingCodeCard.OpenNew;
+        ItemTrackingCodeCard.OpenNew();
 
         // [THEN] Both Lot and SN Warehouse Tracking are not visible
         asserterror Assert.IsTrue(ItemTrackingCodeCard."Lot Warehouse Tracking".Visible, '');
@@ -2790,7 +2790,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [THEN] Expiration Date on Line 1 is set to "EXP-1".
         TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
-        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.FindFirst();
         TempTrackingSpecification.TestField("Expiration Date", NewDate);
     end;
 
@@ -2828,7 +2828,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [THEN] Expiration Date on Line 1 is updated to "EXP-2".
         TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
-        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.FindFirst();
         TempTrackingSpecification.TestField("Expiration Date", NewDate);
     end;
 
@@ -2866,7 +2866,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [THEN] Expiration Date on Line 1 remains "EXP-1".
         TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
-        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.FindFirst();
         TempTrackingSpecification.TestField("Expiration Date", WorkDate);
     end;
 
@@ -2904,7 +2904,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [THEN] Expiration Date on Line 1 is cleared out.
         TempTrackingSpecification.SetRange("Serial No.", SerialNos[1]);
-        TempTrackingSpecification.FindFirst;
+        TempTrackingSpecification.FindFirst();
         TempTrackingSpecification.TestField("Expiration Date", 0D);
     end;
 
@@ -3752,7 +3752,7 @@ codeunit 137405 "SCM Item Tracking"
         CreateInvtPutAwayPickMvmt.InitializeRequest(true, false, false, false, false);
         CreateInvtPutAwayPickMvmt.SetTableView(WhseRequest);
         CreateInvtPutAwayPickMvmt.UseRequestPage := false;
-        CreateInvtPutAwayPickMvmt.RunModal;
+        CreateInvtPutAwayPickMvmt.RunModal();
     end;
 
     local procedure CreatePostWhseRcpt(PurchHeader: Record "Purchase Header")
@@ -3769,7 +3769,7 @@ codeunit 137405 "SCM Item Tracking"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
     end;
 
@@ -4650,7 +4650,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Item Tracking");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // Clear global variables.
         Clear(SalesMode);
         Clear(AssignLotNo);
@@ -4662,11 +4662,11 @@ codeunit 137405 "SCM Item Tracking"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Tracking");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         isInitialized := true;
         Commit();
@@ -4872,7 +4872,7 @@ codeunit 137405 "SCM Item Tracking"
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WhseActivityLine);
 
         ReservEntry.SetRange("Item No.", SalesLine."No.");
-        ReservEntry.FindLast;
+        ReservEntry.FindLast();
 
         with LibraryVariableStorage do begin
             Enqueue(1); // number of Lot to create for Item Tracking Lines
@@ -5132,12 +5132,12 @@ codeunit 137405 "SCM Item Tracking"
         LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
 
         Bin.SetRange("Location Code", Location.Code);
-        Bin.FindFirst;
+        Bin.FindFirst();
         Location.Validate("Shipment Bin Code", Bin.Code);
         Location.Modify(true);
 
         Bin.SetFilter(Code, '<>%1', Location."Shipment Bin Code");
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure CreateMultilinePurchaseOrderWithJobAndLotTracking(var PurchaseHeader: Record "Purchase Header")
@@ -5466,7 +5466,7 @@ codeunit 137405 "SCM Item Tracking"
           SourceDocument, SourceNo, PutAway, Pick, false);
         WarehouseActivityHeader.SetRange("Source Document", SourceDocument);
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
     end;
 
     local procedure EnqueueLotTrackingSpec(LotNo: Code[50]; QtyToUpdate: Option; Quantity: Decimal)
@@ -5480,7 +5480,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         ReservEntry.SetRange("Item No.", ItemNo);
         ReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
-        ReservEntry.FindFirst;
+        ReservEntry.FindFirst();
     end;
 
     local procedure FindWhseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
@@ -5497,7 +5497,7 @@ codeunit 137405 "SCM Item Tracking"
             SetRange("Source Type", SourceType);
             SetRange("Source Subtype", SourceSubtype);
             SetRange("Source No.", SourceNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5512,7 +5512,7 @@ codeunit 137405 "SCM Item Tracking"
             SetRange("Activity Type", "Activity Type"::Pick);
             SetRange("Whse. Document Type", "Whse. Document Type"::Shipment);
             SetRange("Whse. Document No.", WhseShptHdrNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -5520,7 +5520,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
         PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure CalculatePlanAndCarryOutReqWorksheet(Item: Record Item)
@@ -5530,13 +5530,13 @@ codeunit 137405 "SCM Item Tracking"
         RequisitionLine: Record "Requisition Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, WorkDate);
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
     end;
 
@@ -5796,10 +5796,10 @@ codeunit 137405 "SCM Item Tracking"
         QtyToUpdate: Option Quantity,"Quantity to Handle","Quantity to Invoice";
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         EnqueueLotTrackingSpec(LotNo, QtyToUpdate::Quantity, PurchaseLine.Quantity);
         PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -5941,7 +5941,7 @@ codeunit 137405 "SCM Item Tracking"
     var
         Quantity: Variant;
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Dequeue(Quantity);
         ItemTrackingLines."Quantity (Base)".SetValue(Quantity);
         LibraryVariableStorage.Dequeue(Quantity);
@@ -6013,7 +6013,7 @@ codeunit 137405 "SCM Item Tracking"
             SetRange("Whse. Document No.", WhseDocNo);
             SetRange("Serial No.", '');
             SetRange("Action Type", ActionType);
-            FindFirst;
+            FindFirst();
 
             Validate("Serial No.", NewSerialNo);
             Modify(true);
@@ -6027,7 +6027,7 @@ codeunit 137405 "SCM Item Tracking"
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange(Positive, IsPositive);
-            FindLast;
+            FindLast();
             Assert.AreEqual(ExpectedDate, "Expiration Date", StrSubstNo(WrongExpDateErr, TableCaption, "Entry No."));
         end;
     end;
@@ -6037,7 +6037,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry: Record "Reservation Entry";
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Lot No.");
     end;
 
@@ -6047,10 +6047,10 @@ codeunit 137405 "SCM Item Tracking"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoHeader.TestField("Customer No.", ServiceHeader."Customer No.");
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ServiceCrMemoLine.FindFirst;
+        ServiceCrMemoLine.FindFirst();
         ServiceCrMemoLine.TestField("No.", ServiceLine."No.");
         ServiceCrMemoLine.TestField(Quantity, ServiceLine.Quantity);
     end;
@@ -6061,10 +6061,10 @@ codeunit 137405 "SCM Item Tracking"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Customer No.", ServiceHeader."Customer No.");
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField("No.", ServiceLine."No.");
         ServiceInvoiceLine.TestField(Quantity, ServiceLine.Quantity);
     end;
@@ -6145,7 +6145,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry: Record "Reservation Entry";
     begin
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindLast;
+        TransferLine.FindLast();
         ReservationEntry.SetRange("Item No.");
         ReservationEntry.SetRange("Location Code");
         ReservationEntry.SetRange("Source Type");
@@ -6224,7 +6224,7 @@ codeunit 137405 "SCM Item Tracking"
         with PstdWhseShptLn do begin
             SetRange("Whse. Shipment No.", WhseShipmentLine."No.");
             SetRange("Whse Shipment Line No.", WhseShipmentLine."Line No.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(WhseShipmentLine.Quantity, Quantity, PostedWhseQuantityErr);
         end;
     end;
@@ -6239,7 +6239,7 @@ codeunit 137405 "SCM Item Tracking"
             SetRange("Source ID", JobJournalLine."Journal Template Name");
             SetRange("Source Batch Name", JobJournalLine."Journal Batch Name");
             SetRange("Source Ref. No.", JobJournalLine."Line No.");
-            FindFirst;
+            FindFirst();
             TestField("Item No.", JobJournalLine."No.");
             TestField("Lot No.", LotNo);
         end;
@@ -6251,7 +6251,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         with ItemLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             TestField("Item No.", ItemNo);
             TestField("Lot No.", LotNo);
         end;
@@ -6409,7 +6409,7 @@ codeunit 137405 "SCM Item Tracking"
     [Scope('OnPrem')]
     procedure ItemTrackingSingleLineHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Serial No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(1);
         ItemTrackingLines.OK.Invoke;
     end;

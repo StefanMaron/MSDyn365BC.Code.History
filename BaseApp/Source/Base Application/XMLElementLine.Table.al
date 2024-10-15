@@ -125,7 +125,7 @@ table 26570 "XML Element Line"
                     StatReportTableColumn.SetRange("Report Code", "Report Code");
                     StatReportTableColumn.SetRange("Table Code", "Table Code");
                     if StatReportTableColumn.Count = 1 then begin
-                        StatReportTableColumn.FindFirst;
+                        StatReportTableColumn.FindFirst();
                         "Column Link No." := StatReportTableColumn."Line No.";
                     end;
                 end;
@@ -415,13 +415,13 @@ table 26570 "XML Element Line"
             StatReportExcelSheet.SetRange("Report Code", "Report Code");
             StatReportExcelSheet.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
             StatReportExcelSheet.SetRange("Table Code", "Table Code");
-            if StatReportExcelSheet.FindSet then
+            if StatReportExcelSheet.FindSet() then
                 repeat
                     // collect indication values from scalable table rows
                     ScalableTableRow.SetRange("Report Code", "Report Code");
                     ScalableTableRow.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
                     ScalableTableRow.SetRange("Table Code", StatutoryReportTable.Code);
-                    if ScalableTableRow.FindSet then
+                    if ScalableTableRow.FindSet() then
                         repeat
                             StatRepBuffer."Scalable Table Row No." := ScalableTableRow."Line No.";
                             StatRepBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
@@ -429,7 +429,7 @@ table 26570 "XML Element Line"
                             IndicElementValue := '';
                             PageIndicationXMLElement.SetRange("Report Code", "Report Code");
                             PageIndicationXMLElement.SetRange("Table Code", "Table Code");
-                            if PageIndicationXMLElement.FindSet then
+                            if PageIndicationXMLElement.FindSet() then
                                 repeat
                                     XMLElementLine.Get("Report Code", PageIndicationXMLElement."XML Element Line No.");
                                     IndicElementValue := IndicElementValue + XMLElementLine.GetElementValue(StatRepBuffer);
@@ -449,7 +449,7 @@ table 26570 "XML Element Line"
                 until StatReportExcelSheet.Next() = 0;
 
             PageIndicBuffer.Reset();
-            if PageIndicBuffer.FindSet then begin
+            if PageIndicBuffer.FindSet() then begin
                 AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
 
                 repeat
@@ -468,7 +468,7 @@ table 26570 "XML Element Line"
             StatReportExcelSheet.SetRange("Report Code", "Report Code");
             StatReportExcelSheet.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
             StatReportExcelSheet.SetRange("Table Code", "Table Code");
-            if StatReportExcelSheet.FindSet then
+            if StatReportExcelSheet.FindSet() then
                 repeat
                     if StatutoryReportTable."Multipage Table" and (not StatutoryReportTable."Scalable Table") and
                        (StatReportExcelSheet."Page Indic. Requisite Value" = '')
@@ -492,7 +492,7 @@ table 26570 "XML Element Line"
                 until StatReportExcelSheet.Next() = 0;
 
             PageIndicBuffer.Reset();
-            if PageIndicBuffer.FindSet then
+            if PageIndicBuffer.FindSet() then
                 repeat
                     AddElement(XMLNode, "Element Name", '', '', CreatedXMLNode);
 
@@ -525,14 +525,14 @@ table 26570 "XML Element Line"
             ScalableTableRow.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
             ScalableTableRow.SetRange("Table Code", "Table Code");
             ScalableTableRow.SetRange("Excel Sheet Name", StatRepBuffer."Excel Sheet Name");
-            if ScalableTableRow.FindSet then
+            if ScalableTableRow.FindSet() then
                 repeat
                     StatRepBuffer."Scalable Table Row No." := ScalableTableRow."Line No.";
 
                     IndicElementValue := '';
                     PageIndicationXMLElement.SetRange("Report Code", "Report Code");
                     PageIndicationXMLElement.SetRange("Table Code", "Table Code");
-                    if PageIndicationXMLElement.FindSet then
+                    if PageIndicationXMLElement.FindSet() then
                         repeat
                             XMLElementLine.Get("Report Code", PageIndicationXMLElement."XML Element Line No.");
                             IndicElementValue := IndicElementValue + XMLElementLine.GetElementValue(StatRepBuffer);
@@ -553,14 +553,14 @@ table 26570 "XML Element Line"
             StatReportExcelSheet.SetRange("Table Code", "Table Code");
             if StatRepBuffer."Page Indic. Requisite Value" <> '' then
                 StatReportExcelSheet.SetRange("Page Indic. Requisite Value", StatRepBuffer."Page Indic. Requisite Value");
-            if StatReportExcelSheet.FindSet then
+            if StatReportExcelSheet.FindSet() then
                 repeat
                     if StatutoryReportTable."Scalable Table" then begin
                         ScalableTableRow.SetRange("Report Code", "Report Code");
                         ScalableTableRow.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
                         ScalableTableRow.SetRange("Table Code", "Table Code");
                         ScalableTableRow.SetRange("Excel Sheet Name", StatReportExcelSheet."Sheet Name");
-                        if ScalableTableRow.FindSet then
+                        if ScalableTableRow.FindSet() then
                             repeat
                                 StatRepBuffer."Scalable Table Row No." := ScalableTableRow."Line No.";
                                 StatRepBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
@@ -615,7 +615,7 @@ table 26570 "XML Element Line"
                 begin
                     XMLElementExpressionLine.SetRange("Report Code", "Report Code");
                     XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-                    if XMLElementExpressionLine.FindSet then
+                    if XMLElementExpressionLine.FindSet() then
                         repeat
                             ElementValue :=
                               ElementValue +
@@ -640,7 +640,7 @@ table 26570 "XML Element Line"
                 begin
                     XMLElementExpressionLine.SetRange("Report Code", "Report Code");
                     XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-                    if XMLElementExpressionLine.FindSet then
+                    if XMLElementExpressionLine.FindSet() then
                         repeat
                             if XMLElementLine.Get("Report Code", XMLElementExpressionLine."XML Element Line No.") then
                                 ElementValue :=
@@ -747,7 +747,7 @@ table 26570 "XML Element Line"
                     ChildSchemaLine.SetCurrentKey("Report Code", "Sequence No.");
                     ChildSchemaLine.SetRange("Report Code", "Report Code");
                     ChildSchemaLine.SetRange("Parent Line No.", "Line No.");
-                    if ChildSchemaLine.FindSet then
+                    if ChildSchemaLine.FindSet() then
                         repeat
                             if not ChildSchemaLine.ElementIsEmpty(StatRepBuffer) then
                                 exit(false);
@@ -815,7 +815,7 @@ table 26570 "XML Element Line"
         Value := '';
         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-        if XMLElementExpressionLine.FindSet then
+        if XMLElementExpressionLine.FindSet() then
             repeat
                 if XMLElementExpressionLine."Line No." <> ChangedRequisiteExpressionLine."Line No." then
                     Value := Value + XMLElementExpressionLine."String Before" +
@@ -835,7 +835,7 @@ table 26570 "XML Element Line"
         TestField("Source Type", "Source Type"::Expression);
         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-        if XMLElementExpressionLine.FindSet then
+        if XMLElementExpressionLine.FindSet() then
             repeat
                 XMLElementExpressionLine.Value := XMLElementExpressionLine.GetReferenceValue('', '');
                 XMLElementExpressionLine.Modify();
@@ -1248,7 +1248,7 @@ table 26570 "XML Element Line"
     begin
         ChildRequisiteLine.SetRange("Report Code", "Report Code");
         ChildRequisiteLine.SetRange("Parent Line No.", "Line No.");
-        if ChildRequisiteLine.FindSet then
+        if ChildRequisiteLine.FindSet() then
             repeat
                 if ChildRequisiteLine."Element Type" = ChildRequisiteLine."Element Type"::Complex then
                     ChildRequisiteLine.UpdateTableCode(TableCode)
@@ -1300,7 +1300,7 @@ table 26570 "XML Element Line"
         ChildRequisiteLine.SetCurrentKey("Report Code", "Sequence No.");
         ChildRequisiteLine.SetRange("Report Code", "Report Code");
         ChildRequisiteLine.SetRange("Parent Line No.", "Line No.");
-        if ChildRequisiteLine.FindSet then
+        if ChildRequisiteLine.FindSet() then
             repeat
                 ChildRequisiteLine.CheckComplexTable(StatRepBuffer);
                 ChildRequisiteLine.ExportValue(XMLNode, StatRepBuffer, ElementValueBuffer);
@@ -1329,7 +1329,7 @@ table 26570 "XML Element Line"
                 StatReportExcelSheet.SetRange("Report Data No.", StatRepBuffer."Report Data No.");
                 StatReportExcelSheet.SetRange("Table Code", "Table Code");
                 StatReportExcelSheet.SetRange("Page Indic. Requisite Value", StatRepBuffer."Page Indic. Requisite Value");
-                if StatReportExcelSheet.FindFirst then begin
+                if StatReportExcelSheet.FindFirst() then begin
                     StatRepBuffer."Excel Sheet Name" := StatReportExcelSheet."Sheet Name";
                     StatRepBuffer."Table Code" := "Table Code";
                     StatutoryReportTable.Get("Report Code", "Table Code");
@@ -1358,7 +1358,7 @@ table 26570 "XML Element Line"
         ScalableTableRow: Record "Scalable Table Row";
         VertTableRowShift: Integer;
     begin
-        if ElementValueBuffer.FindLast then;
+        if ElementValueBuffer.FindLast() then;
         EntryNo := ElementValueBuffer."Entry No." + 1;
 
         ElementValueBuffer.Init();
@@ -1454,7 +1454,7 @@ table 26570 "XML Element Line"
     begin
         XMLElementExpressionLineFrom.SetRange("Report Code", ReportFromCode);
         XMLElementExpressionLineFrom.SetRange("Base XML Element Line No.", "Line No.");
-        if XMLElementExpressionLineFrom.FindSet then
+        if XMLElementExpressionLineFrom.FindSet() then
             repeat
                 XMLElementExpressionLine := XMLElementExpressionLineFrom;
                 XMLElementExpressionLine."Report Code" := "Report Code";

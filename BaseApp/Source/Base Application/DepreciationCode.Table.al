@@ -39,7 +39,7 @@ table 12473 "Depreciation Code"
                 if Parent <> '' then begin
                     DepreciationCode.Reset();
                     DepreciationCode.SetRange(Code, Parent);
-                    if DepreciationCode.FindFirst then
+                    if DepreciationCode.FindFirst() then
                         Indentation := DepreciationCode.Indentation + 1
                     else
                         case "Code Type" of
@@ -68,7 +68,7 @@ table 12473 "Depreciation Code"
                 if Parent <> '' then begin
                     DepreciationCode.Reset();
                     DepreciationCode.SetRange(Code, Parent);
-                    if DepreciationCode.FindFirst then
+                    if DepreciationCode.FindFirst() then
                         Indentation := DepreciationCode.Indentation + 1
                     else
                         case "Code Type" of

@@ -7,14 +7,12 @@ table 5203 "Employee Qualification"
 
     fields
     {
-#pragma warning disable AS0005
         field(1; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';
             NotBlank = true;
             TableRelation = Employee;
         }
-#pragma warning restore AS0005
         field(2; "Line No."; Integer)
         {
             Caption = 'Line No.';
@@ -81,7 +79,6 @@ table 5203 "Employee Qualification"
         }
     }
 
-#pragma warning disable AS0009
     keys
     {
         key(Key1; "Employee No.", "Line No.")
@@ -92,7 +89,6 @@ table 5203 "Employee Qualification"
         {
         }
     }
-#pragma warning restore AS0009
 
     fieldgroups
     {

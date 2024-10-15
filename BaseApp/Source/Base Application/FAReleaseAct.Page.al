@@ -166,7 +166,7 @@ page 12474 "FA Release Act"
                     trigger OnAction()
                     begin
                         CopyFADoc.SetFADocHeader(Rec);
-                        CopyFADoc.RunModal;
+                        CopyFADoc.RunModal();
                         CopyFADoc.GetFADocHeader(Rec);
                         CurrPage.Update(true);
                         Clear(CopyFADoc);

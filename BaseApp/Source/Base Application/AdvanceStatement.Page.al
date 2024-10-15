@@ -230,7 +230,7 @@ page 12431 "Advance Statement"
                     trigger OnAction()
                     begin
                         CopyPurchDoc.SetPurchHeader(Rec);
-                        CopyPurchDoc.RunModal;
+                        CopyPurchDoc.RunModal();
                         Clear(CopyPurchDoc);
                     end;
                 }
@@ -246,7 +246,7 @@ page 12431 "Advance Statement"
                     begin
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
-                        MoveNegPurchLines.RunModal;
+                        MoveNegPurchLines.RunModal();
                         MoveNegPurchLines.ShowDocument;
                     end;
                 }
@@ -434,7 +434,7 @@ page 12431 "Advance Statement"
             VendLedgEntry.SetRange(Open, true);
             VendLedgEntry.SetRange(Positive, true);
             VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if VendLedgEntry.FindSet then
+            if VendLedgEntry.FindSet() then
                 repeat
                     if VendLedgEntry."Currency Code" = "Currency Code" then
                         VendLedgEntry.CalcFields("Remaining Amt. (LCY)");

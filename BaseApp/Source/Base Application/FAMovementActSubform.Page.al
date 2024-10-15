@@ -150,7 +150,7 @@ page 12479 "FA Movement Act Subform"
                         SetFilters(FADocHeader, FADocLine);
                         FAMovementActRep.SetTableView(FADocHeader);
                         FAMovementActRep.SetTableView(FADocLine);
-                        FAMovementActRep.Run;
+                        FAMovementActRep.Run();
                     end;
                 }
                 action("FA Movement FA-3")
@@ -168,7 +168,7 @@ page 12479 "FA Movement Act Subform"
                         SetFilters(FADocHeader, FADocLine);
                         FAMovementActRep.SetTableView(FADocHeader);
                         FAMovementActRep.SetTableView(FADocLine);
-                        FAMovementActRep.Run;
+                        FAMovementActRep.Run();
                     end;
                 }
                 action("FA Movement FA-15")
@@ -186,7 +186,7 @@ page 12479 "FA Movement Act Subform"
                         SetFilters(FADocHeader, FADocLine);
                         FAMovementActRep.SetTableView(FADocHeader);
                         FAMovementActRep.SetTableView(FADocLine);
-                        FAMovementActRep.Run;
+                        FAMovementActRep.Run();
                     end;
                 }
             }

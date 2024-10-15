@@ -52,7 +52,9 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "Ins. Coverage Ledger Entry" = rm,
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = rim,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Posted FA Comment" = Ri,
                   tabledata "Posted FA Doc. Header" = Ri,
                   tabledata "Posted FA Doc. Line" = Rim,

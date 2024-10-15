@@ -82,7 +82,7 @@ report 12409 "Order Proforma-Invoice (A)"
           CopiesNumber, AmountInvoiceDone, LogInteraction, Preview, true);
         OrderFacturaInvoice.SetTableView(Header);
         OrderFacturaInvoice.UseRequestPage(false);
-        OrderFacturaInvoice.Run;
+        OrderFacturaInvoice.Run();
     end;
 
     trigger OnPreReport()

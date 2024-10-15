@@ -182,17 +182,17 @@ codeunit 5616 "Depreciation Calculation"
         with FALedgEntry do begin
             SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
             SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            if FindLast then
+            if FindLast() then
                 if "FA Posting Date" > LocalDate then
                     LocalDate := "FA Posting Date";
             SetRange("FA Posting Type", "FA Posting Type"::"Salvage Value");
-            if FindLast then
+            if FindLast() then
                 if "FA Posting Date" > LocalDate then
                     LocalDate := "FA Posting Date";
             SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
             SetRange("Depr. Bonus", false);
             SetRange("Reclassification Entry", false);
-            if FindLast then
+            if FindLast() then
                 if ToMorrow("FA Posting Date", Year365Days) > LocalDate then
                     LocalDate := ToMorrow("FA Posting Date", Year365Days);
             SetRange("Depr. Bonus");

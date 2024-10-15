@@ -74,7 +74,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Blanket Sales Order Report without any Option.
 
         // Setup: Create Blanket Sales Order.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", Customer."No.", '');
 
@@ -99,7 +99,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Blanket Sales Order Report with Dimension.
 
         // Setup: Create Sales Blanket Order with Dimension.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", CreateCustomerWithDimension(DimensionValue), '');
 
         // Exercise.
@@ -118,7 +118,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesLine: Record "Sales Line";
     begin
         // Check Sales Document Test Report with Ship Option.
-        Initialize;
+        Initialize();
         SetupSalesDocumentTest(SalesLine, true, false);
         VerifySalesDocumentTestSalesLine(SalesLine);
     end;
@@ -131,7 +131,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesLine: Record "Sales Line";
     begin
         // Check Sales Document Test Report with Ship and Invoice Option.
-        Initialize;
+        Initialize();
         SetupSalesDocumentTest(SalesLine, true, true);
         VerifySalesDocumentTestSalesLine(SalesLine);
 
@@ -150,7 +150,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Sales Document Test Report with Show Dimension Option.
 
         // Setup: Crate Sales Order with Dimension.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomerWithDimension(DimensionValue), '');
 
         // Exercise.
@@ -176,7 +176,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Sales Document Test Report with Item Charge Option.
 
         // Setup: Crate Sales Order and Item Charge Sales Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemCharge(ItemCharge);
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order, Customer."No.", '');
@@ -207,7 +207,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Sales Document Test Report for Invoice Discount on Credit Memo.
 
         // Setup: Update New No. Series in Sales and Receivables Setup.
-        Initialize;
+        Initialize();
         SetupSalesAndReceivablesSetup(LibraryUtility.GetGlobalNoSeriesCode);
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", SetupInvoiceDiscount, '');
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
@@ -234,7 +234,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Sales Document Test Report with VAT on Credit Memo.
 
         // Setup: Update Sales Receivables Setup and Create Sales Credit Memo. Calculate VAT Amount Lines.
-        Initialize;
+        Initialize();
         SetupSalesAndReceivablesSetup(LibraryUtility.GetGlobalNoSeriesCode);
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", CreateCustomer, '');
         SalesHeader.Get(SalesLine."Document Type"::"Credit Memo", SalesLine."Document No.");
@@ -264,7 +264,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Customer Payment Receipt Report.
 
         // Setup: Post Invoice and Payment Entries for a Customer. Take Random Values for Invoice and Payment Amount.
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         PmtDiscAmount := CreateAndPostGenJournalLines(GenJournalLine, InvoiceAmount, -InvoiceAmount, CreateCustomer, '');
 
@@ -272,7 +272,7 @@ codeunit 134984 "ERM Sales Report III"
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
         Clear(CustomerPaymentReceipt);
         CustomerPaymentReceipt.SetTableView(CustLedgerEntry);
-        CustomerPaymentReceipt.Run;
+        CustomerPaymentReceipt.Run();
 
         // Verify: Verify values on Customer Payment Receipt Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -291,7 +291,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Sales Shipment Report without any option.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := CreateAndPostSalesShipment(DocumentNo, CreateCustomer);
 
         // Exercise: Save Sales Shipment Report with no options checked.
@@ -299,7 +299,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // Verify: Verify Shipped Quantity in Report.
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_SalesShptLine', SalesShipmentLine."No.");
@@ -318,7 +318,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Internal Information on Sales Shipment Report.
 
         // Setup: Create and Post Sales Shipment with Customer having Dimensions attached.
-        Initialize;
+        Initialize();
         CreateAndPostSalesShipment(DocumentNo, CreateCustomerWithDimension(DimensionValue));
 
         // Exercise: Save Sales Shipment Report with Show Internal Information option checked.
@@ -340,7 +340,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Interaction Log Entries created after running Sales Shipment Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostSalesShipment(DocumentNo, CreateCustomer);
 
         // Exercise: Save Sales Shipment Report with Log Interaction option checked.
@@ -361,12 +361,12 @@ codeunit 134984 "ERM Sales Report III"
         // Check Correction Entry on Sales Shipment Report.
 
         // Setup: Create and Post Sales Shipment and then undo the Shipment.
-        Initialize;
+        Initialize();
         CreateAndPostSalesShipment(DocumentNo, CreateCustomer);
 
         // Undo the Shipment.
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
 
         // Exercise: Save Sales Shipment Report.
@@ -386,12 +386,12 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [UI] [Shipment]
         // [SCENARIO 225799] "Order No." and "External Document No." are shown with their captions when report "Sales - Shipment" is printed for Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipment Header with "External Document No." = "XXX" and "Order No." = "YYY"
-        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        SalesShipmentHeader."External Document No." := LibraryUtility.GenerateGUID;
-        SalesShipmentHeader."Order No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        SalesShipmentHeader."External Document No." := LibraryUtility.GenerateGUID();
+        SalesShipmentHeader."Order No." := LibraryUtility.GenerateGUID();
         SalesShipmentHeader.Insert();
 
         // [WHEN] Export report "Sales - Shipment" to XML file
@@ -429,7 +429,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Aging By Due Date.
 
         // Setup: Create and Post Sales Order with Modify Due Date on Sales Header and Calculate VAT Amount with Random Values.
-        Initialize;
+        Initialize();
         NoOfDays := Format(LibraryRandom.RandInt(5));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer, '');
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -463,7 +463,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Aging By Posting Date.
 
         // Create and Post Sales Order and Save Aged Account Receivable Report with Posting Date.
-        Initialize;
+        Initialize();
         VATAmount := SetupAgedAccountsReceivable(SalesLine, PostedDocNo, PeriodLength, AgingBy::"Posting Date",
             HeadingType::"Date Interval", false, false, '');
 
@@ -489,7 +489,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Aging By Document Date.
 
         // Setup: Create and Post Sales Order with Modify Document Date on Sales Header and Calculate VAT Amount with Random Values.
-        Initialize;
+        Initialize();
         NoOfDays := Format(LibraryRandom.RandInt(5));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer, '');
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -526,7 +526,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Print Amount LCY False.
 
         // Create and Post Sales Order and Save Aged Account Receivable Report with Print Amount LCY.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateAndPostSalesDocument(SalesLine, CreateCustomer, SalesLine."Document Type"::Order, '', true);
         VATAmount := Round(SalesLine."Line Amount" + (SalesLine."Line Amount" * SalesLine."VAT %" / 100));
@@ -575,7 +575,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Print Amount LCY TRUE.
 
         // Create and Post Sales Order and Save Aged Account Receivable Report with Print Amount LCY.
-        Initialize;
+        Initialize();
         VATAmount := SetupAgedAccountsReceivable(SalesLine, PostedDocNo, PeriodLength, AgingBy::"Due Date", HeadingType::"Date Interval",
             true, false, CreateCurrencyAndExchangeRate);
         Currency.Get(SalesLine."Currency Code");
@@ -601,7 +601,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Heading Type No. of Days.
 
         // Create and Post Sales Order, Save Aged Account Receivable Report with Heading Type No. of Days.
-        Initialize;
+        Initialize();
 
         VATAmount := SetupAgedAccountsReceivable(SalesLine, PostedDocNo, PeriodLength, AgingBy::"Due Date",
             HeadingType::"Number of Days", false, false, '');
@@ -625,7 +625,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Aged Account Receivable Report with Print Details.
 
         // Create and Post Sales Order, Save Aged Account Receivable Report with Print Details.
-        Initialize;
+        Initialize();
 
         VATAmount := SetupAgedAccountsReceivable(SalesLine, PostedDocNo, PeriodLength, AgingBy::"Due Date",
             HeadingType::"Date Interval", false, true, '');
@@ -647,7 +647,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Customer Balance To Date Report without any Option Selected.
 
         // Setup: Create and Post Invoice and Payment Entries for Customer. Take Random Values for Invoice and Payment Amount.
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         PmtDiscAmount := CreateAndPostGenJournalLines(GenJournalLine, InvoiceAmount, -InvoiceAmount, CreateCustomer, '');
 
@@ -674,7 +674,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // Setup: Create and Post Invoice and Payment Entries for Customer with Currency Code. Take Random Invoice Amount and Make sure that
         // Payment Amount is Lesser than Invoice Amount to Post Partial Payment.
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         CreateAndPostGenJournalLines(GenJournalLine, InvoiceAmount, -InvoiceAmount / 2, CreateCustomerWithCurrency, '');
         InvAmountLCY := LibraryERM.ConvertCurrency(InvoiceAmount, GenJournalLine."Currency Code", '', WorkDate);
@@ -703,7 +703,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // Setup: Create and Post Invoice and Payment Entry for Customer. Unapply Payment Entry. Take Random Invoice Amount.
         // Divide Invoice Amount by Two to make Payment Amount partial.
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         CreateAndPostGenJournalLines(GenJournalLine, InvoiceAmount, -InvoiceAmount / 2, CreateCustomer, '');
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -730,7 +730,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Return Order Confirmation Report for VAT Amount.
 
         // Setup: Create Sales Return Order and Calculate VAT Amount.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer, '');
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
@@ -755,7 +755,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Return Order Confirmation Report with Dimension.
 
         // Setup: Create Sales Return Order with Dimension.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomerWithDimension(DimensionValue), '');
 
         // Exercise: Save Report using TRUE to show Internal Info.
@@ -777,7 +777,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Return Order Confirmation Report for Log Interaction Entry.
 
         // Setup: Create Sales Return Order and Calculate VAT Amount.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer, '');
 
         // Exercise: Save Report using TRUE to make Log Interaction Enry.
@@ -804,7 +804,7 @@ codeunit 134984 "ERM Sales Report III"
         // Verify that program filter data correctly by date in Aged Accounts Receivable report.
 
         // Setup: Create Customer,Post Invoice and Payment and apply it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
@@ -847,7 +847,7 @@ codeunit 134984 "ERM Sales Report III"
         // Verify Warnings on Sales Document Test Report of Sales Order before posting Prepayment Invoice.
 
         // Setup: Create Sales Order with Prepayment % and enter different values for 'Type' in Sales Line.
-        Initialize;
+        Initialize();
         CreateSalesOrderWithDifferentLineType(SalesHeader);
 
         // Exercise: Run and Save Sales Document Test Report.
@@ -871,7 +871,7 @@ codeunit 134984 "ERM Sales Report III"
         // Check Customer Statement Report with Posted General Line.
 
         // Setup: Create Invoice and Payment General Line for Customer and Random Values.
-        Initialize;
+        Initialize();
         CreateCustomerAndPostGenJnlLines(Customer, InvoiceAmount);
 
         // Exercise: Save Statement Report with Random Period Length.
@@ -883,7 +883,7 @@ codeunit 134984 "ERM Sales Report III"
           false, false, true, false, false, false, '<' + Format(LibraryRandom.RandInt(5)) + 'M>',
           DateChoice::"Due Date", true, WorkDate, WorkDate);
         Commit();
-        Statement.Run;
+        Statement.Run();
 
         // Verify: Verify Saved Data in Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -901,7 +901,7 @@ codeunit 134984 "ERM Sales Report III"
         InvoiceAmount: Decimal;
     begin
         // Check Customer Statement Report Total value
-        Initialize;
+        Initialize();
 
         // Setup: Create Invoice and Payment General Line for Customer and Random Values.
         CreateCustomerAndPostGenJnlLines(Customer, InvoiceAmount);
@@ -925,7 +925,7 @@ codeunit 134984 "ERM Sales Report III"
         // Verify Document Entries for Sales Shipment with Tables and No of Records as per Navigate.
 
         // Setup: Create and Post Sales Shipment.
-        Initialize;
+        Initialize();
         CreateAndPostSalesShipment(DocumentNo, CreateCustomer);
         LibraryVariableStorage.Enqueue(false);  // Enqueue for DocumentEntriesReqPageHandler.
         PostedSalesShipment.OpenView;
@@ -990,7 +990,7 @@ codeunit 134984 "ERM Sales Report III"
         // Verify Document Entries for Sales Return Order with Tables and No of Records as per Navigate.
 
         // Setup: Create and Post Sales Return Order.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument(SalesLine, CreateCustomer, SalesLine."Document Type"::"Return Order", '', false);  // Blank is used for Currency Code.
         LibraryVariableStorage.Enqueue(false);  // Enqueue for DocumentEntriesReqPageHandler.
         PostedReturnReceipt.OpenView;
@@ -1069,7 +1069,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [SCENARIO 371670] "Standard Sales - Credit Memo" report prints document without ship-to informantion
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo without ship-to information
         PostedCreditMemoDocNo := CreatePostCreditMemoWithoutShiptoInfo;
 
@@ -1094,7 +1094,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Sales Document - Test]
         // [SCENARIO 378473] Sales Document - Test report should show Exchange Rate from Sales header in section "VAT Amount Specification ..."
-        Initialize;
+        Initialize();
 
         // [GIVEN] "General Ledger Setup"."Print VAT specification in LCY" = TRUE
         GeneralLedgerSetup.Get();
@@ -1130,7 +1130,7 @@ codeunit 134984 "ERM Sales Report III"
         DimensionNo: array[2] of Code[20];
     begin
         // [SCENARIO 163061] Check Customer Balance To Date report with filter on Customer."Global Dimension 1 Filter"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Global Dimension 1 = "D1" where Amount = "A1"
         // [GIVEN] Posted Sales Invoice with Global Dimension 1 = "D2" where Amount = "A2"
@@ -1164,7 +1164,7 @@ codeunit 134984 "ERM Sales Report III"
         DimensionNo: array[2] of Code[20];
     begin
         // [SCENARIO 163061] Check Customer Balance To Date report with filter on Customer."Global Dimension 2 Filter"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Global Dimension 2 = "D1" where Amount = "A1"
         // [GIVEN] Posted Sales Invoice with Global Dimension 2 = "D2" where Amount = "A2"
@@ -1198,7 +1198,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // [GIVEN] Posted Sales Invoice with Currency Code = "C1" where Amount = "A1"
         // [GIVEN] Posted Sales Invoice with Currency Code = "C2" where Amount = "A2"
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomerWithCurrency;
         CurrencyCode := CreateCurrencyAndExchangeRate;
         CreateCustomerAndPostGenJnlLinesWithFilters(CustomerNo, '', '', '');
@@ -1220,7 +1220,7 @@ codeunit 134984 "ERM Sales Report III"
         Amount: Decimal;
     begin
         // [SCENARIO 378237] Customer Balance To Date for Entry where unapplication and then application are out of Ending Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
         MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate);
@@ -1247,7 +1247,7 @@ codeunit 134984 "ERM Sales Report III"
         Amount: Decimal;
     begin
         // [SCENARIO 378237] Customer Balance To Date for closed Entry with zero balance inside period and application after Ending Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
         MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate);
@@ -1277,7 +1277,7 @@ codeunit 134984 "ERM Sales Report III"
         Amount: Decimal;
     begin
         // [SCENARIO 378848] Customer Balance To Date for unapplied entry inside period and application after Ending Date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
         MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2), WorkDate);
@@ -1305,7 +1305,7 @@ codeunit 134984 "ERM Sales Report III"
         PmtAmount: Decimal;
     begin
         // [SCENARIO 211599] Customer Balance To Date for closed Entry inside period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with payment of Amount = -150
         PmtAmount := -LibraryRandom.RandDec(100, 2);
@@ -1334,7 +1334,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [UT] [Report Selection]
         // [SCENARIO 381714] When running the report "Customer Statement", the report specified in Report Selection should be opened
-        Initialize;
+        Initialize();
         Commit();
         REPORT.Run(REPORT::"Customer Statement"); // Calls StatementCancelRequestPageHandler
         Reminder.OpenEdit;
@@ -1351,7 +1351,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [UT] [Report Selection]
         // [SCENARIO 381714] When using "Statement" action on Sales Invoice List, the report specified in Report Selection should be opened
-        Initialize;
+        Initialize();
         Commit();
         REPORT.Run(REPORT::"Customer Statement");
         SalesInvoiceList.OpenEdit;
@@ -1368,7 +1368,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [UT] [Report Selection]
         // [SCENARIO 381714] When using "Statement" action on Sales Credit Memos, the report specified in Report Selection should be opened
-        Initialize;
+        Initialize();
         Commit();
         REPORT.Run(REPORT::"Customer Statement");
         SalesCreditMemos.OpenEdit;
@@ -1386,7 +1386,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [UT] [Aged Accounts Receivable]
         // [SCENARIO 202767] Aged Accounts Receivable report gives 'Enter a date formula in the Period Length field.' error when "Period Length" is empty
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         Commit();
@@ -1406,7 +1406,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [UT] [Aged Accounts Receivable]
         // [SCENARIO 232335] Aged Accounts Receivable report has '<1M>' as default Period Length
-        Initialize;
+        Initialize();
 
         Clear(PeriodLength);
         LibrarySales.CreateCustomer(Customer);
@@ -1426,7 +1426,7 @@ codeunit 134984 "ERM Sales Report III"
         CompanyInformation: Record "Company Information";
     begin
         // [FEATURE] [EC Sales List]
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
 
         // [GIVEN] Report 130 "EC Sales List" request page
@@ -1451,7 +1451,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Customer - Payment Receipt] [External Document No.]
         // [SCENARIO 210727] REP 211 "Customer - Payment Receipt" prints "External Document No." payment line with positive amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted customer payment with "External Document No." = "X", Amount = "A"
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -1475,7 +1475,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Statement]
         // [SCENARIO 218263] REP 116 "Statement" doesn't show any error in case of empty output
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer without any business data
         // [THEN] Run "Statement" report for the customer
@@ -1494,7 +1494,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Standard Statement]
         // [SCENARIO 218263] REP 1316 "Standard Statement" doesn't show any error in case of empty output
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer without any business data
         // [THEN] Run "Standard Statement" report for the customer
@@ -1519,7 +1519,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Performance] [Aged Accounts Receivable] [Date-Time] [Time Zone]
         // [SCENARIO 235531] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone and COMPANYPROPERTY.DISPLAYNAME are called once for Aged Accounts Receivable report when multiple entries are processed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post 2 Sales Invoices
         LibrarySales.CreateCustomer(Customer);
@@ -1551,7 +1551,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Customer - Balance to Date]
         // [SCENARIO 275908] Report Customer - Balance to Date shows entries with zero balance when "Show Entries with Zero Balance" was enabled on request page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice Gen. Journal Line with Customer Account and Amount = -1000
         CreateGenJnlLineWithBalAccount(
@@ -1592,7 +1592,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Analysis Report]
         // [SCENARIO 280460] Analysis report printout should respect analysis line format settings.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales analysis report with one column.
         LibraryInventory.CreateAnalysisReportName(AnalysisReportName, AnalysisReportName."Analysis Area"::Sales);
@@ -1613,7 +1613,7 @@ codeunit 134984 "ERM Sales Report III"
         AnalysisReport.SetParameters(
           AnalysisLine[1]."Analysis Area"::Sales, AnalysisReportName.Name, AnalysisLineTemplate.Name, AnalysisColumnTemplate.Name);
         AnalysisReport.SetFilters(Format(WorkDate), '', '', '', '', '', 0, '');
-        AnalysisReport.Run;
+        AnalysisReport.Run();
 
         // [THEN] Each line is printed only once and has its own format.
         LibraryReportDataset.LoadDataSetFile;
@@ -1638,7 +1638,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Analysis Report]
         // [SCENARIO 280460] When "Date Filter" set on analysis line is not a single date, but a date period, it should be printed as text on the filter section in "Analysis Report to Excel" worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales analysis report with one line and one column.
         LibraryInventory.CreateAnalysisReportName(AnalysisReportName, AnalysisReportName."Analysis Area"::Sales);
@@ -1655,7 +1655,7 @@ codeunit 134984 "ERM Sales Report III"
         ExportAnalysisRepToExcel.SetOptions(AnalysisLine, AnalysisColumnTemplate.Name, AnalysisLineTemplate.Name);
         ExportAnalysisRepToExcel.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ExportAnalysisRepToExcel.SetTestMode(true);
-        ExportAnalysisRepToExcel.Run;
+        ExportAnalysisRepToExcel.Run();
 
         // [THEN] Date Filter = '01/01/20..31/12/20' is printed on the filter section on Excel worksheet.
         LibraryReportValidation.OpenExcelFile;
@@ -1677,7 +1677,7 @@ codeunit 134984 "ERM Sales Report III"
         // [FEATURE] [Aged Accounts Receivable] [Dimension]
         // [SCENARIO 284398] Aged Account Receivable Report considers global dimension filters
 
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
 
@@ -1711,7 +1711,7 @@ codeunit 134984 "ERM Sales Report III"
         // [FEATURE] [Aged Accounts Receivable] [Dimension]
         // [SCENARIO 284398] Aged Account Receivable Report considers global dimension filters
 
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
 
@@ -1748,7 +1748,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Customer - Balance to Date]
         // [SCENARIO 288122] Remaining Amount in "Customer - Balance to Date" report shows sum of invoice that is closed at a later date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Invoice Gen. Jnl. Line with Amount 'X', Payment Gen. Jnl. Line with Amount 'Y', Payment Gen. Jnl. Line with Amount -'X'-'Y'
         LibrarySales.CreateCustomer(Customer);
@@ -1774,7 +1774,7 @@ codeunit 134984 "ERM Sales Report III"
         CustomerBalanceToDate.SetTableView(Customer);
         CustomerBalanceToDate.InitializeRequest(false, false, false, WorkDate + 1);
         Commit();
-        CustomerBalanceToDate.Run;
+        CustomerBalanceToDate.Run();
 
         // [THEN] RemainingAmt is equal to 'X' + 'Y'
         LibraryReportDataset.LoadDataSetFile;
@@ -1792,10 +1792,10 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Pro Forma Invoive] [UI] [Order]
         // [SCENARIO 201636] Print REP 1302 "Standard Sales - Pro Forma Inv" from Sales Order page
-        Initialize;
+        Initialize();
         UpdateGLSetupDefaultUnitAmountRounding;
         UpdateCompanyInfo;
-        LibraryERM.SetLCYCode(LibraryUtility.GenerateGUID);
+        LibraryERM.SetLCYCode(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Order card
         CreateSalesOrderWithSevItemsForProForma(SalesHeader);
@@ -1897,14 +1897,14 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Sales Shipment] [UT]
         // [SCENARIO 331988] Report 208 "Sales - Shipment" exposes "External Document No." and "Order No." fields as "Purchase Order No." and "Our Document No." respectively
-        Initialize;
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Two posted Sales Shipments with different "External Document No."
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        ItemNo := LibraryInventory.CreateItemNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        ItemNo := LibraryInventory.CreateItemNo();
         for Index := 1 to 2 do begin
-            ExternalDocNo[Index] := LibraryUtility.GenerateGUID;
+            ExternalDocNo[Index] := LibraryUtility.GenerateGUID();
             LibrarySales.CreateSalesDocumentWithItem(
               SalesHeader[Index], SalesLine[Index], SalesHeader[Index]."Document Type"::Order,
               CustomerNo, ItemNo, LibraryRandom.RandIntInRange(2, 5), '', 0D);
@@ -1930,7 +1930,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Aged Accounts Receivable]
         // [SCENARIO 290824] Aged Accounts Receivable report prints customer phone number and contact when Print Details = "Yes"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with Phone No. = "12345", Contact = "CONT"
         LibrarySales.CreateCustomer(Customer);
@@ -1979,7 +1979,7 @@ codeunit 134984 "ERM Sales Report III"
         // [GIVEN] Create Sales Header
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         Quantity := LibraryRandom.RandInt(10);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [WHEN] Create first Sales Line
         LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, ItemNo, Quantity);
@@ -2027,7 +2027,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Standard Sales - Shipment]
         // [SCENARIO 306111] "Sales Standard Shipment" report prints basic header and line data 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
         SetReportSelection("Report Selection Usage"::"S.Shipment", Report::"Standard Sales - Shipment");
@@ -2037,7 +2037,7 @@ codeunit 134984 "ERM Sales Report III"
         CreateAndPostSalesShipment(PostedShipmentNo, CreateCustomer);
         SalesShipmentHeader.Get(PostedShipmentNo);
         SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         // [WHEN] Report "Sales Standard Shipment" is being printed 
         SaveStandardSalesShipmentReport(PostedShipmentNo);
@@ -2111,7 +2111,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Standard Sales - Shipment]
         // [SCENARIO 306111] "Sales Standard Shipment" report dataset has ship-to and bill-to customer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
         SetReportSelection("Report Selection Usage"::"S.Shipment", Report::"Standard Sales - Shipment");
@@ -2125,7 +2125,7 @@ codeunit 134984 "ERM Sales Report III"
         CreateAndPostSalesShipment(PostedShipmentNo, Customer."No.");
         SalesShipmentHeader.Get(PostedShipmentNo);
         SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
 
         // [WHEN] Report "Sales Standard Shipment" is being printed 
         SaveStandardSalesShipmentReport(PostedShipmentNo);
@@ -2150,7 +2150,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Standard Sales - Return Receipt]
         // [SCENARIO 306111] "Standard Sales - Return Rcpt." report prints basic header and line data 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set report "Standard Sales - Return Rcpt.." as default for printing return receipts
         SetReportSelection("Report Selection Usage"::"S.Ret.Rcpt.", Report::"Standard Sales - Return Rcpt.");
@@ -2159,7 +2159,7 @@ codeunit 134984 "ERM Sales Report III"
         CreateAndPostSalesReturnReceipt(PostedReturnReceiptNo, CreateCustomer);
         ReturnReceiptHeader.Get(PostedReturnReceiptNo);
         ReturnReceiptLine.SetRange("Document No.", PostedReturnReceiptNo);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
 
         // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed 
         SaveStandardSalesReturnReceiptReport(PostedReturnReceiptNo);
@@ -2185,7 +2185,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         // [FEATURE] [Standard Sales - Return Receipt]
         // [SCENARIO 306111] "Standard Sales - Return Rcpt." report dataset has ship-to and bill-to customer data
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set report "Standard Sales - Return Rcpt.." as default for printing return receipts
         SetReportSelection("Report Selection Usage"::"S.Ret.Rcpt.", Report::"Standard Sales - Return Rcpt.");
@@ -2199,7 +2199,7 @@ codeunit 134984 "ERM Sales Report III"
         CreateAndPostSalesReturnReceipt(PostedReturnReceiptNo, Customer."No.");
         ReturnReceiptHeader.Get(PostedReturnReceiptNo);
         ReturnReceiptLine.SetRange("Document No.", PostedReturnReceiptNo);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
 
         // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed 
         SaveStandardSalesReturnReceiptReport(PostedReturnReceiptNo);
@@ -2511,17 +2511,17 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report III");
         Clear(LibraryReportDataset);
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Report III");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibraryERMCountryData.UpdateFAPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -2541,7 +2541,7 @@ codeunit 134984 "ERM Sales Report III"
         PeriodLength: DateFormula;
     begin
         // Setup: Create Currency and update LCY Code in GL Setup.
-        Initialize;
+        Initialize();
         CreateLCYAndUpdateGeneralLedgerSetup(CurrencyCode);
 
         // Create and Post 2 Sales Orders.
@@ -2638,7 +2638,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithDetails);
 
-        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID);
+        SalesHeader.Validate("Your Reference", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
 
         for i := 1 to ArrayLen(Item) do begin
@@ -2803,12 +2803,12 @@ codeunit 134984 "ERM Sales Report III"
         LibrarySales.CreateCustomerWithAddress(Customer);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         with Customer do begin
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
+            "VAT Registration No." := LibraryUtility.GenerateGUID();
             Validate("Shipment Method Code", CreateShipmentMethod);
             Validate("Country/Region Code", CreateCountryRegion);
             Validate("Salesperson Code", SalespersonPurchaser.Code);
-            Validate("Post Code", LibraryUtility.GenerateGUID);
-            Validate(City, LibraryUtility.GenerateGUID);
+            Validate("Post Code", LibraryUtility.GenerateGUID());
+            Validate(City, LibraryUtility.GenerateGUID());
             Modify(true);
             exit("No.");
         end;
@@ -2961,7 +2961,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
     end;
 
     local procedure CreateCurrencyWithDecimalPlaces(AmountRoundingPrecision: Decimal; AmountDecimalPlaces: Text[5]; UnitAmountRoundingPrecision: Decimal; UnitAmountDecimalPlaces: Text[5]): Code[10]
@@ -2984,7 +2984,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         with AnalysisLine do begin
             LibraryInventory.CreateAnalysisLine(AnalysisLine, "Analysis Area"::Sales, AnalysisLineTemplateName);
-            Validate("Row Ref. No.", LibraryUtility.GenerateGUID);
+            Validate("Row Ref. No.", LibraryUtility.GenerateGUID());
             Validate(Type, Type::Customer);
             Validate(Range, CustomerNo);
             Validate(Bold, IsBold);
@@ -3013,7 +3013,7 @@ codeunit 134984 "ERM Sales Report III"
         with ShipmentMethod do begin
             Init;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Shipment Method");
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert(true);
             exit(Code);
         end;
@@ -3025,7 +3025,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
-            Validate(Name, LibraryUtility.GenerateGUID);
+            Validate(Name, LibraryUtility.GenerateGUID());
             Modify(true);
             exit(Code);
         end;
@@ -3060,7 +3060,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");  // Enqueue for Page Handler.
         UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');  // Required for test when using Item Tracking.
         CreateItemJournalLine(ItemJournalTemplate, ItemJournalBatch, ItemJournalLine, ItemNo, Quantity);
-        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID);
+        ItemJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
         ItemJournalLine.Modify(true);
         ItemJournalLine.OpenItemTrackingLines(false);  // Assign Tracking on Page Handler.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -3081,7 +3081,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
-            FindLast;
+            FindLast();
             exit("Lot No.");
         end;
     end;
@@ -3110,7 +3110,7 @@ codeunit 134984 "ERM Sales Report III"
         DocumentNo: Code[20];
     begin
         // Setup: Create and Post Sales Order.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument(
             SalesLine, CreateCustomer, SalesLine."Document Type"::Order, CreateCurrencyAndExchangeRate, true);
         LibraryVariableStorage.Enqueue(ShowInLCY);  // Enqueue for DocumentEntriesReqPageHandler.
@@ -3125,7 +3125,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
         VerifyDocumentEntries(PostedSalesInvoicePage.Caption, SalesInvoiceHeader.Count);
         VerifyLedgerOnDocumentEntries(DocumentNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields(Amount);
     end;
 
@@ -3137,7 +3137,7 @@ codeunit 134984 "ERM Sales Report III"
         DocumentNo: Code[20];
     begin
         // Setup: Create and Post Sales Credit Memo.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument(
             SalesLine, CreateCustomer, SalesLine."Document Type"::"Credit Memo", CreateCurrencyAndExchangeRate, true);
         LibraryVariableStorage.Enqueue(ShowInLCY);  // Enqueue for DocumentEntriesReqPageHandler.
@@ -3152,7 +3152,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
         VerifyDocumentEntries(PostedSalesCreditMemoPage.Caption, SalesCrMemoHeader.Count);
         VerifyLedgerOnDocumentEntries(DocumentNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.CalcFields(Amount);
     end;
 
@@ -3160,7 +3160,7 @@ codeunit 134984 "ERM Sales Report III"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
         exit(FixedAsset."No.");
     end;
 
@@ -3259,7 +3259,7 @@ codeunit 134984 "ERM Sales Report III"
         Clear(AgedAccountsReceivable);
         AgedAccountsReceivable.SetTableView(Customer);
         AgedAccountsReceivable.InitializeRequest(WorkDate, AgingBy, PeriodLength, AmountLCY, PrintDetails, HeadingType, false);
-        AgedAccountsReceivable.Run;
+        AgedAccountsReceivable.Run();
     end;
 
     local procedure SaveBlanketSalesOrder(No: Code[20]; InternalInfo: Boolean)
@@ -3272,7 +3272,7 @@ codeunit 134984 "ERM Sales Report III"
         BlanketSalesOrder.SetTableView(SalesHeader);
         BlanketSalesOrder.InitializeRequest(0, InternalInfo, false, false);
         Commit();
-        BlanketSalesOrder.Run;
+        BlanketSalesOrder.Run();
     end;
 
     local procedure SaveCustomerBalanceToDate(No: Code[20]; AmountInLCY: Boolean; UnappliedEntries: Boolean)
@@ -3285,7 +3285,7 @@ codeunit 134984 "ERM Sales Report III"
         CustomerBalanceToDate.SetTableView(Customer);
         CustomerBalanceToDate.InitializeRequest(AmountInLCY, false, UnappliedEntries, WorkDate);  // Setting False for New Page Per Customer Option.
         Commit();
-        CustomerBalanceToDate.Run;
+        CustomerBalanceToDate.Run();
     end;
 
     local procedure SaveSalesDocumentTest(No: Code[20]; Ship: Boolean; Invoice: Boolean; ShowDimension: Boolean; ShowItemCharge: Boolean)
@@ -3298,7 +3298,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesDocumentTest.SetTableView(SalesHeader);
         SalesDocumentTest.InitializeRequest(Ship, Invoice, ShowDimension, ShowItemCharge);
         Commit();
-        SalesDocumentTest.Run;
+        SalesDocumentTest.Run();
     end;
 
     local procedure RunAgedAccountsReceivableWithParameters(Customer: Record Customer; AgedAsOfDate: Date)
@@ -3310,7 +3310,7 @@ codeunit 134984 "ERM Sales Report III"
 
         Customer.SetRecFilter;
         AgedAccountsReceivable.SetTableView(Customer);
-        AgedAccountsReceivable.Run;
+        AgedAccountsReceivable.Run();
     end;
 
     local procedure RunStandardSalesCreditMemo(CreditMemoDocNo: Code[20]) FileName: Text[1024]
@@ -3356,7 +3356,7 @@ codeunit 134984 "ERM Sales Report III"
         // Passing 0 for No. of Copies and TRUE for Show Serial/ Lot No. Appendix option as these options can not be checked.
         SalesShipment.InitializeRequest(0, ShowInternalInformation, LogInteraction, ShowCorrectionLines, true, false);
         Commit();
-        SalesShipment.Run;
+        SalesShipment.Run();
     end;
 
     local procedure SaveStandardSalesShipmentReport(No: Code[20])
@@ -3370,7 +3370,7 @@ codeunit 134984 "ERM Sales Report III"
 
         StandardSalesShipment.InitializeRequest(false, false, false, true);
         Commit();
-        StandardSalesShipment.Run;
+        StandardSalesShipment.Run();
     end;
 
     local procedure SaveStandardSalesReturnReceiptReport(No: Code[20])
@@ -3384,7 +3384,7 @@ codeunit 134984 "ERM Sales Report III"
 
         StandardSalesReturnRcpt.InitializeRequest(false, false);
         Commit();
-        StandardSalesReturnRcpt.Run;
+        StandardSalesReturnRcpt.Run();
     end;
 
     local procedure SaveReturnOrderReport(No: Code[20]; ShowInternalInfo: Boolean; LogInteraction: Boolean)
@@ -3397,7 +3397,7 @@ codeunit 134984 "ERM Sales Report III"
         ReturnOrderConfirmation.SetTableView(SalesHeader);
         ReturnOrderConfirmation.InitializeRequest(ShowInternalInfo, LogInteraction);
         Commit();
-        ReturnOrderConfirmation.Run;
+        ReturnOrderConfirmation.Run();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -3434,7 +3434,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         with CurrencyExchangeRate do begin
             SetRange("Currency Code", CurrencyCode);
-            FindFirst;
+            FindFirst();
             Validate("Exchange Rate Amount", ExchangeRateAmt);
             Validate("Relational Exch. Rate Amount", AdjmtExchRateAmt);
             Validate("Adjustment Exch. Rate Amount", ExchangeRateAmt);
@@ -3484,16 +3484,16 @@ codeunit 134984 "ERM Sales Report III"
     begin
         with CompanyInformation do begin
             Get;
-            Validate(Name, LibraryUtility.GenerateGUID);
-            Validate("Name 2", LibraryUtility.GenerateGUID);
-            Validate(Address, LibraryUtility.GenerateGUID);
-            Validate("Address 2", LibraryUtility.GenerateGUID);
-            Validate("Post Code", LibraryUtility.GenerateGUID);
-            Validate(City, LibraryUtility.GenerateGUID);
-            Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID);
-            Validate("Home Page", LibraryUtility.GenerateGUID);
-            Validate("Phone No.", LibraryUtility.GenerateGUID);
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
+            Validate(Name, LibraryUtility.GenerateGUID());
+            Validate("Name 2", LibraryUtility.GenerateGUID());
+            Validate(Address, LibraryUtility.GenerateGUID());
+            Validate("Address 2", LibraryUtility.GenerateGUID());
+            Validate("Post Code", LibraryUtility.GenerateGUID());
+            Validate(City, LibraryUtility.GenerateGUID());
+            Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID());
+            Validate("Home Page", LibraryUtility.GenerateGUID());
+            Validate("Phone No.", LibraryUtility.GenerateGUID());
+            "VAT Registration No." := LibraryUtility.GenerateGUID();
             Modify(true);
         end;
     end;
@@ -3543,7 +3543,7 @@ codeunit 134984 "ERM Sales Report III"
         CustomerBalanceToDate.SetTableView(Customer);
         CustomerBalanceToDate.InitializeRequest(false, false, false, WorkDate);
         Commit();
-        CustomerBalanceToDate.Run;
+        CustomerBalanceToDate.Run();
     end;
 
     local procedure RunCustomerBalanceToDateWithCustomer(CustomerNo: Code[20]; Unapplied: Boolean; ReportDate: Date)
@@ -3556,7 +3556,7 @@ codeunit 134984 "ERM Sales Report III"
         Customer.SetRange("No.", CustomerNo);
         CustomerBalanceToDate.SetTableView(Customer);
         CustomerBalanceToDate.InitializeRequest(false, false, Unapplied, ReportDate);
-        CustomerBalanceToDate.Run;
+        CustomerBalanceToDate.Run();
     end;
 
     local procedure RunStandardSalesProformaInvFromOrderPage(SalesHeader: Record "Sales Header")
@@ -3703,7 +3703,7 @@ codeunit 134984 "ERM Sales Report III"
     begin
         SalesShipmentLine.SetRange("Document No.", DocumentNo);
         SalesShipmentLine.SetRange(Correction, true);
-        SalesShipmentLine.FindLast;
+        SalesShipmentLine.FindLast();
         LibraryReportDataset.SetRange('LineNo_SalesShptLine', SalesShipmentLine."Line No.");
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesShptLine', SalesShipmentLine.Quantity);
@@ -3817,7 +3817,7 @@ codeunit 134984 "ERM Sales Report III"
         VATAmountLine: Record "VAT Amount Line";
     begin
         VATAmountLine.SetFilter("VAT %", '>0');
-        VATAmountLine.FindFirst;
+        VATAmountLine.FindFirst();
         LibraryReportDataset.SetRange(VATIdentifierLabel, VATAmountLine."VAT Identifier");
         LibraryReportDataset.GetNextRow;
 
@@ -3939,7 +3939,7 @@ codeunit 134984 "ERM Sales Report III"
         CustLedgerEntry.SetRange("Global Dimension 1 Code", GlobalDimension1Code);
         CustLedgerEntry.SetRange("Global Dimension 2 Code", GlobalDimension2Code);
         CustLedgerEntry.SetRange("Currency Code", CurrencyCode);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
 
         LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate));

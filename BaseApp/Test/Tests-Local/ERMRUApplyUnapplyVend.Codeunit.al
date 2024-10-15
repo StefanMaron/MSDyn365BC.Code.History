@@ -34,7 +34,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
     begin
         // [SCENARIO 322866] Unapply Vendor Ledger Entry when "Allow Posting From" date is defined
         // [GIVEN] Posted and Applied Vendor Ledger Entries with PaymentNo = "X"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PostApplyVendLedgerEntries(PaymentNo, Amount, VendorNo, VendorLedgerEntry."Document Type"::Invoice, false);
 
         // [GIVEN] Set Allow Posting From Date = "D"
@@ -63,7 +63,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
         // [FEATURE] [Prepayment]
         // [SCENARIO 123864] Unapply Vendor Ledger Entry with Prepayment
         // [GIVEN] Posted and Applied Vendor Ledger Entries with PaymentNo = "X" and prepayment Amount = "A"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PostApplyVendLedgerEntries(PaymentNo, Amount, VendorNo, VendorLedgerEntry."Document Type"::Invoice, true);
 
         // [WHEN] Unapply Vendor Ledger Entry for PaymentNo = "X"
@@ -124,7 +124,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
             SetRange("Entry Type", "Entry Type"::Application);
             SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
             SetRange("Document No.", VendorLedgerEntry."Document No.");
-            FindFirst;
+            FindFirst();
             VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, "Document No.", PostingDateFrom);
             exit(-Amount);
         end;
@@ -202,7 +202,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
             SetRange("G/L Account No.", FindPrepaymentAcc(SourceNo));
             SetRange("Source No.", SourceNo);
             SetRange("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(Amount, GLAmount, WrongVendBackPrepaymentErr);
         end;
     end;

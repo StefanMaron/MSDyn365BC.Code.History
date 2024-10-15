@@ -16,11 +16,9 @@ table 1206 "Credit Transfer Entry"
         {
             Caption = 'Entry No.';
         }
-        field(3; "Account Type"; Option)
+        field(3; "Account Type"; Enum "Credit Transfer Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'Customer,Vendor';
-            OptionMembers = Customer,Vendor;
         }
         field(4; "Account No."; Code[20])
         {
@@ -109,7 +107,7 @@ table 1206 "Credit Transfer Entry"
         if EntryNo = 0 then begin
             SetRange("Credit Transfer Register No.", RegisterNo);
             LockTable();
-            if FindLast then;
+            if FindLast() then;
             "Entry No." += 1;
         end else
             "Entry No." := EntryNo;

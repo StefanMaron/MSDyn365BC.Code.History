@@ -43,7 +43,7 @@ report 12472 "Sales Shipment M-15"
                         InvPostingSetup.Reset();
                         InvPostingSetup.SetRange("Location Code", SalesLine1."Location Code");
                         InvPostingSetup.SetRange("Invt. Posting Group Code", SalesLine1."Posting Group");
-                        if InvPostingSetup.FindFirst then
+                        if InvPostingSetup.FindFirst() then
                             BalAccNo := InvPostingSetup."Inventory Account"
                         else
                             BalAccNo := '';

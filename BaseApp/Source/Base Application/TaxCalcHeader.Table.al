@@ -290,7 +290,7 @@ table 17308 "Tax Calc. Header"
         TaxCalcSelectionSetup.SetRange("Register No.", "No.");
         if TaxCalcLine."Selection Line Code" <> '' then
             TaxCalcSelectionSetup.SetRange("Line Code", TaxCalcLine."Selection Line Code");
-        if TaxCalcSelectionSetup.FindSet then
+        if TaxCalcSelectionSetup.FindSet() then
             repeat
                 if "G/L Corr. Analysis View Code" <> '' then begin
                     GLCorrAnalysisView.Get("G/L Corr. Analysis View Code");
@@ -326,7 +326,7 @@ table 17308 "Tax Calc. Header"
     [Scope('OnPrem')]
     procedure AddGLCorrEntries2Buffer(var GLCorrespondenceEntry: Record "G/L Correspondence Entry"; var TempGLCorrespondenceEntry: Record "G/L Correspondence Entry" temporary)
     begin
-        if GLCorrespondenceEntry.FindSet then
+        if GLCorrespondenceEntry.FindSet() then
             repeat
                 TempGLCorrespondenceEntry := GLCorrespondenceEntry;
                 if not TempGLCorrespondenceEntry.Insert() then;
@@ -336,7 +336,7 @@ table 17308 "Tax Calc. Header"
     [Scope('OnPrem')]
     procedure AddGLCorrAnViewEntr2Buffer(var GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry"; var TempGLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry" temporary)
     begin
-        if GLCorrAnalysisViewEntry.FindSet then
+        if GLCorrAnalysisViewEntry.FindSet() then
             repeat
                 TempGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
                 if not TempGLCorrAnalysisViewEntry.Insert() then;

@@ -119,7 +119,7 @@ page 26567 "Table Individ. Rqst. Subform"
         SetRange("Table Code", TableCode);
         FilterGroup(0);
 
-        if FindFirst then;
+        if FindFirst() then;
         CurrPage.Update(false);
         ShowOnlyChangedValues := NewShowOnlyChangedValues;
     end;

@@ -115,7 +115,7 @@ codeunit 14938 "Purchase Receipt M-4 Helper"
     begin
         InvPostBuffer.Reset();
         InvPostBuffer.SetRange("G/L Account", AccountNo);
-        if not InvPostBuffer.FindFirst then begin
+        if not InvPostBuffer.FindFirst() then begin
             InvPostBuffer."G/L Account" := AccountNo;
             InvPostBuffer.Insert();
             if AccountNoToUpdate = '' then

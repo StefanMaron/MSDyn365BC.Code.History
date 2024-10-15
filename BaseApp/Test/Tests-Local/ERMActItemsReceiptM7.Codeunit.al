@@ -103,7 +103,7 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -113,17 +113,17 @@ codeunit 144708 "ERM Act Items Receipt M-7"
     var
         ActItemsReceiptM7: Report "Act Items Receipt M-7";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchDocument(PurchaseHeader, LineQty);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         PurchaseHeader.SetRecFilter;
         ActItemsReceiptM7.SetTableView(PurchaseHeader);
         ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ActItemsReceiptM7.UseRequestPage(false);
-        ActItemsReceiptM7.Run;
+        ActItemsReceiptM7.Run();
     end;
 
     local procedure PrintM7ItemDocumentReceipt(LineQty: Integer): Code[20]
@@ -131,17 +131,17 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         InvtDocumentHeader: Record "Invt. Document Header";
         ActItemsReceiptM7: Report "Act Items Receipt M-7";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemDocumentReceipt(InvtDocumentHeader, LineQty);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         InvtDocumentHeader.SetRecFilter;
         ActItemsReceiptM7.SetTableView(InvtDocumentHeader);
         ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ActItemsReceiptM7.UseRequestPage(false);
-        ActItemsReceiptM7.Run;
+        ActItemsReceiptM7.Run();
 
         exit(InvtDocumentHeader."No.");
     end;
@@ -151,17 +151,17 @@ codeunit 144708 "ERM Act Items Receipt M-7"
         ItemReceiptHeader: Record "Invt. Receipt Header";
         ActItemsReceiptM7: Report "Act Items Receipt M-7";
     begin
-        Initialize;
+        Initialize();
 
         DocumentNo := CreateAndPostItemDocument(LineQty);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         ItemReceiptHeader.SetRange("No.", DocumentNo);
         ActItemsReceiptM7.SetTableView(ItemReceiptHeader);
         ActItemsReceiptM7.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ActItemsReceiptM7.UseRequestPage(false);
-        ActItemsReceiptM7.Run;
+        ActItemsReceiptM7.Run();
     end;
 
     local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; LineQty: Integer)

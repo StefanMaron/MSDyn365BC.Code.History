@@ -58,7 +58,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Purchase
         // Invoice(with Item Charge)/Post -> Credit Memo (copy from Invoice)/Post -> Try Manual VAT Settlement with Group VAT Allocation
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
 
         CreateVendor(Vendor, VATPostingSetup);
@@ -87,7 +87,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Purchase
         // Invoice(with Item Charge)/Post -> Credit Memo (copy from Invoice)/Post -> Try Manual VAT Settlement with Group VAT Allocation
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
 
         CreateVendor(Vendor, VATPostingSetup);
@@ -115,7 +115,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Last VAT Settlement for Full Manual VAT Settlement
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup);
         DocumentNo := CreateVendorAndPostInvoice(VATPostingSetup, PurchaseLine.Type::Item, Items, 1, 1);
@@ -139,7 +139,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Purchase Invoice/Post -> Full Manual VAT Settlement at 1 time
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup);
         DocumentNo := CreateVendorAndPostInvoice(VATPostingSetup, PurchaseLine.Type::Item, Items, 1, 1);
@@ -164,7 +164,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Last VAT Settlement for Full Manual VAT Settlement
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup1, ItemCharge, false);
         Setup(GeneralPostingSetup, VATPostingSetup2, ItemCharge, false);
 
@@ -192,7 +192,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Purchase Invoice/Post -> Full Manual VAT Settlement at 1 time
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup1, ItemCharge, false);
         Setup(GeneralPostingSetup, VATPostingSetup2, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup1);
@@ -220,7 +220,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Purchase Invoice/Post -> 1 Line with 0% VAT
         // Check no lines suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, true);
 
         Items[1] := CreateItem(VATPostingSetup);
@@ -247,7 +247,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Last VAT Settlement for Full Manual VAT Settlement
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup1, ItemCharge, true);
         Setup(GeneralPostingSetup, VATPostingSetup2, ItemCharge, false);
 
@@ -276,7 +276,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Sales
         // Invoice(with Item Charge)/Post -> Credit Memo (copy from Invoice)/Post -> Try Manual VAT Settlement with Group VAT Allocation
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         CreateCustomer(Customer, GeneralPostingSetup, VATPostingSetup);
         Items[1] := CreateItem(VATPostingSetup);
@@ -303,7 +303,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Sales
         // Invoice(with Item Charge)/Post -> Credit Memo (copy from Invoice)/Post -> Try Manual VAT Settlement with Group VAT Allocation
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         CreateCustomer(Customer, GeneralPostingSetup, VATPostingSetup);
         Items[1] := CreateItem(VATPostingSetup);
@@ -327,7 +327,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Last VAT Settlement for Full Manual VAT Settlement
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup);
         DocumentNo := CreateCustomerAndPostInvoice(GeneralPostingSetup, VATPostingSetup, Items, 1, 1);
@@ -350,7 +350,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
 
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup);
         DocumentNo := CreateCustomerAndPostInvoice(GeneralPostingSetup, VATPostingSetup, Items, 1, 1);
@@ -373,7 +373,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Last VAT Settlement for Full Manual VAT Settlement
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup1, ItemCharge, false);
         Setup(GeneralPostingSetup, VATPostingSetup2, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup1);
@@ -398,7 +398,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Sales Invoice/Post -> Full Manual VAT Settlement at 1 time
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup);
         DocumentNo := CreateCustomerAndPostInvoice(
@@ -421,7 +421,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Sales Invoice/Post -> 1 Line with 0% VAT
         // Check no lines suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, true);
         Items[1] := CreateItem(VATPostingSetup);
         DocumentNo := CreateCustomerAndPostInvoice(GeneralPostingSetup, VATPostingSetup, Items, 1, 1);
@@ -446,7 +446,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Last VAT Settlement for Full Manual VAT Settlement
         // Check no more line suggested
 
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup1, ItemCharge, true);
         Setup(GeneralPostingSetup, VATPostingSetup2, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup1);
@@ -509,7 +509,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         // [FEATURE] [Manual VAT Settlement]
         // [SCENARIO 363173] Reverse manual VAT entry
-        Initialize;
+        Initialize();
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
         Items[1] := CreateItem(VATPostingSetup);
         // [GIVEN] Posted Purchase Invoice
@@ -518,7 +518,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         FullVATSettlementByPart(DocumentNo, VATPostingSetup, VATSettlType::Purchase, 1, WorkDate);
         // [WHEN] Reverse manual VAT Entry
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseTransaction(VATEntry."Transaction No.");
         // [THEN] VAT entry is reversed
@@ -633,7 +633,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
           VendLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID, GetNextTransactionNo);
         with VendLedgEntry do begin
             "Posting Date" := WorkDate;
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Modify;
         end;
         VATSettlementMgt.TransferVendLedgEntry(VendLedgEntry, CVLedgerEntryBuffer);
@@ -643,7 +643,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
           CustLedgEntry, "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(6)), LibraryUtility.GenerateGUID, GetNextTransactionNo);
         with CustLedgEntry do begin
             "Posting Date" := WorkDate;
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Modify;
         end;
         VATSettlementMgt.TransferCustLedgEntry(CustLedgEntry, CVLedgerEntryBuffer);
@@ -829,7 +829,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
           GenJnlLine."VAT Transaction No.", DtldVendLedgEntry);
         with DtldVendLedgEntry do begin
             SetRange("Vendor No.", GenJnlLine."Account No.");
-            FindFirst;
+            FindFirst();
             "Document Type" := "Document Type"::"Credit Memo";
             Modify;
         end;
@@ -922,7 +922,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         Assert.AreEqual(VATEntry."Remaining Unrealized Amount", VATAmountToAlloc, WrongCalcAmountErr);
 
         VATAllocLine.SetRange("VAT Entry No.", VATEntry."Entry No.");
-        VATAllocLine.FindFirst;
+        VATAllocLine.FindFirst();
         Assert.AreEqual(
           VATEntry."Remaining Unrealized Amount", VATAllocLine.Amount, VATAllocLine.FieldCaption(Amount));
         VendLedgEntry.Delete();
@@ -954,7 +954,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // Check VLE Vendor VAT Invoice fields values after runnin Change Vendor VAT Invoice report
         CreateVendLedgEntryForChangeVATInvoice(VendLedgEntry, VATPostingSetup);
 
-        VendorVATInvoiceNo := LibraryUtility.GenerateGUID;
+        VendorVATInvoiceNo := LibraryUtility.GenerateGUID();
         EnqueueVendorVATInvoceParam(VendorVATInvoiceNo, 0, 0);
         RunChangeVendorVATInvoice(VendLedgEntry, '');
         with VendLedgEntry do begin
@@ -992,7 +992,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         RunChangeVendorVATInvoice(VendLedgEntry, VATPostingSetup."VAT Prod. Posting Group");
         with PurchInvHeader do begin
             SetRange("Buy-from Vendor No.", VendLedgEntry."Vendor No.");
-            FindFirst;
+            FindFirst();
             Assert.IsTrue("Prepayment Invoice", FieldCaption("Prepayment Invoice"));
         end;
     end;
@@ -1008,7 +1008,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // [FEATURE] [Full VAT]
         // [SCENARIO 362592] Manual Full VAT Settlement of Purchase Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Invoice with "Full" VAT and Amount = "X"
         PostPurchInvoiceWithFullVAT(VATPostingSetup, VendLedgEntry);
 
@@ -1030,7 +1030,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // [FEATURE] [Full VAT]
         // [SCENARIO 362592] Manual Full VAT Settlement of Sales Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Sales Invoice with "Full" VAT and Amount = "X"
         PostSalesInvoiceWithFullVAT(VATPostingSetup, CustLedgEntry);
 
@@ -1055,7 +1055,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // [FEATURE] [Purchase] [Prepayment] [Cancel Prepmt. Adjmt. in TA] [G/L Correspondence]
         // [SCENARIO 363275] G/L Correspondence Entry for Prepmt. Diff. VAT Settlement posted with Debit Purch VAT Acc. and Credit Purch. VAT Unreal Acc. when FCY increased
 
-        Initialize;
+        Initialize();
         OldCancelPrepmtAdjmtInTA := UpdateCancelPrepmtAdjmtInTA(true);
         Factor := 3;
         // [GIVEN] Prepmt. Diff. VAT Settlement Journal Line with "Initial VAT Entry No." = "VAT Entry No." of applied invoice
@@ -1086,7 +1086,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // [FEATURE] [Purchase] [Prepayment] [Cancel Prepmt. Adjmt. in TA] [G/L Correspondence]
         // [SCENARIO 363275] G/L Correspondence Entry for Prepmt. Diff. VAT Settlement posted with Debit Purch VAT Acc. and Credit Purch. VAT Unreal Acc. when FCY decreased
 
-        Initialize;
+        Initialize();
         OldCancelPrepmtAdjmtInTA := UpdateCancelPrepmtAdjmtInTA(true);
         Factor := 1 / 3;
         // [GIVEN] Prepmt. Diff. VAT Settlement Journal Line with "Initial VAT Entry No." = "VAT Entry No." of applied invoice
@@ -1117,7 +1117,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // [FEATURE] [Sales] [Prepayment] [Cancel Prepmt. Adjmt. in TA] [G/L Correspondence]
         // [SCENARIO 363275] G/L Correspondence Entry for Prepmt. Diff. VAT Settlement posted with Debit Sales VAT Acc. and Credit Sales VAT Unreal Acc. when FCY increased
 
-        Initialize;
+        Initialize();
         OldCancelPrepmtAdjmtInTA := UpdateCancelPrepmtAdjmtInTA(true);
         Factor := 3;
         // [GIVEN] Prepmt. Diff. VAT Settlement Journal Line with "Initial VAT Entry No." = "VAT Entry No." of applied invoice
@@ -1148,7 +1148,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // [FEATURE] [Sales] [Prepayment] [Cancel Prepmt. Adjmt. in TA] [G/L Correspondence]
         // [SCENARIO 363275] G/L Correspondence Entry for Prepmt. Diff. VAT Settlement posted with Debit Sales VAT Acc. and Credit Sales VAT Unreal Acc. when FCY decreased
 
-        Initialize;
+        Initialize();
         OldCancelPrepmtAdjmtInTA := UpdateCancelPrepmtAdjmtInTA(true);
         Factor := 1 / 3;
         // [GIVEN] Prepmt. Diff. VAT Settlement Journal Line with "Initial VAT Entry No." = "VAT Entry No." of applied invoice
@@ -1177,7 +1177,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         // [FEATURE] [VAT] [Invoice]
         // [SCENARIO 279529] Report 14907 runs correctly when length of "Vendor VAT Invoice No." = MAX
-        Initialize;
+        Initialize();
         CodeLength := MaxStrLen(VendLedgEntry."Vendor VAT Invoice No.");
         NewVendorVATInvoiceNo := CopyStr(
             LibraryUtility.GenerateRandomNumericText(CodeLength), 1, CodeLength);
@@ -1203,7 +1203,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
     end;
 
@@ -1233,12 +1233,12 @@ codeunit 147126 "ERM Manual VAT Settlement"
         SuggestVATSettlement(InvNo, VATPostingSetup, VATSettlType::Purchase, GenJnlLine, true, PostingDate[EntryType::Invoice]);
         UpdateVATSettlmentJnlLineDocNo(GenJnlLine);
         GenJnlLine.SetRange("Prepmt. Diff.", false);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlPostBatch.VATSettlement(GenJnlLine);
 
         // Prepmt. Diff. VAT Settlement Jounrnal Line with "Initial VAT Entry No." = "X"
         GenJnlLine.SetRange("Prepmt. Diff.", true);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlLine.Validate("Initial VAT Entry No.", FindVATSettlementVATEntry(GenJnlLine, false, VATEntry.Type::Purchase));
         GenJnlLine.Modify(true);
     end;
@@ -1270,12 +1270,12 @@ codeunit 147126 "ERM Manual VAT Settlement"
         SuggestVATSettlement(InvNo, VATPostingSetup, VATSettlType::Sale, GenJnlLine, true, PostingDate[EntryType::Invoice]);
         UpdateVATSettlmentJnlLineDocNo(GenJnlLine);
         GenJnlLine.SetRange("Prepmt. Diff.", false);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlPostBatch.VATSettlement(GenJnlLine);
 
         // Prepmt. Diff. VAT Settlement Jounrnal Line with "Initial VAT Entry No." = "X"
         GenJnlLine.SetRange("Prepmt. Diff.", true);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlLine.Validate("Initial VAT Entry No.", FindVATSettlementVATEntry(GenJnlLine, false, VATEntry.Type::Sale));
         GenJnlLine.Modify(true);
     end;
@@ -1299,7 +1299,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         VATAmount: Decimal;
     begin
         SuggestVATSettlement(DocumentNo, VATPostingSetup, VATSettlementType, GenJnlLine, true, DateFilter);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         VATAmount := Round(
             GenJnlLine.Amount * LibraryRandom.RandDecInDecimalRange(0, 1, 2),
@@ -1381,11 +1381,11 @@ codeunit 147126 "ERM Manual VAT Settlement"
         with VATPostingSetup do begin
             "VAT Identifier" := "VAT Prod. Posting Group";
             "Unrealized VAT Type" := "Unrealized VAT Type"::Percentage;
-            "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo;
-            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo;
-            "Sales VAT Account" := LibraryERM.CreateGLAccountNo;
-            "Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo;
-            "Write-Off VAT Account" := LibraryERM.CreateGLAccountNo;
+            "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
+            "Sales VAT Account" := LibraryERM.CreateGLAccountNo();
+            "Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+            "Write-Off VAT Account" := LibraryERM.CreateGLAccountNo();
             Modify(true);
         end;
     end;
@@ -1397,7 +1397,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
             SetRange(Type, Type::"Charge (Item)");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1408,7 +1408,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::"Charge (Item)");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1444,7 +1444,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         // General Preparations => Create VENDOR, FA => Create & Post Purchase Invoice, Create & Release FA Release Act(Option),
         // Manual VAT Settlement with Allocation (VAT & Charge).
 
-        Initialize;
+        Initialize();
         SetAllowVATSetBeforeFARelease(AllowVATSetBeforeFARel);
         Setup(GeneralPostingSetup, VATPostingSetup, ItemCharge, false);
 
@@ -1709,11 +1709,11 @@ codeunit 147126 "ERM Manual VAT Settlement"
         with CustomerPostingGroup do begin
             Reset;
             SetFilter("Invoice Rounding Account", '<>''''');
-            if not FindFirst then begin
-                Reset;
-                FindFirst;
-                "Invoice Rounding Account" := LibraryERM.CreateGLAccountNo;
-                Modify;
+            if not FindFirst() then begin
+                Reset();
+                FindFirst();
+                "Invoice Rounding Account" := LibraryERM.CreateGLAccountNo();
+                Modify();
             end;
         end;
         exit(CustomerPostingGroup.Code);
@@ -1746,7 +1746,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange(Type, Type::"Charge (Item)");
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -1788,7 +1788,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange(Type, Type::"Charge (Item)");
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -1867,7 +1867,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         TempVATDocEntryBuffer.SetRange("Document No.", DocumentNo);
         TempVATDocEntryBuffer.Next(0); // Needed to trick preCAL
         VATSettlementMgt.Generate(TempVATDocEntryBuffer, VATSettlementType);
-        if CopyToJournal and TempVATDocEntryBuffer.FindSet then
+        if CopyToJournal and TempVATDocEntryBuffer.FindSet() then
             VATSettlementMgt.CopyToJnl(TempVATDocEntryBuffer, VATEntry);
         FilterGenJnlLine(GenJnlLine, VATPostingSetup, DocumentNo);
     end;
@@ -1880,7 +1880,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         for Count2 := 1 to NoOfPartSettlements do begin
             SuggestVATSettlement(DocumentNo, VATPostingSetup, VATSettlType, GenJnlLine, true, DateFilter);
-            GenJnlLine.FindFirst;
+            GenJnlLine.FindFirst();
             if Count2 <> NoOfPartSettlements then
                 GenJnlLine.Validate(Amount, -GenJnlLine.GetUnrealizedVATAmount(true) / NoOfPartSettlements)
             else
@@ -2065,9 +2065,9 @@ codeunit 147126 "ERM Manual VAT Settlement"
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             Insert;
             "VAT Transaction No." := GetNextTransactionNo;
-            "Account No." := LibraryUtility.GenerateGUID;
+            "Account No." := LibraryUtility.GenerateGUID();
             "Document Type" := "Document Type"::Payment;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Posting Date" := WorkDate;
             Amount := LibraryRandom.RandInt(20);
             Modify;
@@ -2145,7 +2145,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No." + 1);
     end;
 
@@ -2178,7 +2178,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         VATEntry.SetFilter("Unrealized VAT Entry No.", '<>0');
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
         VATEntry.SetRange("Prepmt. Diff.", PrepmtDiff);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Entry No.");
     end;
 
@@ -2196,7 +2196,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     var
         VATSettlementDocNo: Code[20];
     begin
-        VATSettlementDocNo := LibraryUtility.GenerateGUID;
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
         GenJnlLine.FindSet(true);
         repeat
             GenJnlLine.Validate("Document No.", VATSettlementDocNo);
@@ -2258,7 +2258,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
         ReversedVATEntry: Record "VAT Entry";
     begin
         ReversedVATEntry.SetRange("Reversed Entry No.", VATEntry."Entry No.");
-        ReversedVATEntry.FindFirst;
+        ReversedVATEntry.FindFirst();
         Assert.AreEqual(-ReversedVATEntry.Base, VATEntry.Base, ReversedVATEntry.FieldCaption(Base));
         Assert.AreEqual(-ReversedVATEntry.Amount, VATEntry.Amount, ReversedVATEntry.FieldCaption(Amount));
     end;
@@ -2269,7 +2269,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup."Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type"::Percentage;
-        VATPostingSetup."Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup."Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Modify();
         VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         VATEntry."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -2335,13 +2335,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
         if VATProdPostingGroup <> '' then
             ChangeVendorVATInvoice.SetVATProdGroup(VATProdPostingGroup);
         Commit();
-        ChangeVendorVATInvoice.Run;
+        ChangeVendorVATInvoice.Run();
     end;
 
     local procedure VerifyGenJnlLineAmounts(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; DocNo: Code[20]; ExpectedAmount: Decimal)
     begin
         FilterGenJnlLine(GenJnlLine, VATPostingSetup, DocNo);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         Assert.AreEqual(ExpectedAmount, GenJnlLine.Amount, GenJnlLine.FieldCaption(Amount));
         Assert.AreEqual(-ExpectedAmount, GenJnlLine."Unrealized Amount", GenJnlLine.FieldCaption("Unrealized Amount"));
     end;
@@ -2372,7 +2372,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         VATEntry.Get(VATEntryNo);
         GLCorrespondenceEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        GLCorrespondenceEntry.FindLast;
+        GLCorrespondenceEntry.FindLast();
         Assert.AreEqual(
           VATPostingSetup."Purchase VAT Account", GLCorrespondenceEntry."Debit Account No.",
           GLCorrespondenceEntry.FieldCaption("Debit Account No."));
@@ -2390,7 +2390,7 @@ codeunit 147126 "ERM Manual VAT Settlement"
     begin
         VATEntry.Get(VATEntryNo);
         GLCorrespondenceEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        GLCorrespondenceEntry.FindLast;
+        GLCorrespondenceEntry.FindLast();
         Assert.AreEqual(
           VATPostingSetup."Sales VAT Unreal. Account", GLCorrespondenceEntry."Debit Account No.",
           GLCorrespondenceEntry.FieldCaption("Debit Account No."));

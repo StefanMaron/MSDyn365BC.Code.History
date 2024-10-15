@@ -1,4 +1,4 @@
-﻿table 352 "Default Dimension"
+table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -744,7 +744,7 @@
         CustAgrmt.Reset();
         CustAgrmt.SetCurrentKey("No.");
         CustAgrmt.SetRange("No.", AgrmtNo);
-        if CustAgrmt.FindFirst then begin
+        if CustAgrmt.FindFirst() then begin
             case GlobalDimCodeNo of
                 1:
                     CustAgrmt."Global Dimension 1 Code" := NewDimValue;
@@ -762,7 +762,7 @@
         VendAgrmt.Reset();
         VendAgrmt.SetCurrentKey("No.");
         VendAgrmt.SetRange("No.", AgrmtNo);
-        if VendAgrmt.FindFirst then begin
+        if VendAgrmt.FindFirst() then begin
             case GlobalDimCodeNo of
                 1:
                     VendAgrmt."Global Dimension 1 Code" := NewDimValue;
@@ -1172,7 +1172,7 @@
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", TableID);
-        if AllObjWithCaption.FindFirst then;
+        if AllObjWithCaption.FindFirst() then;
         Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
     end;
 

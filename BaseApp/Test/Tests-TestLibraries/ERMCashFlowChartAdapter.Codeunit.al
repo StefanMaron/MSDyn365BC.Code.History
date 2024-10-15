@@ -211,7 +211,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         CFForecastEntry.Reset();
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         SetCFDateRangeFilterOnCFLedgEntry(Period);
-        if not CFForecastEntry.FindSet then
+        if not CFForecastEntry.FindSet() then
             exit(0); // There are no CF entries
 
         repeat
@@ -232,7 +232,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
             CFForecastEntry.SetFilter("Amount (LCY)", '>0')
         else
             CFForecastEntry.SetFilter("Amount (LCY)", '<0');
-        if not CFForecastEntry.FindSet then
+        if not CFForecastEntry.FindSet() then
             exit(0); // There are no CF entries
 
         repeat
@@ -251,7 +251,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Source Type", SrcType);
         SetCFDateRangeFilterOnCFLedgEntry(Period);
-        if not CFForecastEntry.FindSet then
+        if not CFForecastEntry.FindSet() then
             exit(0); // There are no CF entries
 
         repeat
@@ -287,9 +287,9 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
             FromDate := WorkDate;
             ToDate := WorkDate;
         end else begin
-            CFForecastEntry.FindFirst;
+            CFForecastEntry.FindFirst();
             FromDate := CFForecastEntry."Cash Flow Date";
-            CFForecastEntry.FindLast;
+            CFForecastEntry.FindLast();
             ToDate := CFForecastEntry."Cash Flow Date";
         end;
     end;
@@ -476,7 +476,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
         EntryNo: Integer;
     begin
         with CFForecastEntry do begin
-            if FindLast then
+            if FindLast() then
                 EntryNo := "Entry No.";
 
             Init;
@@ -579,7 +579,7 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
             for J := 1 to MaxSourceType.AsInteger() do begin
                 // find all related cf entries
                 CFForecastEntry.SetRange("Source Type", J);
-                if CFForecastEntry.FindSet then begin
+                if CFForecastEntry.FindSet() then begin
                     // calc expected amount
                     ExpectedAmount := 0;
                     repeat
@@ -620,11 +620,11 @@ codeunit 130090 "ERM Cash Flow Chart Adapter"
             CFAccount.Reset();
             CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
             CFAccount.SetRange(Blocked, false);
-            if CFAccount.FindSet then
+            if CFAccount.FindSet() then
                 repeat
                     // Find all cf ledger entries linked to the current account
                     CFForecastEntry.SetRange("Cash Flow Account No.", CFAccount."No.");
-                    if CFForecastEntry.FindSet then begin
+                    if CFForecastEntry.FindSet() then begin
                         ExpectedAmount := 0;
                         // Loop through the cf ledger entries and sum up expected amounts
                         repeat

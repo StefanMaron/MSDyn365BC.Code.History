@@ -25,7 +25,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         PeriodType: Option ,,Month,Quarter,Year;
         AmountType: Option "Current Period","Tax Period";
     begin
-        Initialize;
+        Initialize();
         TaxCalcMgt.FindDate('=', ActualCalendarPeriod, PeriodType::Quarter, AmountType::"Tax Period");
         ExpectedCalendarPeriod."Period Type" := ExpectedCalendarPeriod."Period Type"::Quarter;
         ExpectedCalendarPeriod."Period Start" := CalcDate('<-CQ>', WorkDate);
@@ -44,7 +44,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxCalcAndDates(DATABASE::"Tax Register G/L Entry", SectionCode, StartDate, EndDate);
         TaxCalcMgt.ValidateAbsenceGLEntriesDate(StartDate, EndDate, SectionCode);
         TaxCalcSection.Get(SectionCode);
@@ -68,7 +68,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxCalcAndDates(DATABASE::"Tax Register Item Entry", SectionCode, StartDate, EndDate);
         TaxCalcMgt.ValidateAbsenceItemEntriesDate(StartDate, EndDate, SectionCode);
         TaxCalcSection.Get(SectionCode);
@@ -92,7 +92,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxCalcAndDates(DATABASE::"Tax Register FA Entry", SectionCode, StartDate, EndDate);
         TaxCalcMgt.ValidateAbsenceFAEntriesDate(StartDate, EndDate, SectionCode);
         TaxCalcSection.Get(SectionCode);
@@ -117,7 +117,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Calc. G/L Entry";
         InitTaxCalcAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxCalcSection.Get(SectionCode);
@@ -139,7 +139,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Calc. Item Entry";
         InitTaxCalcAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxCalcSection.Get(SectionCode);
@@ -161,7 +161,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Calc. FA Entry";
         InitTaxCalcAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxCalcSection.Get(SectionCode);
@@ -180,7 +180,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         ActualCalendarPeriod: Record Date;
         InputText: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryTaxAcc.FindCalendarPeriod(ExpectedCalendarPeriod, WorkDate);
         InputText := LowerCase(ExpectedCalendarPeriod."Period Name") + ' ' + Format(Date2DMY(ExpectedCalendarPeriod."Period Start", 3));
         ActualCalendarPeriod."Period Type" := ActualCalendarPeriod."Period Type"::Month;
@@ -196,7 +196,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         ActualCalendarPeriod: Record Date;
         Periodical: Option Month,Quarter,Year;
     begin
-        Initialize;
+        Initialize();
         TaxCalcMgt.InitTaxPeriod(ActualCalendarPeriod, Periodical::Quarter, WorkDate);
         ExpectedCalendarPeriod.Get(ExpectedCalendarPeriod."Period Type"::Quarter, CalcDate('<-CQ>', WorkDate));
         VerifyStartEndDates(ExpectedCalendarPeriod, ActualCalendarPeriod);
@@ -211,7 +211,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         CalendarPeriod: Record Date;
         TaxCalcAccumulation: Record "Tax Calc. Accumulation";
     begin
-        Initialize;
+        Initialize();
         InitTaxCalcWithLine(TaxCalcLine, CalendarPeriod, DATABASE::"Tax Register G/L Entry");
         TaxCalcMgt.CreateTaxCalcForPeriod(TaxCalcLine."Section Code", false, false, false, true, CalendarPeriod);
         FilterTaxCalcAccumulation(TaxCalcAccumulation, TaxCalcLine);
@@ -228,7 +228,7 @@ codeunit 144519 "ERM Tax Calc Mgt."
         CalendarPeriod: Record Date;
         EntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InitTaxCalcWithLine(TaxCalcLine, CalendarPeriod, DATABASE::"Tax Register G/L Entry");
         TaxCalcLine.SetFilter("Date Filter", '%1..%2', WorkDate, WorkDate);
         LibraryTaxAcc.CreateEntryNoAmountBuffer(EntryNoAmountBuffer, TaxCalcLine."Line No.");

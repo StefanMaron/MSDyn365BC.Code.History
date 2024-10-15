@@ -24,7 +24,7 @@ page 12434 "Posted Adv. Statement Subform"
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
 #if not CLEAN19
-                field("Cross-Reference No."; "Cross-Reference No.")
+                field("Cross-Reference No."; "Item Reference No.")
                 {
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;

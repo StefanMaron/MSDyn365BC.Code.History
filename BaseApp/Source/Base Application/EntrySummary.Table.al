@@ -1,4 +1,4 @@
-table 338 "Entry Summary"
+﻿table 338 "Entry Summary"
 {
     Caption = 'Entry Summary';
 #pragma warning disable AS0034
@@ -141,7 +141,7 @@ table 338 "Entry Summary"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
-	field(6516; "Qty. Rounding Precision (Base)"; Decimal)
+        field(6516; "Qty. Rounding Precision (Base)"; Decimal)
         {
             Caption = 'Qty. Rounding Precision';
             InitValue = 0;
@@ -280,14 +280,6 @@ table 338 "Entry Summary"
         if AvailQty < 0 then
             AvailQty := 0;
         exit(AvailQty);
-    end;
-
-    [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
-    procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[50])
-    begin
-        SetRange("Serial No.", SerialNo);
-        SetRange("Lot No.", LotNo);
-        SetRange("Package No.", CDNo);
     end;
 
     procedure SetTrackingFilterFromEntrySummary(EntrySummary: Record "Entry Summary")

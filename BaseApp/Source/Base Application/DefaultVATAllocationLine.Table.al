@@ -56,6 +56,7 @@ table 14926 "Default VAT Allocation Line"
             trigger OnValidate()
             var
                 GLAcc: Record "G/L Account";
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 if "Account No." = '' then
                     GLAcc.Init
@@ -65,7 +66,8 @@ table 14926 "Default VAT Allocation Line"
                 end;
                 Description := GLAcc.Name;
 
-                CreateDim(DATABASE::"G/L Account", "Account No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", "Account No.");
+                CreateDim(DefaultDimSource);
             end;
         }
         field(7; "Allocation %"; Decimal)
@@ -190,6 +192,8 @@ table 14926 "Default VAT Allocation Line"
         DimMgt: Codeunit DimensionManagement;
         Text001: Label 'The maximum permitted value for total %1 is 100.';
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -205,6 +209,20 @@ table 14926 "Default VAT Allocation Line"
         "Dimension Set ID" :=
           DimMgt.GetDefaultDimID(
             TableID, No, SourceCodeSetup."VAT Settlement",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetDefaultDimID(
+            DefaultDimSource, SourceCodeSetup."VAT Settlement",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
@@ -267,7 +285,7 @@ table 14926 "Default VAT Allocation Line"
         SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
         SetFilter("Line No.", '<>%1', "Line No.");
-        if FindFirst then begin
+        if FindFirst() then begin
             NewBase := Base;
             Result := true;
         end;

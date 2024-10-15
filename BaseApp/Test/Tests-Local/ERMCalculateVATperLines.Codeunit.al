@@ -85,7 +85,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -120,7 +120,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
 
     local procedure PrepareVerificationAmounts()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(52.43);
         LibraryVariableStorage.Enqueue(343.75);
         LibraryVariableStorage.Enqueue(52.43);
@@ -141,7 +141,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         UnitPrices: array[3] of Decimal;
         Counter: Integer;
     begin
-        Initialize;
+        Initialize();
         SetupSalesReceivablesSetup;
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -301,7 +301,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         OrderFacturaInvoice.InitializeRequest(1, 1, false, false, false);
         OrderFacturaInvoice.SetFileNameSilent(FileName);
         OrderFacturaInvoice.UseRequestPage(false);
-        OrderFacturaInvoice.Run;
+        OrderFacturaInvoice.Run();
     end;
 
     local procedure PostedFacturaInvoiceExcelExport(DocumentNo: Code[20])
@@ -317,7 +317,7 @@ codeunit 144512 "ERM Calculate VAT per Lines"
         PostedFacturaInvoice.InitializeRequest(1, 1, false, false);
         PostedFacturaInvoice.SetFileNameSilent(FileName);
         PostedFacturaInvoice.UseRequestPage(false);
-        PostedFacturaInvoice.Run;
+        PostedFacturaInvoice.Run();
     end;
 
     local procedure VerifyFacturaTotals(CurrencyCode: Code[10])

@@ -280,22 +280,22 @@ table 26552 "Statutory Report Table"
     begin
         StatReportTableColumn.SetRange("Report Code", "Report Code");
         StatReportTableColumn.SetRange("Table Code", Code);
-        if StatReportTableColumn.FindFirst then
+        if StatReportTableColumn.FindFirst() then
             StatReportTableColumn.DeleteAll(true);
 
         StatReportTableRow.SetRange("Report Code", "Report Code");
         StatReportTableRow.SetRange("Table Code", Code);
-        if StatReportTableRow.FindFirst then
+        if StatReportTableRow.FindFirst() then
             StatReportTableRow.DeleteAll(true);
 
         TableIndividualRequisite.SetRange("Report Code", "Report Code");
         TableIndividualRequisite.SetRange("Table Code", Code);
-        if TableIndividualRequisite.FindFirst then
+        if TableIndividualRequisite.FindFirst() then
             TableIndividualRequisite.DeleteAll(true);
 
         PageIndicationXMLElement.SetRange("Report Code", "Report Code");
         PageIndicationXMLElement.SetRange("Table Code", Code);
-        if PageIndicationXMLElement.FindFirst then
+        if PageIndicationXMLElement.FindFirst() then
             PageIndicationXMLElement.DeleteAll(true);
     end;
 
@@ -341,16 +341,16 @@ table 26552 "Statutory Report Table"
 
         AccScheduleLine.SetRange("Schedule Name", AccSchedName);
         if ReplaceExistLines then begin
-            if AccScheduleLine.FindFirst then
+            if AccScheduleLine.FindFirst() then
                 AccScheduleLine.DeleteAll();
         end else begin
-            if AccScheduleLine.FindLast then;
+            if AccScheduleLine.FindLast() then;
             LineNo := AccScheduleLine."Line No.";
         end;
 
         StatReportTableRow.SetRange("Report Code", "Report Code");
         StatReportTableRow.SetRange("Table Code", Code);
-        if StatReportTableRow.FindSet then
+        if StatReportTableRow.FindSet() then
             repeat
                 LineNo := LineNo + 10000;
                 AccScheduleLine.Init();
@@ -366,7 +366,7 @@ table 26552 "Statutory Report Table"
             LineNo := 0;
             StatReportTableColumn.SetRange("Report Code", "Report Code");
             StatReportTableColumn.SetRange("Table Code", Code);
-            if StatReportTableColumn.FindSet then
+            if StatReportTableColumn.FindSet() then
                 repeat
                     LineNo := LineNo + 10000;
                     ColumnLayout."Column Layout Name" := ColLayoutName;
@@ -402,7 +402,7 @@ table 26552 "Statutory Report Table"
     begin
         StatReportTableRowFrom.SetRange("Report Code", ReportFromCode);
         StatReportTableRowFrom.SetRange("Table Code", TableFromCode);
-        if StatReportTableRowFrom.FindSet then
+        if StatReportTableRowFrom.FindSet() then
             repeat
                 StatReportTableRow := StatReportTableRowFrom;
                 StatReportTableRow."Report Code" := "Report Code";
@@ -411,7 +411,7 @@ table 26552 "Statutory Report Table"
 
         StatReportTableColumnFrom.SetRange("Report Code", ReportFromCode);
         StatReportTableColumnFrom.SetRange("Table Code", TableFromCode);
-        if StatReportTableColumnFrom.FindSet then
+        if StatReportTableColumnFrom.FindSet() then
             repeat
                 StatReportTableColumn := StatReportTableColumnFrom;
                 StatReportTableColumn."Report Code" := "Report Code";
@@ -420,7 +420,7 @@ table 26552 "Statutory Report Table"
 
         TableIndividualRequisiteFrom.SetRange("Report Code", ReportFromCode);
         TableIndividualRequisiteFrom.SetRange("Table Code", TableFromCode);
-        if TableIndividualRequisiteFrom.FindSet then
+        if TableIndividualRequisiteFrom.FindSet() then
             repeat
                 TableIndividualRequisite := TableIndividualRequisiteFrom;
                 TableIndividualRequisite."Report Code" := "Report Code";
@@ -460,7 +460,7 @@ table 26552 "Statutory Report Table"
             PrevStatReportExcelSheet.SetRange("Table Code", Code);
             PrevStatReportExcelSheet.SetRange("Parent Sheet Name", StatReportExcelSheet."Parent Sheet Name");
             PrevStatReportExcelSheet.SetFilter("Sequence No.", '<%1', StatReportExcelSheet."Sequence No.");
-            if PrevStatReportExcelSheet.FindLast then begin
+            if PrevStatReportExcelSheet.FindLast() then begin
                 if StatReportExcelSheet."Page Indic. Requisite Value" <>
                    PrevStatReportExcelSheet."Page Indic. Requisite Value"
                 then begin
@@ -498,7 +498,7 @@ table 26552 "Statutory Report Table"
         else
             XMLElementLine.SetRange("Source Type", XMLElementLine."Source Type"::"Table Data",
               XMLElementLine."Source Type"::"Inserted Element");
-        if XMLElementLine.FindSet then
+        if XMLElementLine.FindSet() then
             repeat
                 if XMLElementLine."Excel Cell Name" <> '' then begin
                     CellValueAsText := '';
@@ -528,7 +528,7 @@ table 26552 "Statutory Report Table"
             ParentStatReportExcelSheet.SetRange("Report Code", "Report Code");
             ParentStatReportExcelSheet.SetRange("Report Data No.", DataHeaderNo);
             ParentStatReportExcelSheet.SetRange("Table Code", "Parent Table Code");
-            if ParentStatReportExcelSheet.FindLast then
+            if ParentStatReportExcelSheet.FindLast() then
                 if StatReportExcelSheet."Page Indic. Requisite Value" = '' then begin
                     StatReportExcelSheet."Page Indic. Requisite Value" := ParentStatReportExcelSheet."Page Indic. Requisite Value";
                     StatReportExcelSheet.Modify();
@@ -558,12 +558,12 @@ table 26552 "Statutory Report Table"
         while CurrRowNo < DistensTabMaxRowNumber do begin
             StatReportTableColumn.SetRange("Report Code", "Report Code");
             StatReportTableColumn.SetRange("Table Code", Code);
-            if StatReportTableColumn.FindSet then
+            if StatReportTableColumn.FindSet() then
                 repeat
                     XMLElementLine.SetRange("Report Code", "Report Code");
                     XMLElementLine.SetRange("Table Code", Code);
                     XMLElementLine.SetRange("Column Link No.", StatReportTableColumn."Line No.");
-                    if XMLElementLine.FindFirst then begin
+                    if XMLElementLine.FindFirst() then begin
                         CellValueAsText := '';
                         if "Vertical Table" then
                             CellName := ExcelMgt.CellName2ColumnName(XMLElementLine."Excel Cell Name") +
@@ -580,12 +580,12 @@ table 26552 "Statutory Report Table"
                         ScalableTableRow.SetRange("Table Code", Code);
                         ScalableTableRow.SetRange("Excel Sheet Name", ExcelSheetName);
                         ScalableTableRow.SetRange("Excel Row No.", CurrRowNo);
-                        if not ScalableTableRow.FindFirst then begin
+                        if not ScalableTableRow.FindFirst() then begin
                             ScalableTableRow.SetRange("Report Data No.", ResultCode);
                             ScalableTableRow.SetRange("Report Code", "Report Code");
                             ScalableTableRow.SetRange("Table Code", Code);
                             ScalableTableRow.SetRange("Excel Sheet Name", ExcelSheetName);
-                            if ScalableTableRow.FindLast then;
+                            if ScalableTableRow.FindLast() then;
                             LineNo := ScalableTableRow."Line No." + 10000;
 
                             ScalableTableRow.Init();
@@ -681,9 +681,9 @@ table 26552 "Statutory Report Table"
 
                     ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
 
-                    if AccScheduleLine.FindSet and StatReportTableRow.FindSet then begin
+                    if AccScheduleLine.FindSet and StatReportTableRow.FindSet() then begin
                         repeat
-                            if ColumnLayout.FindSet and StatReportTableColumn.FindSet then begin
+                            if ColumnLayout.FindSet and StatReportTableColumn.FindSet() then begin
                                 repeat
                                     StatReportTableMapping.Init();
                                     StatReportTableMapping."Report Code" := "Report Code";
@@ -792,7 +792,7 @@ table 26552 "Statutory Report Table"
     begin
         PageIndicationXMLElement.SetRange("Report Code", "Report Code");
         PageIndicationXMLElement.SetRange("Table Code", Code);
-        if PageIndicationXMLElement.FindSet then begin
+        if PageIndicationXMLElement.FindSet() then begin
             repeat
                 XMLElementLine.Get("Report Code", PageIndicationXMLElement."XML Element Line No.");
                 RequisiteValue := GetXMLElementValue(XMLElementLine, DataHeaderNo, ExcelSheetName);

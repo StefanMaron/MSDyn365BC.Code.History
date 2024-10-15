@@ -32,7 +32,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -64,7 +64,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -100,7 +100,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -136,7 +136,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -173,7 +173,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -209,7 +209,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -251,7 +251,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -292,7 +292,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -334,7 +334,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -380,7 +380,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -417,7 +417,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -458,7 +458,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -502,7 +502,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -540,7 +540,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -586,7 +586,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         EndDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -627,7 +627,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         EndDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -672,7 +672,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         EndDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -711,7 +711,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         EndDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateVendorGLAccount(VendorNo, GLAccountNo);
 
         CreateInvoice(
@@ -748,7 +748,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
         SelectedVATEntryType: Variant;
     begin
         // Verify correctness of selection made on VAT Entry Type page
-        Initialize;
+        Initialize();
 
         CreateVATEntryType(LibraryRandom.RandIntInRange(5, 10));
         LibraryPurch.CreateVendor(Vendor);
@@ -772,7 +772,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         // [FEATURE] [VAT Entry Type]
         // [SCENARIO 363180] Change VAT Entry Type in opened posted Customer Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
         VATEntryTypeCodeX := CreateVATEntryTypeNo;
         VATEntryTypeCodeY := CreateVATEntryTypeNo;
@@ -797,7 +797,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         // [FEATURE] [VAT Entry Type]
         // [SCENARIO 363180] Change VAT Entry Type in opened posted Vendor Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
         VATEntryTypeCodeX := CreateVATEntryTypeNo;
         VATEntryTypeCodeY := CreateVATEntryTypeNo;
@@ -822,7 +822,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         // [FEATURE] [VAT Entry Type]
         // [SCENARIO 363458] Change VAT Entry Type in closed posted Customer Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
         VATEntryTypeCodeX := CreateVATEntryTypeNo;
         VATEntryTypeCodeY := CreateVATEntryTypeNo;
@@ -847,7 +847,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
     begin
         // [FEATURE] [VAT Entry Type]
         // [SCENARIO 363458] Change VAT Entry Type in closed posted Vendor Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Two VAT Entry Type - "X" and "Y"
         VATEntryTypeCodeX := CreateVATEntryTypeNo;
         VATEntryTypeCodeY := CreateVATEntryTypeNo;
@@ -941,9 +941,9 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
             Validate("Posting Date", PostingDate);
             Validate("Prices Including VAT", true);
             if DocType = "Document Type"::Invoice then
-                Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID)
+                Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID())
             else
-                Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+                Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;
@@ -1084,7 +1084,7 @@ codeunit 147200 "ERM VAT Purchase Ledger Corr."
             SetRange("Revision Date", RevDate);
             SetRange("Revision of Corr. No.", RevOfCorrNo);
             SetRange("Revision of Corr. Date", RevOfCorrDate);
-            FindFirst;
+            FindFirst();
         end;
     end;
 

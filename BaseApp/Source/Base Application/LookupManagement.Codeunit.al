@@ -152,7 +152,7 @@ codeunit 17209 "Lookup Management"
         xFieldRef := xRecordRef.Field(FieldID);
         ChoiceOptionValues.SetFormTitle(xFieldRef.Caption + Text1001);
         xRecordRef.Close;
-        ChoiceOptionValues.Run;
+        ChoiceOptionValues.Run();
     end;
 
     [Scope('OnPrem')]
@@ -297,11 +297,11 @@ codeunit 17209 "Lookup Management"
                     Field.SetRange(Enabled, true);
                     Field.SetRange(FieldName, Text1003);   // 'Description'
                     Field."No." := 0;
-                    if not Field.FindFirst then begin
+                    if not Field.FindFirst() then begin
                         Field.SetRange(FieldName, Text1004); // 'Name'
-                        if not Field.FindFirst then begin
+                        if not Field.FindFirst() then begin
                             Field.SetRange(FieldName);
-                            if not Field.FindFirst then
+                            if not Field.FindFirst() then
                                 Field."No." := xFieldRef.Number;
                         end;
                     end;

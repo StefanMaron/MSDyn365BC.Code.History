@@ -266,7 +266,7 @@ table 14905 "Letter of Attorney Header"
 
         LetterOfAttorneyLine.Reset();
         LetterOfAttorneyLine.SetRange("Letter of Attorney No.", "No.");
-        if LetterOfAttorneyLine.FindFirst then begin
+        if LetterOfAttorneyLine.FindFirst() then begin
             if not Confirm(Text001) then
                 exit;
             LetterOfAttorneyLine.DeleteAll();
@@ -274,7 +274,7 @@ table 14905 "Letter of Attorney Header"
 
         PurchaseLine.SetRange("Document Type", "Source Document Type" - 1);
         PurchaseLine.SetRange("Document No.", "Source Document No.");
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 if (PurchaseLine."Qty. to Receive" <> 0) or
                    (PurchaseLine.Type = PurchaseLine.Type::" ")

@@ -119,7 +119,7 @@ page 12473 "Posted FA Writeoff Act Subf"
                         SetFilters(PostedFADocHeader, PostedFADocLine);
                         FAPostedWriteoffActRep.SetTableView(PostedFADocHeader);
                         FAPostedWriteoffActRep.SetTableView(PostedFADocLine);
-                        FAPostedWriteoffActRep.Run;
+                        FAPostedWriteoffActRep.Run();
                     end;
                 }
                 action("FA Posted Writeoff Act FA-4a")
@@ -137,7 +137,7 @@ page 12473 "Posted FA Writeoff Act Subf"
                         SetFilters(PostedFADocHeader, PostedFADocLine);
                         FAPostedWriteoffActRep.SetTableView(PostedFADocHeader);
                         FAPostedWriteoffActRep.SetTableView(PostedFADocLine);
-                        FAPostedWriteoffActRep.Run;
+                        FAPostedWriteoffActRep.Run();
                     end;
                 }
             }

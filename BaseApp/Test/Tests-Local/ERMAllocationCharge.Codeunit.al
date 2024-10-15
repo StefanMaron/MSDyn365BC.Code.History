@@ -215,7 +215,7 @@ codeunit 144511 "ERM Allocation Charge"
         if Post then begin
             LibraryInventory.PostTransferHeader(TransferHeader, true, true);
             TransferReceiptHeader.SetRange("Transfer Order No.", TransferHeader."No.");
-            TransferReceiptHeader.FindFirst;
+            TransferReceiptHeader.FindFirst();
             DocumentNo := TransferReceiptHeader."No.";
         end;
     end;
@@ -225,7 +225,7 @@ codeunit 144511 "ERM Allocation Charge"
         PurchaseHeader: Record "Purchase Header";
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(GrossWeight, true, UnitVolume, true);
         asserterror CreatePostPurchDoc(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ItemNo, 1, false);
         VerifyMustHaveAValueErr(FieldCaption, ItemNo);
@@ -236,7 +236,7 @@ codeunit 144511 "ERM Allocation Charge"
         SalesHeader: Record "Sales Header";
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(GrossWeight, true, UnitVolume, true);
         asserterror CreatePostSalesDoc(SalesHeader."Document Type"::Invoice, ItemNo, 1, false);
         VerifyMustHaveAValueErr(FieldCaption, ItemNo);
@@ -247,7 +247,7 @@ codeunit 144511 "ERM Allocation Charge"
         Location: Record Location;
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(GrossWeight, true, UnitVolume, true);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         asserterror CreatePostTransferOrder(Location.Code, ItemNo, 1, false);
@@ -314,7 +314,7 @@ codeunit 144511 "ERM Allocation Charge"
             SetRange("Document No.", DocumentNo);
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange(Type, Type::"Charge (Item)");
-            FindLast;
+            FindLast();
         end;
         exit(PurchLine."Line No.");
     end;
@@ -339,7 +339,7 @@ codeunit 144511 "ERM Allocation Charge"
         ChargeAmount: Decimal;
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(
             GrossWeight, GrossWeightMandatory, UnitVolume, UnitVolumeMandatory);
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -364,7 +364,7 @@ codeunit 144511 "ERM Allocation Charge"
         QtyToAssignPrecision: Decimal;
         AmtToAssign: Decimal;
     begin
-        Initialize;
+        Initialize();
         QtyToAssignPrecision := 0.00001;
 
         ItemNo1 := CreateItem(
@@ -399,7 +399,7 @@ codeunit 144511 "ERM Allocation Charge"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         ItemChargeAssignmentPurch.SetRange("Item No.", ItemNo);
-        ItemChargeAssignmentPurch.FindFirst;
+        ItemChargeAssignmentPurch.FindFirst();
         Assert.AreEqual(QtyToAssign, ItemChargeAssignmentPurch."Qty. to Assign", QtyToAssignIncorrectErr);
         Assert.AreEqual(AmtToAssign, ItemChargeAssignmentPurch."Amount to Assign", AmtToAssignIncorrectErr);
     end;
@@ -417,7 +417,7 @@ codeunit 144511 "ERM Allocation Charge"
         AmtToAssign: array[6] of Decimal;
         AppliesToDocType: array[6] of Option;
     begin
-        Initialize;
+        Initialize();
         PreparePostedDocs(DocumentNos);
         ItemNo := CreateItem(
             10, true, 10, true);
@@ -453,11 +453,11 @@ codeunit 144511 "ERM Allocation Charge"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader.SetRange("Order No.", DocNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         with PurchRcptLine do begin
             SetRange("Document No.", PurchRcptHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -466,11 +466,11 @@ codeunit 144511 "ERM Allocation Charge"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("Order No.", DocNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         with SalesShipmentLine do begin
             SetRange("Document No.", SalesShipmentHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -479,11 +479,11 @@ codeunit 144511 "ERM Allocation Charge"
         ReturnShptHeader: Record "Return Shipment Header";
     begin
         ReturnShptHeader.SetRange("Return Order No.", DocNo);
-        ReturnShptHeader.FindFirst;
+        ReturnShptHeader.FindFirst();
         with ReturnShptLine do begin
             SetRange("Document No.", ReturnShptHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -492,11 +492,11 @@ codeunit 144511 "ERM Allocation Charge"
         ReturnRcptHeader: Record "Return Receipt Header";
     begin
         ReturnRcptHeader.SetRange("Return Order No.", DocNo);
-        ReturnRcptHeader.FindFirst;
+        ReturnRcptHeader.FindFirst();
         with ReturnRcptLine do begin
             SetRange("Document No.", ReturnRcptHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -506,9 +506,9 @@ codeunit 144511 "ERM Allocation Charge"
     begin
         TransferRcptHeader.SetRange("Transfer Order No.", DocNo);
 
-        TransferRcptHeader.FindFirst;
+        TransferRcptHeader.FindFirst();
         TransferRcptLine.SetRange("Document No.", TransferRcptHeader."No.");
-        TransferRcptLine.FindFirst;
+        TransferRcptLine.FindFirst();
     end;
 
     local procedure CreateItemChargeAssgntPurchInv(DocumentNo: Code[20]; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchLine: Record "Purchase Line")
@@ -597,7 +597,7 @@ codeunit 144511 "ERM Allocation Charge"
             SetRange("Document No.", DocNo);
             for Counter := 1 to ArrayLen(QtyToAssign) do begin
                 SetRange("Applies-to Doc. Type", AppliesToDocType[Counter]);
-                FindFirst;
+                FindFirst();
                 Assert.AreNearlyEqual(QtyToAssign[Counter], "Qty. to Assign", 0.01, QtyToAssignIncorrectErr);
                 Assert.AreNearlyEqual(AmtToAssign[Counter], "Amount to Assign", 0.01, AmtToAssignIncorrectErr);
             end;
@@ -612,7 +612,7 @@ codeunit 144511 "ERM Allocation Charge"
             exit;
 
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();

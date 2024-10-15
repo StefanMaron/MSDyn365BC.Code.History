@@ -431,7 +431,7 @@ table 12404 "VAT Ledger"
                       "Show Vendor Prepayments",
                       "Show VAT Reinstatement");
                     CreateVATSalesLedger.SetTableView(VATLedger);
-                    CreateVATSalesLedger.RunModal;
+                    CreateVATSalesLedger.RunModal();
                 end;
             Type::Purchase:
                 begin
@@ -449,7 +449,7 @@ table 12404 "VAT Ledger"
                       "Show Amount Differences",
                       "Show Customer Prepayments");
                     CreateVATPurchaseLedger.SetTableView(VATLedger);
-                    CreateVATPurchaseLedger.RunModal;
+                    CreateVATPurchaseLedger.RunModal();
                 end;
         end;
     end;
@@ -477,7 +477,7 @@ table 12404 "VAT Ledger"
                       "Show Amount Differences",
                       "Show Vendor Prepayments");
                     CreateVATSalesLedAdSh.SetTableView(VATLedger);
-                    CreateVATSalesLedAdSh.RunModal;
+                    CreateVATSalesLedAdSh.RunModal();
                 end;
             Type::Purchase:
                 begin
@@ -495,7 +495,7 @@ table 12404 "VAT Ledger"
                       "Show Amount Differences",
                       "Show Customer Prepayments");
                     CreateVATPurchLedAdSh.SetTableView(VATLedger);
-                    CreateVATPurchLedAdSh.RunModal;
+                    CreateVATPurchLedAdSh.RunModal();
                 end;
         end;
     end;

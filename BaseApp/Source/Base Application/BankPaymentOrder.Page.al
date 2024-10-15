@@ -431,7 +431,7 @@ page 12422 "Bank Payment Order"
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         GenJnlLine.SetRange("Line No.", "Line No.");
-                        if GenJnlLine.FindFirst then
+                        if GenJnlLine.FindFirst() then
                             REPORT.RunModal(REPORT::"Copy Payment Document", true, true, GenJnlLine);
                     end;
                 }

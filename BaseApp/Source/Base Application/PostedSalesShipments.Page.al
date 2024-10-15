@@ -345,7 +345,7 @@ page 142 "Posted Sales Shipments"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -371,7 +371,7 @@ page 142 "Posted Sales Shipments"
                 begin
                     PostedSalesShipmentUpdate.LookupMode := true;
                     PostedSalesShipmentUpdate.SetRec(Rec);
-                    PostedSalesShipmentUpdate.RunModal;
+                    PostedSalesShipmentUpdate.RunModal();
                 end;
             }
         }

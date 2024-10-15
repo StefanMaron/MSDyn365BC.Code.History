@@ -26,7 +26,7 @@ codeunit 144017 "ERM Corrective Documents"
         // [FEATURE] [Purchase]
         // [SCENARIO 362383] "Vend. VAT Invoice Date" should not depend on "Posting Date"
 
-        Initialize;
+        Initialize();
         with PurchHeader do begin
             // [GIVEN] "Posting Date" = "X"
             "Posting Date" := WorkDate;
@@ -48,7 +48,7 @@ codeunit 144017 "ERM Corrective Documents"
         // [FEATURE] [Purchase]
         // [SCENARIO 362383] "Vend. VAT Invoice Rcvd Date" should not depend on "Posting Date"
 
-        Initialize;
+        Initialize();
         with PurchHeader do begin
             // [GIVEN] "Posting Date" = "X"
             "Posting Date" := WorkDate;
@@ -71,7 +71,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Credit Memo for Sales Invoice when a correction not change Quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with two lines
         InvoiceNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -99,7 +99,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Invoice dor Sales Invoice when a correction not change Quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with two lines
         InvoiceNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -127,7 +127,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Credit Memo For Posted Cr. Memo when a correction not change Quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with two lines
         CreditMemoNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -155,7 +155,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Invoice For Posted Cr. Memo when a correction not change Quantity
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with two lines
         CreditMemoNo := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -183,7 +183,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Credit Memo for Sales Invoice when a correction not change Unit Price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with two lines
         InvoiceNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -211,7 +211,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Invoice dor Sales Invoice when a correction not change Unit Price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with two lines
         InvoiceNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -239,7 +239,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Credit Memo For Posted Cr. Memo when a correction not change Unit Price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with two lines
         CreditMemoNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -267,7 +267,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378870] Block posting process of Sales Corr. Invoice For Posted Cr. Memo when a correction not change Unit Price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with two lines
         CreditMemoNo := PostSalesDocumentWithItemCharge(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -297,7 +297,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [SCENARIO 292487] When Corrective Invoice Line is created for Posted Sales Invoice Line via codeunit Corrective Document Mgt.,
         // [SCENARIO 292487] then UoM is taken from Posted Sales Invoice Line
-        Initialize;
+        Initialize();
         QtyUoM := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item had Unit of Measure (Base) = PCS, Sales Unit of Measure = BOX, BOX = 2 PCS
@@ -332,7 +332,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [SCENARIO 292487] When Corrective Credit Memo Line is created for Posted Sales Invoice Line via codeunit Corrective Document Mgt.,
         // [SCENARIO 292487] then UoM is taken from Posted Sales Invoice Line
-        Initialize;
+        Initialize();
         QtyUoM := LibraryRandom.RandInt(10);
 
         // [GIVEN] Item had Unit of Measure (Base) = PCS, Sales Unit of Measure = BOX, BOX = 2 PCS
@@ -369,7 +369,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [SCENARIO 292487] When Corrective Credit Memo Line is created for Posted Corrective Sales Invoice Line via codeunit Corrective Document Mgt.
         // [SCENARIO 292487] with Red Storno disabled then Sales Line has Quantity (After) = Quantity (Before) = Posted Corrective Sales Invoice Line Quantity (After)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Red Storno was enabled in Inventory Setup
         UpdateInventorySetupRedStorno(false);
@@ -418,7 +418,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         // [SCENARIO 292487] When Corrective Credit Memo Line is created for Posted Corrective Sales Invoice Line via codeunit Corrective Document Mgt.
         // [SCENARIO 292487] with Red Storno disabled then Sales Line has Quantity (After) = Quantity (Before) - Posted Corrective Sales Invoice Line Quantity (After)
-        Initialize;
+        Initialize();
         InitialQtyUoM := LibraryRandom.RandInt(10);
 
         // [GIVEN] Red Storno was enabled in Inventory Setup
@@ -460,7 +460,7 @@ codeunit 144017 "ERM Corrective Documents"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
     end;
@@ -633,7 +633,7 @@ codeunit 144017 "ERM Corrective Documents"
     begin
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Unit of Measure Code", UoMCode);
         SalesLine.TestField("Qty. per Unit of Measure", QtyPerUoM);
         SalesLine.TestField("Quantity (Base)", QtyBase);

@@ -39,7 +39,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Authentication Type] [UT]
         // [SCENARIO] Default "Auth Type" should be "O365" if "Server address" contains '.dynamics.com'
-        Initialize;
+        Initialize();
         // [GIVEN] "Auth Type" =  'AD'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
 
@@ -59,7 +59,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Authentication Type] [UT]
         // [SCENARIO] Auth Type can be changed to 'AD' if "Server address" contains '.dynamics.com'
-        Initialize;
+        Initialize();
         // [GIVEN] 'Server Address' that contains '.dynamics.com' and "Auth Type" =  'O365'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
         CRMConnectionSetup."Server Address" := 'https://somedomain.dynamics.com';
@@ -80,7 +80,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Authentication Type] [UT]
         // [SCENARIO] Default "Auth Type" should be "AD" if "Server address" does not contain '.dynamics.com'
-        Initialize;
+        Initialize();
         // [GIVEN] "Auth Type" =  'O365'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
 
@@ -100,7 +100,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Authentication Type] [UT]
         // [SCENARIO] Auth Type can be changed to 'O365' if "Server address" does not contain '.dynamics.com'
-        Initialize;
+        Initialize();
         // [GIVEN] 'Server Address' does not contain '.dynamics.com' and "Auth Type" =  'AD'
         CRMConnectionSetup."Server Address" := 'http://somedomain.com';
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
@@ -110,28 +110,6 @@ codeunit 139178 "CRM Connection String"
 
         // [THEN] "Auth Type" =  'O365'
         CRMConnectionSetup.TestField("Authentication Type", CRMConnectionSetup."Authentication Type"::Office365);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure t120_AuthTypeChangeDisablesUserMapping()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-    begin
-        // [FEATURE] [Authentication Type] [UT]
-        // [SCENARIO] Changed "Authentication Type" clears "Is User Mapping Required"
-        // [GIVEN] "Authentication Type" is 'Office365', "Is User Mapping Required" is Yes
-        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
-        CRMConnectionSetup."Is User Mapping Required" := true;
-        // [WHEN] Revalidate "Authentication Type" as 'Office365'
-        CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::Office365);
-        // [THEN] "Is User Mapping Required" is Yes
-        CRMConnectionSetup.TestField("Is User Mapping Required");
-
-        // [WHEN] Change "Authentication Type" to 'AD'
-        CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::AD);
-        // [THEN] "Is User Mapping Required" is No
-        CRMConnectionSetup.TestField("Is User Mapping Required", false);
     end;
 
     [Test]
@@ -201,7 +179,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Authentication Type] [User Name]
         // [SCENARIO] "User Name" validation should fail if "Auth Type" is 'AD', but "Domain" is not defined
-        Initialize;
+        Initialize();
         // [GIVEN] "Auth Type" =  'AD'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
         // [WHEN] Validate "User Name" as 'admin'
@@ -219,7 +197,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Authentication Type] [User Name]
         // [SCENARIO] "User Name" validation should fail if "Auth Type" is 'O365', but "User Name" does not contain '@'
-        Initialize;
+        Initialize();
         // [GIVEN] "Auth Type" =  'O365'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::Office365;
         // [WHEN] Validate "User Name" as 'admin'
@@ -237,7 +215,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Domain]
         // [SCENARIO] Validation of "User name" that contains '\' should fill "Domain"
-        Initialize;
+        Initialize();
         // [GIVEN] "Authentication Type" is AD, "Domain" is blank
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
         CRMConnectionSetup.Domain := '';
@@ -547,7 +525,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String]
         // [SCENARIO] Default "Connection String" for 'AD' should match the AD string template
-        Initialize;
+        Initialize();
         // [GIVEN] "Server Address" is set, "Auth Type" is 'AD'
         CRMConnectionSetup.Validate("Server Address", 'http://somedomain.com');
         CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::AD);
@@ -575,7 +553,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String]
         // [SCENARIO] Default "Connection String" for 'OAuth' should match the OAuth string template
-        Initialize;
+        Initialize();
         // [GIVEN] "Server Address" is set, "Auth Type" is 'OAuth'
         CRMConnectionSetup.Validate("Server Address", 'http://somedomain.com');
         CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::OAuth);
@@ -609,7 +587,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String]
         // [SCENARIO] Default "Connection String" for 'IFD' should match the AD string template
-        Initialize;
+        Initialize();
         // [GIVEN] "Server Address" is set, "Auth Type" is 'IFD'
         CRMConnectionSetup.Validate("Server Address", 'http://somedomain.com');
         CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::IFD);
@@ -628,70 +606,6 @@ codeunit 139178 "CRM Connection String"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure t280_UserO365MappedIfAuthEmailAndInternalEmailMatch()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        CRMSystemuser: Record "CRM Systemuser";
-        User: Record User;
-    begin
-        // [FEATURE] [User Mapping]
-        // [SCENARIO] User mapping should be set for Auth Type 'O365' if NAV User's "O365 auth. email" matches CRM User's "InternalEmail"
-        Initialize;
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-
-        // [GIVEN] "Auth Type" is 'O365'
-        CRMConnectionSetup.Get();
-        CRMConnectionSetup."User Name" := 'sync@domain.com';
-        CRMConnectionSetup.Validate("Authentication Type", CRMConnectionSetup."Authentication Type"::Office365);
-
-        // [GIVEN] NAV User, where "User Name" is 'Domain\user10', "O365 auth. email" is 'user10@domain.com'
-        CreateUser(User, 'user10@domain.com');
-        // [GIVEN] CRM system user, where User name is 'domain\user1', Email is 'user10@domain.com'
-        CreateCRMUser(CRMSystemuser, 'domain\user1', 'user10@domain.com');
-
-        // [WHEN] Turn on "Is User Mapping Required" on CRM Connection Setup page
-        CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup."Is User Mapping Required" := true;
-        Assert.IsTrue(CRMConnectionSetup.IsCurrentUserMappedToCrmSystemUser, 'User is not mapped.');
-        // [THEN] "Current User is Mapped" is Yes
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure t281_UserADMappedIfUserNameAndDomainNameMatch()
-    var
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        CRMSystemuser: Record "CRM Systemuser";
-        User: Record User;
-    begin
-        // [FEATURE] [User Mapping]
-        // [SCENARIO] User mapping should be set for Auth Type 'AD' if NAV User's "User Name" matches CRM User's "DomainName"
-        Initialize;
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-
-        // [GIVEN] NAV User, where "User Name" is 'domain\user1', "O365 auth. email" is ''
-        CreateUser(User, '');
-        // [GIVEN] CRM system user, where User name is 'domain\user1', Primary Email is 'admin@domain.com'
-        CreateCRMUser(CRMSystemuser, User."User Name", 'admin@domain.com');
-
-        // [GIVEN] "Auth Type" is 'AD'
-        CRMConnectionSetup.Get();
-        CRMConnectionSetup."User Name" := 'domain\sync';
-        CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
-
-        // [WHEN] Turn on "Is User Mapping Required" on CRM Connection Setup page
-        CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup."Is User Mapping Required" := true;
-        Assert.IsTrue(CRMConnectionSetup.IsCurrentUserMappedToCrmSystemUser, 'User is not mapped.');
-        // [THEN] "Current User is Mapped" is Yes
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure t300_CRMConnectionStringHandleLargeText()
     var
@@ -700,7 +614,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String]
         // [SCENARIO 229446] Connection String can handle text > 250 symbols
-        Initialize;
+        Initialize();
 
         // [WHEN] Text of length > 250 symbols assigned to CRM Connection String
         ConnectionStringValue := LibraryUtility.GenerateRandomText(300) + '{PASSWORD}';
@@ -719,7 +633,7 @@ codeunit 139178 "CRM Connection String"
     begin
         // [FEATURE] [Connection String]
         // [SCENARIO 234959] Connection String can be empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Connection String is filled
         ConnectionStringValue := LibraryUtility.GenerateRandomText(100) + '{PASSWORD}';
@@ -893,7 +807,7 @@ codeunit 139178 "CRM Connection String"
     begin
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
         User.SetRange("Windows Security ID", Sid);
-        User.FindFirst;
+        User.FindFirst();
         User.Validate("Authentication Email", AuthEmail);
         User.Modify();
     end;

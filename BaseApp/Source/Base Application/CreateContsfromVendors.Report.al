@@ -20,7 +20,7 @@ report 5194 "Create Conts. from Vendors"
                 with ContBusRel do begin
                     SetRange("Link to Table", "Link to Table"::Vendor);
                     SetRange("No.", Vendor."No.");
-                    if FindFirst then
+                    if FindFirst() then
                         CurrReport.Skip();
                 end;
 

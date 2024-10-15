@@ -170,7 +170,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         UpdateStockOutWarning;
         UpdateCompanyInformation;
         IsInitialized := true;
@@ -180,10 +180,10 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     begin
         LibrarySales.CreateCustomer(Customer);
         with Customer do begin
-            Address := LibraryUtility.GenerateGUID;
-            "Address 2" := LibraryUtility.GenerateGUID;
+            Address := LibraryUtility.GenerateGUID();
+            "Address 2" := LibraryUtility.GenerateGUID();
             "KPP Code" := GenerateKPPCode;
-            County := LibraryUtility.GenerateGUID;
+            County := LibraryUtility.GenerateGUID();
             Modify(true);
             AddShipToAddress("No.", ShipToAddress1);
         end;
@@ -200,9 +200,9 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     local procedure AddShipToAddress(CustomerNo: Code[20]; var ShipToAddress: Record "Ship-to Address")
     begin
         LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
-        ShipToAddress.Address := LibraryUtility.GenerateGUID;
-        ShipToAddress."Address 2" := LibraryUtility.GenerateGUID;
-        ShipToAddress.County := LibraryUtility.GenerateGUID;
+        ShipToAddress.Address := LibraryUtility.GenerateGUID();
+        ShipToAddress."Address 2" := LibraryUtility.GenerateGUID();
+        ShipToAddress.County := LibraryUtility.GenerateGUID();
         ShipToAddress."KPP Code" := GenerateKPPCode;
         ShipToAddress.Modify(true);
     end;
@@ -224,7 +224,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         CountryRegion: Record "Country/Region";
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate(Name, LibraryUtility.GenerateGUID);
+        CountryRegion.Validate(Name, LibraryUtility.GenerateGUID());
         CountryRegion.Validate("Local Country/Region Code", CountryRegion.Code);
         CountryRegion.Modify(true);
         exit(CountryRegion.Code);
@@ -251,7 +251,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         with TariffNumber do begin
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert;
             exit("No.");
         end;
@@ -269,7 +269,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         OrderFacturaInvoice.InitializeRequest(1, 1, false, false, IsProforma);
         OrderFacturaInvoice.SetFileNameSilent(FileName);
         OrderFacturaInvoice.UseRequestPage(false);
-        OrderFacturaInvoice.Run;
+        OrderFacturaInvoice.Run();
     end;
 
     local procedure PostedFacturaInvoiceExcelExport(DocumentNo: Code[20]) FileName: Text
@@ -284,12 +284,12 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         PostedFacturaInvoice.SetTableView(SalesInvHeader);
         PostedFacturaInvoice.SetFileNameSilent(FileName);
         PostedFacturaInvoice.UseRequestPage(false);
-        PostedFacturaInvoice.Run;
+        PostedFacturaInvoice.Run();
     end;
 
     local procedure CreateCustomerAndInvoice(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
     begin
-        Initialize;
+        Initialize();
         CreateCustomerWithSubUnit(Customer, ShipToAddress);
         CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", ShipToAddress.Code);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -305,7 +305,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", DocumentNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure UpdateStockOutWarning()
@@ -333,15 +333,15 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
     begin
         with CompanyInformation do begin
             Get;
-            "Bank Name" := LibraryUtility.GenerateGUID;
-            "Bank City" := LibraryUtility.GenerateGUID;
-            "VAT Registration No." := LibraryUtility.GenerateGUID;
-            "KPP Code" := LibraryUtility.GenerateGUID;
-            "Full Name" := LibraryUtility.GenerateGUID;
-            "Bank Branch No." := LibraryUtility.GenerateGUID;
-            "Bank BIC" := LibraryUtility.GenerateGUID;
-            "Bank Corresp. Account No." := LibraryUtility.GenerateGUID;
-            "Bank Account No." := LibraryUtility.GenerateGUID;
+            "Bank Name" := LibraryUtility.GenerateGUID();
+            "Bank City" := LibraryUtility.GenerateGUID();
+            "VAT Registration No." := LibraryUtility.GenerateGUID();
+            "KPP Code" := LibraryUtility.GenerateGUID();
+            "Full Name" := LibraryUtility.GenerateGUID();
+            "Bank Branch No." := LibraryUtility.GenerateGUID();
+            "Bank BIC" := LibraryUtility.GenerateGUID();
+            "Bank Corresp. Account No." := LibraryUtility.GenerateGUID();
+            "Bank Account No." := LibraryUtility.GenerateGUID();
             "Country/Region Code" := LibraryVATLedger.MockCountryEAEU;
             Modify;
         end;
@@ -388,7 +388,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         SalesOrderHeader: Record "Sales Header";
         ERMVATTool: Codeunit "ERM VAT Tool - Helper";
     begin
-        Initialize;
+        Initialize();
         CreateCustomerWithSubUnit(Customer, ShipToAddress);
         CreateSalesDoc(SalesHeader, DocType, Customer."No.", ShipToAddress.Code);
         ERMVATTool.MakeOrderSales(SalesHeader, SalesOrderHeader);

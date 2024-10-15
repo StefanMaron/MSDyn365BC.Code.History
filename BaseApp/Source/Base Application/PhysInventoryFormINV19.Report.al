@@ -70,7 +70,7 @@ report 12482 "Phys. Inventory Form INV-19"
             begin
                 CompanyInfo.Get();
 
-                FindFirst;
+                FindFirst();
                 FillSheet1;
 
                 ExcelReportBuilderMgr.SetSheet('Sheet2');

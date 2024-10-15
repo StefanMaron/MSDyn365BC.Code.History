@@ -32,7 +32,8 @@ permissionset 959 "D365 BUS FULL ACCESS"
                              "D365 SETUP",
                              "D365 WEBHOOK SUBSCR",
                              "D365 WHSE, EDIT",
-                             "LOCAL";
+                             "LOCAL",
+                             "LOGIN";
 
     Permissions = system "Tools, Security, Roles" = X,
                   tabledata "Add-in" = imd,
@@ -76,6 +77,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Analysis Report Chart Line" = RIMD,
                   tabledata "Analysis Report Chart Setup" = RIMD,
                   tabledata "Analysis Selected Dimension" = RIMD,
+                  tabledata "API Data Upgrade" = RIMD,
                   tabledata "API Entities Setup" = RIMD,
                   tabledata "API Extension Upload" = rimd,
                   tabledata "Application Area Buffer" = RIMD,
@@ -196,6 +198,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Deferral Line Archive" = RIM,
                   tabledata "Deferral Posting Buffer" = RIMD,
                   tabledata "Deferral Template" = RIMD,
+                  tabledata "Deposits Page Setup" = RIMD,
                   tabledata "Detailed CV Ledg. Entry Buffer" = RIMD,
                   tabledata "Dim Correct Selection Criteria" = R,
                   tabledata "Dim Correction Blocked Setup" = R,
@@ -296,13 +299,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Generic Chart Setup" = RIMD,
                   tabledata "Generic Chart Y-Axis" = RIMD,
                   tabledata Geolocation = RIMD,
-                  tabledata "Graph Business Profile" = RIMD,
-                  tabledata "Graph Business Setting" = RIMD,
-                  tabledata "Graph Contact" = RIMD,
-                  tabledata "Graph Integration Rec. Archive" = RIMD,
-                  tabledata "Graph Integration Record" = RIMD,
                   tabledata "Graph Mail Setup" = RIMD,
-                  tabledata "Graph Subscription" = RIMD,
                   tabledata "Grounds for Termination" = RIMD,
                   tabledata "HR Confidential Comment Line" = RIMD,
                   tabledata "Human Resource Comment Line" = IM,
@@ -434,10 +431,12 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RIMD,
                   tabledata "Named Forward Link" = RIMD,
+#if not CLEAN20
                   tabledata "Native - API Tax Setup" = RIMD,
                   tabledata "Native - Export Invoices" = RIMD,
                   tabledata "Native - Gen. Settings Buffer" = RIMD,
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "No. Series Tenant" = RIMD,
                   tabledata "Notification Context" = RIMD,
                   tabledata "Notification Schedule" = RIMD,
@@ -523,7 +522,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Permission Set Link" = rimd,
                   tabledata "Phys. Inventory Ledger Entry" = i,
                   tabledata "Picture Entity" = RIMD,
+#if not CLEAN20
                   tabledata "Plan Permission Set" = Rim,
+#endif
                   tabledata "Planning Assignment" = IM,
                   tabledata "Planning Buffer" = RIMD,
                   tabledata "Planning Component" = M,
@@ -680,7 +681,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "SmartList Export Results" = RIMD,
                   tabledata "SmartList Import Results" = RIMD,
 #endif
-                  tabledata "SMTP Mail Setup" = RIMD,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Standard Address" = Rimd,
                   tabledata "Standard Cost Worksheet" = RIMD,

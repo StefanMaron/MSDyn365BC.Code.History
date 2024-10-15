@@ -277,7 +277,7 @@ page 14947 "VAT Reinstatement Worksheet"
                     var
                         SuggestVATReinstLines: Report "Suggest VAT Reinst. Lines";
                     begin
-                        SuggestVATReinstLines.RunModal;
+                        SuggestVATReinstLines.RunModal();
                         SuggestVATReinstLines.GetBuffer(Rec);
                     end;
                 }
@@ -313,7 +313,7 @@ page 14947 "VAT Reinstatement Worksheet"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc("Document Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -396,7 +396,7 @@ page 14947 "VAT Reinstatement Worksheet"
         VATEntry.SetFilter("VAT Bus. Posting Group", GetFilter("VAT Bus. Posting Group Filter"));
         VATEntry.SetFilter("VAT Prod. Posting Group", GetFilter("VAT Prod. Posting Group Filter"));
         VATEntries.SetTableView(VATEntry);
-        VATEntries.RunModal;
+        VATEntries.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -411,7 +411,7 @@ page 14947 "VAT Reinstatement Worksheet"
         CurrRec := Rec;
         Filters.CopyFilters(Rec);
         CurrPage.SetSelectionFilter(Rec);
-        if FindSet then
+        if FindSet() then
             repeat
                 LineToCopy := Rec;
                 LineToCopy.Insert();
@@ -428,7 +428,7 @@ page 14947 "VAT Reinstatement Worksheet"
         if LineToCopy.IsEmpty() then
             Error(Text001);
         CopyToVATReinstJournal.SetParameters(LineToCopy, VATEntry, LineToCopy.GetRangeMax("Date Filter"));
-        CopyToVATReinstJournal.RunModal;
+        CopyToVATReinstJournal.RunModal();
         LineToCopy.Reset();
         LineToCopy.DeleteAll();
     end;

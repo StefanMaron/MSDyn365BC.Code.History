@@ -83,7 +83,7 @@ xmlport 26551 "Format Versions"
     [Scope('OnPrem')]
     procedure SetData(var TempFormatVersion: Record "Format Version")
     begin
-        if TempFormatVersion.FindSet then
+        if TempFormatVersion.FindSet() then
             repeat
                 "Format Version" := TempFormatVersion;
                 "Format Version".Insert();
@@ -94,7 +94,7 @@ xmlport 26551 "Format Versions"
     procedure ImportData(PathName: Text[1024])
     begin
         "Format Version".Reset();
-        if "Format Version".FindSet then
+        if "Format Version".FindSet() then
             repeat
                 if FormatVersion.Get("Format Version".Code) then
                     FormatVersion.Delete(true);

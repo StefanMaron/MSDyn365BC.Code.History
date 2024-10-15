@@ -153,7 +153,7 @@ table 14909 "Invent. Act Line"
             CustLedgEntry.SetRange("Date Filter", 0D, InventActHeader."Inventory Date");
             Clear(CustLedgEntries);
             CustLedgEntries.SetTableView(CustLedgEntry);
-            CustLedgEntries.RunModal;
+            CustLedgEntries.RunModal();
         end else begin
             VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
             VendLedgEntry.FilterGroup(2);
@@ -168,7 +168,7 @@ table 14909 "Invent. Act Line"
             VendLedgEntry.SetRange("Date Filter", 0D, InventActHeader."Inventory Date");
             Clear(VendLedgEntries);
             VendLedgEntries.SetTableView(VendLedgEntry);
-            VendLedgEntries.RunModal;
+            VendLedgEntries.RunModal();
         end;
     end;
 }

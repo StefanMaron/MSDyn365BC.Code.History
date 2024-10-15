@@ -546,8 +546,8 @@ page 14971 "Sales Corrective Invoice"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
-                        ApprovalEntries.Run;
+                        ApprovalEntries.SetRecordFilters(DATABASE::"Sales Header", Rec."Document Type", Rec."No.");
+                        ApprovalEntries.Run();
                     end;
                 }
                 separator(Action171)
@@ -614,7 +614,7 @@ page 14971 "Sales Corrective Invoice"
                     trigger OnAction()
                     begin
                         CopySalesDoc.SetSalesHeader(Rec);
-                        CopySalesDoc.RunModal;
+                        CopySalesDoc.RunModal();
                         Clear(CopySalesDoc);
                     end;
                 }
@@ -630,7 +630,7 @@ page 14971 "Sales Corrective Invoice"
                     begin
                         Clear(MoveNegSalesLines);
                         MoveNegSalesLines.SetSalesHeader(Rec);
-                        MoveNegSalesLines.RunModal;
+                        MoveNegSalesLines.RunModal();
                         MoveNegSalesLines.ShowDocument;
                     end;
                 }

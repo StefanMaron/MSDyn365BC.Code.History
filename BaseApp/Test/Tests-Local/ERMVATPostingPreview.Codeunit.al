@@ -45,16 +45,16 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLEntry: Record "G/L Entry";
         LastEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseInvoiceWithGLAcc(PurchHeader, PurchLine, '', '');
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntryNo := GLEntry."Entry No.";
 
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchHeader);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.IsTrue(
           GLEntry."Entry No." = LastEntryNo, StrSubstNo(PurchPostingPreviewErr, PurchHeader."Document Type"));
     end;
@@ -68,16 +68,16 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLEntry: Record "G/L Entry";
         LastEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseCrMemoWithGLAcc(PurchHeader, PurchLine, '', '');
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntryNo := GLEntry."Entry No.";
 
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchHeader);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.IsTrue(
           GLEntry."Entry No." = LastEntryNo, StrSubstNo(PurchPostingPreviewErr, PurchHeader."Document Type"));
     end;
@@ -91,16 +91,16 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLEntry: Record "G/L Entry";
         LastEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '');
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntryNo := GLEntry."Entry No.";
 
         asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.IsTrue(
           GLEntry."Entry No." = LastEntryNo, StrSubstNo(SalesPostingPreviewErr, SalesHeader."Document Type"));
     end;
@@ -114,16 +114,16 @@ codeunit 147123 "ERM VAT Posting Preview"
         GLEntry: Record "G/L Entry";
         LastEntryNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesCrMemoWithGLAcc(SalesHeader, SalesLine, '', '');
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntryNo := GLEntry."Entry No.";
 
         asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.IsTrue(
           GLEntry."Entry No." = LastEntryNo, StrSubstNo(SalesPostingPreviewErr, SalesHeader."Document Type"));
     end;
@@ -141,7 +141,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         Iteration: Integer;
         GLCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         MaxIterations := 1000;
         Iteration := 0;
@@ -149,7 +149,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         LibrarySales.CreateSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '');
         Commit();
         repeat
-            GLEntry.FindLast;
+            GLEntry.FindLast();
             LastEntryNo := GLEntry."Entry No.";
 
             GLPostingPreview.Trap;
@@ -165,7 +165,7 @@ codeunit 147123 "ERM VAT Posting Preview"
                 Assert.IsTrue(
                   GLCount = 4, StrSubstNo(MissingSalesEntriesErr, SalesHeader."Document Type", GLCount));
 
-            GLEntry.FindLast;
+            GLEntry.FindLast();
             Assert.IsTrue(
               GLEntry."Entry No." = LastEntryNo, StrSubstNo(SalesPostingPreviewErr, SalesHeader."Document Type"));
 
@@ -191,8 +191,8 @@ codeunit 147123 "ERM VAT Posting Preview"
         InvoiceDate := WorkDate + 10;
 
         LibraryERM.CreateCurrency(Currency);
-        Currency."Realized Gains Acc." := LibraryERM.CreateGLAccountNo;
-        Currency."Realized Losses Acc." := LibraryERM.CreateGLAccountNo;
+        Currency."Realized Gains Acc." := LibraryERM.CreateGLAccountNo();
+        Currency."Realized Losses Acc." := LibraryERM.CreateGLAccountNo();
         Currency.Modify();
         LibraryERM.CreateExchangeRate(
           Currency.Code, WorkDate, 1, 10 + LibraryRandom.RandDec(1000, 2));
@@ -207,12 +207,12 @@ codeunit 147123 "ERM VAT Posting Preview"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntryNo := GLEntry."Entry No.";
 
         asserterror ApplySalesPaymentToInvoicePreviewMode(GenJnlLine."Document No.", DocNo);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.IsTrue(GLEntry."Entry No." = LastEntryNo, StrSubstNo(SalesPostingPreviewErr, SalesHeader."Document Type"));
     end;
 
@@ -226,7 +226,7 @@ codeunit 147123 "ERM VAT Posting Preview"
     begin
         // [FEATURE] [Fixed Asset] [FA Release]
         // [SCENARIO 363460] Preview posting generated G/L Entry for FA Release Act
-        Initialize;
+        Initialize();
         // [GIVEN] FA Release Act
         LibraryPurchase.CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchaseLine, '', '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -246,7 +246,7 @@ codeunit 147123 "ERM VAT Posting Preview"
     begin
         // [FEATURE] [Fixed Asset] [FA Writeoff]
         // [SCENARIO 363460] Preview posting generated G/L Entry for FA Writeoff Act
-        Initialize;
+        Initialize();
         // [GIVEN] Posted FA Release Act
         LibraryPurchase.CreatePurchaseInvoiceWithFixedAsset(PurchaseHeader, PurchaseLine, '', '');
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -275,7 +275,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         // [FEATURE] [Prepayment] [FCY] [Purchases] [Prepayment Difference]
         // [SCENARIO 363479] Preview Page should show application and currency conversion entries when FCY purchase documents applied
 
-        Initialize;
+        Initialize();
         UpdateCancelPrepmtAdjmtInTAOnGLSetup(true);
         // [GIVEN] Posted Purchase Invoice in FCY and G/L Account = "X"
         // [GIVEN] Prepayment in FCY with different currency factor
@@ -307,7 +307,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         // [FEATURE] [Prepayment] [Advance Statement]
         // [SCENARIO]
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with item
         LibraryPurchase.CreateVendor(Vendor);
@@ -326,14 +326,14 @@ codeunit 147123 "ERM VAT Posting Preview"
         PurchaseHeader.Validate("Empl. Purchase", true);
         PurchaseHeader.Modify(true);
         CreatePurchaseLineWithEmplPurchase(PurchaseHeader, PurchaseLine, Vendor);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastEntryNo := GLEntry."Entry No.";
 
         // [WHEN] Run Posting Preview for Advance Statement
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
 
         // [THEN] Preview G/L Entry generated for Advance STatement
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         Assert.IsTrue(GLEntry."Entry No." = LastEntryNo,
           StrSubstNo(PurchPostingPreviewErr, PurchaseHeader."Document Type"));
     end;
@@ -346,7 +346,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseInvoiceWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
@@ -361,7 +361,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         PurchaseLine: Record "Purchase Line";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseCrMemoWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
@@ -376,7 +376,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         SalesLine: Record "Sales Line";
         SalesInvHeader: Record "Sales Invoice Header";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '');
         asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
@@ -391,7 +391,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         SalesLine: Record "Sales Line";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateSalesCrMemoWithGLAcc(SalesHeader, SalesLine, '', '');
         asserterror LibrarySales.PreviewSalesDocument(SalesHeader);
@@ -414,7 +414,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         // [FEATURE] [Prepayment] [FCY] [Sales] [Prepayment Difference]
         // [SCENARIO 372032] Preview Page should show currency conversion G/L entries when FCY invoice applied to prepayment
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Sales Invoice in FCY and G/L Account = "X"
         // [GIVEN] Posted Prepayment in FCY with different currency factor
         CurrencyCode := SetupCurrExchRates(InvPostingDate);
@@ -435,7 +435,7 @@ codeunit 147123 "ERM VAT Posting Preview"
     var
         InvtSetup: Record "Inventory Setup";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -462,8 +462,8 @@ codeunit 147123 "ERM VAT Posting Preview"
     begin
         LibraryERM.CreateCurrency(Currency);
 
-        Currency."Sales PD Gains Acc. (TA)" := LibraryERM.CreateGLAccountNo;
-        Currency."PD Bal. Gain/Loss Acc. (TA)" := LibraryERM.CreateGLAccountNo;
+        Currency."Sales PD Gains Acc. (TA)" := LibraryERM.CreateGLAccountNo();
+        Currency."PD Bal. Gain/Loss Acc. (TA)" := LibraryERM.CreateGLAccountNo();
         Currency.Modify();
 
         PrepmtPostingDate := WorkDate;
@@ -501,7 +501,7 @@ codeunit 147123 "ERM VAT Posting Preview"
         PurchaseLine.Validate(Type, PurchaseLine.Type::"Empl. Purchase");
         PurchaseLine.Validate("Empl. Purchase Vendor No.", Vendor."No.");
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         PurchaseLine.Validate("Empl. Purchase Entry No.", VendorLedgerEntry."Entry No.");
         PurchaseLine.Modify(true);
     end;

@@ -291,7 +291,7 @@ table 17200 "Tax Register"
         TaxRegister.SetRecFilter;
         TaxRegister.SetFilter("Date Filter", DateTextFilter);
         TaxRegRep.SetTableView(TaxRegister);
-        TaxRegRep.RunModal;
+        TaxRegRep.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -311,7 +311,7 @@ table 17200 "Tax Register"
         TaxRegLineSetup.SetRange("Tax Register No.", "No.");
         if TaxRegTemplate."Term Line Code" <> '' then
             TaxRegLineSetup.SetRange("Line Code", TaxRegTemplate."Term Line Code");
-        if FindSet then
+        if FindSet() then
             repeat
                 if "G/L Corr. Analysis View Code" <> '' then begin
                     GLCorrAnalysisView.Get("G/L Corr. Analysis View Code");
@@ -425,7 +425,7 @@ table 17200 "Tax Register"
     [Scope('OnPrem')]
     procedure AddGLCorrEntries2Buffer(var GLCorrespondenceEntry: Record "G/L Correspondence Entry"; var TempGLCorrespondenceEntry: Record "G/L Correspondence Entry" temporary)
     begin
-        if GLCorrespondenceEntry.FindSet then
+        if GLCorrespondenceEntry.FindSet() then
             repeat
                 TempGLCorrespondenceEntry := GLCorrespondenceEntry;
                 if not TempGLCorrespondenceEntry.Insert() then;
@@ -435,7 +435,7 @@ table 17200 "Tax Register"
     [Scope('OnPrem')]
     procedure AddGLCorrAnViewEntr2Buffer(var GLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry"; var TempGLCorrAnalysisViewEntry: Record "G/L Corr. Analysis View Entry" temporary)
     begin
-        if GLCorrAnalysisViewEntry.FindSet then
+        if GLCorrAnalysisViewEntry.FindSet() then
             repeat
                 TempGLCorrAnalysisViewEntry := GLCorrAnalysisViewEntry;
                 if not TempGLCorrAnalysisViewEntry.Insert() then;

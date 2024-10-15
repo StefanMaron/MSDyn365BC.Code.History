@@ -200,12 +200,16 @@
         "Source Subtype" := SourceSubtype;
         "Source ID" := SourceID;
         "Source Ref. No." := SourceRefNo;
+
+        OnAfterSetSource(Rec, "Source Type", "Source Subtype", "Source ID", "Source Ref. No.")
     end;
 
     procedure SetSource2(SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
     begin
         "Source Batch Name" := SourceBatchName;
         "Source Prod. Order Line" := SourceProdOrderLine;
+
+        OnAfterSetSource2(Rec, "Source Batch Name", "Source Prod. Order Line")
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
@@ -231,6 +235,8 @@
     begin
         "Order No." := OrderNo;
         "Order Line No." := OrderLineNo;
+
+        OnAfterSetOrderInfo(Rec, "Order No.", "Order Line No.");
     end;
 
     [IntegrationEvent(false, false)]
@@ -252,5 +258,19 @@
     local procedure OnAfterCopyTrackingFromSpec(var ItemEntryRelation: Record "Item Entry Relation"; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSource(ItemEntryRelation: Record "Item Entry Relation"; var SourceType: Integer; var SourceSubtype: Option; var SourceID: Code[20]; var SourceRefNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSource2(ItemEntryRelation: Record "Item Entry Relation"; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetOrderInfo(ItemEntryRelation: Record "Item Entry Relation"; var OrderNo: Code[20]; var OrderLineNo: Integer)
+    begin
+    end;
+}

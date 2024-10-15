@@ -186,7 +186,7 @@ page 35630 "Bank Accounts"
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
                             DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }

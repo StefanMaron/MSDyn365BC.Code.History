@@ -571,7 +571,7 @@
             if j = 7 then
                 VendLedgEntry[j].SetRange(Prepayment, true);
             OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(VendLedgEntry[j]);
-            if VendLedgEntry[j].FindLast then
+            if VendLedgEntry[j].FindLast() then
                 VendLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
 

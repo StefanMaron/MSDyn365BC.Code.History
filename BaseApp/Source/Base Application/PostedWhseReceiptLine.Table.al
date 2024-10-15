@@ -356,7 +356,7 @@ table 7319 "Posted Whse. Receipt Line"
             CreatePutAwayFromWhseSource.SetPostedWhseReceiptLine(PostedWhseRcptLine, AssignedID);
             CreatePutAwayFromWhseSource.SetHideValidationDialog(HideValidationDialog);
             CreatePutAwayFromWhseSource.UseRequestPage(not HideValidationDialog);
-            CreatePutAwayFromWhseSource.RunModal;
+            CreatePutAwayFromWhseSource.RunModal();
             CreatePutAwayFromWhseSource.GetResultMessage(1);
             Clear(CreatePutAwayFromWhseSource);
         end else
@@ -379,26 +379,6 @@ table 7319 "Posted Whse. Receipt Line"
 
         OnAfterCopyTrackingFromWhseItemTrackingLine(rec, WhseItemTrackingLine);
     end;
-
-#if not CLEAN17
-    [Obsolete('Reference SetSourceFilterForPostedWhseRcptLine function from codeunit Whse. Management instead', '17.0')]
-    procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
-    var
-        WhseManagement: Codeunit "Whse. Management";
-    begin
-        WhseManagement.SetSourceFilterForPostedWhseRcptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
-    end;
-
-    [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
-    begin
-        "Serial No." := SerialNo;
-        "Lot No." := LotNo;
-        "Package No." := CDNo;
-        "Warranty Date" := WarrantyDate;
-        "Expiration Date" := ExpirationDate;
-    end;
-#endif
 
     procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin

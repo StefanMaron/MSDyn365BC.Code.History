@@ -96,7 +96,7 @@ table 26556 "Table Individual Requisite"
             StatutoryReportDataValue.SetRange("Table Code", "Table Code");
             StatutoryReportDataValue.SetRange("Row No.", "Line No.");
             StatutoryReportDataValue.SetRange("Column No.", 0);
-            if StatutoryReportDataValue.FindFirst then
+            if StatutoryReportDataValue.FindFirst() then
                 Error(Text001, "Report Code", GetRecDescription);
         end;
     end;

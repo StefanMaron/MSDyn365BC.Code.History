@@ -45,8 +45,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetupPage: TestPage "General Ledger Setup";
     begin
         // [FEATURE] [UI]
-        // LibraryLowerPermissions.SetOutsideO365Scope;  TODO: Uncomment this when fixing the test
-        Initialize;
+        // LibraryLowerPermissions.SetOutsideO365Scope();  TODO: Uncomment this when fixing the test
+        Initialize();
         // LibraryLowerPermissions.SetO365BusFull; TODO: Uncomment this when fixing the test
         // [GIVEN] 'Basic' experience
         LibraryApplicationArea.EnableBasicSetup;
@@ -67,8 +67,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
@@ -125,8 +125,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Sequential Processing] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         ChangeGlobalDimHeader.DeleteAll();
         LibraryLowerPermissions.SetO365BusFull;
         LibraryLowerPermissions.AddO365GlobalDimMgt;
@@ -160,7 +160,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Sequential Processing] [UI]
-        Initialize;
+        Initialize();
         // [GIVEN] Empty tables 134483, 134484, 134485 are in the list for change
         BindSubscription(ERMChangeGlobalDimensions);
         MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Default Dim");
@@ -213,7 +213,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Sequential Processing]
-        Initialize;
+        Initialize();
         // [GIVEN] General Ledger Setup, where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
@@ -261,8 +261,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         Counter: Integer;
     begin
         // [FEATURE] [Sequential Processing] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] General Ledger Setup, where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
@@ -323,7 +323,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Sequential Processing]
-        Initialize;
+        Initialize();
         // [GIVEN] General Ledger Setup, where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
@@ -374,8 +374,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Prepare] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryERMCountryData.InsertRecordsToProtectedTables;
         LibraryLowerPermissions.SetO365BusFull;
         LibraryLowerPermissions.AddO365GlobalDimMgt;
@@ -425,8 +425,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Prepare] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] There is no other active session
         MockActiveSessions(0);
         // [GIVEN] Open page "Change Global Dimensions"
@@ -481,8 +481,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ActiveSessionNo: Integer;
     begin
         // [FEATURE] [Prepare] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] There is another active session
         ActiveSessionNo := MockActiveSessions(1);
         // [GIVEN] Open page "Change Global Dimensions"
@@ -524,7 +524,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         // [FEATURE] [Prepare] [UI]
         // [SCENARIO 255725] Action "Prepare" updates dimensions and cleans up the list if no related records to update.
-        Initialize;
+        Initialize();
         // [GIVEN] Current Session is active only
         BindSubscription(ERMChangeGlobalDimensions);
         ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
@@ -568,7 +568,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         OriginalDimCode: array[2] of Code[20];
     begin
         // [FEATURE] [Prepare] [UI]
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365BusFull;
         // [GIVEN] Open page "Change Global Dimensions", where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
@@ -607,8 +607,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Prepare] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
         // [GIVEN] Log Entry record for table "Job Task", where Status = "Scheduled"
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Job Task";
@@ -639,8 +639,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Prepare] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         ChangeGlobalDimHeader.DeleteAll();
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
         // [GIVEN] Open page "Change Global Dimensions"
@@ -669,8 +669,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Reset] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log lines are created by "Prepare" action
         MockPreparedLines(DATABASE::"Salesperson/Purchaser", DATABASE::"Cust. Ledger Entry");
         // [GIVEN] Open page "Change Global Dimensions"
@@ -704,8 +704,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
         // [FEATURE] [Reset]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         ChangeGlobalDimensions.ResetState;
         // [GIVEN] Log lines are created by "Prepare" action
         MockPreparedLines(DATABASE::"Salesperson/Purchaser", DATABASE::"Cust. Ledger Entry");
@@ -730,8 +730,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Start] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         ChangeGlobalDimensions.ResetState;
         // [GIVEN] Open page "Change Global Dimensions" and set "Parallel Processing" to 'Yes'
         OpenPageForParalllelProcessing(ChangeGlobalDimensionsPage);
@@ -778,8 +778,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Rerun] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] 5 log entries in different statuses:
@@ -851,8 +851,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         CurrDT: DateTime;
     begin
         // [FEATURE] [Rerun] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] 2 records of table 134482
@@ -898,8 +898,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TaskID: Guid;
     begin
         // [FEATURE] [Rerun] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] 2 records of table 134482
@@ -946,8 +946,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         CurrDT: DateTime;
     begin
         // [FEATURE] [Rerun] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] 2 records of table 134482
@@ -993,8 +993,8 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         // [FEATURE] [Error] [UI]
         // [SCENARIO] "Show Error" shows Job Queue Log Entry, where ID is equal to non-null "Task ID"
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] 2 records of table 134482
@@ -1034,8 +1034,8 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         // [FEATURE] [Error] [UI]
         // [SCENARIO] "Show Error" shows Job Queue Log Entry, where "Description" contains the table name.
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 'Suite' experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         // [GIVEN] 2 records of table 134482
@@ -1074,9 +1074,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedErrorMsg: Text;
     begin
         // [FEATURE] [Error] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] Job is failed with the error message: 'Err'
-        ExpectedErrorMsg := LibraryUtility.GenerateGUID;
+        ExpectedErrorMsg := LibraryUtility.GenerateGUID();
         ClearLastError;
         asserterror Error(ExpectedErrorMsg);
         // [GIVEN] ChangeGlobalDimLogEntry is in progress, where "Task ID" = 'X', "Table Name" = 'T'
@@ -1087,7 +1087,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry."Total Records" := 1;
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"G/L Entry";
         ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
-        ChangeGlobalDimLogEntry."Table Name" := LibraryUtility.GenerateGUID;
+        ChangeGlobalDimLogEntry."Table Name" := LibraryUtility.GenerateGUID();
         ChangeGlobalDimLogEntry.Insert();
 
         // [WHEN] Run "Change Global Dim Err. Handler" for ChangeGlobalDimLogEntry
@@ -1121,8 +1121,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] GLSetup, where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
@@ -1150,8 +1150,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Open page "Change Global Dimensions", where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
@@ -1180,8 +1180,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Open page "Change Global Dimensions", where "Global Dimension 1 Code" = 'A', "Global Dimension 2 Code" = 'B'
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
@@ -1210,8 +1210,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimensionValue: array[3] of Record "Dimension Value";
     begin
         // [FEATURE] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Dimensions 'A' and 'B' are global
         CreateDimSet(DimensionValue);
         // [GIVEN] Dimension 'C' is "Shortcut Dimension 3 Code"
@@ -1237,8 +1237,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimensionManagement: Codeunit DimensionManagement;
     begin
         // [FEATURE] [Default Dimension]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Table 134482 mocks a table with default dimension
         AllObj.Get(AllObj."Object Type"::Table, DATABASE::"Table With Default Dim");
         // [GIVEN] Table 134483 mocks a table with "Dimension Set Id"
@@ -1266,7 +1266,9 @@ codeunit 134483 "ERM Change Global Dimensions"
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimension Value"), '349');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Cust. Ledg. Entry"), '379');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Detailed Vendor Ledg. Entry"), '380');
+#if not CLEAN20
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"XBRL G/L Map Line"), '397');
+#endif
             Assert.IsFalse(Get("Object Type"::Table, 5223), '5223');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Dimensions Field Map"), '8383');
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"General Ledger Setup"), '98');
@@ -1285,8 +1287,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimensionManagement: Codeunit DimensionManagement;
     begin
         // [FEATURE] [Parent Table]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Table 134482 mocks a table with default dimension
         AllObj.Get(AllObj."Object Type"::Table, DATABASE::"Table With Default Dim");
         // [GIVEN] Table 134483 mocks a table with "Dimension Set Id"
@@ -1328,8 +1330,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimensionManagement: Codeunit DimensionManagement;
     begin
         // [FEATURE] [Job Task]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [WHEN] COD408.JobTaskDimObjectNoList() returns a list of tables
         DimensionManagement.JobTaskDimObjectNoList(TempAllObjWithCaptionByCOD408);
 
@@ -1354,8 +1356,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         I: Integer;
     begin
         // [FEATURE] [Log]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Table 134482 mocks a table with default dimension, COUNT = 1
         AllObj.Get(AllObj."Object Type"::Table, DATABASE::"Table With Default Dim");
         TableWithDefaultDim."No." := '1';
@@ -1405,8 +1407,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Log] [Progress] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
 
         // [GIVEN] Log entries for tables with different progress: 13 - 100%, 15 - 100%, 21 - 50%, 25 - 10%,
         MockLogEntryWithProgress(DATABASE::"Salesperson/Purchaser", 10000);
@@ -1483,7 +1485,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         JobTask: Record "Job Task";
     begin
         // [FEATURE] [Log] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ChangeGlobalDimLogEntry.DeleteAll();
         // [GIVEN] zero records in table 1001
         JobTask.DeleteAll();
@@ -1510,7 +1512,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim: Record "Table With Default Dim";
     begin
         // [FEATURE] [Log] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Default Dim";
         InsertChangeGlobalDimLogEntry(ChangeGlobalDimLogEntry);
         ChangeGlobalDimLogEntry.TestField("Global Dim.1 Field No.", TableWithDefaultDim.FieldNo("Global Dimension 1 Code"));
@@ -1527,7 +1529,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDimensionSetID: Record "Table With Dimension Set ID";
     begin
         // [FEATURE] [Log] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Dimension Set ID";
         InsertChangeGlobalDimLogEntry(ChangeGlobalDimLogEntry);
         ChangeGlobalDimLogEntry.TestField("Global Dim.1 Field No.", TableWithDimensionSetID.FieldNo("Global Dimension 1 Code"));
@@ -1544,7 +1546,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDimFlowfilter: Record "Table With Dim Flowfilter";
     begin
         // [FEATURE] [Log] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Dim Flowfilter";
         InsertChangeGlobalDimLogEntry(ChangeGlobalDimLogEntry);
         ChangeGlobalDimLogEntry.TestField("Global Dim.1 Field No.", 0);
@@ -1565,7 +1567,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Flag: Boolean;
     begin
         // [FEATURE] [Log] [Integration] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] LogEntry "36" for table 36 is in progress
         MockScheduledLogEntry(ChangeGlobalDimLogEntry[1], DATABASE::"Sales Header", 0, 1);
         ChangeGlobalDimLogEntry[1].Status := ChangeGlobalDimLogEntry[1].Status::"In Progress";
@@ -1600,8 +1602,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 1 record in TAB134483
         TableWithDimensionSetID.Insert();
         // [GIVEN] The Log line for TAB134483, where "Status" is "Scheduled", "Session ID" is 0, "Total Records" = 1
@@ -1631,8 +1633,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Global Dim codes are not changed
         ChangeGlobalDimensions.RefreshHeader;
         // [WHEN] Run Prepare() and Start()
@@ -1657,8 +1659,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: array[2] of Guid;
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] Tables "Table With Default Dim" and "Table With Dimension Set ID" are not empty
@@ -1708,8 +1710,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: array[2] of Guid;
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] Tables "Table With Default Dim" and "Table With Dimension Set ID" are not empty
@@ -1760,8 +1762,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: array[2] of Guid;
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] Tables "Table With Default Dim" and "Table With Dimension Set ID" are not empty
@@ -1811,8 +1813,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: array[2] of Guid;
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] Tables "Table With Default Dim" and "Table With Dimension Set ID" are not empty
@@ -1861,8 +1863,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] One record in table "Detailed Entry With GlobalDim"
@@ -1906,8 +1908,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: Guid;
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] One record in table "Table With Dimension Set ID"
@@ -1972,8 +1974,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: Guid;
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] One record in table "Table With Dimension Set ID"
@@ -2024,8 +2026,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
         // [FEATURE] [Rerun] [Parent Table]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] One record in table "Table With Dimension Set ID"
         TableWithDimensionSetID.Insert();
         // [GIVEN] Two related records in table "Detailed Entry With GlobalDim"
@@ -2070,8 +2072,8 @@ codeunit 134483 "ERM Change Global Dimensions"
     procedure T309_DetailedEntryTablesGetParentTableID()
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         Assert.AreEqual(
           DATABASE::"Table With Dimension Set ID", GetParentTableNo(DATABASE::"Detailed Entry With Global Dim"), 'Parent for 134485');
         Assert.AreEqual(
@@ -2095,7 +2097,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TaskID: Guid;
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record in table "Table With Dimension Set ID"
         TableWithDimensionSetID.Insert();
         // [GIVEN] One related record in table "Detailed Entry With GlobalDim"
@@ -2148,7 +2150,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TaskID: Guid;
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] Two records in table "Table With Dimension Set ID"
         // [GIVEN] Two related records in table "Detailed Entry With GlobalDim"
         TableWithDimensionSetID.Insert();
@@ -2201,8 +2203,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ExpectedTaskID: array[2] of Guid;
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
         LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
         // [GIVEN] "Global Dimension 1 Code" is set to <blank>
@@ -2242,8 +2244,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log Entry, where "Server Instance ID" and "Session ID" are current, "Task ID" = 'X'
         ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
         ChangeGlobalDimLogEntry."Session ID" := SessionId;
@@ -2267,8 +2269,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log Entry, where "Session ID" = X (not active), "Task ID" = 'A',
         // [GIVEN] "Completed Records" = 1, "Total Records" = 2
         ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
@@ -2293,8 +2295,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log Entry, where "Completed Records" = "Total Records"
         ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
         ChangeGlobalDimLogEntry."Total Records" := 1;
@@ -2318,8 +2320,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log Entry, where Session ID = 0, "Task ID" = 'X', "Completed Records" = 0, "Total Records" > 0
         ChangeGlobalDimLogEntry."Task ID" := CreateGuid;
         ChangeGlobalDimLogEntry."Session ID" := 0;
@@ -2343,8 +2345,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log Entry, where Session ID = 0, "Task ID" = <null>, "Completed Records" = 0, "Total Records" > 0
         Clear(ChangeGlobalDimLogEntry."Task ID");
         ChangeGlobalDimLogEntry."Session ID" := 0;
@@ -2370,8 +2372,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 0 records in "Table With Default Dim"
         TableWithDefaultDim.DeleteAll();
         // [GIVEN] Current Session is active only
@@ -2403,8 +2405,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDimensionSetID: Record "Table With Dimension Set ID";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 1 record in table "Table With Dimension Set ID"
         TableWithDimensionSetID.DeleteAll();
         TableWithDimensionSetID.Insert();
@@ -2429,8 +2431,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         // [FEATURE] [Status] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Log Entry for "Table With Default Dim", where Session ID = 0, Status = "Scheduled"
         // [GIVEN] "Task ID" = 'X' and task does not exist.
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Table With Dimension Set ID";
@@ -2454,8 +2456,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage: TestPage "Change Global Dimensions";
     begin
         // [FEATURE] [Status] [UI]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         ChangeGlobalDimLogEntry[1].DeleteAll();
         // [GIVEN] 2 Log Entries, where "Session ID" = X (not active), "Task ID" is not <null> ,
         // [GIVEN] "Status" = "In Progress", "Completed Records" = 1, "Total Records" = 2
@@ -2512,7 +2514,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         ChangeGlobalDimLogEntry."Table ID" := DATABASE::"Salesperson/Purchaser";
         ChangeGlobalDimLogEntry.Insert();
 
@@ -2533,12 +2535,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         TotalRecords: Integer;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Log Entry, where "Total Records" = 100, "Completed Records" = 99, Status = 'In Progress'
         TotalRecords := SalespersonPurchaser.Count();
         CreateLogEntryNearlyCompleted(ChangeGlobalDimLogEntry, TotalRecords);
         // [GIVEN] Added 1 more record
-        SalespersonPurchaser.Code := LibraryUtility.GenerateGUID;
+        SalespersonPurchaser.Code := LibraryUtility.GenerateGUID();
         SalespersonPurchaser.Insert(true);
 
         // [WHEN] run LogEntry.Update(100,0)
@@ -2558,14 +2560,14 @@ codeunit 134483 "ERM Change Global Dimensions"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         TotalRecords: Integer;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Log Entry, where "Total Records" = 100, "Completed Records" = 99, Status = 'In Progress'
         TotalRecords := SalespersonPurchaser.Count();
         CreateLogEntryNearlyCompleted(ChangeGlobalDimLogEntry, TotalRecords);
         // [GIVEN] Added 2 more records
-        SalespersonPurchaser.Code := LibraryUtility.GenerateGUID;
+        SalespersonPurchaser.Code := LibraryUtility.GenerateGUID();
         SalespersonPurchaser.Insert(true);
-        SalespersonPurchaser.Code := LibraryUtility.GenerateGUID;
+        SalespersonPurchaser.Code := LibraryUtility.GenerateGUID();
         SalespersonPurchaser.Insert(true);
 
         // [WHEN] run LogEntry.Update(101,0)
@@ -2584,8 +2586,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Performance]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 10 records in table "Table With Dimension Set ID" with "Detailed Entry With Global Dim"
         // [GIVEN] Log Entry for "Table With Dimension Set ID"
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 10);
@@ -2608,8 +2610,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Performance]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 11 records in table "Table With Dimension Set ID" with "Detailed Entry With Global Dim"
         // [GIVEN] Log Entry for "Table With Dimension Set ID"
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 11);
@@ -2632,8 +2634,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Performance]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 1100 records in table "Table With Dimension Set ID" with "Detailed Entry With Global Dim"
         // [GIVEN] Log Entry for "Table With Dimension Set ID"
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 1100);
@@ -2656,8 +2658,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Rerun] [Performance]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] 31 records in table "Table With Dimension Set ID" with "Detailed Entry With Global Dim"
         // [GIVEN] Log Entry for "Table With Dimension Set ID", where "Completed Records" = 1 of "Total Records" = 31
         CreateRecords(ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", ChangeGlobalDimLogEntry[2], 31);
@@ -2684,7 +2686,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record of TableWithDimensionSetID
         // [GIVEN] LogEntry, where "Status" = 'In Progress', "Total Records" = 1, "Completed Records" = 0
         MockLogEntryForUpdate(ChangeGlobalDimLogEntry, 0, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2704,7 +2706,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record of TableWithDimensionSetID
         // [GIVEN] LogEntry, where "Status" = 'Completed', "Total Records" = 1, "Completed Records" = 1
         MockLogEntryForUpdate(ChangeGlobalDimLogEntry, 1, ChangeGlobalDimLogEntry.Status::Completed);
@@ -2725,7 +2727,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record of TableWithDimensionSetID
         // [GIVEN] LogEntry, where "Status" = 'In Progress', "Total Records" = 1, "Completed Records" = 0
         MockLogEntryForUpdate(ChangeGlobalDimLogEntry, 0, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2750,7 +2752,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record of TableWithDimensionSetID
         // [GIVEN] LogEntry, where "Status" = 'In Progress', "Total Records" = 1, "Completed Records" = 0
         MockLogEntryForUpdate(ChangeGlobalDimLogEntry, 0, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2771,7 +2773,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record of TableWithDimensionSetID
         // [GIVEN] LogEntry, where "Status" = 'Completed', "Total Records" = 1, "Completed Records" = 1
         MockLogEntryForUpdate(ChangeGlobalDimLogEntry, 1, ChangeGlobalDimLogEntry.Status::Completed);
@@ -2792,7 +2794,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
     begin
         // [FEATURE] [Log] [UT]
-        Initialize;
+        Initialize();
         // [GIVEN] One record of TableWithDimensionSetID
         // [GIVEN] LogEntry, where "Status" = 'In Progress', "Total Records" = 1, "Completed Records" = 0
         MockLogEntryForUpdate(ChangeGlobalDimLogEntry, 0, ChangeGlobalDimLogEntry.Status::"In Progress");
@@ -2820,8 +2822,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim: Record "Table With Default Dim";
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Default Dim", where Global Dim Codes are 'A' and 'B'
         TableWithDefaultDim."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -2861,8 +2863,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         DimSetID := CreateDimSet(DimensionValue);
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -2901,8 +2903,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim: Record "Table With Default Dim";
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Default Dim", where Global Dim Codes are 'A' and 'B'
         TableWithDefaultDim."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -2944,8 +2946,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim: Record "Table With Default Dim";
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Default Dim", where Global Dim Codes are 'A' and 'B'
         TableWithDefaultDim."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -2988,8 +2990,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [Change Type]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         DimSetID := CreateDimSet(DimensionValue);
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3031,8 +3033,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim: Record "Table With Default Dim";
     begin
         // [FEATURE] [Default Dimension]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Default Dim", where Global Dim Codes are 'A' and 'B'
         TableWithDefaultDim."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3072,8 +3074,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         DimSetID := CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3113,8 +3115,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         JobTask: Record "Job Task";
     begin
         // [FEATURE] [Job Task]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Job Task", where Global Dim Codes are 'A' and 'B'
         JobTask.DeleteAll();
@@ -3152,8 +3154,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [Log] [Parent Table] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         DimSetID := CreateDimSet(DimensionValue);
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3211,8 +3213,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         RecRef: RecordRef;
     begin
         // [FEATURE] [Default Dimension]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Default Dim", where Global Dim Codes are 'A' and 'B'
         TableWithDefaultDim."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3251,8 +3253,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [UT]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         DimSetID := CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3289,8 +3291,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         RecRef: RecordRef;
     begin
         // [FEATURE] [Job Task]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         CreateDimSet(DimensionValue);
         // [GIVEN] One record in table "Job Task", where Global Dim Codes are 'A' and 'B'
         JobTask.DeleteAll();
@@ -3331,8 +3333,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [Log]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] Current Session is active only
         ERMChangeGlobalDimensions.SetCurrSessionIsActiveOnly;
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
@@ -3376,8 +3378,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimSetID: Integer;
     begin
         // [FEATURE] [Log]
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        Initialize;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        Initialize();
         // [GIVEN] One record in table "Table With Dimension Set ID", where Global Dim Codes are 'A' and 'B'
         DimSetID := CreateDimSet(DimensionValue);
         TableWithDimensionSetID."Global Dimension 1 Code" := DimensionValue[1].Code;
@@ -3419,7 +3421,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         // [FEATURE] [Log] [UI]
         // [SCENARIO 261674] Log Entries should be deleted on open "Change Global Dimensions" page if all 'Completed'
-        Initialize;
+        Initialize();
         // [GIVEN] Two log entries and both are 'Completed'
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, 134482, 0, 1);
         MockScheduledLogEntry(ChangeGlobalDimLogEntry, 134483, 0, 1);
@@ -3445,7 +3447,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         // [FEATURE] [Salesperson] [Service] [User]
         // [SCENARIO 327294] User is able to create Service Order if they are assigned a Salesperson in User Setup linked to a Dimension
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created User Setup with assigned Salesperson linked to a Default Dimension
         LibraryDocumentApprovals.CreateOrFindUserSetup(UserSetup, UserId);
@@ -3455,12 +3457,12 @@ codeunit 134483 "ERM Change Global Dimensions"
           DimensionValue."Dimension Code", DimensionValue.Code);
 
         // [WHEN] Create Service Order
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
 
         // [THEN] Generated Dimension Set Entry holds correct values
         DimensionSetEntry.SetRange("Dimension Set ID", ServiceHeader."Dimension Set ID");
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
     end;
 
@@ -3765,8 +3767,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Change Global Dimensions");
         ChangeGlobalDimHeader.DeleteAll();
         ChangeGlobalDimensions.ResetState;
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         TableWithDefaultDim.DeleteAll();
         TableWithDimensionSetID.DeleteAll();
         DetailedEntryWithGlobalDim.DeleteAll();
@@ -3845,8 +3847,8 @@ codeunit 134483 "ERM Change Global Dimensions"
     local procedure CreateJobTask(var JobTask: Record "Job Task"; DimensionValue: array[2] of Record "Dimension Value")
     begin
         JobTask.Init();
-        JobTask."Job No." := LibraryUtility.GenerateGUID;
-        JobTask."Job Task No." := LibraryUtility.GenerateGUID;
+        JobTask."Job No." := LibraryUtility.GenerateGUID();
+        JobTask."Job Task No." := LibraryUtility.GenerateGUID();
         JobTask."Global Dimension 1 Code" := DimensionValue[1].Code;
         JobTask."Global Dimension 2 Code" := DimensionValue[2].Code;
         JobTask.Insert();
@@ -3994,7 +3996,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Field.SetRange(Type, Field.Type::Code);
         Field.SetRange(Len, 20);
         Field.SetRange(ObsoleteState, Field.ObsoleteState::No, Field.ObsoleteState::Pending);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if (TableID <> Field.TableNo) and not IsObsolete(Field.TableNo) then
                     if PKContainsOneField(Field.TableNo) or TableContainsDimSetIDField(Field.TableNo) then begin
@@ -4006,7 +4008,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             until Field.Next = 0;
         ChangeGlobalDimLogEntry.SetFilter(
           "Table ID", '<>0&<>%1&<>%2&<>%3', DATABASE::"Job Task", DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
-        if ChangeGlobalDimLogEntry.FindFirst then
+        if ChangeGlobalDimLogEntry.FindFirst() then
             Error(UnexpectedTableErr, ChangeGlobalDimLogEntry."Table ID");
     end;
 
@@ -4029,7 +4031,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             SetRange("Published Function", 'OnGetIntegrationDisabled');
             SetRange("Subscriber Codeunit ID", CODEUNIT::"Change Global Dim. Log Mgt.");
             SetRange("Subscriber Instance", 'Manual');
-            FindFirst;
+            FindFirst();
             exit("Active Manual Instances");
         end;
     end;
@@ -4051,7 +4053,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             SetFilter("Session ID", '<>%1', SessionId);
             DeleteAll();
             Reset;
-            FindFirst;
+            FindFirst();
             "Session ID" := 0;
             for "Client Type" := "Client Type"::"Web Service" to "Client Type"::"Management Client" do begin
                 "Session ID" -= 1;
@@ -4308,7 +4310,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     local procedure OnAfterGetObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
         if not TempChangeGlobalDimLogEntry.IsEmpty() then
-            if TempAllObjWithCaption.FindSet then
+            if TempAllObjWithCaption.FindSet() then
                 repeat
                     if not TempChangeGlobalDimLogEntry.Get(TempAllObjWithCaption."Object ID") then
                         TempAllObjWithCaption.Delete();

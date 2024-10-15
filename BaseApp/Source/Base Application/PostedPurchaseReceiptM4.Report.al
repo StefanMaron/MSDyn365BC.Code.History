@@ -71,7 +71,7 @@ report 12483 "Posted Purchase Receipt M-4"
 
                 PurchInvLine.Reset();
                 PurchInvLine.SetRange("Document No.", "Purch. Inv. Header"."No.");
-                if PurchInvLine.FindSet then
+                if PurchInvLine.FindSet() then
                     repeat
                         case PurchInvLine.Type of
                             PurchInvLine.Type::"G/L Account":

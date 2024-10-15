@@ -25,7 +25,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         PeriodType: Option ,,Month,Quarter,Year;
         AmountType: Option "Current Period","Tax Period";
     begin
-        Initialize;
+        Initialize();
         TaxRegMgt.FindDate('=', ActualCalendarPeriod, PeriodType::Quarter, AmountType::"Tax Period");
         // Find period start and period end.
         ExpectedCalendarPeriod."Period Type" := ExpectedCalendarPeriod."Period Type"::Quarter;
@@ -46,7 +46,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterAndDates(DATABASE::"Tax Register G/L Entry", SectionCode, StartDate, EndDate);
         TaxRegMgt.ValidateAbsenceGLEntriesDate(StartDate, EndDate, SectionCode);
         TaxRegSection.Get(SectionCode);
@@ -70,7 +70,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterAndDates(DATABASE::"Tax Register G/L Entry", SectionCode, StartDate, EndDate);
         TaxRegMgt.ValidateAbsenceCVEntriesDate(StartDate, EndDate, SectionCode);
         TaxRegSection.Get(SectionCode);
@@ -94,7 +94,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterAndDates(DATABASE::"Tax Register Item Entry", SectionCode, StartDate, EndDate);
         TaxRegMgt.ValidateAbsenceItemEntriesDate(StartDate, EndDate, SectionCode);
         TaxRegSection.Get(SectionCode);
@@ -118,7 +118,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterAndDates(DATABASE::"Tax Register FA Entry", SectionCode, StartDate, EndDate);
         TaxRegMgt.ValidateAbsenceFAEntriesDate(StartDate, EndDate, SectionCode);
         TaxRegSection.Get(SectionCode);
@@ -142,7 +142,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterAndDates(DATABASE::"Tax Register FE Entry", SectionCode, StartDate, EndDate);
         TaxRegMgt.ValidateAbsenceFEEntriesDate(StartDate, EndDate, SectionCode);
         TaxRegSection.Get(SectionCode);
@@ -166,7 +166,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Register G/L Entry";
         InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxRegSecton.Get(SectionCode);
@@ -187,7 +187,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Register CV Entry";
         InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxRegSecton.Get(SectionCode);
@@ -208,7 +208,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Register Item Entry";
         InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxRegSecton.Get(SectionCode);
@@ -229,7 +229,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Register FA Entry";
         InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxRegSecton.Get(SectionCode);
@@ -250,7 +250,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         EndDate: Date;
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
         TableID := DATABASE::"Tax Register FE Entry";
         InitTaxRegisterAndDates(TableID, SectionCode, StartDate, EndDate);
         TaxRegSecton.Get(SectionCode);
@@ -269,7 +269,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         ActualCalendarPeriod: Record Date;
         InputText: Text;
     begin
-        Initialize;
+        Initialize();
         LibraryTaxAcc.FindCalendarPeriod(ExpectedCalendarPeriod, WorkDate);
         InputText := LowerCase(ExpectedCalendarPeriod."Period Name") + ' ' + Format(Date2DMY(ExpectedCalendarPeriod."Period Start", 3));
         ActualCalendarPeriod."Period Type" := ActualCalendarPeriod."Period Type"::Month;
@@ -285,7 +285,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         ActualCalendarPeriod: Record Date;
         Periodical: Option Month,Quarter,Year;
     begin
-        Initialize;
+        Initialize();
         TaxRegMgt.InitTaxPeriod(ActualCalendarPeriod, Periodical::Quarter, WorkDate);
         ExpectedCalendarPeriod.Get(ExpectedCalendarPeriod."Period Type"::Quarter, CalcDate('<-CQ>', WorkDate));
         VerifyStartEndDates(ExpectedCalendarPeriod, ActualCalendarPeriod);
@@ -299,7 +299,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         CalendarPeriod: Record Date;
         TaxRegAccum: Record "Tax Register Accumulation";
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterWithTemplate(TaxRegTemplate, CalendarPeriod, DATABASE::"Tax Register G/L Entry");
         TaxRegMgt.TaxRegisterCreate(TaxRegTemplate."Section Code", CalendarPeriod, false, false, false, false, false, false, true);
         TaxRegAccum.SetRange("Section Code", TaxRegTemplate."Section Code");
@@ -316,7 +316,7 @@ codeunit 144517 "ERM Tax Register Mgt."
         CalendarPeriod: Record Date;
         EntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
         InitTaxRegisterWithTemplate(TaxRegTemplate, CalendarPeriod, DATABASE::"Tax Register G/L Entry");
         TaxRegTemplate.SetFilter("Date Filter", '%1..%2', WorkDate, WorkDate);
         LibraryTaxAcc.CreateEntryNoAmountBuffer(EntryNoAmountBuffer, TaxRegTemplate."Line No.");
@@ -378,7 +378,7 @@ codeunit 144517 "ERM Tax Register Mgt."
     begin
         with TaxRegSection do begin
             Init;
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "Starting Date" := CalcDate('<-1M>', StartingDate);
             Insert;
             exit(Code);

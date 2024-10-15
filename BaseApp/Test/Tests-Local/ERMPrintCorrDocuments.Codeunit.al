@@ -30,7 +30,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice (Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreateReleaseRevSalesInv(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportNotOnPrint(SalesInvHeader);
@@ -46,7 +46,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo (Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         CreateReleaseRevSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportNotOnPrint(SalesInvHeader);
@@ -62,7 +62,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice (Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportNotOnPrint(SalesInvHeader);
@@ -78,7 +78,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo (Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportNotOnPrint(SalesInvHeader);
@@ -94,7 +94,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreateReleaseCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportOnPrint(SalesInvHeader);
@@ -110,7 +110,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         CreateReleaseCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportOnPrint(SalesInvHeader);
@@ -126,7 +126,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportOnPrint(SalesInvHeader);
@@ -142,7 +142,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         VerifyCorrReportOnPrint(SalesInvHeader);
@@ -159,7 +159,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Invoice(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         CreateReleaseRevSalesInv(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -177,7 +177,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         CreateReleaseRevSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -195,7 +195,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Invoice(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -213,7 +213,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -231,7 +231,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Corr.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         CreateReleaseCorrSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -249,7 +249,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Corr.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         CreateReleaseCorrSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -267,7 +267,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Corr.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         CreatePostCorrSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -285,7 +285,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Corr.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         CreatePostCorrSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -303,7 +303,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         CreateReleaseRevSalesInv(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -321,7 +321,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         CreateReleaseRevSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -339,7 +339,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -357,7 +357,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -376,7 +376,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Invoice(Rev.)->Invoice(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -396,7 +396,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -416,7 +416,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Invoice(Rev.)->Invoice(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -436,7 +436,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -456,7 +456,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Invoice(Corr.)->Invoice(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -476,7 +476,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -496,7 +496,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Corr.)->Invoice(Corr.)->Invoice(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostCorrSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -516,7 +516,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Corr.)->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostCorrSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -536,7 +536,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Rev.)->Invoice(Corr.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -556,7 +556,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Cr.Memo(Corr.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -577,7 +577,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Rev.)->Invoice(Corr.)->Invoice(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -599,7 +599,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Release
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -621,7 +621,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Invoice->Invoice(Rev.)->Invoice(Rev.)->Invoice(Corr.)->Invoice(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesInvoice(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -643,7 +643,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     begin
         // Cr.Memo->Cr.Memo(Rev.)->Cr.Memo(Rev.)->Cr.Memo(Corr.)->Cr.Memo(Rev.)->Post
 
-        Initialize;
+        Initialize();
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader, SalesHeader, InvNo);
         InvNo := CreatePostRevisionSalesCrMemo(SalesInvHeader2, SalesInvHeader, InvNo);
@@ -663,7 +663,7 @@ codeunit 144013 "ERM Print Corr. Documents"
         InvNo: Code[20];
     begin
         // [SCENARIO 357140] Printing "Corr. Sales Cr. Memo" run report "Sales Corr. Factura-Invoice"
-        Initialize;
+        Initialize();
 
         // [WHEN] Create Corr. Sales Cr. Memo
         InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -757,7 +757,7 @@ codeunit 144013 "ERM Print Corr. Documents"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         UpdateSalesReceivablesSetup(
           SalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 

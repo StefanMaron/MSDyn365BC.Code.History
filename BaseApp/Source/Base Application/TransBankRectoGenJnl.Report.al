@@ -73,7 +73,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                         GenJnlLine.SetRange("Journal Batch Name", '');
 
                     GenJnlLine.LockTable();
-                    if GenJnlLine.FindLast then;
+                    if GenJnlLine.FindLast() then;
                 end;
             }
 

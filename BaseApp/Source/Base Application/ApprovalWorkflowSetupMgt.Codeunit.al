@@ -264,7 +264,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         end;
 
         User.SetRange("User Name", TempApprovalWorkflowWizard."Approver ID");
-        User.FindFirst;
+        User.FindFirst();
         if TempApprovalWorkflowWizard."Sales Invoice App. Workflow" then
             ApprovalUserSetup.Validate("Unlimited Sales Approval", TempApprovalWorkflowWizard."Sales Invoice App. Workflow");
         if TempApprovalWorkflowWizard."Purch Invoice App. Workflow" then
@@ -282,7 +282,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
     begin
         User.SetFilter("User Name", '<>%1', TempApprovalWorkflowWizard."Approver ID");
 
-        if User.FindSet then
+        if User.FindSet() then
             repeat
                 if not ApprovalUserSetup.Get(User."User Name") then begin
                     ApprovalUserSetup.Init();
@@ -328,7 +328,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", FunctionName);
-        if WorkflowStep.FindFirst then
+        if WorkflowStep.FindFirst() then
             // Get the step arguments
             exit(WorkflowStepArgument.Get(WorkflowStep.Argument));
 
@@ -380,7 +380,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         WorkflowDefinition.Open;
         while WorkflowDefinition.Read do begin
             WorkflowRule.SetRange("Workflow Code", WorkflowDefinition.Code);
-            if WorkflowRule.FindFirst then
+            if WorkflowRule.FindFirst() then
                 if WorkflowRule."Field No." = FieldNo then begin
                     Workflow.Get(WorkflowDefinition.Code);
                     exit(true);
@@ -412,7 +412,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
         end else begin
             WorkflowStep.SetRange("Workflow Code", Workflow.Code);
             WorkflowStep.SetRange("Previous Workflow Step ID", 0);
-            WorkflowStep.FindFirst;
+            WorkflowStep.FindFirst();
             WorkflowStepArgument.Get(WorkflowStep.Argument);
             EventConditions := WorkflowStepArgument.GetEventFilters;
             DisableWorkflowWithEntryPointEventConditions(TableID, WorkflowStep."Function Name", EventConditions);
@@ -450,7 +450,7 @@ codeunit 1804 "Approval Workflow Setup Mgt."
     begin
         WorkflowStep.SetRange("Workflow Code", WorkflowCode);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        if WorkflowStep.FindFirst then begin
+        if WorkflowStep.FindFirst() then begin
             WorkflowStepArgument.Get(WorkflowStep.Argument);
             WorkflowStepArgument."Approver Type" := WorkflowStepArgument."Approver Type"::Approver;
             WorkflowStepArgument."Approver Limit Type" := WorkflowStepArgument."Approver Limit Type"::"Specific Approver";

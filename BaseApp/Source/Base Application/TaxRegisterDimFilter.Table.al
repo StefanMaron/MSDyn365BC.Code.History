@@ -106,7 +106,7 @@ table 17218 "Tax Register Dim. Filter"
 
         TaxRegDimFilter.SetCurrentKey("Section Code", "Entry No.");
         TaxRegDimFilter.SetRange("Section Code", "Section Code");
-        if TaxRegDimFilter.FindLast then
+        if TaxRegDimFilter.FindLast() then
             "Entry No." := TaxRegDimFilter."Entry No." + 1
         else
             "Entry No." := 1;

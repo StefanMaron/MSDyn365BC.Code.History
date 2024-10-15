@@ -9,7 +9,12 @@ codeunit 5777 "Whse. Validate Source Line"
         Text000: Label 'must not be changed when a %1 for this %2 exists: ';
         Text001: Label 'The %1 cannot be deleted when a related %2 exists.';
         Text002: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.';
+        JobPostQtyPickRemainErr: Label 'You cannot post usage for job number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Job number, %2 = remaining quantity to pick';
         WhseActivLine: Record "Warehouse Activity Line";
+#if not CLEAN20
+        FeatureManagement: Codeunit "Feature Management Facade";
+        PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
+#endif
         TableCaptionValue: Text[100];
 
     procedure SalesLineVerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line")
@@ -352,6 +357,30 @@ codeunit 5777 "Whse. Validate Source Line"
         OnAfterProdComponentDelete(ProdOrderComp);
     end;
 
+    procedure JobPlanningLineVerifyChange(var NewJobPlanningLine: Record "Job Planning Line"; var OldJobPlanningLine: Record "Job Planning Line"; FieldNo: Integer)
+    var
+        NewRecRef: RecordRef;
+        OldRecRef: RecordRef;
+    begin
+#if not CLEAN20
+        if not FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+            exit;
+#endif
+        if not WhseLinesExist(
+             DATABASE::Job, 0, NewJobPlanningLine."Job No.", NewJobPlanningLine."Job Contract Entry No.", NewJobPlanningLine."Line No.", NewJobPlanningLine.Quantity)
+        then
+            exit;
+        NewRecRef.GetTable(NewJobPlanningLine);
+        OldRecRef.GetTable(OldJobPlanningLine);
+        VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo);
+    end;
+
+    procedure JobPlanningLineDelete(var JobPlanningLine: Record "Job Planning Line")
+    begin
+        if WhseLinesExist(DATABASE::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", JobPlanningLine.Quantity) then
+            Error(Text001, JobPlanningLine.TableCaption(), TableCaptionValue);
+    end;
+
     procedure ItemLineVerifyChange(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
     var
         AssemblyLine: Record "Assembly Line";
@@ -445,6 +474,59 @@ codeunit 5777 "Whse. Validate Source Line"
         OnAfterItemLineVerifyChange(NewItemJnlLine, OldItemJnlLine);
     end;
 
+    internal procedure JobJnlLineVerifyChangeForWhsePick(var NewJobJnlLine: Record "Job Journal Line"; var OldJobJnlLine: Record "Job Journal Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        QtyRemainingToBePicked: Decimal;
+    begin
+#if not CLEAN20
+        if not FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+            exit;
+#endif
+        if IsWhsePickRequiredForJobJnlLine(NewJobJnlLine) and (NewJobJnlLine.Quantity > 0) then
+            if JobPlanningLine.Get(NewJobJnlLine."Job No.", NewJobJnlLine."Job Task No.", NewJobJnlLine."Job Planning Line No.") and (NewJobJnlLine.Quantity >= 0) then begin
+                QtyRemainingToBePicked := NewJobJnlLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked";
+                CheckQtyRemainingToBePickedForJob(NewJobJnlLine, QtyRemainingToBePicked);
+            end;
+    end;
+
+    internal procedure IsWhsePickRequiredForJobJnlLine(var JobJournalLine: Record "Job Journal Line"): Boolean
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
+    begin
+#if not CLEAN20
+        if not FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+            exit(false);
+#endif
+        if (JobJournalLine."Line Type" in [JobJournalLine."Line Type"::Budget, JobJournalLine."Line Type"::"Both Budget and Billable"]) and (JobJournalLine.Type = JobJournalLine.Type::Item) then
+            if Location.Get(JobJournalLine."Location Code") then
+                if Location."Require Pick" and Location."Require Shipment" then
+                    if Item.Get(JobJournalLine."No.") then
+                        if Item.IsInventoriableType() and not ItemTrackingManagement.GetWhseItemTrkgSetup(Item."No.") then
+                            exit(true);
+    end;
+
+    internal procedure IsInventoryPickRequiredForJobJnlLine(var JobJournalLine: Record "Job Journal Line"): Boolean
+    var
+        Location: Record Location;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+#if not CLEAN20
+        if not FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+            exit(false);
+#endif
+        if (JobJournalLine."Line Type" in [JobJournalLine."Line Type"::Budget, JobJournalLine."Line Type"::"Both Budget and Billable"]) and (JobJournalLine.Type = JobJournalLine.Type::Item) then
+            if Location.RequirePicking(JobJournalLine."Location Code") and (not Location.RequireShipment(JobJournalLine."Location Code")) then begin
+                if JobJournalLine."Job Planning Line No." <> 0 then
+                    WarehouseActivityLine.SetRange("Source Subline No.", JobJournalLine."Job Planning Line No.");
+                WarehouseActivityLine.SetRange("Source Type", Database::Job);
+                WarehouseActivityLine.SetRange("Source No.", JobJournalLine."Job No.");
+                exit(not WarehouseActivityLine.IsEmpty());
+            end;
+    end;
+
     local procedure CheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; QtyRemainingToBePicked: Decimal)
     var
         IsHandled: Boolean;
@@ -467,6 +549,12 @@ codeunit 5777 "Whse. Validate Source Line"
             exit;
 
         CheckQtyRemainingToBePicked(QtyRemainingToBePicked, NewItemJnlLine."Order No.");
+    end;
+
+    local procedure CheckQtyRemainingToBePickedForJob(NewJobJnlLine: Record "Job Journal Line"; QtyRemainingToBePicked: Decimal)
+    begin
+        if QtyRemainingToBePicked > 0 then
+            Error(JobPostQtyPickRemainErr, NewJobJnlLine."Job No.", QtyRemainingToBePicked);
     end;
 
     local procedure CheckQtyRemainingToBePicked(QtyRemainingToBePicked: Decimal; OrderNo: Code[20])
@@ -578,7 +666,7 @@ codeunit 5777 "Whse. Validate Source Line"
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderComp."Prod. Order No.");
         ProdOrderLine.SetRange("Item No.", ProdOrderComp."Item No.");
         ProdOrderLine.SetRange("Planning Level Code", ProdOrderComp."Planning Level Code");
-        if ProdOrderLine.FindFirst then begin
+        if ProdOrderLine.FindFirst() then begin
             WhseEntry.SetSourceFilter(
               DATABASE::"Item Journal Line", 5, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", true); // Output Journal
             WhseEntry.SetRange("Reference No.", ProdOrderLine."Prod. Order No.");

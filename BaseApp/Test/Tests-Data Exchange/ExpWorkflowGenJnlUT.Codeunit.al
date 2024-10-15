@@ -66,7 +66,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
         Assert.IsFalse(PaymentExportData.IsEmpty, StrSubstNo(RecordNotFoundErr, PaymentExportData.TableCaption));
 
         // Cleanup
-        PaymentExportData.FindFirst;
+        PaymentExportData.FindFirst();
         PaymentExportData.Delete(true);
         DataExch.Delete(true);
     end;
@@ -139,7 +139,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
         DataExch.Insert();
         BankAccountNo := LibraryERM.CreateBankAccountNo();
         CreateExportGenJournalBatch(GenJnlBatch, BankAccountNo);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         for i := 1 to LibraryRandom.RandIntInRange(10, 20) do begin
             AppliesCount := LibraryRandom.RandIntInRange(10, 20);
@@ -223,7 +223,7 @@ codeunit 132560 "Exp. Workflow Gen. Jnl. UT"
     local procedure CreateBankAccountWithExportFormat(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20])
     begin
         LibraryERM.CreateBankAccount(BankAcc);
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Validate("Payment Export Format", PaymentExportFormat);
         BankAcc.Modify(true);
     end;

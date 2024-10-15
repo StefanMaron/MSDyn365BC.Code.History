@@ -179,7 +179,7 @@ report 14927 "VAT Invoices Journal"
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetCurrentKey("Vendor VAT Invoice Rcvd Date", "Entry No.");
         with VendorLedgerEntry do
-            if FindSet then begin
+            if FindSet() then begin
                 I := 0;
                 VendLedgEntryCount := Count;
                 Window.Open(Text002);
@@ -220,7 +220,7 @@ report 14927 "VAT Invoices Journal"
         VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetCurrentKey("Vendor VAT Invoice Rcvd Date", "Entry No.");
         with VendorLedgerEntry do
-            if FindSet then begin
+            if FindSet() then begin
                 I := 0;
                 VendLedgEntryCount := Count;
                 Window.Open(Text001);

@@ -30,7 +30,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         DeprDate: Date;
         NoOfFA: Integer;
     begin
-        Initialize;
+        Initialize();
 
         OldWorkDate := WorkDate;
         WorkDate := CalcDate('<9M-10D>', OldWorkDate);
@@ -61,7 +61,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         DeprDate: Date;
         NoOfFA: Integer;
     begin
-        Initialize;
+        Initialize();
 
         OldWorkDate := WorkDate;
         WorkDate := CalcDate('<9M-10D>', OldWorkDate);
@@ -93,7 +93,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
         DeprDate: Date;
         NoOfFA: Integer;
     begin
-        Initialize;
+        Initialize();
 
         CreateReleaseCalculateFAGroup(FADeprGroupCode, NoOfFA, DeprDate, DocumentNo, false, false);
 
@@ -290,13 +290,13 @@ codeunit 144509 "ERM FA Depreciation Groups"
         LibraryVariableStorage.Enqueue(AccPeriodAsText);
         LibraryVariableStorage.Enqueue(DeprBookCode);
         Commit();
-        CalcGroupDepr.Run;
+        CalcGroupDepr.Run();
 
         if Post then begin
             GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date");
             GenJournalLine.SetRange("Posting Date", DeprDate);
             GenJournalLine.SetRange("Document No.", DocumentNo);
-            if GenJournalLine.FindSet then begin
+            if GenJournalLine.FindSet() then begin
                 repeat
                     GenJnlPostLine.RunWithCheck(GenJournalLine);
                     DeprAmount := GenJournalLine.Amount;
@@ -306,7 +306,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
 
             FAJournalLine.SetRange("FA Posting Date", DeprDate);
             FAJournalLine.SetRange("Document No.", DocumentNo);
-            if FAJournalLine.FindSet then begin
+            if FAJournalLine.FindSet() then begin
                 repeat
                     FAJnlPostLine.FAJnlPostLine(FAJournalLine, true);
                     DeprAmount := FAJournalLine.Amount;
@@ -357,7 +357,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
             SetRange("Account Type", "Account Type"::"Fixed Asset");
             SetRange("Account No.", FANo);
             SetRange("Depreciation Book Code", FADeprBookCode);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(ExpectedAmount, Amount, GLSetup."Amount Rounding Precision", FieldCaption(Amount));
         end;
     end;
@@ -371,7 +371,7 @@ codeunit 144509 "ERM FA Depreciation Groups"
             SetRange("Document No.", DocumentNo);
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", FADeprBookCode);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(ExpectedAmount, Amount, 0.01, FieldCaption(Amount));
         end;
     end;

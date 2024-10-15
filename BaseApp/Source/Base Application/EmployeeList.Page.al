@@ -187,7 +187,7 @@ page 5201 "Employee List"
                         begin
                             CurrPage.SetSelectionFilter(Employee);
                             DefaultDimMultiple.SetMultiRecord(Employee, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -322,7 +322,6 @@ page 5201 "Employee List"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this employee.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -427,16 +426,8 @@ page 5201 "Employee List"
         CanSendEmail := Employee.Count() = 1;
     end;
 
-    trigger OnOpenPage()
-    var
-        EmailFeature: Codeunit "Email Feature";
-    begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
-    end;
-
     var
         [InDataSet]
         CanSendEmail: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 
 }

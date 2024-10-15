@@ -31,6 +31,7 @@ page 5600 "Fixed Asset Card"
                 {
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
+                    ShowMandatory = true;
                     ToolTip = 'Specifies a description of the fixed asset.';
                 }
                 field("Serial No."; "Serial No.")
@@ -477,7 +478,7 @@ page 5600 "Fixed Asset Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -634,7 +635,7 @@ page 5600 "Fixed Asset Card"
                     CopyFA: Report "Copy Fixed Asset";
                 begin
                     CopyFA.SetFANo("No.");
-                    CopyFA.RunModal;
+                    CopyFA.RunModal();
                 end;
             }
         }

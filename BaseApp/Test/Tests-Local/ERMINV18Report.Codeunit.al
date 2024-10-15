@@ -21,7 +21,7 @@ codeunit 144710 "ERM INV-18 Report"
         FixedAsset: Record "Fixed Asset";
         TempFAJournalLine: Record "FA Journal Line" temporary;
     begin
-        Initialize;
+        Initialize();
         MockFixedAsset(FixedAsset);
         MockFAJournalLines(TempFAJournalLine, FixedAsset."No.");
         RunINV18Report;
@@ -37,7 +37,7 @@ codeunit 144710 "ERM INV-18 Report"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -50,9 +50,9 @@ codeunit 144710 "ERM INV-18 Report"
             "No." := '';
             Insert(true);
             "Manufacturing Year" := Format(Date2DMY(WorkDate, 3));
-            "Inventory Number" := LibraryUtility.GenerateGUID;
-            "Factory No." := LibraryUtility.GenerateGUID;
-            "Passport No." := LibraryUtility.GenerateGUID;
+            "Inventory Number" := LibraryUtility.GenerateGUID();
+            "Factory No." := LibraryUtility.GenerateGUID();
+            "Passport No." := LibraryUtility.GenerateGUID();
             Modify;
         end;
     end;
@@ -92,7 +92,7 @@ codeunit 144710 "ERM INV-18 Report"
             RecRef.GetTable(FAJournalLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             "FA No." := FANo;
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             "Calc. Quantity" := CalcQty;
             "Actual Quantity" := ActualQty;
             "Calc. Amount" := CalcAmount;
@@ -110,7 +110,7 @@ codeunit 144710 "ERM INV-18 Report"
         FAJournalLine: Record "FA Journal Line";
         INV18Rep: Report "FA Comparative Sheet INV-18";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FilterFAJournalLineWithEmptyBatch(FAJournalLine);
         with INV18Rep do begin
             SetFileNameSilent(LibraryReportValidation.GetFileName);

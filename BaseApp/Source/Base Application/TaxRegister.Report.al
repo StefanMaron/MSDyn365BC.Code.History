@@ -60,7 +60,7 @@ report 17208 "Tax Register"
                     Field.SetRange(Class, Field.Class::Normal);
                     Field.SetRange(TableNo, RecRef.Number);
                     Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-                    if Field.FindSet then
+                    if Field.FindSet() then
                         repeat
                             FldRef := RecRef.Field(Field."No.");
                             ExcelReportBuilderManager.AddDataToSection('Field' + Format(j), FldRef.Caption);
@@ -82,7 +82,7 @@ report 17208 "Tax Register"
                             FldRef := RecRef.Field(TaxRegAccumulation.FieldNo("Ending Date"));
                     end;
                     FldRef.SetFilter("Tax Register".GetFilter("Date Filter"));
-                    if not RecRef.FindSet then
+                    if not RecRef.FindSet() then
                         exit;
 
                     // Print values
@@ -92,7 +92,7 @@ report 17208 "Tax Register"
                         Field.SetRange(Class, Field.Class::Normal);
                         Field.SetRange(TableNo, RecRef.Number);
                         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-                        if Field.FindSet then
+                        if Field.FindSet() then
                             repeat
                                 FldRef := RecRef.Field(Field."No.");
                                 ExcelReportBuilderManager.AddDataToSection('Field' + Format(j), Format(FldRef.Value));

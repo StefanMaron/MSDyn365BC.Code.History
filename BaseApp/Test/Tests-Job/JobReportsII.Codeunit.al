@@ -66,7 +66,7 @@ codeunit 136311 "Job Reports II"
         // Verify Jobs Per Customer report.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         CreateInitialSetupForJob(Job);
 
         // 2. Exercise: Run Jobs Per Customer Report.
@@ -87,7 +87,7 @@ codeunit 136311 "Job Reports II"
         // Verify Item Per Job report.
 
         // 1. Setup: Create Job with Job Task and Resource.
-        Initialize;
+        Initialize();
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::" ", '');
 
         // 2. Exercise: Run Item Per Job Report.
@@ -108,7 +108,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Per Item report.
 
         // 1. Setup: Create Job with Job Task.
-        Initialize;
+        Initialize();
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::" ", '');
 
         // 2. Exercise: Run Job Per Item Report.
@@ -129,7 +129,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Register report.
 
         // 1. Setup: Create Job with Job Task.
-        Initialize;
+        Initialize();
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::" ", '');
 
         // 2. Exercise: Run Job Register Report.
@@ -144,7 +144,7 @@ codeunit 136311 "Job Reports II"
     procedure JobPlanningLinesReportWithLCY()
     begin
         // Verify Job Planning Lines Report with Local Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         JobPlanningLinesReportWithCurrency('', GetLCYCode);  // Use blank for Currency.
     end;
@@ -156,7 +156,7 @@ codeunit 136311 "Job Reports II"
         CurrencyCode: Code[10];
     begin
         // Verify Job Planning Lines Report with Foreign Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
         CurrencyCode := CreateCurrencyWithExchangeRate;
         JobPlanningLinesReportWithCurrency(CurrencyCode, CurrencyCode);
@@ -173,7 +173,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Planning Lines report with Planning Date Filter.
 
         // Setup.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         PrepareJobPlanningLinesReportWithCurrency('', JobPlanningLine, ContractPrice, ContractCost);
         with JobPlanningLine do begin
@@ -200,9 +200,9 @@ codeunit 136311 "Job Reports II"
         // Verify printing of job no. header info in Job Planning Lines report.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
-        Job.Validate(Description, LibraryUtility.GenerateGUID);
+        Job.Validate(Description, LibraryUtility.GenerateGUID());
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
@@ -248,7 +248,7 @@ codeunit 136311 "Job Reports II"
     procedure JobAnalysisReportForScheduleWithLCY()
     begin
         // Verify Job Analysis report for Schedule Price, Schedule Cost and Schedule Profit in Local Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         JobAnalysisReportForSchedule('', GetLCYCode);  // Use blank for Currency.
     end;
@@ -260,7 +260,7 @@ codeunit 136311 "Job Reports II"
         CurrencyCode: Code[10];
     begin
         // Verify Job Analysis report for Schedule Price, Schedule Cost and Schedule Profit in Foreign Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
         CurrencyCode := CreateCurrencyWithExchangeRate;
         JobAnalysisReportForSchedule(CurrencyCode, CurrencyCode);
@@ -292,7 +292,7 @@ codeunit 136311 "Job Reports II"
     procedure JobAnalysisReportForContractWithLCY()
     begin
         // Verify Job Analysis report for Contract Price, Contract Cost and Contract Profit in Local Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         JobAnalysisReportForContract('', GetLCYCode);  // Use blank for Currency.
     end;
@@ -304,7 +304,7 @@ codeunit 136311 "Job Reports II"
         CurrencyCode: Code[10];
     begin
         // Verify Job Analysis report for Contract Price, Contract Cost and Contract Profit in Foreign Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
         CurrencyCode := CreateCurrencyWithExchangeRate;
         JobAnalysisReportForContract(CurrencyCode, CurrencyCode);
@@ -337,7 +337,7 @@ codeunit 136311 "Job Reports II"
     procedure JobAnalysisReportForUsageWithLCY()
     begin
         // Verify Job Analysis report for Usage Price, Usage Cost and Usage Profit in Local Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         JobAnalysisReportForUsage('', GetLCYCode);  // Use blank for Currency.
     end;
@@ -350,7 +350,7 @@ codeunit 136311 "Job Reports II"
         CurrencyCode: Code[10];
     begin
         // Verify Job Analysis report for Usage Price, Usage Cost and Usage Profit in Foreign Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
         CurrencyCode := CreateCurrencyWithExchangeRate;
         JobAnalysisReportForUsage(CurrencyCode, CurrencyCode);
@@ -381,7 +381,7 @@ codeunit 136311 "Job Reports II"
     procedure JobAnalysisReportForInvoiceWithLCY()
     begin
         // Verify Job Analysis report for Invoiced Price, Invoiced Cost and Invoiced Profit in Local Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Local Currency";  // Assign in Global variable.
         JobAnalysisReportForInvoice('', GetLCYCode);  // Use blank for Currency.
     end;
@@ -394,7 +394,7 @@ codeunit 136311 "Job Reports II"
         CurrencyCode: Code[10];
     begin
         // Verify Job Analysis report for Invoiced Price, Invoiced Cost and Invoiced Profit in Foreign Currency.
-        Initialize;
+        Initialize();
         CurrencyField := CurrencyField::"Foreign Currency";  // Assign in Global variable.
         CurrencyCode := CreateCurrencyWithExchangeRate;
         JobAnalysisReportForInvoice(CurrencyCode, CurrencyCode);
@@ -426,7 +426,7 @@ codeunit 136311 "Job Reports II"
         JobTaskNo: Code[20];
     begin
         // Verify Job Task Line with zero amount does not exist on Job Analysis Report when Exclude Zero Lines boolean is True.
-        Initialize;
+        Initialize();
         JobTaskNo := RunJobAnalysisReportWithMultipleJobTask(true);  // True is to Exclude Zero Lines.
 
         // 3. Verify: Verify Job Task Line with zero amount does not exist on Job Analysis Report.
@@ -441,7 +441,7 @@ codeunit 136311 "Job Reports II"
         JobTaskNo: Code[20];
     begin
         // Verify Job Task Line with zero amount exists on Job Analysis Report when Exclude Zero Lines boolean is False.
-        Initialize;
+        Initialize();
         JobTaskNo := RunJobAnalysisReportWithMultipleJobTask(false);  // False is to Include Zero Lines.
 
         // 3. Verify: Verify Job Task Line with zero amount exists on Job Analysis Report.
@@ -474,7 +474,7 @@ codeunit 136311 "Job Reports II"
         JobNo: Code[20];
     begin
         // 1. Setup.
-        Initialize;
+        Initialize();
         CurrencyField := NewCurrencyField;  // Assign in Global variable.
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::Billable, CurrencyCode);
 
@@ -494,7 +494,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Suggested Billing Report.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         JobSuggestedBilling('', GetLCYCode, CurrencyField::"Local Currency");
     end;
 
@@ -508,7 +508,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Suggested Billing Report with Curreny.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyWithExchangeRate;
         JobSuggestedBilling(CurrencyCode, CurrencyCode, CurrencyField::"Foreign Currency");
     end;
@@ -541,7 +541,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Journal Test Report.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask, '');
         LibraryJob.CreateJobJournalLineForType(JobJournalLine."Line Type"::Billable, JobJournalLine.Type::Item, JobTask, JobJournalLine);
 
@@ -568,7 +568,7 @@ codeunit 136311 "Job Reports II"
         // Verify Job Journal Test Report with Dimension.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask, '');
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
@@ -612,7 +612,7 @@ codeunit 136311 "Job Reports II"
         JobNo: Code[20];
     begin
         // 1. Setup.
-        Initialize;
+        Initialize();
         CurrencyField := NewCurrencyField;
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::Billable, CurrencyCode);
 
@@ -645,7 +645,7 @@ codeunit 136311 "Job Reports II"
         CurrencyOption: Option;
     begin
         // [SCENARIO 322646] Calculation Total and SubTotal amounts in report "Job - Transaction Details" for job tasks having multiple job ledger entries
-        Initialize;
+        Initialize();
         CurrencyOption := CurrencyField::"Local Currency";
 
         // [GIVEN] Two jobs "A" and "B" with two job tasks each: "A_T_1", "A_T_2", "B_T_1", "B_T_2"
@@ -724,7 +724,7 @@ codeunit 136311 "Job Reports II"
         JobLedgerEntries.OpenView();
         JobLedgerEntries.Filter.SetFilter("Job No.", JobTask."Job No.");
         JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         CollectDocEntries(JobLedgerEntry, TempDocumentEntry);
         DocumentEntries.TransferDocEntries(TempDocumentEntry);
         DocumentEntries.TransferFilters(JobLedgerEntry."Document No.", Format(JobLedgerEntry."Posting Date"));
@@ -749,7 +749,7 @@ codeunit 136311 "Job Reports II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Reports II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         // To clear all Global variables.
         ClearGlobals;
 
@@ -757,10 +757,10 @@ codeunit 136311 "Job Reports II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Reports II");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
@@ -922,7 +922,7 @@ codeunit 136311 "Job Reports II"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("Currency Code", CurrencyCode);
         SalesHeader.SetRange("Sell-to Customer No.", Job."Bill-to Customer No.");
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -948,7 +948,7 @@ codeunit 136311 "Job Reports II"
 
         // Post Job Journal Line for Usage.
         JobJournalLine.SetRange("Job No.", JobPlanningLine."Job No.");
-        JobJournalLine.FindFirst;
+        JobJournalLine.FindFirst();
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
@@ -962,7 +962,7 @@ codeunit 136311 "Job Reports II"
     local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobNo: Code[20])
     begin
         JobLedgerEntry.SetRange("Job No.", JobNo);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
     end;
 
     local procedure GetLCYCode(): Code[10]

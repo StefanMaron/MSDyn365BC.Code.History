@@ -213,7 +213,7 @@ page 12442 "VAT Purchase Ledger Card"
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
                         VATLedgerExport.InitializeReport(Type, Code, false);
-                        VATLedgerExport.RunModal;
+                        VATLedgerExport.RunModal();
                     end;
                 }
                 action("Export Add. Sheet")
@@ -231,7 +231,7 @@ page 12442 "VAT Purchase Ledger Card"
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
                         VATLedgerExport.InitializeReport(Type, Code, true);
-                        VATLedgerExport.RunModal;
+                        VATLedgerExport.RunModal();
                     end;
                 }
                 action("Export Ledger XML Format")
@@ -249,7 +249,7 @@ page 12442 "VAT Purchase Ledger Card"
                         VATLedgerExportXML: Report "VAT Ledger Export XML";
                     begin
                         VATLedgerExportXML.InitializeReport(Type, Code, false);
-                        VATLedgerExportXML.RunModal;
+                        VATLedgerExportXML.RunModal();
                     end;
                 }
                 action("Export Add. Sheet XML Format")
@@ -267,7 +267,7 @@ page 12442 "VAT Purchase Ledger Card"
                         VATLedgerExportXML: Report "VAT Ledger Export XML";
                     begin
                         VATLedgerExportXML.InitializeReport(Type, Code, true);
-                        VATLedgerExportXML.RunModal;
+                        VATLedgerExportXML.RunModal();
                     end;
                 }
             }

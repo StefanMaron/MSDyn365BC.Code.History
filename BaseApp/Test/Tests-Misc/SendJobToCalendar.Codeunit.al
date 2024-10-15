@@ -908,7 +908,6 @@ codeunit 136315 "Send Job To Calendar"
     var
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLineCalendar: Record "Job Planning Line - Calendar";
-        SMTPMailSetup: Record "SMTP Mail Setup";
         Seed: Variant;
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Send Job To Calendar");
@@ -917,14 +916,6 @@ codeunit 136315 "Send Job To Calendar"
         LibraryRandom.SetSeed(Seed);
         JobPlanningLine.DeleteAll(false);
         JobPlanningLineCalendar.DeleteAll(false);
-
-        SMTPMailSetup.DeleteAll();
-        SMTPMailSetup.Init();
-        SMTPMailSetup."SMTP Server" := 'localhost';
-        SMTPMailSetup."SMTP Server Port" := 9999;
-        SMTPMailSetup."User ID" := SMTPSenderTxt;
-        SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Anonymous;
-        SMTPMailSetup.Insert();
 
         if IsInitialized then
             exit;

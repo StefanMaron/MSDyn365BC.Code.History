@@ -56,7 +56,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveSalesOrderAgainstAssemblyOrderWithoutLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAssemblyOrderWithoutLotAndSalesOrderWithLot(false);  // Post Sales Order as FALSE.
     end;
 
@@ -66,7 +66,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrderAndSalesOrderWithLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAssemblyOrderWithoutLotAndSalesOrderWithLot(true);  // Post Sales Order as TRUE.
     end;
 
@@ -113,7 +113,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveSalesOrderAgainstAssemblyOrderWithLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAssemblyOrderWithLotAndSalesOrderWithLot(false);  // Post Sales Order as FALSE.
     end;
 
@@ -123,7 +123,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrderWithoutLotAndSalesOrderWithLot()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAssemblyOrderWithLotAndSalesOrderWithLot(true);  // Post Sales Order as TRUE.
     end;
 
@@ -170,7 +170,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveSOAgainstAOAfterApplyingTrackingOnSOError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveSOAgainstAOAfterApplyingTrackingOnSO(false);  // Specific Reservation as FALSE.
     end;
 
@@ -180,7 +180,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveSalesOrderAgainstAOWithSpecificReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveSOAgainstAOAfterApplyingTrackingOnSO(true);  // Specific Reservation as FALSE.
     end;
 
@@ -232,7 +232,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveSOAgainstAOWithoutNonSpecificReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOAfterApplyingTrackingOnSalesOrder(false);  // Non Specific Reservation as FALSE.
     end;
 
@@ -242,7 +242,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveSOAgainstAOWithNonSpecificReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOAfterApplyingTrackingOnSalesOrder(true);  // Non Specific Reservation as TRUE.
     end;
 
@@ -300,7 +300,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrderAndSOWithSpecificReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostAssemblyOrderAndSalesOrderWithReservation(false, true);  // Enqueue Confirm as FALSE, Enqueue Reservation as TRUE.
     end;
 
@@ -310,7 +310,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAOAndSOWithoutNonSpecificReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostAssemblyOrderAndSalesOrderWithReservation(true, true);  // Enqueue Confirm as TRUE, Enqueue Reservation as TRUE.
     end;
 
@@ -320,7 +320,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrderAndSOWithNonSpecificReservation()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostAssemblyOrderAndSalesOrderWithReservation(true, false);  // Enqueue Confirm as TRUE, Enqueue Reservation as FALSE.
     end;
 
@@ -354,7 +354,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveFromAOAfterRefreshProductionOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAOAfterRefreshProdOrderWithDifferentUOM(false);  // Update UOM as FALSE.
     end;
 
@@ -364,7 +364,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveFromAOAfterRefreshProdOrderWithDifferentUOM()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAOAfterRefreshProdOrderWithDifferentUOM(true);  // Update UOM as TRUE.
     end;
 
@@ -423,7 +423,7 @@ codeunit 137099 "SCM Kitting Reservation"
         OldStockOutWarning: Boolean;
     begin
         // Setup: Create Assembly Order. Update starting date on Assembly Header.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         LibraryAssembly.CreateItem(Item, Item."Costing Method", Item."Replenishment System"::Assembly, '', '');
         EnqueueValuesForConfirmHandler(StartingDateError, true);
@@ -457,7 +457,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ComponentItemNo: Code[20];
     begin
         // Setup: Create Assembly Item with components. Update Reserve as always on Item. Create Purchase Order and Sales Order.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         ComponentItemNo := CreateInitialSetupForSalesDocument(Item, PurchaseHeader);
         CreateSalesOrder(
@@ -485,7 +485,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ComponentItemNo: Code[20];
     begin
         // Setup: Create Assembly Item with components. Update Reserve as always on Item. Create Purchase Order and Blanket Sales Order.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         ComponentItemNo := CreateInitialSetupForSalesDocument(Item, PurchaseHeader);
         CreateBlanketSalesOrder(SalesHeader, Item."No.", PurchaseHeader."Order Date", LibraryRandom.RandDec(10, 2));
@@ -512,7 +512,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ComponentItemNo: Code[20];
     begin
         // Setup: Create Assembly Item with components. Update Reserve as always on Item. Create Purchase Order and Sales Quote.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         ComponentItemNo := CreateInitialSetupForSalesDocument(Item, PurchaseHeader);
         CreateSalesQuote(SalesHeader, Item."No.", PurchaseHeader."Order Date", LibraryRandom.RandDec(10, 2));
@@ -543,7 +543,7 @@ codeunit 137099 "SCM Kitting Reservation"
         Quantity: Decimal;
     begin
         // Setup: Create Assembly Item with components. Update Inventory using Warehouse Journal. Create Sales Order and reserve quantity. Create Assembly Order and Update Location on Assembly Line.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         Quantity := LibraryRandom.RandDec(10, 2);
         ComponentItemNo := CreateAssemblyItemWithComponent(Item, Item."Assembly Policy"::"Assemble-to-Order", Quantity, '', '');
@@ -573,7 +573,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure AssemblyOrdWithTrackedQtyLessThanReserveQty()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOWithTrackedQtyLessThanReserveQty(false);  // Post Assembly Order as False.
     end;
 
@@ -583,7 +583,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrdWithTrackedQtyLessThanReserveQty()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOWithTrackedQtyLessThanReserveQty(true);  // Post Assembly Order as True.
     end;
 
@@ -636,7 +636,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure AssemblyOrdWithTrackedQtyGreaterThanReserveQty()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOWithTrackedQtyGreaterThanReserveQty(false);  // PostAssembly as False.
     end;
 
@@ -646,7 +646,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrdWithTrackedQtyGreaterThanReserveQty()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOWithTrackedQtyGreaterThanReserveQty(true);  // PostAssembly as False.
     end;
 
@@ -704,7 +704,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure ReserveFromAOAfterApplyingTrackingOnAssemblyOrder()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOAfterApplyingTrackingOnAssemblyOrd(false);  // PostAssemblyOrder as False.
     end;
 
@@ -714,7 +714,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostAssemblyOrderAfterApplyingTrackingOnAO()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ReserveFromAOAfterApplyingTrackingOnAssemblyOrd(true);  // PostAssemblyOrder as True.
     end;
 
@@ -778,7 +778,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ComponentItemNo: Code[20];
     begin
         // Setup: Create Purchase Order. Create and post Item Journal Line. Create Assembly Order.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         Quantity := LibraryRandom.RandDec(10, 2);
         ComponentItemNo :=
@@ -806,7 +806,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure QuantityTrackedGreaterThanReservationQuantityError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostSalesOrderAfterUpdateTrackedQtyOnReservation(true, false);  // Quantity Tracked Greater Than Reservation as TRUE, Post Sales Order as FALSE.
     end;
 
@@ -816,7 +816,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostSOWithQuantityTrackedGreaterThanReservationQty()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostSalesOrderAfterUpdateTrackedQtyOnReservation(true, true);  // Quantity Tracked Greater Than Reservation, Post Sales Order as TRUE.
     end;
 
@@ -826,7 +826,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure QuantityTrackedLessThanReservationQuantityError()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostSalesOrderAfterUpdateTrackedQtyOnReservation(false, false);  // Quantity Tracked Greater Than Reservation, Post Sales Order as FALSE.
     end;
 
@@ -836,7 +836,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure PostSOWithQuantityTrackedLessThanReservationQty()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PostSalesOrderAfterUpdateTrackedQtyOnReservation(false, true);  // Quantity Tracked Greater Than Reservation as FALSE, Post Sales Order as TRUE.
     end;
 
@@ -900,7 +900,7 @@ codeunit 137099 "SCM Kitting Reservation"
         Quantity: Decimal;
     begin
         // Setup: Update Stock Out Warning on Assembly Setup. Create Lot Item Tracking Code. Create Assembly Item with Component. Create Sales Order. Create Purchase Order. Assign Tracking on assembly Order. Update Quantity to Ship on Sales Line.
-        Initialize;
+        Initialize();
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemTrackingCode(ItemTrackingCode);
@@ -932,7 +932,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure CreateSalesOrderForAssemblyItemWithSerialItemTracking()
     begin
         // Test creating sales order for assembly item with Tracking Only policy and SN Specific Item Tracking Code can succeed. Verify Reservation Entry created.
-        Initialize;
+        Initialize();
         CreateSalesOrderForAssemblyItemWithItemTracking(true, false); // TRUE for SN Specific Tracking, FALSE for Lot Specific Tracking
     end;
 
@@ -942,7 +942,7 @@ codeunit 137099 "SCM Kitting Reservation"
     procedure CreateSalesOrderForAssemblyItemWithLotItemTracking()
     begin
         // Test creating sales order for assembly item with Tracking Only policy and Lot Specific Item Tracking Code can succeed. Verify Reservation Entry created.
-        Initialize;
+        Initialize();
         CreateSalesOrderForAssemblyItemWithItemTracking(false, true); // FALSE for SN Specific Tracking, TRUE for Lot Specific Tracking
     end;
 
@@ -959,7 +959,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
         // Setup: Create Assembly Item and Assembly BOM with at least three component Items.
         // Create Sales Order with Assembly Item. Add inventory for component Items.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(
           AsmItem, AsmItem."Costing Method"::Standard, AsmItem."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(
@@ -994,7 +994,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
         // Setup: Update Stock Out Warning on Assembly Setup.
         // Create Item with Assembly Component. Assembly Component Item with Lot Tracking and "Man. Expir. Date Entry Reqd.".
-        Initialize;
+        Initialize();
         ComponentItemNo := CreateAssemblyItemWithTrackedComponentItemAndExpirDateReqd(AssemblyItem);
 
         // Update Inventory for Assembly Component Item with setting Lot No. and Expiration Date.
@@ -1025,7 +1025,7 @@ codeunit 137099 "SCM Kitting Reservation"
         // Test "The following C/AL functions..." error does not pop up when setting the Quantity on a Sales Line, which has a related Assembly Order.
 
         // Setup: Create Assembly Item, add inventory for Assembly Item.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(
           AsmItem, AsmItem."Costing Method"::Standard, AsmItem."Replenishment System"::Assembly, '', '');
         Qty := LibraryRandom.RandInt(20);
@@ -1068,7 +1068,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         // [FEATURE] [Assembly Order] [Picks]
         // [SCENARIO 378847] "Qty. Picked" should be equal to the rest of Quantity in Assembly Line when undo a partial Posted Assembly Order after full posting.
-        Initialize;
+        Initialize();
         QtyPer := LibraryRandom.RandDec(10, 2);
         PartialQtyToAssemble := LibraryRandom.RandDec(10, 2);
         RestOfQtyToAssemble := PartialQtyToAssemble + LibraryRandom.RandDec(20, 2);
@@ -1107,7 +1107,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         // [FEATURE] [Warehouse Pick]
         // [SCENARIO 381763] Item that is picked to assembly bin cannot be reserved by another demand as it is now blocked as allocated in warehouse.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Assembly Item "I" with a component "C" in stock.
@@ -1148,9 +1148,9 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         // [FEATURE] [Warehouse Pick] [Item Tracking] [Lot Warehouse Tracking]
         // [SCENARIO 381763] Lot that is picked to assembly bin cannot be reserved by another demand as it is now blocked as allocated in warehouse.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
-        LotNo := LibraryUtility.GenerateGUID;
+        LotNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Assembly Item "I" with a lot-tracked component "C" in stock. Lot No. = "L".
         LibraryVariableStorage.Enqueue(LotNo);
@@ -1256,18 +1256,18 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting Reservation");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting Reservation");
 
-        NoSeriesSetup;
+        NoSeriesSetup();
         CreateLocationSetup;
         ItemJournalSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -1753,7 +1753,7 @@ codeunit 137099 "SCM Kitting Reservation"
         // Exercise: Create Sales Order, the Assembly Order will be generated.
         // Verify: No error pops up.
         CreateSalesOrder(
-          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", LibraryRandom.RandDec(10, 2), '', false, false);
+          SalesHeader, SalesLine, CalculateDateUsingDefaultSafetyLeadTime, Item."No.", LibraryRandom.RandInt(10), '', false, false);
 
         // Verify: Reservation Entries are created.
         VerifyReservationEntry(
@@ -1825,14 +1825,14 @@ codeunit 137099 "SCM Kitting Reservation"
     local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20])
     begin
         AssemblyHeader.SetRange("Item No.", ItemNo);
-        AssemblyHeader.FindFirst;
+        AssemblyHeader.FindFirst();
     end;
 
     local procedure FindAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; ItemNo: Code[20])
     begin
         AssemblyLine.SetRange("Document Type", DocumentType);
         AssemblyLine.SetRange("No.", ItemNo);
-        AssemblyLine.FindFirst;
+        AssemblyLine.FindFirst();
     end;
 
     local procedure FindAssemblyLines(var AssemblyLine: Record "Assembly Line"; ItemNo: Code[20])
@@ -1880,7 +1880,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10]; BinTypeCode: Code[10])
@@ -1888,14 +1888,14 @@ codeunit 137099 "SCM Kitting Reservation"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", BinTypeCode);
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure FindWhseWorksheetLines(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocumentType: Enum "Warehouse Worksheet Document Type"; WhseDocumentNo: Code[20])
     begin
         WhseWorksheetLine.SetRange("Whse. Document Type", WhseDocumentType);
         WhseWorksheetLine.SetRange("Whse. Document No.", WhseDocumentNo);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
     end;
 
     local procedure InvokeGetWarehouseDocumentOnPickWorksheet()
@@ -1940,7 +1940,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         AssemblyHeader.Find;
         LibraryAssembly.FindPostedAssemblyHeaders(PostedAssemblyHeader, AssemblyHeader);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
     end;
 
     local procedure PickAndPostRestOfAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; QtyToAssemble: Decimal; QtyPicked: Decimal)
@@ -1985,7 +1985,7 @@ codeunit 137099 "SCM Kitting Reservation"
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
         PostedAssemblyHeader.SetRange("Order No.", OrderNo);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
 
         LibraryVariableStorage.Enqueue(UndoPostedAssemblyOrderQst); // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(true); // First time the answer is "Yes" for conform dialog.
@@ -2022,7 +2022,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         with ItemTrackingCode do begin
             SetRange(Code, TrackingCode);
-            FindFirst;
+            FindFirst();
             if not "Use Expiration Dates" then
                 Validate("Use Expiration Dates", true);
             Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntryReqd);
@@ -2115,7 +2115,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Unit of Measure", UnitOfMeasureCode);
         PurchaseLine.Modify(true);
     end;
@@ -2151,7 +2151,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Source Type", SourceType);
         ReservationEntry.SetRange("Lot No.", LotNo);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, Quantity);
     end;
 
@@ -2175,7 +2175,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         with ReservationEntry do begin
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpirationDate, "Expiration Date", StrSubstNo(ReservationEntryErr, FieldCaption("Expiration Date")));
         end;
     end;
@@ -2199,7 +2199,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreEqual(Qty, SalesInvoiceLine.Quantity, QtyIsNotCorrectErr);
     end;
 
@@ -2292,13 +2292,13 @@ codeunit 137099 "SCM Kitting Reservation"
         DequeueVariable: Variant;
         Quantity: Variant;
         Quantity2: Variant;
-        FindFirst: Boolean;
+        FindFirstRec: Boolean;
     begin
         LibraryVariableStorage.Dequeue(DequeueVariable);
-        FindFirst := DequeueVariable;
+        FindFirstRec := DequeueVariable;
         LibraryVariableStorage.Dequeue(DequeueVariable);
         ReservationMode := DequeueVariable;
-        if FindFirst then
+        if FindFirstRec then
             Reservation.First;
         case ReservationMode of
             ReservationMode::ReserveFromCurrentLine:

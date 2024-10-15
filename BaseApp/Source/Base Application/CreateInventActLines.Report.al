@@ -31,7 +31,7 @@ report 14913 "Create Invent. Act Lines"
                 CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
                 CustLedgerEntry.SetRange("Customer No.", "No.");
                 CustLedgerEntry.SetRange("Posting Date", 0D, "Invent. Act Header"."Inventory Date");
-                if CustLedgerEntry.FindSet then
+                if CustLedgerEntry.FindSet() then
                     repeat
                         if not CustPostGroupBuffer.Get(CustLedgerEntry."Customer Posting Group") then begin
                             CustPostGroup.Get(CustLedgerEntry."Customer Posting Group");
@@ -40,14 +40,14 @@ report 14913 "Create Invent. Act Lines"
                         end;
                     until CustLedgerEntry.Next() = 0;
 
-                if CustPostGroupBuffer.FindSet then
+                if CustPostGroupBuffer.FindSet() then
                     repeat
                         DebtsAmount := 0;
                         LiabilitiesAmount := 0;
 
                         CustLedgerEntry.SetRange("Date Filter", 0D, "Invent. Act Header"."Inventory Date");
                         CustLedgerEntry.SetRange("Customer Posting Group", CustPostGroupBuffer.Code);
-                        if CustLedgerEntry.FindSet then
+                        if CustLedgerEntry.FindSet() then
                             repeat
                                 CustLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                                 if CustLedgerEntry."Remaining Amt. (LCY)" > 0 then
@@ -74,7 +74,7 @@ report 14913 "Create Invent. Act Lines"
                 VendLedgerEntry.SetCurrentKey("Vendor No.", "Posting Date", "Currency Code");
                 VendLedgerEntry.SetRange("Vendor No.", "No.");
                 VendLedgerEntry.SetRange("Posting Date", 0D, "Invent. Act Header"."Inventory Date");
-                if VendLedgerEntry.FindSet then
+                if VendLedgerEntry.FindSet() then
                     repeat
                         if not VendPostGroupBuffer.Get(VendLedgerEntry."Vendor Posting Group") then begin
                             VendPostGroup.Get(VendLedgerEntry."Vendor Posting Group");
@@ -83,14 +83,14 @@ report 14913 "Create Invent. Act Lines"
                         end;
                     until VendLedgerEntry.Next() = 0;
 
-                if VendPostGroupBuffer.FindSet then
+                if VendPostGroupBuffer.FindSet() then
                     repeat
                         DebtsAmount := 0;
                         LiabilitiesAmount := 0;
 
                         VendLedgerEntry.SetRange("Date Filter", 0D, "Invent. Act Header"."Inventory Date");
                         VendLedgerEntry.SetRange("Vendor Posting Group", VendPostGroupBuffer.Code);
-                        if VendLedgerEntry.FindSet then
+                        if VendLedgerEntry.FindSet() then
                             repeat
                                 VendLedgerEntry.CalcFields("Remaining Amt. (LCY)");
                                 if VendLedgerEntry."Remaining Amt. (LCY)" > 0 then

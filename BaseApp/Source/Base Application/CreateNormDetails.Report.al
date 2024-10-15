@@ -178,12 +178,12 @@ report 17207 "Create Norm Details"
         NormDetail.SetRange("Norm Jurisdiction Code", NormJurisdictionCode);
         NormDetail.SetRange("Norm Type", NormDetail."Norm Type"::Amount);
         NormDetail.SetFilter("Effective Date", '%1..', DateEnd);
-        if NormGroup.FindSet then
+        if NormGroup.FindSet() then
             repeat
                 NormDetail.SetRange("Norm Group Code", NormGroup.Code);
                 NormAccumulat.SetRange("Norm Group Code", NormGroup.Code);
                 NormAccumulat.DeleteAll();
-                if NormDetail.FindFirst then
+                if NormDetail.FindFirst() then
                     if not DeleteWasConfirmed then begin
                         if not Confirm(Text1001, false) then
                             Error('');
@@ -196,13 +196,13 @@ report 17207 "Create Norm Details"
         CycleLevel := 1;
         while CycleLevel <> 0 do begin
             NormGroup.SetRange(Level, CycleLevel);
-            if not NormGroup.FindSet then
+            if not NormGroup.FindSet() then
                 CycleLevel := 0
             else begin
                 repeat
                     if NormGroup."Storing Method" = NormGroup."Storing Method"::Calculation then begin
                         NormTemplateLine.SetRange("Norm Group Code", NormGroup.Code);
-                        if NormTemplateLine.FindFirst then begin
+                        if NormTemplateLine.FindFirst() then begin
                             NormTemplateLine.SetRange("Date Filter", DateBegin, DateEnd);
                             NormTemplateRecordRef.GetTable(NormTemplateLine);
                             NormTemplateRecordRef.SetView(NormTemplateLine.GetView(false));
@@ -259,7 +259,7 @@ report 17207 "Create Norm Details"
                 NormAccumulat.Amount := EntryNoAmountBuffer.Amount;
                 NormAccumulat."Amount Period" := NormAccumulat.Amount;
 
-                if not NormAccumulat0.FindLast then
+                if not NormAccumulat0.FindLast() then
                     NormAccumulat0."Entry No." := 0;
                 NormAccumulat."Entry No." := NormAccumulat0."Entry No." + 1;
                 NormAccumulat.Insert();

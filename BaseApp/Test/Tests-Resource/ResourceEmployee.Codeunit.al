@@ -39,7 +39,7 @@ codeunit 136400 "Resource Employee"
         // Test Employee No. is incremented automatically as per the setup.
 
         // 1. Setup: Get next employee no from No Series.
-        Initialize;
+        Initialize();
         NextEmployeeNo := NoSeriesManagement.GetNextNo(LibraryHumanResource.SetupEmployeeNumberSeries, WorkDate, false);
 
         // 2. Exercise:  Create new Employee.
@@ -58,7 +58,7 @@ codeunit 136400 "Resource Employee"
         // Create new Employee and verify Employee exists after creation.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Employee.
         LibraryHumanResource.CreateEmployee(Employee);
@@ -77,7 +77,7 @@ codeunit 136400 "Resource Employee"
         // Create new Employee, delete and verify Employee has been deleted.
 
         // 1. Setup: Create Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         EmployeeNo := Employee."No.";
 
@@ -100,7 +100,7 @@ codeunit 136400 "Resource Employee"
         // Create new Employee and verify Address after modification in Employee.
 
         // 1. Setup: Create employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
 
         // 2. Exercise: Input the Employee Address.
@@ -132,7 +132,7 @@ codeunit 136400 "Resource Employee"
         // Create new Employee with No. of existing Employee and verify that application generates an error message.
 
         // 1. Setup: Create first Employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         FirstEmployeeNo := Employee."No.";
         Clear(Employee);
@@ -156,7 +156,7 @@ codeunit 136400 "Resource Employee"
         // Create new Employee, rename with No. of existing Employee and verify that application generates an error message.
 
         // 1. Setup: Create first employee.
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         FirstEmployeeNo := Employee."No.";
         Clear(Employee);
@@ -185,7 +185,7 @@ codeunit 136400 "Resource Employee"
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
 
         commit();
-        EmployeeCard.OpenNew;
+        EmployeeCard.OpenNew();
         EmployeeCard."No.".AssistEdit; // Get No. Series Code in EmployeeNoSeriesCode.
 
         // 3. Verify: No. Series Code must match with No. Series Code in Setup.
@@ -202,7 +202,7 @@ codeunit 136400 "Resource Employee"
         // Test Employee E-Mail and Company E-Mail validation
 
         // Setup: Create and open Employee Card
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
 
         EmployeeCard.OpenEdit;
@@ -225,7 +225,7 @@ codeunit 136400 "Resource Employee"
         // Test Employee E-Mail and Company E-Mail validation
 
         // 1. Setup: Create and open Employee Card
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         Commit();
 
@@ -253,7 +253,7 @@ codeunit 136400 "Resource Employee"
         // Test Employee E-Mail and Company E-Mail validation
 
         // 1. Setup: Create and open Employee Card
-        Initialize;
+        Initialize();
         LibraryHumanResource.CreateEmployee(Employee);
         Commit();
 
@@ -280,7 +280,7 @@ codeunit 136400 "Resource Employee"
         // Test Post Codes Page is non editable in View mode.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Open Post Codes Page in View mode.
         PostCodes.OpenView;
@@ -300,7 +300,7 @@ codeunit 136400 "Resource Employee"
         // Test Country Region Page is non editable in View mode.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Open Country Region Page in View mode.
         CountriesRegions.OpenView;
@@ -319,7 +319,7 @@ codeunit 136400 "Resource Employee"
         // Test Causes Of Inactivity Page is non editable in View mode.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Open Causes Of Inactivity Page in View mode.
         CausesofInactivity.OpenView;
@@ -338,7 +338,7 @@ codeunit 136400 "Resource Employee"
         // Test Unions Page is non editable in View mode.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Open Unions Page in View mode.
         Unions.OpenView;
@@ -358,7 +358,7 @@ codeunit 136400 "Resource Employee"
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
     begin
         // [SCENARIO 285567] Base Unit Of Measure changed and check for quantity is performed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Human Resources Setup - HRS
         HumanResourcesSetup.Get();
@@ -389,7 +389,7 @@ codeunit 136400 "Resource Employee"
         QtyPerUnitOfMeasure: Integer;
     begin
         // [SCENARIO 285567] Base Unit Of Measure changed and check for quantity is performed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Human Resources Setup - HRS with "Base Unit of Measure" - Y
         HumanResourcesSetup.Get();
@@ -418,7 +418,7 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // [SCENARIO 287807] County of the resource linked to employee is being updated on modify County of employee
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
@@ -452,7 +452,7 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // [SCENARIO 287807] City of the resource linked to employee is being updated on modify City of employee
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
@@ -483,7 +483,7 @@ codeunit 136400 "Resource Employee"
         EmployeeCard: TestPage "Employee Card";
     begin
         // [SCENARIO 287807] "Country/Region Code" of the resource linked to employee is being updated on modify "Country/Region Code" of employee
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
@@ -514,7 +514,7 @@ codeunit 136400 "Resource Employee"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 287807] It is possible to use events to extend Employee/Resource Update functionality
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee "E" with linked resource "R"
         LibraryHumanResource.CreateEmployee(Employee);
@@ -547,6 +547,7 @@ codeunit 136400 "Resource Employee"
     var
         EmployeeTempl: Record "Employee Templ.";
         OnlineMapSetup: Record "Online Map Setup";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Resource Employee");
         EmployeeTempl.DeleteAll(true);

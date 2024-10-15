@@ -1,4 +1,3 @@
-#pragma warning disable AS0083
 enum 5208 "Human Resources Comment Table Name"
 {
     Extensible = true;
@@ -12,4 +11,3 @@ enum 5208 "Human Resources Comment Table Name"
     value(5; "Misc. Article Information") { Caption = 'Misc. Article Information'; }
     value(6; "Confidential Information") { Caption = 'Confidential Information'; }
 }
-#pragma warning restore AS0083

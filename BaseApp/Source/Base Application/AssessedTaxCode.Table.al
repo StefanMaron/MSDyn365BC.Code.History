@@ -116,7 +116,7 @@ table 14921 "Assessed Tax Code"
     begin
         FixedAsset.Reset();
         FixedAsset.SetRange("Assessed Tax Code", Code);
-        if FixedAsset.FindFirst then
+        if FixedAsset.FindFirst() then
             Error(Text002, Code, FixedAsset."No.");
     end;
 
@@ -130,7 +130,7 @@ table 14921 "Assessed Tax Code"
     begin
         FixedAsset.Reset();
         FixedAsset.SetRange("Assessed Tax Code", Code);
-        if FixedAsset.FindFirst then
+        if FixedAsset.FindFirst() then
             Error(Text001, Code, FixedAsset."No.");
     end;
 }

@@ -74,7 +74,7 @@ codeunit 144707 "ERM Advance Statement"
         // [FEATURE] [UI]
         // [SCENARIO 364587] "Purchase Invoice" page does not show Advance Statements
 
-        Initialize;
+        Initialize();
         // [GIVEN] Invoice "X1" with "Empl. Purch" = No
         MockPurchInvoice(InvPurchHeader, false);
         // [GIVEN] Invoice "X2" with "Empl. Purch" = Yes
@@ -97,9 +97,9 @@ codeunit 144707 "ERM Advance Statement"
     begin
         // [SCENARIO 377331] "OKPO Code" should be taken from Company Information setup to print in Advance Statement Report
 
-        Initialize;
+        Initialize();
         // [GIVEN] "OKPO Code" is "X" in "Company Information"
-        NewOKPOCode := LibraryUtility.GenerateGUID;
+        NewOKPOCode := LibraryUtility.GenerateGUID();
         UpdateOKPOCodeInCompanyInfo(NewOKPOCode);
 
         // [GIVEN] Purchase Order
@@ -123,9 +123,9 @@ codeunit 144707 "ERM Advance Statement"
     begin
         // [SCENARIO 377331] "OKPO Code" should be taken from Company Information setup to print in Posted Advance Statement Report
 
-        Initialize;
+        Initialize();
         // [GIVEN] "OKPO Code" is "X" in "Company Information"
-        NewOKPOCode := LibraryUtility.GenerateGUID;
+        NewOKPOCode := LibraryUtility.GenerateGUID();
         UpdateOKPOCodeInCompanyInfo(NewOKPOCode);
 
         // [GIVEN] Posted Purchase Order
@@ -148,7 +148,7 @@ codeunit 144707 "ERM Advance Statement"
     begin
         // [FEATURE] [Report][Reminder]
         // [SCENARIO 377029] Reminder should be empty in Advance Statment report when reminder is zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released advance statement for payment
         CreatePostCashOrderJournal(GenJournalLine);
@@ -165,11 +165,11 @@ codeunit 144707 "ERM Advance Statement"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         IsInitialized := true;
@@ -178,7 +178,7 @@ codeunit 144707 "ERM Advance Statement"
 
     local procedure CreatePurchInvoiceAndPrintAdvStatement(var PurchaseHeader: Record "Purchase Header"; LinesQuantity: Integer)
     begin
-        Initialize;
+        Initialize();
         LibraryRUReports.CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LinesQuantity);
         RunAdvanceStatementReport(PurchaseHeader);
     end;
@@ -187,7 +187,7 @@ codeunit 144707 "ERM Advance Statement"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
         DocumentNo := LibraryRUReports.CreatePostPurchDocument(PurchaseHeader."Document Type"::Invoice, LinesQuantity);
         RunPostedAdvanceStatementReport(DocumentNo);
     end;
@@ -236,12 +236,12 @@ codeunit 144707 "ERM Advance Statement"
     var
         AdvanceStatement: Report "Advance Statement";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         PurchaseHeader.SetRecFilter;
         AdvanceStatement.SetTableView(PurchaseHeader);
         AdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName);
         AdvanceStatement.UseRequestPage(false);
-        AdvanceStatement.Run;
+        AdvanceStatement.Run();
     end;
 
     local procedure RunPostedAdvanceStatementReport(DocumentNo: Code[20])
@@ -249,12 +249,12 @@ codeunit 144707 "ERM Advance Statement"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedAdvanceStatement: Report "Posted Advance Statement";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         PurchInvHeader.SetRange("No.", DocumentNo);
         PostedAdvanceStatement.SetTableView(PurchInvHeader);
         PostedAdvanceStatement.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedAdvanceStatement.UseRequestPage(false);
-        PostedAdvanceStatement.Run;
+        PostedAdvanceStatement.Run();
     end;
 
     local procedure UpdateOKPOCodeInCompanyInfo(NewOKPOCode: Code[10])

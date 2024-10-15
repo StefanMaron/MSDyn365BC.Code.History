@@ -67,7 +67,7 @@ table 14929 "Journal Posting Preview Setup"
             until JnlPostPreviewSetup.Next() = 0;
 
         GenJnlBatch.Reset();
-        if GenJnlBatch.FindSet then
+        if GenJnlBatch.FindSet() then
             repeat
                 JnlPostPreviewSetup.Init();
                 JnlPostPreviewSetup."User ID" := UserID;
@@ -78,7 +78,7 @@ table 14929 "Journal Posting Preview Setup"
             until GenJnlBatch.Next() = 0;
 
         FAJnlBatch.Reset();
-        if FAJnlBatch.FindSet then
+        if FAJnlBatch.FindSet() then
             repeat
                 JnlPostPreviewSetup.Init();
                 JnlPostPreviewSetup."User ID" := UserID;

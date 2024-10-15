@@ -164,7 +164,7 @@ codeunit 229 "Document-Print"
 
         if SendAsEmail then
             ReportSelections.SendEmailToCust(
-                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt, true, SalesHeader.GetBillToNo)
+                ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetDocTypeTxt, true, SalesHeader.GetBillToNo, 0)
         else
             ReportSelections.PrintForCust(ReportUsage, SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
@@ -187,7 +187,7 @@ codeunit 229 "Document-Print"
             if SendAsEmail then
                 ReportSelections.SendEmailToCust(
                   GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, "No.",
-                  ReportDistributionMgt.GetFullDocumentTypeText(SalesInvHeader), ShowRequestForm, "Bill-to Customer No.")
+                  ReportDistributionMgt.GetFullDocumentTypeText(SalesInvHeader), ShowRequestForm, "Bill-to Customer No.", 0)
             else
                 ReportSelections.PrintWithDocPrintOption(
                   GetSalesInvoiceDocTypeUsage(SalesInvHeader).AsInteger(), SalesInvHeader, FieldNo("Bill-to Customer No."),
@@ -446,7 +446,7 @@ codeunit 229 "Document-Print"
         PhysInvtOrderHeader.SetRange("No.", PhysInvtOrderHeader."No.");
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"Phys.Invt.Order Test");
         ReportSelections.SetFilter("Report ID", '<>0');
-        if ReportSelections.FindSet then
+        if ReportSelections.FindSet() then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtOrderHeader);
             until ReportSelections.Next() = 0;
@@ -459,7 +459,7 @@ codeunit 229 "Document-Print"
         PhysInvtOrderHeader.SetRange("No.", PhysInvtOrderHeader."No.");
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"Phys.Invt.Order");
         ReportSelections.SetFilter("Report ID", '<>0');
-        if ReportSelections.FindSet then
+        if ReportSelections.FindSet() then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtOrderHeader);
             until ReportSelections.Next() = 0;
@@ -472,7 +472,7 @@ codeunit 229 "Document-Print"
         PstdPhysInvtOrderHdr.SetRange("No.", PstdPhysInvtOrderHdr."No.");
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Phys.Invt.Order");
         ReportSelections.SetFilter("Report ID", '<>0');
-        if ReportSelections.FindSet then
+        if ReportSelections.FindSet() then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PstdPhysInvtOrderHdr);
             until ReportSelections.Next() = 0;
@@ -486,7 +486,7 @@ codeunit 229 "Document-Print"
         PhysInvtRecordHeader.SetRange("Recording No.", PhysInvtRecordHeader."Recording No.");
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"Phys.Invt.Rec.");
         ReportSelections.SetFilter("Report ID", '<>0');
-        if ReportSelections.FindSet then
+        if ReportSelections.FindSet() then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PhysInvtRecordHeader);
             until ReportSelections.Next() = 0;
@@ -500,7 +500,7 @@ codeunit 229 "Document-Print"
         PstdPhysInvtRecordHdr.SetRange("Recording No.", PstdPhysInvtRecordHdr."Recording No.");
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Phys.Invt.Rec.");
         ReportSelections.SetFilter("Report ID", '<>0');
-        if ReportSelections.FindSet then
+        if ReportSelections.FindSet() then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestForm, false, PstdPhysInvtRecordHdr);
             until ReportSelections.Next() = 0;
@@ -911,7 +911,7 @@ codeunit 229 "Document-Print"
             SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
             Commit();
@@ -933,7 +933,7 @@ codeunit 229 "Document-Print"
             PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
-            PurchLine.FindFirst;
+            PurchLine.FindFirst();
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
             Commit();
@@ -955,7 +955,7 @@ codeunit 229 "Document-Print"
             ServLine.Reset();
             ServLine.SetRange("Document Type", ServHeader."Document Type");
             ServLine.SetRange("Document No.", ServHeader."No.");
-            ServLine.FindFirst;
+            ServLine.FindFirst();
             CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
             Commit();

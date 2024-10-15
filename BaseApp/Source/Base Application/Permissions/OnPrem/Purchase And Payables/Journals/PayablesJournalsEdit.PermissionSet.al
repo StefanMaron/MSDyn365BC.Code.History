@@ -38,7 +38,9 @@ permissionset 8824 "Payables Journals - Edit"
                   tabledata "General Posting Setup" = R,
                   tabledata "Intermediate Data Import" = Rimd,
                   tabledata "Ledger Entry Matching Buffer" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Payment Application Proposal" = RIMD,
                   tabledata "Payment Export Data" = Rimd,

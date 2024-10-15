@@ -185,7 +185,7 @@ codeunit 144516 "ERM Create Tax Reg. Entry"
         TaxRegAccum.SetRange("Section Code", TaxRegTemplate."Section Code");
         TaxRegAccum.SetRange("Tax Register No.", TaxRegTemplate.Code);
         TaxRegAccum.SetRange("Template Line Code", TaxRegTemplate."Line Code");
-        TaxRegAccum.FindFirst;
+        TaxRegAccum.FindFirst();
     end;
 
     local procedure SetupTaxRegister(var TaxRegTemplate: Record "Tax Register Template"; TableId: Integer)

@@ -447,7 +447,7 @@
 
         AddFilterOnAppliedPmtEntry(AppliedPaymentEntry);
 
-        if AppliedPaymentEntry.FindSet then
+        if AppliedPaymentEntry.FindSet() then
             repeat
                 Get(
                   AppliedPaymentEntry."Statement Type", AppliedPaymentEntry."Bank Account No.",
@@ -731,7 +731,7 @@
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", EntryNo);
-        if CheckLedgerEntry.FindFirst then
+        if CheckLedgerEntry.FindFirst() then
             Type := Type::"Check Ledger Entry"
         else
             Type := Type::"Bank Account Ledger Entry";

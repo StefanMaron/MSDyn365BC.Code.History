@@ -51,7 +51,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
 
             CheckCalculatePer(Item2);
 
-            if FindSet then begin
+            if FindSet() then begin
                 if ShowDialog then
                     Window.Open(Text004, "No.");
                 repeat
@@ -72,7 +72,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
         end;
 
         TempErrorBuf.Reset();
-        if TempErrorBuf.FindSet then
+        if TempErrorBuf.FindSet() then
             repeat
                 NewErrorBuf := TempErrorBuf;
                 NewErrorBuf.Insert();
@@ -81,7 +81,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
 
     local procedure CheckAdjusted(Item: Record Item): Boolean
     var
-        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         IsAdjusted: Boolean;
         IsHandled: Boolean;
     begin
@@ -90,13 +90,9 @@ codeunit 5899 "Calc. Inventory Value-Check"
         if IsHandled then
             exit(IsAdjusted);
 
-        if Item."Costing Method" = Item."Costing Method"::Average then begin
-            AvgCostAdjmtEntryPoint.SetCurrentKey("Item No.", "Cost Is Adjusted");
-            AvgCostAdjmtEntryPoint.SetFilter("Item No.", Item."No.");
-            AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
-            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", 0D, PostingDate);
-            exit(AvgCostAdjmtEntryPoint.IsEmpty);
-        end;
+        if Item."Costing Method" = Item."Costing Method"::Average then
+            exit(AvgCostEntryPointHandler.IsEntriesAdjusted(Item."No.", PostingDate));
+
         exit(true);
     end;
 
@@ -113,7 +109,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
 
             OnCheckCalculatePerOnAfterSetFilters(Item2, Item, PostingDate);
 
-            if FindFirst then
+            if FindFirst() then
                 case CalculatePer of
                     CalculatePer::"Item Ledger Entry":
                         AddError(
@@ -164,7 +160,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
         Item.CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
         Item.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
 
-        if ItemLedgEntry.FindSet then begin
+        if ItemLedgEntry.FindSet() then begin
             repeat
                 AddError(
                   StrSubstNo(Text020, ItemLedgEntry."Entry No."),

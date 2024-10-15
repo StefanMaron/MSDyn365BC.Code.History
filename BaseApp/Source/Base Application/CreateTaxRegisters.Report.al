@@ -43,7 +43,7 @@ report 17204 "Create Tax Registers"
                                 while CycleLevel <> 0 do begin
                                     TaxReg.SetRange(Level, CycleLevel);
                                     TaxReg.SetRange("Section Code", "Tax Register Section".Code);
-                                    if not TaxReg.FindSet then
+                                    if not TaxReg.FindSet() then
                                         CycleLevel := 0
                                     else begin
                                         repeat
@@ -51,7 +51,7 @@ report 17204 "Create Tax Registers"
                                                 TaxRegAccumulation.SetRange("Tax Register No.", TaxReg."No.");
                                                 TaxRegAccumulation.DeleteAll();
                                                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                                                if TaxRegTemplate.FindFirst then begin
+                                                if TaxRegTemplate.FindFirst() then begin
                                                     TaxRegTemplate.SetRange("Section Code", "Tax Register Section".Code);
                                                     TaxRegTemplate.SetRange("Date Filter", StartDate, EndDate);
                                                     TemplateRecordRef.GetTable(TaxRegTemplate);

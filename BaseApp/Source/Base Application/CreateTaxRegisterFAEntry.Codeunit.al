@@ -30,7 +30,7 @@ codeunit 17205 "Create Tax Register FA Entry"
         TaxRegMgt.ValidateAbsenceFAEntriesDate(StartDate, EndDate, SectionCode);
 
         TaxRegAccumulation.Reset();
-        if not TaxRegAccumulation.FindLast then
+        if not TaxRegAccumulation.FindLast() then
             TaxRegAccumulation."Entry No." := 0;
 
         TaxRegAccumulation.Init();
@@ -44,11 +44,11 @@ codeunit 17205 "Create Tax Register FA Entry"
 
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register FA Entry");
-        if TaxReg.FindSet then begin
+        if TaxReg.FindSet() then begin
             repeat
                 TaxRegTemplate.SetRange("Section Code", TaxReg."Section Code");
                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                if TaxRegTemplate.FindSet then
+                if TaxRegTemplate.FindSet() then
                     repeat
                         TempTaxRegTemplate := TaxRegTemplate;
                         with TaxRegTemplate do
@@ -121,7 +121,7 @@ codeunit 17205 "Create Tax Register FA Entry"
                     until TaxRegTemplate.Next() = 0;
 
                 TempTaxRegTemplate.Reset();
-                if TempTaxRegTemplate.FindSet then
+                if TempTaxRegTemplate.FindSet() then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
                         TaxRegAccumulation."Template Line Code" := TempTaxRegTemplate."Line Code";
@@ -274,18 +274,18 @@ codeunit 17205 "Create Tax Register FA Entry"
         if not TaxRegSetup."Create Data for Printing Forms" then
             exit;
 
-        if TaxRegFAEntry.FindLast then
+        if TaxRegFAEntry.FindLast() then
             EntryNo := TaxRegFAEntry."Entry No." + 1
         else
             EntryNo := 0;
 
         FADepreciationBook.SetRange("Depreciation Book Code", TaxRegSetup."Tax Depreciation Book");
-        if FADepreciationBook.FindSet then
+        if FADepreciationBook.FindSet() then
             repeat
                 FALedgerEntry.SetRange("FA No.", FADepreciationBook."FA No.");
                 FALedgerEntry.SetRange("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
                 FALedgerEntry.SetRange("FA Posting Date", StartDate, EndDate);
-                if FALedgerEntry.FindFirst then begin
+                if FALedgerEntry.FindFirst() then begin
                     FixedAsset.Get(FALedgerEntry."FA No.");
                     TaxRegFAEntry.Init();
                     TaxRegFAEntry."Section Code" := SectionCode;

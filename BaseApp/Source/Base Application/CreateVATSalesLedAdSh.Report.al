@@ -86,7 +86,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
 
                     VATLedgerLine.SetRange(Code, VATLedgerName.Code);
                     VATLedgerLine.SetRange(Type, VATLedgerName.Type);
-                    if VATLedgerLine.FindLast then;
+                    if VATLedgerLine.FindLast() then;
                     LineNo := VATLedgerLine."Line No.";
                 end;
             }
@@ -150,7 +150,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then begin
-                        if not LedgerBuffer.FindSet then
+                        if not LedgerBuffer.FindSet() then
                             CurrReport.Break();
                     end else
                         if LedgerBuffer.Next(1) = 0 then
@@ -216,7 +216,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                 trigger OnAfterGetRecord()
                 begin
                     if Number = 1 then begin
-                        if not LedgerBuffer.FindSet then
+                        if not LedgerBuffer.FindSet() then
                             CurrReport.Break();
                     end else
                         if LedgerBuffer.Next() = 0 then
@@ -723,7 +723,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
         LedgerConnection: Record "VAT Ledger Connection";
     begin
         LedgerBuffer.Reset();
-        if LedgerBuffer.FindSet then
+        if LedgerBuffer.FindSet() then
             repeat
                 LedgerBuffer."Amount Including VAT" :=
                   Round(LedgerBuffer.Base20 + LedgerBuffer.Amount20 +
@@ -745,7 +745,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
             until LedgerBuffer.Next() = 0;
 
         LedgerConnBuffer.Reset();
-        if LedgerConnBuffer.FindSet then
+        if LedgerConnBuffer.FindSet() then
             repeat
                 LedgerConnection := LedgerConnBuffer;
                 LedgerConnection.Insert();
@@ -780,7 +780,7 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
                         begin
                             CustLedgEntry.SetCurrentKey("Transaction No.");
                             CustLedgEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-                            if CustLedgEntry.FindFirst then begin
+                            if CustLedgEntry.FindFirst() then begin
                                 DocumentNo := CustLedgEntry."Prepayment Document No.";
                                 PaymentDate := CustLedgEntry."Posting Date";
                             end;

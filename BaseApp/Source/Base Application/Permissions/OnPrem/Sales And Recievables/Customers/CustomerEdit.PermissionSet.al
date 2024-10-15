@@ -67,7 +67,9 @@ permissionset 9221 "Customer - Edit"
                   tabledata Location = R,
                   tabledata "Maintenance Ledger Entry" = rm,
                   tabledata "My Customer" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata Opportunity = R,
                   tabledata "Payment Method" = R,
                   tabledata "Payment Terms" = R,
@@ -128,7 +130,6 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Shipment Method" = R,
                   tabledata "Shipping Agent" = R,
                   tabledata "Shipping Agent Services" = R,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Sorting Table" = R,
                   tabledata "Standard Customer Sales Code" = RiD,
                   tabledata "Standard General Journal" = rm,

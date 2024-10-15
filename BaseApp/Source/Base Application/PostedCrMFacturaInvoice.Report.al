@@ -173,7 +173,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
                 SalesCrMemoLine.Reset();
                 SalesCrMemoLine.SetRange("Document No.", "No.");
                 SalesCrMemoLine.SetFilter("Attached to Line No.", '<>%1', 0);
-                if SalesCrMemoLine.FindSet then
+                if SalesCrMemoLine.FindSet() then
                     repeat
                         AttachedSalesLine := SalesCrMemoLine;
                         AttachedSalesLine.Insert();
@@ -371,7 +371,7 @@ report 12484 "Posted Cr. M. Factura-Invoice"
         PrepmtList := '';
         Delimiter := ' ';
         Customer.CollectPrepayments(Header."Sell-to Customer No.", Header."No.", TempCustLedgEntry);
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 PrepmtList :=
                   PrepmtList + Delimiter +

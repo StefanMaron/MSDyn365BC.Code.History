@@ -110,7 +110,7 @@ page 12477 "Posted FA Release Act Subform"
                         PostedFADocLine.SetRecFilter;
                         FAPostedReleaseActRep.SetTableView(PostedFADocHeader);
                         FAPostedReleaseActRep.SetTableView(PostedFADocLine);
-                        FAPostedReleaseActRep.Run;
+                        FAPostedReleaseActRep.Run();
                     end;
                 }
             }

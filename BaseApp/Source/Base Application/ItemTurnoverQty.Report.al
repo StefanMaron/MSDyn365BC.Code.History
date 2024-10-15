@@ -597,7 +597,7 @@ report 12469 "Item Turnover (Qty.)"
         CreditCost := 0;
 
         with ValueEntry do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if IsDebit then begin
                         DebitQuantity := DebitQuantity + "Invoiced Quantity";

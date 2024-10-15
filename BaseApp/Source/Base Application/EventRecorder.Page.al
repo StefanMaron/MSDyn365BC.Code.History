@@ -20,82 +20,82 @@ page 9845 "Event Recorder"
             {
                 Caption = 'All Recorded Events';
                 Editable = false;
-                field(CallOrder; "Call Order")
+                field(CallOrder; Rec."Call Order")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Call Order';
                     ToolTip = 'Specifies the order in which the events are called.';
                 }
-                field(EventType; "Event Type")
+                field(EventType; Rec."Event Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Event Type';
                     StyleExpr = EventTypeStyleExpr;
                     ToolTip = 'Specifies the type of the event that is called.';
                 }
-                field(HitCount; "Hit Count")
+                field(HitCount; Rec."Hit Count")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Hit Count';
                     ToolTip = 'Specifies the number of time this event is called consecutively.';
                 }
-                field(ObjectType; "Object Type")
+                field(ObjectType; Rec."Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Object Type';
                     ToolTip = 'Specifies the type of object that contains the called event.';
                 }
-                field(ObjectID; "Object ID")
+                field(ObjectID; Rec."Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Object ID';
-                    HideValue = ("Object ID" = 0);
+                    HideValue = (Rec."Object ID" = 0);
                     LookupPageID = "All Objects with Caption";
                     ToolTip = 'Specifies the ID of the object that contains the called event.';
                     Visible = false;
                 }
-                field(ObjectName; "Object Name")
+                field(ObjectName; Rec."Object Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Object Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the object that contains the called event.';
                 }
-                field(EventName; "Event Name")
+                field(EventName; Rec."Event Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Event Name';
                     ToolTip = 'Specifies the name of the called event.';
                 }
-                field(ElementName; "Element Name")
+                field(ElementName; Rec."Element Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Element Name';
                     ToolTip = 'Specifies the name of the element in which the event is called.';
                 }
-                field(CallingObjectType; "Calling Object Type")
+                field(CallingObjectType; Rec."Calling Object Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calling Object Type';
-                    HideValue = ("Calling Object Type" = 0);
+                    HideValue = (Rec."Calling Object Type" = 0);
                     ToolTip = 'Specifies the type of the object that calls the event.';
                 }
-                field(CallingObjectID; "Calling Object ID")
+                field(CallingObjectID; Rec."Calling Object ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calling Object ID';
-                    HideValue = ("Calling Object ID" = 0);
+                    HideValue = (Rec."Calling Object ID" = 0);
                     ToolTip = 'Specifies the ID of the object that calls the event.';
                     Visible = false;
                 }
-                field(CallingObjectName; "Calling Object Name")
+                field(CallingObjectName; Rec."Calling Object Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calling Object Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the object that calls the event.';
                 }
-                field(CallingMethod; "Calling Method")
+                field(CallingMethod; Rec."Calling Method")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calling Method';
@@ -109,7 +109,7 @@ page 9845 "Event Recorder"
 
                     trigger OnDrillDown()
                     begin
-                        Message(DisplaySnippet);
+                        Message(DisplaySnippet());
                     end;
                 }
             }
@@ -136,12 +136,17 @@ page 9845 "Event Recorder"
                     ToolTip = 'Start recording UI activities to generate the list of events that are called. The new recording will erase any events that have previously been recorded.';
 
                     trigger OnAction()
+                    var
+                        FiltersCopy: Record "Recorded Event Buffer";
                     begin
                         if not Confirm(StartRecordingQst) then
                             exit;
 
-                        // Delete events from the current table.
-                        DeleteAll();
+                        // Delete all events from the current table, this implies reseting the filters too.
+                        FiltersCopy.CopyFilters(Rec);
+                        Rec.Reset();
+                        Rec.DeleteAll();
+                        Rec.CopyFilters(FiltersCopy);
 
                         LogRecordedEvents.Start;
                         EventLoggingRunning := true;
@@ -175,9 +180,9 @@ page 9845 "Event Recorder"
                         // Add elements to the source table of the page to display them in the repeater.
                         if TempRecordedEventBuffer.FindSet then begin
                             repeat
-                                Init;
+                                Rec.Init();
                                 Rec := TempRecordedEventBuffer;
-                                Insert;
+                                Rec.Insert();
                             until TempRecordedEventBuffer.Next() = 0;
                         end;
                     end;
@@ -188,7 +193,7 @@ page 9845 "Event Recorder"
 
     trigger OnAfterGetRecord()
     begin
-        if "Event Type" = "Event Type"::"Custom Event" then
+        if Rec."Event Type" = Rec."Event Type"::"Custom Event" then
             EventTypeStyleExpr := 'Attention'
         else
             EventTypeStyleExpr := 'AttentionAccent';
@@ -210,15 +215,15 @@ page 9845 "Event Recorder"
         ObjectTypeForId: Text[30];
     begin
         // In AL, the ID of a table is accessed as Database::MyTable.
-        if "Object Type" = "Object Type"::Table then
+        if Rec."Object Type" = Rec."Object Type"::Table then
             ObjectTypeForId := 'Database'
         else
-            ObjectTypeForId := GetObjectType("Object Type");
+            ObjectTypeForId := GetObjectType(Rec."Object Type");
 
-        Snippet := '[EventSubscriber(ObjectType::' + GetObjectType("Object Type") + ', ' +
-          ObjectTypeForId + '::' + '"' + "Object Name" + '"' + ', ' +
-          '''' + "Event Name" + '''' + ', ' +
-          '''' + "Element Name" + '''' + ', ' +
+        Snippet := '[EventSubscriber(ObjectType::' + GetObjectType(Rec."Object Type") + ', ' +
+          ObjectTypeForId + '::' + '"' + Rec."Object Name" + '"' + ', ' +
+          '''' + Rec."Event Name" + '''' + ', ' +
+          '''' + Rec."Element Name" + '''' + ', ' +
           'true, true)] ' + '\' +
           'local procedure MyProcedure()\' +
           'begin\' +
@@ -229,19 +234,18 @@ page 9845 "Event Recorder"
     begin
         // In AL, the object type is always in English.
         case objectType of
-            "Object Type"::Codeunit:
+            Rec."Object Type"::Codeunit:
                 exit('Codeunit');
-            "Object Type"::Page:
+            Rec."Object Type"::Page:
                 exit('Page');
-            "Object Type"::Query:
+            Rec."Object Type"::Query:
                 exit('Query');
-            "Object Type"::Report:
+            Rec."Object Type"::Report:
                 exit('Report');
-            "Object Type"::Table:
+            Rec."Object Type"::Table:
                 exit('Table');
-            "Object Type"::XMLport:
+            Rec."Object Type"::XMLport:
                 exit('XmlPort');
         end;
     end;
 }
-

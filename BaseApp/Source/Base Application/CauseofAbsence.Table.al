@@ -1,10 +1,8 @@
-#pragma warning disable AS0006
 table 5206 "Cause of Absence"
 {
     Caption = 'Cause of Absence';
     DrillDownPageID = "Causes of Absence";
     LookupPageID = "Causes of Absence";
-#pragma warning restore AS0006
 
     fields
     {
@@ -24,7 +22,7 @@ table 5206 "Cause of Absence"
         }
         field(4; "Total Absence (Base)"; Decimal)
         {
-            CalcFormula = Sum("Employee Absence"."Quantity (Base)" WHERE("Cause of Absence Code" = FIELD(Code),
+            CalcFormula = Sum ("Employee Absence"."Quantity (Base)" WHERE("Cause of Absence Code" = FIELD(Code),
                                                                           "Employee No." = FIELD("Employee No. Filter"),
                                                                           "From Date" = FIELD("Date Filter")));
             Caption = 'Total Absence (Base)';

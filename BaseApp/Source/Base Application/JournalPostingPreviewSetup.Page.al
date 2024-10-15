@@ -57,7 +57,7 @@ page 14939 "Journal Posting Preview Setup"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(JnlPostSetup);
-                        if JnlPostSetup.FindSet then
+                        if JnlPostSetup.FindSet() then
                             repeat
                                 JnlPostSetup."Enable Posting Preview" := true;
                                 JnlPostSetup.Modify();
@@ -73,7 +73,7 @@ page 14939 "Journal Posting Preview Setup"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(JnlPostSetup);
-                        if JnlPostSetup.FindSet then
+                        if JnlPostSetup.FindSet() then
                             repeat
                                 JnlPostSetup."Enable Posting Preview" := false;
                                 JnlPostSetup.Modify();

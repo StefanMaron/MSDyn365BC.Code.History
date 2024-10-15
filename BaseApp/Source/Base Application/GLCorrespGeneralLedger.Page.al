@@ -559,7 +559,7 @@ page 12403 "G/L Corresp. General Ledger"
                 GLCorr.SetRange("Debit Account No.", GLAcc."No.")
             else
                 GLCorr.SetFilter("Debit Account No.", GLAcc.Totaling);
-            if GLCorr.FindSet then
+            if GLCorr.FindSet() then
                 repeat
                     EntryNo += 1;
                     InsertRec(GLCorr."Debit Account No.", GLCorr."Credit Account No.", GLAcc."No.", EntryNo, 1, true);
@@ -570,7 +570,7 @@ page 12403 "G/L Corresp. General Ledger"
                 GLCorr.SetRange("Credit Account No.", GLAcc."No.")
             else
                 GLCorr.SetFilter("Credit Account No.", GLAcc.Totaling);
-            if GLCorr.FindSet then
+            if GLCorr.FindSet() then
                 repeat
                     EntryNo += 1;
                     InsertRec(GLCorr."Debit Account No.", GLCorr."Credit Account No.", GLAcc."No.", EntryNo, 1, false);
@@ -585,7 +585,7 @@ page 12403 "G/L Corresp. General Ledger"
         SetRange("Transaction No.", 1);
         ModifyAll("Debit Entry No.", 1);
 
-        if FindSet then
+        if FindSet() then
             repeat
                 if CalcCorrAmount(true) <> 0 then
                     "Debit Entry No." := 0
@@ -605,7 +605,7 @@ page 12403 "G/L Corresp. General Ledger"
         SetRange("Debit Entry No.", 0);
         SetFilter("Debit Source No.", GLAccountFilter);
         FilterGroup(0);
-        FindFirst;
+        FindFirst();
 
         CurrPage.Update(false);
     end;
@@ -685,7 +685,7 @@ page 12403 "G/L Corresp. General Ledger"
             GLCorr.SetRange("Debit Account No.", '');
             GLCorr.SetRange("Credit Account No.", '');
         end;
-        if GLCorr.FindFirst then;
+        if GLCorr.FindFirst() then;
 
         GLCorr.SetFilter("Date Filter", DateFilter);
         GLCorr.SetFilter("Business Unit Filter", BusinessUnitFilter);
@@ -820,7 +820,7 @@ page 12403 "G/L Corresp. General Ledger"
         Reset;
         SetRange("Transaction No.", 1);
 
-        if FindSet then
+        if FindSet() then
             repeat
                 GLAccNo := "Debit Account No.";
                 "Debit Account No." := "Credit Account No.";

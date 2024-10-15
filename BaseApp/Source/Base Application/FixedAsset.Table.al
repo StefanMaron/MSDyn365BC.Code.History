@@ -1,4 +1,4 @@
-﻿table 5600 "Fixed Asset"
+table 5600 "Fixed Asset"
 {
     Caption = 'Fixed Asset';
     DataCaptionFields = "No.", Description;
@@ -332,7 +332,7 @@
                 if ("Depreciation Group" <> xRec."Depreciation Group") then begin
                     AmortizationCode.SetRange(Code, "Depreciation Code");
                     AmortizationCode.SetRange("Depreciation Group", "Depreciation Group");
-                    if not AmortizationCode.FindFirst then begin
+                    if not AmortizationCode.FindFirst() then begin
                         if "Depreciation Code" <> '' then
                             Validate("Depreciation Code", '');
                     end else
@@ -363,7 +363,7 @@
                     if "Depreciation Group" = '' then begin
                         FADeprBook.SetCurrentKey("FA No.");
                         FADeprBook.SetRange("FA No.", "No.");
-                        if FADeprBook.FindSet then
+                        if FADeprBook.FindSet() then
                             repeat
                                 if FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"DB/SL-RU Tax Group" then
                                     FADeprBook.FieldError("Depreciation Method");
@@ -783,7 +783,7 @@
             MainAssetComp.SetRange("FA No.", '');
             MainAssetComp.DeleteAll();
             MainAssetComp.SetRange("FA No.");
-            if not MainAssetComp.FindFirst then begin
+            if not MainAssetComp.FindFirst() then begin
                 FA.Get("Component of Main Asset");
                 FA."Main Asset/Component" := FA."Main Asset/Component"::" ";
                 FA."Component of Main Asset" := '';
@@ -1050,7 +1050,7 @@
     begin
         TaxDiffLedgerEntry.SetRange("Source Type", GetTDESourceType);
         TaxDiffLedgerEntry.SetRange("Source No.", "No.");
-        if TaxDiffLedgerEntry.FindSet then
+        if TaxDiffLedgerEntry.FindSet() then
             repeat
                 if not TaxDiffFABuffer.Get("No.", TaxDiffLedgerEntry."Tax Diff. Code") then begin
                     TaxDifference.Get(TaxDiffLedgerEntry."Tax Diff. Code");
@@ -1075,7 +1075,7 @@
         TaxDiffFABuffer.SetRange("FA No.", "No.");
         FATaxDifferences.SetTableView(TaxDiffFABuffer);
         FATaxDifferences.FillBuffer(TaxDiffFABuffer);
-        FATaxDifferences.RunModal;
+        FATaxDifferences.RunModal();
     end;
 
     [Scope('OnPrem')]

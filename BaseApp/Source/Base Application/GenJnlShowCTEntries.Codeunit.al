@@ -41,7 +41,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                                 VendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
                                 VendorLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
                             end;
-                            if VendorLedgerEntry.FindFirst then begin
+                            if VendorLedgerEntry.FindFirst() then begin
                                 CreditTransferEntry.SetRange("Applies-to Entry No.", VendorLedgerEntry."Entry No.");
                                 FoundCorrespondingLedgerEntry := true;
                             end;
@@ -58,7 +58,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                             end;
                             if "Applies-to ID" <> '' then
                                 CustLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
-                            if CustLedgerEntry.FindFirst then begin
+                            if CustLedgerEntry.FindFirst() then begin
                                 CreditTransferEntry.SetRange("Applies-to Entry No.", CustLedgerEntry."Entry No.");
                                 FoundCorrespondingLedgerEntry := true;
                             end;

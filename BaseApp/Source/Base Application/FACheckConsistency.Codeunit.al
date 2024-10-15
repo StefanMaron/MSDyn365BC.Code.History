@@ -398,7 +398,7 @@ codeunit 5606 "FA Check Consistency"
         FALedgEntry3.CopyFilters(FALedgEntry);
         FALedgEntry3.SetRange("Document No.", PstdFADocHeader."No.");
         FALedgEntry3.SetRange("Reclassification Entry", true);
-        if FALedgEntry3.FindSet then
+        if FALedgEntry3.FindSet() then
             repeat
                 FADocAmount := FADocAmount + FALedgEntry3.Amount;
             until FALedgEntry3.Next() = 0;

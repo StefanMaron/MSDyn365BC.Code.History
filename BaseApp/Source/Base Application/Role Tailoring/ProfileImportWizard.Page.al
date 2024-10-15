@@ -6,6 +6,7 @@ page 9199 "Profile Import Wizard"
     PageType = NavigatePage;
     SourceTable = "Profile Import";
     SourceTableTemporary = true;
+    AccessByPermission = TableData "Profile Designer Diagnostic" = I;
     DeleteAllowed = false;
     InsertAllowed = false;
 

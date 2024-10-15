@@ -77,9 +77,6 @@ table 99 "Item Vendor"
     trigger OnModify()
     begin
         UpdateItemReference();
-#if not CLEAN18
-        UpdateItemCrossReference();
-#endif
     end;
 
     trigger OnRename()
@@ -127,18 +124,6 @@ table 99 "Item Vendor"
                 then
                     ItemReferenceMgt.UpdateItemReference(Rec, xRec);
     end;
-
-#if not CLEAN18
-    local procedure UpdateItemCrossReference()
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateItemCrossReference(Rec, IsHandled, xRec);
-        if IsHandled then
-            exit;
-    end;
-#endif
 
     local procedure ToPriceAsset(var PriceAsset: Record "Price Asset")
     begin
@@ -190,14 +175,6 @@ table 99 "Item Vendor"
     local procedure OnBeforeFindLeadTimeCalculation(var ItemVendor: Record "Item Vendor"; Item: Record Item; LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateItemCrossReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean; var xItemVendor: Record "Item Vendor")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean; var xItemVendor: Record "Item Vendor")

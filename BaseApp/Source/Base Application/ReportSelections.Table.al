@@ -1,4 +1,4 @@
-﻿table 77 "Report Selections"
+table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -139,7 +139,6 @@
         EmailBodyIsAlreadyDefinedErr: Label 'An email body is already defined for %1.', Comment = '%1 = Usage, for example Sales Invoice';
         CannotBeUsedAsAnEmailBodyErr: Label 'Report %1 uses the %2 which cannot be used as an email body.', Comment = '%1 = Report ID,%2 = Type';
         ReportLayoutSelection: Record "Report Layout Selection";
-        OneRecordWillBeSentQst: Label 'Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?';
         AccountNoTok: Label '''%1''', Locked = true;
         MailingJobCategoryTok: Label 'Sending invoices via email';
         MailingJobCategoryCodeTok: Label 'SENDINV', Comment = 'Must be max. 10 chars and no spacing. (Send Invoice)';
@@ -166,14 +165,6 @@
         Insert();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InsertRecord().', '17.0')]
-    procedure InsertRec(NewUsage: Option; NewSequence: Code[10]; NewReportID: Integer)
-    begin
-        InsertRecord("Report Selection Usage".FromInteger(NewUsage), NewSequence, NewReportID);
-    end;
-#endif
-
     local procedure CheckEmailBodyUsage()
     var
         ReportSelections: Record "Report Selections";
@@ -196,15 +187,6 @@
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetRange(Usage, ReportUsage) statement.', '17.0')]
-    procedure FilterPrintUsage(ReportUsage: Integer)
-    begin
-        Reset();
-        SetRange(Usage, ReportUsage);
-    end;
-#endif
-
     procedure SetEmailUsageFilters(ReportUsage: Enum "Report Selection Usage")
     begin
         Reset();
@@ -212,14 +194,6 @@
         SetRange("Use for Email Body", true);
         SetRange(Default, true);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SetEmailUsageFilters().', '17.0')]
-    procedure FilterEmailUsage(ReportUsage: Integer)
-    begin
-        SetEmailUsageFilters("Report Selection Usage".FromInteger(ReportUsage));
-    end;
-#endif
 
     procedure SetEmailBodyUsageFilters(ReportUsage: Enum "Report Selection Usage")
     begin
@@ -231,14 +205,6 @@
         OnAfterSetEmailBodyUsageFilters(Rec, ReportUsage);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetEmailBodyUsageFilters().', '17.0')]
-    procedure FilterEmailBodyUsage(ReportUsage: Integer)
-    begin
-        SetEmailBodyUsageFilters("Report Selection Usage".FromInteger(ReportUsage));
-    end;
-#endif
-
     procedure SetEmailAttachmentUsageFilters(ReportUsage: Enum "Report Selection Usage")
     begin
         Reset();
@@ -247,39 +213,15 @@
         SetRange(Default, true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetEmailAttachmentUsageFilters().', '17.0')]
-    procedure FilterEmailAttachmentUsage(ReportUsage: Integer)
-    begin
-        SetEmailAttachmentUsageFilters("Report Selection Usage".FromInteger(ReportUsage));
-    end;
-#endif
-
     procedure FindReportUsageForCust(ReportUsage: Enum "Report Selection Usage"; CustNo: Code[20]; var ReportSelections: Record "Report Selections")
     begin
         FindPrintUsageInternal(ReportUsage, CustNo, ReportSelections, DATABASE::Customer);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by FindReportUsageForCust().', '17.0')]
-    procedure FindPrintUsage(ReportUsage: Integer; CustNo: Code[20]; var ReportSelections: Record "Report Selections")
-    begin
-        FindPrintUsageInternal("Report Selection Usage".FromInteger(ReportUsage), CustNo, ReportSelections, DATABASE::Customer);
-    end;
-#endif
-
     procedure FindReportUsageForVend(ReportUsage: Enum "Report Selection Usage"; VendorNo: Code[20]; var ReportSelections: Record "Report Selections")
     begin
         FindPrintUsageInternal(ReportUsage, VendorNo, ReportSelections, DATABASE::Vendor);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by FindReportUsageForVend().', '17.0')]
-    procedure FindPrintUsageVendor(ReportUsage: Integer; VendorNo: Code[20]; var ReportSelections: Record "Report Selections")
-    begin
-        FindPrintUsageInternal("Report Selection Usage".FromInteger(ReportUsage), VendorNo, ReportSelections, DATABASE::Vendor);
-    end;
-#endif
 
     local procedure FindPrintUsageInternal(ReportUsage: Enum "Report Selection Usage"; AccountNo: Code[20]; var ReportSelections: Record "Report Selections"; TableNo: Integer)
     begin
@@ -299,15 +241,6 @@
         exit(ReportSelections.FindSet);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by FindEmailAttachmentUsageForCust().', '17.0')]
-    procedure FindEmailAttachmentUsage(ReportUsage: Integer; CustNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
-    begin
-        exit(
-            FindEmailAttachmentUsageForCust("Report Selection Usage".FromInteger(ReportUsage), CustNo, ReportSelections));
-    end;
-#endif
-
     procedure FindEmailAttachmentUsageForVend(ReportUsage: Enum "Report Selection Usage"; VendorNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
     begin
         SetEmailAttachmentUsageFilters(ReportUsage);
@@ -317,15 +250,6 @@
         exit(ReportSelections.FindSet());
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by FindEmailAttachmentUsageForVend().', '17.0')]
-    procedure FindEmailAttachmentUsageVendor(ReportUsage: Integer; VendorNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
-    begin
-        exit(
-            FindEmailAttachmentUsageForVend("Report Selection Usage".FromInteger(ReportUsage), VendorNo, ReportSelections));
-    end;
-#endif
-
     procedure FindEmailBodyUsageForCust(ReportUsage: Enum "Report Selection Usage"; CustNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
     begin
         SetEmailBodyUsageFilters(ReportUsage);
@@ -334,15 +258,6 @@
         exit(ReportSelections.FindSet());
     end;
 
-#if not CLEAN17
-    [Obsolete('FindEmailBodyUsageForCust().', '17.0')]
-    procedure FindEmailBodyUsage(ReportUsage: Integer; CustNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
-    begin
-        exit(
-            FindEmailBodyUsageForCust("Report Selection Usage".FromInteger(ReportUsage), CustNo, ReportSelections));
-    end;
-#endif
-
     procedure FindEmailBodyUsageForVend(ReportUsage: Enum "Report Selection Usage"; VendorNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
     begin
         SetEmailBodyUsageFilters(ReportUsage);
@@ -350,14 +265,6 @@
         FindReportSelections(ReportSelections, VendorNo, DATABASE::Vendor);
         exit(ReportSelections.FindSet);
     end;
-
-#if not CLEAN17
-    [Obsolete('FindEmailBodyUsageForVend().', '17.0')]
-    procedure FindEmailBodyUsageVendor(ReportUsage: Integer; VendorNo: Code[20]; var ReportSelections: Record "Report Selections"): Boolean
-    begin
-        FindEmailAttachmentUsageForVend("Report Selection Usage".FromInteger(ReportUsage), VendorNo, ReportSelections)
-    end;
-#endif
 
     procedure PrintWithCheckForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustomerNoFieldNo: Integer)
     var
@@ -369,14 +276,6 @@
 
         PrintWithDialogWithCheckForCust(ReportUsage, RecordVariant, true, CustomerNoFieldNo);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by PrintWithCheckForCust().', '17.0')]
-    procedure PrintWithCheck(ReportUsage: Integer; RecordVariant: Variant; CustomerNoFieldNo: Integer)
-    begin
-        PrintWithCheckForCust("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustomerNoFieldNo);
-    end;
-#endif
 
     procedure PrintWithDialogWithCheckForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; IsGUI: Boolean; CustomerNoFieldNo: Integer)
     var
@@ -391,14 +290,6 @@
           ReportUsage, RecordVariant, IsGUI, CustomerNoFieldNo, true, DATABASE::Customer, DummyDocumentPrintBuffer);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by PrintWithDialogWithCheckForCust().', '17.0')]
-    procedure PrintWithGUIYesNoWithCheck(ReportUsage: Integer; RecordVariant: Variant; IsGUI: Boolean; CustomerNoFieldNo: Integer)
-    begin
-        PrintWithDialogWithCheckForCust("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, IsGUI, CustomerNoFieldNo);
-    end;
-#endif
-
     procedure PrintWithDialogWithCheckForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; IsGUI: Boolean; VendorNoFieldNo: Integer)
     var
         DummyDocumentPrintBuffer: Record "Document Print Buffer";
@@ -411,14 +302,6 @@
         PrintDocumentsWithCheckDialogCommon(
           ReportUsage, RecordVariant, IsGUI, VendorNoFieldNo, true, DATABASE::Vendor, DummyDocumentPrintBuffer);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by PrintWithDialogWithCheckForVend().', '17.0')]
-    procedure PrintWithGUIYesNoWithCheckVendor(ReportUsage: Integer; RecordVariant: Variant; IsGUI: Boolean; VendorNoFieldNo: Integer)
-    begin
-        PrintWithDialogWithCheckForVend("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, IsGUI, VendorNoFieldNo);
-    end;
-#endif
 
     procedure PrintReport(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant)
     begin
@@ -435,14 +318,6 @@
 
         PrintWithDialogForCust(ReportUsage, RecordVariant, true, CustomerNoFieldNo);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by PrintForCust().', '17.0')]
-    procedure Print(ReportUsage: Integer; RecordVariant: Variant; CustomerNoFieldNo: Integer)
-    begin
-        PrintForCust("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustomerNoFieldNo);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure PrintWithDocPrintOption(ReportUsage: Integer; RecordVariant: Variant; CustomerFieldNo: Integer; ShowRequestPage: Boolean; TableNo: Integer; var DocPrintBuffer: Record "Document Print Buffer")
@@ -464,14 +339,6 @@
           ReportUsage, RecordVariant, IsGUI, CustomerNoFieldNo, false, DATABASE::Customer, DummyDocumentPrintBuffer);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by PrintWithDialogForCust().', '17.0')]
-    procedure PrintWithGUIYesNo(ReportUsage: Integer; RecordVariant: Variant; IsGUI: Boolean; CustomerNoFieldNo: Integer)
-    begin
-        PrintWithDialogForCust("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, IsGUI, CustomerNoFieldNo);
-    end;
-#endif
-
     procedure PrintWithDialogForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; IsGUI: Boolean; VendorNoFieldNo: Integer)
     var
         DummyDocumentPrintBuffer: Record "Document Print Buffer";
@@ -484,14 +351,6 @@
         PrintDocumentsWithCheckDialogCommon(
           ReportUsage, RecordVariant, IsGUI, VendorNoFieldNo, false, DATABASE::Vendor, DummyDocumentPrintBuffer);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by PrintWithDialogForVend', '17.0')]
-    procedure PrintWithGUIYesNoVendor(ReportUsage: Integer; RecordVariant: Variant; IsGUI: Boolean; VendorNoFieldNo: Integer)
-    begin
-        PrintWithDialogForVend("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, IsGUI, VendorNoFieldNo);
-    end;
-#endif
 
     local procedure PrintDocumentsWithCheckDialogCommon(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; IsGUI: Boolean; AccountNoFieldNo: Integer; WithCheck: Boolean; TableNo: Integer; var DocumentPrintBuffer: Record "Document Print Buffer")
     var
@@ -511,7 +370,7 @@
         SelectTempReportSelectionsToPrint(TempReportSelections, TempNameValueBuffer, WithCheck, ReportUsage, TableNo);
         OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint(
           RecordVariant, TempReportSelections, TempNameValueBuffer, WithCheck, ReportUsage.AsInteger(), TableNo);
-        if TempReportSelections.FindSet then
+        if TempReportSelections.FindSet() then
             repeat
                 if TempReportSelections."Custom Report Layout Code" <> '' then
                     ReportLayoutSelection.SetTempLayoutSelected(TempReportSelections."Custom Report Layout Code")
@@ -547,10 +406,10 @@
             AccountNoFieldRef.SetFilter(AccountNoFilter);
         end;
 
-        if RecRefToPrint.FindSet then;
+        if RecRefToPrint.FindSet() then;
     end;
 
-    local procedure GetAccountNoFilterForCustomReportLayout(var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; TableNo: Integer): Text
+    procedure GetAccountNoFilterForCustomReportLayout(var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; TableNo: Integer): Text
     var
         CustomReportSelection: Record "Custom Report Selection";
         AccountNo: Code[20];
@@ -625,7 +484,7 @@
             REPORT.RunModal(TempReportSelections."Report ID", IsGUI, false, DocumentPrintBuffer);
     end;
 
-    local procedure SelectTempReportSelectionsToPrint(var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; WithCheck: Boolean; ReportUsage: Enum "Report Selection Usage"; TableNo: Integer)
+    procedure SelectTempReportSelectionsToPrint(var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; WithCheck: Boolean; ReportUsage: Enum "Report Selection Usage"; TableNo: Integer)
     var
         TempReportSelectionsAccount: Record "Report Selections" temporary;
         AccountNo: Code[20];
@@ -674,14 +533,6 @@
             DocumentContent := FileManagement.GetFileContents(ServerEmailBodyFilePath);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetHtmlreportForCust().', '17.0')]
-    procedure GetHtmlReport(var DocumentContent: Text; ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20])
-    begin
-        GetHtmlReportForCust(DocumentContent, "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustNo);
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure GetPdfReportForCust(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20])
     var
@@ -704,16 +555,6 @@
         SaveReportAsPDFInTempBlob(TempBlob, TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code", ReportUsage);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetPdfReportForCust().', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetPdfReport(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20])
-    begin
-        GetPdfReportForCust(
-            ServerEmailBodyFilePath, "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustNo);
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure GetEmailBodyForCust(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var CustEmailAddress: Text[250]): Boolean
     begin
@@ -721,17 +562,6 @@
             GetEmailBodyTextForCust(
                 ServerEmailBodyFilePath, ReportUsage, RecordVariant, CustNo, CustEmailAddress, ''));
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetEmailBodyForCust().', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetEmailBody(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var CustEmailAddress: Text[250]): Boolean
-    begin
-        exit(
-            GetEmailBodyTextForCust(
-                ServerEmailBodyFilePath, "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustNo, CustEmailAddress, ''));
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure GetEmailBodyTextForCust(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]; var CustEmailAddress: Text[250]; EmailBodyText: Text) Result: Boolean
@@ -778,17 +608,6 @@
 
         exit(true);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetEmailBodyTextForCust().', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetEmailBodyCustomText(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var CustEmailAddress: Text[250]; EmailBodyText: Text) Result: Boolean
-    begin
-        exit(
-            GetEmailBodyTextForCust(
-                ServerEmailBodyFilePath, "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustNo, CustEmailAddress, EmailBodyText));
-    end;
-#endif
 
     procedure GetEmailAddressIgnoringLayout(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustNo: Code[20]): Text[250]
     var
@@ -897,17 +716,6 @@
         exit(true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetEmailBodyForVend().', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetEmailBodyVendor(var ServerEmailBodyFilePath: Text[250]; ReportUsage: Integer; RecordVariant: Variant; VendorNo: Code[20]; var VendorEmailAddress: Text[250]) Result: Boolean
-    begin
-        exit(
-            GetEmailBodyForVend(
-                ServerEmailBodyFilePath, "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, VendorNo, VendorEmailAddress));
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure SendEmailInBackground(JobQueueEntry: Record "Job Queue Entry")
     var
@@ -971,21 +779,15 @@
         exit(Result);
     end;
 
-    local procedure EnqueueMailingJob(RecordIdToProcess: RecordID; ParameterString: Text; Description: Text)
+    procedure EnqueueMailingJob(RecordIdToProcess: RecordID; ParameterString: Text; Description: Text)
     var
         JobQueueEntry: Record "Job Queue Entry";
-        EmailFeature: Codeunit "Email Feature";
-        MaxNumberOfRetries: Integer;
     begin
-        MaxNumberOfRetries := 3;
-        if EmailFeature.IsEnabled() then // Avoid multiple failed entries in the Email Outbox if the JQ fails
-            MaxNumberOfRetries := 0; // So that the job runs only once
-
         JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Document-Mailing";
         JobQueueEntry."Job Queue Category Code" := GetMailingJobCategory;
-        JobQueueEntry."Maximum No. of Attempts to Run" := MaxNumberOfRetries;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 0; // So that the job runs only once
         JobQueueEntry."Record ID to Process" := RecordIdToProcess;
         JobQueueEntry."Parameter String" := CopyStr(ParameterString, 1, MaxStrLen(JobQueueEntry."Parameter String"));
         JobQueueEntry.Description := CopyStr(Description, 1, MaxStrLen(JobQueueEntry.Description));
@@ -1523,7 +1325,7 @@
             if ReportUsage = Usage::JQ then begin
                 Usage := ReportUsage;
                 CustomReportSelection.SetFilter(Usage, GetFilter(Usage));
-                if CustomReportSelection.FindFirst then
+                if CustomReportSelection.FindFirst() then
                     if CustomReportSelection.GetSendToEmail(true) <> '' then
                         DefaultEmailAddress := CustomReportSelection."Send To Email";
             end;
@@ -1576,19 +1378,10 @@
                 Clear(TempBlob);
                 SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 TempBlob.CreateInStream(AttachmentInStream);
-                ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
+                ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(RecordVariant, DocNo, DocName, 'pdf');
                 DownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName);
             until Next() = 0;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SendToDiskForCust().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SendToDisk(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; CustNo: Code[20])
-    begin
-        SendToDiskForCust("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, CustNo);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SendToDiskForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; VendorNo: Code[20])
@@ -1607,7 +1400,7 @@
                 Clear(TempBlob);
                 SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 TempBlob.CreateInStream(AttachmentInStream);
-                ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
+                ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(RecordVariant, DocNo, DocName, 'pdf');
                 DownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName);
             until Next() = 0;
     end;
@@ -1623,15 +1416,6 @@
 
         DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SendToDiskForVend().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SendToDiskVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; VendorNo: Code[20])
-    begin
-        SendToDiskForVend("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, VendorNo);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SendToZipForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; CustNo: Code[20]; var DataCompression: Codeunit "Data Compression")
@@ -1651,18 +1435,9 @@
                     AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 AttachmentTempBlob.CreateInStream(AttachmentInStream);
                 DataCompression.AddEntry(
-                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(RecordVariant, DocNo, Format(Usage), 'pdf'));
             until Next() = 0;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SendToZipForCust().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SendToZip(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; CustNo: Code[20]; var DataCompression: Codeunit "Data Compression")
-    begin
-        SendToZipForCust("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, CustNo, DataCompression);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SendToZipForVend(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; VendorNo: Code[20]; var DataCompression: Codeunit "Data Compression")
@@ -1682,18 +1457,9 @@
                     AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 AttachmentTempBlob.CreateInStream(AttachmentInStream);
                 DataCompression.AddEntry(
-                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(RecordVariant, DocNo, Format(Usage), 'pdf'));
             until Next() = 0;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SendToZipForVend().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SendToZipVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; VendorNo: Code[20]; var DataCompression: Codeunit "Data Compression")
-    begin
-        SendToZipForVend("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, VendorNo, DataCompression);
-    end;
-#endif
 
     procedure GetEmailAddressForDoc(DocumentNo: Code[20]; ReportUsage: Enum "Report Selection Usage"): Text[250]
     var
@@ -1705,14 +1471,6 @@
 
         exit(ToAddress);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetDocEmailAddress().', '17.0')]
-    procedure GetDocumentEmailAddress(DocumentNo: Code[20]; ReportUsage: Integer): Text[250]
-    begin
-        exit(GetEmailAddressForDoc(DocumentNo, "Report Selection Usage".FromInteger(ReportUsage)));
-    end;
-#endif
 
     procedure GetEmailAddressForCust(BillToCustomerNo: Code[20]; ReportUsage: Enum "Report Selection Usage"): Text[250]
     var
@@ -1732,14 +1490,6 @@
                 ToAddress := Contact."E-Mail";
         exit(ToAddress);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetEmailAddressForCust().', '17.0')]
-    procedure GetCustEmailAddress(BillToCustomerNo: Code[20]; ReportUsage: Option): Text[250]
-    begin
-        exit(GetEmailAddressForCust(BillToCustomerNo, "Report Selection Usage".FromInteger(ReportUsage)));
-    end;
-#endif
 
     procedure GetEmailAddressForVend(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Enum "Report Selection Usage"): Text[250]
     var
@@ -1771,14 +1521,6 @@
 
         exit(ToAddress);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetEmailAddressForVend().', '17.0')]
-    procedure GetVendorEmailAddress(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Option): Text[250]
-    begin
-        GetEmailAddressForVend(BuyFromVendorNo, RecVar, "Report Selection Usage".FromInteger(ReportUsage));
-    end;
-#endif
 
     local procedure GetPurchaseOrderEmailAddress(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Enum "Report Selection Usage") EmailAddress: Text[250]
     var
@@ -1916,7 +1658,7 @@
         GetCustomReportSelectionByUsageFilter(CustomReportSelection, AccountNo, GetFilter(Usage), TableNo);
         CopyToReportSelection(ToReportSelections, CustomReportSelection);
 
-        if not ToReportSelections.FindSet then
+        if not ToReportSelections.FindSet() then
             exit(false);
         exit(true);
     end;
@@ -1925,7 +1667,7 @@
     begin
         ToReportSelections.Reset();
         ToReportSelections.DeleteAll();
-        if CustomReportSelection.FindSet then
+        if CustomReportSelection.FindSet() then
             repeat
                 ToReportSelections.Usage := CustomReportSelection.Usage;
                 ToReportSelections.Sequence := Format(CustomReportSelection.Sequence);
@@ -1944,7 +1686,7 @@
     begin
         ToReportSelections.Reset();
         ToReportSelections.DeleteAll();
-        if FindSet then
+        if FindSet() then
             repeat
                 ToReportSelections := Rec;
                 if ToReportSelections.Insert() then;
@@ -1994,21 +1736,21 @@
             CustomReportSelection.SetRange(Usage, ReportUsage);
             CustomReportSelection.SetRange(Sequence, SequenceInteger);
             OnGetNextEmailAddressFromCustomReportSelectionOnAfterCustomReportSelectionSetFilters(CustomReportSelection);
-            if CustomReportSelection.FindFirst then
+            if CustomReportSelection.FindFirst() then
                 if CustomReportSelection.GetSendToEmail(true) <> '' then
                     exit(CustomReportSelection."Send To Email");
         end;
         exit(DefaultEmailAddress);
     end;
 
-    local procedure GetUniqueAccountNos(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; RecRef: RecordRef; AccountNoFieldNo: Integer)
+    procedure GetUniqueAccountNos(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; RecRef: RecordRef; AccountNoFieldNo: Integer)
     var
         TempCustomer: Record Customer temporary;
         AccountNoFieldRef: FieldRef;
     begin
         if AccountNoFieldNo <> 0 then begin
             AccountNoFieldRef := RecRef.Field(AccountNoFieldNo);
-            if RecRef.FindSet then
+            if RecRef.FindSet() then
                 repeat
                     TempNameValueBuffer.ID += 1;
                     TempNameValueBuffer.Name := AccountNoFieldRef.Value;
@@ -2042,14 +1784,6 @@
             until Next() = 0;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by PrintReportsForUsage().', '17.0')]
-    procedure PrintForUsage(ReportUsage: Integer)
-    begin
-        PrintReportsForUsage("report Selection Usage".FromInteger(ReportUsage));
-    end;
-#endif
-
     local procedure FindEmailAddressForEmailLayout(LayoutCode: Code[20]; AccountNo: Code[20]; ReportUsage: Enum "Report Selection Usage"; TableNo: Integer): Text[200]
     var
         CustomReportSelection: Record "Custom Report Selection";
@@ -2059,13 +1793,13 @@
         CustomReportSelection.UpdateSendtoEmail(false);
         CustomReportSelection.SetFilter("Send To Email", '<>%1', '');
         CustomReportSelection.SetRange("Email Body Layout Code", LayoutCode);
-        if CustomReportSelection.FindFirst then
+        if CustomReportSelection.FindFirst() then
             exit(CustomReportSelection."Send To Email");
 
         // Relax the filter and search for an email address
         CustomReportSelection.SetFilter("Use for Email Body", '');
         CustomReportSelection.SetRange("Email Body Layout Code", '');
-        if CustomReportSelection.FindFirst then
+        if CustomReportSelection.FindFirst() then
             exit(CustomReportSelection."Send To Email");
         exit('');
     end;
@@ -2095,18 +1829,6 @@
         exit(true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ConvertReportUsageToSalesDocumentType()', '17.0')]
-    procedure ReportUsageToDocumentType(var DocumentType: Option; ReportUsage: Integer) Result: Boolean
-    var
-        SalesDocumentType: Enum "Sales Document Type";
-    begin
-        SalesDocumentType := "Sales Document Type".FromInteger(DocumentType);
-        Result := ConvertReportUsageToSalesDocumentType(SalesDocumentType, "Report Selection Usage".FromInteger(ReportUsage));
-        DocumentType := SalesDocumentType.AsInteger();
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure SendEmailInForeground(DocRecordID: RecordID; DocNo: Code[20]; DocName: Text[150]; ReportUsage: Integer; SourceIsCustomer: Boolean; SourceNo: Code[20]): Boolean
     var
@@ -2127,23 +1849,13 @@
         exit(SendEmailToVendorDirectly("Report Selection Usage".FromInteger(ReportUsage), RecRef, DocNo, DocName, false, SourceNo));
     end;
 
-    local procedure RecordsCanBeSent(RecRef: RecordRef): Boolean
-    var
-        ConfirmManagement: Codeunit "Confirm Management";
-    begin
-        if RecRef.Count > 1 then
-            exit(ConfirmManagement.GetResponseOrDefault(OneRecordWillBeSentQst, false));
-
-        exit(true);
-    end;
-
     local procedure GetLastSequenceNo(var TempReportSelectionsSource: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"): Code[10]
     var
         TempReportSelections: Record "Report Selections" temporary;
     begin
         TempReportSelections.Copy(TempReportSelectionsSource, true);
         TempReportSelections.SetRange(Usage, ReportUsage);
-        if TempReportSelections.FindLast then;
+        if TempReportSelections.FindLast() then;
         if TempReportSelections.Sequence = '' then
             TempReportSelections.Sequence := '1';
         exit(TempReportSelections.Sequence);

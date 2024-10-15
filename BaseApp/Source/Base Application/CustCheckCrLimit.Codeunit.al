@@ -1,4 +1,4 @@
-﻿codeunit 312 "Cust-Check Cr. Limit"
+codeunit 312 "Cust-Check Cr. Limit"
 {
     Permissions = TableData "My Notifications" = rimd;
 
@@ -163,7 +163,7 @@
     begin
         CreditLimitNotificationPage.SetHeading(CreditLimitNotification.Message);
         CreditLimitNotificationPage.InitializeFromNotificationVar(CreditLimitNotification);
-        CreditLimitNotificationPage.RunModal;
+        CreditLimitNotificationPage.RunModal();
     end;
 
     local procedure CreateAndSendNotification(RecordId: RecordID; AdditionalContextId: Guid; Heading: Text[250])

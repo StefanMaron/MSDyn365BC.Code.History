@@ -291,7 +291,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 
@@ -365,7 +371,7 @@ codeunit 131305 "Library - ERM Country Data"
             SetFilter("Sales Line Disc. Account", '<>%1', '');
             SetFilter("COGS Account", '<>%1', '');
             SetFilter("Inventory Adjmt. Account", '<>%1', '');
-            FindFirst;
+            FindFirst();
             "Sales Inv. Disc. Account" := "Purch. Account";
             if "Purch. Line Disc. Account" = '' then
                 "Purch. Line Disc. Account" := "Sales Line Disc. Account";

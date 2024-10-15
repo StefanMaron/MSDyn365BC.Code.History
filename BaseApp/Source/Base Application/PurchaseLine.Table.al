@@ -239,11 +239,7 @@
                     UpdateJobFields();
                 end;
 
-                CreateDim(
-                  DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Work Center", "Work Center No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("No."));
 
                 GetPurchHeader();
                 UpdateItemReference();
@@ -269,9 +265,11 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
-
+                OnValidateLocationCodeOnAfterTestStatusOpen(Rec);
+#if not CLEAN20  
                 IsHandled := false;
                 OnBeforeUpdateLocationCode(Rec, IsHandled);
+#endif                 
                 if xRec."Location Code" <> "Location Code" then begin
                     if "Prepmt. Amt. Inv." <> 0 then
                         if not ConfirmManagement.GetResponseOrDefault(
@@ -330,6 +328,7 @@
                     ValidateReturnReasonCode(FieldNo("Location Code"));
 
                 UpdateDirectUnitCostByField(FieldNo("Location Code"));
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -372,21 +371,18 @@
                                                                                 "Account Type" = CONST(Posting),
                                                                                 Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("G/L Account"), "No." = CONST(''),
-                "System-Created Entry" = CONST(true)) "G/L Account".Name
+            IF (Type = CONST("G/L Account"), "System-Created Entry" = CONST(true)) "G/L Account".Name
             ELSE
-            IF (Type = CONST(Item), "No." = CONST(''),
-                "Document Type" = FILTER(<> "Credit Memo" & <> "Return Order")) Item.Description WHERE(Blocked = CONST(false),
+            IF (Type = CONST(Item), "Document Type" = FILTER(<> "Credit Memo" & <> "Return Order")) Item.Description WHERE(Blocked = CONST(false),
                                                                                     "Purchasing Blocked" = CONST(false))
             ELSE
-            IF (Type = CONST(Item), "No." = CONST(''),
-                "Document Type" = FILTER("Credit Memo" | "Return Order")) Item.Description WHERE(Blocked = CONST(false))
+            IF (Type = CONST(Item), "Document Type" = FILTER("Credit Memo" | "Return Order")) Item.Description WHERE(Blocked = CONST(false))
             ELSE
-            IF (Type = CONST("Fixed Asset"), "No." = CONST('')) "Fixed Asset".Description
+            IF (Type = CONST("Fixed Asset")) "Fixed Asset".Description
             ELSE
-            IF (Type = CONST("Charge (Item)"), "No." = CONST('')) "Item Charge".Description
+            IF (Type = CONST("Charge (Item)")) "Item Charge".Description
             else
-            if (Type = CONST(Resource), "No." = CONST('')) Resource.Name;
+            if (Type = CONST(Resource)) Resource.Name;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -979,11 +975,7 @@
                 InitJobFields();
 
                 if "Job No." = '' then begin
-                    CreateDim(
-                      DATABASE::Job, "Job No.",
-                      DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                      DATABASE::"Responsibility Center", "Responsibility Center",
-                      DATABASE::"Work Center", "Work Center No.");
+                    CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
                     exit;
                 end;
 
@@ -999,11 +991,7 @@
                 Job.TestBlocked();
                 "Job Currency Code" := Job."Currency Code";
 
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Work Center", "Work Center No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
             end;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -1407,7 +1395,9 @@
             CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                   "Source Ref. No." = FIELD("Line No."),
                                                                   "Source Type" = CONST(39),
+#pragma warning disable
                                                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                   "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
@@ -1872,6 +1862,13 @@
                 UpdateAmounts();
             end;
         }
+        field(146; "Prepmt. Pmt. Discount Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Prepmt. Pmt. Discount Amount';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -1914,11 +1911,7 @@
                     Clear(TempJobJnlLine);
                     "Job Line Type" := "Job Line Type"::" ";
                     UpdateJobPrices();
-                    CreateDim(
-                      DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Responsibility Center", "Responsibility Center",
-                      DATABASE::"Work Center", "Work Center No.");
+                    CreateDimFromDefaultDim(0);
                     exit;
                 end;
 
@@ -2445,7 +2438,7 @@
                     if PurchHeader."Language Code" <> '' then begin
                         UnitOfMeasureTranslation.SetRange(Code, "Unit of Measure Code");
                         UnitOfMeasureTranslation.SetRange("Language Code", PurchHeader."Language Code");
-                        if UnitOfMeasureTranslation.FindFirst then
+                        if UnitOfMeasureTranslation.FindFirst() then
                             "Unit of Measure" := UnitOfMeasureTranslation.Description;
                     end;
                 end;
@@ -2571,7 +2564,9 @@
         field(5495; "Reserved Qty. (Base)"; Decimal)
         {
             CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source Type" = CONST(39),
+#pragma warning disable
                                                                            "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                            "Source ID" = FIELD("Document No."),
                                                                            "Source Ref. No." = FIELD("Line No."),
                                                                            "Reservation Status" = CONST(Reservation)));
@@ -2691,11 +2686,7 @@
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Work Center", "Work Center No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
             end;
         }
         field(5705; "Cross-Reference No."; Code[20])
@@ -2860,7 +2851,9 @@
             AccessByPermission = TableData Location = R;
             BlankZero = true;
             CalcFormula = Sum("Warehouse Receipt Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(39),
+#pragma warning disable
                                                                                         "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                                         "Source No." = FIELD("Document No."),
                                                                                         "Source Line No." = FIELD("Line No.")));
             Caption = 'Whse. Outstanding Qty. (Base)';
@@ -3391,15 +3384,17 @@
             TableRelation = IF (Type = FILTER("Empl. Purchase")) Vendor WHERE("Vendor Type" = CONST(Vendor));
 
             trigger OnValidate()
+            var
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 PurchHeader.Get("Document Type", "Document No.");
                 "Currency Code" := PurchHeader."Currency Code";
 
-                CreateDim(
-                  DATABASE::Vendor, "Empl. Purchase Vendor No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Work Center", "Work Center No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Empl. Purchase Vendor No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.");
+                CreateDim(DefaultDimSource);
 
                 if "Empl. Purchase Vendor No." <> xRec."Empl. Purchase Vendor No." then
                     Validate("Empl. Purchase Entry No.", 0);
@@ -3433,6 +3428,8 @@
             TableRelation = IF (Type = CONST("Fixed Asset")) "FA Charge";
 
             trigger OnValidate()
+            var
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 if "FA Charge No." <> '' then begin
                     FACharge.Get("FA Charge No.");
@@ -3440,12 +3437,11 @@
                     Validate("VAT Prod. Posting Group", FACharge."VAT Prod. Posting Group");
                     Validate("Tax Difference Code", FACharge."Tax Difference Code");
 
-                    CreateDim(
-                      DATABASE::"FA Charge", "FA Charge No.",
-                      DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                      DATABASE::"Responsibility Center", "Responsibility Center",
-                      DATABASE::"Work Center", "Work Center No.");
-
+                    DimMgt.AddDimSource(DefaultDimSource, Database::"FA Charge", Rec."FA Charge No.");
+                    DimMgt.AddDimSource(DefaultDimSource, DimMgt.PurchLineTypeToTableID(Type), Rec."No.");
+                    DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center");
+                    DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.");
+                    CreateDim(DefaultDimSource);
                 end;
             end;
         }
@@ -3547,11 +3543,7 @@
                 "Overhead Rate" := WorkCenter."Overhead Rate";
                 Validate("Indirect Cost %", WorkCenter."Indirect Cost %");
 
-                CreateDim(
-                  DATABASE::"Work Center", "Work Center No.",
-                  DimMgt.TypeToTableID3(Type.AsInteger()), "No.",
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(Rec.FieldNo("Work Center No."));
             end;
         }
         field(99000753; Finished; Boolean)
@@ -3742,7 +3734,7 @@
             PurchLine2.SetRange("Blanket Order No.", "Document No.");
             PurchLine2.SetRange("Blanket Order Line No.", "Line No.");
             OnDeleteOnAfterSetPurchLineFilters(PurchLine2);
-            if PurchLine2.FindFirst then
+            if PurchLine2.FindFirst() then
                 PurchLine2.TestField("Blanket Order Line No.", 0);
         end;
 
@@ -3813,7 +3805,7 @@
             PurchLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
             PurchLine2.SetRange("Blanket Order No.", "Document No.");
             PurchLine2.SetRange("Blanket Order Line No.", "Line No.");
-            if PurchLine2.FindSet then
+            if PurchLine2.FindSet() then
                 repeat
                     PurchLine2.TestField(Type, Type);
                     PurchLine2.TestField("No.", "No.");
@@ -3885,9 +3877,6 @@
         UOMMgt: Codeunit "Unit of Measure Management";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimMgt: Codeunit DimensionManagement;
-#if not CLEAN19
-        DistIntegration: Codeunit "Dist. Integration";
-#endif
         ItemReferenceMgt: Codeunit "Item Reference Management";
         CatalogItemMgt: Codeunit "Catalog Item Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
@@ -4088,7 +4077,9 @@
 
     local procedure InitHeaderDefaults(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
     var
+#if not CLEAN20        
         IsHandled: Boolean;
+#endif
     begin
         CheckBuyFromVendorNo(PurchHeader);
 
@@ -4097,8 +4088,10 @@
         "Expected Receipt Date" := PurchHeader."Expected Receipt Date";
         "Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
+#if not CLEAN20        
         IsHandled := false;
         OnBeforeUpdateLocationCode(Rec, IsHandled);
+#endif         
         "Location Code" := PurchHeader."Location Code";
         "Transaction Type" := PurchHeader."Transaction Type";
         "Transport Method" := PurchHeader."Transport Method";
@@ -4447,7 +4440,7 @@
         "Description 2" := FixedAsset."Description 2";
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup."Enable Russian Accounting" then
             if TaxRegisterSetup.Get then
                 Validate("Tax Difference Code", TaxRegisterSetup."Default FA TD Code");
@@ -4504,9 +4497,10 @@
         end;
     end;
 
-    procedure GetPurchHeader()
+    procedure GetPurchHeader(): Record "Purchase Header"
     begin
         GetPurchHeader(PurchHeader, Currency);
+        exit(PurchHeader);
     end;
 
     procedure GetPurchHeader(var OutPurchHeader: Record "Purchase Header"; var OutCurrency: Record Currency)
@@ -4533,6 +4527,15 @@
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
         OutPurchHeader := PurchHeader;
         OutCurrency := Currency;
+    end;
+
+    procedure GetItem(): Record Item
+    var
+        Item: Record Item;
+    begin
+        TestField("No.");
+        Item.Get("No.");
+        exit(Item);
     end;
 
     local procedure GetItem(var Item: Record Item)
@@ -5340,14 +5343,14 @@
         OnAfterAddItem(PurchLine, LastPurchLine);
     end;
 
-    local procedure InitNewLine(var NewPurchLine: Record "Purchase Line")
+    procedure InitNewLine(var NewPurchLine: Record "Purchase Line")
     var
         PurchLine: Record "Purchase Line";
     begin
         NewPurchLine.Copy(Rec);
         PurchLine.SetRange("Document Type", NewPurchLine."Document Type");
         PurchLine.SetRange("Document No.", NewPurchLine."Document No.");
-        if PurchLine.FindLast then
+        if PurchLine.FindLast() then
             NewPurchLine."Line No." := PurchLine."Line No."
         else
             NewPurchLine."Line No." := 0;
@@ -5507,6 +5510,8 @@
         PurchLineReserve.CallItemTracking(Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -5539,6 +5544,37 @@
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases,
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", PurchHeader."Dimension Set ID", DATABASE::Vendor);
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        if IsHandled then
+            exit;
+
+        if PurchHeader."Prepmt. Diff." then
+            exit;
+
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        GetPurchHeader();
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", PurchHeader."Dimension Set ID", DATABASE::Vendor);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
@@ -5580,7 +5616,7 @@
 
             // looking for an item with similar description
             Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
-            if Item.FindFirst then begin
+            if Item.FindFirst() then begin
                 CurrFieldNo := FieldNo("No.");
                 Validate("No.", Item."No.");
                 exit;
@@ -5896,7 +5932,7 @@
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", "Line No.");
         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
-        if ItemChargeAssgntPurch.FindSet then begin
+        if ItemChargeAssgntPurch.FindSet() then begin
             TestField("Allow Item Charge Assignment");
             repeat
                 ItemChargeAssgntPurch.TestField("Qty. to Assign", 0);
@@ -6265,7 +6301,7 @@
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
             OnCalcVATAmountLinesOnAfterSetFilters(PurchLine, PurchHeader);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
                         OnCalcVATAmountLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
@@ -6286,7 +6322,7 @@
                             QtyType::General:
                                 begin
                                     VATAmountLine.Quantity += "Quantity (Base)";
-                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
+                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                     VATAmountLine.SumLine(
                                       "Line Amount", "Inv. Discount Amount", "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
                                 end;
@@ -6317,7 +6353,7 @@
                                     end;
                                     OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
-                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
+                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                     if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
                                         VATAmountLine.SumLine(
                                           AmtToHandle, Round("Inv. Discount Amount" * QtyToHandle / Quantity, Currency."Amount Rounding Precision"),
@@ -6338,7 +6374,7 @@
                                         VATAmountLine.Quantity += "Qty. to Receive (Base)";
                                     end;
                                     AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
-                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType);
+                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
                                     VATAmountLine.SumLine(
                                       AmtToHandle, Round("Inv. Discount Amount" * QtyToHandle / Quantity, Currency."Amount Rounding Precision"),
                                       "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
@@ -6657,79 +6693,6 @@
         if not IsInbound and ("Quantity (Base)" <> 0) then
             WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
-
-#if not CLEAN19
-    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
-    procedure CrossReferenceNoLookUp()
-    var
-        ItemCrossReference: Record "Item Cross Reference";
-    begin
-        if Type = Type::Item then begin
-            GetPurchHeader();
-            ItemCrossReference.Reset();
-            ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
-            ItemCrossReference.SetFilter(
-              "Cross-Reference Type", '%1|%2',
-              ItemCrossReference."Cross-Reference Type"::Vendor,
-              ItemCrossReference."Cross-Reference Type"::" ");
-            ItemCrossReference.SetFilter("Cross-Reference Type No.", '%1|%2', PurchHeader."Buy-from Vendor No.", '');
-            OnCrossReferenceNoLookUpOnAfterSetFilters(ItemCrossReference, Rec);
-            if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then begin
-                "Cross-Reference No." := ItemCrossReference."Cross-Reference No.";
-                ValidateCrossReferenceNo(ItemCrossReference, false);
-                Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-                UpdateReferencePriceAndDiscount();
-                OnCrossReferenceNoLookupOnBeforeValidateDirectUnitCost(PurchHeader, Rec);
-                Validate("Direct Unit Cost");
-            end;
-        end;
-    end;
-#endif
-
-#if not CLEAN19
-    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
-    local procedure ValidateCrossReferenceNo(ItemCrossReference: Record "Item Cross Reference"; SearchItem: Boolean)
-    var
-        ReturnedItemCrossReference: Record "Item Cross Reference";
-    begin
-        ReturnedItemCrossReference.Init();
-        if "Cross-Reference No." <> '' then begin
-            if SearchItem then
-                DistIntegration.ICRLookupPurchaseItem(Rec, ReturnedItemCrossReference, CurrFieldNo <> 0)
-            else
-                ReturnedItemCrossReference := ItemCrossReference;
-
-            OnValidateCrossReferenceNoOnBeforeAssignNo(Rec, ReturnedItemCrossReference);
-
-            if "Cross-Reference No." <> xRec."Cross-Reference No." then
-                PlanPriceCalcByField(FieldNo("Cross-Reference No."));
-            if "No." <> ReturnedItemCrossReference."Item No." then
-                Validate("No.", ReturnedItemCrossReference."Item No.");
-            SetVendorItemNo;
-            if ReturnedItemCrossReference."Variant Code" <> '' then
-                Validate("Variant Code", ReturnedItemCrossReference."Variant Code");
-            if (ReturnedItemCrossReference."Unit of Measure" <> '') and
-               ("Unit of Measure Code" <> ReturnedItemCrossReference."Unit of Measure")
-            then
-                Validate("Unit of Measure Code", ReturnedItemCrossReference."Unit of Measure");
-        end;
-
-        "Unit of Measure (Cross Ref.)" := ReturnedItemCrossReference."Unit of Measure";
-        "Cross-Reference Type" := ReturnedItemCrossReference."Cross-Reference Type";
-        "Cross-Reference Type No." := ReturnedItemCrossReference."Cross-Reference Type No.";
-        "Cross-Reference No." := ReturnedItemCrossReference."Cross-Reference No.";
-
-        if (ReturnedItemCrossReference.Description <> '') or (ReturnedItemCrossReference."Description 2" <> '') then begin
-            Description := ReturnedItemCrossReference.Description;
-            "Description 2" := ReturnedItemCrossReference."Description 2";
-        end;
-
-        UpdateDirectUnitCostByField(FieldNo("Cross-Reference No."));
-        UpdateICPartner();
-
-        OnAfterValidateCrossReferenceNo(Rec, ItemCrossReference);
-    end;
-#endif
 
     local procedure VerifyLineTypeForJob()
     var
@@ -7064,6 +7027,26 @@
             Validate("Job Planning Line No.");
 
         OnAfterInitQtyToReceive2Procedure(Rec);
+    end;
+
+    procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
+    var
+        TempLineErrorMessage: Record "Error Message" temporary;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if ShowAllLinesEnabled then begin
+            MarkedOnly(false);
+            ShowAllLinesEnabled := false;
+        end else begin
+            DocumentErrorsMgt.GetErrorMessages(TempLineErrorMessage);
+            if TempLineErrorMessage.FindSet() then
+                repeat
+                    if Rec.Get(TempLineErrorMessage."Context Record ID") then
+                        Rec.Mark(true)
+                until TempLineErrorMessage.Next() = 0;
+            MarkedOnly(true);
+            ShowAllLinesEnabled := true;
+        end;
     end;
 
     procedure ClearQtyIfBlank()
@@ -7457,6 +7440,26 @@
             exit(false);
     end;
 
+    procedure GetJnlTemplateName(): Code[10]
+    begin
+        GLSetup.Get();
+        if not GLSetup."Journal Templ. Name Mandatory" then
+            exit('');
+
+        if "IC Partner Code" = '' then begin
+            GetPurchHeader();
+            exit(PurchHeader."Journal Templ. Name");
+        end;
+
+        GetPurchSetup();
+        if IsCreditDocType() then begin
+            PurchSetup.TestField("IC Purch. Cr. Memo Templ. Name");
+            exit(PurchSetup."IC Purch. Cr. Memo Templ. Name");
+        end;
+        PurchSetup.TestField("IC Purch. Invoice Templ. Name");
+        exit(PurchSetup."IC Purch. Invoice Templ. Name");
+    end;
+
     local procedure CheckReservationForJobNo(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -7479,12 +7482,12 @@
         FAComment.SetRange("Document No.", "Document No.");
         FAComment.SetRange("Document Line No.", "Line No.");
         FAComments.SetTableView(FAComment);
-        FAComments.RunModal;
+        FAComments.RunModal();
     end;
 
     local procedure ValidateVATProdPostingGroup()
     begin
-        GetGLSetup;
+        GetGLSetup();
         if GLSetup."Enable Russian Accounting" then begin
             if (Type <> Type::"Fixed Asset") and (Type <> Type::"Empl. Purchase") then
                 Validate("VAT Prod. Posting Group")
@@ -7522,7 +7525,6 @@
         UpdateDirectUnitCostByField(CallingFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         IsHandled: Boolean;
@@ -8035,6 +8037,15 @@
         exit(true);
     end;
 
+    procedure GetResource(): Record Resource
+    var
+        Resource: Record Resource;
+    begin
+        TestField("No.");
+        Resource.Get("No.");
+        exit(Resource);
+    end;
+
     local procedure GetResource(var Resource: Record Resource)
     begin
         TestField("No.");
@@ -8217,6 +8228,72 @@
     begin
         exit(UOMMgt.CalcBaseQty(
             JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", Qty, JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.PurchLineTypeToTableID(Rec.Type), Rec."No.", FieldNo = Rec.FieldNo("No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Purchase Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Purchase Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Purchase Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -8469,11 +8546,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PurchLine: Record "Purchase Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDeferralPostDate(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; var DeferralPostDate: Date);
     begin
@@ -8583,14 +8662,6 @@
     local procedure OnAfterUpdateTotalAmounts(var PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; var TotalAmount: Decimal; var TotalAmountInclVAT: Decimal; var TotalLineAmount: Decimal; var TotalInvDiscAmount: Decimal)
     begin
     end;
-
-#if not CLEAN19
-    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterValidateCrossReferenceNo(var PurchaseLine: Record "Purchase Line"; ItemCrossReference: Record "Item Cross Reference")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddItems(var PurchaseLine: Record "Purchase Line"; SelectionFilter: Text; var IsHandled: Boolean)
@@ -9058,7 +9129,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
+    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; var PurchaseLine2: Record "Purchase Line")
     begin
     end;
 
@@ -9091,22 +9162,6 @@
     local procedure OnCreateTempJobJnlLineOnBeforeTempJobJnlLineValidateNo(var TempJobJnlLine: Record "Job Journal Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
     end;
-
-#if not CLEAN19
-    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCrossReferenceNoLookUpOnAfterSetFilters(var ItemCrossReference: Record "Item Cross Reference"; PurchaseLine: Record "Purchase Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN19
-    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCrossReferenceNoLookupOnBeforeValidateDirectUnitCost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
@@ -9197,14 +9252,6 @@
     local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var PurchaseLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; VATAmount: Decimal; NewVATBaseAmount: Decimal)
     begin
     end;
-
-#if not CLEAN19
-    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateCrossReferenceNoOnBeforeAssignNo(var PurchaseLine: Record "Purchase Line"; var ItemCrossReference: Record "Item Cross Reference")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var Currency: record Currency; var VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; NewVATBaseAmount: decimal; VATAmount: decimal; IsHandled: Boolean)
@@ -9606,8 +9653,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced with OnValidateLocationCodeOnAfterTestStatusOpen and OnAfterInitHeaderDefaults', '20.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLocationCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 }
 

@@ -1,4 +1,4 @@
-table 5850 "Invt. Document Header"
+﻿table 5850 "Invt. Document Header"
 {
     Caption = 'Item Document Header';
     DataCaptionFields = "Document Type", "No.";
@@ -55,6 +55,7 @@ table 5850 "Invt. Document Header"
                 Location.TestField("Directed Put-away and Pick", false);
 
                 UpdateItemDocLines(FieldNo("Location Code"));
+                CreateDimFromDefaultDim();
             end;
         }
         field(8; "Shortcut Dimension 1 Code"; Code[20])
@@ -93,7 +94,7 @@ table 5850 "Invt. Document Header"
 
             trigger OnValidate()
             begin
-                CreateDim(DATABASE::"Salesperson/Purchaser", "Salesperson/Purchaser Code");
+                CreateDimFromDefaultDim();
             end;
         }
         field(12; "Receipt Comment"; Boolean)
@@ -282,6 +283,7 @@ table 5850 "Invt. Document Header"
 
         "Posting Date" := WorkDate();
         "Document Date" := "Posting Date";
+        OnAfterInitRecord(Rec);
     end;
 
     procedure AssistEdit(OldInvtDocHeader: Record "Invt. Document Header"): Boolean
@@ -345,6 +347,8 @@ table 5850 "Invt. Document Header"
         exit(not InvtDocLine.IsEmpty());
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -367,6 +371,33 @@ table 5850 "Invt. Document Header"
                 "Dimension Set ID" :=
                   DimMgt.GetDefaultDimID(
                     TableID, No, SourceCodeSetup."Invt. Shipment", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        end;
+
+        if (OldDimSetID <> "Dimension Set ID") and DocLinesExist() then begin
+            Modify();
+            UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+        end;
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        OldDimSetID: Integer;
+    begin
+        SourceCodeSetup.Get();
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := "Dimension Set ID";
+        case "Document Type" of
+            "Document Type"::Receipt:
+                "Dimension Set ID" :=
+                  DimMgt.GetDefaultDimID(
+                    DefaultDimSource, SourceCodeSetup."Invt. Receipt", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            "Document Type"::Shipment:
+                "Dimension Set ID" :=
+                  DimMgt.GetDefaultDimID(
+                    DefaultDimSource, SourceCodeSetup."Invt. Shipment", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         end;
 
         if (OldDimSetID <> "Dimension Set ID") and DocLinesExist() then begin
@@ -457,6 +488,32 @@ table 5850 "Invt. Document Header"
                     InvtDocLine.Modify();
                 end;
             until InvtDocLine.Next() = 0;
+    end;
+
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salesperson/Purchaser Code");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var InvtDocumentHeader: Record "Invt. Document Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var InvtDocumentHeader: Record "Invt. Document Header")
+    begin
     end;
 }
 

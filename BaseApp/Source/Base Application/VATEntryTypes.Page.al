@@ -41,7 +41,7 @@ page 14977 "VAT Entry Types"
         VATEntryType: Record "VAT Entry Type";
     begin
         CurrPage.SetSelectionFilter(VATEntryType);
-        if VATEntryType.FindSet then
+        if VATEntryType.FindSet() then
             repeat
                 if SetOfVATEntryType = '' then
                     SetOfVATEntryType := VATEntryType.Code

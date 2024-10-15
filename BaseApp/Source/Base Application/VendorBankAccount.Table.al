@@ -109,7 +109,7 @@ table 288 "Vendor Bank Account"
             begin
                 if "Country/Region Code" = '' then
                     ValidateAccountNo;
-		    
+
 		        OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }

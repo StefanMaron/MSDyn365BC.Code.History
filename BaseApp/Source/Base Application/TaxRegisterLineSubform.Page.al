@@ -43,7 +43,7 @@ page 17204 "Tax Register Line Subform"
                         GLAcc.Reset();
                         if "Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Account No.");
-                            if GLAcc.FindFirst then;
+                            if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
                         if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin
@@ -66,7 +66,7 @@ page 17204 "Tax Register Line Subform"
                         GLAcc.Reset();
                         if "Bal. Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Bal. Account No.");
-                            if GLAcc.FindFirst then;
+                            if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
 

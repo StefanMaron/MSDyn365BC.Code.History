@@ -272,8 +272,13 @@ codeunit 134010 "ERM Application Customer"
         LastTransactionNo[1] := GetLastTransactionNo;
 
         // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(
+          CurrencyCode, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#endif
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
         // [THEN] Dtld. Customer Ledger Entries have same "Transaction No." with related G/L Entries
@@ -282,7 +287,7 @@ codeunit 134010 "ERM Application Customer"
         for TransactionNo := LastTransactionNo[1] + 1 to LastTransactionNo[2] do begin
             GLEntry.SetRange("Transaction No.", TransactionNo);
             GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
-            GLEntry.FindLast;
+            GLEntry.FindLast();
             TotalAmount := 0;
             DtldCustLedgEntry.SetRange("Transaction No.", TransactionNo);
             DtldCustLedgEntry.FindSet();
@@ -311,7 +316,7 @@ codeunit 134010 "ERM Application Customer"
         MockCustLedgEntry(CustLedgerEntry);
         MockCustLedgEntry(CustLedgerEntry2);
         CustLedgerEntry.SetRange("Entry No.", CustLedgerEntry."Entry No.", CustLedgerEntry2."Entry No.");
-        AppliesToID := LibraryUtility.GenerateGUID;
+        AppliesToID := LibraryUtility.GenerateGUID();
 
         CustEntrySetApplID.SetApplId(CustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
 
@@ -337,7 +342,7 @@ codeunit 134010 "ERM Application Customer"
         MockAppliedCustLedgEntry(CustLedgerEntry);
         MockAppliedCustLedgEntry(CustLedgerEntry2);
         CustLedgerEntry.SetRange("Entry No.", CustLedgerEntry."Entry No.", CustLedgerEntry2."Entry No.");
-        AppliesToID := LibraryUtility.GenerateGUID;
+        AppliesToID := LibraryUtility.GenerateGUID();
 
         CustEntrySetApplID.SetApplId(CustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
 
@@ -1144,15 +1149,17 @@ codeunit 134010 "ERM Application Customer"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         isInitialized := true;
         Commit();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
@@ -1188,7 +1195,7 @@ codeunit 134010 "ERM Application Customer"
         // Create new exchange rate
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
 
         // Watch for Realized gain/loss dtld. ledger entries
         LibraryERMCustomerWatch.Init();
@@ -1237,8 +1244,13 @@ codeunit 134010 "ERM Application Customer"
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(
           Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(
+          Currency.Code, CalcDate('<1D>', WorkDate), CalcDate('<1D>', WorkDate));
+#endif
 
         CustomerApplyUnapply(Desc, Stepwise);
 
@@ -1555,7 +1567,7 @@ codeunit 134010 "ERM Application Customer"
         with CustLedgerEntry do begin
             MockCustLedgEntry(CustLedgerEntry);
             "Amount to Apply" := LibraryRandom.RandDec(100, 2);
-            "Applies-to ID" := LibraryUtility.GenerateGUID;
+            "Applies-to ID" := LibraryUtility.GenerateGUID();
             "Accepted Pmt. Disc. Tolerance" := true;
             "Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
             Modify;
@@ -1630,10 +1642,10 @@ codeunit 134010 "ERM Application Customer"
 
     local procedure PostCustomerUnapplyOneGo(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
-        PostingDate: Date;
     begin
         DtldCustLedgEntry.Get(FindLastApplEntry(CustLedgerEntry."Entry No."));
 
@@ -1641,19 +1653,16 @@ codeunit 134010 "ERM Application Customer"
         DtldCustLedgEntry2.SetRange("Customer No.", DtldCustLedgEntry."Customer No.");
         DtldCustLedgEntry2.FindFirst();
 
-        PostingDate := DtldCustLedgEntry."Posting Date";
-
-        CustEntryApplyPostedEntries.PostUnApplyCustomer(
-          DtldCustLedgEntry,
-          CustLedgerEntry."Document No.",
-          PostingDate);
+        ApplyUnapplyParameters."Document No." := CustLedgerEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DtldCustLedgEntry."Posting Date";
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(DtldCustLedgEntry, ApplyUnapplyParameters);
     end;
 
     local procedure PostCustomerUnapplyStepwise(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var
         i: Integer;
     begin
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
 
         for i := 1 to CustLedgerEntry.Count - 1 do begin
             // Unapply in reverse order.
@@ -1711,7 +1720,7 @@ codeunit 134010 "ERM Application Customer"
     begin
         PaymentTerms.Reset();
         PaymentTerms.SetFilter("Discount %", DiscountFilter);
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := true;
         PaymentTerms.Modify(true);
         exit(PaymentTerms.Code);
@@ -1735,7 +1744,7 @@ codeunit 134010 "ERM Application Customer"
         with GenJournalBatch do begin
             SetRange("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             SetRange("Bal. Account No.", GLAccount."No.");
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 GetGLBalancedBatch(GenJournalTemplate, GenJournalBatch, GenJournalTemplate.Type::General);
                 Name := 'CustVAT';
                 "Bal. Account Type" := "Bal. Account Type"::"G/L Account";

@@ -98,20 +98,20 @@ xmlport 17202 "Norm Jurisdiction"
     [Scope('OnPrem')]
     procedure SetData(var NormJurisdiction: Record "Tax Register Norm Jurisdiction")
     begin
-        if NormJurisdiction.FindSet then
+        if NormJurisdiction.FindSet() then
             repeat
                 "Tax Register Norm Jurisdiction" := NormJurisdiction;
                 "Tax Register Norm Jurisdiction".Insert();
 
                 NormGroup.SetRange("Norm Jurisdiction Code", NormJurisdiction.Code);
-                if NormGroup.FindSet then
+                if NormGroup.FindSet() then
                     repeat
                         "Tax Register Norm Group" := NormGroup;
                         "Tax Register Norm Group".Insert();
 
                         NormDetail.SetRange("Norm Jurisdiction Code", NormJurisdiction.Code);
                         NormDetail.SetRange("Norm Group Code", NormGroup.Code);
-                        if NormDetail.FindSet then
+                        if NormDetail.FindSet() then
                             repeat
                                 "Tax Register Norm Detail" := NormDetail;
                                 "Tax Register Norm Detail".Insert();
@@ -127,7 +127,7 @@ xmlport 17202 "Norm Jurisdiction"
     begin
         with "Tax Register Norm Jurisdiction" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     NormJurisdiction := "Tax Register Norm Jurisdiction";
                     if NormJurisdiction.Find then begin
@@ -140,7 +140,7 @@ xmlport 17202 "Norm Jurisdiction"
 
         with "Tax Register Norm Group" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     NormGroup := "Tax Register Norm Group";
                     if NormGroup.Find then begin
@@ -153,7 +153,7 @@ xmlport 17202 "Norm Jurisdiction"
 
         with "Tax Register Norm Detail" do begin
             Reset;
-            if FindSet then
+            if FindSet() then
                 repeat
                     NormDetail := "Tax Register Norm Detail";
                     if NormDetail.Find then begin

@@ -194,7 +194,7 @@ page 12471 "FA Writeoff Act Subform"
                         SetFilters(FADocHeader, FADocLine);
                         FAWriteoffActRep.SetTableView(FADocHeader);
                         FAWriteoffActRep.SetTableView(FADocLine);
-                        FAWriteoffActRep.Run;
+                        FAWriteoffActRep.Run();
                     end;
                 }
                 action("FA Writeoff Act FA-4a")
@@ -212,7 +212,7 @@ page 12471 "FA Writeoff Act Subform"
                         SetFilters(FADocHeader, FADocLine);
                         FAWriteoffActRep.SetTableView(FADocHeader);
                         FAWriteoffActRep.SetTableView(FADocLine);
-                        FAWriteoffActRep.Run;
+                        FAWriteoffActRep.Run();
                     end;
                 }
             }

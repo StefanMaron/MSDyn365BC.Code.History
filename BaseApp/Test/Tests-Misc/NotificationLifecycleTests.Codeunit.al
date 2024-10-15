@@ -19,7 +19,7 @@ codeunit 139480 "Notification Lifecycle Tests"
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 139480 "Notification Lifecycle Tests"
           Customer.RecordId, AdditionalContextId, TempNotificationContext, true);
 
         Assert.AreEqual(1, TempNotificationContext.Count, 'Unexpected number of NotificationContext records');
-        TempNotificationContext.FindFirst;
+        TempNotificationContext.FindFirst();
         Assert.AreEqual(
           NotificationId, TempNotificationContext."Notification ID", 'Unexpected notification GUID in NotificationContext');
         Assert.AreEqual(Customer.RecordId, TempNotificationContext."Record ID", 'Unexpected Record ID in NotificationContext');
@@ -92,7 +92,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         // [THEN] The context is stored
         NotificationLifecycleMgt.GetNotificationsForRecord(Customer.RecordId, TempNotificationContext, true);
         Assert.AreEqual(1, TempNotificationContext.Count, 'Unexpected number of NotificationContext records');
-        TempNotificationContext.FindFirst;
+        TempNotificationContext.FindFirst();
         Assert.IsTrue(
           IsNullGuid(TempNotificationContext."Additional Context ID"),
           'Unexpected additional context GUID in NotificationContext (should be null GUID)');
@@ -264,7 +264,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         // [THEN] The context is stored successfully
         NotificationLifecycleMgt.GetNotificationsForRecord(Customer.RecordId, TempNotificationContext, true);
         Assert.AreEqual(1, TempNotificationContext.Count, 'Unexpected number of NotificationContext records after replacement');
-        TempNotificationContext.FindFirst;
+        TempNotificationContext.FindFirst();
         Assert.AreEqual(
           NotificationId, TempNotificationContext."Notification ID",
           'Unexpected notification GUID in NotificationContext after replacement');
@@ -400,7 +400,7 @@ codeunit 139480 "Notification Lifecycle Tests"
 
         // [WHEN] I recall all notifications
         LibraryLowerPermissions.SetO365Basic;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
 
         // [THEN] The context is removed for the 4 notifications
         NotificationLifecycleMgt.GetNotificationsForRecord(Customer.RecordId, TempNotificationContext, true); // get the temp notification context that was deleted

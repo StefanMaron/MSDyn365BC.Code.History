@@ -1,4 +1,3 @@
-#pragma warning disable AS0030
 page 5210 "Causes of Absence"
 {
     AdditionalSearchTerms = 'vacation holiday sickness leave cause';
@@ -7,7 +6,6 @@ page 5210 "Causes of Absence"
     PageType = List;
     SourceTable = "Cause of Absence";
     UsageCategory = Administration;
-#pragma warning restore AS0030
 
     layout
     {

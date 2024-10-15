@@ -92,7 +92,7 @@ page 17309 "Tax Calc. Section List"
                         CreateTaxCalc.SetPeriodStart(
                           TaxCalcMgt.GetNextAvailableBeginDate(Code, DATABASE::"Tax Calc. Accumulation", true));
                         CreateTaxCalc.SetTableView(TaxCalcSection);
-                        CreateTaxCalc.RunModal;
+                        CreateTaxCalc.RunModal();
                     end;
                 }
                 separator(Action1210009)

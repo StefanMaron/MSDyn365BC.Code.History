@@ -226,7 +226,7 @@ report 14950 "Job Ticket"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 Quantity += SalesLine."Qty. to Ship";
                 Weight += SalesLine."Qty. to Ship" * SalesLine."Net Weight";
@@ -241,7 +241,7 @@ report 14950 "Job Ticket"
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesHeader."No.");
 
-        if SalesInvoiceLine.FindSet then
+        if SalesInvoiceLine.FindSet() then
             repeat
                 Quantity += SalesInvoiceLine.Quantity;
                 Weight += SalesInvoiceLine.Quantity * SalesInvoiceLine."Net Weight";
@@ -256,7 +256,7 @@ report 14950 "Job Ticket"
     begin
         SalesShipmentLine.SetRange("Document No.", SalesHeader."No.");
 
-        if SalesShipmentLine.FindSet then
+        if SalesShipmentLine.FindSet() then
             repeat
                 Quantity += SalesShipmentLine.Quantity;
                 Weight += SalesShipmentLine.Quantity * SalesShipmentLine."Net Weight";

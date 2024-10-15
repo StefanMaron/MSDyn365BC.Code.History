@@ -16,11 +16,11 @@ codeunit 12424 "VAT Invoice Journal Management"
         TempVendorLedgerEntry.Reset();
         TempVendorLedgerEntry.DeleteAll();
 
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 with VendorLedgerEntry do begin
                     SetRange("Vendor No.", Vendor."No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             if ("Document Type" = "Document Type"::Payment) and (ReportType = ReportType::Issued) then
                                 if IsVATAgent("Entry No.") then
@@ -58,12 +58,12 @@ codeunit 12424 "VAT Invoice Journal Management"
         TempVendorLedgerEntry.Reset();
         TempVendorLedgerEntry.DeleteAll();
 
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 with CustomerLedgerEntry do begin
                     SetRange("Posting Date", DatePeriod."Period Start", DatePeriod."Period End");
                     SetRange("Customer No.", Customer."No.");
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             if ReportType = ReportType::Received then begin
                                 if "Document Type" = "Document Type"::"Credit Memo" then
@@ -268,7 +268,7 @@ codeunit 12424 "VAT Invoice Journal Management"
             SetRange("Entry Type", "Entry Type"::"Initial Entry");
             SetRange("Vendor Ledger Entry No.", EntryNo);
             SetRange("Vendor No.", VendorNo);
-            if FindFirst then begin
+            if FindFirst() then begin
                 AmountLCY := "Amount (LCY)";
                 if "Currency Code" <> '' then
                     AmountFCY := Amount;
@@ -288,7 +288,7 @@ codeunit 12424 "VAT Invoice Journal Management"
             SetRange("Posting Date", 0D, PostingDate);
             SetRange("Initial Document Type", "Initial Document Type"::Invoice);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if VendorLedgerEntry.Get("Applied Vend. Ledger Entry No.") then
                         case VendorLedgerEntry."Document Type" of
@@ -317,7 +317,7 @@ codeunit 12424 "VAT Invoice Journal Management"
             SetRange("Cust. Ledger Entry No.", EntryNo);
             SetRange("Customer No.", VendorNo);
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 AmountLCY := "Amount (LCY)";
                 if "Currency Code" <> '' then
                     AmountFCY := Amount;
@@ -337,7 +337,7 @@ codeunit 12424 "VAT Invoice Journal Management"
             SetRange("Posting Date", 0D, PostingDate);
             SetRange("Initial Document Type", "Initial Document Type"::Invoice);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if CustomerLedgerEntry.Get("Applied Cust. Ledger Entry No.") then
                         case CustomerLedgerEntry."Document Type" of
@@ -386,7 +386,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         PurchInvHeader.SetRange("Vendor Invoice No.", VendorInvoiceNo);
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
 
-        if PurchInvHeader.FindFirst then
+        if PurchInvHeader.FindFirst() then
             exit(PurchInvHeader."No.");
     end;
 
@@ -395,7 +395,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("CV Ledg. Entry No.", EntryNo);
-        if VATEntry.FindFirst then
+        if VATEntry.FindFirst() then
             exit(VATEntry."VAT Agent");
 
         exit(false);
@@ -408,7 +408,7 @@ codeunit 12424 "VAT Invoice Journal Management"
     begin
         VATEntry.SetRange("CV Ledg. Entry No.", VendorLedgerEntry."Entry No.");
         VATEntry.SetRange("Posting Date", DatePeriod."Period Start", DatePeriod."Period End");
-        if not VATEntry.FindFirst then
+        if not VATEntry.FindFirst() then
             exit;
         if not VATEntry."VAT Agent" then
             exit;
@@ -446,7 +446,7 @@ codeunit 12424 "VAT Invoice Journal Management"
         CorrVATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
         CorrVATEntry.SetRange("Document Type", DocType);
         CorrVATEntry.SetRange("Document No.", DocNo);
-        if CorrVATEntry.FindFirst then
+        if CorrVATEntry.FindFirst() then
             exit(CorrVATEntry."Corrective Doc. Type" <> CorrVATEntry."Corrective Doc. Type"::" ");
 
         exit(false);
@@ -618,7 +618,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                                         VendLedgEntry.SetCurrentKey("Document Type", "Document No.");
                                         VendLedgEntry.SetRange("Document Type", PurchInvHeader."Original Doc. Type");
                                         VendLedgEntry.SetRange("Document No.", PurchInvHeader."Original Doc. No.");
-                                        if VendLedgEntry.FindFirst then begin
+                                        if VendLedgEntry.FindFirst() then begin
                                             if VendLedgEntry."Vendor VAT Invoice No." <> '' then
                                                 OrigVATInvNo := VendLedgEntry."Vendor VAT Invoice No."
                                             else
@@ -654,7 +654,7 @@ codeunit 12424 "VAT Invoice Journal Management"
                                         VendLedgEntry.SetCurrentKey("Document Type", "Document No.");
                                         VendLedgEntry.SetRange("Document Type", PurchCrMemoHeader."Original Doc. Type");
                                         VendLedgEntry.SetRange("Document No.", PurchCrMemoHeader."Original Doc. No.");
-                                        if VendLedgEntry.FindFirst then begin
+                                        if VendLedgEntry.FindFirst() then begin
                                             if VendLedgEntry."Vendor VAT Invoice No." <> '' then
                                                 OrigVATInvNo := VendLedgEntry."Vendor VAT Invoice No."
                                             else
@@ -761,7 +761,7 @@ codeunit 12424 "VAT Invoice Journal Management"
     begin
         with SalesInvLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
@@ -775,7 +775,7 @@ codeunit 12424 "VAT Invoice Journal Management"
     begin
         with SalesCrMemoLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
@@ -789,7 +789,7 @@ codeunit 12424 "VAT Invoice Journal Management"
     begin
         with PurchInvLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;
@@ -803,7 +803,7 @@ codeunit 12424 "VAT Invoice Journal Management"
     begin
         with PurchCrMemoLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     AmtInclVAT += "Amount Including VAT";
                     VATAmount += "Amount Including VAT" - Amount;

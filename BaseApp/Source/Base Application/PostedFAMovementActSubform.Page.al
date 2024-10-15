@@ -115,7 +115,7 @@ page 12481 "Posted FA Movement Act Subform"
                         SetFilters(PostedFADocHeader, PostedFADocLine);
                         FAPostedMovementActRep.SetTableView(PostedFADocHeader);
                         FAPostedMovementActRep.SetTableView(PostedFADocLine);
-                        FAPostedMovementActRep.Run;
+                        FAPostedMovementActRep.Run();
                     end;
                 }
                 action("FA Posted Movement FA-3")
@@ -132,7 +132,7 @@ page 12481 "Posted FA Movement Act Subform"
                         SetFilters(PostedFADocHeader, PostedFADocLine);
                         FAPostedMovementActRep.SetTableView(PostedFADocHeader);
                         FAPostedMovementActRep.SetTableView(PostedFADocLine);
-                        FAPostedMovementActRep.Run;
+                        FAPostedMovementActRep.Run();
                     end;
                 }
                 action("Posted FA Movement FA-15")
@@ -150,7 +150,7 @@ page 12481 "Posted FA Movement Act Subform"
                         SetFilters(PostedFADocHeader, PostedFADocLine);
                         FAPostedMovementActRep.SetTableView(PostedFADocHeader);
                         FAPostedMovementActRep.SetTableView(PostedFADocLine);
-                        FAPostedMovementActRep.Run;
+                        FAPostedMovementActRep.Run();
                     end;
                 }
             }

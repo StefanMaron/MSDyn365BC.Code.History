@@ -78,7 +78,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         PurchaseLine: Record "Purchase Line";
         LetterOfAttorneyLine: Record "Letter of Attorney Line";
     begin
-        Initialize;
+        Initialize();
         CreateAttHeader(LetterOfAttorneyHeader);
 
         CreateAttLines(LetterOfAttorneyHeader, LetterOfAttorneyLine, PurchaseLine);
@@ -98,7 +98,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -109,7 +109,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         PurchaseSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        Initialize;
+        Initialize();
         PurchaseSetup.Get();
         NoSeriesBefore := NoSeriesManagement.GetNextNo(PurchaseSetup."Released Letter of Attor. Nos.", WorkDate, false);
         CreateLetterOfAttorneyAndPrint(Preview);
@@ -125,11 +125,11 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
 
         Employee.Get(LetterOfAttorneyHeader."Employee No.");
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         LetterOfAttorneyM2A.InitializeRequest(LibraryReportValidation.GetFileName, Preview);
         LetterOfAttorneyM2A.SetTableView(LetterOfAttorneyHeader);
         LetterOfAttorneyM2A.UseRequestPage(false);
-        LetterOfAttorneyM2A.Run;
+        LetterOfAttorneyM2A.Run();
     end;
 
     local procedure CreateAttHeader(var LetterOfAttorneyHeader: Record "Letter of Attorney Header")
@@ -170,7 +170,7 @@ codeunit 144713 "ERM Letter of Attorney M-2A"
         end;
 
         LetterOfAttorneyLine.SetRange("Letter of Attorney No.", LetterOfAttorneyHeader."No.");
-        LetterOfAttorneyLine.FindFirst;
+        LetterOfAttorneyLine.FindFirst();
     end;
 }
 

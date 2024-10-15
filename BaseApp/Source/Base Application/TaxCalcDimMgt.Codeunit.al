@@ -27,7 +27,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         TaxCalcDimFilter.SetRange(Define, TaxCalcDimFilter.Define::Template);
         TaxCalcDimFilter.SetRange("Line No.", TaxCalcLine."Line No.");
         TaxCalcDimFilter.SetFilter("Dimension Value Filter", '<>''''');
-        if TaxCalcDimFilter.FindSet then begin
+        if TaxCalcDimFilter.FindSet() then begin
             if TaxCalcSection.Code <> TaxCalcLine."Section Code" then
                 TaxCalcSection.Get(TaxCalcLine."Section Code");
             repeat
@@ -53,7 +53,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         TaxCalcDimFilter.SetRange(Define, TaxCalcDimFilter.Define::Template);
         TaxCalcDimFilter.SetRange("Line No.", TaxCalcLine."Line No.");
         TaxCalcDimFilter.SetFilter("Dimension Value Filter", '<>''''');
-        if TaxCalcDimFilter.FindSet then begin
+        if TaxCalcDimFilter.FindSet() then begin
             if TaxCalcSection.Code <> TaxCalcLine."Section Code" then
                 TaxCalcSection.Get(TaxCalcLine."Section Code");
             repeat
@@ -81,7 +81,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         TaxCalcDimFilter.SetRange("Register No.", TaxCalcLine.Code);
         TaxCalcDimFilter.SetRange(Define, TaxCalcDimFilter.Define::Template);
         TaxCalcDimFilter.SetRange("Line No.", TaxCalcLine."Line No.");
-        if TaxCalcDimFilter.FindSet then
+        if TaxCalcDimFilter.FindSet() then
             repeat
                 if not TempDimBuf1.Get(0, 0, TaxCalcDimFilter."Dimension Code") then begin
                     if not (TaxCalcDimFilter."Dimension Value Filter" in ['', '''''']) then
@@ -164,13 +164,13 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         TaxCalcDimCorFilter.SetRange("Section Code", TaxCalcCorrespEntry."Section Code");
         TaxCalcDimCorFilter.SetRange("Corresp. Entry No.", TaxCalcCorrespEntry."Entry No.");
         TaxCalcIDTotaling := TaxCalcCorrespEntry."Tax Register ID Totaling";
-        if TaxCalcDimCorFilter.FindSet then
+        if TaxCalcDimCorFilter.FindSet() then
             repeat
                 TaxCalcDimFilter.SetCurrentKey("Section Code", "Entry No.");
                 TaxCalcDimFilter.SetRange("Section Code", TaxCalcCorrespEntry."Section Code");
                 TaxCalcDimFilter.SetRange("Entry No.", TaxCalcDimCorFilter."Connection Entry No.");
                 if CheckSetupDimFilters(TaxCalcDimFilter, MessageText) then
-                    if TaxCalcDimFilter.FindSet then
+                    if TaxCalcDimFilter.FindSet() then
                         repeat
                             TaxCalcHeader.Get(TaxCalcDimFilter."Section Code", TaxCalcDimFilter."Register No.");
                             if TaxCalcIDTotaling = '' then
@@ -181,7 +181,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
                         until TaxCalcDimFilter.Next(1) = 0;
             until TaxCalcDimCorFilter.Next(1) = 0;
         TempDimBuf1.Reset();
-        if TempDimBuf1.FindSet then
+        if TempDimBuf1.FindSet() then
             repeat
                 case TempDimBuf1."Dimension Code" of
                     TaxCalcSection."Dimension 1 Code":
@@ -202,10 +202,10 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         DimensionValue: Record "Dimension Value";
     begin
         TempDimBuf1.Reset();
-        if TempDimBuf1.FindSet then
+        if TempDimBuf1.FindSet() then
             repeat
                 TaxCalcDimFilter.SetRange("Dimension Code", TempDimBuf1."Dimension Code");
-                if TaxCalcDimFilter.FindSet then begin
+                if TaxCalcDimFilter.FindSet() then begin
                     DimensionValue."Dimension Code" := TempDimBuf1."Dimension Code";
                     DimensionValue.Code := TempDimBuf1."Dimension Value Code";
                     DimensionValue.SetRange("Dimension Code", TempDimBuf1."Dimension Code");
@@ -218,11 +218,11 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
             until TempDimBuf1.Next() = 0;
 
         TaxCalcDimFilter.SetRange("Dimension Code");
-        if TaxCalcDimFilter.FindSet then
+        if TaxCalcDimFilter.FindSet() then
             repeat
                 if TaxCalcDimFilter."If No Value" <> TaxCalcDimFilter."If No Value"::Ignore then begin
                     TempDimBuf1.SetRange("Dimension Code", TaxCalcDimFilter."Dimension Code");
-                    if not TempDimBuf1.FindFirst then
+                    if not TempDimBuf1.FindFirst() then
                         case TaxCalcDimFilter."If No Value" of
                             TaxCalcDimFilter."If No Value"::Skip:
                                 exit(false);
@@ -277,7 +277,7 @@ codeunit 17304 "Tax Calc. Dim. Mgt."
         TempDimBuf1.DeleteAll();
 
         DimMgt.GetDimensionSet(TempDimSetEntry, DimSetID);
-        if TempDimSetEntry.FindSet then
+        if TempDimSetEntry.FindSet() then
             repeat
                 TempDimBuf1."Dimension Code" := TempDimSetEntry."Dimension Code";
                 TempDimBuf1."Dimension Value Code" := TempDimSetEntry."Dimension Value Code";

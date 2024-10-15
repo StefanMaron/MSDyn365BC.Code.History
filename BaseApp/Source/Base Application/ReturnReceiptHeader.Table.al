@@ -671,7 +671,6 @@ table 6660 "Return Receipt Header"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure EmailRecords(ShowDialog: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -689,7 +688,7 @@ table 6660 "Return Receipt Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

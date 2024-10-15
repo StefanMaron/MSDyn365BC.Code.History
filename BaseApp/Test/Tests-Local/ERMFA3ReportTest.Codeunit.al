@@ -21,7 +21,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         FANo: array[2] of Code[20];
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         for i := 1 to ArrayLen(FANo) do
             FANo[i] := MockFixedAsset;
         MockFADocument(FADocHeader, FANo);
@@ -37,7 +37,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         FANo: array[2] of Code[20];
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         for i := 1 to ArrayLen(FANo) do
             FANo[i] := MockFixedAsset;
         MockPostedFADocument(PostedFADocHeader, FANo);
@@ -63,12 +63,12 @@ codeunit 144715 "ERM FA-3 Report Test"
     begin
         with FixedAsset do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
-            Description := LibraryUtility.GenerateGUID;
-            "Inventory Number" := LibraryUtility.GenerateGUID;
-            "Passport No." := LibraryUtility.GenerateGUID;
-            "Factory No." := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
+            "Inventory Number" := LibraryUtility.GenerateGUID();
+            "Passport No." := LibraryUtility.GenerateGUID();
+            "Factory No." := LibraryUtility.GenerateGUID();
             Modify;
             InitFADeprBooks("No.");
             exit("No.");
@@ -89,7 +89,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         with FADocHeader do begin
             Init;
             "Document Type" := "Document Type"::Movement;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             "Posting Date" := WorkDate;
             "FA Location Code" := LibraryRUReports.MockFALocation;
@@ -110,7 +110,7 @@ codeunit 144715 "ERM FA-3 Report Test"
             RecRef.GetTable(FADocLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             Insert;
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             "FA No." := FANo;
             "Depreciation Book Code" := LibraryRUReports.GetFirstFADeprBook("FA No.");
             "FA Posting Group" := LibraryRUReports.MockFAPostingGroup;
@@ -133,7 +133,7 @@ codeunit 144715 "ERM FA-3 Report Test"
         with PostedFADocHeader do begin
             Init;
             "Document Type" := "Document Type"::Movement;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             "Posting Date" := WorkDate;
             "FA Location Code" := LibraryRUReports.MockFALocation;

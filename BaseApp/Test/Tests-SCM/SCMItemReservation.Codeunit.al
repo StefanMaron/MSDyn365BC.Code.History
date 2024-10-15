@@ -41,7 +41,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO] Test Item Reservation functionality for Sales Order with Apply To Item Entry.
 
         // [GIVEN] Create and post Item Journal Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.", LibraryRandom.RandDec(100, 2));  // Use Random Quantity because value is not important.
 
@@ -67,7 +67,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO] Test Item Reservation functionality for Sales Order without Apply To Item Entry.
 
         // [GIVEN] Create and post Item Journal Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.", LibraryRandom.RandDec(100, 2));  // Use Random Quantity because value is not important.
 
@@ -94,7 +94,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO] Test Item Reservation functionality for Production Order.
 
         // [GIVEN] Create Manufacturing Item. Create and post Item Journal Line. Create and refresh Production Order. Calculate and post Consumption.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);  // Use Random Quantity because value is not important.
         ItemNo := CreateManufacturingItem(ProductionBOMLine);
         CreateAndPostItemJournalLine(ItemJournalLine, ProductionBOMLine."No.", Quantity * ProductionBOMLine."Quantity per");
@@ -124,7 +124,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO]Test Item Reservation functionality for Service Order.
 
         // [GIVEN] Create and post Purchase Order for new Item. Create a Service Order for the same Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrder(PurchaseLine);
         CreateServiceOrder(ServiceHeader, ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity);
         LibraryVariableStorage.Enqueue(ServiceLine.Quantity);  // Quantity is made Global as it is used in Handler.
@@ -149,7 +149,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO] Test posting of Service Order with Item Reservation functionality.
 
         // [GIVEN] Create and post Purchase Order for new Item. Create a Service Order for the same Item. Open Reservation page and Reserve from Current Line.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseOrder(PurchaseLine);
         CreateServiceOrder(ServiceHeader, ServiceLine, PurchaseLine."No.", PurchaseLine.Quantity);
         LibraryVariableStorage.Enqueue(ServiceLine.Quantity);  // Quantity is made Global as it is used in Handler.
@@ -176,7 +176,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENATIO] Validate Warehouse Activity Line with Item reservation functionality in Sales Order.
 
         // [GIVEN] Create and Register Warehouse Journal Line and Create and Release Purchase Order and Sales Order. Reserve Sales Order.
-        Initialize;
+        Initialize();
         CreateAndUpdateLocation(Location);
         CreateAndRegisterWarehouseJournalLine(WarehouseJournalLine, Location.Code);
         CalculateAndPostWarehouseAdjustment(WarehouseJournalLine."Item No.");
@@ -206,7 +206,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO] Validate Warehouse Shipment Line after register Pick.
 
         // [GIVEN] Create and Register Warehouse Journal Line and Create and Release Purchase Order and Sales Order. Reserve Sales Order.
-        Initialize;
+        Initialize();
         CreateAndUpdateLocation(Location);
         CreateAndRegisterWarehouseJournalLine(WarehouseJournalLine, Location.Code);
         CalculateAndPostWarehouseAdjustment(WarehouseJournalLine."Item No.");
@@ -256,7 +256,7 @@ codeunit 137406 "SCM Item Reservation"
         // [SCENARIO 109055] Reservation entries are created for component items with Reservation = Always when Sales Order is created from Sales Quote with Assembly Order
 
         // [GIVEN] Sales Quote with assembled item, component "?" has "Reserved" = "Always"
-        Initialize;
+        Initialize();
         CreateItemAutoReserved(ComponentItem);
         CreateSalesQuoteWithItem(SalesHeader, CreateAssembledItem(ComponentItem));
 
@@ -280,7 +280,7 @@ codeunit 137406 "SCM Item Reservation"
 
         // [GIVEN] Create Item with "Safety Stock Quantity" & "ReOrdering Policy" .Creating Purchase Order , Post Postive adjustment &
         // Creation of Sales Order and reserve the Quantity
-        Initialize;
+        Initialize();
         CreateItemWithLotAndTracking(Item, LotNos);
         CreatePurchaseOrderWithItemTracking(Item."No.", LotNos, PurchaseLine);
         PostItemPositiveAdjmt(Item."No.", LotNos, ItemJournalLine);
@@ -479,9 +479,9 @@ codeunit 137406 "SCM Item Reservation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Reservation");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -701,7 +701,7 @@ codeunit 137406 "SCM Item Reservation"
         SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
@@ -834,7 +834,7 @@ codeunit 137406 "SCM Item Reservation"
     begin
         with PurchaseHeader do begin
             SetRange("Buy-from Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             Validate("Vendor Invoice No.", LibraryUtility.GenerateRandomCode(FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
             Modify(true);
             exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -848,7 +848,7 @@ codeunit 137406 "SCM Item Reservation"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             ModifyAll("Vendor No.", VendorNo, true);
             LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
         end;
@@ -859,7 +859,7 @@ codeunit 137406 "SCM Item Reservation"
         with ReqWkshTemplate do begin
             SetRange(Type, Type::"Req.");
             SetRange(Recurring, false);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -873,14 +873,14 @@ codeunit 137406 "SCM Item Reservation"
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", Zone.Code);
         Bin.SetRange("Adjustment Bin", false);
-        Bin.FindFirst;
+        Bin.FindFirst();
     end;
 
     local procedure FindBinType(var BinType: Record "Bin Type")
     begin
         BinType.SetRange("Put Away", true);
         BinType.SetRange(Pick, true);
-        BinType.FindFirst;
+        BinType.FindFirst();
     end;
 
     local procedure FindItemLedgerEntryNo(ItemNo: Code[20]; DocumentNo: Code[20]): Integer
@@ -889,7 +889,7 @@ codeunit 137406 "SCM Item Reservation"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry."Entry No.");
     end;
 
@@ -898,7 +898,7 @@ codeunit 137406 "SCM Item Reservation"
         Zone.SetRange("Location Code", LocationCode);
         Zone.SetRange("Bin Type Code", BinTypeCode);
         Zone.SetRange("Cross-Dock Bin Zone", false);
-        Zone.FindFirst;
+        Zone.FindFirst();
     end;
 
     local procedure CreateItemTrackingCodeWithLot(): Code[10]
@@ -917,7 +917,7 @@ codeunit 137406 "SCM Item Reservation"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
@@ -935,7 +935,7 @@ codeunit 137406 "SCM Item Reservation"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.ShowReservation();
     end;
 
@@ -950,7 +950,7 @@ codeunit 137406 "SCM Item Reservation"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -959,7 +959,7 @@ codeunit 137406 "SCM Item Reservation"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item No.", ItemNo);
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
@@ -970,10 +970,10 @@ codeunit 137406 "SCM Item Reservation"
         ServiceInvoiceLine: Record "Service Invoice Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Customer No.", ServiceHeader."Customer No.");
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField("No.", ServiceLine."No.");
         ServiceInvoiceLine.TestField(Quantity, ServiceLine.Quantity);
     end;
@@ -996,7 +996,7 @@ codeunit 137406 "SCM Item Reservation"
     begin
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity + PurchaseQuantity);
         WarehouseShipmentLine.TestField("Qty. to Ship", Quantity);
         WarehouseShipmentLine.TestField("Qty. Outstanding (Base)", Quantity + PurchaseQuantity);

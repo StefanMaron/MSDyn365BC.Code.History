@@ -123,7 +123,7 @@ table 17208 "Tax Register Accumulation"
                     TaxRegAccumulation.SetRange("Tax Register No.", TaxRegTemplate."Link Tax Register No.");
                     TaxRegAccumulation.SetRange("Ending Date", "Ending Date");
                     TaxRegAccumulation.SetRange("Template Line Code", TaxRegTemplate.Expression);
-                    if TaxRegAccumulation.FindFirst then;
+                    if TaxRegAccumulation.FindFirst() then;
                     TaxRegAccumulation.SetRange("Template Line Code");
                     PAGE.RunModal(0, TaxRegAccumulation);
                 end;
@@ -132,7 +132,7 @@ table 17208 "Tax Register Accumulation"
                 begin
                     Clear(TaxRegCalcBufferForm);
                     TaxRegCalcBufferForm.BuildTaxRegCalcBuffer(Rec);
-                    TaxRegCalcBufferForm.RunModal;
+                    TaxRegCalcBufferForm.RunModal();
                 end;
             TaxRegTemplate."Expression Type"::SumField:
                 begin

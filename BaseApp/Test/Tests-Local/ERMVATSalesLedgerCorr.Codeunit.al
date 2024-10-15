@@ -29,7 +29,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -60,7 +60,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -95,7 +95,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -130,7 +130,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -166,7 +166,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -201,7 +201,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -242,7 +242,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -282,7 +282,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -323,7 +323,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -368,7 +368,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -404,7 +404,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -444,7 +444,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -488,7 +488,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -536,7 +536,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -566,7 +566,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCustomerGLAccount(CustNo, GLAccountNo);
 
         CreateInvoice(SalesHeader, WorkDate, CustNo);
@@ -652,7 +652,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
               "Document Type"::Payment, "Account Type"::Customer, CustNo, 0);
             Validate("Posting Date", PostingDate);
             Validate(Prepayment, true);
-            "External Document No." := LibraryUtility.GenerateGUID;
+            "External Document No." := LibraryUtility.GenerateGUID();
             Validate("Prepayment Document No.", PrepmtDocNo);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
@@ -709,7 +709,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
                 begin
                     SalesInvLine.Reset();
                     SalesInvLine.SetRange("Document No.", SalesHeader."Corrected Doc. No.");
-                    SalesInvLine.FindFirst;
+                    SalesInvLine.FindFirst();
                     CorrDocMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
                     CorrDocMgt.SetCorrectionType(0);
                     CorrDocMgt.CreateSalesLinesFromPstdInv(SalesInvLine);
@@ -718,7 +718,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
                 begin
                     SalesCrMemoLine.Reset();
                     SalesCrMemoLine.SetRange("Document No.", SalesHeader."Corrected Doc. No.");
-                    SalesCrMemoLine.FindFirst;
+                    SalesCrMemoLine.FindFirst();
                     CorrDocMgt.SetSalesHeader(SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
                     CorrDocMgt.SetCorrectionType(0);
                     CorrDocMgt.CreateSalesLinesFromPstdCrMemo(SalesCrMemoLine);
@@ -727,7 +727,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Invoice:
                 begin
@@ -756,7 +756,7 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
         with SalesInvoiceHeader do begin
             SetRange("Bill-to Customer No.", CustNo);
             SetRange("Prepayment Invoice", true);
-            FindLast;
+            FindLast();
             exit("No.");
         end;
     end;
@@ -837,13 +837,13 @@ codeunit 147201 "ERM VAT Sales Ledger Corr."
             SetRange("Revision Date", RevDate);
             SetRange("Revision of Corr. No.", RevOfCorrNo);
             SetRange("Revision of Corr. Date", RevOfCorrDate);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure CreateCustomerGLAccount(var CustomerNo: Code[20]; var GLAccountNo: Code[20])
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
     end;
 

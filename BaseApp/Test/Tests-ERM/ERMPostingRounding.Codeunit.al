@@ -1,4 +1,4 @@
-﻿codeunit 134157 "ERM Posting Rounding"
+codeunit 134157 "ERM Posting Rounding"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -638,7 +638,7 @@
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
         end;
     end;

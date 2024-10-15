@@ -271,8 +271,8 @@ page 36847 "Sales Corrective Invoice List"
                     var
                         ApprovalEntries: Page "Approval Entries";
                     begin
-                        ApprovalEntries.Setfilters(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
-                        ApprovalEntries.Run;
+                        ApprovalEntries.SetRecordFilters(DATABASE::"Sales Header", Rec."Document Type", Rec."No.");
+                        ApprovalEntries.Run();
                     end;
                 }
             }

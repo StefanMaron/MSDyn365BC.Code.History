@@ -213,7 +213,7 @@ report 12445 "Vendor Accounting Card"
                                         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                                         DtldVendLedgEntry2.SetRange("Entry Type", "Entry Type"::"Realized Loss");
                                         DtldVendLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldVendLedgEntry2.FindFirst then begin
+                                        if DtldVendLedgEntry2.FindFirst() then begin
                                             if Abs("Amount (LCY)") >= Abs(DtldVendLedgEntry2."Amount (LCY)") then
                                                 "Debit Amount (LCY)" := "Debit Amount (LCY)" - DtldVendLedgEntry2."Credit Amount (LCY)"
                                             else
@@ -227,7 +227,7 @@ report 12445 "Vendor Accounting Card"
                                         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                                         DtldVendLedgEntry2.SetRange("Entry Type", "Entry Type"::"Unrealized Loss");
                                         DtldVendLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldVendLedgEntry2.FindFirst then begin
+                                        if DtldVendLedgEntry2.FindFirst() then begin
                                             if Abs("Amount (LCY)") >= Abs(DtldVendLedgEntry2."Amount (LCY)") then // print Realized Gain Debit
                                                 "Credit Amount (LCY)" := "Credit Amount (LCY)" - DtldVendLedgEntry2."Debit Amount (LCY)"
                                             else

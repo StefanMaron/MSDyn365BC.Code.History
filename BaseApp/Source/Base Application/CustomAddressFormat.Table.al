@@ -83,7 +83,7 @@ table 725 "Custom Address Format"
         CustomAddressFormatLine.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         CustomAddressFormatLine.SetFilter("Field Name", '<>%1', '');
-        if CustomAddressFormatLine.FindSet then
+        if CustomAddressFormatLine.FindSet() then
             repeat
                 "Line Format" += StrSubstNo('[%1]', CustomAddressFormatLine."Field Name");
                 if CustomAddressFormatLine.Separator <> '' then
@@ -120,7 +120,7 @@ table 725 "Custom Address Format"
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         CustomAddressFormatLine.SetCurrentKey("Country/Region Code", "Line No.", "Field Position");
         CustomAddressFormatLines.SetTableView(CustomAddressFormatLine);
-        CustomAddressFormatLines.RunModal;
+        CustomAddressFormatLines.RunModal();
 
         BuildAddressFormat;
     end;
@@ -144,7 +144,7 @@ table 725 "Custom Address Format"
     begin
         CustomAddressFormat.SetRange("Country/Region Code", "Country/Region Code");
         CustomAddressFormat.SetRange("Line Position", "Line Position" + MoveBy);
-        if CustomAddressFormat.FindFirst then begin
+        if CustomAddressFormat.FindFirst() then begin
             CustomAddressFormat."Line Position" -= MoveBy;
             CustomAddressFormat.Modify();
             "Line Position" += MoveBy;

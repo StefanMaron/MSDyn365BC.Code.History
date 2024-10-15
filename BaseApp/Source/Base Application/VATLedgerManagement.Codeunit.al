@@ -39,7 +39,7 @@ codeunit 12423 "VAT Ledger Management"
             Delimiter := '';
             Customer.Reset();
             Customer.SetFilter("No.", CustFilter);
-            if Customer.FindSet then
+            if Customer.FindSet() then
                 repeat
                     if Customer."Vendor No." <> '' then begin
                         VendFilter := VendFilter + Delimiter + Customer."Vendor No.";
@@ -371,7 +371,7 @@ codeunit 12423 "VAT Ledger Management"
         ValueEntry.SetRange("Source No.", VATLedgerLineBuf."C/V No.");
         ValueEntry.SetRange("Document No.", VATLedgerLineBuf."Origin. Document No.");
 
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgerEntry."Package No." <> '' then begin

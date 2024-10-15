@@ -139,7 +139,7 @@ page 17247 "Tax Register Norm Groups"
         Commit();
         NormGroup.SetRange("Norm Jurisdiction Code", "Norm Jurisdiction Code");
         NormGroup.SetRange("Storing Method", "Storing Method"::Calculation);
-        if not NormGroup.FindFirst then
+        if not NormGroup.FindFirst() then
             Error(Text1000);
         NormJurisdiction.FilterGroup(2);
         NormJurisdiction.SetRange(Code, "Norm Jurisdiction Code");

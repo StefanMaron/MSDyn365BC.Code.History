@@ -690,7 +690,7 @@ page 35622 "_Stat. Report Data Subform"
         i := 0;
         StatReportTableColumn.SetRange("Report Code", ReportCode);
         StatReportTableColumn.SetRange("Table Code", TableCode);
-        if StatReportTableColumn.FindSet then
+        if StatReportTableColumn.FindSet() then
             repeat
                 i := i + 1;
                 MatrixRecords[i] := StatReportTableColumn;

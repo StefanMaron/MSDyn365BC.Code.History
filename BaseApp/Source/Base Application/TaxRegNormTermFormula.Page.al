@@ -43,7 +43,7 @@ page 17283 "Tax Reg. Norm Term Formula"
                                     if "Bal. Account No." <> '' then
                                         if StrPos('|&<>', CopyStr("Account No.", StrLen("Account No."))) = 0 then begin
                                             GLAcc.SetFilter("No.", "Account No.");
-                                            if GLAcc.FindFirst then;
+                                            if GLAcc.FindFirst() then;
                                             GLAcc.SetRange("No.");
                                         end;
                                     if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin
@@ -56,7 +56,7 @@ page 17283 "Tax Reg. Norm Term Formula"
                                     NormTermName.Reset();
                                     if "Account No." <> '' then begin
                                         NormTermName.SetFilter("Term Code", "Account No.");
-                                        if NormTermName.FindFirst then;
+                                        if NormTermName.FindFirst() then;
                                         NormTermName.SetRange("Term Code");
                                     end;
                                     if ACTION::LookupOK = PAGE.RunModal(0, NormTermName) then begin
@@ -101,7 +101,7 @@ page 17283 "Tax Reg. Norm Term Formula"
                             if "Bal. Account No." <> '' then
                                 if StrPos('|&<>', CopyStr("Bal. Account No.", StrLen("Bal. Account No."))) = 0 then begin
                                     GLAcc.SetFilter("No.", "Bal. Account No.");
-                                    if GLAcc.FindFirst then;
+                                    if GLAcc.FindFirst() then;
                                     GLAcc.SetRange("No.");
                                 end;
                             if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin
@@ -114,7 +114,7 @@ page 17283 "Tax Reg. Norm Term Formula"
                             NormTermName.Reset();
                             if "Bal. Account No." <> '' then begin
                                 NormTermName.SetFilter("Term Code", "Bal. Account No.");
-                                if NormTermName.FindFirst then;
+                                if NormTermName.FindFirst() then;
                                 NormTermName.SetRange("Term Code");
                             end;
                             if ACTION::LookupOK = PAGE.RunModal(0, NormTermName) then begin

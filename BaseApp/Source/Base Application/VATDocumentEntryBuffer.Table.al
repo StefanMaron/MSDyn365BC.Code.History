@@ -671,13 +671,13 @@ table 14927 "VAT Document Entry Buffer"
                 begin
                     VendLedgEntry.SetRange("Entry No.", "Entry No.");
                     VendLedgEntries.SetTableView(VendLedgEntry);
-                    VendLedgEntries.RunModal;
+                    VendLedgEntries.RunModal();
                 end;
             "Entry Type"::Sale:
                 begin
                     CustLedgEntry.SetRange("Entry No.", "Entry No.");
                     CustLedgEntries.SetTableView(CustLedgEntry);
-                    CustLedgEntries.RunModal;
+                    CustLedgEntries.RunModal();
                 end;
         end;
     end;

@@ -182,7 +182,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         AdjPostingDate: Date;
         EntryAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
@@ -205,7 +205,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Unapply]
         // [SCENARIO 362788] Prepayment Difference G/L Entry is created when unapplying prepayment with "Cancel Curr. Prepmt. Adjmt" option
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment and invoice in FCY with different exchange rates
@@ -234,7 +234,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Application] [Unrealized VAT]
         // [SCENARIO 363394] Prepayment G/L VAT Entry is created when apply prepayment with unrealized VAT to Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment with unrealized VAT Amount = "X" and invoice
@@ -262,7 +262,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Unapply] [Unrealized VAT]
         // [SCENARIO 371855] Negative Debit G/L Entry with "Sales VAT. Unreal Account" is created when unapply prepayment with unrealized VAT
 
-        Initialize;
+        Initialize();
         SetCreatePrepmtInvInSalesSetup;
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -297,7 +297,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         // [FEATURE] [Item Charge] [Prepayment Difference] [FCY]
         // [SCENARIO 377194] Sales Credit Memo's Item Charge Assignment has Prepayment Difference Amount Excl. VAT for Prepayment to Invoice application with different exch. rates (up) and Cancel Prepmt. Adjmt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on.
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -334,7 +334,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         // [FEATURE] [Item Charge] [Prepayment Difference] [FCY]
         // [SCENARIO 377194] Sales Invoice's Item Charge Assignment has Prepayment Difference Amount Excl. VAT for Prepayment to Invoice application with different exch. rates (down) and Cancel Prepmt. Adjmt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -368,7 +368,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         // [FEATURE] [FCY] [Item tracking] [Application]
         // [SCENARIO 273345] When "Cancel Curr. Prepmt. Adjmt." in "General Ledger Setup" is on the application of customer prepayment to invoice for tracked item is successful.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -407,7 +407,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         // [FEATURE] [FCY] [Item tracking] [Application]
         // [SCENARIO 277017] When "Cancel Curr. Prepmt. Adjmt." in "General Ledger Setup" is on the application of customer prepayment to invoice for tracked item made as separate document is successful.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -454,7 +454,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         // [FEATURE] [Invoice] [Currency] [Exchange Rates] [Cancel Prepmt. Adjmt. in TA]
         // [SCENARIO 281292] When applying customer prepayment to invoice with option "Cancel Prepmt. Adjmt. in TA", exchange rate gain/loss is posted as item charge
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Cancel Prepmt. Adjmt. in TA" in general ledger setup
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -559,7 +559,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -599,8 +599,6 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         with SalesSetup do begin
             Get();
             Validate("Create Prepayment Invoice", false);
-            if "Invoice Posting Setup" <> "Invoice Posting Setup"::"Invoice Posting (Default)" then
-                Validate("Invoice Posting Setup", "Invoice Posting Setup"::"Invoice Posting (Default)");
             Modify(true);
         end;
     end;
@@ -700,7 +698,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         EntryAmount: array[3] of Decimal;
         RefundAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         PostPartInvCurrAndPrepmt(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyCustomerPaymentToInvoice(PmtNo, InvNo);
@@ -784,7 +782,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         EntryAmount: array[3] of Decimal;
         RefundAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         PostPartInvCurrAndPrepmt(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyCustomerPaymentToInvoice(PmtNo, InvNo);
@@ -805,7 +803,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         PmtNo: Code[20];
         EntryAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         PostInvCurrAndPrepmt(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyCustomerPaymentToInvoice(PmtNo, InvNo);
@@ -829,7 +827,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         AdjPostingDate: Date;
         EntryAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
@@ -845,7 +843,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         SalesLine: Record "Sales Line";
         ExchRateAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -916,7 +914,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         SalesLine: Record "Sales Line";
         ExchRateAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibrarySales.CreateFCYSalesInvoiceWithGLAcc(SalesHeader, SalesLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1082,7 +1080,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         ItemNo := CreateLotItemNo;
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, '', '', Quantity);
         LibraryVariableStorage.Enqueue(ItemTrackingLinesOption::NewLot);
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(Quantity);
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1151,7 +1149,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         if IsCancelPrepmt then
             exit(Currency."PD Bal. Gain/Loss Acc. (TA)");
         CustLedgEntry.SetRange("Document No.", DocNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustPostGroup.Get(CustLedgEntry."Customer Posting Group");
         exit(CustPostGroup."Prepayment Account");
     end;
@@ -1161,7 +1159,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgEntry.SetRange("Document No.", DocNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         exit(CustLedgEntry."Customer No.");
     end;
 
@@ -1183,7 +1181,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
         GenJnlTemplate.SetRange(Recurring, false);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
         exit(NoSeriesMgt.GetNextNo(GenJnlTemplate."No. Series", PostingDate, false));
     end;
 
@@ -1205,7 +1203,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -1218,7 +1216,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Sale);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -1230,7 +1228,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         SalesInvoiceLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
 
         SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
         SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
@@ -1246,7 +1244,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         SalesCrMemoLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::"Charge (Item)");
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
 
         SalesCrMemoHeader.Get(SalesCrMemoLine."Document No.");
         SalesCrMemoHeader.CalcFields(Amount, "Amount Including VAT");
@@ -1296,14 +1294,14 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         AdjustExchangeRates.InitializeRequest2(
           0D, PostingDate, '', PostingDate, LibraryUtility.GenerateGUID, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         CustLedgEntry.SetRange("Document Type", DocType);
         CustLedgEntry.SetRange("Document No.", DocNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
     end;
 
     local procedure FindDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option)
@@ -1320,7 +1318,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; ItemNo: Code[20])
     begin
         SalesInvoiceLine.SetRange("No.", ItemNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
@@ -1393,7 +1391,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         CustLedgEntry.SetRange("Document No.", DocNo);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         with DtldCustLedgEntry do begin
             SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
@@ -1454,7 +1452,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         with GLEntry do begin
             FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
-            FindLast;
+            FindLast();
             TestField(Amount, ExpectedAmount);
         end;
     end;
@@ -1465,7 +1463,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
     begin
         with GLEntry do begin
             FilterGLEntry(GLEntry, DocType, DocNo, GLAccNo);
-            FindLast;
+            FindLast();
             TestField("Debit Amount", ExpectedDebitAmount);
             TestField("Credit Amount", ExpectedCreditAmount);
         end;
@@ -1492,7 +1490,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetRange("Item Charge No.", InventoryPostingGroup."Sales PD Charge FCY (Item)");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Credit Memo");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         ValueEntry.TestField(
           "Sales Amount (Actual)",
@@ -1507,7 +1505,7 @@ codeunit 144003 "ERM Curr. Adjmt. Prepmt. Sales"
             SetRange("Item No.", ItemNo);
             SetRange("Document No.", DocumentNo);
             SetRange("Item Ledger Entry No.", ILENo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, "Sales Amount (Actual)", FieldCaption("Sales Amount (Actual)"));
         end;
     end;

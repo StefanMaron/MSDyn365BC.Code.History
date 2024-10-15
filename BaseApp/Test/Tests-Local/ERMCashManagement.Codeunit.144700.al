@@ -60,7 +60,7 @@ codeunit 144700 "ERM Cash Management"
     begin
         Amount := CreatePostCashOrder(GenJnlLine."Account Type"::Customer, CreateCustomer, -1);
 
-        BankAccLedgerEntry.FindLast;
+        BankAccLedgerEntry.FindLast();
         Assert.AreEqual(-Amount, BankAccLedgerEntry.Amount, BankAccLedgerEntry.FieldCaption(Amount));
     end;
 
@@ -73,7 +73,7 @@ codeunit 144700 "ERM Cash Management"
         Customer: Record Customer;
         BankPaymentOrder: Page "Bank Payment Order";
     begin
-        Initialize;
+        Initialize();
 
         Customer.Get(CreateCustomer);
         LibraryVariableStorage.Enqueue(DelChr(Customer."VAT Registration No.", '<>', ' '));
@@ -83,7 +83,7 @@ codeunit 144700 "ERM Cash Management"
         GenJnlLine.Modify();
 
         BankPaymentOrder.SetRecord(GenJnlLine);
-        BankPaymentOrder.Run;
+        BankPaymentOrder.Run();
     end;
 
     [Test]
@@ -95,14 +95,14 @@ codeunit 144700 "ERM Cash Management"
         Vendor: Record Vendor;
         BankPaymentOrder: Page "Bank Payment Order";
     begin
-        Initialize;
+        Initialize();
 
         Vendor.Get(CreateVendor);
         LibraryVariableStorage.Enqueue(DelChr(Vendor."VAT Registration No.", '<>', ' '));
         CreateBankOrder(GenJnlLine, GenJnlLine."Account Type"::Vendor, Vendor."No.");
 
         BankPaymentOrder.SetRecord(GenJnlLine);
-        BankPaymentOrder.Run;
+        BankPaymentOrder.Run();
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 144700 "ERM Cash Management"
         CompanyInformation: Record "Company Information";
         BankPaymentOrder: Page "Bank Payment Order";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateBankAccount(BankAccount);
         CreateBankOrder(GenJnlLine, GenJnlLine."Account Type"::"Bank Account", BankAccount."No.");
@@ -124,7 +124,7 @@ codeunit 144700 "ERM Cash Management"
         LibraryVariableStorage.Enqueue(DelChr(CompanyInformation."VAT Registration No.", '<>', ' '));
 
         BankPaymentOrder.SetRecord(GenJnlLine);
-        BankPaymentOrder.Run;
+        BankPaymentOrder.Run();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 144700 "ERM Cash Management"
         RecRef: RecordRef;
     begin
         // Check report Copy Pay Document creates Gen. Jnl. Line. with correct Amount
-        Initialize;
+        Initialize();
         FindGenJournalLine(GenJnlLine);
         with CheckLedgerEntry do begin
             Init;
@@ -155,7 +155,7 @@ codeunit 144700 "ERM Cash Management"
         LibraryVariableStorage.Enqueue(CopyPayDocDocumentType::"Payment order");
         LibraryVariableStorage.Enqueue(CheckLedgerEntry."Entry No.");
         CopyPayDocument.SetJournalLine(GenJnlLine);
-        CopyPayDocument.Run;
+        CopyPayDocument.Run();
 
         GenJnlLine.Next;
         VerifyGenJnlLine(GenJnlLine, CheckLedgerEntry);
@@ -169,7 +169,7 @@ codeunit 144700 "ERM Cash Management"
         PaymentCode: Text;
     begin
         // Check Payment Code transferred correctly to Gen. Jnl. Line Archieve and Check Ledger Entry while posting
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostGenJnlLineWithPaymentCode(PaymentCode);
         VerifyPostedPaymentCode(DocumentNo, PaymentCode);
     end;
@@ -185,7 +185,7 @@ codeunit 144700 "ERM Cash Management"
         GenJnlBatchName: Code[10];
     begin
         // Check Payment Code transfered correctly to Gen. Jnl. Line while transferring Bank Account Reconciliation Line
-        Initialize;
+        Initialize();
 
         CreateBankAccountReconciliation(BankAccRecon, PaymentCode);
         RunTransBankRecToGenJnlReport(GenJnlTemplateName, GenJnlBatchName, BankAccRecon);
@@ -202,7 +202,7 @@ codeunit 144700 "ERM Cash Management"
     begin
         // [FEATURE] [Cash Management]
         // [SCENARIO 166104] Posting of Cash Order with Manual Check payment creates a Check Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Bank Account "B" with type "Cash Account"
         // [GIVEN] Cash Order, where "Amount" is negative,"Bank Payment Type" = "Manual Check", "Balance Account No." = "B"
 
@@ -225,7 +225,7 @@ codeunit 144700 "ERM Cash Management"
     begin
         // [FEATURE] [Cash Management]
         // [SCENARIO 166104] Posting of Cash Order with Manual Check payment creates a Check Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Bank Account "B" with type "Cash Account"
         // [GIVEN] Cash Order, where "Amount" is negative,"Bank Payment Type" = "Manual Check", "Account No." = "B"
 
@@ -248,7 +248,7 @@ codeunit 144700 "ERM Cash Management"
     begin
         // [FEATURE] [Cash Management]
         // [SCENARIO 166104] Posting of Cash Order with Manual Check payment creates a Check Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Bank Account "B" with type "Cash Account"
         // [GIVEN] Cash Order, where "Amount" is positive,"Bank Payment Type" = "Manual Check", "Balance Account No." = "B"
 
@@ -271,7 +271,7 @@ codeunit 144700 "ERM Cash Management"
     begin
         // [FEATURE] [Cash Management]
         // [SCENARIO 166104] Posting of Cash Order with Manual Check payment creates a Check Ledger Entry
-        Initialize;
+        Initialize();
         // [GIVEN] Bank Account "B" with type "Cash Account"
         // [GIVEN] Cash Order, where "Amount" is positive,"Bank Payment Type" = "Manual Check", "Account No." = "B"
 
@@ -287,7 +287,7 @@ codeunit 144700 "ERM Cash Management"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVerifyCashAccountCard(CurrencyCode: Code[10])
@@ -295,7 +295,7 @@ codeunit 144700 "ERM Cash Management"
         AccNo: Code[20];
         BankAccPostGr: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         BankAccPostGr := FindBankAccPostGr;
         AccNo := CreateCashAccountCard(BankAccPostGr, CurrencyCode);
@@ -317,7 +317,7 @@ codeunit 144700 "ERM Cash Management"
     var
         CashAccCard: TestPage "Cash Account Card";
     begin
-        CashAccCard.OpenNew;
+        CashAccCard.OpenNew();
         CashAccCard."Bank Acc. Posting Group".SetValue(PostGr);
         CashAccCard."Currency Code".SetValue(CurrencyCode);
         AccNo := CashAccCard."No.".Value;
@@ -501,7 +501,7 @@ codeunit 144700 "ERM Cash Management"
         with GenJnlLine do begin
             SetFilter("Journal Batch Name", '<>''''');
             SetFilter("Journal Template Name", '<>''''');
-            FindLast;
+            FindLast();
         end;
     end;
 
@@ -538,7 +538,7 @@ codeunit 144700 "ERM Cash Management"
         TransBankRectoGenJnl.InitializeRequest(GenJnlTemplateName, GenJnlBatchName);
         TransBankRectoGenJnl.SetBankAccRecon(BankAccRecon);
         TransBankRectoGenJnl.UseRequestPage(false);
-        TransBankRectoGenJnl.Run;
+        TransBankRectoGenJnl.Run();
     end;
 
     local procedure CreateAndPostGenJnlLineWithPaymentCode(var PaymentCode: Text): Code[20]
@@ -591,7 +591,7 @@ codeunit 144700 "ERM Cash Management"
         with GenJnlLine do begin
             SetRange("Journal Template Name", GenJnlTemplateName);
             SetRange("Journal Batch Name", GenJnlBatchName);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(PaymentCode, "Payment Code", StrSubstNo(PaymentCodeErr, TableCaption));
         end;
     end;
@@ -602,13 +602,13 @@ codeunit 144700 "ERM Cash Management"
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         GenJnlLineArchive.SetRange("Document No.", DocNo);
-        GenJnlLineArchive.FindFirst;
+        GenJnlLineArchive.FindFirst();
         Assert.AreEqual(
           PaymentCode, GenJnlLineArchive."Payment Code",
           StrSubstNo(PaymentCodeErr, GenJnlLineArchive.TableCaption));
 
         CheckLedgerEntry.SetRange("Document No.", DocNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         Assert.AreEqual(
           PaymentCode, CheckLedgerEntry."Payment Code",
           StrSubstNo(PaymentCodeErr, CheckLedgerEntry.TableCaption));
@@ -621,7 +621,7 @@ codeunit 144700 "ERM Cash Management"
     begin
         BankAccountLedgerEntry.Init();
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindLast;
+        BankAccountLedgerEntry.FindLast();
         CheckLedgerEntry.Init();
         CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
         Assert.RecordIsNotEmpty(CheckLedgerEntry);

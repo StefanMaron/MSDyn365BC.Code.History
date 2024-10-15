@@ -94,7 +94,7 @@ codeunit 2100 "O365 Sales Statistics"
     begin
         GLSetup.Get();
 
-        TempBusinessChartBuffer.Initialize;
+        TempBusinessChartBuffer.Initialize();
         TempBusinessChartBuffer.SetXAxis(XCaption, TempBusinessChartBuffer."Data Type"::String);
         TempBusinessChartBuffer.AddDecimalMeasure(YCaption, 1, TempBusinessChartBuffer."Chart Type"::Column);
 
@@ -142,9 +142,9 @@ codeunit 2100 "O365 Sales Statistics"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter("Starting Date", '..%1', WorkDate);
 
-        if not AccountingPeriod.FindLast then begin
+        if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.SetRange("New Fiscal Year");
-            if AccountingPeriod.FindFirst then;
+            if AccountingPeriod.FindFirst() then;
         end;
     end;
 
@@ -188,7 +188,7 @@ codeunit 2100 "O365 Sales Statistics"
             exit(false);
 
         SalesInvoiceEntityAggregate.SetFilter("Sell-to Customer No.", '<>''''');
-        if not SalesInvoiceEntityAggregate.FindSet then
+        if not SalesInvoiceEntityAggregate.FindSet() then
             exit(false);
 
         repeat

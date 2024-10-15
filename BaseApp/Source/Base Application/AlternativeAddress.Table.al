@@ -7,7 +7,6 @@ table 5201 "Alternative Address"
 
     fields
     {
-#pragma warning disable AS0005
         field(1; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';
@@ -20,7 +19,6 @@ table 5201 "Alternative Address"
                 Name := Employee."Last Name";
             end;
         }
-#pragma warning restore AS0005
         field(2; "Code"; Code[10])
         {
             Caption = 'Code';
@@ -38,12 +36,10 @@ table 5201 "Alternative Address"
         {
             Caption = 'Address';
         }
-#pragma warning disable AS0080
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
         }
-#pragma warning restore AS0080
         field(7; City; Text[30])
         {
             Caption = 'City';
@@ -84,13 +80,11 @@ table 5201 "Alternative Address"
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
-#pragma warning disable AS0080
         field(9; County; Text[30])
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
-#pragma warning restore AS0080
         field(10; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
@@ -114,7 +108,7 @@ table 5201 "Alternative Address"
         }
         field(13; Comment; Boolean)
         {
-            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST("Alternative Address"),
+            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST("Alternative Address"),
                                                                      "No." = FIELD("Employee No."),
                                                                      "Alternative Address Code" = FIELD(Code)));
             Caption = 'Comment';

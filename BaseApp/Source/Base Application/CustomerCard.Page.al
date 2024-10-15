@@ -7,7 +7,7 @@
     SourceTable = Customer;
 
     AboutTitle = 'About customer details';
-    AboutText = 'With the Customer Card you manage information about a customer and specify the terms of business, such as payment terms, prices and discounts. From here you can also drill down on past and ongoing sales activity.';
+    AboutText = 'With the **Customer Card** you manage information about a customer and specify the terms of business, such as payment terms, prices and discounts. From here you can also drill down on past and ongoing sales activity.';
 
     layout
     {
@@ -74,6 +74,28 @@
                     trigger OnDrillDown()
                     begin
                         OpenCustomerLedgerEntries(false);
+                    end;
+                }
+                field(BalanceAsVendor; BalanceAsVendor)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Balance (LCY) As Vendor';
+                    Editable = false;
+                    Enabled = BalanceAsVendorEnabled;
+                    ToolTip = 'Specifies the amount that you owe this vendor. This is relevant when your vendor is also your customer. The amount is the result of netting their payable and receivable balances.';
+
+                    trigger OnDrillDown()
+                    var
+                        DtldVendLedgEntry: Record 380;
+                        VendLedgEntry: Record 25;
+                    begin
+                        if LinkedVendorNo = '' then
+                            exit;
+                        DtldVendLedgEntry.SetRange("Vendor No.", LinkedVendorNo);
+                        Rec.CopyFilter("Global Dimension 1 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 1");
+                        Rec.CopyFilter("Global Dimension 2 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 2");
+                        Rec.CopyFilter("Currency Filter", DtldVendLedgEntry."Currency Code");
+                        VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
                     end;
                 }
                 field("Balance Due (LCY)"; "Balance Due (LCY)")
@@ -176,7 +198,7 @@
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that you can change customer name in the document, because the name is not used in search.';
+                    ToolTip = 'Specifies that you can change the customer name on open sales documents. The change applies only to the documents.';
                 }
             }
             group(Vendor)
@@ -354,8 +376,8 @@
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                AboutTitle = 'Manage the customer’s invoicing';
-                AboutText = 'Specify tax settings and choose how invoicing takes place for the customer. Assign posting groups to control how the customer’s transactions are grouped and posted, based on type of trade or market.';
+                AboutTitle = 'Manage the customer''s invoicing';
+                AboutText = 'Specify tax settings and choose how invoicing takes place for the customer. Assign posting groups to control how the customer''s transactions are grouped and posted, based on type of trade or market.';
 
                 field("Bill-to Customer No."; "Bill-to Customer No.")
                 {
@@ -494,8 +516,8 @@
             group(Payments)
             {
                 Caption = 'Payments';
-                AboutTitle = 'Manage the customer’s payment';
-                AboutText = 'Specify the customer’s default payment terms and settings for how payments from the customer is processed.';
+                AboutTitle = 'Manage the customer''s payment';
+                AboutText = 'Specify the customer''s default payment terms and settings for how payments from the customer is processed.';
 
                 field("Prepayment %"; "Prepayment %")
                 {
@@ -853,7 +875,6 @@
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = CONST(18),
                               "No." = FIELD("No.");
-                Visible = NOT IsOfficeAddin;
             }
             part(Details; "Office Customer Details")
             {
@@ -873,27 +894,6 @@
                 ApplicationArea = All;
                 SubPageLink = "No." = FIELD("No.");
                 Visible = CRMIsCoupledToRecord;
-            }
-            part(Control35; "Social Listening FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Customer),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-            part(Control27; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Customer),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
             }
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
@@ -1049,25 +1049,6 @@
                         ShowContact;
                     end;
                 }
-#if not CLEAN19
-                action("Cross Re&ferences")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Customer),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                    Visible = false;
-                }
-#endif                
                 action("Item References")
                 {
                     AccessByPermission = TableData "Item Reference" = R;
@@ -1125,7 +1106,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(CustomerReportSelections)
@@ -1372,7 +1353,6 @@
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1414,7 +1394,7 @@
                         JoinEntries: Report "Combine Customer/Vendor";
                     begin
                         JoinEntries.ChangeCustomer(Rec);
-                        JoinEntries.Run;
+                        JoinEntries.Run();
                     end;
                 }
 #endif
@@ -1513,7 +1493,7 @@
                     end;
                 }
 #endif
-#if not CLEAN17
+#if not CLEAN19
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1579,7 +1559,7 @@
                     begin
                         SalesPriceAndLineDiscounts.InitPage(false);
                         SalesPriceAndLineDiscounts.LoadCustomer(Rec);
-                        SalesPriceAndLineDiscounts.RunModal;
+                        SalesPriceAndLineDiscounts.RunModal();
                     end;
                 }
 #endif
@@ -2128,7 +2108,7 @@
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetCustomerTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -2426,16 +2406,22 @@
     }
 
     trigger OnAfterGetCurrRecord()
+    begin
+        if GuiAllowed() then
+            OnAfterGetCurrRecordFunc();
+    end;
+
+    local procedure OnAfterGetCurrRecordFunc()
     var
         WorkflowStepInstance: Record "Workflow Step Instance";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
         if NewMode then
-            CreateCustomerFromTemplate
+            CreateCustomerFromTemplate()
         else
             StartBackgroundCalculations();
-        ActivateFields;
+        ActivateFields();
         SetCreditLimitStyle();
 
         if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
@@ -2490,15 +2476,20 @@
     end;
 
     trigger OnOpenPage()
+    begin
+        if GuiAllowed() then
+            OnOpenPageFunc();
+        OnAfterOnOpenPage(Rec, xRec);
+    end;
+
+    local procedure OnOpenPageFunc()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         OfficeManagement: Codeunit "Office Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
@@ -2516,7 +2507,6 @@
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
 
         SetWorkFlowEnabled();
-        OnAfterOnOpenPage(Rec, xRec);
     end;
 
     local procedure StartBackgroundCalculations()
@@ -2524,6 +2514,9 @@
         CustomerCardCalculations: Codeunit "Customer Card Calculations";
         Args: Dictionary of [Text, Text];
     begin
+        if Rec."No." = PrevCustNo then
+            exit;
+        PrevCustNo := Rec."No.";
         if (BackgroundTaskId <> 0) then
             CurrPage.CancelBackgroundTask(BackgroundTaskId);
 
@@ -2549,6 +2542,9 @@
         NoOutstandingInvoices := 0;
         NoOutstandingCrMemos := 0;
         OverdueBalance := 0;
+        LinkedVendorNo := '';
+        BalanceAsVendor := 0;
+        BalanceAsVendorEnabled := false;
 
         Args.Add(CustomerCardCalculations.GetCustomerNoLabel(), "No.");
         Args.Add(CustomerCardCalculations.GetFiltersLabel(), GetView());
@@ -2629,6 +2625,13 @@
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetOverdueBalanceLabel(), DictionaryValue) then
                 Evaluate(OverdueBalance, DictionaryValue);
 
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLinkedVendorNoLabel(), DictionaryValue) then
+                LinkedVendorNo := CopyStr(DictionaryValue, 1, MaxStrLen(LinkedVendorNo));
+            BalanceAsVendorEnabled := LinkedVendorNo <> '';
+            if BalanceAsVendorEnabled then
+                if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetBalanceAsVendorLabel(), DictionaryValue) then
+                    Evaluate(BalanceAsVendor, DictionaryValue);
+
             AttentionToPaidDay := DaysPastDueDate > 0;
             TotalMoneyOwed := "Balance (LCY)" + ExpectedMoneyOwed;
 
@@ -2643,6 +2646,8 @@
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
+        LinkedVendorNo: Code[20];
+        BalanceAsVendor: Decimal;
         StyleTxt: Text;
         [InDataSet]
         VendorNameVisible: Boolean;
@@ -2650,8 +2655,6 @@
         VendorBalanceVisible: Boolean;
         [InDataSet]
         TotalBalanceVisible: Boolean;
-        [InDataSet]
-        ContactEditable: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         BlockedFilterApplied: Boolean;
@@ -2702,11 +2705,14 @@
         IsCountyVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
+        PrevCustNo: Code[20];
         PrevCountryCode: Code[10];
         BackgroundTaskId: Integer;
-        EmailImprovementFeatureEnabled: Boolean;
+        BalanceAsVendorEnabled: Boolean;
 
     protected var
+        [InDataSet]
+        ContactEditable: Boolean;
         IsOfficeAddin: Boolean;
         NoPostedInvoices: Integer;
         NoPostedCrMemos: Integer;
@@ -2804,7 +2810,7 @@
             if Customer."Validate EU Vat Reg. No." then begin
                 EUVATRegistrationNoCheck.SetRecordRef(Customer);
                 Commit();
-                EUVATRegistrationNoCheck.RunModal;
+                EUVATRegistrationNoCheck.RunModal();
                 EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
                 CustomerRecRef.SetTable(Customer);
             end;

@@ -227,7 +227,7 @@ codeunit 1501 "Workflow Management"
     begin
         Workflow.CreateInstance(WorkflowStepInstance);
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
-        WorkflowStepInstance.FindFirst;
+        WorkflowStepInstance.FindFirst();
     end;
 
     local procedure UpdateRelatedTableValues(RecRef: RecordRef)
@@ -249,7 +249,7 @@ codeunit 1501 "Workflow Management"
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
         WorkflowStepInstance.SetRange(Type, WorkflowStepInstance.Type::"Event");
         WorkflowStepInstance.SetFilter(Status, '%1|%2', WorkflowStepInstance.Status::Active, WorkflowStepInstance.Status::Processing);
-        if WorkflowStepInstance.FindSet then begin
+        if WorkflowStepInstance.FindSet() then begin
             repeat
                 WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
                 if WorkflowStepInstance.MatchesRecordValues(RecRef) then
@@ -304,7 +304,7 @@ codeunit 1501 "Workflow Management"
             exit(false);
 
         Result := true;
-        if WorkflowRule.FindSet then
+        if WorkflowRule.FindSet() then
             repeat
                 Result := Result and WorkflowRule.EvaluateRule(RecRef, xRecRef);
             until (WorkflowRule.Next() = 0) or (not Result);
@@ -337,7 +337,7 @@ codeunit 1501 "Workflow Management"
         ToArchiveWorkflowStepInstance.SetRange("Workflow Code", WorkflowStepInstance."Workflow Code");
         ToArchiveWorkflowStepInstance.SetRange(ID, WorkflowStepInstance.ID);
 
-        if ToArchiveWorkflowStepInstance.FindSet then begin
+        if ToArchiveWorkflowStepInstance.FindSet() then begin
             repeat
                 WorkflowStepInstanceArchive.Init();
                 WorkflowStepInstanceArchive.TransferFields(ToArchiveWorkflowStepInstance);
@@ -353,7 +353,7 @@ codeunit 1501 "Workflow Management"
 
         ToArchiveWorkflowRecordChange.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
 
-        if ToArchiveWorkflowRecordChange.FindSet then begin
+        if ToArchiveWorkflowRecordChange.FindSet() then begin
             repeat
                 WorkflowRecordChangeArchive.Init();
                 WorkflowRecordChangeArchive.TransferFields(ToArchiveWorkflowRecordChange);
@@ -373,7 +373,7 @@ codeunit 1501 "Workflow Management"
     begin
         WorkflowTableRelation.SetRange("Table ID", RecRef.Number);
 
-        if WorkflowTableRelation.FindSet then begin
+        if WorkflowTableRelation.FindSet() then begin
             List := List.ArrayList;
             repeat
                 if not List.Contains(WorkflowTableRelation."Related Table ID") then begin
@@ -400,7 +400,7 @@ codeunit 1501 "Workflow Management"
     begin
         WorkflowTableRelation.SetRange("Table ID", RecRef.Number);
         WorkflowTableRelation.SetRange("Related Table ID", RecRefRelated.Number);
-        if WorkflowTableRelation.FindSet then
+        if WorkflowTableRelation.FindSet() then
             repeat
                 FieldRefRelated := RecRefRelated.Field(WorkflowTableRelation."Related Field ID");
                 FieldRefSrc := RecRef.Field(WorkflowTableRelation."Field ID");
@@ -496,7 +496,7 @@ codeunit 1501 "Workflow Management"
         WorkflowStepInstance.SetRange(ID, WorkflowStepInstanceID);
         WorkflowStepInstance.SetRange(Status, ActionableWorkflowStepInstance.Status::Active);
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
-        if WorkflowStepInstance.FindSet then
+        if WorkflowStepInstance.FindSet() then
             repeat
                 WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
                 if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then begin
@@ -615,7 +615,7 @@ codeunit 1501 "Workflow Management"
         xVariant: Variant;
     begin
         WorkflowEventQueue.SetRange("Session ID", SessionId);
-        if WorkflowEventQueue.FindSet then
+        if WorkflowEventQueue.FindSet() then
             repeat
                 WorkflowStepInstance.Get(WorkflowEventQueue."Step Record ID");
                 if WorkflowStepInstance.Status = WorkflowStepInstance.Status::Processing then begin
@@ -640,7 +640,7 @@ codeunit 1501 "Workflow Management"
         MarkWorkflowStepInstance.SetRange(ID, WorkflowStepInstance.ID);
         MarkWorkflowStepInstance.SetRange("Workflow Code", WorkflowStepInstance."Workflow Code");
         MarkWorkflowStepInstance.SetRange("Previous Workflow Step ID", WorkflowStepInstance."Workflow Step ID");
-        if MarkWorkflowStepInstance.FindSet then
+        if MarkWorkflowStepInstance.FindSet() then
             repeat
                 if MarkWorkflowStepInstance.Type = MarkWorkflowStepInstance.Type::Response then begin
                     MarkWorkflowStepInstance.Status := MarkWorkflowStepInstance.Status::Processing;
@@ -737,7 +737,7 @@ codeunit 1501 "Workflow Management"
             TempWorkflowBuffer.SetFilter("Workflow Code", WorkflowFilter);
             TempWorkflowBuffer.SetFilter("Category Code", CategoryFilter);
             Workflows.SetWorkflowBufferRec(TempWorkflowBuffer);
-            Workflows.RunModal;
+            Workflows.RunModal();
         end;
     end;
 

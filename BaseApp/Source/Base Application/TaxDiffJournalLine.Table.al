@@ -646,7 +646,7 @@ table 17305 "Tax Diff. Journal Line"
         TaxDiffJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         TaxDiffJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         TaxDiffJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if TaxDiffJnlLine.FindFirst then begin
+        if TaxDiffJnlLine.FindFirst() then begin
             "Posting Date" := LastTaxDiffJnlLine."Posting Date";
             "Document No." := LastTaxDiffJnlLine."Document No.";
         end else begin
@@ -676,7 +676,7 @@ table 17305 "Tax Diff. Journal Line"
                     TaxRegNormDetail.SetFilter("Effective Date", '..%1', "Posting Date")
                 else
                     TaxRegNormDetail.SetRange("Effective Date", "Posting Date");
-                if TaxRegNormDetail.FindLast then
+                if TaxRegNormDetail.FindLast() then
                     "Tax Factor" := TaxRegNormDetail.Norm;
             end;
         Validate("Tax Factor");

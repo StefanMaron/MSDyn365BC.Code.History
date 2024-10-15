@@ -39,7 +39,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Check Amount to Apply on Vendor Ledger On Posting Vendor Invoice and Apply Payment.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create Journal Line and Apply and check Ledger Entry.
         CreateAndCheckEqualAmount(
@@ -55,7 +55,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Check Amount to Apply on Vendor Ledger On Posting Vendor Credit Memo and Apply Refund.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Create Journal Line and Apply and check Ledger Entry.
         CreateAndCheckEqualAmount(
@@ -73,7 +73,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Check Large Amount to Apply Error on Vendor Ledger On Posting Vendor Invoice and Apply Payment.
 
         // Setup: Create and Post General Line for Invoice and Payment.
-        Initialize;
+        Initialize();
         Amount := -LibraryRandom.RandDec(100, 2);
         CreateGenAndFindVendorEntry(
           VendorLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, Amount);
@@ -96,7 +96,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Check Large Amount to Apply Error on Vendor Ledger On Posting Vendor Credit Memo and Apply Refund.
 
         // Setup: Create and Post Credit Memo and Refund General Line.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         CreateGenAndFindVendorEntry(
           VendorLedgerEntry, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, Amount);
@@ -115,7 +115,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Less Amount to Apply on Vendor Ledger On Posting Vendor Invoice and Apply Payment.
-        Initialize;
+        Initialize();
         CreateAndCheckLessAmount(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
     end;
@@ -127,7 +127,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Less Amount to Apply on Vendor Ledger On Posting Vendor Credit Memo and Apply Refund.
-        Initialize;
+        Initialize();
         CreateAndCheckLessAmount(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
@@ -139,7 +139,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Amount to Apply on Vendor Ledger after Posting Vendor Invoice and Set Applies to ID.
-        Initialize;
+        Initialize();
         CreateAndSetAppliesToIDOnGen(GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -150,7 +150,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check Amount to Apply on Vendor Ledger after Posting Vendor Credit Memo and Set Applies to ID.
-        Initialize;
+        Initialize();
         CreateAndSetAppliesToIDOnGen(GenJournalLine."Document Type"::"Credit Memo", LibraryRandom.RandDec(100, 2));
     end;
 
@@ -165,7 +165,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Check Applies to ID field on Vendor Ledger after Posting Vendor Invoice and Set Applies to ID.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2));
 
@@ -188,10 +188,10 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Test error occurs on running Create Vendor Journal Lines Report without General Journal Template.
 
         // 1. Setup: Create General Journal Batch and Find Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         StandardGeneralJournal.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-        StandardGeneralJournal.FindFirst;
+        StandardGeneralJournal.FindFirst();
 
         // 2. Exercise: Run Create Vendor Journal Lines Report without General Journal Template.
         asserterror RunCreateVendorJournalLines('', GenJournalBatch.Name, StandardGeneralJournal.Code);
@@ -210,10 +210,10 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Test error occurs on running Create Vendor Journal Lines Report without General Batch Name.
 
         // 1. Setup: Create General Journal Batch and Find Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         StandardGeneralJournal.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-        StandardGeneralJournal.FindFirst;
+        StandardGeneralJournal.FindFirst();
 
         // 2. Exercise: Run Create Vendor Journal Lines Report without General Batch Name.
         asserterror RunCreateVendorJournalLines(GenJournalBatch."Journal Template Name", '', StandardGeneralJournal.Code);
@@ -236,7 +236,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Test General Journal Lines are created for Vendor after running Create Vendor Journal Lines Report.
 
         // 1. Setup: Create Vendor and General Journal Batch, Find Standard General Journal.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalBatch(GenJournalBatch);
         InitStandardGenJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
@@ -250,7 +250,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, StandardGeneralJournal.Code);
-        CreateVendorJournalLines.Run;
+        CreateVendorJournalLines.Run();
 
         // 3. Verify: Verify General Journal Lines are created for vandor after running Create Vendor Journal Lines Report.
         VerifyVendorJournalLines(GenJournalBatch, StandardGeneralJournal.Code, Vendor."No.");
@@ -265,7 +265,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Check that the application works properly when the Correction field is True in the General Journal line.
 
         // 1. Setup: Create General Journal line with Correction field is True.
-        Initialize;
+        Initialize();
         CreateGeneralLineForCorrection(GenJournalLine);
 
         // 2. Exercise: Post General Journal Line with Correction check mark.
@@ -283,7 +283,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Vendor: Record Vendor;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise.
@@ -301,7 +301,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         Customer: Record Customer;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // Exercise.
@@ -321,7 +321,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363478] Gen. Journal should not be posted where one transaction includes both Customer and G/L Account of Purchase Gen. Posting Type.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [GIVEN] General Journal Line1: "Account Type" = "G/L Account" (with "Gen. Posting Type" = Purchase)
@@ -358,7 +358,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 363478] Gen. Journal should not be posted where one transaction includes both Vendor and G/L Account of Sale Gen. Posting Type.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
 
         // [GIVEN] General Journal Line1: "Account Type" = "G/L Account" (with "Gen. Posting Type" = Sale)
@@ -394,7 +394,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
         // [FEATURE] [Performance]
         // [SCENARIO 277260] CheckAndCopyBalancingData function iterates Gen. Journal Lines with linear complexity
-        Initialize;
+        Initialize();
 
         NoOfLines[1] := 1;
         NoOfLines[2] := LibraryRandom.RandIntInRange(5, 10);
@@ -422,7 +422,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // [FEATURE] [Post]
         // [SCENARIO 314432] General Journal posting displays error message when
         // [SCENARIO 314432] first balanced portion of the document has wrong Gen. Posting Type on balancing line, while the last has it correct
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GL01" with "Gen. Posting Type"="Purchase" and non-zero VAT Setup
         // [GIVEN] G/L Account "GL02" with "Gen. Posting Type"="Sale" and non-zero VAT Setup
@@ -464,7 +464,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // [FEATURE] [Post]
         // [SCENARIO 314432] General Journal posting displays error message when
         // [SCENARIO 314432] first balanced portion of the document has correct Gen. Posting Type on balancing line, while the last has it wrong
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GL01" with "Gen. Posting Type"="Sale" and non-zero VAT Setup
         // [GIVEN] G/L Account "GL02" with "Gen. Posting Type"="Purchase" and non-zero VAT Setup
@@ -506,7 +506,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // [SCENARIO 314432] General Journal posting displays error message when
         // [SCENARIO 314432] first balanced portion of the document has correct Gen. Posting Type on balancing line
         // [SCENARIO 314432] while the last has it wrong and second balancing line comes before the Customer line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GL01" with "Gen. Posting Type"="Sale" and non-zero VAT Setup
         // [GIVEN] G/L Account "GL02" with "Gen. Posting Type"="Purchase" and non-zero VAT Setup
@@ -544,9 +544,9 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // Lazy Setup.
         if isInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
     end;
@@ -743,9 +743,9 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         GLAccountNo: Code[20];
         DocumentNo: Code[20];
     begin
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         CreateGeneralJournalBatch(GenJournalBatch);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
 
         for Index := 1 to NoOfLines do begin
@@ -790,7 +790,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         CreateVendorJournalLines.UseRequestPage(false);
         CreateVendorJournalLines.InitializeRequest(GenJournalLine."Document Type"::Invoice.AsInteger(), WorkDate, WorkDate);
         CreateVendorJournalLines.InitializeRequestTemplate(JournalTemplate, BatchName, TemplateCode);
-        CreateVendorJournalLines.Run;
+        CreateVendorJournalLines.Run();
     end;
 
     local procedure InitStandardGenJournal(var StandardGeneralJournal: Record "Standard General Journal"; GenJnlTemplateName: Code[10])
@@ -800,7 +800,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
         GenJnlTemplate.Get(GenJnlTemplateName);
         StandardGeneralJournal.SetRange("Journal Template Name", GenJnlTemplate.Name);
-        StandardGeneralJournal.FindFirst;
+        StandardGeneralJournal.FindFirst();
         with StdGenJnlLine do begin
             Init;
             Validate("Journal Template Name", GenJnlTemplate.Name);
@@ -858,7 +858,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Credit Amount");
         VendorLedgerEntry.TestField("Credit Amount", -GenJournalLine.Amount);
     end;

@@ -84,10 +84,10 @@ page 26563 "Statutory Report Data Overview"
 
                     if StatutoryReportTable."Scalable Table" then begin
                         ScalableTableDataSubform.InitParameters("No.", TableCode, ExcelSheetName, ShowOnlyChangedValues);
-                        ScalableTableDataSubform.RunModal;
+                        ScalableTableDataSubform.RunModal();
                     end else begin
                         StatReportDataSubform.InitParameters("No.", TableCode, ExcelSheetName, ShowOnlyChangedValues);
-                        StatReportDataSubform.RunModal;
+                        StatReportDataSubform.RunModal();
                     end;
                 end;
             }
@@ -98,7 +98,7 @@ page 26563 "Statutory Report Data Overview"
     begin
         StatutoryReportTable.SetCurrentKey("Report Code", "Sequence No.");
         StatutoryReportTable.SetRange("Report Code", "Report Code");
-        if StatutoryReportTable.FindFirst then begin
+        if StatutoryReportTable.FindFirst() then begin
             TableCode := StatutoryReportTable.Code;
             FindFirstExcelSheet(TableCode);
         end;
@@ -150,7 +150,7 @@ page 26563 "Statutory Report Data Overview"
     begin
         StatReportExcelSheet.SetRange("Report Code", "Report Code");
         StatReportExcelSheet.SetRange("Table Code", NewTableCode);
-        if StatReportExcelSheet.FindFirst then
+        if StatReportExcelSheet.FindFirst() then
             ExcelSheetName := StatReportExcelSheet."Sheet Name";
     end;
 

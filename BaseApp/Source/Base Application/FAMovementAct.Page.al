@@ -183,7 +183,7 @@ page 12478 "FA Movement Act"
                     trigger OnAction()
                     begin
                         CopyFADoc.SetFADocHeader(Rec);
-                        CopyFADoc.RunModal;
+                        CopyFADoc.RunModal();
                         CopyFADoc.GetFADocHeader(Rec);
                         CurrPage.Update(true);
                         Clear(CopyFADoc);

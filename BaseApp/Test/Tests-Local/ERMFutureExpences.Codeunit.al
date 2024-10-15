@@ -202,7 +202,7 @@ codeunit 144010 "ERM Future Expences"
 
         with FADeprBook do begin
             SetRange("FA No.", FA."No.");
-            FindFirst;
+            FindFirst();
             Validate("Depreciation Starting Date", StartDeprDate);
             Validate("Depreciation Ending Date", EndDeprDate);
             LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
@@ -339,7 +339,7 @@ codeunit 144010 "ERM Future Expences"
         FEAsset.SetRange("No.", FANo);
         Clear(CalcFEDeprReport);
         CalcFEDeprReport.SetTableView(FEAsset);
-        CalcFEDeprReport.Run;
+        CalcFEDeprReport.Run();
     end;
 
     local procedure CalcFeDeprUpdateDetails(var CalcFEDeprReport: TestRequestPage "Calculate FE Depreciation"; DeprPostingDate: Date)
@@ -388,7 +388,7 @@ codeunit 144010 "ERM Future Expences"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         FilterFALedgerEntries(FALedgerEntry, FANo);
-        if FALedgerEntry.FindLast then
+        if FALedgerEntry.FindLast() then
             exit(CalcDate('<1D>', FALedgerEntry."FA Posting Date"));
 
         exit(DeprStartDate);
@@ -497,7 +497,7 @@ codeunit 144010 "ERM Future Expences"
             SetRange("FA Type", "FA Type"::"Future Expense");
             SetRange(Blocked, true);
             SetRange(Inactive, true);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -526,22 +526,22 @@ codeunit 144010 "ERM Future Expences"
         CreateAndPostFAReleaseDoc(FixedAssetNo, WorkDate);
         CreateAndPostFAWriteOffDoc(FixedAssetNo, WorkDate);
         PostedFADocLine.SetRange("FA No.", FixedAssetNo);
-        PostedFADocLine.FindFirst;
+        PostedFADocLine.FindFirst();
         PostedFADocHeader.Get(PostedFADocLine."Document Type", PostedFADocLine."Document No.");
         PostedFADocHeader.SetRecFilter;
         WriteOffForTaxLedger.SetTableView(PostedFADocHeader);
         WriteOffForTaxLedger.InitializeRequest(false, 0D, true);
         WriteOffForTaxLedger.UseRequestPage(false);
-        WriteOffForTaxLedger.Run;
+        WriteOffForTaxLedger.Run();
         FASetup.Get();
         LibraryVariableStorage.Enqueue(FindFETemplate);
         LibraryVariableStorage.Enqueue(FASetup."Fixed Asset Nos.");
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         Commit();
         FixedAsset.SetRecFilter;
         CreateFEfromSoldFARep.SetTableView(FixedAsset);
         CreateFEfromSoldFARep.UseRequestPage(true);
-        CreateFEfromSoldFARep.Run;
+        CreateFEfromSoldFARep.Run();
 
         with FixedAsset do begin
             Reset;

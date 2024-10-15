@@ -171,7 +171,7 @@ report 17310 "Copy Tax Calc. Section"
             begin
                 if TaxCalcSectionCode = '' then
                     Error(Text1000);
-                if FindFirst then
+                if FindFirst() then
                     if Next <> 0 then
                         Error(Text1001);
                 if TaxCalcSectionCode = Code then

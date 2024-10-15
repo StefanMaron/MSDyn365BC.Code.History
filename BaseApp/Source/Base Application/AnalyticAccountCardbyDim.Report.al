@@ -540,7 +540,7 @@ report 14940 "Analytic Account Card by Dim."
         SheetBuffer.Reset();
         TotalQty := SheetBuffer.Count();
 
-        if SheetBuffer.FindLast then
+        if SheetBuffer.FindLast() then
             repeat
                 SheetNo := SheetNo + 1;
                 if SheetNo = 1 then begin
@@ -560,7 +560,7 @@ report 14940 "Analytic Account Card by Dim."
         if GLAccountFilter <> '' then
             GLAccount.SetFilter("No.", GLAccountFilter);
 
-        if GLAccount.FindSet then
+        if GLAccount.FindSet() then
             repeat
                 if CheckAccountNetChange(GLAccount."No.") then begin
                     SheetBuffer."No." := GLAccount."No.";
@@ -830,7 +830,7 @@ report 14940 "Analytic Account Card by Dim."
         GLCorrAnalysisViewEntry.SetRange("Debit Account No.", AccountNo);
         SetDimensionFilters(GLCorrAnalysisViewEntry, DimValue);
         GLCorrAnalysisViewEntry.SetRange("Posting Date", StartDate, EndDate);
-        if GLCorrAnalysisViewEntry.FindSet then
+        if GLCorrAnalysisViewEntry.FindSet() then
             repeat
                 if not GLCorrBuffer.Get(
                      GLCorrAnalysisViewEntry."Debit Account No.",
@@ -845,7 +845,7 @@ report 14940 "Analytic Account Card by Dim."
 
         GLCorrAnalysisViewEntry.SetRange("Debit Account No.");
         GLCorrAnalysisViewEntry.SetRange("Credit Account No.", AccountNo);
-        if GLCorrAnalysisViewEntry.FindSet then
+        if GLCorrAnalysisViewEntry.FindSet() then
             repeat
                 if not GLCorrBuffer.Get(
                      GLCorrAnalysisViewEntry."Debit Account No.",

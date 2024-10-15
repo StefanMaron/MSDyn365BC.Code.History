@@ -110,7 +110,7 @@ page 35602 "Tax Authorities"
                         begin
                             CurrPage.SetSelectionFilter(Vend);
                             DefaultDimMultiple.SetMultiRecord(Vend, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -183,20 +183,6 @@ page 35602 "Tax Authorities"
                 separator(Action1210023)
                 {
                 }
-#if not CLEAN19
-                action("Cross Re&ferences")
-                {
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Vendor),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 separator(Action1210025)
                 {
                 }
@@ -215,7 +201,7 @@ page 35602 "Tax Authorities"
                         JoinEntries: Report "Combine Customer/Vendor";
                     begin
                         JoinEntries.ChangeVendor(Rec);
-                        JoinEntries.Run;
+                        JoinEntries.Run();
                     end;
                 }
 #endif

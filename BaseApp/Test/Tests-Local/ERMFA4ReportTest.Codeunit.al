@@ -80,7 +80,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         ReceiptNo: Code[20];
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         for i := 1 to ArrayLen(FANo) do
             FANo[i] := MockFixedAsset;
         ReceiptNo := MockInvtDocumentLines;
@@ -96,7 +96,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         ReceiptNo: Code[20];
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         for i := 1 to ArrayLen(FANo) do
             FANo[i] := MockFixedAsset;
         ReceiptNo := MockInvtRcptLines;
@@ -125,21 +125,21 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         with FixedAsset do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
-            Description := LibraryUtility.GenerateGUID;
-            "Description 2" := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
+            "Description 2" := LibraryUtility.GenerateGUID();
             "Initial Release Date" := WorkDate;
             "FA Location Code" := LibraryRUReports.MockFALocation;
             "Depreciation Code" := LibraryRUReports.MockDepreciationCode;
             "Depreciation Group" := LibraryRUReports.MockDepreciationGroup;
-            "Inventory Number" := LibraryUtility.GenerateGUID;
-            "Factory No." := LibraryUtility.GenerateGUID;
+            "Inventory Number" := LibraryUtility.GenerateGUID();
+            "Factory No." := LibraryUtility.GenerateGUID();
             "Manufacturing Year" := Format(Date2DMY(WorkDate, 3));
-            "Vehicle Model" := LibraryUtility.GenerateGUID;
-            "Vehicle Reg. No." := LibraryUtility.GenerateGUID;
-            "Vehicle Engine No." := LibraryUtility.GenerateGUID;
-            "Vehicle Chassis No." := LibraryUtility.GenerateGUID;
+            "Vehicle Model" := LibraryUtility.GenerateGUID();
+            "Vehicle Reg. No." := LibraryUtility.GenerateGUID();
+            "Vehicle Engine No." := LibraryUtility.GenerateGUID();
+            "Vehicle Chassis No." := LibraryUtility.GenerateGUID();
             "Is Vehicle" := true;
             "Vehicle Writeoff Date" := GetRandomDate;
             "Run after Release Date" := LibraryRandom.RandInt(100);
@@ -148,7 +148,7 @@ codeunit 144717 "ERM FA-4 Report Test"
 
             InitFADeprBooks("No.");
             FADeprBook.SetRange("FA No.", "No.");
-            FADeprBook.FindFirst;
+            FADeprBook.FindFirst();
             LibraryRUReports.MockFADepreciationBook(FADeprBook);
 
             for i := 1 to LibraryRandom.RandIntInRange(3, 5) do begin
@@ -166,7 +166,7 @@ codeunit 144717 "ERM FA-4 Report Test"
     begin
         with Item do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             exit("No.");
         end;
@@ -191,7 +191,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         with FADocHeader do begin
             Init;
             "Document Type" := "Document Type"::Writeoff;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             "Posting Date" := WorkDate;
             Modify;
@@ -237,7 +237,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         with PostedFADocHeader do begin
             Init;
             "Document Type" := "Document Type"::Writeoff;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert;
             "Posting Date" := WorkDate;
             Modify;
@@ -269,7 +269,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         InvtDocumentLine: Record "Invt. Document Line";
     begin
         InvtDocumentLine.Init();
-        InvtDocumentLine."Document No." := LibraryUtility.GenerateGUID;
+        InvtDocumentLine."Document No." := LibraryUtility.GenerateGUID();
         InvtDocumentLine.Description := InvtDocumentLine."Document No.";
         InvtDocumentLine."Item No." := MockItem;
         InvtDocumentLine.Quantity := LibraryRandom.RandInt(100);
@@ -284,7 +284,7 @@ codeunit 144717 "ERM FA-4 Report Test"
         InvtReceiptLine: Record "Invt. Receipt Line";
     begin
         InvtReceiptLine.Init();
-        InvtReceiptLine."Document No." := LibraryUtility.GenerateGUID;
+        InvtReceiptLine."Document No." := LibraryUtility.GenerateGUID();
         InvtReceiptLine.Description := InvtReceiptLine."Document No.";
         InvtReceiptLine."Item No." := MockItem;
         InvtReceiptLine.Quantity := LibraryRandom.RandInt(100);

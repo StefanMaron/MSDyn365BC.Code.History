@@ -205,11 +205,11 @@ table 26563 "Statutory Report Data Header"
         TestField(Status, Status::Open);
 
         StatutoryReportDataValue.SetRange("Report Data No.", "No.");
-        if StatutoryReportDataValue.FindFirst then
+        if StatutoryReportDataValue.FindFirst() then
             StatutoryReportDataValue.DeleteAll();
 
         StatReportDataChangeLog.SetRange("Report Data No.", "No.");
-        if StatReportDataChangeLog.FindFirst then
+        if StatReportDataChangeLog.FindFirst() then
             StatReportDataChangeLog.DeleteAll();
 
         StatReportExcelSheet.SetRange("Report Code", "Report Code");
@@ -235,7 +235,7 @@ table 26563 "Statutory Report Data Header"
 
         StatutoryReportDataHeader.SetCurrentKey("Period Year", "No. in Year");
         StatutoryReportDataHeader.SetRange("Period Year", "Period Year");
-        if StatutoryReportDataHeader.FindLast then;
+        if StatutoryReportDataHeader.FindLast() then;
         if Evaluate(NoInYear, StatutoryReportDataHeader."No. in Year") then;
         "No. in Year" := Format(NoInYear + 1, 8, '<integer,8><Filler Character,0>');
 
@@ -372,7 +372,7 @@ table 26563 "Statutory Report Data Header"
         TempExcelBuffer.OpenBookForUpdate(FileName);
 
         ReportSheetBuffer.Reset();
-        if ReportSheetBuffer.FindSet then
+        if ReportSheetBuffer.FindSet() then
             repeat
                 TempExcelBuffer.DeleteAll();
                 TempExcelBuffer.SetActiveWriterSheet(ReportSheetBuffer."Excel Sheet Name");
@@ -402,7 +402,7 @@ table 26563 "Statutory Report Data Header"
                 XMLElementValueBuffer.SetRange("Excel Sheet Name", ReportSheetBuffer."Excel Sheet Name");
                 TotalElementsQty := XMLElementValueBuffer.Count();
                 Counter := 0;
-                if XMLElementValueBuffer.FindSet then
+                if XMLElementValueBuffer.FindSet() then
                     repeat
                         XMLElementLine.Get("Report Code", XMLElementValueBuffer."XML Element Line No.");
                         if XMLElementLine."Excel Cell Name" <> '' then
@@ -450,7 +450,7 @@ table 26563 "Statutory Report Data Header"
 
         XMLElementLine.SetRange("Report Code", "Report Code");
         XMLElementLine.SetRange("Element Name", FormatVersion."XML File Name Element Name");
-        XMLElementLine.FindFirst;
+        XMLElementLine.FindFirst();
         StatRepBuffer."Report Data No." := "No.";
         FileName := XMLElementLine.GetElementValue(StatRepBuffer);
         if FileName = '' then
@@ -490,7 +490,7 @@ table 26563 "Statutory Report Data Header"
     procedure FindExcelSheet(ExcelSheetName: Text[50]) Found: Boolean
     begin
         WorkbookSheetBuffer.SetRange("Excel Sheet Name", ExcelSheetName);
-        Found := WorkbookSheetBuffer.FindFirst;
+        Found := WorkbookSheetBuffer.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -535,7 +535,7 @@ table 26563 "Statutory Report Data Header"
         XMLElementValueBuffer.Reset();
         XMLElementValueBuffer.SetFilter("Excel Sheet Name", '<>''''');
         XMLElementValueBuffer.SetFilter("Excel Cell Name", '<>''''');
-        if XMLElementValueBuffer.FindSet then
+        if XMLElementValueBuffer.FindSet() then
             repeat
                 AddReportSheetBufferLine(
                   ReportSheetBuffer,
@@ -551,7 +551,7 @@ table 26563 "Statutory Report Data Header"
         EntryNo: Integer;
     begin
         ReportSheetBuffer.Reset();
-        if ReportSheetBuffer.FindLast then;
+        if ReportSheetBuffer.FindLast() then;
         EntryNo := ReportSheetBuffer."Entry No." + 1;
 
         ReportSheetBuffer.SetRange("Excel Sheet Name", ExcelSheetName);
@@ -645,7 +645,7 @@ table 26563 "Statutory Report Data Header"
 
         XMLElementLine.SetCurrentKey("Report Code", "Sequence No.");
         XMLElementLine.SetRange("Report Code", "Report Code");
-        if XMLElementLine.FindFirst then
+        if XMLElementLine.FindFirst() then
             XMLElementLine.ExportValue(ProcInstr, StatRepBuffer, ElementValueBuffer);
     end;
 
@@ -686,7 +686,7 @@ table 26563 "Statutory Report Data Header"
         // The XmlDocument validates the XML document contained
         // in the XmlReader as it is loaded into the DOM.
         XMLDOMManagement.LoadXMLDocumentFromFileWithXmlReaderSettings(FileName, XmlValidationDoc, XmlReaderSettings);
-        if TempNameValueBuffer.FindSet then
+        if TempNameValueBuffer.FindSet() then
             repeat
                 TempNameValueBufferValidation := TempNameValueBuffer;
                 TempNameValueBufferValidation.Insert();

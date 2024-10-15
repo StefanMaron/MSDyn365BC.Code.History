@@ -1013,7 +1013,7 @@ page 39 "General Journal"
 
                         GenJnlBatch.Get("Journal Template Name", CurrentJnlBatchName);
                         SaveAsStdGenJnl.Initialise(GeneralJnlLines, GenJnlBatch);
-                        SaveAsStdGenJnl.RunModal;
+                        SaveAsStdGenJnl.RunModal();
                         if not SaveAsStdGenJnl.GetStdGeneralJournal(StdGenJnl) then
                             exit;
 
@@ -1889,6 +1889,7 @@ page 39 "General Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1965,6 +1966,8 @@ page 39 "General Journal"
         ApplyEntriesActionEnabled :=
           ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
           ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]);
+
+        OnAfterEnableApplyEntriesAction(Rec, ApplyEntriesActionEnabled);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -2136,7 +2139,7 @@ page 39 "General Journal"
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
 
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);
@@ -2226,7 +2229,7 @@ page 39 "General Journal"
         if IsSimplePage then begin
             // Filter on the first record
             SetCurrentKey("Document No.", "Line No.");
-            if FindFirst then
+            if FindFirst() then
                 SetDataForSimpleMode(Rec)
             else begin
                 // if no rec is found reset the currentposting date to workdate and currency code to empty
@@ -2248,7 +2251,7 @@ page 39 "General Journal"
             GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
             IsChangingDocNo := false;
-            if GenJournalLine.FindFirst then
+            if GenJournalLine.FindFirst() then
                 SetDataForSimpleMode(GenJournalLine);
         end;
     end;
@@ -2306,7 +2309,7 @@ page 39 "General Journal"
     begin
         PostedFromSimplePage := true;
         SetCurrentKey("Document No.", "Line No.");
-        if FindFirst then
+        if FindFirst() then
             SetDataForSimpleMode(Rec)
     end;
 
@@ -2375,6 +2378,11 @@ page 39 "General Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnOpenPageOnBeforeGetLastViewedJournalBatchName(var CurrentJnlBatchName: Code[10]; var GenJnlManagement: Codeunit GenJnlManagement)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableApplyEntriesAction(GenJournalLine: Record "Gen. Journal Line"; var ApplyEntriesActionEnabled: Boolean)
     begin
     end;
 }

@@ -285,6 +285,13 @@ page 146 "Posted Purchase Invoices"
                 ShowFilter = false;
                 Visible = NOT IsOfficeAddin;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -412,7 +419,7 @@ page 146 "Posted Purchase Invoices"
                 Promoted = true;
                 PromotedCategory = Category5;
                 Scope = Repeater;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -533,7 +540,7 @@ page 146 "Posted Purchase Invoices"
                 begin
                     PostedPurchInvoiceUpdate.LookupMode := true;
                     PostedPurchInvoiceUpdate.SetRec(Rec);
-                    PostedPurchInvoiceUpdate.RunModal;
+                    PostedPurchInvoiceUpdate.RunModal();
                 end;
             }
         }

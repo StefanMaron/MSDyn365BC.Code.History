@@ -88,7 +88,7 @@ codeunit 14941 GLCorrAnViewEntrToGLCorrEntr
                 then
                     SetFilter("Credit Global Dimension 2 Code", GLCorrAnalysisViewFilter."Dimension Value Filter");
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if DimEntryOK("Debit Dimension Set ID", GLCorrAnalysisView."Debit Dimension 1 Code",
                          GLCorrAnalysisViewEntry."Debit Dimension 1 Value Code") and

@@ -637,8 +637,7 @@ page 9308 "Purchase Invoices"
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -658,11 +657,11 @@ page 9308 "Purchase Invoices"
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
         PurchInvHeader.SetRange("Order No.", '');
-        if PurchInvHeader.FindFirst then
+        if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                InstructionMgt.ShowPostedDocument(PurchInvHeader, Page::"Purchase Invoices");
     end;
 
     procedure VerifyTotal(PurchaseHeader: Record "Purchase Header")

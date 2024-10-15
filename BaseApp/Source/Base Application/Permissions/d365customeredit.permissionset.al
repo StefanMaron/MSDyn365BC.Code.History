@@ -91,7 +91,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Service Ledger Entry" = rm,
                   tabledata "Service Line" = r,
                   tabledata "Ship-to Address" = RIMD,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Standard Customer Sales Code" = RIMD,
                   tabledata "Standard Sales Code" = RIMD,
                   tabledata "Standard Sales Line" = RIMD,

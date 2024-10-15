@@ -33,7 +33,7 @@ page 17312 "Tax Calc. Select Setup Subf"
                         GLAcc.Reset();
                         if "Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Account No.");
-                            if GLAcc.FindFirst then;
+                            if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
                         if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin
@@ -58,7 +58,7 @@ page 17312 "Tax Calc. Select Setup Subf"
                         GLAcc.Reset();
                         if "Bal. Account No." <> '' then begin
                             GLAcc.SetFilter("No.", "Bal. Account No.");
-                            if GLAcc.FindFirst then;
+                            if GLAcc.FindFirst() then;
                             GLAcc.SetRange("No.");
                         end;
                         if ACTION::LookupOK = PAGE.RunModal(0, GLAcc) then begin

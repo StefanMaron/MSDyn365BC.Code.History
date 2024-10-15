@@ -12,7 +12,7 @@ codeunit 14 "Gen. Jnl.-Show Entries"
                 begin
                     GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                     GLEntry.SetRange("G/L Account No.", "Account No.");
-                    if GLEntry.FindLast then;
+                    if GLEntry.FindLast() then;
                     OnBeforeShowGLEntries(Rec, GLEntry, IsHandled);
                     if not IsHandled then
                         PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
@@ -30,7 +30,7 @@ codeunit 14 "Gen. Jnl.-Show Entries"
                 begin
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                    if VendLedgEntry.FindLast then;
+                    if VendLedgEntry.FindLast() then;
                     OnBeforeShowVendorLedgerEntries(Rec, VendLedgEntry, IsHandled);
                     if not IsHandled then
                         PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
@@ -39,7 +39,7 @@ codeunit 14 "Gen. Jnl.-Show Entries"
                 begin
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
                     BankAccLedgEntry.SetRange("Bank Account No.", "Account No.");
-                    if BankAccLedgEntry.FindLast then;
+                    if BankAccLedgEntry.FindLast() then;
                     OnBeforeShowBankAccountLedgerEntries(Rec, BankAccLedgEntry, IsHandled);
                     if not IsHandled then
                         PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccLedgEntry);
@@ -50,7 +50,7 @@ codeunit 14 "Gen. Jnl.-Show Entries"
                     FALedgEntry.SetRange("FA No.", "Account No.");
                     if "Depreciation Book Code" <> '' then
                         FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
-                    if FALedgEntry.FindLast then;
+                    if FALedgEntry.FindLast() then;
                     OnBeforeShowFALedgerEntries(Rec, FALedgEntry, IsHandled);
                     if not IsHandled then
                         PAGE.Run(PAGE::"FA Ledger Entries", FALedgEntry);
@@ -59,7 +59,7 @@ codeunit 14 "Gen. Jnl.-Show Entries"
                     MaintenanceLedgEntry.SetRange("FA No.", "Account No.");
                     if "Depreciation Book Code" <> '' then
                         MaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
-                    if MaintenanceLedgEntry.FindLast then;
+                    if MaintenanceLedgEntry.FindLast() then;
                     OnBeforeShowMaintenanceLedgerEntries(Rec, MaintenanceLedgEntry, IsHandled);
                     if not IsHandled then
                         PAGE.Run(PAGE::"Maintenance Ledger Entries", MaintenanceLedgEntry);

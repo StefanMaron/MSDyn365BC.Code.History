@@ -1,4 +1,4 @@
-table 370 "Excel Buffer"
+﻿table 370 "Excel Buffer"
 {
     Caption = 'Excel Buffer';
     ReplicateData = false;
@@ -706,10 +706,11 @@ table 370 "Excel Buffer"
         ExcelBufferDialogMgt.Close;
     end;
 
-    local procedure ParseCellValue(Value: Text; FormatString: Text)
+    protected procedure ParseCellValue(Value: Text; FormatString: Text)
     var
         OutStream: OutStream;
         Decimal: Decimal;
+        RoundingPrecision: Decimal;
         IsHandled: Boolean;
     begin
         // The format contains only en-US number separators, this is an OpenXML standard requirement
@@ -759,7 +760,9 @@ table 370 "Excel Buffer"
         end;
 
         "Cell Type" := "Cell Type"::Number;
-        "Cell Value as Text" := Format(Round(Decimal, 0.000001), 0, 1);
+        RoundingPrecision := 0.000001;
+        OnParseCellValueOnBeforeRoundDecimal(Rec, Decimal, RoundingPrecision);
+        "Cell Value as Text" := Format(Round(Decimal, RoundingPrecision), 0, 1);
     end;
 
     [Scope('OnPrem')]
@@ -1280,6 +1283,11 @@ table 370 "Excel Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWriteCellFormula(var Rec: Record "Excel Buffer"; var ExcelBuffer: Record "Excel Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParseCellValueOnBeforeRoundDecimal(var ExcelBuffer: Record "Excel Buffer"; DecimalValue: Decimal; var RoundingPrecision: Decimal)
     begin
     end;
 

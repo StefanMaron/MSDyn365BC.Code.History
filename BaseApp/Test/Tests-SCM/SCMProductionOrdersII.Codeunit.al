@@ -82,7 +82,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify Finished Quantity is correct after posting Output and finishing the Production Order on Location with Bins.
 
         // Setup: Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Update Inventory for child Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         Quantity := LibraryRandom.RandInt(100);  // Large Random Value required for Test.
@@ -113,7 +113,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for Items with Tracking. Create and refresh a Released Production Order. Reserve Component.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationGreen.Code);
         Quantity := LibraryRandom.RandInt(100);
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
@@ -139,7 +139,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for child Item with Tracking. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationGreen.Code);
         Quantity := LibraryRandom.RandInt(100);  // Large Random Value required for Test.
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
@@ -167,7 +167,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Item Ledger Entry for Output and Tracking after finishing Production Order with tracked Items.
 
         // Setup: Update Components at a Location. Create parent and child Items with Tracking in a Production BOM and certify it. Update Inventory for child Item with Tracking. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationGreen.Code);
         Quantity := LibraryRandom.RandInt(100);  // Large Random Value required for Test.
         CreateItemsSetupWithProductionAndTracking(Item, Item2, ProductionOrder, Quantity, LocationGreen.Code);
@@ -194,7 +194,7 @@ codeunit 137072 "SCM Production Orders II"
         ProductionOrder: Record "Production Order";
     begin
         // Setup: Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Update Inventory for Items. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, Item2);
@@ -220,7 +220,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it. Update Inventory for Child Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, Item2);
         CreateAndPostItemJournalLine(Item2."No.", LibraryRandom.RandInt(100), Bin.Code, LocationRed.Code, false);  // Using Tracking FALSE.
@@ -248,7 +248,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create parent and child Items, create Production BOM. Create and release Purchase Order and post as Receive and Invoice. Create a Planned Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item2."No.", Quantity);
@@ -273,7 +273,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Setup: Create parent and child Items and update Inventory for child Item. Create Production BOM and certify it.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
 
         // Exercise: Create and refresh Firm Planned Production Order.
@@ -293,7 +293,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the Inventory Pick is created from Released Production Order with Lot Tracking and Bins.
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityFromProductionOrderWithLotTracking(false);  // Post Inventory Pick FALSE.
     end;
 
@@ -304,7 +304,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify that Inventory Pick is posted successfully from Released Production Order with Lot Tracking, Partial quantity and Bins.
         // Setup.
-        Initialize;
+        Initialize();
         WarehouseActivityFromProductionOrderWithLotTracking(true);  // Post Inventory Pick TRUE.
     end;
 
@@ -362,7 +362,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         // Setup: Create parent and child Items, create Production BOM. Create Routing Setup and update Routing on Item. Create and refresh a Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         CreateRoutingAndUpdateItem(Item);
         CreateAndRefreshProductionOrder(
@@ -386,7 +386,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Update Inventory for the Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(Item."No.", Quantity, '', '', false);  // Using Tracking FALSE.
@@ -412,7 +412,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Setup: Update Location Setup, update Components at Location. Create parent and child Items in a Production BOM and certify it. Update Inventory for Child Item. Create and refresh a Released Production Order.
         // Create Warehouse Pick from the Released Production Order.
-        Initialize;
+        Initialize();
         AlwaysCreatePickLine := UpdateLocationSetup(LocationWhite, true);  // Always Create Pick Line as TRUE.
         UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandInt(100);  // Integer value required.
@@ -446,7 +446,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the Item Ledger Entry for the consumption posted after register Warehouse Pick from Production Order.
         // Setup.
-        Initialize;
+        Initialize();
         PostJournalsWithProductionOrder(false);  // Post Output -FALSE.
     end;
 
@@ -456,7 +456,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the Item Ledger Entry for the Output posted after register Warehouse Pick from Production Order.
         // Setup.
-        Initialize;
+        Initialize();
         PostJournalsWithProductionOrder(true);  // Post Output -TRUE.
     end;
 
@@ -501,7 +501,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Item Ledger Entry after Adjust Cost Item Entries is run with consumption posted with Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         ItemsWithProductionOrderAndWarehouseActivity(false);  // Calculate Inventory -FALSE.
     end;
 
@@ -513,7 +513,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Revaluation Journal Line after Calculate Inventory is run with consumption and output posted with Production Order.
 
         // Setup.
-        Initialize;
+        Initialize();
         ItemsWithProductionOrderAndWarehouseActivity(true);  // Calculate Inventory -TRUE.
     end;
 
@@ -568,7 +568,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it. Create and post Purchase Order as Receive and Invoice. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, ChildItem);
         CreateAndPostPurchaseOrderWithLocationAndBin(PurchaseLine, ChildItem."No.", LocationRed.Code, Bin.Code);
@@ -597,7 +597,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify Item Ledger Entry Cost Amount is correct after posting Consumption of Released Production Order (with Bins used) and run Adjust Cost.
 
         // Setup: Update Components at a Location. Create parent and child Items in a Production BOM and certify it. Create and post Purchase Order as Receive and Invoice. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationRed.Code);
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, ChildItem);
@@ -629,7 +629,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify that Status can be changed to Finished for Released Production Order, when Output is posted (Order uses Location with Bins).
 
         // Setup: Create parent and child Items in a Production BOM and certify it. Create and post Item  Journal. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         LibraryWarehouse.FindBin(Bin, LocationRed.Code, '', 1);  // Find Bin of Index 1.
         CreateItemsSetup(Item, ChildItem);
         CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandDec(100, 2), Bin.Code, LocationRed.Code, false);  // Use Tracking FALSE.
@@ -656,7 +656,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Output Quantity posted from Released Production Order without Location.
 
         // Setup.
-        Initialize;
+        Initialize();
         JournalsPostFromReleasedProductionOrderWithoutLocation(false);  // Adjust Cost Item Entries FALSE.
     end;
 
@@ -668,7 +668,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Output Entry for the Parent Item in Item Ledger Entry after Cost adjustment from Released Production Order without Location.
 
         // Setup.
-        Initialize;
+        Initialize();
         JournalsPostFromReleasedProductionOrderWithoutLocation(true);  // Adjust Cost Item Entries TRUE.
     end;
 
@@ -712,7 +712,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create parent and child Items in a Production BOM and certify it. Update Inventory of Child Item. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem);
         CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandInt(100) + 100, '', '', false);  // Using Tracking FALSE. Large Quantity required for positive Inventory.
         CreateAndRefreshProductionOrder(
@@ -739,7 +739,7 @@ codeunit 137072 "SCM Production Orders II"
         FamilyItemQuantity: Decimal;
     begin
         // Setup: Create parent and child Items for a Family. Update Inventory for child Items. Create a Family.
-        Initialize;
+        Initialize();
         FamilyItemQuantity := LibraryRandom.RandDec(10, 2);
         CreateItemHierarchyForFamily(ParentItem, ParentItem2, ChildItem, ChildItem2);
         CreateFamily(Family, ParentItem."No.", ParentItem2."No.", FamilyItemQuantity);
@@ -772,7 +772,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify that Cost Amount is correct on Finished Production Order which source is Family, and Consumption and Output is posted.
 
         // Setup: Create parent and child Items for a Family. Update Inventory for child Items. Create a Family. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2) + 100;  // Large Quantity required for positive Inventory.
         FamilyItemQuantity := LibraryRandom.RandInt(10);
         CreateItemHierarchyForFamily(ParentItem, ParentItem2, ChildItem, ChildItem2);
@@ -797,7 +797,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the correct Item Ledger entries for the Consumption posted for the Production Order using Items in a Family.
         // Setup.
-        Initialize;
+        Initialize();
         PostConsumptionAndOutputForReleasedProductionOrderWithFamily(false);  // Post Output FALSE.
     end;
 
@@ -807,7 +807,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the correct Item Ledger entries for the Output posted for the Production Order using Items in a Family.
         // Setup.
-        Initialize;
+        Initialize();
         PostConsumptionAndOutputForReleasedProductionOrderWithFamily(true);  // Post Output TRUE.
     end;
 
@@ -854,7 +854,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the total Remaining Quantity on Production Order Component with multiple Components.
         // Setup.
-        Initialize;
+        Initialize();
         RemainingQuantityOnProductionOrderComponents(false);  // Delete Production Order Component FALSE.
     end;
 
@@ -864,7 +864,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the total Remaining Quantity on Production Order Components is correct when deleting one Production Order Component.
         // Setup.
-        Initialize;
+        Initialize();
         RemainingQuantityOnProductionOrderComponents(true);  // Delete Production Order Component TRUE.
     end;
 
@@ -910,7 +910,7 @@ codeunit 137072 "SCM Production Orders II"
         Item2: Record Item;
     begin
         // Setup: Create parent and child Items, create Production BOM. Create Routing Setup and update Routing on Item.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         CreateRoutingAndUpdateItem(Item);
 
@@ -932,7 +932,7 @@ codeunit 137072 "SCM Production Orders II"
         Item2: Record Item;
     begin
         // Setup: Create parent and child Items, create Production BOM. Update Planning parameters on Item. Create Routing Setup and update Routing on Item. Create and release Sales Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         UpdateItemParametersForPlanning(Item);
         CreateRoutingAndUpdateItem(Item);
@@ -960,7 +960,7 @@ codeunit 137072 "SCM Production Orders II"
         SendAheadQuantity: Decimal;
     begin
         // Setup: Create parent and child Items, create Production BOM. Update Planning parameters on Item. Create Routing Setup and update Routing on Item. Update Send Ahead Quantity on Routing Line. Create and release a Sales Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         UpdateItemParametersForPlanning(Item);
         CreateRoutingAndUpdateItem(Item);
@@ -989,7 +989,7 @@ codeunit 137072 "SCM Production Orders II"
         SendAheadQuantity: Decimal;
     begin
         // Setup: Create parent and child Items, create Production BOM. Create Routing Setup and update Routing on Item. Update Send Ahead Quantity on Routing Line.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         CreateRoutingAndUpdateItem(Item);
         SendAheadQuantity := LibraryRandom.RandDec(100, 2);
@@ -1013,7 +1013,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         // Setup: Create parent and child Items, create Production BOM. Create Routing Setup and update Routing on Item. Create a Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         CreateRoutingAndUpdateItem(Item);
         LibraryManufacturing.CreateProductionOrder(
@@ -1038,7 +1038,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         // Setup: Create parent and child Items, create Production BOM. Create Routing Setup and update Routing on Item. Create a Firm Planned Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, Item2);
         CreateRoutingAndUpdateItem(Item);
         LibraryManufacturing.CreateProductionOrder(
@@ -1059,7 +1059,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify that the Input Quantity on Planning Routing Line is same as Quantity on Requisition Line.
         // Setup.
-        Initialize;
+        Initialize();
         PlanningRoutingLineAfterCalculatePlan(false);  // Update Quantity on Requisition Line FALSE.
     end;
 
@@ -1069,7 +1069,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify that the Input Quantity on Planning Routing Line is same as Quantity on Requisition Line after update Quantity on Requisition Line and refresh it.
         // Setup.
-        Initialize;
+        Initialize();
         PlanningRoutingLineAfterCalculatePlan(true);  // Update Quantity on Requisition Line TRUE.
     end;
 
@@ -1113,7 +1113,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Parent and Child Items in a Production BOM with Routing. Update Planning parameters on Item. Create and release Sales Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem);
         UpdateItemParametersForPlanning(Item);
         CreateRoutingAndUpdateItem(Item);
@@ -1143,7 +1143,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Update Planning Parameters for Item. Create and release a Sales Order.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Quantity);
@@ -1167,7 +1167,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Item. Update Planning Parameters for Item. Create and release a Sales Order.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateDemandForCalculatePlanAndCarryOutAction(Item."No.", Quantity);
@@ -1193,7 +1193,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Parent and Child Items in a Production BOM with Lot Tracking. Update Planning parameters on Parent Item. Create and release a Sales Order.
-        Initialize;
+        Initialize();
         CreateItemSetupWithLotTracking(ChildItem, Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         UpdateItemParametersForPlanning(Item);
@@ -1220,7 +1220,7 @@ codeunit 137072 "SCM Production Orders II"
         RoutingLinkCode: Code[20];
     begin
         // Setup: Create Parent and Child Items. Create Certified Production BOM with Routing Link Code for Child Items. Create Production Item with Routing.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem);
         RoutingLinkCode := CreateRoutingAndUpdateItem(Item);
 
@@ -1243,7 +1243,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Setup: Create parent and child Items in a Production BOM with Routing and certify it. Create and refresh a Released Production Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem);
         CreateRoutingAndUpdateItem(Item);
         CreateAndRefreshProductionOrder(
@@ -1270,7 +1270,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify that tracking Reservation Entries are there and correct after Warehouse Pick created from Released Production Order, which is a supply to demanded Sales Order, respectively planned and carried out.
 
         // Setup: Update Components at Location. Create Parent and Child Items in a Production BOM and certify it. Update Item Planning Parameters. Update Inventory for Child Item. Create and release a Sales Order. Calculate Plan and Carry Out Action.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationGreen2.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateItemsSetup(Item, ChildItem);
@@ -1301,7 +1301,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Pick is created successfully for the Child Item, when Production Order is a supply for Sales Order demand, respectively planned and carried out.
 
         // Setup: Update Components at Location. Create Parent and Child Items in a Production BOM and certify it. Update Item Planning Parameters. Update Inventory for Child Item. Create and release a Sales Order. Calculate Plan and Carry Out Action.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateLotForLotItemSetupWithInventoryOnLocation(Item, ChildItem, LocationWhite, Quantity);
@@ -1335,7 +1335,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify the Registered Pick for the Child Item, when: Production Order is a supply for Sales Order demand, respectively planned and carried out, then Pick created, then Bin Code updated, then Registered.
 
         // Stup: Update Components at Location. Create Parent and Child Items in a Production BOM and certify it. Update Item Planning Parameters. Update Inventory for Child Item. Create and release a Sales Order. Calculate Plan and Carry Out Action.
-        Initialize;
+        Initialize();
         UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateLotForLotItemSetupWithInventoryOnLocation(Item, ChildItem, LocationWhite, Quantity);
@@ -1369,7 +1369,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Parent and Child Items in a Production BOM. Update Order Tracking Policy on Item. Create and release Sales Order.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem);
         UpdateOrderTrackingPolicyOnItem(Item, Item."Order Tracking Policy"::"Tracking Only");
         Quantity := LibraryRandom.RandDec(100, 2);
@@ -1392,7 +1392,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Parent and Child Items in a Production BOM. Update Planning parameters on Item.
-        Initialize;
+        Initialize();
         CreateItemsSetup(Item, ChildItem);
         UpdateOrderTrackingPolicyOnItem(Item, Item."Order Tracking Policy"::"Tracking & Action Msg.");
         UpdateItemParametersForPlanning(Item);
@@ -1411,7 +1411,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the Location, Action Message and Quantity on Requisition Line created.
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanReqWkshWithLocationAndSKUMaximumQuantityItem(false);  // Accept and Carry Out Action FALSE.
     end;
 
@@ -1422,7 +1422,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // Verify the Location Code and Quantity on Purchase Line created.
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanReqWkshWithLocationAndSKUMaximumQuantityItem(true);  // Accept and Carry Out Action TRUE.
     end;
 
@@ -1467,7 +1467,7 @@ codeunit 137072 "SCM Production Orders II"
         Quantity: Decimal;
     begin
         // Setup: Create Lot for Lot Items in a Production BOM and certify it. Update Inventory for the Parent Item. Create and post Sales Order.
-        Initialize;
+        Initialize();
         CreateLotForLotItemsSetup(Item, ChildItem);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndPostItemJournalLine(Item."No.", Quantity, '', '', false);  // Using Tracking FALSE.
@@ -1497,7 +1497,7 @@ codeunit 137072 "SCM Production Orders II"
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
         // Setup: Create Parent and Child Items. Create Sales Order for Parent Item.
-        Initialize;
+        Initialize();
         CreateBomItemsWithReorderingPolicy(ParentItem, ChildItem);
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", LibraryRandom.RandInt(10), '');
 
@@ -1522,7 +1522,7 @@ codeunit 137072 "SCM Production Orders II"
         // [SCENARIO] Verify that Production order can be finished with existing item tracking entries.
 
         // Setup: Create Item with Lot Tracking No. Create and refresh Releashed Production Order, assign Item Tracking on Prod. Order Line.
-        Initialize;
+        Initialize();
         CreateItemWithItemTrackingCode(Item, CreateItemTrackingCode);
         CreateRleasedProdOrderWithItemTracking(ProductionOrder, Item."No.", ItemTrackingMode::"Assign Lot No.");
 
@@ -1554,7 +1554,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Setup: Create parent and child Item in a Production BOM and certify it. Update Inventory for child Item.
         // Create and refresh a Released Production Order, update Flushing Method on Prod. Order Component
-        Initialize;
+        Initialize();
         CreateItemsSetupWithProductionAndTracking(Item, ParentItem, ProductionOrder, LibraryRandom.RandInt(100), '');
         UpdateFlushingMethodOnProdComp(ProductionOrder."No.", Item."Flushing Method"::Backward);
 
@@ -1580,7 +1580,7 @@ codeunit 137072 "SCM Production Orders II"
         NewSetupTime: Decimal;
     begin
         // [SCENARIO 379761] An error should occur when total duration of setup-wait-move operations exceeds the period between Starting and Ending Dates in Prod. Order Routing Line with "Schedule Manually" flag on.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order.
         // [GIVEN] "Schedule Manually" flag is set to TRUE in Prod. Order Routing Line "L".
@@ -1602,7 +1602,7 @@ codeunit 137072 "SCM Production Orders II"
         NewSetupTime: Decimal;
     begin
         // [SCENARIO 379761] Leaving total duration of setup-wait-move operations unchanged within the period between Starting and Ending Dates should not cause errors in Prod. Order Routing Line with "Schedule Manually" flag on.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order.
         // [GIVEN] "Schedule Manually" flag is set to TRUE in Prod. Order Routing Line "L".
@@ -1626,7 +1626,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Replan Production Order]
         // [SCENARIO 381078] Reducing quantity on a parent line in two level Production Order reduces quantity on a child line. It also reduces the quantity of the component to be produced in other Production Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production chain - a purchased component and three levels of manufacturing items "I1", "I2", "I3". "I3" is the highest level.
         // [GIVEN] Items "I2" and "I3" have Make-to-Order manufacturing policy.
@@ -1665,7 +1665,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Replan Production Order]
         // [SCENARIO 381078] Reducing quantity on a parent line in two level Production Order with removed binding between the lines, reduces quantity on a child line. It also reduces the quantity of the component to be produced in other Production Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production chain - a purchased component and three levels of manufacturing items "I1", "I2", "I3". "I3" is the highest level.
         // [GIVEN] Items "I2" and "I3" have Make-to-Order manufacturing policy.
@@ -1711,7 +1711,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Replan Production Order]
         // [SCENARIO 381078] When child line in two level Production Order is reserved to Sales Order, replanning of the Production Order increases the quantity of the child line to supply the parent line and the Sales Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production chain - a purchased component and three levels of manufacturing items "I1", "I2", "I3". "I3" is the highest level.
         // [GIVEN] Items "I2" and "I3" have Make-to-Order manufacturing policy.
@@ -1755,7 +1755,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order]
         // [SCENARIO 210802] Planning Level Code on prod. order component should be decreased if prod. order line that supplies this component is deleted.
-        Initialize;
+        Initialize();
 
         // [GIVEN] BOM structure of 4 items "I1".."I4" created with "Make-to-Order" manufacturing policy.
         // [GIVEN] "I1" is a component of "I2", "I2" is a component of "I3", "I3" is a component of "I4".
@@ -1787,7 +1787,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Replan Production Order]
         // [SCENARIO 230435] When you run Replan Production Order after adding prod. order component for the finished item, this component is inserted in the prod. order lines tree.
-        Initialize;
+        Initialize();
 
         // [GIVEN] BOM structure of 3 items "I1".."I3" with Make-to-Order manufacturing policy.
         // [GIVEN] "I1" is a component of "I2", "I2" is a component of "I3".
@@ -1847,7 +1847,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Replan Production Order]
         // [SCENARIO 210802] A multi-level production order should keep its structure of prod. order lines after Replan Production Order function is carried out.
-        Initialize;
+        Initialize();
 
         // [GIVEN] BOM structure of 4 items "I1".."I4" created with "Make-to-Order" manufacturing policy.
         // [GIVEN] "I1" is a component of "I2", "I2" is a component of "I3", "I3" is a component of "I4".
@@ -1880,7 +1880,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Replan Production Order] [Unit of Measure]
         // [SCENARIO 218585] Production Order can be replanned if there is a prod. order line with "Qty. per Unit of Measure" > 1 in it.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production BOM structure of 3 items "I1", "I2", "I3" created with "Make-to-Order" manufacturing policy.
         // [GIVEN] "I1" is a component of "I2", "I2" is a component of "I3".
@@ -1921,7 +1921,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Standard Cost]
         // [SCENARIO 221770] "Fixed Scrap Quantity" is an additional member in "Standard Cost" calculation formula
-        Initialize;
+        Initialize();
 
         // [GIVEN] "MachineCenter" "MC" with "Fixed Scrap Quantity" = 20
         // [GIVEN] Production Item "PI" with Child Item as Production BOM with "Scrap %" = 10
@@ -1963,7 +1963,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Production Order] [Item Scrap %]
         // [SCENARIO 222911] "Scrap %" from Item Card participates in calculation of field "Expected Quantity" and doesn't participate in calculation of field "Quantity Per" of "Prod. Order Component"
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2-level structure of "Production BOM" "PB" of Parent Item "PI", "CI" is Child Item at level 2
         ScrapPercent := LibraryRandom.RandIntInRange(5, 10);
@@ -2069,7 +2069,7 @@ codeunit 137072 "SCM Production Orders II"
         // [FEATURE] [Routing] [Scrap]
         // [SCENARIO 225829] Standard lot size and fixed scrap quantity should be multiplied by "Quantity per UoM" of the production BOM line when calculating component quantity
 
-        Initialize;
+        Initialize();
 
         QtyPerUoM := LibraryRandom.RandIntInRange(5, 10);
         QtyPerBOMLine := LibraryRandom.RandIntInRange(5, 10);
@@ -2123,7 +2123,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Planning Component] [Planning Worksheet] [Bin]
         // [SCENARIO 229617] Bin Code on requisition line representing a child item in make-to-order structure, shows the bin, that the child item is placed into before being consumed by the production of the parent item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make-to-order structure - item "I1" is a component of "I2", and "I2" is a component of "I3".
         // [GIVEN] "From-production Bin Code" is "B3" at location. The output of "I3" will be placed into this bin.
@@ -2163,7 +2163,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Bin]
         // [SCENARIO 229617] Bin Code on prod. order line representing a child item in make-to-order structure is equal to Bin Code on the prod. order component the child item supplies, when the production order is created via planning worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make-to-order structure - item "I1" is a component of "I2", and "I2" is a component of "I3".
         // [GIVEN] "From-production Bin Code" is "B3" at location. The output of "I3" will be placed into this bin.
@@ -2212,7 +2212,7 @@ codeunit 137072 "SCM Production Orders II"
         // [FEATURE] [Make-to-Order] [Component]
         // [SCENARIO 252705] A component which has sufficient stock must be picked up from stock when planning.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Update Manuf. Setup: setting "Components at Location" field with 'white' location code.
         UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
@@ -2277,7 +2277,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Output Journal] [Family] [Production Order Status]
         // [SCENARIO 265553] Can change production order status to Finished when last output journal line for family is posted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Routing "R" with two lines
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
@@ -2331,7 +2331,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Adjust cost item entries] [Capacity] [Family]
         // [SCENARIO 266023] Adjust cost item entries separates capacity cost for different items from family with single routing.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Routing "R" with two lines, "Unit Cost" "U" = 1
         WorkCenterUnitCost := LibraryRandom.RandInt(10);
@@ -2405,7 +2405,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Component]
         // [SCENARIO 285899] Refresh Prod Order with Make-To-Order component and Components at Location using Bin Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufacturing Setup with "Components at Location" = "Loc"
         CreateAndUpdateLocation(Location, false, false, false, false);
@@ -2449,7 +2449,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Routing]
         // [SCENARIO 286683] Increasing processing time of a semi-finished item in multilined production order shifts the starting date-time of the finished item forward. Case "one parent - two children - two separate grandchildren".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make-to-order production tree of items.
         // [GIVEN] Parent item "A".
@@ -2546,7 +2546,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Routing]
         // [SCENARIO 286683] Increasing processing time of a semi-finished item in multilined production order shifts the starting date-time of the finished item forward. Case "one parent - two children - one common grandchild".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make-to-order production tree of items.
         // [GIVEN] Parent item "A".
@@ -2629,7 +2629,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Routing] [UI]
         // [SCENARIO 286683] A message that warns a user of changed starting date-time in production order is raised only once, although the time is adjusted several times.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make-to-order production chain - finished item "A" and its component "B".
         CreateProductionItem(ChildItem, '');
@@ -2683,7 +2683,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Routing] [Reservation]
         // [SCENARIO 286683] When changing date on prod. order routing line moves the due date on semi-production item to a later date than the end item was initially planned, no date conflict error occurs. "Shipment Date" on reservation entries are update
-        Initialize;
+        Initialize();
 
         // [GIVEN] Make-to-order production chain - finished item "A" and its component "B".
         CreateProductionItem(ChildItem, '');
@@ -2715,7 +2715,7 @@ codeunit 137072 "SCM Production Orders II"
         ReservationEntry.SetSourceFilter(
           DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, false);
         ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Shipment Date", ProdOrderRoutingLine."Ending Date");
         ReservationEntry.TestField("Shipment Date", ProdOrderLine."Due Date");
 
@@ -2745,7 +2745,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Reservation] [Shipment Date] [Prod. Order Component] [Transfer]
         // [SCENARIO 298983] Shipment Date in Reservation Entry respects Prod. Order Component Due Date when reserve from Transfer Line
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);
 
         // [GIVEN] Item X was a production component of Item Y (1 PCS of X required to produce 1 PCS of Y)
@@ -2791,7 +2791,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Production BOM] [Prod. Order Component]
         // [SCENARIO 315417] Production BOM component with "Quantity per" = 0 is added to prod. order components on production order refresh.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "C", production item "P".
         // [GIVEN] Set "Quantity per" = 0 on the production BOM line for component "C".
@@ -2826,7 +2826,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Production BOM] [Prod. Order Component] [Make-to-Order]
         // [SCENARIO 315417] Production BOM component set up to be a child production item in Make-to-Order tree is not added to prod. order components of the parent item, if the component has "Quantity per" = 0 in the production BOM.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "C" is a production item and set up for "Make-to-Order" manufacturing policy.
         LibraryInventory.CreateItem(CompItem);
@@ -2872,7 +2872,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Production BOM] [Prod. Order Component] [Due Date]
         // [SCENARIO 319012] Due Date/Time fields for Production BOM Component isn't unnecessary refreshed on validating "Quantity per"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Component and Production Items
         LibraryInventory.CreateItem(CompItem);
@@ -2914,7 +2914,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Make-to-Stock] [Prod. Order Component]
         // [SCENARIO 333008] Production Order Component for an MTO Item with an MTS SKU has zero Planning Level Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component MTO Item "COMP" With Make-to-Stock Stockkeeping Unit for location "RED"
         LibraryInventory.CreateItem(CompItem);
@@ -2947,7 +2947,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Make-to-Order] [Prod. Order Component]
         // [SCENARIO 333008] Production Order Component for an MTO Item with an MTO SKU has Planning Level Code increased
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component MTO Item "COMP" With Make-to-Order Stockkeeping Unit for location "RED"
         LibraryInventory.CreateItem(CompItem);
@@ -2986,7 +2986,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         // [FEATURE] [Replan Production Order] [Scrap] [Routing] [Output]
         // [SCENARIO 349584] Scrap % and fixed scrap quantity are added to output quantity on replanning production order.
-        Initialize;
+        Initialize();
         RunTime := LibraryRandom.RandInt(10);
         ScrapPerc := LibraryRandom.RandInt(10);
         FixedScrapQty := LibraryRandom.RandIntInRange(10, 20);
@@ -3027,7 +3027,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
         for i := ArrayLen(WorkCenter) downto 1 do begin
             ItemJournalLine.SetRange("Work Center No.", WorkCenter[i]."No.");
-            ItemJournalLine.FindFirst;
+            ItemJournalLine.FindFirst();
             OutputQty := OutputQty * RunTime * (1 + ScrapPerc / 100) + FixedScrapQty;
             ItemJournalLine.TestField("Output Quantity", OutputQty);
         end;
@@ -3365,24 +3365,129 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandlerTrue,MessageHandler')]
+    procedure FlushingQtyThatDiffersFromRemQtyByLessThanRoundingPrec()
+    var
+        ProdItem: Record Item;
+        InterimItem: Record Item;
+        CompItem: Record Item;
+        ProdItemUnitOfMeasure: Record "Item Unit of Measure";
+        InterimItemUnitOfMeasure: Record "Item Unit of Measure";
+        CompItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UnitOfMeasureMgt: Codeunit "Unit of Measure Management";
+        ProdItemQtyPer: Decimal;
+        InterimItemQtyPer: Decimal;
+        CompItemQtyPer: Decimal;
+        ProdBOMQtyPer: Decimal;
+        InterimBOMQtyPer: Decimal;
+    begin
+        // [FEATURE] [Flushing] [Consumption]
+        // [SCENARIO 423544] Flushing consumption on finishing production order takes remaining qty. of component item when the difference between remaining qty. and actual qty. is less than the rounding precision.
+        Initialize();
+        ProdItemQtyPer := 12240;
+        InterimItemQtyPer := 60.96;
+        CompItemQtyPer := 0.44444;
+        ProdBOMQtyPer := 3;
+        InterimBOMQtyPer := 0.22;
+
+        // [GIVEN] Component item "C" set up for backward flushing.
+        // [GIVEN] Base unit of measure = "CAN", alternate unit of measure = "KG" = 0.44444 "CAN".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Backward);
+        CompItem.Validate("Rounding Precision", UnitOfMeasureMgt.QtyRndPrecision());
+        CompItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(CompItemUnitOfMeasure, CompItem."No.", CompItemQtyPer);
+
+        // [GIVEN] Interim production item "I" set up for backward flushing.
+        // [GIVEN] Base unit of measure = "KG", alternate unit of measure = "BOX" = 60.96 "KG".
+        CreateProductionItem(InterimItem, '');
+        InterimItem.Validate("Manufacturing Policy", InterimItem."Manufacturing Policy"::"Make-to-Order");
+        InterimItem.Validate("Flushing Method", InterimItem."Flushing Method"::Backward);
+        InterimItem.Validate("Rounding Precision", UnitOfMeasureMgt.QtyRndPrecision());
+        InterimItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(InterimItemUnitOfMeasure, InterimItem."No.", InterimItemQtyPer);
+
+        // [GIVEN] Finished item "P".
+        // [GIVEN] Base unit of measure = "PCS", alternate unit of measure = "PALLET" = 12240 "PCS".
+        CreateProductionItem(ProdItem, '');
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure, ProdItem."No.", ProdItemQtyPer);
+
+        // [GIVEN] Create and cerfity production BOM. 1 "PALLET" of item "P" = 3 "BOX" of item "I".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, InterimItem."No.", ProdBOMQtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", InterimItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and cerfity production BOM. 1 "BOX" of item "I" = 0.22 "KG" of item "C".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, InterimItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", InterimBOMQtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        InterimItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        InterimItem.Modify(true);
+
+        // [GIVEN] Create make-to-order production order for items "P" and "C".
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProdItem."No.", ProdItemQtyPer, '', '');
+
+        // [GIVEN] Post component item "C" to inventory.
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(20, 40), '', '', false);
+
+        // [GIVEN] Post output of the interim item "C".
+        // [GIVEN] Post output of the finished good "P".
+        FindProductionOrderLine(ProdOrderLine, InterimItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+        FindProductionOrderLine(ProdOrderLine, ProdItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Finish the production order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The production order is finished.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [THEN] The component item "C" is backward flushed.
+        // [THEN] Consumption quantity = 3 * 0.22 * 0.44444 = 0.29333 "CAN".
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField(
+          Quantity, -Round(ProdBOMQtyPer * InterimBOMQtyPer * CompItemQtyPer, CompItem."Rounding Precision"));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Orders II");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Production Orders II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        NoSeriesSetup;
+        NoSeriesSetup();
         CreateLocationSetup;
         ItemJournalSetup;
         OutputJournalSetup;
@@ -3874,7 +3979,7 @@ codeunit 137072 "SCM Production Orders II"
         RoutingHeader: Record "Routing Header";
         RoutingLink: Record "Routing Link";
     begin
-        RoutingLink.FindFirst;
+        RoutingLink.FindFirst();
         CreateWorkCenter(WorkCenter);
         CreateRoutingWithRoutingLink(RoutingHeader, WorkCenter."No.", RoutingLink.Code);
 
@@ -4143,7 +4248,7 @@ codeunit 137072 "SCM Production Orders II"
         Item.Modify(true);
     end;
 
-    local procedure CreateRequisitionWorksheetName(var RequisitionWkshName: Record "Requisition Wksh. Name"; Type: Option)
+    local procedure CreateRequisitionWorksheetName(var RequisitionWkshName: Record "Requisition Wksh. Name"; Type: Enum "Req. Worksheet Template Type")
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
@@ -4284,7 +4389,7 @@ codeunit 137072 "SCM Production Orders II"
     local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderNo: Code[20])
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindProdOrderComponentByItem(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
@@ -4293,7 +4398,7 @@ codeunit 137072 "SCM Production Orders II"
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4301,13 +4406,13 @@ codeunit 137072 "SCM Production Orders II"
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
     end;
 
     local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
     begin
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
@@ -4315,7 +4420,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Line No.");
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
@@ -4328,7 +4433,7 @@ codeunit 137072 "SCM Production Orders II"
     local procedure FindProductionOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderNo: Code[20])
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
@@ -4352,7 +4457,7 @@ codeunit 137072 "SCM Production Orders II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -4368,13 +4473,13 @@ codeunit 137072 "SCM Production Orders II"
     begin
         ProductionOrder.SetRange("Source No.", SourceNo);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     begin
         FilterRequisitionLine(RequisitionLine, No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FindPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line")
@@ -4382,7 +4487,7 @@ codeunit 137072 "SCM Production Orders II"
         PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
     end;
 
     local procedure FindPlanningComponent(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -4391,21 +4496,21 @@ codeunit 137072 "SCM Production Orders II"
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
         PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
         PlanningComponent.SetRange("Item No.", ItemNo);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
     end;
 
     local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindLastProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindLast;
+        ProdOrderLine.FindLast();
     end;
 
     local procedure ValueEntryCalcSumsCostAmountActual(var ValueEntry: Record "Value Entry"; ItemNo: Code[20])
@@ -4438,7 +4543,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure SelectItemTrackingForProdOrderComponents(ItemNo: Code[20])
@@ -4451,11 +4556,11 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderComponents.ItemTrackingLines.Invoke;
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure UpdateFlushingMethodOnProdComp(ProductionOrderNo: Code[20]; FlushingMethod: Enum "Flushing Method")
@@ -4560,7 +4665,7 @@ codeunit 137072 "SCM Production Orders II"
         RoutingHeader.Get(RoutingNo);
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
         RoutingLine.Validate("Send-Ahead Quantity", SendAheadQuantity);
         RoutingLine.Modify(true);
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
@@ -4577,7 +4682,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::"Under Development");
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMLine.SetRange("No.", CompItemNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
         ProductionBOMLine.Modify(true);
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
@@ -4650,7 +4755,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::"Under Development");
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMLine.SetRange("No.", CompItemNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         ProductionBOMLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         ProductionBOMLine.Modify(true);
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
@@ -4681,7 +4786,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderComponent: Record "Prod. Order Component";
     begin
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.TestField(Status, Status);
         ProdOrderComponent.TestField("Item No.", ItemNo);
         ProdOrderComponent.CalcFields("Reserved Quantity");
@@ -4714,7 +4819,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", ReservedQuantity);
     end;
@@ -4736,7 +4841,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField("Item No.", ItemNo);
         PostedInvtPickLine.TestField("Bin Code", BinCode);
         PostedInvtPickLine.TestField(Quantity, Quantity);
@@ -4761,7 +4866,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         Item.Get(ItemNo);
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Unit Cost (Revalued)", Item."Last Direct Cost");
         ItemJournalLine.TestField("Inventory Value (Revalued)", Round(Quantity * Item."Last Direct Cost"));
     end;
@@ -4854,7 +4959,7 @@ codeunit 137072 "SCM Production Orders II"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.TestField("Location Code", LocationCode);
         PurchaseLine.TestField(Quantity, Quantity);
     end;
@@ -4878,7 +4983,7 @@ codeunit 137072 "SCM Production Orders II"
         FindProductionOrderLine(ProdOrderLine, ItemNo);
         OrderTracking.SetProdOrderLine(ProdOrderLine);
         OrderTracking2.Trap;
-        OrderTracking.Run;
+        OrderTracking.Run();
         OrderTracking2."Item No.".AssertEquals(ItemNo);
         OrderTracking2.Quantity.AssertEquals(Quantity);
     end;

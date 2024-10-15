@@ -485,16 +485,8 @@ report 5692 "Calculate Depreciation"
         Custom1Amount: Decimal;
         NumberOfDays: Integer;
         Custom1NumberOfDays: Integer;
-        DeprUntilDate: Date;
-        UseForceNoOfDays: Boolean;
-        DaysInPeriod: Integer;
-        PostingDate: Date;
-        DocumentNo: Code[20];
         DocumentNo2: Code[20];
         NoSeries: Code[20];
-        PostingDescription: Text[100];
-        DeprBookCode: Code[10];
-        BalAccount: Boolean;
         ErrorNo: Integer;
         Custom1ErrorNo: Integer;
         FAJnlNextLineNo: Integer;
@@ -523,6 +515,16 @@ report 5692 "Calculate Depreciation"
         CompletionStatsFAJnlMsg: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.';
         CompletionStatsGenJnlMsg: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L journal lines were created.';
         DeprUntilDateModified: Boolean;
+
+    protected var
+        DeprBookCode: Code[10];
+        DeprUntilDate: Date;
+        UseForceNoOfDays: Boolean;
+        DaysInPeriod: Integer;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+        PostingDescription: Text[100];
+        BalAccount: Boolean;
 
     [Scope('OnPrem')]
     procedure SetProperties()

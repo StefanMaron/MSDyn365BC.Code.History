@@ -24,6 +24,8 @@ table 12477 "FA Document Line"
             TableRelation = "Fixed Asset";
 
             trigger OnValidate()
+            var
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 if "FA No." = '' then
                     exit;
@@ -50,7 +52,8 @@ table 12477 "FA Document Line"
                 if FADeprBook.Get("New FA No.", "New Depreciation Book Code") then
                     "New FA Posting Group" := FADeprBook."FA Posting Group";
 
-                CreateDim(DATABASE::"Fixed Asset", "FA No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Fixed Asset", "FA No.");
+                CreateDim(DefaultDimSource);
             end;
         }
         field(5; "New FA No."; Code[20])
@@ -249,6 +252,8 @@ table 12477 "FA Document Line"
         FADeprBook: Record "FA Depreciation Book";
         DimMgt: Codeunit DimensionManagement;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     [Scope('OnPrem')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -261,6 +266,15 @@ table 12477 "FA Document Line"
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" := DimMgt.GetDefaultDimID(
             TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" := DimMgt.GetDefaultDimID(
+            DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     [Scope('OnPrem')]
@@ -339,7 +353,7 @@ table 12477 "FA Document Line"
         FAComment.SetRange("Document No.", "Document No.");
         FAComment.SetRange("Document Line No.", "Line No.");
         FAComments.SetTableView(FAComment);
-        FAComments.RunModal;
+        FAComments.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -371,7 +385,7 @@ table 12477 "FA Document Line"
         FAComment.SetRange("Document No.", "Document No.");
         FAComment.SetRange("Document Line No.", "Line No.");
         FAComment.SetRange(Type, Type);
-        if FAComment.FindSet then
+        if FAComment.FindSet() then
             repeat
                 Index += 1;
                 Comment[Index] := FAComment.Comment

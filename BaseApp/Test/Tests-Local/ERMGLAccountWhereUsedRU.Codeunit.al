@@ -27,7 +27,7 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
         FACharge: Record "FA Charge";
     begin
         // [SCENARIO 263861] FA Charge should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] FA Charge with "G/L Acc. for Released FA" = "G"
         CreateFACharge(FACharge);
@@ -51,7 +51,7 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
         FAChargeList: TestPage "FA Charge List";
     begin
         // [SCENARIO 263861] FA Charge List page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] FA Charge "FC" with "G/L Acc. for Released FA" = "G"
         CreateFACharge(FACharge);
@@ -66,7 +66,7 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
@@ -78,7 +78,7 @@ codeunit 144544 "ERM G/L Account Where-Used RU"
         with FACharge do begin
             Init;
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"FA Charge");
-            "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountNo;
+            "G/L Acc. for Released FA" := LibraryERM.CreateGLAccountNo();
             Insert;
         end;
     end;

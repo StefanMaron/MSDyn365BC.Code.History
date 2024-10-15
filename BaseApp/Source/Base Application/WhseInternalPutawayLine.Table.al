@@ -126,7 +126,7 @@ table 7332 "Whse. Internal Put-away Line"
                 "Qty. (Base)" :=
                     UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
                 if CurrFieldNo = FieldNo(Quantity) then
-                    CheckBinContentQty;
+                    CheckBinContentQty();
 
                 Validate("Qty. Outstanding", (Quantity - "Qty. Put Away"));
                 Status := CalcStatusPutAwayLine;
@@ -454,7 +454,7 @@ table 7332 "Whse. Internal Put-away Line"
         exit(Status::" ");
     end;
 
-    local procedure CheckBinContentQty()
+    protected procedure CheckBinContentQty()
     var
         BinContent: Record "Bin Content";
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
@@ -623,7 +623,7 @@ table 7332 "Whse. Internal Put-away Line"
         CreatePutAwayFromWhseSource.SetWhseInternalPutAway(WhseInternalPutAwayHeader);
         CreatePutAwayFromWhseSource.SetHideValidationDialog(HideValidationDialog);
         CreatePutAwayFromWhseSource.UseRequestPage(not HideValidationDialog);
-        CreatePutAwayFromWhseSource.RunModal;
+        CreatePutAwayFromWhseSource.RunModal();
         CreatePutAwayFromWhseSource.GetResultMessage(1);
     end;
 
@@ -683,7 +683,7 @@ table 7332 "Whse. Internal Put-away Line"
 
         OnOpenItemTrackingLinesOnBeforeSetSource(Rec, TempWhseWorksheetLine);
         WhseItemTrackingLines.SetSource(TempWhseWorksheetLine, DATABASE::"Whse. Internal Put-away Line");
-        WhseItemTrackingLines.RunModal;
+        WhseItemTrackingLines.RunModal();
         Clear(WhseItemTrackingLines);
     end;
 
@@ -721,7 +721,7 @@ table 7332 "Whse. Internal Put-away Line"
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin
         WhseInternalPutAwayLine.SetRange("No.", WhseInternalPutAwayHeader."No.");
-        if WhseInternalPutAwayLine.FindLast then
+        if WhseInternalPutAwayLine.FindLast() then
             exit(WhseInternalPutAwayLine."Line No.");
         exit(0);
     end;
@@ -781,7 +781,7 @@ table 7332 "Whse. Internal Put-away Line"
         WhseInternalPutAwayLine.SetRecFilter;
         WhseInternalPutAwayLine.SetRange("Line No.");
         WhseInternalPutAwayLine.SetCurrentKey("No.", "Sorting Sequence No.");
-        if WhseInternalPutAwayLine.FindLast then
+        if WhseInternalPutAwayLine.FindLast() then
             exit(WhseInternalPutAwayLine."Sorting Sequence No.");
         exit(0);
     end;

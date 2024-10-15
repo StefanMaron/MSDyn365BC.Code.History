@@ -181,7 +181,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         AdjPostingDate: Date;
         EntryAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
@@ -204,7 +204,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Unapply]
         // [SCENARIO 362788] Prepayment Difference G/L Entry is created when unapplying prepayment with "Cancel Curr. Prepmt. Adjmt" option
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment and invoice in FCY with different exchange rates
@@ -237,7 +237,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Application] [Unrealized VAT]
         // [SCENARIO 363394] Prepayment G/L VAT Entry is created when apply prepayment with unrealized VAT to Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
         // [GIVEN] Posted Prepayment with unrealized VAT Amount = "X" and invoice
@@ -273,7 +273,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         // [FEATURE] [Cancel Curr. Prepmt. Adjmt.] [Unapply] [Unrealized VAT]
         // [SCENARIO 371855] Negative Credit G/L Entry with "Purch. VAT. Unreal Account" is created when unapply prepayment with unrealized VAT
 
-        Initialize;
+        Initialize();
         GLSetup.Get();
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -314,7 +314,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         // [FEATURE] [Item Charge] [Prepayment Difference] [FCY]
         // [SCENARIO 377194] Purchase Credit Memo's Item Charge Assignment has Prepayment Difference Amount Excl. VAT for Prepayment to Invoice application with different exch. rates (up) and Cancel Prepmt. Adjmt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -358,7 +358,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         // [FEATURE] [Item Charge] [Prepayment Difference] [FCY]
         // [SCENARIO 377194] Purchase Invoice's Item Charge Assignment has Prepayment Difference Amount Excl. VAT for Prepayment to Invoice application with different exch. rates (down) and Cancel Prepmt. Adjmt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cancel Curr. Prepmt. Adjmt." option is on
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -400,7 +400,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         // [FEATURE] [Invoice] [Currency] [Exchange Rates] [Cancel Prepmt. Adjmt. in TA]
         // [SCENARIO 281292] When applying vendor prepayment to invoice with option "Cancel Prepmt. Adjmt. in TA", exchange rate gain/loss is posted as item charge
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Cancel Prepmt. Adjmt. in TA" in general ledger setup
         SetCancelPrepmtAdjmtInGLSetup(true, true);
@@ -504,7 +504,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -620,7 +620,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         EntryAmount: array[3] of Decimal;
         RefundAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         PostPartInvCurrAndPrepmt(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyVendorPaymentToInvoice(PmtNo, InvNo);
@@ -696,7 +696,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         EntryAmount: array[3] of Decimal;
         RefundAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         PostPartInvCurrAndPrepmt(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyVendorPaymentToInvoice(PmtNo, InvNo);
@@ -717,7 +717,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         PmtNo: Code[20];
         EntryAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         PostInvCurrAndPrepmt(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
         ApplyVendorPaymentToInvoice(PmtNo, InvNo);
@@ -741,7 +741,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         AdjPostingDate: Date;
         EntryAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         ExpectedDocNo := GetGenJnlTemplateNextNo(AdjPostingDate);
         PostInvAndPrepmtWithCurrency(
           InvNo, PmtNo, EntryAmount, CurrencyCode, IsRaise, IsCancelPrepmt);
@@ -757,7 +757,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         PurchLine: Record "Purchase Line";
         ExchRateAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(
           PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
@@ -807,7 +807,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         PurchLine: Record "Purchase Line";
         ExchRateAmount: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         SourceCurrencyCode := PrepareSetup(IsCancelPrepmt, ExchRateAmount, IsRaise);
         LibraryPurchase.CreateFCYPurchInvoiceWithGLAcc(
           PurchaseHeader, PurchLine, '', '', CalcDate('<1M>', WorkDate), SourceCurrencyCode);
@@ -824,7 +824,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchaseInvoiceWithGLAcc(PurchaseHeader, PurchaseLine, '', '');
         PurchaseHeader.SetHideValidationDialog(true);
@@ -1017,7 +1017,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         if IsCancelPrepmt then
             exit(Currency."PD Bal. Gain/Loss Acc. (TA)");
         VendLedgEntry.SetRange("Document No.", DocNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         VendPostGroup.Get(VendLedgEntry."Vendor Posting Group");
         exit(VendPostGroup."Prepayment Account");
     end;
@@ -1028,7 +1028,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         PurchInvLine.SetRange("Document No.", PostedInvoiceNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         GeneralPostingSetup.Get(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
         exit(GeneralPostingSetup."Direct Cost Applied Account");
     end;
@@ -1040,7 +1040,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
         PurchInvLine.SetRange("Document No.", PostedInvoiceNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         Item.Get(PurchInvLine."No.");
         InventoryPostingSetup.Get(PurchInvLine."Location Code", Item."Inventory Posting Group");
         exit(InventoryPostingSetup."Inventory Account");
@@ -1051,7 +1051,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         VendLedgEntry.SetRange("Document No.", DocNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         exit(VendLedgEntry."Vendor No.");
     end;
 
@@ -1073,7 +1073,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::General);
         GenJnlTemplate.SetRange(Recurring, false);
-        GenJnlTemplate.FindFirst;
+        GenJnlTemplate.FindFirst();
         exit(NoSeriesMgt.GetNextNo(GenJnlTemplate."No. Series", PostingDate, false));
     end;
 
@@ -1095,7 +1095,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
             SetRange("Buy-from Vendor No.", VendorNo);
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -1108,7 +1108,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Purchase);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -1120,7 +1120,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         PurchInvLine.SetRange("Buy-from Vendor No.", VendorNo);
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         PurchInvHeader.Get(PurchInvLine."Document No.");
         PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
@@ -1136,7 +1136,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         PurchCrMemoLine.SetRange("Buy-from Vendor No.", VendorNo);
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::"Charge (Item)");
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
 
         PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.");
         PurchCrMemoHdr.CalcFields(Amount, "Amount Including VAT");
@@ -1186,7 +1186,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         AdjustExchangeRates.InitializeRequest2(
           0D, PostingDate, '', PostingDate, LibraryUtility.GenerateGUID, true, false);
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     local procedure RunChangeVendorVATInvoice(var VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]) InvNo: Code[20]
@@ -1208,9 +1208,9 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
 
         ChangeVendorVATInvoice.SetVendLedgEntry(VendLedgEntry);
         ChangeVendorVATInvoice.SetVATProdGroup(VATPostingSetup."VAT Prod. Posting Group");
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
         Commit();
-        ChangeVendorVATInvoice.Run;
+        ChangeVendorVATInvoice.Run();
         exit(InvNo);
     end;
 
@@ -1218,7 +1218,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
     begin
         VendLedgEntry.SetRange("Document Type", DocType);
         VendLedgEntry.SetRange("Document No.", DocNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
     end;
 
     local procedure FindDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EntryType: Option)
@@ -1316,7 +1316,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         VendLedgEntry.SetRange("Document No.", DocNo);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         with DtldVendLedgEntry do begin
             SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
             SetRange("Prepmt. Diff.", true);
@@ -1425,7 +1425,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
             SetRange("Document No.", DocumentNo);
             SetRange("Debit Account No.", DebitAccNo);
             SetRange("Credit Account No.", CreditAccNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;
     end;
@@ -1448,7 +1448,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetRange("Item Charge No.", InventoryPostingGroup."Purch. PD Charge FCY (Item)");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         ValueEntry.TestField(
           "Cost Amount (Actual)",
@@ -1463,7 +1463,7 @@ codeunit 144002 "ERM Curr. Adjmt. Prepmt. Purch"
             SetRange("Item No.", ItemNo);
             SetRange("Document No.", DocumentNo);
             SetRange("Item Ledger Entry No.", ILENo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, "Cost Amount (Actual)", FieldCaption("Sales Amount (Actual)"));
         end;
     end;

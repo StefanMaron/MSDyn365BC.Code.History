@@ -56,6 +56,11 @@ page 463 "Jobs Setup"
                     ToolTip = 'Specifies the position of your company logo on business letters and documents.';
                     Visible = JobSimplificationAvailable;
                 }
+                field("Document No. Is Job No."; "Document No. Is Job No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies that the job number is also the document number in the ledger entries posted for the job.';
+                }
             }
             group(Prices)
             {

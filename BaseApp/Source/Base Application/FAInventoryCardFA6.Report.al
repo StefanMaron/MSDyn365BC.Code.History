@@ -139,7 +139,7 @@ report 12495 "FA Inventory Card FA-6"
                         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
                         FALedgerEntry.SetRange("Initial Acquisition", false);
                         FALedgerEntry.SetFilter(Quantity, '<%1', 0);
-                        if FALedgerEntry.FindFirst then
+                        if FALedgerEntry.FindFirst() then
                             CurrReport.Skip();
 
                         ExcelReportBuilderMgr.AddSection('LASTPAGEBODY');
@@ -220,7 +220,7 @@ report 12495 "FA Inventory Card FA-6"
                 PostedFADocLine.Reset();
                 PostedFADocLine.SetRange("Document Type", PostedFADocLine."Document Type"::Release);
                 PostedFADocLine.SetRange("FA No.", "Fixed Asset"."No.");
-                if PostedFADocLine.FindFirst then;
+                if PostedFADocLine.FindFirst() then;
             end;
         }
     }

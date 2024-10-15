@@ -52,7 +52,9 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Maintenance Ledger Entry" = rm,
                   tabledata "Maintenance Registration" = rm,
                   tabledata "My Vendor" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata "Nonstock Item" = rm,
                   tabledata Opportunity = R,
                   tabledata "Order Address" = RIMD,
@@ -98,7 +100,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Service Item Line" = Rm,
                   tabledata "Service Ledger Entry" = rm,
                   tabledata "Shipment Method" = R,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Vendor Purchase Code" = rid,

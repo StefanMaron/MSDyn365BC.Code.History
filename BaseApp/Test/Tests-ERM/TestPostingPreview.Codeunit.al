@@ -201,7 +201,7 @@ codeunit 134768 "Test Posting Preview"
         FALedgerEntriesPreview: TestPage "FA Ledger Entries Preview";
     begin
         // [SCENARIO] FA Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         FALedgerEntry.Init();
         FALedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(FALedgerEntry.FieldNo(Amount));
@@ -242,7 +242,7 @@ codeunit 134768 "Test Posting Preview"
         ResourceLedgEntriesPreview: TestPage "Resource Ledg. Entries Preview";
     begin
         // [SCENARIO] Res. Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ResLedgerEntry.Init();
         ResLedgerEntry.Quantity := LibraryRandom.RandInt(100);
         LibraryPostPrevHandler.SetValueFieldNo(ResLedgerEntry.FieldNo(Quantity));
@@ -263,7 +263,7 @@ codeunit 134768 "Test Posting Preview"
         ServiceLedgerEntriesPreview: TestPage "Service Ledger Entries Preview";
     begin
         // [SCENARIO] Service Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ServiceLedgerEntry.Init();
         ServiceLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(ServiceLedgerEntry.FieldNo(Amount));
@@ -304,7 +304,7 @@ codeunit 134768 "Test Posting Preview"
         MaintLedgEntriesPreview: TestPage "Maint. Ledg. Entries Preview";
     begin
         // [SCENARIO] Maintenance Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         MaintenanceLedgerEntry.Init();
         MaintenanceLedgerEntry.Amount := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(MaintenanceLedgerEntry.FieldNo(Amount));
@@ -325,7 +325,7 @@ codeunit 134768 "Test Posting Preview"
         JobLedgerEntriesPreview: TestPage "Job Ledger Entries Preview";
     begin
         // [SCENARIO] Job Ledger Entry is properly saved to temp tables and displayed in the preview page.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         JobLedgerEntry.Init();
         JobLedgerEntry."Line Amount" := LibraryRandom.RandDec(1000, 2);
         LibraryPostPrevHandler.SetValueFieldNo(JobLedgerEntry.FieldNo("Line Amount"));

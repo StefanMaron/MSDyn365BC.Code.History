@@ -23,6 +23,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Date Compr. Register" = Rimd,
                   tabledata "Detailed Cust. Ledg. Entry" = R,
                   tabledata "Exch. Rate Adjmt. Reg." = Rimd,
+                  tabledata "Exch. Rate Adjmt. Ledg. Entry" = Rimd,
                   tabledata "General Ledger Setup" = RM,
                   tabledata "G/L Correspondence" = Rimd,
                   tabledata "Item Analysis View" = RM,

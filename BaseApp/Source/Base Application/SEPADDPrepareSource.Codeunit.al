@@ -15,7 +15,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         if not FromDirectDebitCollectionEntry.IsEmpty() then begin
             FromDirectDebitCollectionEntry.SetFilter(Status, '%1|%2',
               FromDirectDebitCollectionEntry.Status::New, FromDirectDebitCollectionEntry.Status::"File Created");
-            if FromDirectDebitCollectionEntry.FindSet then
+            if FromDirectDebitCollectionEntry.FindSet() then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
                     ToDirectDebitCollectionEntry.Insert();

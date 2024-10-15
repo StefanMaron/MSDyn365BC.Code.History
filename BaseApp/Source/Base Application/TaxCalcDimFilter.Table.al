@@ -106,7 +106,7 @@ table 17313 "Tax Calc. Dim. Filter"
         TaxCalcSection.ValidateChange;
 
         TaxCalcDimFilter.SetCurrentKey("Section Code", "Entry No.");
-        if TaxCalcDimFilter.FindLast then
+        if TaxCalcDimFilter.FindLast() then
             "Entry No." := TaxCalcDimFilter."Entry No." + 1
         else
             "Entry No." := 1;

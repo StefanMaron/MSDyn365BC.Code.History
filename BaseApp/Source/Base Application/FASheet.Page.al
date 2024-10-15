@@ -240,7 +240,7 @@ page 12497 "FA Sheet"
                     begin
                         Clear(FATurnover);
                         FATurnover.SetParameters(Rec);
-                        FATurnover.Run;
+                        FATurnover.Run();
                     end;
                 }
             }

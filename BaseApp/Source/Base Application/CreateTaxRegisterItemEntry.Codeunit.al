@@ -35,7 +35,7 @@ codeunit 17206 "Create Tax Register Item Entry"
     begin
         TaxRegMgt.ValidateAbsenceItemEntriesDate(StartDate, EndDate, SectionCode);
 
-        if not TaxRegItemEntry.FindLast then
+        if not TaxRegItemEntry.FindLast() then
             TaxRegItemEntry."Entry No." := 0;
 
         Clear(TaxDimMgt);
@@ -60,7 +60,7 @@ codeunit 17206 "Create Tax Register Item Entry"
             Total := Count;
             Procesing := 0;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     Procesing += 1;
                     if (Procesing mod 50) = 1 then
@@ -118,7 +118,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                             AmountEntry := "Cost Amount (Actual)";
                             ItemApplEntry.SetRange("Item Ledger Entry No.", "Entry No.");
                             SecondaryBatch := false;
-                            if ItemApplEntry.FindSet then
+                            if ItemApplEntry.FindSet() then
                                 repeat
                                     if ItemApplEntry.Quantity < 0 then begin
                                         if not ItemLedgEntry2.Get(ItemApplEntry."Inbound Item Entry No.") then
@@ -126,7 +126,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                                         if ItemLedgEntry2."Entry Type" = ItemLedgEntry2."Entry Type"::Transfer then
                                             repeat
                                                 ItemApplEntry2.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
-                                                ItemApplEntry2.FindFirst;
+                                                ItemApplEntry2.FindFirst();
                                                 if not ItemLedgEntry2.Get(ItemApplEntry2."Transferred-from Entry No.") then
                                                     ItemLedgEntry2.Init();
                                             until ItemLedgEntry2."Entry Type" <> ItemLedgEntry2."Entry Type"::Transfer;
@@ -375,7 +375,7 @@ codeunit 17206 "Create Tax Register Item Entry"
         TaxRegItemEntry2.SetRange("Ending Date", TaxRegItemEntry."Ending Date");
         TaxRegItemEntry2.SetRange("Appl. Entry No.", TaxRegItemEntry."Appl. Entry No.");
         TaxRegItemEntry2.SetRange("Ledger Entry No.", TaxRegItemEntry."Ledger Entry No.");
-        if TaxRegItemEntry2.FindFirst then begin
+        if TaxRegItemEntry2.FindFirst() then begin
             TaxRegItemEntry2."Qty. (Batch)" += TaxRegItemEntry."Qty. (Batch)";
             TaxRegItemEntry2."Amount (Batch)" += TaxRegItemEntry."Amount (Batch)";
             TaxRegItemEntry2."Debit Qty." += TaxRegItemEntry."Debit Qty.";
@@ -406,14 +406,14 @@ codeunit 17206 "Create Tax Register Item Entry"
     begin
         TaxReg.SetRange("Section Code", SectionCode);
         TaxReg.SetRange("Table ID", DATABASE::"Tax Register Item Entry");
-        if not TaxReg.FindFirst then
+        if not TaxReg.FindFirst() then
             exit;
 
         TempGLCorrEntry.SetCurrentKey("Debit Account No.", "Credit Account No.");
         TempGLCorrEntry.Insert();
 
         TaxRegAccumulation.Reset();
-        if not TaxRegAccumulation.FindLast then
+        if not TaxRegAccumulation.FindLast() then
             TaxRegAccumulation."Entry No." := 0;
 
         TaxRegAccumulation.Reset();
@@ -430,11 +430,11 @@ codeunit 17206 "Create Tax Register Item Entry"
         TaxReg.FindSet();
         repeat
             TaxRegLineSetup.SetRange("Tax Register No.", TaxReg."No.");
-            if TaxRegLineSetup.FindFirst then begin
+            if TaxRegLineSetup.FindFirst() then begin
                 TempTaxRegTemplate.DeleteAll();
                 TaxRegTemplate.SetRange("Section Code", SectionCode);
                 TaxRegTemplate.SetRange(Code, TaxReg."No.");
-                if TaxRegTemplate.FindSet then
+                if TaxRegTemplate.FindSet() then
                     repeat
                         TempTaxRegTemplate := TaxRegTemplate;
                         TempTaxRegTemplate.Value := 0;
@@ -446,7 +446,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                 TaxRegItemEntry.SetRange("Section Code", SectionCode);
                 TaxRegItemEntry.SetRange("Ending Date", EndDate);
                 TaxRegItemEntry.SetFilter("Where Used Register IDs", '*~' + TaxReg."Register ID" + '~*');
-                if TaxRegItemEntry.FindSet then
+                if TaxRegItemEntry.FindSet() then
                     repeat
                         TaxDimMgt.SetTaxEntryDim(SectionCode,
                           TaxRegItemEntry."Dimension 1 Value Code", TaxRegItemEntry."Dimension 2 Value Code",
@@ -488,7 +488,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                                 if FoudGLCoresp then begin
                                     TempTaxRegTemplate.SetRange("Link Tax Register No.", TaxRegLineSetup."Tax Register No.");
                                     TempTaxRegTemplate.SetFilter("Term Line Code", '%1|%2', '', TaxRegLineSetup."Line Code");
-                                    if TempTaxRegTemplate.FindSet then
+                                    if TempTaxRegTemplate.FindSet() then
                                         repeat
                                             if TaxDimMgt.ValidateTemplateDimFilters(TempTaxRegTemplate) then begin
                                                 case TempTaxRegTemplate."Sum Field No." of
@@ -513,7 +513,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                     until TaxRegItemEntry.Next(1) = 0;
 
                 TempTaxRegTemplate.Reset();
-                if TempTaxRegTemplate.FindSet then
+                if TempTaxRegTemplate.FindSet() then
                     repeat
                         TaxRegAccumulation."Report Line Code" := TempTaxRegTemplate."Report Line Code";
                         TaxRegAccumulation."Template Line Code" := TempTaxRegTemplate."Line Code";
@@ -582,7 +582,7 @@ codeunit 17206 "Create Tax Register Item Entry"
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry1."Entry No.");
         ValueEntry.SetFilter("Item Charge No.", '<>''''');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemCharge.Get(ValueEntry."Item Charge No.");
                 if ItemCharge."Exclude Cost for TA" then
@@ -621,7 +621,7 @@ codeunit 17206 "Create Tax Register Item Entry"
                 TaxReg.SetRange("Costing Method", TaxReg."Costing Method"::" ");
         end;
 
-        if TaxReg.FindSet then
+        if TaxReg.FindSet() then
             repeat
                 if StrPos(WhereUsedRegisterIDs, '~' + TaxReg."Register ID" + '~') <> 0 then
                     TaxRegItemEntry."Where Used Register IDs" :=

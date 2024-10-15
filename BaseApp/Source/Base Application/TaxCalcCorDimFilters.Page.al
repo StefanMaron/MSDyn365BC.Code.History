@@ -70,10 +70,10 @@ page 17330 "Tax Calc. Cor. Dim. Filters"
 
         TemplateDimCorrespFilter.SetRange("Section Code", SectionCode);
         TemplateDimCorrespFilter.SetRange("Corresp. Entry No.", TemplateCorrespEntryNo);
-        if TemplateDimCorrespFilter.FindSet then
+        if TemplateDimCorrespFilter.FindSet() then
             repeat
                 TemplateDimFilter.SetRange("Entry No.", TemplateDimCorrespFilter."Connection Entry No.");
-                if TemplateDimFilter.FindFirst then begin
+                if TemplateDimFilter.FindFirst() then begin
                     Rec := TemplateDimFilter;
                     Insert;
                 end;

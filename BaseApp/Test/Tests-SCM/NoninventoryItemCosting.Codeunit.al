@@ -37,7 +37,7 @@ codeunit 137120 "Non-inventory Item Costing"
         Item: Record Item;
         ItemNonInventory: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Use False for Update Unit Cost and blank for Variant Code.
         LibraryAssembly.SetupAssemblyItem(
@@ -91,7 +91,7 @@ codeunit 137120 "Non-inventory Item Costing"
         ItemLedgerEntry: Record "Item Ledger Entry";
         LocationBlue: Record Location;
     begin
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
         LibraryInventory.CreateItem(ProductionItem);
 
@@ -101,7 +101,7 @@ codeunit 137120 "Non-inventory Item Costing"
 
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         LibraryManufacturing.CreateProductionOrderComponent(
           ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
         LibraryInventory.CreateItem(Item);
@@ -144,7 +144,7 @@ codeunit 137120 "Non-inventory Item Costing"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        Initialize;
+        Initialize();
         CreateItemWithAmounts(Item);
         Item.Validate("Service Item Group", CreateServiceItemGroup);
         Item.Modify(true);
@@ -231,24 +231,24 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Non-inventory Item Costing");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Non-inventory Item Costing");
 
         UpdateStockOutWarningOnAssemblySetup(false);
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         Setup;
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         ItemJournalTemplate.Type := ItemJournalTemplate.Type::Consumption;
         ItemJournalTemplate.Recurring := false;
         ItemJournalTemplate.Modify();
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
 
         isInitialized := true;
         Commit();
@@ -348,12 +348,12 @@ codeunit 137120 "Non-inventory Item Costing"
             Type::Service:
                 ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
         end;
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         Assert.AreEqual(-Item."Standard Cost", ItemLedgerEntry."Cost Amount (Actual)", '');
 
         ItemLedgerEntry.SetRange("Item No.", ItemNonInventory."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Non-Invtbl.)");
         Assert.AreEqual(-ItemNonInventory."Unit Cost", ItemLedgerEntry."Cost Amount (Non-Invtbl.)", '');
 
@@ -366,11 +366,11 @@ codeunit 137120 "Non-inventory Item Costing"
             Type::Service:
                 ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
         end;
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(-Item."Standard Cost", ValueEntry."Cost Amount (Actual)", '');
 
         ValueEntry.SetRange("Item No.", ItemNonInventory."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(-ItemNonInventory."Unit Cost", ItemLedgerEntry."Cost Amount (Non-Invtbl.)", '');
     end;
 

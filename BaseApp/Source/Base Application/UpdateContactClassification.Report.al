@@ -521,7 +521,7 @@ report 5199 "Update Contact Classification"
                         SetRange("Link to Table", "Link to Table"::Vendor);
                 end;
                 SetRange("No.", No);
-                if FindFirst then
+                if FindFirst() then
                     ContactNo := "Contact No."
                 else
                     exit('');
@@ -594,7 +594,7 @@ report 5199 "Update Contact Classification"
                 ContactValue.Ascending(true);
         end;
 
-        if ContactValue.FindSet then
+        if ContactValue.FindSet() then
             repeat
                 if TotalValue <> 0 then
                     Prc := Round(100 * ContactValue.Value / TotalValue, 1 / Power(10, ProfileQuestnLineQuestion."No. of Decimals"))
@@ -744,7 +744,7 @@ report 5199 "Update Contact Classification"
                             ProfileQuestnLine2.Get(Rating."Rating Profile Quest. Code", Rating."Rating Profile Quest. Line No.");
                             RatingQuestion.SetRange("Profile Questionnaire Code", Rating."Rating Profile Quest. Code");
                             RatingQuestion.SetRange("Profile Questionnaire Line No.", ProfileQuestnLine2.FindQuestionLine);
-                            if RatingQuestion.FindFirst then begin
+                            if RatingQuestion.FindFirst() then begin
                                 ProfileQuestnLine2 := ProfileQuestnLine;
                                 ProfileQuestnLine.Get(
                                   RatingQuestion."Profile Questionnaire Code", RatingQuestion."Profile Questionnaire Line No.");

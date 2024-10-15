@@ -81,7 +81,7 @@ codeunit 144006 "ERM Item Storno"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Error on posting Red Storno with "Applies-from Entry" = 0 in Item Journal Line
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         asserterror CreateAndPostItemJournalLine(
@@ -147,7 +147,7 @@ codeunit 144006 "ERM Item Storno"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Error on posting Red Storno with "Applies-from Entry" = 0 in Item Documents
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         asserterror CreateAndPostInvtDocument(
@@ -183,7 +183,7 @@ codeunit 144006 "ERM Item Storno"
         InvoiceNo: Code[20];
     begin
         // Error on posting Red Storno with "Applies-from Entry" = 0 in Sales Documents
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         InvoiceNo :=
@@ -220,7 +220,7 @@ codeunit 144006 "ERM Item Storno"
         InvoiceNo: Code[20];
     begin
         // Error on posting Red Storno with "Applies-from Entry" = 0 in Purchase Documents
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         InvoiceNo :=
@@ -311,7 +311,7 @@ codeunit 144006 "ERM Item Storno"
     begin
         // [FEATURE] [Sales] [Correction]
         // [SCENARIO 377833] Corrective (Revision) Sales Credit Memo posting after Invoice in case of "Enable Red Storno" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup "Enable Red Storno" = TRUE.
         // [GIVEN] Posted Sales Invoice "I".
@@ -339,7 +339,7 @@ codeunit 144006 "ERM Item Storno"
 
         UpdateGLSetup;
         UpdateInventorySetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
 
         isInitialized := true;
@@ -355,7 +355,7 @@ codeunit 144006 "ERM Item Storno"
         ExpectedSign: Integer;
         Sorting: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, UnitAmt);
         CreateAndPostInvtDocument(DocType, "Invt. Doc. Document Type"::Receipt, ItemNo, WorkDate, Quantity, UnitAmt, 0, false);
@@ -380,7 +380,7 @@ codeunit 144006 "ERM Item Storno"
         ExpectedSign: Integer;
         Sorting: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
 
@@ -409,7 +409,7 @@ codeunit 144006 "ERM Item Storno"
         Quantity: Decimal;
         CostAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
         InvoiceNo := CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice, ItemNo, WorkDate, Quantity);
@@ -430,7 +430,7 @@ codeunit 144006 "ERM Item Storno"
         Quantity: Decimal;
         CostAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
         InvoiceNo := CreateAndPostPurchDocument(PurchaseHeader."Document Type"::Invoice, ItemNo, WorkDate, Quantity);
@@ -449,7 +449,7 @@ codeunit 144006 "ERM Item Storno"
         CostAmt: Decimal;
         RevalAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CostAmt := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -473,7 +473,7 @@ codeunit 144006 "ERM Item Storno"
         Quantity: Decimal;
         CostAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemNo := CreateItemWithStartingData(Quantity, CostAmt);
 
@@ -496,7 +496,7 @@ codeunit 144006 "ERM Item Storno"
         DeprBookCode: Code[10];
         CostAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         DeprBookCode := SetStornoOnDefaultDeprBook(RedStorno);
         CostAmt := LibraryRandom.RandDecInRange(100, 200, 2);
@@ -616,7 +616,7 @@ codeunit 144006 "ERM Item Storno"
         with ItemJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
-            FindFirst;
+            FindFirst();
             Validate("Red Storno", RedStorno);
             Validate("Inventory Value (Revalued)", RevalCost);
             Modify(true);
@@ -654,7 +654,7 @@ codeunit 144006 "ERM Item Storno"
     begin
         ItemJournalTemplate.SetRange(Type, Type);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
 
@@ -724,7 +724,7 @@ codeunit 144006 "ERM Item Storno"
             Validate(Correction, true);
             Validate("Corrective Document", true);
             Validate("Corrective Doc. Type", "Corrective Doc. Type"::Revision);
-            Validate("Revision No.", LibraryUtility.GenerateGUID);
+            Validate("Revision No.", LibraryUtility.GenerateGUID());
             Validate("Corrected Doc. Type", CorrectedDocType);
             Validate("Corrected Doc. No.", CorrectedDocNo);
             Modify(true);
@@ -808,7 +808,7 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
             Validate("Appl.-to Item Entry", ApplyEntryNo);
             Modify(true);
         end;
@@ -842,11 +842,11 @@ codeunit 144006 "ERM Item Storno"
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("Depreciation Book Code", DeprBookCode);
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
 
         CancelFAEntries.GetFALedgEntry(FALedgerEntry);
         CancelFAEntries.UseRequestPage(false);
-        CancelFAEntries.Run;
+        CancelFAEntries.Run();
     end;
 
     local procedure PostCancelledJournalLine(FANo: Code[20]; DeprBookCode: Code[10]): Code[20]
@@ -860,9 +860,9 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", GenJnlBatch.Name);
             SetRange("Account No.", FANo);
-            FindFirst;
+            FindFirst();
 
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             LibraryERM.FindGLAccount(GLAccount);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", GLAccount."No.");
@@ -935,7 +935,7 @@ codeunit 144006 "ERM Item Storno"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Posting Date", PostingDate);
-            FindLast;
+            FindLast();
             exit("Entry No.");
         end;
     end;
@@ -944,7 +944,7 @@ codeunit 144006 "ERM Item Storno"
     var
         Location: Record Location;
     begin
-        Location.FindFirst;
+        Location.FindFirst();
         exit(Location.Code);
     end;
 
@@ -954,7 +954,7 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -971,7 +971,7 @@ codeunit 144006 "ERM Item Storno"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.FindLast;
+        ValueEntry.FindLast();
         exit(ValueEntry."Document No.");
     end;
 
@@ -1018,7 +1018,7 @@ codeunit 144006 "ERM Item Storno"
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Posting Date", PostingDate);
-            FindLast;
+            FindLast();
             Assert.AreNearlyEqual(ExpectedAmount, "Cost Amount (Actual)", 0.01,
               StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Cost Amount (Actual)")));
             Assert.AreEqual(RedStorno, "Red Storno",
@@ -1034,7 +1034,7 @@ codeunit 144006 "ERM Item Storno"
             SetRange("Item No.", ItemNo);
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(RedStorno, "Red Storno", FieldCaption("Red Storno"));
         end;
     end;
@@ -1046,7 +1046,7 @@ codeunit 144006 "ERM Item Storno"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Posting Date", PostingDate);
-            FindLast;
+            FindLast();
             Assert.AreEqual(ExpectedEntryType, "Entry Type",
               StrSubstNo(ValuesAreNotEqualErr, TableCaption, FieldCaption("Entry Type")));
             Assert.AreEqual(ExpectedQty, Quantity,

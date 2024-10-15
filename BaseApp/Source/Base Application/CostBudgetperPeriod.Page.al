@@ -246,7 +246,7 @@ page 1117 "Cost Budget per Period"
                         CostBudgetEntry.SetFilter("Cost Object Code", CostObjectFilter);
                         ExportCostBudgetToExcel.SetRoundingFactor(RoundingFactor);
                         ExportCostBudgetToExcel.SetTableView(CostBudgetEntry);
-                        ExportCostBudgetToExcel.Run;
+                        ExportCostBudgetToExcel.Run();
                     end;
                 }
                 action(ImportFromExcel)
@@ -263,7 +263,7 @@ page 1117 "Cost Budget per Period"
                     begin
                         CostBudgetEntry.SetFilter("Budget Name", BudgetFilter);
                         ImportCostBudgetFromExcel.SetGLBudgetName(CostBudgetEntry.GetRangeMin("Budget Name"));
-                        ImportCostBudgetFromExcel.RunModal;
+                        ImportCostBudgetFromExcel.RunModal();
                     end;
                 }
             }
@@ -280,16 +280,18 @@ page 1117 "Cost Budget per Period"
 
     var
         MatrixRecords: array[32] of Record Date;
-        CostCenterFilter: Text;
-        CostObjectFilter: Text;
-        BudgetFilter: Text;
         MatrixColumnCaptions: array[32] of Text[80];
         ColumnSet: Text[80];
         PKFirstRecInCurrSet: Text[80];
+        CurrSetLength: Integer;
+
+    protected var
+        CostCenterFilter: Text;
+        CostObjectFilter: Text;
+        BudgetFilter: Text;
         PeriodType: Enum "Analysis Period Type";
         AmountType: Enum "Analysis Amount Type";
         RoundingFactor: Enum "Analysis Rounding Factor";
-        CurrSetLength: Integer;
 
 #if not CLEAN19
     [Obsolete('Replaced by SetmatrixColumns().', '19.0')]

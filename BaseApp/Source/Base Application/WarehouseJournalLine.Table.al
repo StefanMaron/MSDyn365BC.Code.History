@@ -480,12 +480,12 @@ table 7311 "Warehouse Journal Line"
         {
             Caption = 'Qty. (Phys. Inventory) (Base)';
             DecimalPlaces = 0 : 5;
-            Editable = false;
 
             trigger OnValidate()
             begin
                 "Qty. (Base)" := "Qty. (Phys. Inventory) (Base)" - "Qty. (Calculated) (Base)";
                 "Qty. (Absolute, Base)" := Abs("Qty. (Base)");
+                OnAfterValidateQtyPhysInventoryBase(Rec, PhysInvtEntered);
             end;
         }
         field(5402; "Variant Code"; Code[10])
@@ -605,27 +605,22 @@ table 7311 "Warehouse Journal Line"
         field(6502; "Warranty Date"; Date)
         {
             Caption = 'Warranty Date';
-            Editable = false;
         }
         field(6503; "Expiration Date"; Date)
         {
             Caption = 'Expiration Date';
-            Editable = false;
         }
         field(6504; "New Serial No."; Code[50])
         {
             Caption = 'New Serial No.';
-            Editable = false;
         }
         field(6505; "New Lot No."; Code[50])
         {
             Caption = 'New Lot No.';
-            Editable = false;
         }
         field(6506; "New Expiration Date"; Date)
         {
             Caption = 'New Expiration Date';
-            Editable = false;
         }
         field(6515; "Package No."; Code[50])
         {
@@ -647,7 +642,6 @@ table 7311 "Warehouse Journal Line"
         {
             Caption = 'New Package No.';
             CaptionClass = '6,2';
-            Editable = false;
         }
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {
@@ -793,7 +787,7 @@ table 7311 "Warehouse Journal Line"
         WhseJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         WhseJnlLine.SetRange("Location Code", "Location Code");
         OnSetUpNewLineOnAfterWhseJnlLineSetFilters(Rec, WhseJnlLine, LastWhseJnlLine);
-        if WhseJnlLine.FindFirst then begin
+        if WhseJnlLine.FindFirst() then begin
             WhseJnlBatch.Get(
               "Journal Template Name", "Journal Batch Name", LastWhseJnlLine."Location Code");
             "Registering Date" := LastWhseJnlLine."Registering Date";
@@ -1104,7 +1098,7 @@ table 7311 "Warehouse Journal Line"
                     Commit();
                 end;
             1:
-                WhseJnlTemplate.FindFirst;
+                WhseJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, WhseJnlTemplate) = ACTION::LookupOK;
         end;
@@ -1266,7 +1260,7 @@ table 7311 "Warehouse Journal Line"
         OnOpenItemTrackingLinesOnBeforeSetSource(WhseWkshLine, Rec);
 
         WhseItemTrackingLines.SetSource(WhseWkshLine, DATABASE::"Warehouse Journal Line");
-        WhseItemTrackingLines.RunModal;
+        WhseItemTrackingLines.RunModal();
         Clear(WhseItemTrackingLines);
 
         OnAfterOpenItemTrackingLines(Rec, WhseItemTrackingLines);
@@ -1332,19 +1326,6 @@ table 7311 "Warehouse Journal Line"
             Validate("Bin Code", BinCode);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by LookupItemTracking()', '17.0')]
-    procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50]; var CDNo: Code[50])
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        LookupItemTracking(WhseItemTrackingSetup);
-        SerialNo := WhseItemTrackingSetup."Serial No.";
-        LotNo := WhseItemTrackingSetup."Lot No.";
-        CDNo := WhseItemTrackingSetup."Package No.";
-    end;
-#endif
-
     procedure LookupItemTracking(var WhseItemTrackingSetup: Record "Item Tracking Setup")
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
@@ -1387,7 +1368,7 @@ table 7311 "Warehouse Journal Line"
             if TemplateFilter <> '' then
                 WarehouseJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             WarehouseJournalBatch.SetFilter(Name, BatchFilter);
-            WarehouseJournalBatch.FindFirst;
+            WarehouseJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -1410,14 +1391,14 @@ table 7311 "Warehouse Journal Line"
         CurrentLocationCode := WMSMgt.GetDefaultDirectedPutawayAndPickLocation;
         WhseJnlBatch.SetRange("Location Code", CurrentLocationCode);
 
-        if WhseJnlBatch.FindFirst then begin
+        if WhseJnlBatch.FindFirst() then begin
             CurrentJnlBatchName := WhseJnlBatch.Name;
             exit(true);
         end;
 
         WhseJnlBatch.SetRange("Location Code");
 
-        if WhseJnlBatch.FindSet then begin
+        if WhseJnlBatch.FindSet() then begin
             repeat
                 if IsWarehouseEmployeeLocationDirectPutAwayAndPick(WhseJnlBatch."Location Code") then begin
                     CurrentLocationCode := WhseJnlBatch."Location Code";
@@ -1495,6 +1476,12 @@ table 7311 "Warehouse Journal Line"
         OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
     end;
 
+    procedure IsQtyPhysInventoryBaseEditable() IsEditable: Boolean
+    begin
+        IsEditable := false;
+        OnAfterIsFieldEditable(Rec, FieldNo("Qty. (Phys. Inventory) (Base)"), IsEditable);
+    end;
+
     procedure SetSource(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
     begin
         "Source Type" := SourceType;
@@ -1505,18 +1492,6 @@ table 7311 "Warehouse Journal Line"
         if SourceSublineNo >= 0 then
             "Source Subline No." := SourceSublineNo;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by CopyTrackingFrom procedures.', '17.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; WarrantyDate: Date; ExpirationDate: Date)
-    begin
-        "Serial No." := SerialNo;
-        "Lot No." := LotNo;
-        "Package No." := CDNo;
-        "Warranty Date" := WarrantyDate;
-        "Expiration Date" := ExpirationDate;
-    end;
-#endif
 
     procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
     begin
@@ -1714,6 +1689,16 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateToBinCodeOnBeforeSetToZoneCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsFieldEditable(var WarehouseJournalLine: Record "Warehouse Journal Line"; FieldId: Integer; var IsEditable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateQtyPhysInventoryBase(var WarehouseJournalLine: Record "Warehouse Journal Line"; PhysInvtEntered: Boolean)
     begin
     end;
 }

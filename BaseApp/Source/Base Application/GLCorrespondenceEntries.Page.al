@@ -140,7 +140,7 @@ page 12401 "G/L Correspondence Entries"
                 trigger OnAction()
                 begin
                     NavigateForm.SetDoc("Posting Date", "Document No.");
-                    NavigateForm.Run;
+                    NavigateForm.Run();
                 end;
             }
         }

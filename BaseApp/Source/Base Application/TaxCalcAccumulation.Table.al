@@ -136,7 +136,7 @@ table 17314 "Tax Calc. Accumulation"
                     TaxCalcAccumulation.SetRange("Register No.", TaxCalcLine."Link Register No.");
                     TaxCalcAccumulation.SetRange("Ending Date", "Ending Date");
                     TaxCalcAccumulation.SetRange("Template Line Code", TaxCalcLine.Expression);
-                    if TaxCalcAccumulation.FindFirst then;
+                    if TaxCalcAccumulation.FindFirst() then;
                     TaxCalcAccumulation.SetRange("Template Line Code");
                     PAGE.RunModal(0, TaxCalcAccumulation);
                 end;
@@ -148,7 +148,7 @@ table 17314 "Tax Calc. Accumulation"
                         exit;
                     Clear(TaxCalcCalcBuffer);
                     TaxCalcCalcBuffer.BuildTmpCalcBuffer(Rec);
-                    TaxCalcCalcBuffer.RunModal;
+                    TaxCalcCalcBuffer.RunModal();
                 end;
             TaxCalcLine."Expression Type"::SumField:
                 begin

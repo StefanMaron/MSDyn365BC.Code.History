@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 2812 "Native - Sales Quotes"
 {
     Caption = 'nativeInvoicingSalesQuotes', Locked = true;
@@ -119,7 +120,6 @@ page 2812 "Native - Sales Quotes"
                     var
                         Contact: Record Contact;
                         Customer: Record Customer;
-                        GraphIntContact: Codeunit "Graph Int. - Contact";
                     begin
                         if ("Contact Graph Id" = '') and CustomerIdSet then
                             exit;
@@ -128,9 +128,6 @@ page 2812 "Native - Sales Quotes"
 
                         if "Contact Graph Id" = '' then
                             Error(ContactIdHasToHaveValueErr);
-
-                        if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Contact Graph Id", Customer, Contact) then
-                            exit;
 
                         UpdateCustomerFromGraphContactId(Customer);
 
@@ -610,7 +607,7 @@ page 2812 "Native - Sales Quotes"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);
@@ -657,7 +654,7 @@ page 2812 "Native - Sales Quotes"
         if not UpdateCustomer then begin
             TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
-            UpdateCustomer := not TempFieldBuffer.FindFirst;
+            UpdateCustomer := not TempFieldBuffer.FindFirst();
             TempFieldBuffer.Reset();
         end;
 
@@ -738,7 +735,7 @@ page 2812 "Native - Sales Quotes"
             O365Discounts.ApplyInvoiceDiscountPercentage(SalesHeader, InvoiceDiscountPct);
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
-            if SalesLine.FindFirst then begin
+            if SalesLine.FindFirst() then begin
                 GraphMgtSalesQuoteBuffer.RedistributeInvoiceDiscounts(Rec);
                 DocumentTotals.CalculateSalesTotals(TotalSalesLine, VatAmount, SalesLine);
                 "Invoice Discount Amount" := TotalSalesLine."Inv. Discount Amount";
@@ -891,12 +888,10 @@ page 2812 "Native - Sales Quotes"
         DummyO365SalesDocument: Record "O365 Sales Document";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         O365SendResendInvoice: Codeunit "O365 Send + Resend Invoice";
-        O365SetupEmail: Codeunit "O365 Setup Email";
         O365SalesEmailManagement: Codeunit "O365 Sales Email Management";
     begin
         O365SendResendInvoice.CheckDocumentIfNoItemsExists(SalesHeader, false, DummyO365SalesDocument);
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(SalesHeader);
-        O365SetupEmail.SilentSetup;
         CheckSendToEmailAddress;
 
         O365SalesEmailManagement.NativeAPISaveEmailBodyText(Id);
@@ -939,4 +934,4 @@ page 2812 "Native - Sales Quotes"
         SetActionResponse(ActionContext, SalesHeader);
     end;
 }
-
+#endif

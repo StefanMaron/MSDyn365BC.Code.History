@@ -775,7 +775,7 @@ report 12456 "Create VAT Sales Ledger"
             LedgerBuffer.SetRange("Document Type", "Document Type");
             LedgerBuffer.SetRange("C/V No.", CustNo);
 
-            if not LedgerBuffer.FindFirst then begin
+            if not LedgerBuffer.FindFirst() then begin
                 InitLedgerBuffer(VATEntry, LedgerBuffer);
                 InsertLedgerConnBuffer(LedgerBuffer, "Entry No.");
             end;
@@ -805,7 +805,7 @@ report 12456 "Create VAT Sales Ledger"
         PrepmtDiffVATEntry.SetRange("Document Line No.", VATEntry."Document Line No.");
         PrepmtDiffVATEntry.SetRange("Prepmt. Diff.", true);
         PrepmtDiffVATEntry.SetRange("Additional VAT Ledger Sheet", false);
-        if PrepmtDiffVATEntry.FindSet then
+        if PrepmtDiffVATEntry.FindSet() then
             repeat
                 if (PrepmtDiffVATEntry.Base <> 0) or (PrepmtDiffVATEntry.Amount <> 0) then
                     if Check(PrepmtDiffVATEntry) then begin
@@ -929,7 +929,7 @@ report 12456 "Create VAT Sales Ledger"
                         begin
                             CustLedgEntry.SetCurrentKey("Transaction No.");
                             CustLedgEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-                            if CustLedgEntry.FindFirst then begin
+                            if CustLedgEntry.FindFirst() then begin
                                 DocumentNo := CustLedgEntry."Prepayment Document No.";
                                 PaymentDate := CustLedgEntry."Posting Date";
                             end;

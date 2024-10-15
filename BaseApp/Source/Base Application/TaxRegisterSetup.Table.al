@@ -120,7 +120,7 @@ table 17236 "Tax Register Setup"
                     TestField("Calculate TD for each FA", false);
                     DepreciationBook.Reset();
                     DepreciationBook.SetRange("Control FA Acquis. Cost", true);
-                    if DepreciationBook.FindFirst then
+                    if DepreciationBook.FindFirst() then
                         DepreciationBook.FieldError("Control FA Acquis. Cost");
                 end else begin
                     "Min. Group Balance" := 0;

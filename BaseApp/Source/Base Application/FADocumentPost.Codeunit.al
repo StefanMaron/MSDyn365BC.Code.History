@@ -46,7 +46,7 @@ codeunit 12471 "FA Document-Post"
         FADocLine.Reset();
         FADocLine.SetRange("Document Type", FADocHeader."Document Type");
         FADocLine.SetRange("Document No.", FADocHeader."No.");
-        if FADocLine.FindSet then
+        if FADocLine.FindSet() then
             repeat
                 if FoundLateEntries(
                      FADocLine."FA No.",
@@ -130,7 +130,7 @@ codeunit 12471 "FA Document-Post"
     begin
         FAComment.SetRange("Document Type", DocType);
         FAComment.SetRange("Document No.", DocNo);
-        if FAComment.FindSet then
+        if FAComment.FindSet() then
             repeat
                 PostedFAComment.TransferFields(FAComment);
                 PostedFAComment."Document No." := ToDocNo;
@@ -150,7 +150,7 @@ codeunit 12471 "FA Document-Post"
             SetRange("Depreciation Book Code", FADeprBookCode);
             SetRange(Reversed, false);
             SetFilter("FA Posting Date", '>%1', PostingDate);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Canceled from FA No." = '' then
                         exit(true);
@@ -167,7 +167,7 @@ codeunit 12471 "FA Document-Post"
 
         FADocLine.SetRange("Document Type", FADocHeader."Document Type");
         FADocLine.SetRange("Document No.", FADocHeader."No.");
-        if FADocLine.FindFirst then begin
+        if FADocLine.FindFirst() then begin
             CheckDimComb(FADocHeader, FADocLine);
             CheckDimValuePosting(FADocHeader, FADocLine);
         end;
@@ -338,14 +338,12 @@ codeunit 12471 "FA Document-Post"
 
     local procedure GetFADefaultDim(FANo: Code[20]; var GlobalDimCode1: Code[20]; var GlobalDimCode2: Code[20]; var DimSetID: Integer; SourceCode: Code[20])
     var
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        TableID[1] := DATABASE::"Fixed Asset";
-        No[1] := FANo;
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Fixed Asset", FANo);
         GlobalDimCode1 := '';
         GlobalDimCode2 := '';
-        DimSetID := DimMgt.GetDefaultDimID(TableID, No, SourceCode, GlobalDimCode1, GlobalDimCode2, 0, 0);
+        DimSetID := DimMgt.GetDefaultDimID(DefaultDimSource, SourceCode, GlobalDimCode1, GlobalDimCode2, 0, 0);
     end;
 
     local procedure InsertTransferFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; Rate: Integer)
@@ -451,7 +449,7 @@ codeunit 12471 "FA Document-Post"
             GenJnlLine.SetRange("Document No.", PostedFADocHeader."No.");
             GenJnlLine.SetRange("Object Type", GenJnlLine."Account Type"::"Fixed Asset");
             GenJnlLine.SetRange("Object No.", FADocLine."FA No.");
-            if GenJnlLine.FindSet then begin
+            if GenJnlLine.FindSet() then begin
                 repeat
                     GenJnlLine."Shortcut Dimension 1 Code" := FADocLine."Shortcut Dimension 1 Code";
                     GenJnlLine."Shortcut Dimension 2 Code" := FADocLine."Shortcut Dimension 2 Code";
@@ -474,7 +472,7 @@ codeunit 12471 "FA Document-Post"
 
             FAJnlLine.SetRange("Document No.", PostedFADocHeader."No.");
             FAJnlLine.SetRange("FA No.", FADocLine."FA No.");
-            if FAJnlLine.FindSet then begin
+            if FAJnlLine.FindSet() then begin
                 repeat
                     FAJnlLine."Shortcut Dimension 1 Code" := FADocLine."Shortcut Dimension 1 Code";
                     FAJnlLine."Shortcut Dimension 2 Code" := FADocLine."Shortcut Dimension 2 Code";

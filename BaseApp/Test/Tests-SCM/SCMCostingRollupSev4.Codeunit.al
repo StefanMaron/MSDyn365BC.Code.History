@@ -39,16 +39,16 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Rollup Sev 4");
         // Lazy Setup.
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 4");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
@@ -69,7 +69,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         GLAccount: Record "G/L Account";
         InventorySetup: Record "Inventory Setup";
     begin
-        Initialize;
+        Initialize();
 
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
@@ -125,7 +125,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
     begin
-        Initialize;
+        Initialize();
 
         // Setup. Post purchase and sale, assign purchase charge to sales shipment.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
@@ -154,7 +154,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Verify: Value Entry Cost Amount (Non-Invtbl.).
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(-ItemChargeAssignmentPurch."Amount to Assign", ValueEntry."Cost Amount (Non-Invtbl.)",
           'Wrong value entry.');
     end;
@@ -170,7 +170,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create item, add to inventory then remove, generating a rounding entry.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
@@ -214,7 +214,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LotNo: Code[50];
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup. Create lot tracked item. Purchase and adjust inventory.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(10, 2));
@@ -257,7 +257,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         UnitCost: Decimal;
         UnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup. Create item, sale, purchase.
         Qty := LibraryRandom.RandDecInRange(2, 10, 2);
@@ -280,7 +280,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         SalesLine.Validate(Quantity, SalesLine."Qty. to Invoice" - 1);
         SalesLine.Validate("Unit Price", SalesLine."Unit Price" + LibraryRandom.RandDec(10, 2));
@@ -296,7 +296,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Sale);
         ValueEntry.SetRange(Adjustment, true);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreEqual(0, ValueEntry."Sales Amount (Expected)", 'Wrong sales amount (expected)');
     end;
 
@@ -329,7 +329,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         Qty2: Decimal;
         UnitAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create item with avg costing method and SKUs in three different locations
         LibraryInventory.UpdateAverageCostSettings(
@@ -396,7 +396,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // revaluate the item, post invoice (PO) and validate 'Cost Amount (Actual)' in the Output Item Ledger Entry
         // for the production order
 
-        Initialize;
+        Initialize();
 
         // Setup: Preparation for subcontracting orders: location, production item & routing setup
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -422,7 +422,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ParentItem."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.SetCurrentKey("Document Type", "No.");
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -437,7 +437,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
           WorkDate, CalculatePer::Item, false, false, true, CalculationBase::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", LibraryRandom.RandDec(200, 2));
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -445,7 +445,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         RunAdjustCostItemEntries('', '');
 
         // Post invoice for the subcontract Purch. Order
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
@@ -456,7 +456,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         ItemLedgerEntry.SetRange("Item No.", ParentItem."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         GeneralLedgerSetup.Get();
         ParentItem.Get(ParentItem."No.");
@@ -484,7 +484,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         // Create a 'make-to-order' child item with 2 UOMs and standard costing method
@@ -618,7 +618,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
         exit('');
     end;
@@ -663,7 +663,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
     end;
 
     [Normal]
@@ -674,7 +674,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         Clear(AdjustCostItemEntries);
         AdjustCostItemEntries.InitializeRequest(ItemFilter, ItemCategoryFilter);
         AdjustCostItemEntries.UseRequestPage(false);
-        AdjustCostItemEntries.RunModal;
+        AdjustCostItemEntries.RunModal();
     end;
 
     local procedure AdjustCostAndVerify(ItemNo: Code[20]; ExpectedUnitCost: Decimal)
@@ -695,7 +695,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         UnitCost: Decimal;
     begin
         // Refer to PS 33459 (VedbaekSE) & PS 29207 (Navision Corsica) for issue details.
-        Initialize;
+        Initialize();
 
         // Setup: make item, setup inventory setup, post item journals
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
@@ -762,7 +762,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         NegativeItemJournalUnitCost: Decimal;
     begin
         // Refer to PS 37363 (VedbaekSE) & PS 29274 (Navision Corsica) for issue details.
-        Initialize;
+        Initialize();
 
         if Confirm(CloseFiscalYearQst) then;
 
@@ -808,7 +808,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         Qty: Decimal;
     begin
         // Refer to PS 39139 (VedbaekSE) & PS 29308 (Navision Corisca) for issue details.
-        Initialize;
+        Initialize();
 
         // Setup: Create new inventory period ending date being 20 days from WORKDATE
         InventoryPeriod.Init();
@@ -825,7 +825,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate, 1, 12);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         SalesLine.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);

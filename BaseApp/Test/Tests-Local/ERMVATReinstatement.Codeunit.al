@@ -53,7 +53,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATLedgerStartDate: Date;
         VATLedgerEndDate: Date;
     begin
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -84,7 +84,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         GenJnlLine: Record "Gen. Journal Line";
         FixedAsset: array[3] of Record "Fixed Asset";
     begin
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         FAWriteOffScenario(FixedAsset, Vendor);
@@ -103,7 +103,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry: Record "VAT Entry";
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -126,7 +126,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         DimValueCode: array[3] of Code[20];
         GLAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -152,7 +152,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATReinsDate: Date;
         VATSetlDate: Date;
     begin
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -256,7 +256,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         // [FEATURE] [Full VAT]
         // [SCENARIO 363211] Reinstatement of Full VAT
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Invoice with Full VAT
         LibraryERM.CreateReinstmtVATPostingSetup(VATPostingSetup);
         Vendor.Get(
@@ -289,7 +289,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         // [FEATURE] [Credit Memo]
         // [SCENARIO 363236] Reinstatement of Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Purchase Credit Memo
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
@@ -443,7 +443,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         // [SCENARIO 364285] VAT Entry which is already reinstated not included into VAT Reinstatement calculation
 
         // [GIVEN] Posted purchase invoice
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -474,7 +474,7 @@ codeunit 144007 "ERM VAT Reinstatement"
 
         LibraryERM.CreateReinstmtVATPostingSetup(ReinstmtVATPostingSetup);
         LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateLocalData();
         IsInitialized := true;
         Commit();
     end;
@@ -494,7 +494,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         TotalInvAmount: Decimal;
     begin
         // Prepayment with FCY applied to Invoice with FCY and different posting date
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -512,12 +512,12 @@ codeunit 144007 "ERM VAT Reinstatement"
         SuggestVATSettlement(InvNo, VATPostingSetup, GenJnlLine, InvPostingDate);
         UpdateVATSettlmentJnlLineDocNo(GenJnlLine);
         GenJnlLine.SetRange("Prepmt. Diff.", false);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlPostBatch.VATSettlement(GenJnlLine);
 
         // Prepmt. Diff. VAT Settlement Jounrnal Line with "Initial VAT Entry No." = "X"
         GenJnlLine.SetRange("Prepmt. Diff.", true);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlLine.Validate("Initial VAT Entry No.", FindVATSettlementVATEntry(GenJnlLine, false, VATEntry.Type::Purchase));
         GenJnlLine.Modify(true);
 
@@ -610,7 +610,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         GLAccountNo: Code[20];
         VATSetlDate: Date;
     begin
-        Initialize;
+        Initialize();
         Vendor.Get(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(ReinstmtVATPostingSetup."VAT Bus. Posting Group"));
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(ReinstmtVATPostingSetup, "General Posting Type"::" ");
@@ -644,9 +644,9 @@ codeunit 144007 "ERM VAT Reinstatement"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
         if DocType = PurchaseHeader."Document Type"::Invoice then
-            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID)
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID())
         else
-            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
@@ -679,7 +679,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         // Find unrealized VAT Entry
         VATEntry.SetRange("Bill-to/Pay-to No.", VendNo);
         VATEntry.SetFilter("Unrealized Amount", '<>%1', 0);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         LibraryERM.CreateVATSettlementJnlLine(VATEntry."Entry No.", PostingDate, -VATEntry."Remaining Unrealized Amount", true);
     end;
 
@@ -692,7 +692,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry.SetRange("Object Type", VATEntry."Object Type"::"Fixed Asset");
         for i := 1 to 3 do begin
             VATEntry.SetRange("Object No.", FixedAsset[i]."No.");
-            VATEntry.FindLast;
+            VATEntry.FindLast();
             LibraryERM.CreateVATSettlementJnlLine(VATEntry."Entry No.", PostingDate, -VATEntry."Remaining Unrealized Amount", true);
         end;
     end;
@@ -749,7 +749,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry.SetCurrentKey(Type, "Posting Date");
         VATEntry.SetRange("Object Type", VATEntry."Object Type"::"Fixed Asset");
         VATEntry.SetRange("Object No.", ObjectNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         ClearVATReinstatementJnlLines(GenJnlLine, VATEntry);
     end;
 
@@ -757,7 +757,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         VATEntry.SetCurrentKey(Type, "Bill-to/Pay-to No.");
         VATEntry.SetRange("Bill-to/Pay-to No.", VendNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         ClearVATReinstatementJnlLines(GenJnlLine, VATEntry);
     end;
 
@@ -780,7 +780,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         FilterVATGenJnlLine(
           GenJnlLine, VATPostingSetup."VAT Reinstatement Template",
           VATPostingSetup."VAT Reinstatement Batch", VATSettlementGenJnlLine."Document No.");
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         GenJnlPostBatch.VATReinstatement(GenJnlLine);
     end;
 
@@ -789,7 +789,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         GenJnlLine.SetRange("Account No.", VendNo);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         LibraryERM.PostVATReinstatementJournal(GenJnlLine);
     end;
 
@@ -800,7 +800,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         VATReinstMgt.Generate(TempVATDocBuf, '', '', '');
         TempVATDocBuf.SetRange("CV No.", VendNo);
-        TempVATDocBuf.FindFirst;
+        TempVATDocBuf.FindFirst();
         VATEntry.Reset();
         VATReinstMgt.CopyToJnl(TempVATDocBuf, VATEntry, 1, PostingDate, '');
     end;
@@ -812,7 +812,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         // Find realized VAT Entry
         VATEntry.SetRange("Bill-to/Pay-to No.", VendNo);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         ReinstAmount := Round(VATEntry.Amount / 3);
         LibraryERM.CreateVATReinstatementJnlLine(GenJournalLine, VATEntry."Entry No.", PostingDate, ReinstAmount, true);
         exit(ReinstAmount);
@@ -825,7 +825,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         PostedFADocHeader.SetRange("Document Type", PostedFADocHeader."Document Type"::Writeoff);
         PostedFADocHeader.SetRange("Posting Date", PostingDate);
-        PostedFADocHeader.FindLast;
+        PostedFADocHeader.FindLast();
         VATReinstMgt.CreateVATReinstFromFAWriteOff(PostedFADocHeader."No.");
         LibraryERM.PostVATReinstatementJournal(GenJnlLine);
     end;
@@ -861,7 +861,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         with VATEntry do begin
             SetCurrentKey(Type, "Bill-to/Pay-to No.");
             SetRange("Bill-to/Pay-to No.", VendNo);
-            FindLast;
+            FindLast();
             exit("Entry No.");
         end;
     end;
@@ -870,7 +870,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         with GenJnlLine do begin
             SetRange("Account No.", VendNo);
-            FindFirst;
+            FindFirst();
             DocNo[1] := "Document No.";
             Next;
             DocNo[2] := "Document No.";
@@ -887,7 +887,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry.SetFilter("Unrealized VAT Entry No.", '<>0');
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
         VATEntry.SetRange("Prepmt. Diff.", PrepmtDiff);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Entry No.");
     end;
 
@@ -899,7 +899,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         VATEntry.SetRange("Document No.", GenJnlLine."Document No.");
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
         VATEntry.SetRange("VAT Reinstatement", true);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Entry No.");
     end;
 
@@ -930,7 +930,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     var
         VATSettlementDocNo: Code[20];
     begin
-        VATSettlementDocNo := LibraryUtility.GenerateGUID;
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
         GenJnlLine.FindSet(true);
         repeat
             GenJnlLine.Validate("Document No.", VATSettlementDocNo);
@@ -1066,12 +1066,12 @@ codeunit 144007 "ERM VAT Reinstatement"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocNo[1]);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AssertDimension(GLEntry."Dimension Set ID", DimCode[1], DimValueCode[1]);
         AssertDimension(GLEntry."Dimension Set ID", DimCode[2], DimValueCode[3]);
 
         GLEntry.SetRange("Document No.", DocNo[2]);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         AssertDimension(GLEntry."Dimension Set ID", DimCode[1], DimValueCode[2]);
     end;
 
@@ -1080,7 +1080,7 @@ codeunit 144007 "ERM VAT Reinstatement"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Account No.", AccountNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(
           FindLastVATEntryNo(AccountNo), GenJournalLine."Reinstatement VAT Entry No.",
           GenJournalLine.FieldCaption("Reinstatement VAT Entry No."));
@@ -1093,7 +1093,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         VATEntry.Get(VATEntryNo);
         GLCorrespondenceEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        GLCorrespondenceEntry.FindLast;
+        GLCorrespondenceEntry.FindLast();
         Assert.AreEqual(
           VATPostingSetup."Purch. VAT Unreal. Account", GLCorrespondenceEntry."Debit Account No.",
           GLCorrespondenceEntry.FieldCaption("Debit Account No."));
@@ -1111,7 +1111,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     begin
         VATEntry.Get(VATEntryNo);
         GLCorrespondenceEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        GLCorrespondenceEntry.FindLast;
+        GLCorrespondenceEntry.FindLast();
         Assert.AreEqual(
           VATPostingSetup."Purchase VAT Account", GLCorrespondenceEntry."Debit Account No.",
           GLCorrespondenceEntry.FieldCaption("Debit Account No."));

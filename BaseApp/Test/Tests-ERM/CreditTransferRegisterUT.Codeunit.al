@@ -35,11 +35,11 @@ codeunit 132570 "Credit Transfer Register UT"
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
 
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         // [WHEN] CreateNew for CreditTransferEntry
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", 1,
           GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo,
@@ -64,12 +64,12 @@ codeunit 132570 "Credit Transfer Register UT"
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
 
         // Setup
         CreditTransferRegister.CreateNew(LibraryUtility.GenerateGUID, BankAcc."No.");
-        CreditTransferRegister.FindLast;
+        CreditTransferRegister.FindLast();
         CreditTransferEntry.CreateNew(CreditTransferRegister."No.", 1,
           GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo,
           GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount / 2, '',
@@ -121,7 +121,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // corresponding credit transfer register entries are shown, by checking their entry no.
         // Explicitly verify that message to recipient and vendor bank account IBAN are shown in the credit transfer entries
 
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
 
         // Setup
@@ -178,7 +178,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // corresponding credit transfer register entries are shown, by checking their entry no.
         // Explicitly verify that message to recipient and customer bank account IBAN are shown in the credit transfer entries
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryERM.CreateBankAccount(BankAcc);
@@ -236,7 +236,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // the sum of Transfer Amount values from
         // all non-cancelled Credit Transfer Register Entries for that General journal Line
 
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
         CTEntry1Amount := GenJnlLine.Amount / 2;
         CTEntry2Amount := GenJnlLine.Amount / 4;
@@ -294,7 +294,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // the sum of Transfer Amount values from
         // all non-cancelled Credit Transfer Register Entries for that General journal Line
 
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
         LibraryERM.CreateGeneralJnlLine(GenJnlLine2,
           GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine2."Document Type"::Payment,
@@ -355,7 +355,7 @@ codeunit 132570 "Credit Transfer Register UT"
     begin
         // Verification for the fix for
         // Bug 108836: The field Total Exported Amount in the Payment Journal shows incorrect values when used deletes
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
         // simulate the user manually setting "Applies-to Doc. No." to blank
         GenJnlLine."Applies-to Doc. No." := '';
@@ -411,7 +411,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // Verify that after invoking codeunit "Gen. Jnl.-Show CT Entries" on a General Journal Line,
         // corresponding cancelled credit transfer register entries are not shown
 
-        Initialize;
+        Initialize();
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
 
         // Setup
@@ -451,7 +451,7 @@ codeunit 132570 "Credit Transfer Register UT"
         // Verify that after you export a payment from General Journal Line,
         // the "Exported to Payment File" flag is set both on GenJnlLine and vendor ledger entry
 
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         PreSetup(BankAcc, Vendor, VendorBankAccount, GenJnlLine);
@@ -606,11 +606,11 @@ codeunit 132570 "Credit Transfer Register UT"
         PaymentNo: Code[20];
     begin
         // [SCENARIO 366226] GenJnlShowCTEntries sets correct filters on CreditTransferEntries for VendorLedgerEntries with "Applies-To ID" and same Payment No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two purchase invoices for different vendors applied to payment journal lines with same Document No "Pmt" usig "Applies-To ID" = "Pmt"
         // [GIVEN] Credit Transfer Ledger Entries created for each invoice
-        PaymentNo := LibraryUtility.GenerateGUID;
+        PaymentNo := LibraryUtility.GenerateGUID();
         PostPurchInvoiceWithAppliesToID(GenJnlLine, VendorLedgerEntry1, LibraryUtility.GenerateGUID, PaymentNo);
         InitPmtGenJnlLine(GenJnlLinePmt1, GenJnlLine, PaymentNo);
         CreateCreditTransferRegisterEntryApplied(
@@ -647,11 +647,11 @@ codeunit 132570 "Credit Transfer Register UT"
         PaymentNo: Code[20];
     begin
         // [SCENARIO 366226] GenJnlShowCTEntries sets correct filters on CreditTransferEntries for CustLedgerEntries with "Applies-To ID" and same Payment No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two sales invoices for different customers applied to payment journal lines with same Document No "Pmt" usig "Applies-To ID" = "Pmt"
         // [GIVEN] Credit Transfer Ledger Entries created for each invoice
-        PaymentNo := LibraryUtility.GenerateGUID;
+        PaymentNo := LibraryUtility.GenerateGUID();
         PostSalesInvoiceWithAppliesToID(GenJnlLine, CustLedgerEntry1, LibraryUtility.GenerateGUID, PaymentNo);
         InitPmtGenJnlLine(GenJnlLinePmt1, GenJnlLine, PaymentNo);
         CreateCreditTransferRegisterEntryApplied(
@@ -737,10 +737,10 @@ codeunit 132570 "Credit Transfer Register UT"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Credit Transfer Register UT");
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -802,16 +802,16 @@ codeunit 132570 "Credit Transfer Register UT"
     local procedure CreateVendorBankAccount(var VendorBankAcc: Record "Vendor Bank Account"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
-        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
-        VendorBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
+        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID();
+        VendorBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID();
         VendorBankAcc.Modify();
     end;
 
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
-        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID;
-        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID;
+        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
         CustomerBankAccount.Modify();
     end;
 
@@ -819,7 +819,7 @@ codeunit 132570 "Credit Transfer Register UT"
     var
         Stream: OutStream;
     begin
-        if CreditTransferRegister.FindLast then;
+        if CreditTransferRegister.FindLast() then;
         CreditTransferRegister."No." += 1;
         CreditTransferRegister.Insert();
 
@@ -860,7 +860,7 @@ codeunit 132570 "Credit Transfer Register UT"
         PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDec(1000, 2);
         PurchaseLine.Modify();
         PurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
 
         LibraryERM.CreateGeneralJnlLine(GenJnlLine,
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,

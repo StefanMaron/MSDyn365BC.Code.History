@@ -22,7 +22,7 @@ codeunit 1238 "Suggest Col. Definition - Json"
             ColumnNo := 0;
 
             TempXMLBuffer.Reset();
-            if TempXMLBuffer.FindSet then
+            if TempXMLBuffer.FindSet() then
                 repeat
                     ColumnNo += 10000;
 

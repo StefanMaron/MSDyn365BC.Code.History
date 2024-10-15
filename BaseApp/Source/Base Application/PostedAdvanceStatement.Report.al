@@ -116,7 +116,7 @@ report 12454 "Posted Advance Statement"
                 VendLedgerEntry2.SetRange("Vendor No.", "Buy-from Vendor No.");
                 VendLedgerEntry2.SetRange(Positive, false);
                 VendLedgerEntry2.SetFilter("Posting Date", '<= %1', "Posting Date");
-                if VendLedgerEntry2.FindLast then;
+                if VendLedgerEntry2.FindLast() then;
 
                 Vend.Get("Buy-from Vendor No.");
                 Vend.SetRange("Date Filter", 0D, CalcDate('<-1D>', "Posting Date"));
@@ -133,7 +133,7 @@ report 12454 "Posted Advance Statement"
                 VendLedgerEntry1.SetRange("Document No.", "Purch. Inv. Header"."No.");
                 VendLedgerEntry1.SetRange("Vendor No.", "Purch. Inv. Header"."Buy-from Vendor No.");
                 VendLedgerEntry1.SetRange("Document Type", VendLedgerEntry1."Document Type"::Invoice);
-                VendLedgerEntry1.FindFirst;
+                VendLedgerEntry1.FindFirst();
                 InvoiceEntryNo := VendLedgerEntry1."Entry No.";
                 FindApplnEntries(InvoiceEntryNo);
 
@@ -183,7 +183,7 @@ report 12454 "Posted Advance Statement"
                     VendLedgerEntry3.Reset();
                     VendLedgerEntry3.SetCurrentKey("Document No.");
                     VendLedgerEntry3.SetRange("Document No.", "Remaining/Overdraft Doc. No.");
-                    if VendLedgerEntry3.FindFirst then begin
+                    if VendLedgerEntry3.FindFirst() then begin
                         VendLedgerEntry3.CalcFields("Amount (LCY)");
                         Temp := VendLedgerEntry3."Amount (LCY)";
                         if Temp < 0 then
@@ -381,7 +381,7 @@ report 12454 "Posted Advance Statement"
             VATPostingSetup.Reset();
             VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
             VATPostingSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-            if VATPostingSetup.FindFirst then begin
+            if VATPostingSetup.FindFirst() then begin
                 if VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" " then begin
                     VATPostingSetup.TestField("Purch. VAT Unreal. Account");
                     exit(VATPostingSetup."Purch. VAT Unreal. Account");
@@ -401,7 +401,7 @@ report 12454 "Posted Advance Statement"
             exit;
         GetAppliedVendorLedgerEntries(VendorLedgerEntry);
         VendorLedgerEntry.SetRange("Posting Date", 0D, "Purch. Inv. Header"."Posting Date" - 1);
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields("Amount (LCY)");
                 AddPayment(VendorLedgerEntry."Amount (LCY)", VendorLedgerEntry."Document No.");
@@ -429,7 +429,7 @@ report 12454 "Posted Advance Statement"
         DtldVendLedgerEntry1.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgerEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgerEntry."Entry No.");
         DtldVendLedgerEntry1.SetRange(Unapplied, false);
-        if DtldVendLedgerEntry1.FindSet then begin
+        if DtldVendLedgerEntry1.FindSet() then begin
             repeat
                 if DtldVendLedgerEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgerEntry1."Applied Vend. Ledger Entry No."
@@ -447,7 +447,7 @@ report 12454 "Posted Advance Statement"
                             then begin
                                 VendLedgerEntry.SetCurrentKey("Entry No.");
                                 VendLedgerEntry.SetRange("Entry No.", DtldVendLedgerEntry2."Vendor Ledger Entry No.");
-                                if VendLedgerEntry.FindFirst then
+                                if VendLedgerEntry.FindFirst() then
                                     VendLedgerEntry.Mark(true);
                             end;
                         until DtldVendLedgerEntry2.Next() = 0;
@@ -455,7 +455,7 @@ report 12454 "Posted Advance Statement"
                 end else begin
                     VendLedgerEntry.SetCurrentKey("Entry No.");
                     VendLedgerEntry.SetRange("Entry No.", DtldVendLedgerEntry1."Applied Vend. Ledger Entry No.");
-                    if VendLedgerEntry.FindFirst then
+                    if VendLedgerEntry.FindFirst() then
                         VendLedgerEntry.Mark(true);
                 end;
             until DtldVendLedgerEntry1.Next() = 0;
@@ -468,7 +468,7 @@ report 12454 "Posted Advance Statement"
         end;
         VendLedgerEntry.SetCurrentKey("Closed by Entry No.");
         VendLedgerEntry.SetRange("Closed by Entry No.", CreateVendLedgerEntry."Entry No.");
-        if VendLedgerEntry.FindSet then
+        if VendLedgerEntry.FindSet() then
             repeat
                 VendLedgerEntry.Mark(true);
             until VendLedgerEntry.Next() = 0;

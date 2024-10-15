@@ -22,10 +22,10 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         // Verify
         // Instruction is not displayed
@@ -33,30 +33,11 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,EmailDialogModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure PostingInstructionNotShownAfterPostingAndSendingSMTPSetup() // To be removed together with deprecated SMTP objects
-    var
-        ReportSelections: Record "Report Selections";
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        PopulateCompanyInformation();
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        PostingInstructionNotShownAfterPostingAndSendingInternal();
-        // Cleanup, as the next test will create the same entries
-        // Cannot use the TransactionModel::Autorollback as there is a commit inside the test
-        ReportSelections.DeleteAll();
-    end;
-
-    [Test]
     [HandlerFunctions('EmailEditorHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostingInstructionNotShownAfterPostingAndSending()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         PopulateCompanyInformation();
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         PostingInstructionNotShownAfterPostingAndSendingInternal();
     end;
 
@@ -66,13 +47,11 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesLine: Record "Sales Line";
         LibraryWorkflow: Codeunit "Library - Workflow";
-        EmailFeature: Codeunit "Email Feature";
         SalesInvoice: TestPage "Sales Invoice";
         DocumentNo: Code[20];
     begin
-        Initialize;
-        if EmailFeature.IsEnabled() then
-            LibraryWorkflow.SetUpEmailAccount();
+        Initialize();
+        LibraryWorkflow.SetUpEmailAccount();
 
         // Setup
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '', '', 1, '', 0D);
@@ -103,12 +82,12 @@ codeunit 139003 "Test Instruction Mgt. PasS"
 
         UserPreference.DeleteAll();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         IsInitialized := true;
         Commit();
@@ -146,14 +125,6 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     begin
         EmailEditor.ToField.Value('recipient@recipient.com');
         EmailEditor.Send.Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure EmailDialogModalPageHandler(var EmailDialog: TestPage "Email Dialog")
-    begin
-        EmailDialog.SendTo.Value('recipient@recipient.com');
-        EmailDialog.OK.Invoke();
     end;
 
     [ConfirmHandler]

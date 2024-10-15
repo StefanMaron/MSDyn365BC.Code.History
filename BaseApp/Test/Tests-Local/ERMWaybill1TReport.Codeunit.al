@@ -72,7 +72,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         // [FEATURE] [Order Item Waybill 1-T] [Signature]
         // [SCENARIO 371887] Report "Order Item Waybill 1-T" should contain correct signature
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with signatures: Responsible = "X", Accountant = "Y", Released By = "Z"
         CreateSalesOrderWithSignatures(SalesHeader, ResponsibleEmployeeName, AccountantEmployeeName, ReleasedByEmployeeName);
 
@@ -97,7 +97,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
     end;
@@ -130,7 +130,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         CreateReleasedSalesOrder(SalesHeader, QuantityOfLines);
 
@@ -150,7 +150,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         PostedShipItemWaybill1T: Report "Posted Ship. Item Waybill 1-T";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateReleasedSalesOrder(SalesHeader, QuantityOfLines);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -162,7 +162,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         PostedShipItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedShipItemWaybill1T.SetTableView(SalesShipmentHeader);
         PostedShipItemWaybill1T.UseRequestPage(false);
-        PostedShipItemWaybill1T.Run;
+        PostedShipItemWaybill1T.Run();
 
         SalesShipmentHeader.Get(DocumentNo);
         VerifyShipmentWaybill1TReport(SalesShipmentHeader);
@@ -176,7 +176,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         PostedInvoiceItemWaybill1T: Report "Posted Inv. Item Waybill 1-T";
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CreateReleasedSalesOrder(SalesHeader, QuantityOfLines);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -188,7 +188,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         PostedInvoiceItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedInvoiceItemWaybill1T.SetTableView(SalesInvoiceHeader);
         PostedInvoiceItemWaybill1T.UseRequestPage(false);
-        PostedInvoiceItemWaybill1T.Run;
+        PostedInvoiceItemWaybill1T.Run();
 
         SalesInvoiceHeader.Get(DocumentNo);
         VerifyInvoiceWaybill1TReport(SalesInvoiceHeader);
@@ -258,7 +258,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
     var
         OrderItemWaybill1T: Report "Order Item Waybill 1-T";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         SalesHeader.SetRange("No.", SalesHeader."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
@@ -266,7 +266,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
         OrderItemWaybill1T.SetFileNameSilent(LibraryReportValidation.GetFileName);
         OrderItemWaybill1T.SetTableView(SalesHeader);
         OrderItemWaybill1T.UseRequestPage(false);
-        OrderItemWaybill1T.Run;
+        OrderItemWaybill1T.Run();
     end;
 
     local procedure VerifyWaybillHeaderValues(DocumentNo: Code[20]; PostingDate: Date; ShipToAddress: Text; BillToAddress: Text)

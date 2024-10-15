@@ -26,7 +26,7 @@ codeunit 143014 "Library - Stat. Reporting"
     begin
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetRange(Closed, true);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         StartDate := AccountingPeriod."Starting Date";
         EndDate := CalcDate('<CY>', StartDate);
         StatutoryReportDataHeader.CreateReportHeader(

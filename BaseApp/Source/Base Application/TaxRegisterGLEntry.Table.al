@@ -224,7 +224,7 @@ table 17209 "Tax Register G/L Entry"
     begin
         Clear(Navigate);
         Navigate.SetDoc("Posting Date", "Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     [Scope('OnPrem')]

@@ -18,7 +18,6 @@ page 26575 "Export File"
 
                     trigger OnAssistEdit()
                     var
-                        NewFileName: Text[250];
                         WindowTitle: Text[50];
                     begin
                         case FileType of
@@ -27,11 +26,6 @@ page 26575 "Export File"
                             FileType::"Excel File":
                                 WindowTitle := Text002;
                         end;
-#if not CLEAN17
-                        NewFileName := FileMgt.SaveFileDialog(WindowTitle, FileName, '');
-                        if NewFileName <> '' then
-                            FileName := NewFileName;
-#endif
                     end;
                 }
             }
@@ -49,9 +43,6 @@ page 26575 "Export File"
     end;
 
     var
-#if not CLEAN17
-        FileMgt: Codeunit "File Management";
-#endif
         FileType: Option "Electronic File","Excel File";
         FileName: Text[250];
         HiddenFileName: Text[250];

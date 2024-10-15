@@ -47,7 +47,7 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
                 TaxDiffJnlLine."Journal Batch Name" := BatchName;
                 TaxDiffJnlLine.SetRange("Journal Template Name", TemplateName);
                 TaxDiffJnlLine.SetRange("Journal Batch Name", BatchName);
-                if TaxDiffJnlLine.FindLast then;
+                if TaxDiffJnlLine.FindLast() then;
                 LineNo := TaxDiffJnlLine."Line No." + 10000;
             end;
         }
@@ -117,7 +117,7 @@ report 17308 "Calc. Tax Diff.- Depr. Bonus"
                             if TemplateName <> '' then begin
                                 TaxDiffJnlBatch.SetRange("Journal Template Name", TemplateName);
                                 TaxDiffJnlBatch.SetRange(Name, BatchName);
-                                if TaxDiffJnlBatch.FindFirst then;
+                                if TaxDiffJnlBatch.FindFirst() then;
                                 TaxDiffJnlBatch.SetRange(Name);
                                 if ACTION::LookupOK = PAGE.RunModal(0, TaxDiffJnlBatch) then begin
                                     TemplateName := TaxDiffJnlBatch."Journal Template Name";

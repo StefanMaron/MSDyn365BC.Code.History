@@ -186,7 +186,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, JobJnlLine."Posting Date");
         ItemTrackingLines.SetInbound(JobJnlLine.IsInbound);
-        ItemTrackingLines.RunModal;
+        ItemTrackingLines.RunModal();
     end;
 
     procedure TransJobJnlLineToItemJnlLine(var JobJnlLine: Record "Job Journal Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal): Decimal

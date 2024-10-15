@@ -65,10 +65,10 @@ codeunit 144722 "ERM Bill of Lading Report"
         LibraryWarehouse.CreateLocation(Location);
         with Location do begin
             "Country/Region Code" := CreateCountryRegionCode;
-            "Post Code" := LibraryUtility.GenerateGUID;
-            City := LibraryUtility.GenerateGUID;
-            Address := LibraryUtility.GenerateGUID;
-            "Address 2" := LibraryUtility.GenerateGUID;
+            "Post Code" := LibraryUtility.GenerateGUID();
+            City := LibraryUtility.GenerateGUID();
+            Address := LibraryUtility.GenerateGUID();
+            "Address 2" := LibraryUtility.GenerateGUID();
             Modify;
             exit(Code);
         end;
@@ -80,7 +80,7 @@ codeunit 144722 "ERM Bill of Lading Report"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
-            "Local Name" := LibraryUtility.GenerateGUID;
+            "Local Name" := LibraryUtility.GenerateGUID();
             Modify;
             exit(Code);
         end;
@@ -92,7 +92,7 @@ codeunit 144722 "ERM Bill of Lading Report"
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         with ShippingAgent do begin
-            Name := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
             Modify;
             exit(Code);
         end;
@@ -105,7 +105,7 @@ codeunit 144722 "ERM Bill of Lading Report"
         BillOfLading.SetTestMode(true);
         BillOfLading.UseRequestPage(false);
         BillOfLading.SetTableView(SalesHeader);
-        BillOfLading.Run;
+        BillOfLading.Run();
     end;
 }
 

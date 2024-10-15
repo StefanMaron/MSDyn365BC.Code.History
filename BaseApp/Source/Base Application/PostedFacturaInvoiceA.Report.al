@@ -173,7 +173,7 @@ report 12418 "Posted Factura-Invoice (A)"
                 SalesInvLine.Reset();
                 SalesInvLine.SetRange("Document No.", "No.");
                 SalesInvLine.SetFilter("Attached to Line No.", '<>%1', 0);
-                if SalesInvLine.FindSet then
+                if SalesInvLine.FindSet() then
                     repeat
                         AttachedSalesLine := SalesInvLine;
                         AttachedSalesLine.Insert();
@@ -380,7 +380,7 @@ report 12418 "Posted Factura-Invoice (A)"
         PrepmtList := '';
         Delimiter := ' ';
         Customer.CollectPrepayments(Header."Sell-to Customer No.", Header."No.", TempCustLedgEntry);
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 PrepmtList :=
                   PrepmtList + Delimiter +

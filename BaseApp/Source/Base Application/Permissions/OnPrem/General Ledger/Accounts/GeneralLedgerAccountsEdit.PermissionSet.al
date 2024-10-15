@@ -42,7 +42,9 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Job Planning Line" = r,
                   tabledata "Job Posting Group" = r,
                   tabledata "Maintenance Ledger Entry" = r,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata "Payment Method" = r,
                   tabledata "Purch. Cr. Memo Hdr." = r,
                   tabledata "Purch. Cr. Memo Line" = r,

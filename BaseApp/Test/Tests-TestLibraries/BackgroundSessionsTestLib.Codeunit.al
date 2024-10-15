@@ -75,7 +75,7 @@ codeunit 132460 "Background Sessions Test Lib"
         SessionEvent.SetFilter("Session ID", '>=%1', SessionId);
         SessionEvent.Ascending(false);
 
-        if SessionEvent.FindSet then
+        if SessionEvent.FindSet() then
             repeat
                 dump += '\[' +
                   Format(SessionEvent."Session ID") + '][' +

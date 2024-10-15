@@ -59,7 +59,7 @@ table 17207 "Tax Register Section"
                     TaxRegTermFormula.SetRange("Section Code", Code);
                     TaxRegTermFormula.SetRange("Account Type", TaxRegTermFormula."Account Type"::Norm);
                     TaxRegTermFormula.SetRange("Norm Jurisdiction Code", xRec."Norm Jurisdiction Code");
-                    if TaxRegTermFormula.FindFirst or TaxRegTemplate.FindFirst then
+                    if TaxRegTermFormula.FindFirst or TaxRegTemplate.FindFirst() then
                         if Confirm(Text1013, true, "Norm Jurisdiction Code", FieldCaption("Norm Jurisdiction Code")) then begin
                             TaxRegTemplate.ModifyAll("Norm Jurisdiction Code", "Norm Jurisdiction Code", true);
                             TaxRegTermFormula.ModifyAll("Norm Jurisdiction Code", "Norm Jurisdiction Code", true);

@@ -1,4 +1,4 @@
-table 5767 "Warehouse Activity Line"
+﻿table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -475,7 +475,7 @@ table 5767 "Warehouse Activity Line"
                         SetRange("Item No.", Rec."Item No.");
                         SetRange("Lot No.", Rec."Lot No.");
 
-                        if FindSet then
+                        if FindSet() then
                             repeat
                                 if ("Line No." <> Rec."Line No.") and ("Expiration Date" <> Rec."Expiration Date") and
                                    (Rec."Expiration Date" <> 0D) and ("Expiration Date" <> 0D)
@@ -754,7 +754,6 @@ table 5767 "Warehouse Activity Line"
             Caption = 'CD No.';
         }
     }
-
     keys
     {
         key(Key1; "Activity Type", "No.", "Line No.")
@@ -1100,6 +1099,7 @@ table 5767 "Warehouse Activity Line"
     var
         ProdOrderComponentLine: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
+        JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
     begin
         if not (("Activity Type" = "Activity Type"::"Invt. Movement") and
@@ -1127,6 +1127,13 @@ table 5767 "Warehouse Activity Line"
                       "Source Subtype", "Source No.",
                       "Source Line No.");
                     TestField("Bin Code", AssemblyLine."Bin Code");
+                end;
+            DATABASE::Job:
+                begin
+                    JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
+                    JobPlanningLine.SetLoadFields("Bin Code");
+                    if JobPlanningLine.FindFirst() then
+                        TestField("Bin Code", JobPlanningLine."Bin Code");
                 end;
         end;
     end;
@@ -1374,7 +1381,7 @@ table 5767 "Warehouse Activity Line"
         end;
     end;
 
-    local procedure FindBinCode() BinCode: Code[20]
+    procedure FindBinCode() BinCode: Code[20]
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         IsHandled: Boolean;
@@ -1393,7 +1400,7 @@ table 5767 "Warehouse Activity Line"
             BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
     end;
 
-    local procedure FindBinContent()
+    procedure FindBinContent()
     var
         IsHandled: Boolean;
     begin
@@ -1401,6 +1408,7 @@ table 5767 "Warehouse Activity Line"
         OnBeforeFindBinContent(Rec, IsHandled);
         if IsHandled then
             exit;
+
         if not "Assemble to Order" and ("Action Type" = "Action Type"::Take) then
             WMSMgt.FindBinContent("Location Code", "Bin Code", "Item No.", "Variant Code", "Zone Code")
         else
@@ -1425,7 +1433,7 @@ table 5767 "Warehouse Activity Line"
         else
             WhseActivLine.SetRange("Breakbulk No.", "Breakbulk No.");
         WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
-        if WhseActivLine.FindFirst then begin
+        if WhseActivLine.FindFirst() then begin
             UpdateQtyToHandle(WhseActivLine);
 
             WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take);
@@ -1436,7 +1444,7 @@ table 5767 "Warehouse Activity Line"
                 WhseActivLine.SetRange("Breakbulk No.");
                 WhseActivLine.SetRange("Original Breakbulk", true);
             end;
-            if WhseActivLine.FindFirst then
+            if WhseActivLine.FindFirst() then
                 UpdateQtyToHandle(WhseActivLine);
         end;
     end;
@@ -1476,29 +1484,29 @@ table 5767 "Warehouse Activity Line"
                 begin
                     WhseShptHeader.SetRange("No.", "Whse. Document No.");
                     WhseShptCard.SetTableView(WhseShptHeader);
-                    WhseShptCard.RunModal;
+                    WhseShptCard.RunModal();
                 end;
             "Whse. Document Type"::Receipt:
                 begin
                     PostedWhseRcptHeader.SetRange("No.", "Whse. Document No.");
                     PostedWhseRcptCard.SetTableView(PostedWhseRcptHeader);
-                    PostedWhseRcptCard.RunModal;
+                    PostedWhseRcptCard.RunModal();
                 end;
             "Whse. Document Type"::"Internal Pick":
                 begin
                     WhseIntPickHeader.SetRange("No.", "Whse. Document No.");
-                    WhseIntPickHeader.FindFirst;
+                    WhseIntPickHeader.FindFirst();
                     WhseIntPickCard.SetRecord(WhseIntPickHeader);
                     WhseIntPickCard.SetTableView(WhseIntPickHeader);
-                    WhseIntPickCard.RunModal;
+                    WhseIntPickCard.RunModal();
                 end;
             "Whse. Document Type"::"Internal Put-away":
                 begin
                     WhseIntPutawayHeader.SetRange("No.", "Whse. Document No.");
-                    WhseIntPutawayHeader.FindFirst;
+                    WhseIntPutawayHeader.FindFirst();
                     WhseIntPutawayCard.SetRecord(WhseIntPutawayHeader);
                     WhseIntPutawayCard.SetTableView(WhseIntPutawayHeader);
-                    WhseIntPutawayCard.RunModal;
+                    WhseIntPutawayCard.RunModal();
                 end;
             "Whse. Document Type"::Production:
                 begin
@@ -1531,22 +1539,22 @@ table 5767 "Warehouse Activity Line"
             "Activity Type"::"Put-away":
                 begin
                     WhsePutawayCard.SetTableView(WhseActivHeader);
-                    WhsePutawayCard.RunModal;
+                    WhsePutawayCard.RunModal();
                 end;
             "Activity Type"::Movement:
                 begin
                     WhseMovCard.SetTableView(WhseActivHeader);
-                    WhseMovCard.RunModal;
+                    WhseMovCard.RunModal();
                 end;
             "Activity Type"::"Invt. Pick":
                 begin
                     InvtPickCard.SetTableView(WhseActivHeader);
-                    InvtPickCard.RunModal;
+                    InvtPickCard.RunModal();
                 end;
             "Activity Type"::"Invt. Put-away":
                 begin
                     InvtPutAwayCard.SetTableView(WhseActivHeader);
-                    InvtPutAwayCard.RunModal;
+                    InvtPutAwayCard.RunModal();
                 end;
             "Activity Type"::"Invt. Movement":
                 PAGE.RunModal(PAGE::"Inventory Movement", WhseActivHeader);
@@ -1656,7 +1664,8 @@ table 5767 "Warehouse Activity Line"
                         WhseItemTrkgLine.SetRange("Source Prod. Order Line", WhseActivLine."Source Line No.");
                         WhseItemTrkgLine.SetRange("Source Ref. No.", WhseActivLine."Source Subline No.");
                     end;
-                WhseActivLine."Whse. Document Type"::Assembly:
+                WhseActivLine."Whse. Document Type"::Assembly,
+                WhseActivLine."Whse. Document Type"::Job:
                     begin
                         WhseItemTrkgLine.SetRange("Source Type", WhseActivLine."Source Type");
                         WhseItemTrkgLine.SetRange("Source Subtype", WhseActivLine."Source Subtype");
@@ -1687,7 +1696,7 @@ table 5767 "Warehouse Activity Line"
                     ItemTrackingMgt.CalcWhseItemTrkgLine(WhseItemTrkgLine);
                     UpdateReservation(WhseActivLine, true);
                     if (WhseActivLine."Whse. Document Type" in
-                        [WhseActivLine."Whse. Document Type"::Production, WhseActivLine."Whse. Document Type"::Assembly]) and
+                        [WhseActivLine."Whse. Document Type"::Production, WhseActivLine."Whse. Document Type"::Assembly, WhseActivLine."Whse. Document Type"::Job]) and
                        not WhseActivLine."Assemble to Order"
                     then
                         if WhseItemTrkgLine."Quantity Handled (Base)" = 0 then
@@ -2050,6 +2059,31 @@ table 5767 "Warehouse Activity Line"
         OnAfterTransferFromAssemblyLine(Rec, AssemblyLine);
     end;
 
+    procedure TransferFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    var
+        Job: Record Job;
+    begin
+        "Activity Type" := "Activity Type"::Pick;
+        "Source Type" := DATABASE::Job;
+        "Source Subtype" := 0;
+        "Source No." := JobPlanningLine."Job No.";
+        "Source Line No." := JobPlanningLine."Job Contract Entry No.";
+        "Source Subline No." := JobPlanningLine."Line No.";
+        JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
+        "Item No." := JobPlanningLine."No.";
+        "Variant Code" := JobPlanningLine."Variant Code";
+        Description := JobPlanningLine.Description;
+        "Due Date" := JobPlanningLine."Planning Due Date";
+        "Whse. Document Type" := "Whse. Document Type"::Job;
+        "Whse. Document No." := JobPlanningLine."Job No.";
+        "Whse. Document Line No." := JobPlanningLine."Job Contract Entry No.";
+        "Destination Type" := "Destination Type"::Customer;
+
+        Job.SetLoadFields("Sell-to Customer No.");
+        Job.Get(JobPlanningLine."Job No.");
+        "Destination No." := Job."Sell-to Customer No.";
+    end;
+
     procedure TransferFromMovWkshLine(WhseWkshLine: Record "Whse. Worksheet Line")
     begin
         "Activity Type" := "Activity Type"::Movement;
@@ -2159,7 +2193,7 @@ table 5767 "Warehouse Activity Line"
         CheckGlobalEntrySummary :=
           ("Activity Type" <> "Activity Type"::"Put-away") and
           (not ("Source Document" in
-                ["Source Document"::"Purchase Order", "Source Document"::"Prod. Output", "Source Document"::"Assembly Order"]));
+                ["Source Document"::"Purchase Order", "Source Document"::"Prod. Output", "Source Document"::"Assembly Order", "Source Document"::"Job Usage"]));
         if CheckGlobalEntrySummary then
             Validate("Lot No.", ItemTrackingDataCollection.FindLotNoBySN(TempTrackingSpecification))
         else begin
@@ -2377,15 +2411,6 @@ table 5767 "Warehouse Activity Line"
         SetRange("Due Date", WhseActivityLine."Due Date");
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetSumLinesFilters().', '17.0')]
-    [Scope('OnPrem')]
-    procedure SetSumLinesFilter(WhseActivityLine: Record "Warehouse Activity Line")
-    begin
-        SetSumLinesFilters(WhseActivityLine);
-    end;
-#endif
-
     procedure ClearSourceFilter()
     begin
         SetRange("Source Type");
@@ -2454,7 +2479,7 @@ table 5767 "Warehouse Activity Line"
         OnAfterSetTrackingFilterIfNotEmpty(Rec);
     end;
 
-#if not CLEAN17
+#if not CLEAN20
     [Obsolete('Replaced by SetTrackingFilterFrom procedures.', '17.0')]
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30])
     begin
@@ -2472,37 +2497,6 @@ table 5767 "Warehouse Activity Line"
         SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
 
         OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
-    end;
-
-    [Obsolete('This functions is not needed anymore as CalcSums statement can calculate totals without earlier limit for number of fields.', '16.0')]
-    [Scope('OnPrem')]
-    procedure GetQty(var WhseActivLine: Record "Warehouse Activity Line"; QtyFieldNo: Integer) Qty: Decimal
-    begin
-        Qty := 0;
-        with WhseActivLine do begin
-            if FindSet then
-                repeat
-                    case QtyFieldNo of
-                        FieldNo(Quantity):
-                            Qty := Qty + Quantity;
-                        FieldNo("Qty. (Base)"):
-                            Qty := Qty + "Qty. (Base)";
-                        FieldNo("Qty. Outstanding"):
-                            Qty := Qty + "Qty. Outstanding";
-                        FieldNo("Qty. Outstanding (Base)"):
-                            Qty := Qty + "Qty. Outstanding (Base)";
-                        FieldNo("Qty. to Handle"):
-                            Qty := Qty + "Qty. to Handle";
-                        FieldNo("Qty. to Handle (Base)"):
-                            Qty := Qty + "Qty. to Handle (Base)";
-                        FieldNo("Qty. Handled"):
-                            Qty := Qty + "Qty. Handled";
-                        FieldNo("Qty. Handled (Base)"):
-                            Qty := Qty + "Qty. Handled (Base)";
-                    end;
-                until Next() = 0;
-        end;
-        exit(Qty);
     end;
 
     procedure SetTrackingFilterFromBinContentBuffer(BinContentBuffer: Record "Bin Content Buffer")
@@ -2707,7 +2701,14 @@ table 5767 "Warehouse Activity Line"
     end;
 
     procedure ValidateQtyWhenSNDefined()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateQtyWhenSNDefined(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec."Serial No." = '' then
             exit;
 
@@ -2741,7 +2742,7 @@ table 5767 "Warehouse Activity Line"
             exit;
 
         WhsePickCard.SetTableView(WhseActivHeader);
-        WhsePickCard.RunModal;
+        WhsePickCard.RunModal();
     end;
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
@@ -2857,7 +2858,8 @@ table 5767 "Warehouse Activity Line"
     begin
     end;
 
-#if not CLEAN17
+#if not CLEAN20
+    [Obsolete('Replaced by events OnAfterSetTrackingFilterFrom', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilter(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -3246,6 +3248,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantityIsBalanced(var WhseActivLine: Record "Warehouse Activity Line"; xWhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyWhenSNDefined(WhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 

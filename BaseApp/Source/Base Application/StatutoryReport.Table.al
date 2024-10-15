@@ -266,11 +266,11 @@ table 26550 "Statutory Report"
         StatReportExcelSheet: Record "Stat. Report Excel Sheet";
     begin
         StatutoryReportTable.SetRange("Report Code", Code);
-        if StatutoryReportTable.FindFirst then
+        if StatutoryReportTable.FindFirst() then
             StatutoryReportTable.DeleteAll(true);
 
         StatutoryReportDataHeader.SetRange("Report Code", Code);
-        if StatutoryReportDataHeader.FindFirst then
+        if StatutoryReportDataHeader.FindFirst() then
             StatutoryReportDataHeader.DeleteAll(true);
 
         XMLElementLine.SetRange("Report Code", Code);
@@ -349,7 +349,7 @@ table 26550 "Statutory Report"
         StatReportExcelSheet: Record "Stat. Report Excel Sheet";
     begin
         StatutoryReportTable.SetRange("Report Code", Code);
-        if StatutoryReportTable.FindSet then begin
+        if StatutoryReportTable.FindSet() then begin
             repeat
                 StatReportExcelSheet."Report Code" := Code;
                 StatReportExcelSheet."Table Code" := StatutoryReportTable.Code;
@@ -364,9 +364,9 @@ table 26550 "Statutory Report"
                     StatReportTableColumn.SetRange("Report Code", Code);
                     StatReportTableColumn.SetRange("Table Code", StatutoryReportTable.Code);
 
-                    if StatReportTableRow.FindSet then
+                    if StatReportTableRow.FindSet() then
                         repeat
-                            if StatReportTableColumn.FindSet then
+                            if StatReportTableColumn.FindSet() then
                                 repeat
                                     CreateCellFromIntSource(
                                       DataHeaderNo,
@@ -382,7 +382,7 @@ table 26550 "Statutory Report"
 
                     TableIndividualRequisite.SetRange("Report Code", Code);
                     TableIndividualRequisite.SetRange("Table Code", StatutoryReportTable.Code);
-                    if TableIndividualRequisite.FindSet then
+                    if TableIndividualRequisite.FindSet() then
                         repeat
                             CreateCellFromIntSource(
                               DataHeaderNo,
@@ -444,7 +444,7 @@ table 26550 "Statutory Report"
                             TaxRegisterAccumulation.SetFilter("Starting Date", '%1..', StartDate);
                             TaxRegisterAccumulation.SetFilter("Ending Date", '..%1', EndDate);
                             TaxRegisterAccumulation.SetRange("Template Line No.", StatReportTableMapping."Internal Source Row No.");
-                            if TaxRegisterAccumulation.FindLast then
+                            if TaxRegisterAccumulation.FindLast() then
                                 CellValue := TaxRegisterAccumulation.Amount;
                         end;
                     StatReportTableMapping."Int. Source Type"::"Tax Difference":
@@ -454,7 +454,7 @@ table 26550 "Statutory Report"
                             TaxCalcAccumulation.SetFilter("Starting Date", '%1..', StartDate);
                             TaxCalcAccumulation.SetFilter("Ending Date", '..%1', EndDate);
                             TaxCalcAccumulation.SetRange("Template Line No.", StatReportTableMapping."Internal Source Row No.");
-                            if TaxCalcAccumulation.FindLast then
+                            if TaxCalcAccumulation.FindLast() then
                                 CellValue := TaxCalcAccumulation.Amount;
                         end;
                 end;
@@ -512,7 +512,7 @@ table 26550 "Statutory Report"
             StatutoryReportTable.Reset();
             StatutoryReportTable.SetRange("Report Code", Code);
             StatutoryReportTable.SetRange("Excel Sheet Name", XlWrkShtReader.Name);
-            if StatutoryReportTable.FindSet then
+            if StatutoryReportTable.FindSet() then
                 repeat
                     TempExcelBuffer.OpenBook(FileName, XlWrkShtReader.Name);
                     TempExcelBuffer.ReadSheet;
@@ -524,7 +524,7 @@ table 26550 "Statutory Report"
                 if SectionName <> '' then begin
                     StatutoryReportTable.SetRange("Excel Sheet Name");
                     StatutoryReportTable.SetRange("Page Indication Text", SectionName);
-                    if StatutoryReportTable.FindSet then
+                    if StatutoryReportTable.FindSet() then
                         repeat
                             if StatutoryReportTable.CheckTableIdentText(TempExcelBuffer) then
                                 if not StatutoryReportTable.ImportExcelSheet(DataHeaderNo, TempExcelBuffer, XlWrkShtReader.Name, ErrorMessage) then
@@ -609,7 +609,7 @@ table 26550 "Statutory Report"
         Modify;
 
         StatutoryReportTableFrom.SetRange("Report Code", CopyReportFromCode);
-        if StatutoryReportTableFrom.FindSet then
+        if StatutoryReportTableFrom.FindSet() then
             repeat
                 StatutoryReportTable := StatutoryReportTableFrom;
                 StatutoryReportTable."Report Code" := Code;
@@ -618,7 +618,7 @@ table 26550 "Statutory Report"
             until StatutoryReportTableFrom.Next() = 0;
 
         XMLElementLineFrom.SetRange("Report Code", CopyReportFromCode);
-        if XMLElementLineFrom.FindSet then
+        if XMLElementLineFrom.FindSet() then
             repeat
                 XMLElementLine := XMLElementLineFrom;
                 XMLElementLine."Report Code" := Code;
@@ -627,7 +627,7 @@ table 26550 "Statutory Report"
             until XMLElementLineFrom.Next() = 0;
 
         StatReportTableMappingFrom.SetRange("Report Code", CopyReportFromCode);
-        if StatReportTableMappingFrom.FindSet then
+        if StatReportTableMappingFrom.FindSet() then
             repeat
                 StatReportTableMapping := StatReportTableMappingFrom;
                 StatReportTableMapping."Report Code" := Code;
@@ -649,12 +649,12 @@ table 26550 "Statutory Report"
         EntryNo: Integer;
     begin
         StatutoryReportTable.SetRange("Report Code", Code);
-        if StatutoryReportTable.FindSet then
+        if StatutoryReportTable.FindSet() then
             repeat
                 if StatutoryReportTable."Scalable Table" or StatutoryReportTable."Multipage Table" then begin
                     StatutoryReportTable.TestField("Page Indic. Excel Cell Name");
                     SectionCellNameBuffer.SetRange("Section Excel Cell Name", StatutoryReportTable."Page Indic. Excel Cell Name");
-                    if not SectionCellNameBuffer.FindFirst then begin
+                    if not SectionCellNameBuffer.FindFirst() then begin
                         EntryNo := EntryNo + 1;
                         SectionCellNameBuffer."Entry No." := EntryNo;
                         SectionCellNameBuffer."Section Excel Cell Name" := StatutoryReportTable."Page Indic. Excel Cell Name";
@@ -673,13 +673,13 @@ table 26550 "Statutory Report"
     begin
         SectionCellNameBuffer.Reset();
         StatutoryReportTable.SetRange("Report Code", Code);
-        if SectionCellNameBuffer.FindSet then
+        if SectionCellNameBuffer.FindSet() then
             repeat
                 SectionName :=
                   CopyStr(TempExcelBuffer.GetValueByCellName(SectionCellNameBuffer."Section Excel Cell Name"), 1, MaxStrLen(SectionName));
                 if SectionName <> '' then begin
                     StatutoryReportTable.SetRange("Page Indication Text", SectionName);
-                    if StatutoryReportTable.FindFirst then
+                    if StatutoryReportTable.FindFirst() then
                         exit;
                 end;
             until SectionCellNameBuffer.Next() = 0;
@@ -747,7 +747,7 @@ table 26550 "Statutory Report"
         StatReportExcelSheet.FilterGroup(0);
         if ExcelSheetName <> '' then begin
             StatReportExcelSheet.SetRange("Sheet Name", ExcelSheetName);
-            if StatReportExcelSheet.FindFirst then;
+            if StatReportExcelSheet.FindFirst() then;
             StatReportExcelSheet.SetRange("Sheet Name");
             SelectExcelSheetName.SetRecord(StatReportExcelSheet);
         end;
@@ -1108,7 +1108,7 @@ table 26550 "Statutory Report"
         XMLElementLine.SetRange("Table Code", TableCode);
         XMLElementLine.SetRange("Row Link No.", RowNo);
         XMLElementLine.SetRange("Column Link No.", ColumnNo);
-        if XMLElementLine.FindFirst then
+        if XMLElementLine.FindFirst() then
             OKEIScaling := XMLElementLine."OKEI Scaling";
 
         if OKEIScaling then

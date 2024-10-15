@@ -141,7 +141,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 203310] M-4 Report for Purchase Order can be printed if line has "No." of 20 chars
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PO"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -152,13 +152,13 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
 
         // [WHEN] Print M-4 Report for "PO"
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
         PurchaseHeader.SetRecFilter;
         PurchaseReceiptM4.SetTableView(PurchaseHeader);
         PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PurchaseReceiptM4.UseRequestPage(false);
-        PurchaseReceiptM4.Run;
+        PurchaseReceiptM4.Run();
 
         // [THEN] M-4 Report is printed and contains "PO"'s "No."
         LibraryReportValidation.VerifyCellValue(5, 7, PurchaseHeader."No.");
@@ -176,7 +176,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         GLAccountNo: Code[20];
     begin
         // [SCENARIO 203310] M-4 Report for Posted Purchase Order can be printed if line has "No." of 20 chars
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PO"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -190,13 +190,13 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Print M-4 Report for posted Purchase Receipt
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
         PurchInvHeader.SetRange("No.", DocumentNo);
         PostedPurchaseReceiptM4.SetTableView(PurchInvHeader);
         PostedPurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedPurchaseReceiptM4.UseRequestPage(false);
-        PostedPurchaseReceiptM4.Run;
+        PostedPurchaseReceiptM4.Run();
 
         // [THEN] M-4 Report is printed and contains "No." of posted Purchase Receipt
         LibraryReportValidation.VerifyCellValue(5, 7, DocumentNo);
@@ -243,7 +243,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -254,19 +254,19 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         PurchaseHeader: Record "Purchase Header";
         PurchaseReceiptM4: Report "Purchase Receipt M-4";
     begin
-        Initialize;
+        Initialize();
 
         LineQty := LibraryRandom.RandIntInRange(2, 5);
         LibraryRUReports.CreatePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, LineQty);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         PurchaseReceiptM4.SetTableView(PurchaseHeader);
         PurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PurchaseReceiptM4.UseRequestPage(false);
-        PurchaseReceiptM4.Run;
+        PurchaseReceiptM4.Run();
 
         exit(PurchaseHeader."No.");
     end;
@@ -277,18 +277,18 @@ codeunit 144703 "ERM Purchase Receipt M-4"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseReceiptM4: Report "Posted Purchase Receipt M-4";
     begin
-        Initialize;
+        Initialize();
 
         LineQty := LibraryRandom.RandIntInRange(2, 5);
         DocumentNo := LibraryRUReports.CreatePostPurchDocument(PurchaseHeader."Document Type"::Order, LineQty);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
         PurchInvHeader.SetRange("No.", DocumentNo);
         PostedPurchaseReceiptM4.SetTableView(PurchInvHeader);
         PostedPurchaseReceiptM4.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedPurchaseReceiptM4.UseRequestPage(false);
-        PostedPurchaseReceiptM4.Run;
+        PostedPurchaseReceiptM4.Run();
     end;
 
     local procedure GetVendorFromPurchOrder(var Vendor: Record Vendor; DocumentNo: Code[20])

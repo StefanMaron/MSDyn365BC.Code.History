@@ -177,7 +177,7 @@ codeunit 144706 "ERM Sales Shipment M-15"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -188,14 +188,14 @@ codeunit 144706 "ERM Sales Shipment M-15"
         with SalesLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", OrderNo);
-            FindLast;
+            FindLast();
         end;
     end;
 
     local procedure FindLastSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; OrderNo: Code[20])
     begin
         SalesInvoiceLine.SetRange("Document No.", OrderNo);
-        SalesInvoiceLine.FindLast;
+        SalesInvoiceLine.FindLast();
     end;
 
     local procedure GetLineAmount(OrderNo: Code[20]): Text
@@ -234,19 +234,19 @@ codeunit 144706 "ERM Sales Shipment M-15"
     var
         SalesShipmentM15: Report "Sales Shipment M-15";
     begin
-        Initialize;
+        Initialize();
 
         LineQty := LibraryRandom.RandIntInRange(2, 5);
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, LineQty);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
 
         SalesShipmentM15.SetTableView(SalesHeader);
         SalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName, Preview);
         SalesShipmentM15.UseRequestPage(false);
-        SalesShipmentM15.Run;
+        SalesShipmentM15.Run();
         SalesHeader.Find; // re-read record as there is an assignments inside report
     end;
 
@@ -256,19 +256,19 @@ codeunit 144706 "ERM Sales Shipment M-15"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedSalesShipmentM15: Report "Posted Sales Shipment M-15";
     begin
-        Initialize;
+        Initialize();
 
         LineQty := LibraryRandom.RandIntInRange(2, 5);
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, LineQty);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         PostedSalesShipmentM15.SetTableView(SalesInvoiceHeader);
         PostedSalesShipmentM15.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PostedSalesShipmentM15.UseRequestPage(false);
-        PostedSalesShipmentM15.Run;
+        PostedSalesShipmentM15.Run();
     end;
 
     local procedure GetSalesOrderIntWrittenAmount(var SalesHeader: Record "Sales Header"): Text

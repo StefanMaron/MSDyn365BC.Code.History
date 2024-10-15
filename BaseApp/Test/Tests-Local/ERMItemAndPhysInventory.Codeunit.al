@@ -23,7 +23,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 100, 2));
@@ -45,7 +45,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         Item: Record Item;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
 
@@ -101,7 +101,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         // [FEATURE] [Phys. Inventory]
         // [SCENARIO 379022] Reports Phys. Inventory Form INV-3 in case of surplus should show already posted actual cost plus surplus amount from an inventory line.
 
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, 0, LibraryRandom.RandDecInRange(10, 100, 2));
 
         // [GIVEN] Post positive item entries (e.g. Qty1 = 258, Cost1 = 170.58; Qty2 = 10, Cost2 = 150.45).
@@ -137,7 +137,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         // [FEATURE] [Phys. Inventory]
         // [SCENARIO 379022] Reports Phys. Inventory Form INV-3 should show average cost of remaining quantity in case of lack.
 
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, 0, LibraryRandom.RandDecInRange(10, 100, 2));
 
         // [GIVEN] Post positive item entries (e.g. Qty1 = 258, Cost1 = 170.58; Qty2 = 10, Cost2 = 150.45).
@@ -206,7 +206,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         // [FEATURE] [Unit Cost] [UT]
         // [SCENARIO 379022] Testing auxiliary function calculating average unit cost.
 
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, 0, LibraryRandom.RandDecInRange(10, 100, 2));
 
         // [GIVEN] Post two positive item journal lines (i.e. Qty[1] = 50, Cost[1] = 10 and Qty[2] = 10, Cost[2] = 1)
@@ -235,7 +235,7 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -246,18 +246,18 @@ codeunit 144709 "ERM Item And Phys. Inventory"
         Item: Record Item;
         ItemCardM17: Report "Item Card M-17";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         Item.SetRange("No.", ItemNo);
         ItemCardM17.SetTableView(Item);
         ItemCardM17.SetFileNameSilent(LibraryReportValidation.GetFileName);
         ItemCardM17.UseRequestPage(false);
-        ItemCardM17.Run;
+        ItemCardM17.Run();
     end;
 
     local procedure PrintINV3PhysInvForm(var ItemJnlLine: Record "Item Journal Line"; Sign: Integer)
     begin
-        Initialize;
+        Initialize();
 
         InitPhysInvJournal(ItemJnlLine, Sign);
 
@@ -268,30 +268,30 @@ codeunit 144709 "ERM Item And Phys. Inventory"
     var
         PhysInventoryFormINV3: Report "Phys. Inventory Form INV-3";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
         PhysInventoryFormINV3.SetTableView(ItemJnlLine);
         PhysInventoryFormINV3.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PhysInventoryFormINV3.UseRequestPage(false);
-        PhysInventoryFormINV3.Run;
+        PhysInventoryFormINV3.Run();
     end;
 
     local procedure PrintINV19PhysInvForm(var ItemJnlLine: Record "Item Journal Line"; Sign: Integer)
     var
         PhysInvFormINV19: Report "Phys. Inventory Form INV-19";
     begin
-        Initialize;
+        Initialize();
 
         InitPhysInvJournal(ItemJnlLine, Sign);
 
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
         PhysInvFormINV19.SetTableView(ItemJnlLine);
         PhysInvFormINV19.SetFileNameSilent(LibraryReportValidation.GetFileName);
         PhysInvFormINV19.UseRequestPage(false);
-        PhysInvFormINV19.Run;
+        PhysInvFormINV19.Run();
     end;
 
     local procedure InitPhysInvJournal(var ItemJnlLine: Record "Item Journal Line"; Sign: Integer)

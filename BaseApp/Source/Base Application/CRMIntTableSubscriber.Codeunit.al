@@ -227,7 +227,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 (DestinationFieldRef.Record().Number() in [Database::Customer, Database::Vendor, Database::Currency, Database::Contact, Database::"Salesperson/Purchaser"]) then
                 exit;
 
-        if CRMSynchHelper.ConvertTableToOption(SourceFieldRef, OptionValue) then begin
+        if CRMSynchHelper.ConvertTableToOption(SourceFieldRef, DestinationFieldRef, OptionValue) then begin
             NewValue := OptionValue;
             IsValueFound := true;
             NeedsConversion := true;
@@ -509,7 +509,33 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 HandleItemQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
             DATABASE::Resource:
                 HandleResourceQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
+            DATABASE::"Sales Invoice Header":
+                IgnoreReadOnlyInvoiceOnQueryPostFilterIgnoreRecord(SourceRecordRef, IgnoreRecord);
         end;
+    end;
+
+    local procedure IgnoreReadOnlyInvoiceOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
+    var
+        CRMInvoice: Record "CRM Invoice";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMInvoiceID: Guid;
+    begin
+        if IgnoreRecord then
+            exit;
+
+        SourceRecordRef.SetTable(SalesInvoiceHeader);
+        if not SalesInvoiceHeader."Coupled to CRM" then
+            exit;
+
+        if not CRMIntegrationRecord.FindIDFromRecordRef(SourceRecordRef, CRMInvoiceID) then
+            exit;
+
+        if not CRMInvoice.Get(CRMInvoiceID) then
+            exit;
+
+        if CRMInvoice.StateCode <> CRMInvoice.StateCode::Active then
+            IgnoreRecord := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnFindUncoupledDestinationRecord', '', false, false)]

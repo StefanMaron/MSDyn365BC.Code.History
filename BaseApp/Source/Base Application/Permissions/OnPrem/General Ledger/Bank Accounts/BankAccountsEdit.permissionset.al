@@ -32,7 +32,9 @@ permissionset 7785 "Bank Accounts - Edit"
                   tabledata "Gen. Journal Template" = r,
                   tabledata "Interaction Log Entry" = R,
                   tabledata "Maintenance Ledger Entry" = r,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata Opportunity = R,
                   tabledata "Payment Method" = rm,
                   tabledata "Post Code" = Ri,

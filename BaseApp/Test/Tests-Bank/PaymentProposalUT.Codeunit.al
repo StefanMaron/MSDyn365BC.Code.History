@@ -36,7 +36,7 @@ codeunit 134267 "Payment Proposal UT"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payment Proposal UT");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
@@ -50,10 +50,10 @@ codeunit 134267 "Payment Proposal UT"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Payment Proposal UT");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Commit();
@@ -68,7 +68,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // General Setup:
         // * Populate Bank Acc. Reconciliation Line with dummy line
@@ -78,7 +78,7 @@ codeunit 134267 "Payment Proposal UT"
 
         // validate Applied on CrMemo
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         TempPaymentApplicationProposal.Validate(Applied, true);
 
         // Result - It's applied.
@@ -93,7 +93,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // General Setup:
         // * Populate Bank Acc. Reconciliation Line with dummy line
@@ -103,13 +103,13 @@ codeunit 134267 "Payment Proposal UT"
 
         // Apply Inv
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify();
 
         // validate Applied on CrMemo
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         TempPaymentApplicationProposal.Validate(Applied, true);
 
         // Result - Msg
@@ -122,7 +122,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // General Setup:
         // * Populate Bank Acc. Reconciliation Line with dummy line
@@ -132,18 +132,18 @@ codeunit 134267 "Payment Proposal UT"
 
         // Apply Inv & CrMemo
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify();
 
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify();
 
         // validate Applied on CrMemo
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
-        TempPaymentApplicationProposal.FindLast;
+        TempPaymentApplicationProposal.FindLast();
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify();
 
@@ -158,7 +158,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // General Setup:
         // * Populate Bank Acc. Reconciliation Line with dummy line
@@ -171,7 +171,7 @@ codeunit 134267 "Payment Proposal UT"
 
         // Apply Inv
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         asserterror TempPaymentApplicationProposal.Validate(Applied, true);
         // Result - Error
         Assert.ExpectedError('The payment is fully applied.');
@@ -184,7 +184,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // General Setup:
         // * Populate Bank Acc. Reconciliation Line with dummy line
@@ -194,7 +194,7 @@ codeunit 134267 "Payment Proposal UT"
 
         // Apply Inv
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         TempPaymentApplicationProposal.Validate(Applied, true);
 
         // Result - Ok
@@ -210,7 +210,7 @@ codeunit 134267 "Payment Proposal UT"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SuggestAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // General Setup:
         // * Populate Bank Acc. Reconciliation Line with dummy line
@@ -221,7 +221,7 @@ codeunit 134267 "Payment Proposal UT"
         SuggestAmt := AppliedPaymentEntry.SuggestAmtToApply;
 
         // Result - it will return RemAmtToApply
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreEqual(CustLedgerEntry."Remaining Amount", SuggestAmt, 'Wrong sugested amount.');
     end;
@@ -282,7 +282,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -351,7 +351,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount: Decimal;
         AppliedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -398,7 +398,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -436,7 +436,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -477,7 +477,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -521,7 +521,7 @@ codeunit 134267 "Payment Proposal UT"
         I: Integer;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -579,7 +579,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -627,7 +627,7 @@ codeunit 134267 "Payment Proposal UT"
         I: Integer;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -658,7 +658,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference := 0;
         AppliedAmount := TotalAmount;
 
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
 
         // Excercise - Uncheck one by one
         for I := 1 to NoOfEntries do begin
@@ -694,7 +694,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -735,7 +735,7 @@ codeunit 134267 "Payment Proposal UT"
         Amount: Decimal;
         AppliedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -764,7 +764,7 @@ codeunit 134267 "Payment Proposal UT"
         I: Integer;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -829,7 +829,7 @@ codeunit 134267 "Payment Proposal UT"
         I: Integer;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -864,7 +864,7 @@ codeunit 134267 "Payment Proposal UT"
         end;
 
         // Excercise and verify multiple applications
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         for I := 1 to NoOfEntries do begin
             NewAppliedAmount := Round(TempPaymentApplicationProposal."Applied Amount" / 2, LibraryERM.GetAmountRoundingPrecision);
             Difference += TempPaymentApplicationProposal."Applied Amount" - NewAppliedAmount;
@@ -899,7 +899,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -949,7 +949,7 @@ codeunit 134267 "Payment Proposal UT"
         I: Integer;
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -984,7 +984,7 @@ codeunit 134267 "Payment Proposal UT"
         end;
 
         // Excercise and verify multiple applications
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         for I := 1 to NoOfEntries do begin
             Difference += TempPaymentApplicationProposal."Applied Amount";
             AppliedAmount -= TempPaymentApplicationProposal."Applied Amount";
@@ -1020,7 +1020,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1058,7 +1058,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1097,7 +1097,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1135,7 +1135,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1173,7 +1173,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1201,7 +1201,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1232,7 +1232,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1284,7 +1284,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1335,7 +1335,7 @@ codeunit 134267 "Payment Proposal UT"
         NewDiscountAmount: Decimal;
         NewDiscountDueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1386,7 +1386,7 @@ codeunit 134267 "Payment Proposal UT"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1449,7 +1449,7 @@ codeunit 134267 "Payment Proposal UT"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1510,7 +1510,7 @@ codeunit 134267 "Payment Proposal UT"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1571,7 +1571,7 @@ codeunit 134267 "Payment Proposal UT"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1631,7 +1631,7 @@ codeunit 134267 "Payment Proposal UT"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1690,7 +1690,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1737,7 +1737,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1972,7 +1972,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2021,7 +2021,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2077,7 +2077,7 @@ codeunit 134267 "Payment Proposal UT"
         FirstLineAmount: Decimal;
         SecondLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
@@ -2118,7 +2118,7 @@ codeunit 134267 "Payment Proposal UT"
         FirstLineAmount: Decimal;
         SecondLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
 
@@ -2146,7 +2146,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2173,7 +2173,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
@@ -2205,7 +2205,7 @@ codeunit 134267 "Payment Proposal UT"
         PaymentDiscDueDate: Date;
         NewPaymentDiscToleranceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
@@ -2250,7 +2250,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2436,7 +2436,7 @@ codeunit 134267 "Payment Proposal UT"
 
     local procedure GetAmountAndAppliedAmt(var CustLedgerEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal; var Amount: Decimal)
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2474,7 +2474,7 @@ codeunit 134267 "Payment Proposal UT"
     begin
         TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
         CODEUNIT.Run(CODEUNIT::"Get Bank Stmt. Line Candidates", TempPaymentApplicationProposal);
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
     end;
 
     local procedure CreateBankReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Amount: Decimal; TransactionText: Text[140]; AdditionalTransactionInfo: Text[100])
@@ -2536,7 +2536,7 @@ codeunit 134267 "Payment Proposal UT"
         Clear(CustLedgerEntry);
         CustLedgerEntry.Init();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
     end;
 
@@ -2744,7 +2744,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAcc: Record "Bank Account";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
-        BankAcc.FindFirst;
+        BankAcc.FindFirst();
 
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconLine."Statement Type"::"Payment Application";

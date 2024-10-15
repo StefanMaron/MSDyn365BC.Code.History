@@ -305,7 +305,7 @@ table 17212 "Tax Register Item Entry"
     begin
         Clear(Navigate);
         Navigate.SetDoc("Posting Date", "Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 
     [Scope('OnPrem')]

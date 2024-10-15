@@ -534,7 +534,7 @@ codeunit 12401 "Local Report Management"
     begin
         with CompanyAddress do begin
             SetRange("Address Type", "Address Type"::Legal);
-            if FindFirst then
+            if FindFirst() then
                 exit(GetFullAddr("Post Code", City, Address, "Address 2", "Region Name", County));
         end;
     end;
@@ -1185,7 +1185,7 @@ codeunit 12401 "Local Report Management"
         if Currency.Get(CurrencyCode) then begin
             CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
             CurrencyExchangeRate.SetRange("Starting Date", 0D, DocDate);
-            if CurrencyExchangeRate.FindLast then
+            if CurrencyExchangeRate.FindLast() then
                 exit(CurrencyExchangeRate."Relational Currency Code" <> '');
         end;
         exit(false);

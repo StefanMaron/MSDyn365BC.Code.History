@@ -35,7 +35,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User Lookup the "when" column again and selects the first event.
         // [THEN] The same workflow step gets changed to use the new event and display the description to the user.
 
-        Initialize;
+        Initialize();
         SetApplicationArea;
 
         // Setup
@@ -52,7 +52,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify - Event created
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
         WorkflowStep.TestField("Previous Workflow Step ID", 0);
@@ -90,7 +90,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] Event gets create in the event in the workflow step table and display the description to the user.
         // "Previous Workflow Step ID" get set to the same as the last event in the list.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -101,7 +101,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowPage.GotoKey(Workflow.Code);
 
         // Exercise
-        WorkflowEvent.FindFirst;
+        WorkflowEvent.FindFirst();
         LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
 
         WorkflowPage.WorkflowSubpage.Last;
@@ -111,7 +111,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
 
         WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
         WorkflowStep.TestField("Previous Workflow Step ID", FirstWorkflowStep.ID);
@@ -132,7 +132,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User types the full event value the "when" column and leaves the field.
         // [THEN] Event gets create in the workflow step table.
 
-        Initialize;
+        Initialize();
         SetApplicationArea;
 
         // Setup
@@ -148,7 +148,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
     end;
 
@@ -168,7 +168,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] User gets presented with a lookup filtered to the pretyped value there he selects the event
         // and Event gets create in the event in the workflow step table and display the description to the user.
 
-        Initialize;
+        Initialize();
         SetApplicationArea;
 
         // Setup
@@ -184,7 +184,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
         WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
         WorkflowPage.Close;
@@ -298,7 +298,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User Lookup the "Then" column again he get the response dialog.
         // [THEN] REsponse dialog opens.
 
-        Initialize;
+        Initialize();
         SetApplicationArea;
 
         // Setup
@@ -334,7 +334,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User lookup the Condition and adds a filter to Amount.
         // [THEN] The Conditions gets saved and shown on in the condition column.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -370,7 +370,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User types the full response value the "Select response" field.
         // [THEN] Response gets created in the workflow step table.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -408,7 +408,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User deletes the existing response value.
         // [THEN] Response gets deleted in the workflow step table.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -426,7 +426,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         Assert.AreEqual(1, WorkflowStep.Count, 'Only the event should exist');
         WorkflowStep.TestField("Function Name", EventWorkflowStep."Function Name");
     end;
@@ -446,7 +446,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User types the full response value the "Select response" field.
         // [THEN] Response gets create in the workflow step table.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -464,7 +464,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
     end;
 
@@ -483,7 +483,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User types the full response value the "Select response" field.
         // [THEN] Response gets create in the workflow step table.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -502,7 +502,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         Assert.AreEqual(2, WorkflowStep.Count, 'Only the event and one response should exist');
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
     end;
@@ -524,7 +524,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] User gets presented with a lookup filtered to the pretyped value there he selects the response
         // and Response gets create in the workflow step table and display the description to the user.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -542,7 +542,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
         WorkflowStepResponses.ResponseDescriptionCardControl.AssertEquals(WorkflowResponse.Description);
         WorkflowStepResponses.Close;
@@ -563,7 +563,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User types the full response value the "Then" column and leaves the field.
         // [THEN] Response gets create in the workflow step table.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -581,7 +581,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
     end;
 
@@ -602,7 +602,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] User gets presented with a lookup filtered to the pretyped value there he selects the response
         // and Response gets create in the workflow step table and display the description to the user.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -620,7 +620,7 @@ codeunit 134313 "Workflow Designer Page Tests"
 
         // Verify
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.FindLast;
+        WorkflowStep.FindLast();
         WorkflowStep.TestField("Function Name", WorkflowResponse."Function Name");
         WorkflowStepResponses.ResponseDescriptionTableControl.AssertEquals(WorkflowResponse.Description);
         WorkflowStepResponses.Close;
@@ -643,7 +643,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [THEN] User gets presented with a lookup filtered to the pretyped value there he selects the response
         // and Response gets create in the workflow step table and display the description to the user.
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -682,13 +682,13 @@ codeunit 134313 "Workflow Designer Page Tests"
         // [WHEN] User types in a wrong due date formula.
         // [THEN] an error is shown.
 
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);
 
@@ -726,7 +726,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Event 2 -> Response 2
         // Response 3 - no preceding event
 
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
@@ -761,7 +761,7 @@ codeunit 134313 "Workflow Designer Page Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         WorkflowEvent.DeleteAll();
         WorkflowEventHandling.CreateEventsLibrary;
 
@@ -905,8 +905,8 @@ codeunit 134313 "Workflow Designer Page Tests"
     local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event")
     begin
         WorkflowEvent.Init();
-        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
-        WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";
         WorkflowEvent."Request Page ID" := REPORT::"Workflow Event Simple Args";
         WorkflowEvent.Insert(true);
@@ -915,8 +915,8 @@ codeunit 134313 "Workflow Designer Page Tests"
     local procedure CreateAnyResponse(var WorkflowResponse: Record "Workflow Response")
     begin
         WorkflowResponse.Init();
-        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID;
-        WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
+        WorkflowResponse."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowResponse.Description := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID();
         WorkflowResponse."Table ID" := DATABASE::"Purchase Header";
         WorkflowResponse.Insert(true);
     end;

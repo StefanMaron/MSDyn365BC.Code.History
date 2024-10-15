@@ -194,7 +194,7 @@ page 12413 "VAT Sales Ledger Subform"
     procedure NavigateDocument()
     begin
         Navigate.SetDoc("Document Date", "Document No.");
-        Navigate.Run;
+        Navigate.Run();
     end;
 }
 

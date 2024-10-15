@@ -159,7 +159,7 @@ page 12412 "VAT Ledger List"
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
                         VATLedgerExport.InitializeReport(Type, Code, false);
-                        VATLedgerExport.RunModal;
+                        VATLedgerExport.RunModal();
                     end;
                 }
                 action("Export Add. Sheet")
@@ -174,7 +174,7 @@ page 12412 "VAT Ledger List"
                         VATLedgerExport: Report "VAT Ledger Export";
                     begin
                         VATLedgerExport.InitializeReport(Type, Code, true);
-                        VATLedgerExport.RunModal;
+                        VATLedgerExport.RunModal();
                     end;
                 }
             }

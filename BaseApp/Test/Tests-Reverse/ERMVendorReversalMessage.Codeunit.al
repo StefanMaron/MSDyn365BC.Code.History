@@ -1,4 +1,4 @@
-codeunit 134128 "ERM Vendor Reversal Message"
+﻿codeunit 134128 "ERM Vendor Reversal Message"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -14,6 +14,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         ReversalFromLedgerErr: Label 'You cannot create this type of document when Vendor %1 is blocked with type %2';
         ReversalFromRegisterErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries';
@@ -31,7 +32,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Payment from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger and GL Register.
-        Initialize;
+        Initialize();
         ReverseFromLedger(GenJournalLine."Document Type"::Payment, Vendor.Blocked::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -45,7 +46,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Invoice from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedger(GenJournalLine."Document Type"::Invoice, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -59,7 +60,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Payment from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedger(GenJournalLine."Document Type"::Payment, Vendor.Blocked::All, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -73,7 +74,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Credit Memo from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedger(GenJournalLine."Document Type"::"Credit Memo", Vendor.Blocked::All, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -87,7 +88,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Refund from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedger(GenJournalLine."Document Type"::Refund, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -101,7 +102,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Finance Charge Memo from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedger(
           GenJournalLine."Document Type"::"Finance Charge Memo", Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
@@ -116,7 +117,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Reminder from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedger(GenJournalLine."Document Type"::Reminder, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -130,7 +131,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Invoice from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedgerPrivacyBlocked(GenJournalLine."Document Type"::Invoice, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -144,7 +145,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Payment from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedgerPrivacyBlocked(GenJournalLine."Document Type"::Payment, Vendor.Blocked::All, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -158,7 +159,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Credit Memo from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedgerPrivacyBlocked(
           GenJournalLine."Document Type"::"Credit Memo", Vendor.Blocked::All, LibraryRandom.RandDec(100, 2));
     end;
@@ -173,7 +174,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Refund from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedgerPrivacyBlocked(GenJournalLine."Document Type"::Refund, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -187,7 +188,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Finance Charge Memo from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedgerPrivacyBlocked(
           GenJournalLine."Document Type"::"Finance Charge Memo", Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
@@ -202,7 +203,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Create Vendor and Post Reminder from General Journal Line, update Vendor Blocked field for Payment and
         // verify Reversal Error from Vendor Ledger.
-        Initialize;
+        Initialize();
         ReverseFromLedgerPrivacyBlocked(GenJournalLine."Document Type"::Reminder, Vendor.Blocked::All, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -256,14 +257,14 @@ codeunit 134128 "ERM Vendor Reversal Message"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Block the same Vendor.
-        Initialize;
+        Initialize();
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, GenJournalLine."Document Type"::Payment, ReversalSetup(GenJournalLine."Document Type"::Payment,
             Vendor.Blocked::Payment, LibraryRandom.RandDec(100, 2)));
         Vendor.Get(VendorLedgerEntry."Vendor No.");
 
         // Exercise: Reverse Payment entries for Blocked Vendor.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -283,7 +284,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         // verify Reversal Error from Vendor Ledger.
 
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Block the same Vendor.
-        Initialize;
+        Initialize();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CreateAndPostApplnEntry);
 
         // Exercise: Reverse Fully Applied Invoice from Ledger.
@@ -305,11 +306,11 @@ codeunit 134128 "ERM Vendor Reversal Message"
         // verify Reversal Error from GL Register.
 
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Block the same Vendor.
-        Initialize;
+        Initialize();
         CreateAndPostApplnEntry;
 
         // Exercise: Reverse Fully Applied Invoice from Ledger.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -332,15 +333,20 @@ codeunit 134128 "ERM Vendor Reversal Message"
 
         // Setup: Create and Post General Journal Line and Modify Exchange Rate.Run Adjust Exchange Rate Batch Job
         // and calculate Realized Gain/Loss Amount.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::" ", Vendor."No.", -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Currency Code", CreateCurrency);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateExchangeRate(GenJournalLine."Currency Code");
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRates(
           GenJournalLine."Currency Code", 0D, WorkDate, 'Test', WorkDate, GenJournalLine."Document No.", false);
+#else
+        LibraryERM.RunExchRateAdjustment(
+          GenJournalLine."Currency Code", 0D, WorkDate, 'Test', WorkDate, GenJournalLine."Document No.", false);
+#endif
 
         // Exercise: Reverse Posted Entry from Vendor Ledger.
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::" ", GenJournalLine."Document No.");
@@ -360,7 +366,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         Vendor: Record Vendor;
     begin
         // Setup: Create General Ledger Account and Vendor, Make Invoice and Post from General Journal and Close Fiscal Year.
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLineForInvoice(
@@ -382,7 +388,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         Vendor: Record Vendor;
     begin
         // Setup: Create Vendor, Make Invoice and Post from General Journal and Close Fiscal Year.
-        Initialize;
+        Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGenJnlLineForInvoice(
@@ -400,14 +406,18 @@ codeunit 134128 "ERM Vendor Reversal Message"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure CreateAndPostApplnEntry() DocumentNo: Code[20]
@@ -527,7 +537,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         ReversalEntry: Record "Reversal Entry";
     begin
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(GLEntry."Transaction No.");
     end;
@@ -544,7 +554,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     begin
         // Using Random value to update Currency Exchange Rate.
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate(
           "Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" + LibraryRandom.RandInt(50));
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
@@ -555,17 +565,22 @@ codeunit 134128 "ERM Vendor Reversal Message"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DateComprRegister: Record "Date Compr. Register";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVendorLedger: Report "Date Compress Vendor Ledger";
     begin
         // Run the Date Compress Vendor Ledger Report. Take End Date a Day before Last Posted Entry's Posting Date.
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Buy-from Vendor No." := false;
+        DateComprRetainFields."Retain Purchaser Code" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressVendorLedger.InitializeRequest(
           LibraryFiscalYear.GetFirstPostingDate(true), LibraryFiscalYear.GetFirstPostingDate(true),
-          DateComprRegister."Period Length"::Week, '', false, false, false, '');
+          DateComprRegister."Period Length"::Week, '', DateComprRetainFields, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
-        DateCompressVendorLedger.Run;
+        DateCompressVendorLedger.Run();
     end;
 
     [ConfirmHandler]

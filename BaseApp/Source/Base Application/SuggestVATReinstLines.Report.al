@@ -74,7 +74,7 @@ report 14972 "Suggest VAT Reinst. Lines"
     begin
         NewVATDocumentEntryBuffer.Reset();
         NewVATDocumentEntryBuffer.DeleteAll();
-        if VATDocumentEntryBuffer.FindSet then
+        if VATDocumentEntryBuffer.FindSet() then
             repeat
                 NewVATDocumentEntryBuffer := VATDocumentEntryBuffer;
                 NewVATDocumentEntryBuffer.Insert();

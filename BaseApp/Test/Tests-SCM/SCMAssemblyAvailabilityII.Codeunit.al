@@ -64,8 +64,8 @@ codeunit 137912 "SCM Assembly Availability II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Availability II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         Initialized := true;
         Commit();
@@ -87,7 +87,7 @@ codeunit 137912 "SCM Assembly Availability II"
         VariantCode: Code[10];
         LeadTimeText: Text[2];
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'ChangeLocCheckDueDateNoLineUpd';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
@@ -129,7 +129,7 @@ codeunit 137912 "SCM Assembly Availability II"
         VariantCode: Code[10];
         LeadTimeText: Text[2];
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'ChangeLocCheckDueDateLineUpd';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
@@ -172,7 +172,7 @@ codeunit 137912 "SCM Assembly Availability II"
         LeadTimeText: Text[30];
         LeadTime: DateFormula;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'ValidateLocAfterSKUNewDueDate';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
@@ -222,7 +222,7 @@ codeunit 137912 "SCM Assembly Availability II"
         LocationLine: Record Location;
         VariantCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'ChangeVariantNoLocUpdConfirm';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
@@ -256,7 +256,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader: Record "Assembly Header";
         Location: Record Location;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := TestDataConsistencyCheck;
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
@@ -282,7 +282,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine: Record "Assembly Line";
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'ValidateItemNoToParentItem';
         MockAsmItem(ParentItem, ChildItem, 1);
         AddItemToInventory(ChildItem, '', '', 1);
@@ -315,7 +315,7 @@ codeunit 137912 "SCM Assembly Availability II"
         ChildItem: Record Item;
         AsmHeader: Record "Assembly Header";
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'VSTF238472';
         // Create an "assembled item" with one comp (Qty per =2)
         MockAsmItem(ParentItem, ChildItem, 2);
@@ -337,7 +337,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'VSTF231811';
         // Create assembled item with one comp (qty per = 2).
         MockAsmItem(ParentItem, ChildItem, 2);
@@ -366,7 +366,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader: Record "Assembly Header";
         AsmLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'VSTF255987';
         // Create assembled item with one comp (qty per = 1).
         MockAsmItem(ParentItem, ChildItem, 1);
@@ -408,7 +408,7 @@ codeunit 137912 "SCM Assembly Availability II"
         NewDueDate2: Date;
         OldDefSafetyLeadTime: DateFormula;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'VSTF258428';
         Step := 0;
         // Create item KIT with Replenishment System = Assembly
@@ -502,7 +502,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine: Record "Assembly Line";
         MfgSetup: Record "Manufacturing Setup";
     begin
-        Initialize;
+        Initialize();
         TestMethodName := TestMethodVSTF238977;
         // Create assembled item with one comp (qty per = 1).
         MockAsmItem(ParentItem, ChildItem, 1);
@@ -556,7 +556,7 @@ codeunit 137912 "SCM Assembly Availability II"
         SavedStartDate: Date;
         SavedLineDueDate: Date;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := TestVSTF257960A;
         Step := 0;
         OldWorkDate := WorkDate;
@@ -736,7 +736,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader: Record "Assembly Header";
         DTFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := TestVSTF257960B;
         Step := 0;
         // Create assembled item with one comp (qty per = 1).
@@ -789,7 +789,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmOrder: TestPage "Assembly Order";
         ZeroDF: DateFormula;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := TestVSTF266309;
         Step := 0;
         // Set Assembly setup to show no warning
@@ -815,7 +815,7 @@ codeunit 137912 "SCM Assembly Availability II"
         Step := 3;
         AsmOrder.ShowAvailability.Invoke; // availability warning expected
         asserterror Error(''); // to undo changes made to Setup table.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -833,7 +833,7 @@ codeunit 137912 "SCM Assembly Availability II"
         OldDefSafetyLeadTime: DateFormula;
         DTFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         // Create assembled item with one comp (qty per = 1).
         MockAsmItem(ParentItem, ChildItem, 1);
         // Create Bin Mandatory location with To-Assembly Bin filled in
@@ -862,7 +862,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // verify that the bin code on the line is To-Asm Bin Code
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        AsmLine.FindLast;
+        AsmLine.FindLast();
         Assert.AreEqual(Bin.Code, AsmLine."Bin Code", '');
 
         // set data back to original
@@ -1153,7 +1153,7 @@ codeunit 137912 "SCM Assembly Availability II"
         LeadTime: DateFormula;
         OldDefSafetyLeadTime: DateFormula;
     begin
-        Initialize;
+        Initialize();
         // 1. Create item X with 2 UOMs (BOX = 5, PCS = 1). Set replenishment system = Assembly.
         // 2. Create SKU at BLUE with Safety Lead Time = 3D
         // 3. Change manufacturing default safety lead time = 2D
@@ -1199,7 +1199,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.Modify(true);
 
         // Now change UOM on header to BOX (= 5 PCS)
-        UnitOfMeasure.FindLast;
+        UnitOfMeasure.FindLast();
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ParentItem."No.", UnitOfMeasure.Code, 5);
         Step := 3;
         asserterror AsmHeader.Validate("Unit of Measure Code", UnitOfMeasure.Code); // avail warning should open - make check
@@ -1234,7 +1234,7 @@ codeunit 137912 "SCM Assembly Availability II"
         OldDefSafetyLeadTime: DateFormula;
         DTFormula: DateFormula;
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'CheckAvailWarning';
 
         // Change manufacturing Default Safety Lead Time = 2D
@@ -1568,9 +1568,9 @@ codeunit 137912 "SCM Assembly Availability II"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);

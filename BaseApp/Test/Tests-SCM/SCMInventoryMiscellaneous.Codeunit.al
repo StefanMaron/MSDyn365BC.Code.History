@@ -51,7 +51,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Location: Record Location;
     begin
         // Verify Planning Lines for demand location after posting Item Journal and Calculate Regenerative Plan.
-        Initialize;
+        Initialize();
         CreateLocation(Location, false, false, false, false);
         RequisitionLineWithItemJournal(Location.Code, Location.Code);
     end;
@@ -70,7 +70,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for non demand location after posting Item Journal and Calculate Regenerative Plan.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. Create two locations. Create Parent Item and Child Item with Variants. Post Negative Adjmt. for Parent Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
 
@@ -98,7 +98,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Location: Record Location;
     begin
         // Verify Planning Lines for blank location after posting Item Journal and Calculate Regenerative Plan.
-        Initialize;
+        Initialize();
         CreateLocation(Location, false, false, false, false);
         RequisitionLineWithItemJournal(Location.Code, '');  // Use blank for Location Code.
     end;
@@ -133,7 +133,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Location: Record Location;
     begin
         // Verify Planning Lines for demand location after creating Production Forecast and Calculate Regenerative Plan.
-        Initialize;
+        Initialize();
         CreateLocation(Location, false, false, false, false);
         RequisitionLineWithForecast(Location.Code, Location.Code);
     end;
@@ -154,7 +154,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is ON and Calculate Regenerative Plan is invoked.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
 
@@ -220,7 +220,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
 
@@ -283,7 +283,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is ON and Calculate Regenerative Plan is invoked.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
         CreateLocation(Location, false, false, false, false);
@@ -327,7 +327,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
         CreateLocation(Location, false, false, false, false);
@@ -372,7 +372,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for Production Forecast with Item Variant when 'Use forecast on Variants' is OFF and Calculate Regenerative Plan is invoked.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. 
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
         CreateLocation(Location, false, false, false, false);
@@ -417,7 +417,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planning Lines for non demand location after creating Production Forecast and Calculate Regenerative Plan.
 
         // Setup: Update Sales Receivables Setup and Manufacturing Setup. Create two locations. Create Parent Item and Child Item with Variant. Create Production Forecast for Parent Item.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);  // Use Random value for Quantity.
         SetupSalesAndManufacturingSetup;
 
@@ -448,7 +448,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // Verify Planning Lines for blank location after creating Production Forecast and Calculate Regenerative Plan.
 
-        Initialize;
+        Initialize();
         CreateLocation(Location, false, false, false, false);
         RequisitionLineWithForecast(Location.Code, '');  // Use blank for Location Code.
     end;
@@ -490,7 +490,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378398] Field "Completely Shipped" in Tranfer Header should be FALSE when line with partly shipped exist.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item and Location.
         LibraryInventory.CreateItem(Item);
@@ -526,7 +526,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378398] Field "Completely Shipped" in Tranfer Header should be TRUE when all lines in it are completely shipped.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item and Location.
         LibraryInventory.CreateItem(Item);
@@ -561,7 +561,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378398] Field "Completely Received" in Tranfer Header should be FALSE whenever the Transfer Order isn't post completely.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location.
         LibraryWarehouse.CreateLocation(Location);
@@ -599,7 +599,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378398] Field "Completely Received" in Tranfer Line should be TRUE when received quantity equal to quantity in Tranfer Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Location.
         LibraryWarehouse.CreateLocation(Location);
@@ -636,7 +636,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // [FEATURE] [Transfer Order]
         // [SCENARIO 378398] Field "Completely Received" in Tranfer Line should be FALSE when received quantity isn't equal to quantity in Tranfer Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item and Location.
         LibraryInventory.CreateItem(Item);
@@ -668,7 +668,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Pick Worksheet after Get Warehouse Documents functionality.
 
         // Setup: Create initial setup for Pick Worksheet.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);  // Use Random value for Quantity.
         CreateFullWarehouseSetup(Location);
         GlobalDocumentNo :=
@@ -698,7 +698,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Reserved Quantity on Sales Line after creating Pick from Pick Worksheet when Customer has Reserve as Always.
 
         // Setup: Create initial setup for Pick Worksheet. Get Warehouse Document and create Pick. Create Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);  // Use Random value for Quantity.
         CreateFullWarehouseSetup(Location);
 
@@ -740,7 +740,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Pick Worksheet Line after Get Warehouse Documents functionality when Customer has Reserve as Always.
 
         // Setup: Create initial setup for Pick Worksheet. Get Warehouse Document and Create Pick. Create and release Sales Order and Warehouse Shipment.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(100);  // Use Random value for Quantity.
         CreateFullWarehouseSetup(Location);
 
@@ -781,7 +781,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify multiple Warehouse Shipments created from Sales Order.
 
         // Setup: Create and release Sales Order with multiple lines.
-        Initialize;
+        Initialize();
         CreateLocation(Location, true, true, false, false);
         CreateLocation(Location2, true, true, false, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
@@ -810,7 +810,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Warehouse Shipment is created from Sales Order after adding a new Sales Line.
 
         // Setup: Create and release Sales Order with multiple lines and create Warehouse Shipment. Add new Sales Line.
-        Initialize;
+        Initialize();
         CreateLocation(Location, true, true, false, false);
         CreateLocation(Location2, true, true, false, false);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
@@ -842,7 +842,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Inventory Pick created from Transfer Order.
 
         // Setup: Create Transfer Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateInitialSetupForTransferOrder(TransferLine, Item."No.", true, false, false, false);
 
@@ -867,7 +867,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Inventory Pick is not created again from Transfer Order if it is already created.
 
         // Setup: Create Transfer Order and create Inventory Pick.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateInitialSetupForTransferOrder(TransferLine, Item."No.", true, false, false, false);
 
@@ -895,7 +895,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Inventory Put-away created from Transfer Order.
 
         // Setup: Create and Ship Transfer Order. Create Warehouse Receipt.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateInitialSetupForTransferOrder(TransferLine, Item."No.", false, false, true, true);
 
@@ -927,7 +927,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Dimension on Transfer Line.
 
         // Setup: Create Item with Dimension and Post Item Journal Line.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity.
         CreateItem(Item, Item."Replenishment System"::" ");
         UpdateItemDimension(DefaultDimension, Item."No.");
@@ -953,7 +953,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planned Shipment Date on Sales Line after setting the Outbound Whse. Handling Time on Location.
 
         // Setup: Create and modify Location for Outbound Whse. Handling Time and Create Item.
-        Initialize;
+        Initialize();
         CreateAndModifyLocation(Location);
         CreateItem(Item, Item."Replenishment System"::Purchase);
 
@@ -977,8 +977,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Tracking on Posted Inventory Pick when Tracking is assigned on Inventory Pick.
 
         // Setup: Post Item with tracking. Create and release Transfer Order. Create Inventory Pick. Assign Tracking to Inventory Pick.
-        Initialize;
-        LotNo := LibraryUtility.GenerateGUID; // for ItemTrackingLinesPageHandler
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID(); // for ItemTrackingLinesPageHandler
         LibraryVariableStorage.Enqueue(LotNo);
         CreateWarehouseActivityHeader(WarehouseActivityHeader, TransferLine, LotNo);
 
@@ -1005,8 +1005,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Tracking on Posted Inventory Pick when Tracking is assigned on Transfer Order.
 
         // Setup: Post Item with Tracking. Create and release Transfer Order. Assign Tracking to Transfer Order. Create Inventory Pick.
-        Initialize;
-        LotNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo); // for ItemTrackingLinesPageHandler
         LibraryVariableStorage.Enqueue(LotNo); // for ItemTrackingLinesPageHandler
         CreateInitialSetupForTransferOrder(TransferLine, CreateLotTrackedItem, true, true, false, false);
@@ -1040,7 +1040,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Planned Delivery Date and Planned Shipment Date on Sales Line after setting the Outbound Whse. Handling Time on Location Card and Sales Order.
 
         // Setup: Create and modify Location for Outbound Whse. Handling Time and Create Item.
-        Initialize;
+        Initialize();
         CreateAndModifyLocation(Location);
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateSalesOrder(
@@ -1071,7 +1071,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Requisition Line is created for Transfer when Item involved in Sales Order has SKU parameters set.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
         LibraryWarehouse.CreateLocation(Location);
         SetupForRequisitionWorksheet(StockkeepingUnit, Location.Code, Quantity);
@@ -1081,7 +1081,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
 
         // Verify: Verify Quantity on Requisition Line which is created for Transfer.
         FindRequisitionLine(RequisitionLine, StockkeepingUnit."Item No.", Location.Code);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("Replenishment System", StockkeepingUnit."Replenishment System");
         RequisitionLine.TestField(Quantity, Quantity);
     end;
@@ -1098,7 +1098,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Tranfer Order is created using Requisition Worksheet when Item involved in Sales Order has SKU parameters set.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity.
         SetupForRequisitionWorksheet(StockkeepingUnit, Location.Code, Quantity);
@@ -1125,7 +1125,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Reservation On Sales Order With Multiple Lines.
 
         // Setup: Create Location, Purchase Orders and sales Order.
-        Initialize;
+        Initialize();
         LocationCode := CreateLocationWithBin;
         LibraryInventory.CreateItem(Item);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, false);
@@ -1156,7 +1156,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify handling error when PutAway is created but not Registered.
 
         // Setup: Create Location and Warehouse Employee, Wharehouse Receipt and Warehouse Shipment.
-        Initialize;
+        Initialize();
         CreateWhseReceiptAndWhseShipmentWithBin(WarehouseReceiptLine, WarehouseShipmentLine);
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
 
@@ -1179,7 +1179,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Bin Code on created Pick after Put Away is Registered.
 
         // Setup: Create Warehouse Receipt and Warehouse Shipment, Register Put Away.
-        Initialize;
+        Initialize();
         CreateWhseReceiptAndWhseShipmentWithBin(WarehouseReceiptLine, WarehouseShipmentLine);
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
         BinCode := RegisterWarehouseActivitywithBin(WarehouseReceiptLine."Source No.");
@@ -1203,7 +1203,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // Verify Bin Content after Put Away is Registered but before posting Sales Order.
 
         // Setup: Create Warehouse Receipt and Warehouse Shipment, Register Put Away.
-        Initialize;
+        Initialize();
         CreateWhseReceiptAndWhseShipmentWithBin(WarehouseReceiptLine, WarehouseShipmentLine);
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
         BinCode := RegisterWarehouseActivitywithBin(WarehouseReceiptLine."Source No.");
@@ -1319,7 +1319,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         // [FEATURE] [Planning Worksheet] [Combine Transfer Orders]
         // [SCENARIO 222611] Transfer orders should be combined when carrying out action message in requisition worksheet filtered by 'Carry Out Action Message' field.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Locations "L1", "L2", "L3" with transfer routes "L1" -> "L2" and "L1" -> "L3".
         LibraryWarehouse.CreateLocation(LocationFrom);
@@ -1389,7 +1389,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // [SCENARIO 375628] Post and print Inbound Transfer Warehouse Activity
 
         // [GIVEN] Warehouse Put-away Activity Header obtained from transfer shipment
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Replenishment System"::Purchase);
         CreateInitialSetupForTransferOrder(TransferLine, Item."No.", false, false, false, true);
         TransferHeader.Get(TransferLine."Document No.");
@@ -1399,7 +1399,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
         TransferHeader.CreateInvtPutAwayPick;
         WarehouseActivityHeader.SetRange("Location Code", TransferHeader."Transfer-to Code");
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
 
         // [WHEN] Post and Print Acitivity
@@ -1428,8 +1428,8 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         // [SCENARIO 375628] Post and print Outbound Transfer Warehouse Activity
 
         // [GIVEN] Warehouse Pick Activity Header obtained from transfer shipment
-        Initialize;
-        LotNo := LibraryUtility.GenerateGUID; // for ItemTrackingLinesPageHandler
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID(); // for ItemTrackingLinesPageHandler
         LibraryVariableStorage.Enqueue(LotNo);
         CreateWarehouseActivityHeader(WarehouseActivityHeader, TransferLine, LotNo);
         TransferHeader.Get(TransferLine."Document No.");
@@ -1450,20 +1450,20 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Miscellaneous");
         ClearGlobalVariable;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
 
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Miscellaneous");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
@@ -1884,7 +1884,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         ReqWkshTemplate.SetRange("Page ID", PageID);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         exit(RequisitionWkshName.Name);
     end;
@@ -2035,7 +2035,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     local procedure FindProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20])
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LocationCode: Code[10])
@@ -2043,21 +2043,21 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Location Code", LocationCode);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWhseShipmentNo(SourceNo: Code[20]; LocationCode: Code[10]): Code[20]
@@ -2067,7 +2067,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.SetRange("Location Code", LocationCode);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         exit(WarehouseShipmentLine."No.");
     end;
 
@@ -2137,7 +2137,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, WarehouseActivityLine."Activity Type"::"Put-away");
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Validate("Bin Code", CreateBin(WarehouseActivityLine."Location Code"));
         WarehouseActivityLine.Modify(true);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
@@ -2167,14 +2167,14 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure SelectWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
     end;
 
     local procedure SetupForRequisitionWorksheet(var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10]; Quantity: Decimal)
@@ -2305,7 +2305,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
         DimensionSetEntry.TestField("Dimension Code", DefaultDimension."Dimension Code");
         DimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
@@ -2316,7 +2316,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Item No.", ItemNo);
         WarehouseActivityLine.TestField(Quantity, Quantity);
     end;
@@ -2326,7 +2326,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         WhseWorksheetLine.SetRange("Item No.", SalesLine."No.");
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField(Quantity, SalesLine.Quantity);
         WhseWorksheetLine.TestField("Qty. to Handle", QtyToHandle);
         WhseWorksheetLine.TestField("Destination No.", SalesLine."Sell-to Customer No.");
@@ -2338,7 +2338,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     begin
         PostedInvtPickLine.SetRange("Source No.", SourceNo);
         PostedInvtPickLine.SetRange("Location Code", LocationCode);
-        PostedInvtPickLine.FindFirst;
+        PostedInvtPickLine.FindFirst();
         PostedInvtPickLine.TestField("Item No.", ItemNo);
         PostedInvtPickLine.TestField(Quantity, Quantity);
         PostedInvtPickLine.TestField("Lot No.", LotNo);
@@ -2349,7 +2349,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         RequisitionLine: Record "Requisition Line";
     begin
         FindRequisitionLine(RequisitionLine, No, LocationCode);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Variant Code", VariantCode);
     end;
@@ -2360,10 +2360,10 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferLine: Record "Transfer Line";
     begin
         FilterTransferOrder(TransferHeader, TransferFromCode, TransferToCode);
-        TransferHeader.FindFirst;
+        TransferHeader.FindFirst();
         TransferLine.SetRange("Document No.", TransferHeader."No.");
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField(Quantity, Quantity);
     end;
 
@@ -2374,10 +2374,10 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Bin Code", TakeBinCode);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Bin Code", PlaceBinCode);
     end;
 
@@ -2386,7 +2386,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BinContent: Record "Bin Content";
     begin
         BinContent.SetRange("Bin Code", BinCode);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.CalcFields(Quantity);
         BinContent.TestField(Quantity, Quantity);
     end;
@@ -2396,7 +2396,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         NameValueBuffer: Record "Name/Value Buffer";
         FileManagement: Codeunit "File Management";
     begin
-        NameValueBuffer.FindFirst;
+        NameValueBuffer.FindFirst();
         FileManagement.ServerFileExists(NameValueBuffer.Name);
         NameValueBuffer.Delete();
     end;

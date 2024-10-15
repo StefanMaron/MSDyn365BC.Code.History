@@ -129,7 +129,7 @@ codeunit 144702 "ERM Torg-12 Report"
         // [FEATURE] [Order Item Shipment TORG-12] [Signature]
         // [SCENARIO 371887] Report "Order Item Shipment TORG-12" should contain correct signature
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with signature: Released By = "X", Accountant = "Y", Passed By = "Z"
         CreateSalesOrderWithSignature(SalesHeader, ReleasedByEmployeeName, AccountantEmployeeName, PassedByEmployeeName);
 
@@ -222,10 +222,10 @@ codeunit 144702 "ERM Torg-12 Report"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -236,7 +236,7 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesHeaderWithFilters: Record "Sales Header";
         OrderItemShipmentTORG12: Report "Order Item Shipment TORG-12";
     begin
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         OrderItemShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, Preview);
 
@@ -244,7 +244,7 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesHeaderWithFilters.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderWithFilters.SetRange("No.", SalesHeader."No.");
         OrderItemShipmentTORG12.SetTableView(SalesHeaderWithFilters);
-        OrderItemShipmentTORG12.Run;
+        OrderItemShipmentTORG12.Run();
     end;
 
     local procedure GetShipmentLinesAmount(DocumentNo: Code[20]) TotalAmount: Decimal
@@ -254,7 +254,7 @@ codeunit 144702 "ERM Torg-12 Report"
         TotalAmount := 0;
         with SalesShipmentLine do begin
             SetRange("Document No.", DocumentNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TotalAmount += Amount;
                 until Next = 0;
@@ -278,7 +278,7 @@ codeunit 144702 "ERM Torg-12 Report"
         ReleaseSalesDoc.Reopen(SalesHeader);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate(Quantity, QtyToShip);
         SalesLine.Modify(true);
         ReleaseSalesDoc.Run(SalesHeader);
@@ -288,7 +288,7 @@ codeunit 144702 "ERM Torg-12 Report"
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        Initialize;
+        Initialize();
 
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, LineQty);
         ChangeQtyInFirstLine(SalesHeader, QtyToShip);
@@ -305,7 +305,7 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesShipmentHeader: Record "Sales Shipment Header";
         PostedShipShipmentTORG12: Report "Posted Ship. Shipment TORG-12";
     begin
-        Initialize;
+        Initialize();
 
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, QuantityOfLines);
         ChangeQtyInFirstLine(SalesHeader, QtyToShip);
@@ -319,7 +319,7 @@ codeunit 144702 "ERM Torg-12 Report"
         PostedShipShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, false);
         PostedShipShipmentTORG12.SetTableView(SalesShipmentHeader);
         PostedShipShipmentTORG12.UseRequestPage(false);
-        PostedShipShipmentTORG12.Run;
+        PostedShipShipmentTORG12.Run();
     end;
 
     local procedure CreateSalesInvoiceAndPrintTorg12Report(QuantityOfLines: Integer; QtyToShip: Decimal) DocumentNo: Code[20]
@@ -328,7 +328,7 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedInvShipmentTORG12: Report "Posted Inv. Shipment TORG-12";
     begin
-        Initialize;
+        Initialize();
 
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::Order, QuantityOfLines);
         ChangeQtyInFirstLine(SalesHeader, QtyToShip);
@@ -342,7 +342,7 @@ codeunit 144702 "ERM Torg-12 Report"
         PostedInvShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, false);
         PostedInvShipmentTORG12.SetTableView(SalesInvoiceHeader);
         PostedInvShipmentTORG12.UseRequestPage(false);
-        PostedInvShipmentTORG12.Run;
+        PostedInvShipmentTORG12.Run();
     end;
 
     local procedure CreateSalesCrMemoAndPrintTorg12Report(QuantityOfLines: Integer; QtyToShip: Decimal) DocumentNo: Code[20]
@@ -351,7 +351,7 @@ codeunit 144702 "ERM Torg-12 Report"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedCrMShipmentTORG12: Report "Posted Cr. M. Shipment TORG-12";
     begin
-        Initialize;
+        Initialize();
 
         LibraryRUReports.CreateSalesOrder(SalesHeader, SalesHeader."Document Type"::"Credit Memo", QuantityOfLines);
         ChangeQtyInFirstLine(SalesHeader, QtyToShip);
@@ -365,7 +365,7 @@ codeunit 144702 "ERM Torg-12 Report"
         PostedCrMShipmentTORG12.InitializeRequest(LibraryReportValidation.GetFileName, false);
         PostedCrMShipmentTORG12.SetTableView(SalesCrMemoHeader);
         PostedCrMShipmentTORG12.UseRequestPage(false);
-        PostedCrMShipmentTORG12.Run;
+        PostedCrMShipmentTORG12.Run();
     end;
 
     local procedure CreateSalesOrderWithSignature(var SalesHeader: Record "Sales Header"; var ReleasedByEmployeeName: Text[100]; var AccountantEmployeeName: Text[100]; var PassedByEmployeeName: Text[100])

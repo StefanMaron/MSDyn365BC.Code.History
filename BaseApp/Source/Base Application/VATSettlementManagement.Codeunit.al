@@ -39,7 +39,7 @@ codeunit 12411 "VAT Settlement Management"
         DtldVendLedgEntry.SetFilter("Entry Type", '%1|%2|%3', DtldVendLedgEntry."Entry Type"::Application,
           DtldVendLedgEntry."Entry Type"::"Realized Loss",
           DtldVendLedgEntry."Entry Type"::"Realized Gain");
-        if DtldVendLedgEntry.FindSet then
+        if DtldVendLedgEntry.FindSet() then
             repeat
                 if not DtldVendLedgEntry.Unapplied then begin
                     VendLedgEntry.Get(DtldVendLedgEntry."Vendor Ledger Entry No.");
@@ -89,7 +89,7 @@ codeunit 12411 "VAT Settlement Management"
         GenJnlLine1.Reset();
         GenJnlLine1.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine1.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-        if GenJnlLine1.FindLast then
+        if GenJnlLine1.FindLast() then
             GenJnlLine1."Line No." := GenJnlLine1."Line No." + 10000
         else
             GenJnlLine1."Line No." := 10000;
@@ -151,7 +151,7 @@ codeunit 12411 "VAT Settlement Management"
                 begin
                     VATEntry.SetCurrentKey("Transaction No.");
                     VATEntry.SetRange("Transaction No.", GenJnlLine."VAT Transaction No.");
-                    if VATEntry.FindSet then
+                    if VATEntry.FindSet() then
                         repeat
                             if (not VATEntry.Reversed) and (VATEntry."Unrealized VAT Entry No." = GenJnlLine."Unrealized VAT Entry No.") and
                                (VATEntry."Object No." = GenJnlLine."Object No.")
@@ -188,7 +188,7 @@ codeunit 12411 "VAT Settlement Management"
         DtldVendLedgEntry.SetRange("Transaction No.", GenJnlLine."VAT Transaction No.");
         DtldVendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-        if DtldVendLedgEntry.FindSet then
+        if DtldVendLedgEntry.FindSet() then
             repeat
                 if not DtldVendLedgEntry.Unapplied then begin
                     VendLedgEntry.Get(DtldVendLedgEntry."Vendor Ledger Entry No.");
@@ -205,14 +205,14 @@ codeunit 12411 "VAT Settlement Management"
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntryNo);
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-        if DtldVendLedgEntry.FindSet then
+        if DtldVendLedgEntry.FindSet() then
             repeat
                 if not DtldVendLedgEntry.Unapplied then
                     if DtldVendLedgEntry."Transaction No." <> GenJnlLine."VAT Transaction No." then begin
                         FoundRealVAT := false;
                         VATEntry.SetCurrentKey("Transaction No.");
                         VATEntry.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
-                        if VATEntry.FindSet then
+                        if VATEntry.FindSet() then
                             repeat
                                 FoundRealVAT := FoundRealVAT or ((VATEntry."Object Type".AsInteger() = GenJnlLine."Object Type") and
                                                                  (VATEntry."Object No." = GenJnlLine."Object No.") and
@@ -242,7 +242,7 @@ codeunit 12411 "VAT Settlement Management"
             EntryCount := 0;
             SetCurrentKey("Unrealized VAT Entry No.");
             SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (not Correction) and
                        (not Reversed) and ("VAT Settlement Part" <> "VAT Settlement Part"::" ")
@@ -386,7 +386,7 @@ codeunit 12411 "VAT Settlement Management"
         VATEntry.SetCurrentKey("Unrealized VAT Entry No.");
         VATEntry.SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
         VATEntry.SetRange("Posting Date", FromDate, ToDate);
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 if not VATEntry.Reversed then
                     case AddRealVAT of
@@ -414,7 +414,7 @@ codeunit 12411 "VAT Settlement Management"
         LedgerEntryNo := 0;
         CustLedgEntry.SetCurrentKey("Transaction No.");
         CustLedgEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 if CustLedgEntry."Document Type" = VATEntry."Document Type" then begin
                     LedgerEntryNo := CustLedgEntry."Entry No.";
@@ -429,7 +429,7 @@ codeunit 12411 "VAT Settlement Management"
         DtldCustLedgEntry.SetFilter("Entry Type", '%1|%2|%3', DtldCustLedgEntry."Entry Type"::Application,
           DtldCustLedgEntry."Entry Type"::"Realized Loss",
           DtldCustLedgEntry."Entry Type"::"Realized Gain");
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 if not DtldCustLedgEntry.Unapplied then
                     PaidAmount += DtldCustLedgEntry."Amount (LCY)";
@@ -446,7 +446,7 @@ codeunit 12411 "VAT Settlement Management"
         LedgerEntryNo := 0;
         VendLedgEntry.SetCurrentKey("Transaction No.");
         VendLedgEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 if VendLedgEntry."Document Type" = VATEntry."Document Type" then begin
                     LedgerEntryNo := VendLedgEntry."Entry No.";
@@ -461,7 +461,7 @@ codeunit 12411 "VAT Settlement Management"
         DtldVendLedgEntry.SetFilter("Entry Type", '%1|%2|%3', DtldVendLedgEntry."Entry Type"::Application,
           DtldVendLedgEntry."Entry Type"::"Realized Loss",
           DtldVendLedgEntry."Entry Type"::"Realized Gain");
-        if DtldVendLedgEntry.FindSet then
+        if DtldVendLedgEntry.FindSet() then
             repeat
                 if not DtldVendLedgEntry.Unapplied then
                     PaidAmount += DtldVendLedgEntry."Amount (LCY)";
@@ -615,7 +615,7 @@ codeunit 12411 "VAT Settlement Management"
                 begin
                     CustLedgerEntry.SetCurrentKey("Transaction No.");
                     CustLedgerEntry.SetRange("Transaction No.", TransactionNo);
-                    if CustLedgerEntry.FindFirst then begin
+                    if CustLedgerEntry.FindFirst() then begin
                         GenJournalLine."Shortcut Dimension 1 Code" := CustLedgerEntry."Global Dimension 1 Code";
                         GenJournalLine."Shortcut Dimension 2 Code" := CustLedgerEntry."Global Dimension 2 Code";
                         GenJournalLine."Dimension Set ID" := CustLedgerEntry."Dimension Set ID";
@@ -625,7 +625,7 @@ codeunit 12411 "VAT Settlement Management"
                 begin
                     VendLedgerEntry.SetCurrentKey("Transaction No.");
                     VendLedgerEntry.SetRange("Transaction No.", TransactionNo);
-                    if VendLedgerEntry.FindFirst then begin
+                    if VendLedgerEntry.FindFirst() then begin
                         GenJournalLine."Shortcut Dimension 1 Code" := VendLedgerEntry."Global Dimension 1 Code";
                         GenJournalLine."Shortcut Dimension 2 Code" := VendLedgerEntry."Global Dimension 2 Code";
                         GenJournalLine."Dimension Set ID" := VendLedgerEntry."Dimension Set ID";
@@ -642,11 +642,11 @@ codeunit 12411 "VAT Settlement Management"
     begin
         VATEntry.SetCurrentKey(Type, "CV Ledg. Entry No.");
         VATEntry.SetRange("CV Ledg. Entry No.", CVLedgEntryNo);
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 VATEntry2.SetCurrentKey("Unrealized VAT Entry No.");
                 VATEntry2.SetRange("Unrealized VAT Entry No.", VATEntry."Entry No.");
-                if VATEntry2.FindSet then
+                if VATEntry2.FindSet() then
                     repeat
                         if not VATEntry2.Reversed then
                             if VATEntry2."Prepmt. Diff." and (VATEntry2."VAT Settlement Part" > VATEntry2."VAT Settlement Part"::" ")
@@ -668,7 +668,7 @@ codeunit 12411 "VAT Settlement Management"
     begin
         VATEntry.Get(GenJnlLine."Unrealized VAT Entry No.");
         VATAllocLine.SetRange("VAT Entry No.", GenJnlLine."Unrealized VAT Entry No.");
-        VATAllocLine.FindFirst;
+        VATAllocLine.FindFirst();
         GetFPEMode(GenJnlLine."Unrealized VAT Entry No.", Mode);
         if (Mode = Mode::Depreciation) or
            (Mode = Mode::Any) and (GenJnlLine."FA Error Entry No." <> 0)
@@ -769,7 +769,7 @@ codeunit 12411 "VAT Settlement Management"
             VATEntry.SetRange("Manual VAT Settlement", true);
             I := 0;
             VATCount := VATEntry.Count();
-            if VATEntry.FindSet then
+            if VATEntry.FindSet() then
                 repeat
                     I += 1;
                     Window.Update(1, Round(I / VATCount * 10000, 1));
@@ -893,7 +893,7 @@ codeunit 12411 "VAT Settlement Management"
         if Abs(VATAmtToAlloc) > Abs(VATEntry."Remaining Unrealized Amount") then
             VATAmtToAlloc := VATEntry."Remaining Unrealized Amount";
         Factor := VATAmtToAlloc / VATEntry."Remaining Unrealized Amount";
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 if VATEntry."Remaining Unrealized Amount" <> 0 then begin
                     CreateAllocation(VATEntry."Entry No.");
@@ -1011,7 +1011,7 @@ codeunit 12411 "VAT Settlement Management"
         VATAllocLine.LockTable();
         VATAllocLine.CalcSums(Amount);
         if VATAllocLine.Amount = 0 then begin
-            VATAllocLine.FindFirst;
+            VATAllocLine.FindFirst();
             VATAllocLine.Validate(Base);
             VATAllocLine.Validate(Amount, -Amount);
             VATAllocLine.Modify();
@@ -1049,7 +1049,7 @@ codeunit 12411 "VAT Settlement Management"
     begin
         VATAllocLine.SetFilter("Posting Date Filter", VATDocEntryBuffer.GetFilter("Date Filter"));
         VATAllocLine.SetRange("VAT Entry No.", VATEntryNo);
-        if VATAllocLine.FindFirst then begin
+        if VATAllocLine.FindFirst() then begin
             VATAllocLine.SetFilter(Base, '<>%1', VATAllocLine.Base);
             ControlTotal := VATAllocLine.IsEmpty;
             VATAllocLine.SetRange(Base);
@@ -1098,7 +1098,7 @@ codeunit 12411 "VAT Settlement Management"
         VATEntry.SetCurrentKey("Unrealized VAT Entry No.");
         VATEntry.SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
         VATEntry.SetRange(Reversed, false);
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             LastPostingDate := CalcDate(DateFormula, VATEntry."Posting Date");
     end;
 
@@ -1135,7 +1135,7 @@ codeunit 12411 "VAT Settlement Management"
             VATEntry.SetFilter("Remaining Unrealized Amount", '<>0');
             VATEntry.SetFilter("VAT Settlement Type", EntryToPost.GetFilter("Type Filter"));
             VATEntry.SetRange("Manual VAT Settlement", true);
-            if VATEntry.FindSet then
+            if VATEntry.FindSet() then
                 repeat
                     VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group");
                     VATPostingSetup.TestField("VAT Settlement Template");
@@ -1145,7 +1145,7 @@ codeunit 12411 "VAT Settlement Management"
                     NextLineNo := 0;
                     GenJnlLine.SetRange("Journal Template Name", VATPostingSetup."VAT Settlement Template");
                     GenJnlLine.SetRange("Journal Batch Name", VATPostingSetup."VAT Settlement Batch");
-                    if GenJnlLine.FindLast then
+                    if GenJnlLine.FindLast() then
                         NextLineNo := GenJnlLine."Line No.";
                     NextLineNo := NextLineNo + 10000;
 
@@ -1183,11 +1183,11 @@ codeunit 12411 "VAT Settlement Management"
         VATAllocLine: Record "VAT Allocation Line";
         PostingDate: Date;
     begin
-        if EntryNo.FindSet then
+        if EntryNo.FindSet() then
             if GetGroupVATAlloc(GroupVATAllocLine) then begin
                 repeat
                     VATEntry.SetRange("CV Ledg. Entry No.", EntryNo.Number);
-                    if VATEntry.FindSet then
+                    if VATEntry.FindSet() then
                         repeat
                             VATAllocLine.SetRange("VAT Entry No.", VATEntry."Entry No.");
                             VATAllocLine.DeleteAll(true);
@@ -1221,7 +1221,7 @@ codeunit 12411 "VAT Settlement Management"
     begin
         with VATAllocLine do begin
             SetRange("VAT Entry No.", GenJnlLine."Unrealized VAT Entry No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     TestField("Account No.");
                     TestField(Amount);
@@ -1253,7 +1253,7 @@ codeunit 12411 "VAT Settlement Management"
             SetCurrentKey("Unrealized VAT Entry No.");
             SetRange("Unrealized VAT Entry No.", UnrealVATEntryNo);
             SetRange(Reversed, false);
-            if FindLast then begin
+            if FindLast() then begin
                 if "FA Ledger Entry No." = 0 then
                     Mode := Mode::General
                 else
@@ -1303,7 +1303,7 @@ codeunit 12411 "VAT Settlement Management"
         GLEntry: Record "G/L Entry";
     begin
         GLEntryVATEntryLink.SetRange("VAT Entry No.", VATEntryNo);
-        if GLEntryVATEntryLink.FindFirst then begin
+        if GLEntryVATEntryLink.FindFirst() then begin
             GLEntry.Get(GLEntryVATEntryLink."G/L Entry No.");
             exit(GLEntry."Dimension Set ID");
         end;

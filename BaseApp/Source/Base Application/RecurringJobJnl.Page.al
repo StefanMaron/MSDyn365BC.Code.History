@@ -405,7 +405,7 @@ page 289 "Recurring Job Jnl."
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -464,7 +464,7 @@ page 289 "Recurring Job Jnl."
                         Clear(JTScheduleToJournal);
                         JTScheduleToJournal.SetBatch("Journal Template Name", "Journal Batch Name");
                         JTScheduleToJournal.SetDocNo("Document No.");
-                        JTScheduleToJournal.RunModal;
+                        JTScheduleToJournal.RunModal();
                     end;
                 }
             }
@@ -483,7 +483,7 @@ page 289 "Recurring Job Jnl."
                     trigger OnAction()
                     begin
                         JobJnlReconcile.SetJobJnlLine(Rec);
-                        JobJnlReconcile.Run;
+                        JobJnlReconcile.Run();
                     end;
                 }
                 action("Test Report")

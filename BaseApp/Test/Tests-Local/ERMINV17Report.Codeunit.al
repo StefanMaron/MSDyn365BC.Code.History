@@ -21,7 +21,7 @@ codeunit 144704 "ERM INV-17 Report"
     var
         InvtActHeader: Record "Invent. Act Header";
     begin
-        Initialize;
+        Initialize();
         MockInvActHeader(InvtActHeader);
         RunINV17Report(InvtActHeader);
         VerifyReportHeader(
@@ -36,7 +36,7 @@ codeunit 144704 "ERM INV-17 Report"
         InvtActHeader: Record "Invent. Act Header";
         TempInvtActLine: Record "Invent. Act Line" temporary;
     begin
-        Initialize;
+        Initialize();
         MockInvActHeader(InvtActHeader);
         InitCustBuffer(TempInvtActLine, InvtActHeader."No.");
         InitVendBuffer(TempInvtActLine, InvtActHeader."No.");
@@ -55,7 +55,7 @@ codeunit 144704 "ERM INV-17 Report"
         CategoryType: Option;
         Counter: Integer;
     begin
-        Initialize;
+        Initialize();
         MockInvActHeader(InvtActHeader);
         MockCustomerWithLedgEntries(TempCustLedgEntry, InvtActHeader."Inventory Date");
         MockVendorWithLedgEntries(TempVendLedgEntry, InvtActHeader."Inventory Date");
@@ -81,7 +81,7 @@ codeunit 144704 "ERM INV-17 Report"
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         isInitialized := true;
         Commit();
@@ -93,7 +93,7 @@ codeunit 144704 "ERM INV-17 Report"
             Init;
             Insert(true);
             Validate("Inventory Date", WorkDate);
-            Validate("Reason Document No.", LibraryUtility.GenerateGUID);
+            Validate("Reason Document No.", LibraryUtility.GenerateGUID());
             Validate("Reason Document Date", CalcDate('<1D>', "Inventory Date"));
             Validate("Act Date", CalcDate('<1D>', "Reason Document Date"));
             Modify(true);
@@ -159,7 +159,7 @@ codeunit 144704 "ERM INV-17 Report"
               InvtActLine, ActNo, ContractorType, ContractorNo, GLAccNo, PostingGroupCode,
               CategoryType);
             TempInvtActLine.SetRange(Category, CategoryType);
-            if TempInvtActLine.FindFirst then
+            if TempInvtActLine.FindFirst() then
                 SummarizeAmounts(TempInvtActLine, InvtActLine)
             else begin
                 TempInvtActLine := InvtActLine;
@@ -194,20 +194,20 @@ codeunit 144704 "ERM INV-17 Report"
         CustPostingGroup: Record "Customer Posting Group";
         EntryAmount: Decimal;
     begin
-        CustPostingGroup.FindFirst;
+        CustPostingGroup.FindFirst();
         Customer.Init();
         Customer."Customer Posting Group" := CustPostingGroup.Code;
-        Customer.Name := LibraryUtility.GenerateGUID;
-        Customer."Name 2" := LibraryUtility.GenerateGUID;
-        Customer.Address := LibraryUtility.GenerateGUID;
-        Customer."Address 2" := LibraryUtility.GenerateGUID;
-        Customer."Phone No." := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
+        Customer."Name 2" := LibraryUtility.GenerateGUID();
+        Customer.Address := LibraryUtility.GenerateGUID();
+        Customer."Address 2" := LibraryUtility.GenerateGUID();
+        Customer."Phone No." := LibraryUtility.GenerateGUID();
         Customer."Agreement Posting" := Customer."Agreement Posting"::Mandatory;
         Customer.Insert(true);
 
         CustAgreement.Init();
         CustAgreement."Customer No." := Customer."No.";
-        CustAgreement.Description := LibraryUtility.GenerateGUID;
+        CustAgreement.Description := LibraryUtility.GenerateGUID();
         CustAgreement.Insert(true);
 
         EntryAmount := LibraryRandom.RandDec(100, 2);
@@ -233,20 +233,20 @@ codeunit 144704 "ERM INV-17 Report"
         VendPostingGroup: Record "Vendor Posting Group";
         EntryAmount: Decimal;
     begin
-        VendPostingGroup.FindFirst;
+        VendPostingGroup.FindFirst();
         Vendor.Init();
         Vendor."Vendor Posting Group" := VendPostingGroup.Code;
-        Vendor.Name := LibraryUtility.GenerateGUID;
-        Vendor."Name 2" := LibraryUtility.GenerateGUID;
-        Vendor.Address := LibraryUtility.GenerateGUID;
-        Vendor."Address 2" := LibraryUtility.GenerateGUID;
-        Vendor."Phone No." := LibraryUtility.GenerateGUID;
+        Vendor.Name := LibraryUtility.GenerateGUID();
+        Vendor."Name 2" := LibraryUtility.GenerateGUID();
+        Vendor.Address := LibraryUtility.GenerateGUID();
+        Vendor."Address 2" := LibraryUtility.GenerateGUID();
+        Vendor."Phone No." := LibraryUtility.GenerateGUID();
         Vendor."Agreement Posting" := Vendor."Agreement Posting"::Mandatory;
         Vendor.Insert(true);
 
         VendAgreement.Init();
         VendAgreement."Vendor No." := Vendor."No.";
-        VendAgreement.Description := LibraryUtility.GenerateGUID;
+        VendAgreement.Description := LibraryUtility.GenerateGUID();
         VendAgreement.Insert(true);
 
         EntryAmount := LibraryRandom.RandDec(100, 2);
@@ -271,14 +271,14 @@ codeunit 144704 "ERM INV-17 Report"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         EntryNo: Integer;
     begin
-        if CustLedgEntry.FindLast then
+        if CustLedgEntry.FindLast() then
             EntryNo := CustLedgEntry."Entry No."
         else
             EntryNo := 0;
         EntryNo += 1;
         MockCustLedgEntry(CustLedgEntry, EntryNo, Customer."No.", Customer."Customer Posting Group", PostingDate, AgreementNo);
 
-        if DtldCustLedgEntry.FindLast then
+        if DtldCustLedgEntry.FindLast() then
             EntryNo := DtldCustLedgEntry."Entry No."
         else
             EntryNo := 0;
@@ -300,7 +300,7 @@ codeunit 144704 "ERM INV-17 Report"
             "Customer Posting Group" := CustPostGroupCode;
             "Posting Date" := PostingDate;
             "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Agreement No." := AgreementNo;
             Insert;
         end;
@@ -325,14 +325,14 @@ codeunit 144704 "ERM INV-17 Report"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         EntryNo: Integer;
     begin
-        if VendLedgEntry.FindLast then
+        if VendLedgEntry.FindLast() then
             EntryNo := VendLedgEntry."Entry No."
         else
             EntryNo := 0;
         EntryNo += 1;
         MockVendLedgEntry(VendLedgEntry, EntryNo, Vendor."No.", Vendor."Vendor Posting Group", PostingDate, AgreementNo);
 
-        if DtldVendLedgEntry.FindLast then
+        if DtldVendLedgEntry.FindLast() then
             EntryNo := DtldVendLedgEntry."Entry No."
         else
             EntryNo := 0;
@@ -354,7 +354,7 @@ codeunit 144704 "ERM INV-17 Report"
             "Vendor Posting Group" := VendPostGroupCode;
             "Posting Date" := PostingDate;
             "Document Type" := "Document Type"::Invoice;
-            "Document No." := LibraryUtility.GenerateGUID;
+            "Document No." := LibraryUtility.GenerateGUID();
             "Agreement No." := AgreementNo;
             Insert;
         end;
@@ -467,7 +467,7 @@ codeunit 144704 "ERM INV-17 Report"
         InvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName);
         InvActRep.SetTableView(InvtActHeader);
         InvActRep.UseRequestPage(false);
-        InvActRep.Run;
+        InvActRep.Run();
     end;
 
     local procedure RunINV17SupplementReport(InvtActHeader: Record "Invent. Act Header")
@@ -479,7 +479,7 @@ codeunit 144704 "ERM INV-17 Report"
         SupplementInvActRep.SetFileNameSilent(LibraryReportValidation.GetFileName);
         SupplementInvActRep.SetTableView(InvtActHeader);
         SupplementInvActRep.UseRequestPage(false);
-        SupplementInvActRep.Run;
+        SupplementInvActRep.Run();
     end;
 
     local procedure VerifyReportHeader(ReasonDocNo: Code[20]; ReasonDocDate: Date; DocNo: Code[20]; DocDate: Date; InvDate: Date)

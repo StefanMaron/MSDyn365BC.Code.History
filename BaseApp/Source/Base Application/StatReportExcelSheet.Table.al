@@ -108,7 +108,7 @@ table 26562 "Stat. Report Excel Sheet"
             StatReportExcelSheet.SetRange("Report Data No.", "Report Data No.");
             StatReportExcelSheet.SetRange("Table Code", "Table Code");
             StatReportExcelSheet.SetRange("Parent Sheet Name", "Parent Sheet Name");
-            if StatReportExcelSheet.FindLast then;
+            if StatReportExcelSheet.FindLast() then;
             "Sequence No." := StatReportExcelSheet."Sequence No." + 1;
         end;
         StatutoryReportTable.Get("Report Code", "Table Code");
@@ -127,7 +127,7 @@ table 26562 "Stat. Report Excel Sheet"
         StatReportExcelSheet.SetRange("Report Data No.", ReportDataHeaderNo);
         StatReportExcelSheet.SetRange("Table Code", TableCode);
         StatReportExcelSheet.SetRange("Sheet Name", ExcelSheetName);
-        if StatReportExcelSheet.FindFirst then
+        if StatReportExcelSheet.FindFirst() then
             exit(StatReportExcelSheet."Parent Sheet Name");
     end;
 }

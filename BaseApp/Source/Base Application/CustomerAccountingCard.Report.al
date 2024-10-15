@@ -221,7 +221,7 @@ report 12441 "Customer Accounting Card"
                                         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                                         DtldCustLedgEntry2.SetRange("Entry Type", "Entry Type"::"Realized Gain");
                                         DtldCustLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldCustLedgEntry2.FindFirst then begin
+                                        if DtldCustLedgEntry2.FindFirst() then begin
                                             if Abs("Amount (LCY)") >= Abs(DtldCustLedgEntry2."Amount (LCY)") then
                                                 "Credit Amount (LCY)" := "Credit Amount (LCY)" - DtldCustLedgEntry2."Debit Amount (LCY)"
                                             else
@@ -235,7 +235,7 @@ report 12441 "Customer Accounting Card"
                                         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", "Cust. Ledger Entry"."Entry No.");
                                         DtldCustLedgEntry2.SetRange("Entry Type", "Entry Type"::"Unrealized Gain");
                                         DtldCustLedgEntry2.SetRange("Posting Date", "Posting Date");
-                                        if DtldCustLedgEntry2.FindFirst then begin
+                                        if DtldCustLedgEntry2.FindFirst() then begin
                                             if Abs("Amount (LCY)") >= Abs(DtldCustLedgEntry2."Amount (LCY)") then // print Realized Gain Debit
                                                 "Debit Amount (LCY)" := "Debit Amount (LCY)" - DtldCustLedgEntry2."Credit Amount (LCY)"
                                             else

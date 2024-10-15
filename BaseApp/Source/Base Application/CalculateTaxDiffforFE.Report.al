@@ -175,7 +175,7 @@ report 17300 "Calculate Tax Diff. for FE"
                             if TemplateName <> '' then begin
                                 TaxDiffJnlBatch.SetRange("Journal Template Name", TemplateName);
                                 TaxDiffJnlBatch.SetRange(Name, BatchName);
-                                if TaxDiffJnlBatch.FindFirst then;
+                                if TaxDiffJnlBatch.FindFirst() then;
                                 TaxDiffJnlBatch.SetRange(Name);
                                 if ACTION::LookupOK = PAGE.RunModal(0, TaxDiffJnlBatch) then begin
                                     TemplateName := TaxDiffJnlBatch."Journal Template Name";
@@ -241,7 +241,7 @@ report 17300 "Calculate Tax Diff. for FE"
         TaxDiffJnlLine."Journal Batch Name" := BatchName;
         TaxDiffJnlLine.SetRange("Journal Template Name", TaxDiffJnlLine."Journal Template Name");
         TaxDiffJnlLine.SetRange("Journal Batch Name", TaxDiffJnlLine."Journal Batch Name");
-        if not TaxDiffJnlLine.FindLast then
+        if not TaxDiffJnlLine.FindLast() then
             TaxDiffJnlLine."Line No." := 0;
 
         SetProperties;

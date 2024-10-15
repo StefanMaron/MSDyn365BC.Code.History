@@ -75,7 +75,7 @@ page 26587 "XML Element Lines"
                                         XMLElementExpressionLine.Reset();
                                         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
                                         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-                                        if XMLElementExpressionLine.FindFirst then
+                                        if XMLElementExpressionLine.FindFirst() then
                                             if Confirm(Text002) then begin
                                                 XMLElementExpressionLine.DeleteAll();
                                                 Value := '';
@@ -87,7 +87,7 @@ page 26587 "XML Element Lines"
                                         XMLElementExpressionLine.Reset();
                                         XMLElementExpressionLine.SetRange("Report Code", "Report Code");
                                         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
-                                        if XMLElementExpressionLine.FindFirst then
+                                        if XMLElementExpressionLine.FindFirst() then
                                             if Confirm(Text004) then
                                                 XMLElementExpressionLine.DeleteAll
                                             else
@@ -253,7 +253,7 @@ page 26587 "XML Element Lines"
                         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
                         XMLElementExpressionLine.FilterGroup(0);
                         XMLElementExpressionLines.SetTableView(XMLElementExpressionLine);
-                        XMLElementExpressionLines.RunModal;
+                        XMLElementExpressionLines.RunModal();
                     end;
                 }
                 action("Compound Element Lines")
@@ -426,7 +426,7 @@ page 26587 "XML Element Lines"
         UpperLine.SetCurrentKey("Report Code", "Sequence No.");
         UpperLine.SetRange("Report Code", "Report Code");
         UpperLine.SetFilter("Sequence No.", '..%1', "Sequence No." - 1);
-        if UpperLine.FindLast then begin
+        if UpperLine.FindLast() then begin
             SequenceNo := UpperLine."Sequence No.";
             UpperLine."Sequence No." := "Sequence No.";
             UpperLine.Modify();
@@ -462,7 +462,7 @@ page 26587 "XML Element Lines"
         LowerLine.SetCurrentKey("Report Code", "Sequence No.");
         LowerLine.SetRange("Report Code", "Report Code");
         LowerLine.SetFilter("Sequence No.", '%1..', "Sequence No." + 1);
-        if LowerLine.FindFirst then begin
+        if LowerLine.FindFirst() then begin
             SequenceNo := LowerLine."Sequence No.";
             LowerLine."Sequence No." := "Sequence No.";
             LowerLine.Modify();
@@ -517,12 +517,12 @@ page 26587 "XML Element Lines"
 
         XMLElementLine.SetCurrentKey("Report Code", "Sequence No.");
         XMLElementLine.SetRange("Report Code", "Report Code");
-        if XMLElementLine.FindSet then
+        if XMLElementLine.FindSet() then
             repeat
                 if XMLElementLine.Indentation > 0 then begin
                     ParentLine.SetFilter("Sequence No.", '<%1', XMLElementLine."Sequence No.");
                     ParentLine.SetFilter(Indentation, '<%1', XMLElementLine.Indentation);
-                    if ParentLine.FindLast then begin
+                    if ParentLine.FindLast() then begin
                         XMLElementLine."Parent Line No." := ParentLine."Line No.";
                         XMLElementLine.Modify();
                     end;
@@ -545,7 +545,7 @@ page 26587 "XML Element Lines"
         XMLElementExpressionLine.SetRange("Base XML Element Line No.", "Line No.");
         XMLElementExpressionLine.FilterGroup(0);
         CompoundXMLElementLines.SetTableView(XMLElementExpressionLine);
-        CompoundXMLElementLines.RunModal;
+        CompoundXMLElementLines.RunModal();
     end;
 
     local procedure TableCodeOnAfterValidate()

@@ -78,7 +78,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                         LineValues: array[13] of Text;
                     begin
                         if Number = 1 then begin
-                            if not PurchInvLine.FindFirst then
+                            if not PurchInvLine.FindFirst() then
                                 CurrReport.Break();
                         end else
                             if PurchInvLine.Next(1) = 0 then begin
@@ -151,7 +151,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
 
                 trigger OnPreDataItem()
                 begin
-                    if not PurchInvLine.FindFirst then
+                    if not PurchInvLine.FindFirst() then
                         CurrReport.Break();
 
                     SetRange(Number, 1, CopiesNumber);
@@ -175,7 +175,7 @@ report 14939 "Pstd. Purch. Factura-Invoice"
                 PurchInvLine.Reset();
                 PurchInvLine.SetRange("Document No.", "No.");
                 PurchInvLine.SetFilter("Attached to Line No.", '<>%1', 0);
-                if PurchInvLine.FindSet then
+                if PurchInvLine.FindSet() then
                     repeat
                         AttachedPurchInvLine := PurchInvLine;
                         AttachedPurchInvLine.Insert();

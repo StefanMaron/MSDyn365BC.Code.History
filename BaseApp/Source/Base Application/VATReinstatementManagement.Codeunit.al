@@ -29,7 +29,7 @@ codeunit 12418 "VAT Reinstatement Management"
         PostedFADocHeader.Get(PostedFADocHeader."Document Type"::Writeoff, FAWriteOffActNo);
         PostedFADocLine.SetRange("Document Type", PostedFADocLine."Document Type"::Writeoff);
         PostedFADocLine.SetRange("Document No.", FAWriteOffActNo);
-        if PostedFADocLine.FindSet then
+        if PostedFADocLine.FindSet() then
             repeat
                 FALedgerEntry.Reset();
                 FALedgerEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category");
@@ -51,7 +51,7 @@ codeunit 12418 "VAT Reinstatement Management"
                 VATEntry.SetRange("Object No.", PostedFADocLine."FA No.");
                 VATEntry.SetFilter(Base, '<>0');
                 VATEntry.SetRange("Prepmt. Diff.", false);
-                if VATEntry.FindSet then
+                if VATEntry.FindSet() then
                     repeat
                         CreateVATReinstatementJnlLine(
                           GenJnlLine,
@@ -61,7 +61,7 @@ codeunit 12418 "VAT Reinstatement Management"
                     until VATEntry.Next() = 0;
             until PostedFADocLine.Next() = 0;
 
-        VATReinstJnlForm.Run;
+        VATReinstJnlForm.Run();
     end;
 
     [Scope('OnPrem')]
@@ -79,7 +79,7 @@ codeunit 12418 "VAT Reinstatement Management"
 
         GenJnlLine.SetRange("Journal Template Name", VATPostingSetup."VAT Reinstatement Template");
         GenJnlLine.SetRange("Journal Batch Name", VATPostingSetup."VAT Reinstatement Batch");
-        if GenJnlLine.FindLast then;
+        if GenJnlLine.FindLast() then;
         LineNo := GenJnlLine."Line No." + 10000;
 
         GenJnlLine.Init();
@@ -131,7 +131,7 @@ codeunit 12418 "VAT Reinstatement Management"
 
             I := 0;
             VATCount := VATEntry.Count();// APPROX;
-            if VATEntry.FindSet then
+            if VATEntry.FindSet() then
                 repeat
                     I += 1;
                     Window.Update(1, Round(I / VATCount * 10000, 1));
@@ -192,7 +192,7 @@ codeunit 12418 "VAT Reinstatement Management"
               GenJnlLine, VATEntry, LineToCopy."Entry No.", PostingDate, VATAmountFactor, PostingDescription);
         until LineToCopy.Next() = 0;
 
-        VATReinstJnlForm.Run;
+        VATReinstJnlForm.Run();
     end;
 
     [Scope('OnPrem')]
@@ -268,19 +268,19 @@ codeunit 12418 "VAT Reinstatement Management"
         VATEntry.SetRange(Reversed, false);
         VATEntry.SetRange("VAT Reinstatement", false);
         VATEntry.SetRange("VAT Allocation Type", VATEntry."VAT Allocation Type"::VAT);
-        if not VATEntry.FindSet then
+        if not VATEntry.FindSet() then
             exit;
 
         repeat
             TempVATEntry.SetRange("Unrealized VAT Entry No.", VATEntry."Unrealized VAT Entry No.");
-            if TempVATEntry.FindFirst then
+            if TempVATEntry.FindFirst() then
                 TempVATEntry.Delete();
             TempVATEntry := VATEntry;
             TempVATEntry.Insert();
         until VATEntry.Next() = 0;
         TempVATEntry.SetRange("Unrealized VAT Entry No.");
 
-        if TempVATEntry.FindSet then
+        if TempVATEntry.FindSet() then
             repeat
                 CreateVATReinstatementJnlLine(
                   GenJnlLine,

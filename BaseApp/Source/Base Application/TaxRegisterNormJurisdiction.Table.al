@@ -47,35 +47,6 @@ table 17220 "Tax Register Norm Jurisdiction"
         FileMgt: Codeunit "File Management";
         FileName: Text;
         Text001: Label 'Import File';
-        Text002: Label 'Export File';
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('Does nothing on non-Windows client.', '17.4')]
-    procedure ExportSettings(var TaxRegNormJurisdiction: Record "Tax Register Norm Jurisdiction")
-    var
-        NormJurisdictionSettings: XMLport "Norm Jurisdiction";
-        OutputFile: File;
-        OutStr: OutStream;
-        ServerFileName: Text;
-    begin
-        FileName := FileMgt.SaveFileDialog(Text002, '.xml', '');
-        if (FileName = '') or (FileName = '*.xml') then
-            exit;
-
-        ServerFileName := FileMgt.ServerTempFileName('xml');
-
-        OutputFile.Create(ServerFileName);
-        OutputFile.CreateOutStream(OutStr);
-        NormJurisdictionSettings.SetDestination(OutStr);
-        NormJurisdictionSettings.SetData(TaxRegNormJurisdiction);
-        NormJurisdictionSettings.Export;
-        OutputFile.Close;
-        Clear(OutStr);
-
-        FileMgt.DownloadToFile(ServerFileName, FileName);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure ImportSettings(FileName: Text)
@@ -96,13 +67,7 @@ table 17220 "Tax Register Norm Jurisdiction"
     [Scope('OnPrem')]
     procedure PromptImportSettings()
     begin
-#if not CLEAN17
-        FileName := FileMgt.OpenFileDialog(Text001, '', '');
-        if FileMgt.IsLocalFileSystemAccessible then
-            FileName := FileMgt.UploadFileSilent(FileName);
-#else
         FileName := FileMgt.UploadFile(Text001, '');
-#endif
         if FileName <> '' then
             ImportSettings(FileName);
     end;

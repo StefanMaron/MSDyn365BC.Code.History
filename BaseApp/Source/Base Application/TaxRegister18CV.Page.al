@@ -171,7 +171,7 @@ page 17224 "Tax Register (1.8) CV"
         CreateClosingGenJnlLine: Report "Create Closing Gen. Jnl. Line";
     begin
         CreateClosingGenJnlLine.SetSearching("Section Code", "Ending Date", false, FilterDueDate3Years);
-        CreateClosingGenJnlLine.RunModal;
+        CreateClosingGenJnlLine.RunModal();
     end;
 }
 

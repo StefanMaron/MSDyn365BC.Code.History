@@ -793,7 +793,7 @@ table 5601 "FA Ledger Entry"
         VATEntry.SetRange("Object No.", "FA No.");
         VATEntry.SetRange("FA Ledger Entry No.", "Entry No.");
         VATEntry.SetRange(Reversed, false);
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             exit(VATEntry."Entry No.");
         exit(0);
     end;
@@ -819,7 +819,7 @@ table 5601 "FA Ledger Entry"
         if VATEntry."Remaining Unrealized Base" = 0 then
             exit(0);
         TotalUnrealBase := VATEntry."Unrealized Base";
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 TotalAmount := TotalAmount + VATEntry."Unrealized Base" / TotalUnrealBase * Amount;
                 RemainingBase := Round(TotalAmount) - TotalAmountRnded;

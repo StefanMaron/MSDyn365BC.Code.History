@@ -28,17 +28,8 @@ codeunit 26550 "Statutory Report Management"
         OutStr: OutStream;
         FileName: Text;
         PathName: Text;
-        SelectFileName: Text;
-#if not CLEAN17
-        WebClient: Boolean;
-#endif
     begin
-#if not CLEAN17
-        // If there is a WebClient then zip all files on a server and then download it to client
-        WebClient := not FileMgt.IsLocalFileSystemAccessible;
-        if WebClient then
-#endif
-            DataCompression.CreateZipArchive;
+        DataCompression.CreateZipArchive();
 
         if ServerFileName = '' then
             ServerFileName := FileMgt.ServerTempFileName('xml');
@@ -56,21 +47,9 @@ codeunit 26550 "Statutory Report Management"
 
         FileMgt.BLOBImportFromServerFile(TempBlob, ServerFileName);
         TempBlob.CreateInStream(ServerTempFileInStream);
-#if not CLEAN17
-        if WebClient then
-            DataCompression.AddEntry(ServerTempFileInStream, DefaultFileNameTxt + '.xml')
-        else begin
-            if FileName = '' then
-                FileName := DefaultFileNameTxt + '.xml';
-            SelectFileName := SelectFileNameTxt;
-            DownloadFromStream(ServerTempFileInStream, SelectFileName, PathName, '', FileName);
-            PathName := FileMgt.GetDirectoryName(ServerFileName);
-        end;
-#else
         DataCompression.AddEntry(ServerTempFileInStream, DefaultFileNameTxt + '.xml');
-#endif
 
-        if StatutoryReport.FindSet then
+        if StatutoryReport.FindSet() then
             repeat
                 if not StatutoryReport.Header then begin
                     StatutoryReport.TestField("Format Version Code");
@@ -98,23 +77,12 @@ codeunit 26550 "Statutory Report Management"
                 end;
             until StatutoryReport.Next() = 0;
 
-#if not CLEAN17
-        if WebClient then begin
-            FileName := DefaultFileNameTxt + '.zip';
-            ZipTempBlob.CreateOutStream(ZipOutStream);
-            DataCompression.SaveZipArchive(ZipOutStream);
-            DataCompression.CloseZipArchive();
-            ZipTempBlob.CreateInStream(ZipInStream);
-            DownloadFromStream(ZipInStream, SelectFileNameTxt, PathName, '', FileName);
-        end;
-#else
         FileName := DefaultFileNameTxt + '.zip';
         ZipTempBlob.CreateOutStream(ZipOutStream);
         DataCompression.SaveZipArchive(ZipOutStream);
         DataCompression.CloseZipArchive();
         ZipTempBlob.CreateInStream(ZipInStream);
         DownloadFromStream(ZipInStream, SelectFileNameTxt, PathName, '', FileName);
-#endif
     end;
 
     [Scope('OnPrem')]
