@@ -545,7 +545,7 @@ page 132 "Posted Sales Invoice"
                     field("Exchange Rate USD"; Rec."Exchange Rate USD")
                     {
                         ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                        ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
                     }
                     field("CFDI Cancellation Reason Code"; Rec."CFDI Cancellation Reason Code")
                     {

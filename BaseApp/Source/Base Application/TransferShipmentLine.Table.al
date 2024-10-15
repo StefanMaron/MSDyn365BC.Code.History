@@ -181,6 +181,11 @@
         {
             Caption = 'Custom Transit Number';
         }
+        field(10004; "SAT Customs Document Type"; Code[10])
+        {
+            Caption = 'SAT Customs Document Type';
+            TableRelation = "SAT Customs Document Type";
+        }
     }
 
     keys

@@ -6047,9 +6047,57 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure ErrorWhenRequestStampForSalesShipmentCartaPorteForeignTrade()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Carta Porte] [Sales] [Foreign Trade]
+        // [SCENARIO 491440] Request Stamp for Sales Shipment Carta Porte complemento for foreign trade
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Foreign Trade = True
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(), CreatePaymentMethodForSAT());
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.FindFirst();
+        UpdateSalesShipmentForCartaPorte(SalesShipmentHeader);
+        SalesShipmentHeader."Foreign Trade" := true;
+        SalesShipmentHeader."Exchange Rate USD" := 0;
+        SalesShipmentHeader.Modify();
+
+        // [WHEN] Request Stamp for the Sales Shipment
+        ErrorMessages.Trap();
+        asserterror
+          RequestStamp(
+            DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+
+        // [THEN] Error Messages page is opened with logged errors for 'foreign trade' fields:
+        // [THEN] "SAT International Trade Term", "SAT Customs Regime", "SAT Transfer Reason", "Exchange Rate USD"
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("SAT International Trade Term"), SalesShipmentHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("SAT Customs Regime"), SalesShipmentHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("SAT Transfer Reason"), SalesShipmentHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, SalesShipmentHeader.FieldCaption("Exchange Rate USD"), SalesShipmentHeader.RecordId));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ErrorWhenRequestStampTransferShipmentCartaPorte()
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6061,7 +6109,7 @@
 
         // [GIVEN] Posted Transfer Shipment
         CreateTransferItem(LocationFrom, LocationTo, Item);
-        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
 
         // [WHEN] Request Stamp for the Transfer Shipment
         ErrorMessages.Trap;
@@ -6077,6 +6125,50 @@
         ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Transit Distance"), TransferShipmentHeader.RecordId));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenRequestStampTransferShipmentCartaPorteForeignTrade()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Carta Porte] [Transfer]
+        // [SCENARIO 491440] Request Stamp for Transfer Shipment Carta Porte complemento for foreign trade
+        Initialize();
+
+        // [GIVEN] Posted Transfer Shipment with foreign trade = true
+        CreateTransferItem(LocationFrom, LocationTo, Item);
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
+        UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
+        TransferShipmentHeader."Foreign Trade" := true;
+        TransferShipmentHeader."Exchange Rate USD" := 0;
+        TransferShipmentHeader.Modify();
+
+        // [WHEN] Request Stamp for the Transfer Shipment
+        ErrorMessages.Trap();
+        asserterror
+          RequestStamp(
+            DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+
+        // [THEN] Error Messages page is opened with logged errors for 'foreign trade' fields:
+        // [THEN] "SAT International Trade Term", "SAT Customs Regime", "SAT Transfer Reason", "Exchange Rate USD"
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("SAT International Trade Term"), TransferShipmentHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("SAT Customs Regime"), TransferShipmentHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("SAT Transfer Reason"), TransferShipmentHeader.RecordId));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(
+          StrSubstNo(IfEmptyErr, TransferShipmentHeader.FieldCaption("Exchange Rate USD"), TransferShipmentHeader.RecordId));
     end;
 
     [Test]
@@ -6120,13 +6212,65 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        // [THEN] Carta Porte XML is created for the document
-        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor taken from Company Information (TFS 473426)
+        // [THEN] Carta Porte XML is created for the document 
+        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor, DomicilioFiscalReceptor taken from Company Information (TFS 473426, 487886)
         VerifyPartyInformation(
           OriginalStr,
-          Customer."RFC No.", '', GetSATPostalCode(SalesShipmentHeader."SAT Address ID"), CompanyInformation."SAT Tax Regime Classification", 15, 17);
+          CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
         VerifyCartaPorteXMLValues(
-            OriginalStr, SalesShipmentHeader."Transit Distance", SalesShipmentHeader."Vehicle Code", 28);
+            OriginalStr, SalesShipmentHeader."Identifier IdCCP",
+            SalesShipmentHeader."Transit Distance", SalesShipmentHeader."Vehicle Code", SalesLine."Gross Weight" * SalesLine.Quantity, 29);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesShipmentCartaPorteRequestStampForeignTrade()
+    var
+        Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Location: record Location;
+        CompanyInformation: record "Company Information";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Carta Porte] [Sales]
+        // [SCENARIO 491440] Request Stamp for Sales Shipment Carta Porte complemento for foreign trade
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Foreign Trade = True
+        Customer.get(CreateCustomer());
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.FindFirst();
+        UpdateSalesShipmentForCartaPorte(SalesShipmentHeader);
+        UpdateSalesShipmentForCartaPorteForeignTrade(SalesShipmentHeader);
+        Location.Get(SalesShipmentHeader."Location Code");
+        CompanyInformation.Get();
+
+        // [WHEN] Request Stamp for the Sales Shipment
+        RequestStamp(
+          DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesShipmentHeader.Find();
+        SalesShipmentHeader.CalcFields("Original String", "Original Document XML");
+
+        InitXMLReaderForCartaPorte(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Original Document XML"));
+        SalesShipmentHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Carta Porte XML is created for the document with ComercioExterior complement and fields related to foreign trade
+        VerifyPartyInformation(
+          OriginalStr,
+          CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
+        VerifyCartaPorteXMLValuesForeignTrade(
+            OriginalStr,
+            SalesShipmentHeader."Identifier IdCCP", SalesShipmentHeader."SAT Transfer Reason", SalesShipmentHeader."SAT International Trade Term", SalesShipmentHeader."Exchange Rate USD", 29);
     end;
 
     [Test]
@@ -6134,6 +6278,7 @@
     procedure TransferShipmentCartaPorteRequestStamp()
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6148,7 +6293,7 @@
 
         // [GIVEN] Posted Transfer Shipment
         CreateTransferItem(LocationFrom, LocationTo, Item);
-        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
         UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
         Location.get(TransferShipmentHeader."Transfer-to Code");
         CompanyInformation.Get();
@@ -6165,13 +6310,59 @@
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] Carta Porte XML is created for the document
-        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor taken from Company Information (TFS 473426)
+        // [THEN] Receptor node has Rfc, Nombre, RegimenFiscalReceptor, DomicilioFiscalReceptor taken from Company Information (TFS 473426, 487886)
         VerifyPartyInformation(
           OriginalStr,
-          CompanyInformation."RFC Number", CompanyInformation.Name, GetSATPostalCodeFromLocation(TransferShipmentHeader."Transfer-to Code"), CompanyInformation."SAT Tax Regime Classification", 15, 18);
+          CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
         VerifyCartaPorteXMLValues(
-          OriginalStr, TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", 29);
-        LibraryXPathXMLReader.VerityAttributeFromRootNode('Exportacion', '01'); // TFS 471371
+          OriginalStr, TransferShipmentHeader."Identifier IdCCP",
+          TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", TransferLine."Gross Weight" * TransferLine.Quantity, 29);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferShipmentCartaPorteRequestStampForeignTrade()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        Location: Record Location;
+        CompanyInformation: Record "Company Information";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Carta Porte] [Transfer]
+        // [SCENARIO 491440] Request Stamp for Transfer Shipment Carta Porte complemento for foreign trade
+        Initialize();
+
+        // [GIVEN] Posted Transfer Shipment
+        CreateTransferItem(LocationFrom, LocationTo, Item);
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
+        UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
+        UpdateTransferShipmentForCartaPorteForeignTrade(TransferShipmentHeader);
+        Location.get(TransferShipmentHeader."Transfer-to Code");
+        CompanyInformation.Get();
+
+        // [WHEN] Request Stamp for the Transfer Shipment with Foreign Trade = true
+        RequestStamp(
+          DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        TransferShipmentHeader.Find();
+        TransferShipmentHeader.CalcFields("Original String", "Original Document XML");
+
+        InitXMLReaderForCartaPorte(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Original Document XML"));
+        TransferShipmentHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Carta Porte XML is created for the document with ComercioExterior complement and fields related to foreign trade
+        VerifyPartyInformation(
+          OriginalStr,
+          CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
+        VerifyCartaPorteXMLValuesForeignTrade(
+          OriginalStr, TransferShipmentHeader."Identifier IdCCP",
+          TransferShipmentHeader."SAT Transfer Reason", TransferShipmentHeader."SAT International Trade Term", TransferShipmentHeader."Exchange Rate USD", 29);
     end;
 
     [Test]
@@ -6220,6 +6411,7 @@
     procedure TransferShipmentCartaPortePrint()
     var
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6231,7 +6423,7 @@
 
         // [GIVEN] Posted Transfer Shipment
         CreateTransferItem(LocationFrom, LocationTo, Item);
-        CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+        CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
         UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
 
         // [GIVEN] Request Stamp for the Transfer Shipment
@@ -6484,6 +6676,7 @@
         SalesLine: Record "Sales Line";
         SalesShipmentHeader: Record "Sales Shipment Header";
         TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferLine: Record "Transfer Line";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -6512,7 +6705,7 @@
             DATABASE::"Transfer Shipment Header":
                 begin
                     CreateTransferItem(LocationFrom, LocationTo, Item);
-                    CreateTransferShipment(TransferShipmentHeader, LocationFrom, LocationTo, Item."No.");
+                    CreateTransferShipment(TransferShipmentHeader, TransferLine, LocationFrom, LocationTo, Item."No.");
                     UpdateTransferShipmentForCartaPorte(TransferShipmentHeader);
                     PostedDocumentNo := TransferShipmentHeader."No.";
                 end;
@@ -6565,6 +6758,7 @@
           "VAT Prod. Posting Group", CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", VATPct, IsVATExempt, IsNoTaxable));
         SalesLine.Validate(Description, SalesLine."No.");
         SalesLine.Validate("Line Discount %", LineDiscountPct);
+        SalesLine."SAT Customs Document Type" := '02';
         SalesLine.Modify(true);
     end;
 
@@ -6754,6 +6948,7 @@
         Item.Validate("Unit Price", UnitPrice);
         Item.Validate("Gross Weight", LibraryRandom.RandIntInRange(5, 10));
         Item."SAT Item Classification" := LibraryUtility.GenerateRandomCode(Item.FieldNo("SAT Item Classification"), DATABASE::Item);
+        Item."SAT Material Type" := '01';
         Item.Modify(true);
         SATClassification."SAT Classification" := Item."SAT Item Classification";
         SATClassification."Hazardous Material Mandatory" := true;
@@ -6761,6 +6956,7 @@
         UnitOfMeasure.Get(Item."Base Unit of Measure");
         SATUnitOfMeasure.Next(LibraryRandom.RandInt(SATUnitOfMeasure.Count));
         UnitOfMeasure."SAT UofM Classification" := SATUnitOfMeasure."SAT UofM Code";
+        UnitOfMeasure."SAT Customs Unit" := SATUnitOfMeasure."SAT UofM Code";
         UnitOfMeasure.Modify();
         exit(Item."No.");
     end;
@@ -6786,10 +6982,9 @@
         ItemLedgerEntry.Modify(true);
     end;
 
-    local procedure CreateTransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header"; LocationFrom: Record Location; LocationTo: Record Location; ItemNo: Code[20])
+    local procedure CreateTransferShipment(var TransferShipmentHeader: Record "Transfer Shipment Header"; var TransferLine: Record "Transfer Line"; LocationFrom: Record Location; LocationTo: Record Location; ItemNo: Code[20])
     var
         TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
         LocationInTransit: Record Location;
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
@@ -6798,10 +6993,14 @@
         LocationInTransit.Modify(true);
 
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        TransferHeader."Transfer-to Address" := LibraryUtility.GenerateGUID();
+        TransferHeader."Trsf.-to Country/Region Code" := 'TEST';
         TransferHeader.Validate("CFDI Export Code", CreateCFDIExportCode());
         TransferHeader.Modify(true);
         LibraryInventory.CreateTransferLine(
           TransferHeader, TransferLine, ItemNo, LibraryRandom.RandIntInRange(1, 10));
+        TransferLine."SAT Customs Document Type" := '02';
+        TransferLine.Modify();
         LibraryInventory.CreateInventoryPostingSetup(
           InventoryPostingSetup, LocationInTransit.Code, TransferLine."Inventory Posting Group");
         InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo);
@@ -7036,6 +7235,7 @@
         FixedAsset."SCT Permission Number" := LibraryUtility.GenerateGUID();
         SATPermissionType.Next(LibraryRandom.RandInt(SATPermissionType.Count));
         FixedAsset."SCT Permission Type" := SATPermissionType.Code;
+        FixedAsset."Vehicle Gross Weight" := LibraryRandom.RandIntInRange(10, 20);
         FixedAsset.Modify();
         exit(FixedAsset."No.");
     end;
@@ -8114,6 +8314,30 @@
         exit(CurrentDateTime - Days * 24 * 3600 * 1000);
     end;
 
+    local procedure GetSATInternationalTradeTerm(): Code[10]
+    var
+        SATInternationalTradeTerm: Record "SAT International Trade Term";
+    begin
+        SATInternationalTradeTerm.Next(LibraryRandom.RandInt(SATInternationalTradeTerm.Count));
+        exit(SATInternationalTradeTerm.Code);
+    end;
+
+    local procedure GetSATCustomsRegime(): Code[10]
+    var
+        SATCustomsRegime: Record "SAT Customs Regime";
+    begin
+        SATCustomsRegime.Next(LibraryRandom.RandInt(SATCustomsRegime.Count));
+        exit(SATCustomsRegime.Code);
+    end;
+
+    local procedure GetSATTransferReason(): Code[10]
+    var
+        SATTransferReason: Record "SAT Transfer Reason";
+    begin
+        SATTransferReason.Next(LibraryRandom.RandInt(SATTransferReason.Count));
+        exit(SATTransferReason.Code);
+    end;
+
     local procedure InitXMLReaderForPagos20(var FileName: Text)
     begin
         LibraryXPathXMLReader.Initialize(FileName, '');
@@ -8151,7 +8375,8 @@
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
-        LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte', 'http://www.sat.gob.mx/CartaPorte20');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte30', 'http://www.sat.gob.mx/CartaPorte30');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cce11', 'http://www.sat.gob.mx/ComercioExterior11');
     end;
 
     local procedure OriginalStringMandatoryFields(HeaderTableNo: Integer; LineTableNo: Integer; DocumentNoFieldNo: Integer; CustomerFieldNo: Integer; CFDIPurposeFieldNo: Integer; CFDIRelationFieldNo: Integer; PaymentMethodCodeFieldNo: Integer; PaymentTermsCodeFieldNo: Integer; UnitOfMeasureCodeFieldNo: Integer; RelationIdx: Integer)
@@ -8312,6 +8537,16 @@
         CreateTransportOperator(DATABASE::"Sales Shipment Header", SalesShipmentHeader."No.");
     end;
 
+    local procedure UpdateSalesShipmentForCartaPorteForeignTrade(var SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+        SalesShipmentHeader."SAT International Trade Term" := GetSATInternationalTradeTerm();
+        SalesShipmentHeader."SAT Customs Regime" := GetSATCustomsRegime();
+        SalesShipmentHeader."SAT Transfer Reason" := GetSATTransferReason();
+        SalesShipmentHeader."Exchange Rate USD" := LibraryRandom.RandDecInRange(10, 20, 2);
+        SalesShipmentHeader."Foreign Trade" := true;
+        SalesShipmentHeader.Modify();
+    end;
+
     local procedure UpdateTransferShipmentForCartaPorte(var TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
         TransferShipmentHeader."Transit-from Date/Time" := CurrentDateTime;
@@ -8326,6 +8561,16 @@
         UpdateLocationForCartaPorte(TransferShipmentHeader."Transfer-from Code");
         UpdateLocationForCartaPorte(TransferShipmentHeader."Transfer-to Code");
         CreateTransportOperator(DATABASE::"Transfer Shipment Header", TransferShipmentHeader."No.");
+    end;
+
+    local procedure UpdateTransferShipmentForCartaPorteForeignTrade(var TransferShipmentHeader: Record "Transfer Shipment Header")
+    begin
+        TransferShipmentHeader."SAT International Trade Term" := GetSATInternationalTradeTerm();
+        TransferShipmentHeader."SAT Customs Regime" := GetSATCustomsRegime();
+        TransferShipmentHeader."SAT Transfer Reason" := GetSATTransferReason();
+        TransferShipmentHeader."Exchange Rate USD" := LibraryRandom.RandDecInRange(10, 20, 2);
+        TransferShipmentHeader."Foreign Trade" := true;
+        TransferShipmentHeader.Modify();
     end;
 
     local procedure UpdateLocationForCartaPorte(LocationCode: Code[20])
@@ -8880,77 +9125,183 @@
         Assert.AreEqual('.pdf', CopyStr(FilePath, StrLen(FilePath) - 3), '');
     end;
 
-    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; TransitDistance: Integer; VehicleNo: Code[20]; StartPosition: Integer)
+    local procedure VerifyCartaPorteXMLValues(OriginalStr: Text; IdCCP: Text; TransitDistance: Integer; VehicleNo: Code[20]; GrossWeight: Decimal; StartPosition: Integer)
     var
         CompanyInformation: Record "Company Information";
         FixedAsset: Record "Fixed Asset";
     begin
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'Version', '2.0');
-        Assert.AreEqual('2.0', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
-
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'Version', '3.0'); // Version
+        Assert.AreEqual('3.0', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'IdCCP', IdCCP); // IdCCP
+        Assert.AreEqual(IdCCP, SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdCCP', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'TranspInternac', 'No'); // TranspInternac
+        Assert.AreEqual('No', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6));
+          'cfdi:Complemento/cartaporte30:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6)); // TotalDistRec
         Assert.AreEqual(
-          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 2, OriginalStr),
+          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 3, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TotalDistRec', OriginalStr));
 
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte:CartaPorte', 'TranspInternac', 'No');
-        Assert.AreEqual('No', SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
+        // Ubicaciones
         CompanyInformation.Get;
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
-          'RFCRemitenteDestinatario', CompanyInformation."RFC Number");
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Ubicaciones/cartaporte30:Ubicacion',
+          'RFCRemitenteDestinatario', CompanyInformation."RFC Number"); // RFCRemitenteDestinatario
         Assert.AreEqual(
-          CompanyInformation."RFC Number", SelectStr(StartPosition + 4, OriginalStr),
+          CompanyInformation."RFC Number", SelectStr(StartPosition + 5, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
-
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
-          'DistanciaRecorrida', FormatDecimal(TransitDistance, 6), 1);
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Ubicaciones/cartaporte30:Ubicacion',
+          'DistanciaRecorrida', FormatDecimal(TransitDistance, 6), 1); // DistanciaRecorrida
         Assert.AreEqual(
-          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 16, OriginalStr),
+          FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 17, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'DistanciaRecorrida', OriginalStr));
 
+        // Mercancias 
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'NumTotalMercancias', '1');
-        Assert.AreEqual('1', SelectStr(StartPosition + 26, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'PesoBrutoTotal', FormatDecimal(GrossWeight, 3)); // PesoBrutoTotal
+        Assert.AreEqual(
+          FormatDecimal(GrossWeight, 3), SelectStr(StartPosition + 25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'PesoBrutoTotal', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias', 'UnidadPeso', 'XAG');
-        Assert.AreEqual('XAG', SelectStr(StartPosition + 25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Mercancia', 'MaterialPeligroso', 'No');
-        Assert.AreEqual('No', SelectStr(StartPosition + 31, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
+        Assert.AreEqual('XAG', SelectStr(StartPosition + 26, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:FiguraTransporte/cartaporte:TiposFigura', 'TipoFigura', '01');
-        Assert.AreEqual('01', SelectStr(StartPosition + 44, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'NumTotalMercancias', '1'); // NumTotalMercancias
+        Assert.AreEqual('1', SelectStr(StartPosition + 27, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
+
+        // Mercancias/Mercancia
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia', 'MaterialPeligroso', 'No'); // MaterialPeligroso
+        Assert.AreEqual('No', SelectStr(StartPosition + 32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MaterialPeligroso', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia',
+          'PesoEnKg', FormatDecimal(GrossWeight, 3)); // PesoEnKg
+        Assert.AreEqual(
+          FormatDecimal(GrossWeight, 3), SelectStr(StartPosition + 33, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'PesoEnKg', OriginalStr));
 
         // Vehicle
         FixedAsset.Get(VehicleNo);
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte',
-          'PermSCT', FixedAsset."SCT Permission Type");
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte',
+          'PermSCT', FixedAsset."SCT Permission Type"); // PermSCT
         Assert.AreEqual(
-          FixedAsset."SCT Permission Type", SelectStr(StartPosition + 35, OriginalStr),
+          FixedAsset."SCT Permission Type", SelectStr(StartPosition + 36, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'PermSCT', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte',
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte',
           'NumPermisoSCT', FixedAsset."SCT Permission Number");
         Assert.AreEqual(
-          FixedAsset."SCT Permission Number", SelectStr(StartPosition + 36, OriginalStr),
+          FixedAsset."SCT Permission Number", SelectStr(StartPosition + 37, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'NumPermisoSCT', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte/cartaporte:IdentificacionVehicular',
-          'ConfigVehicular', FixedAsset."SAT Federal Autotransport");
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte/cartaporte30:IdentificacionVehicular',
+          'ConfigVehicular', FixedAsset."SAT Federal Autotransport"); // ConfigVehicular
         Assert.AreEqual(
-          FixedAsset."SAT Federal Autotransport", SelectStr(StartPosition + 37, OriginalStr),
+          FixedAsset."SAT Federal Autotransport", SelectStr(StartPosition + 38, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'ConfigVehicular', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Mercancias/cartaporte:Autotransporte/cartaporte:IdentificacionVehicular',
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte/cartaporte30:IdentificacionVehicular',
+          'PesoBrutoVehicular', FormatDecimal(FixedAsset."Vehicle Gross Weight", 2)); // PesoBrutoVehicular
+        Assert.AreEqual(
+          FormatDecimal(FixedAsset."Vehicle Gross Weight", 2), SelectStr(StartPosition + 39, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'PesoBrutoVehicular', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte/cartaporte30:IdentificacionVehicular',
           'PlacaVM', FixedAsset."Vehicle Licence Plate");
         Assert.AreEqual(
-          FixedAsset."Vehicle Licence Plate", SelectStr(StartPosition + 38, OriginalStr),
+          FixedAsset."Vehicle Licence Plate", SelectStr(StartPosition + 40, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'PlacaVM', OriginalStr));
+
+        // TiposFigura
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:FiguraTransporte/cartaporte30:TiposFigura', 'TipoFigura', '01');
+        Assert.AreEqual('01', SelectStr(StartPosition + 46, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
+    end;
+
+    local procedure VerifyCartaPorteXMLValuesForeignTrade(OriginalStr: Text; IdCCP: Text; SATTransferReason: Code[20]; SATInternationalTermsCode: Code[10]; ExchRateUSD: Decimal; StartPosition: Integer)
+    var
+        CompanyInformation: Record "Company Information";
+        CCEOffset: Integer;
+    begin
+        CCEOffset := 28;
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'Version', '3.0'); // Version
+        Assert.AreEqual('3.0', SelectStr(StartPosition + CCEOffset, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'IdCCP', IdCCP); // IdCCP
+        Assert.AreEqual(IdCCP, SelectStr(StartPosition + CCEOffset + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdCCP', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'TranspInternac', 'Sí'); // TranspInternac
+        Assert.AreEqual('Sí', SelectStr(StartPosition + CCEOffset + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
+
+        // CoercioExterior
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Version', '1.1'); // Version
+        Assert.AreEqual(
+          '1.1', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'MotivoTraslado', SATTransferReason); // MotivoTraslado
+        Assert.AreEqual(
+          SATTransferReason, SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MotivoTraslado', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'TipoOperacion', '2'); // TipoOperacion
+        Assert.AreEqual(
+          '2', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoOperacion', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'ClaveDePedimento', 'A1'); // ClaveDePedimento
+        Assert.AreEqual(
+          'A1', SelectStr(StartPosition + 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ClaveDePedimento', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'CertificadoOrigen', '0');
+        Assert.AreEqual(
+          '0', SelectStr(StartPosition + 4, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'CertificadoOrigen', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Incoterm', SATInternationalTermsCode); // Incoterm
+        Assert.AreEqual(
+          SATInternationalTermsCode,
+          SelectStr(StartPosition + 5, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Incoterm', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'Subdivision', '0'); // Subdivision
+        Assert.AreEqual(
+          '0', SelectStr(StartPosition + 6, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Subdivision', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cce11:ComercioExterior', 'TipoCambioUSD', FormatDecimal(ExchRateUSD, 6)); // TipoCambioUSD
+        Assert.AreEqual(
+          FormatDecimal(ExchRateUSD, 6),
+          SelectStr(StartPosition + 7, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioUSD', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cce11:ComercioExterior', 'TotalUSD', FormatDecimal(0, 2)); // TotalUSD
+        Assert.AreEqual(
+          FormatDecimal(0, 2), SelectStr(StartPosition + 8, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
+
+        // Ubicaciones
+        CompanyInformation.Get();
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Ubicaciones/cartaporte30:Ubicacion',
+          'RFCRemitenteDestinatario', CompanyInformation."RFC Number"); // RFCRemitenteDestinatario
+        Assert.AreEqual(
+          CompanyInformation."RFC Number", SelectStr(StartPosition + CCEOffset + 9, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
+
+        // Mercancias 
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
+        Assert.AreEqual(
+          'XAG', SelectStr(StartPosition + CCEOffset + 32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'NumTotalMercancias', '1'); // NumTotalMercancias
+        Assert.AreEqual(
+          '1', SelectStr(StartPosition + CCEOffset + 33, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
+
+        // Mercancias/Mercancia
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia', 'MaterialPeligroso', 'No'); // MaterialPeligroso
+        Assert.AreEqual(
+          'No', SelectStr(StartPosition + CCEOffset + 38, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MaterialPeligroso', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia', 'TipoMateria', '01'); // TipoMateria
+        Assert.AreEqual(
+          '01', SelectStr(StartPosition + CCEOffset + 43, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoMateria', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia/cartaporte30:DocumentacionAduanera',
+          'TipoDocumento', '02'); // IdentDocAduanero
+        Assert.AreEqual(
+          '02', SelectStr(StartPosition + CCEOffset + 44, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoDocumento', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia/cartaporte30:DocumentacionAduanera',
+          'IdentDocAduanero', 'identifier'); // IdentDocAduanero
+        Assert.AreEqual(
+          'identifier', SelectStr(StartPosition + CCEOffset + 45, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdentDocAduanero', OriginalStr));
     end;
 
     local procedure VerfifyCartaPorteDataset(DocumentNo: Code[20]; FiscalInvoiceNumber: Text; DateTimeStamped: Text; ItemNo: Code[20])
