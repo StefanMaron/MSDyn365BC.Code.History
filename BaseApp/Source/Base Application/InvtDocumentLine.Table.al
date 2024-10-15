@@ -47,20 +47,6 @@
                 Validate("Units per Parcel", Item."Units per Parcel");
                 "Item Category Code" := Item."Item Category Code";
                 "Indirect Cost %" := Item."Indirect Cost %";
-                RetrieveCosts();
-                "Unit Cost" := UnitCost;
-
-                case "Document Type" of
-                    "Document Type"::Receipt:
-                        PurchPriceCalcMgt.FindInvtDocLinePrice(Rec, FieldNo("Item No."));
-                    "Document Type"::Shipment:
-                        "Unit Amount" := UnitCost;
-                end;
-
-                Validate("Unit of Measure Code", Item."Base Unit of Measure");
-
-                if "Variant Code" <> '' then
-                    Validate("Variant Code");
 
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -74,6 +60,11 @@
 
                 if "Bin Code" <> '' then
                     Validate("Bin Code");
+
+                if "Variant Code" <> '' then
+                    Validate("Variant Code");
+
+                Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
                 CreateDim(
                   DATABASE::Item, "Item No.",
@@ -146,6 +137,7 @@
                     TestField("Item No.");
                 "Quantity (Base)" := CalcBaseQty(Quantity);
 
+                GetUnitAmount(FieldNo(Quantity));
                 UpdateAmount();
 
                 CheckItemAvailable(FieldNo(Quantity));
@@ -452,13 +444,11 @@
                 GetItem();
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
 
-                GetUnitAmount(FieldNo("Unit of Measure Code"));
-
                 ReadGLSetup();
                 "Unit Cost" := Round(UnitCost * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
 
-                Validate("Unit Amount");
                 Validate(Quantity);
+                Validate("Unit Amount");
                 "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                 "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
             end;
@@ -667,7 +657,6 @@
         ReserveInvtDocLine: Codeunit "Invt. Doc. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
         WMSManagement: Codeunit "WMS Management";
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
         Reservation: Page Reservation;
@@ -752,13 +741,48 @@
     procedure GetUnitAmount(CalledByFieldNo: Integer)
     begin
         RetrieveCosts();
+        "Unit Cost" := UnitCost;
 
         case "Document Type" of
             "Document Type"::Receipt:
-                PurchPriceCalcMgt.FindInvtDocLinePrice(Rec, CalledByFieldNo);
+                "Unit Amount" := FindInvtDocLinePrice(CalledByFieldNo);
             "Document Type"::Shipment:
                 "Unit Amount" := UnitCost * "Qty. per Unit of Measure";
         end;
+    end;
+
+    local procedure FindInvtDocLinePrice(CalledByFieldNo: Integer): Decimal
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.Init();
+        ItemJournalLine."Posting Date" := "Posting Date";
+        ItemJournalLine."Item No." := "Item No.";
+        ItemJournalLine."Variant Code" := "Variant Code";
+        ItemJournalLine."Location Code" := "Location Code";
+        ItemJournalLine."Unit of Measure Code" := "Unit of Measure Code";
+        ItemJournalLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+        ItemJournalLine."Price Calculation Method" := GetDefaultPriceCalculationMethod();
+        ItemJournalLine.Quantity := Quantity;
+
+        case CalledByFieldNo of
+            FieldNo("Variant Code"):
+                CalledByFieldNo := ItemJournalLine.FieldNo("Variant Code");
+            FieldNo(Quantity):
+                CalledByFieldNo := ItemJournalLine.FieldNo(Quantity);
+            FieldNo("Location Code"):
+                CalledByFieldNo := ItemJournalLine.FieldNo("Location Code");
+        end;
+        ItemJournalLine.ApplyPrice("Price Type"::Purchase, CalledByFieldNo);
+        exit(ItemJournalLine."Unit Amount");
+    end;
+
+    local procedure GetDefaultPriceCalculationMethod(): Enum "Price Calculation Method";
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        exit(PurchasesPayablesSetup."Price Calculation Method");
     end;
 
     local procedure TestStatusOpen()
@@ -850,7 +874,14 @@
     end;
 
     local procedure RetrieveCosts()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRetrieveCosts(Rec, UnitCost, IsHandled);
+        if IsHandled then
+            exit;
+
         ReadGLSetup();
         GetItem();
         if GetSKU() then
@@ -1029,6 +1060,11 @@
     begin
         ReservEntry.SetSourceFilter(DATABASE::"Invt. Document Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRetrieveCosts(var InvtDocumentLine: Record "Invt. Document Line"; var UnitCost: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

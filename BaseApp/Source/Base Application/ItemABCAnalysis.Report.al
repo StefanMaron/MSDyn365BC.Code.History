@@ -199,6 +199,7 @@ report 11503 "Item ABC Analysis"
                     Pct := Col1Value / Col1TotalAllRec * 100;
 
                 PCTTotalStatistic := PCTTotalStatistic + Pct;
+                OnAfterItemOnAfterGetRecord(Item, ABC);
             end;
 
             trigger OnPostDataItem()
@@ -510,5 +511,10 @@ report 11503 "Item ABC Analysis"
         ShareCaptionLbl: Label 'Share';
         StructureCaptionLbl: Label 'Structure';
         RangeCaptionLbl: Label 'Range';
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterItemOnAfterGetRecord(var Item: Record Item; ABC: Text[1])
+    begin
+    end;
 }
 

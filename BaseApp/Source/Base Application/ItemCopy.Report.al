@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 11511 "Item Copy"
 {
     Caption = 'Item Copy';
@@ -767,4 +768,4 @@ report 11511 "Item Copy"
     begin
     end;
 }
-
+#endif

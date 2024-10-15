@@ -637,7 +637,7 @@ codeunit 139400 "Permissions Test"
         // [SCENARIO 294966] User Groups import restores 'User-defined' Permission Sets
         // [GIVEN] User Group "G" and one Permission Set with Scope = Tenant
         LibraryPermissions.CreateUserGroup(UserGroup, LibraryUtility.GenerateGUID());
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), NullGUID);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), CreateGuid());
         AddTenantPermissionSetToUserGroup(TenantPermissionSet, UserGroup.Code);
 
         // [GIVEN] "G" exported to file "F"

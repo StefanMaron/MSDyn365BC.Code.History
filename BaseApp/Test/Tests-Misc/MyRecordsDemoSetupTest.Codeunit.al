@@ -2,6 +2,8 @@ codeunit 138090 "My Records Demo Setup Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    Permissions = tabledata "Detailed Cust. Ledg. Entry" = i,
+                  tabledata "Detailed Vendor Ledg. Entry" = i;
 
     trigger OnRun()
     begin

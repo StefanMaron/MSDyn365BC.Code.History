@@ -18,6 +18,7 @@ codeunit 134122 "Price Asset List UT"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -41,14 +42,24 @@ codeunit 134122 "Price Asset List UT"
         Level := LibraryRandom.RandInt(10);
         PriceAssetList.SetLevel(Level);
         PriceAssetList.Add(AssetType::Item, Item."No.");
-        // [THEN] GetList returns two records
+        // [THEN] GetList returns three records
         PriceAssetList.GetList(TempPriceAsset);
-        Assert.RecordCount(TempPriceAsset, 2);
+        Assert.RecordCount(TempPriceAsset, 4);
         // [THEN] Item Discount Group 'D', where Level is 7
         TempPriceAsset.FindFirst();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Item Discount Group");
         TempPriceAsset.TestField("Asset No.", ItemDiscountGroup.Code);
         TempPriceAsset.TestField(Level, Level);
+        // [THEN] (All) Item Discount Groups, where Level is 6
+        TempPriceAsset.Next();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Item Discount Group");
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
+        // [THEN] (All) Items, where Level is 6
+        TempPriceAsset.Next();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
         // [THEN] Item 'I', where Level is 7
         TempPriceAsset.FindLast();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
@@ -73,9 +84,14 @@ codeunit 134122 "Price Asset List UT"
         Level := LibraryRandom.RandInt(10);
         PriceAssetList.SetLevel(Level);
         PriceAssetList.Add(AssetType::Item, Item."No.");
-        // [THEN] GetList returns one record
+        // [THEN] GetList returns two records
         PriceAssetList.GetList(TempPriceAsset);
-        Assert.RecordCount(TempPriceAsset, 1);
+        Assert.RecordCount(TempPriceAsset, 2);
+        // [THEN] (All) Items, where Level is 6
+        TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
         // [THEN] Item 'I', where Level is 7
         TempPriceAsset.FindLast();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
@@ -104,9 +120,14 @@ codeunit 134122 "Price Asset List UT"
         Level := LibraryRandom.RandInt(10);
         PriceAssetList.SetLevel(Level);
         PriceAssetList.Add(AssetType::Item, Item."No.");
-        // [THEN] GetList returns one record
+        // [THEN] GetList returns two records
         PriceAssetList.GetList(TempPriceAsset);
-        Assert.RecordCount(TempPriceAsset, 1);
+        Assert.RecordCount(TempPriceAsset, 2);
+        // [THEN] (All) Items, where Level is 6
+        TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
         // [THEN] Item 'I', where Level is 7
         TempPriceAsset.FindLast();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Item);
@@ -134,12 +155,17 @@ codeunit 134122 "Price Asset List UT"
         PriceAssetList.SetLevel(Level);
         PriceAssetList.Add(AssetType::Resource, Resource."No.");
 
-        // [THEN] GetList returns three records
+        // [THEN] GetList returns four records
         PriceAssetList.GetList(TempPriceAsset);
-        Assert.RecordCount(TempPriceAsset, 3);
-        // [THEN] Resource <blank> (for all resources), where Level is 3
+        Assert.RecordCount(TempPriceAsset, 4);
         TempPriceAsset.SetCurrentKey(Level);
+        // [THEN] All resource groups, where Level is 3
         TempPriceAsset.FindSet();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Resource Group");
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 2);
+        // [THEN] Resource <blank> (for all resources), where Level is 3
+        TempPriceAsset.Next();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
         TempPriceAsset.TestField("Asset No.", '');
         TempPriceAsset.TestField(Level, Level - 2);
@@ -176,11 +202,11 @@ codeunit 134122 "Price Asset List UT"
         // [THEN] GetList returns two records
         PriceAssetList.GetList(TempPriceAsset);
         Assert.RecordCount(TempPriceAsset, 2);
-        // [THEN] Resource <blank> (for all resources), where Level is 4
+        // [THEN] Resource <blank> (for all resources), where Level is 3
         TempPriceAsset.FindSet();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
         TempPriceAsset.TestField("Asset No.", '');
-        TempPriceAsset.TestField(Level, Level - 1);
+        TempPriceAsset.TestField(Level, Level - 2);
         // [THEN] Resource 'R', where Level is 5
         TempPriceAsset.Next();
         TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
@@ -207,9 +233,9 @@ codeunit 134122 "Price Asset List UT"
         // [THEN] GetList returns two records
         PriceAssetList.GetList(TempPriceAsset);
         Assert.RecordCount(TempPriceAsset, 2);
-        // [THEN] Resource <blank> (for all resources), where Level is 4
+        // [THEN] Resource Group <blank> (for all resource groups), where Level is 4
         TempPriceAsset.FindSet();
-        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::Resource);
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Resource Group");
         TempPriceAsset.TestField("Asset No.", '');
         TempPriceAsset.TestField(Level, Level - 1);
         // [THEN] Resource Group 'R', where Level is 5
@@ -220,7 +246,97 @@ codeunit 134122 "Price Asset List UT"
     end;
 
     [Test]
-    procedure T030_RemoveAssetFromList()
+    procedure T030_AddAssetGLAccount()
+    var
+        GLAccount: Record "G/L Account";
+        TempPriceAsset: Record "Price Asset" temporary;
+        PriceAssetList: Codeunit "Price Asset List";
+        AssetType: Enum "Price Asset Type";
+        Level: Integer;
+    begin
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+        // [WHEN] Add "G/L Account" 'A' at level 7
+        Level := LibraryRandom.RandInt(10);
+        PriceAssetList.SetLevel(Level);
+        PriceAssetList.Add(AssetType::"G/L Account", GLAccount."No.");
+        // [THEN] GetList returns two records
+        PriceAssetList.GetList(TempPriceAsset);
+        Assert.RecordCount(TempPriceAsset, 2);
+        // [THEN] (All) G/L Accounts, where Level is 6
+        TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"G/L Account");
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
+        // [THEN] G/L Account 'A', where Level is 7
+        TempPriceAsset.FindLast();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"G/L Account");
+        TempPriceAsset.TestField("Asset No.", GLAccount."No.");
+        TempPriceAsset.TestField(Level, Level);
+    end;
+
+    [Test]
+    procedure T040_AddAssetItemDiscGroup()
+    var
+        ItemDiscountGroup: Record "Item Discount Group";
+        TempPriceAsset: Record "Price Asset" temporary;
+        PriceAssetList: Codeunit "Price Asset List";
+        AssetType: Enum "Price Asset Type";
+        Level: Integer;
+    begin
+        Initialize();
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        // [WHEN] Add "Item Discount Group" 'I' at level 7
+        Level := LibraryRandom.RandInt(10);
+        PriceAssetList.SetLevel(Level);
+        PriceAssetList.Add(AssetType::"Item Discount Group", ItemDiscountGroup.Code);
+        // [THEN] GetList returns two records
+        PriceAssetList.GetList(TempPriceAsset);
+        Assert.RecordCount(TempPriceAsset, 2);
+        // [THEN] (All) Item Discount Groups, where Level is 6
+        TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Item Discount Group");
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
+        // [THEN] Item Discount Group 'I', where Level is 7
+        TempPriceAsset.FindLast();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Item Discount Group");
+        TempPriceAsset.TestField("Asset No.", ItemDiscountGroup.Code);
+        TempPriceAsset.TestField(Level, Level);
+    end;
+
+    [Test]
+    procedure T050_AddAssetServiceCost()
+    var
+        ServiceCost: Record "Service Cost";
+        TempPriceAsset: Record "Price Asset" temporary;
+        PriceAssetList: Codeunit "Price Asset List";
+        AssetType: Enum "Price Asset Type";
+        Level: Integer;
+    begin
+        Initialize();
+        LibraryService.CreateServiceCost(ServiceCost);
+        // [WHEN] Add "Service Cost" 'S' at level 7
+        Level := LibraryRandom.RandInt(10);
+        PriceAssetList.SetLevel(Level);
+        PriceAssetList.Add(AssetType::"Service Cost", ServiceCost.Code);
+        // [THEN] GetList returns two records
+        PriceAssetList.GetList(TempPriceAsset);
+        Assert.RecordCount(TempPriceAsset, 2);
+        // [THEN] (All) Service Costs, where Level is 6
+        TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Service Cost");
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
+        // [THEN] Service Cost 'S', where Level is 7
+        TempPriceAsset.FindLast();
+        TempPriceAsset.TestField("Asset Type", TempPriceAsset."Asset Type"::"Service Cost");
+        TempPriceAsset.TestField("Asset No.", ServiceCost.Code);
+        TempPriceAsset.TestField(Level, Level);
+    end;
+
+    [Test]
+    procedure T100_RemoveAssetFromList()
     var
         Item: Record Item;
         TempPriceAsset: Record "Price Asset" temporary;
@@ -243,7 +359,7 @@ codeunit 134122 "Price Asset List UT"
     end;
 
     [Test]
-    procedure T031_RemoveAssetFromListAtLevel()
+    procedure T101_RemoveAssetFromListAtLevel()
     var
         Item: Record Item;
         TempPriceAsset: Record "Price Asset" temporary;
@@ -263,10 +379,16 @@ codeunit 134122 "Price Asset List UT"
         // [WHEN] Remove 'Item' at level 7
         PriceAssetList.RemoveAtLevel(AssetType::Item, Level);
 
-        // [THEN] GetList returns 1 records, that is Item at level 8
+        // [THEN] GetList returns 2 records:
         PriceAssetList.GetList(TempPriceAsset);
-        Assert.RecordCount(TempPriceAsset, 1);
+        Assert.RecordCount(TempPriceAsset, 2);
+        // [THEN] (All items) at level 6
         TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField("Asset No.", '');
+        TempPriceAsset.TestField(Level, Level - 1);
+        // [THEN] Item at level 8 
+        TempPriceAsset.FindLast();
+        TempPriceAsset.TestField("Asset No.", Item."No.");
         TempPriceAsset.TestField(Level, Level + 1);
     end;
 

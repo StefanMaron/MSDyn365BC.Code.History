@@ -1,4 +1,4 @@
-codeunit 5530 "Calc. Item Availability"
+﻿codeunit 5530 "Calc. Item Availability"
 {
 
     trigger OnRun()
@@ -60,6 +60,8 @@ codeunit 5530 "Calc. Item Availability"
             GetRemainingForecast(InvtEventBuf, Item, ForecastName, ExcludeForecastBefore);
         if IncludeBlanketOrders then
             GetBlanketSalesOrders(InvtEventBuf, Item);
+
+        OnAfterGetAnticipatedDemand(InvtEventBuf, Item, ForecastName, ExcludeForecastBefore, IncludeBlanketOrders, EntryNo);
     end;
 
     local procedure GetPlanningEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
@@ -100,6 +102,7 @@ codeunit 5530 "Calc. Item Availability"
                     ItemLedgEntry.CalcSums("Remaining Quantity");
                     if ItemLedgEntry."Remaining Quantity" <> 0 then begin
                         InvtEventBuf.TransferInventoryQty(ItemLedgEntry);
+                        OnTryGetQtyOnInventoryOnBeforeInsertEntry(InvtEventBuf, ItemLedgEntry);
                         InsertEntry(InvtEventBuf);
                     end;
                 end;
@@ -355,6 +358,7 @@ codeunit 5530 "Calc. Item Availability"
 
         ProdForecastEntry2.Copy(ProdForecastEntry);
         Item.CopyFilter("Location Filter", ProdForecastEntry2."Location Code");
+        OnGetRemainingForecastOnBeforeLoopOnAfterSetItemFilters(Item, ProdForecastEntry, ProdForecastEntry2);
 
         for ModuleLoop := 1 to 2 do begin
             Module := ModuleLoop = 2;
@@ -374,11 +378,13 @@ codeunit 5530 "Calc. Item Availability"
                     ProdForecastEntry2.FindLast;
                     ProdForecastEntry2.CopyFilter("Location Code", ProdForecastEntry."Location Code");
                     Item.CopyFilter("Location Filter", ProdForecastEntry2."Location Code");
+                    OnGetRemainingForecastOnAfterSetItemFilters(Item, ProdForecastEntry);
 
                     if ForecastExist(ProdForecastEntry, ExcludeForecastBefore, FromDate, ToDate) then
                         repeat
                             ProdForecastEntry.SetRange("Forecast Date", ProdForecastEntry."Forecast Date");
                             ProdForecastEntry.Find('+');
+                            OnGetRemainingForecastOnBeforeCalcForecastQuantityBase(ProdForecastEntry);
                             ProdForecastEntry.CalcSums("Forecast Quantity (Base)");
                             RemainingForecastQty := ProdForecastEntry."Forecast Quantity (Base)";
                             ForecastPeriodEndDate := FindForecastPeriodEndDate(ProdForecastEntry, ToDate);
@@ -414,6 +420,7 @@ codeunit 5530 "Calc. Item Availability"
                                 InvtEventBuf.SetFilter(Type, '%1|%2', InvtEventBuf.Type::Component, InvtEventBuf.Type::"Assembly Component")
                             else
                                 InvtEventBuf.SetFilter(Type, '%1|%2', InvtEventBuf.Type::Sale, InvtEventBuf.Type::Service);
+                            OnGetRemainingForecastOAfterInvtEventBufSetFilters(InvtEventBuf, ProdForecastEntry);
                             if InvtEventBuf.Find('-') then
                                 repeat
                                     if not (InvtEventBuf.Positive or InvtEventBuf."Derived from Blanket Order")
@@ -426,6 +433,7 @@ codeunit 5530 "Calc. Item Availability"
 
                             InvtEventBuf.TransferFromForecast(ProdForecastEntry, RemainingForecastQty, MfgSetup."Use Forecast on Locations");
                             InsertEntry(InvtEventBuf);
+                            OnGetRemainingForecastOAfterInsertEntry(InvtEventBuf, Item, ProdForecastEntry);
 
                             ProdForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, ToDate);
                         until ProdForecastEntry.Next() = 0;
@@ -1087,6 +1095,11 @@ codeunit 5530 "Calc. Item Availability"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAnticipatedDemand(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; ForecastName: Code[10]; ExcludeForecastBefore: Date; IncludeBlanketOrders: Boolean; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetPlanningLines(var InvtEventBuf: Record "Inventory Event Buffer"; Item: Record "Item"; ReqLine: Record "Requisition Line"; FromRecRef: RecordRef)
     begin
     end;
@@ -1108,6 +1121,36 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetPlanningLinesOnAfterReqLineSetFilters(var ReqLine: record "Requisition Line"; var Item: record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRemainingForecastOnAfterSetItemFilters(var Item: Record Item; ProductionForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRemainingForecastOAfterInvtEventBufSetFilters(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProductionForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRemainingForecastOAfterInsertEntry(var InventoryEventBuffer: Record "Inventory Event Buffer"; var Item: Record Item; ProductionForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRemainingForecastOnBeforeCalcForecastQuantityBase(var ProductionForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRemainingForecastOnBeforeLoopOnAfterSetItemFilters(var Item: Record Item; ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastEntry2: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryGetQtyOnInventoryOnBeforeInsertEntry(var InvtEventBuf: Record "Inventory Event Buffer"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

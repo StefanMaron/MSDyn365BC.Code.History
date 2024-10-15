@@ -953,9 +953,14 @@ report 206 "Sales - Invoice"
         end;
 
         trigger OnOpenPage()
+        var
+            StdReportWithCaption: Record AllObjWithCaption;
+            ReportManagementCodeunit: Codeunit ReportManagement;
         begin
             InitLogInteraction;
             LogInteractionEnable := LogInteraction;
+            StdReportWithCaption.Get(StdReportWithCaption."Object Type"::Report, Report::"Standard Sales - Invoice");
+            ReportManagementCodeunit.SalesInvoiceReportReplacedNotify(Report::"Standard Sales - Invoice", StdReportWithCaption."Object Caption", CurrReport."Sales Invoice Header");
         end;
     }
 

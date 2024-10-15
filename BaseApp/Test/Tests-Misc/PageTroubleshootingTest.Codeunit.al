@@ -83,7 +83,6 @@ codeunit 138696 "Page Troubleshooting Test"
         User: Record User;
         UserPagePersonalizationList: TestPage "User Page Personalization List";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope();
         Init();
 
         CreateUser(User);
@@ -108,7 +107,6 @@ codeunit 138696 "Page Troubleshooting Test"
         User: Record User;
         UserPagePersonalizationList: TestPage "User Page Personalization List";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope();
         Init();
 
         CreateUser(User);
