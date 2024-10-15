@@ -734,21 +734,22 @@ codeunit 99000774 "Calculate Routing Line"
                     ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
                 until ProdOrderRoutingLine2.Next() = 0;
 
-            if IsParallelRouting then begin
-                ProdOrderRoutingLine2.Get(
-                                        TempProdOrderRoutingLine2.Status,
-                                        TempProdOrderRoutingLine2."Prod. Order No.",
-                                        TempProdOrderRoutingLine2."Routing Reference No.",
-                                        TempProdOrderRoutingLine2."Routing No.",
-                                        TempProdOrderRoutingLine2."Operation No.");
-                GetSendAheadStartingTime(ProdOrderRoutingLine2, SendAheadLotSize);
-                TempProdOrderRoutingLine.GetBySystemId(ProdOrderRoutingLine2.SystemId);
-                TempProdOrderRoutingLine.Copy(ProdOrderRoutingLine2);
-                TempProdOrderRoutingLine.Modify();
-                ProdEndingDate := ProdStartingDate;
-                ProdEndingTime := ProdStartingTime;
-                ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
-            end;
+            if IsParallelRouting then
+                if ProdOrderRoutingLine2.Get(
+                    TempProdOrderRoutingLine2.Status,
+                    TempProdOrderRoutingLine2."Prod. Order No.",
+                    TempProdOrderRoutingLine2."Routing Reference No.",
+                    TempProdOrderRoutingLine2."Routing No.",
+                    TempProdOrderRoutingLine2."Operation No.")
+                then begin
+                    GetSendAheadStartingTime(ProdOrderRoutingLine2, SendAheadLotSize);
+                    TempProdOrderRoutingLine.GetBySystemId(ProdOrderRoutingLine2.SystemId);
+                    TempProdOrderRoutingLine.Copy(ProdOrderRoutingLine2);
+                    TempProdOrderRoutingLine.Modify();
+                    ProdEndingDate := ProdStartingDate;
+                    ProdEndingTime := ProdStartingTime;
+                    ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
+                end;
 
             OnCalcRoutingLineBackOnBeforeGetQueueTime(ProdOrderRoutingLine, ProdOrderRoutingLine2, ProdOrderRoutingLine3);
 

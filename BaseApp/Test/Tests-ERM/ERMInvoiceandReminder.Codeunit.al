@@ -29,6 +29,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         AmountError: Label 'Amount must be %1 in %2.';
         AmtDueLbl: Label 'You are receiving this email to formally notify you that payment owed by you is past due. The payment was due on %1. Enclosed is a copy of invoice with the details of remaining amount.', Comment = '%1 - Due Date';
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -632,6 +633,39 @@ codeunit 134907 "ERM Invoice and Reminder"
         GLEntry.FindFirst();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReminderHeaderCompanyBankAccountCode()
+    var
+        BankAccount: Record "Bank Account";
+        ReminderHeader: Record "Reminder Header";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 486467] The Company Bank Account Code is not filled in the Reminder/Fin. Charge Memo even if you setup the bank with Use as Default for Currency.
+        Initialize();
+
+        // [GIVEN] Create a Customer and Update Reminder Terms.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
+        Customer.Modify(true);
+
+        // [GIVEN] If Bank Account Not exists then Create a Bank Account.
+        FindBankAccountDefaultForCurrency(BankAccount);
+
+        // [GIVEN] Create a Reminder Order.
+        CreateReminderHeader(ReminderHeader, Customer."No.");
+
+        // [VERIFY] Verify: Default Bank Account is set in Company Bank Account Code on Reminder/Fin. Charge Memo
+        Assert.AreEqual(
+            BankAccount."No.",
+            ReminderHeader."Company Bank Account Code",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ReminderHeader.FieldCaption("Company Bank Account Code"),
+                BankAccount."No.",
+                ReminderHeader.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1099,6 +1133,17 @@ codeunit 134907 "ERM Invoice and Reminder"
             "Document No." := CustomerNo;
             "Last Issued Reminder Level" := LastIssuedReminderLevel;
             Insert();
+        end;
+    end;
+
+    procedure FindBankAccountDefaultForCurrency(var BankAccount: Record "Bank Account")
+    begin
+        BankAccount.SetRange(Blocked, false);
+        BankAccount.SetRange("Use as Default for Currency", true);
+        if not BankAccount.FindFirst() then begin
+            LibraryERM.CreateBankAccount(BankAccount);
+            BankAccount.Validate("Use as Default for Currency", true);
+            BankAccount.Modify(true);
         end;
     end;
 
