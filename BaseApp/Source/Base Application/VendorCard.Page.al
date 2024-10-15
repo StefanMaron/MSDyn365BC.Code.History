@@ -48,7 +48,7 @@ page 26 "Vendor Card"
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a vendor that is declared insolvent or an item that is placed in quarantine.';
+                    ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                 }
                 field("Privacy Blocked"; "Privacy Blocked")
                 {
@@ -1549,8 +1549,11 @@ page 26 "Vendor Card"
                 ToolTip = 'Specifies the number of items received.';
 
                 trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
                 begin
-                    RunReport(REPORT::"Items Received & Not Invoiced");
+                    PurchaseHeader.SetRange("Buy-from Vendor No.", "No.");
+                    REPORT.RunModal(REPORT::"Items Received & Not Invoiced", true, true, PurchaseHeader);
                 end;
             }
             action("Purchase Receipts")
@@ -1564,8 +1567,11 @@ page 26 "Vendor Card"
                 ToolTip = 'View the list of purchase receipts.';
 
                 trigger OnAction()
+                var
+                    PurchRcptHeader: Record "Purch. Rcpt. Header";
                 begin
-                    RunReport(REPORT::"Purchase Receipts");
+                    PurchRcptHeader.SetRange("Pay-to Vendor No.", "No.");
+                    REPORT.RunModal(REPORT::"Purchase Receipts", true, true, PurchRcptHeader);
                 end;
             }
         }

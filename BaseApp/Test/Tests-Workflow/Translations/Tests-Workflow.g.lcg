@@ -2057,6 +2057,15 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType SalesParametersTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1130895803 - NamedType 2639822451" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Incoming Document">VERSION(1) SORTING(Field1) WHERE(Field18=1(6))</DataItem><DataItem name="Incoming Document Attachment">VERSION(1) SORTING(Field1,Field2)</DataItem></DataItems></ReportParameters>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Workflow Event Arguments Test - NamedType IncomingDocumentTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 886831204" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[<?xml version="1.0" standalone="yes"?><ReportParameters name="Create Purchase Invoice Step" id="50000"><Options><Field name="&quot;Purchase Header&quot;.&quot;Due Date&quot;">2014-12-04</Field><Field name="&quot;Purchase Header&quot;.&quot;Currency Code&quot;">DKK</Field><Field name="&quot;Purchase Line&quot;.Description">Hello, World!</Field><Field name="&quot;Purchase Line&quot;.Quantity">100</Field></Options></ReportParameters>]]></Val>

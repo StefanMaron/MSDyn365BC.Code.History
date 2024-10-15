@@ -42,6 +42,12 @@ page 1811 "Setup Email Logging"
                 group("Welcome to Email Logging Setup")
                 {
                     Caption = 'Welcome to Email Logging Setup';
+                    group(OAuth2)
+                    {
+                        Visible = not SoftwareAsAService;
+                        Caption = '';
+                        InstructionalText = 'This guide will help you to setup Email Logging with OAuth2 authentication flow to connect to Exchange.';
+                    }
                     group(Control4)
                     {
                         Caption = '';
