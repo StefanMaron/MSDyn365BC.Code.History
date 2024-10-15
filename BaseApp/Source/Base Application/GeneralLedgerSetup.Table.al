@@ -584,7 +584,6 @@
             Caption = 'Account Schedule for Balance Sheet';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#pragma warning disable AS0074
 #if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
@@ -643,7 +642,6 @@
             ObsoleteState = Pending;
             ObsoleteTag = '22.0';
 #endif
-#pragma warning restore AS0074
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);

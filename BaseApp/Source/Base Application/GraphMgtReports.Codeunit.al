@@ -19,7 +19,13 @@ codeunit 5488 "Graph Mgt - Reports"
         GLAccount: Record "G/L Account";
         NewTrialBalanceEntityBuffer: Record "Trial Balance Entity Buffer";
         DateFilter: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetUpTrialBalanceAPIData(TrialBalanceEntityBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         DateFilter := StrSubstNo('%1', DelChr(TrialBalanceEntityBuffer.GetFilter("Date Filter"), '<>', ''''));
         if DateFilter = '' then
             DateFilter := Format(Today);
@@ -495,6 +501,11 @@ codeunit 5488 "Graph Mgt - Reports"
             NewAmount := DelChr(Format(Amount * -1, 15, FormatStr(1)), '<', ' ')
         else
             NewAmount := DelChr(Format(Amount, 15, FormatStr(1)), '<', ' ');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUpTrialBalanceAPIData(var TrialBalanceEntityBuffer: Record "Trial Balance Entity Buffer"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -25,6 +25,7 @@
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryMarketing: Codeunit "Library - Marketing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -2930,6 +2931,122 @@
           'Description_VATClauseLine', VATClauseTranslation.Description + ' ' + VATClauseTranslation."Description 2");
     end;
 
+    [Test]
+    [HandlerFunctions('ReportStandardSalesDraftInvoiceRequestPageHandlerForLogInteractionEnabled')]
+    [Scope('OnPrem')]
+    procedure TestReportStandardSalesDraftInvoice_NotDefinedInteractionTemplate()
+    var
+        InteractionTemplateSetup: Record "Interaction Template Setup";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales Invoice] [Draft Invoice]
+        // [SCENARIO 438090] Test Report "Standard Sales - Draft Invoice" without Interaction Template defined.
+        Initialize();
+
+        // [GIVEN] Purge "Interaction Template Setup" for "Draft Sales Invoices"
+        InteractionTemplateSetup.Get();
+        if InteractionTemplateSetup."Sales Draft Invoices" <> '' then begin
+            InteractionTemplateSetup.Validate("Sales Draft Invoices", '');
+            InteractionTemplateSetup.Modify(true);
+        end;
+
+        // [GIVEN] Create Sales Invoice
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.");
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice"
+        SalesHeader.SetRecFilter();
+        Report.Run(Report::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Verify in Report Request Page that "Log Interaction" is disabled
+        // Tested in ReportStandardSalesDraftInvoiceRequestPageHandlerForLogInteractionEnabled handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportStandardSalesDraftInvoiceRequestPageHandlerForLogInteractionExecute')]
+    [Scope('OnPrem')]
+    procedure TestReportStandardSalesDraftInvoice_DefinedInteractionTemplate_WithLogInteraction()
+    var
+        InteractionTemplateSetup: Record "Interaction Template Setup";
+        InteractionTemplate: Record "Interaction Template";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        LogInteraction: Boolean;
+    begin
+        // [FEATURE] [Sales Invoice] [Draft Invoice]
+        // [SCENARIO 438090] Test Report "Standard Sales - Draft Invoice" with Log Interaction option enabled.
+        Initialize();
+
+        // [GIVEN] Setup "Interaction Template Setup" for "Draft Sales Invoices"
+        InteractionTemplateSetup.Get();
+        if InteractionTemplateSetup."Sales Draft Invoices" = '' then begin
+            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+            InteractionTemplateSetup.Validate("Sales Draft Invoices", InteractionTemplate."Code");
+            InteractionTemplateSetup.Modify(true);
+        end;
+
+        // [GIVEN] Create Sales Invoice
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.");
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" with Log Interaction
+        LogInteraction := true;
+        LibraryVariableStorage.Enqueue(LogInteraction);
+        SalesHeader.SetRecFilter();
+        Report.Run(Report::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Verify that "Interaction Log Entry" is created. Then verify that "Interaction Log Entry" has "Interaction Template Setup"."Draft Sales Invoices" as "Interaction Template Code" value
+        InteractionLogEntry.SetRange("Document Type", "Interaction Log Entry Document Type"::"Sales Draft Invoice");
+        InteractionLogEntry.SetRange("Document No.", SalesHeader."No.");
+        InteractionLogEntry.FindFirst();
+        InteractionLogEntry.TestField("Interaction Template Code", InteractionTemplateSetup."Sales Draft Invoices");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportStandardSalesDraftInvoiceRequestPageHandlerForLogInteractionExecute')]
+    [Scope('OnPrem')]
+    procedure TestReportStandardSalesDraftInvoice_DefinedInteractionTemplate_WithoutLogInteraction()
+    var
+        InteractionTemplateSetup: Record "Interaction Template Setup";
+        InteractionTemplate: Record "Interaction Template";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        LogInteraction: Boolean;
+    begin
+        // [FEATURE] [Sales Invoice] [Draft Invoice]
+        // [SCENARIO 438090] Test Report "Standard Sales - Draft Invoice" with Log Interaction option disabled.
+        Initialize();
+
+        // [GIVEN] Setup "Interaction Template Setup" for "Draft Sales Invoices"
+        InteractionTemplateSetup.Get();
+        if InteractionTemplateSetup."Sales Draft Invoices" = '' then begin
+            LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+            InteractionTemplateSetup.Validate("Sales Draft Invoices", InteractionTemplate."Code");
+            InteractionTemplateSetup.Modify(true);
+        end;
+
+        // [GIVEN] Create Sales Invoice
+        CreateSalesDocumentWithLine(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.");
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" without Log Interaction
+        LogInteraction := false;
+        LibraryVariableStorage.Enqueue(LogInteraction);
+        SalesHeader.SetRecFilter();
+        Report.Run(Report::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Verify that Interaction Log Entry does not exists
+        InteractionLogEntry.SetRange("Document Type", "Interaction Log Entry Document Type"::"Sales Draft Invoice");
+        InteractionLogEntry.SetRange("Document No.", SalesHeader."No.");
+        Assert.RecordIsEmpty(InteractionLogEntry);
+    end;
+
     local procedure Initialize()
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -4674,6 +4791,25 @@
     procedure SalesStatisticsRequestPageHandler(var SalesStatistics: TestRequestPage "Sales Statistics")
     begin
         SalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportStandardSalesDraftInvoiceRequestPageHandlerForLogInteractionEnabled(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
+    begin
+        Assert.IsFalse(StandardSalesDraftInvoice.LogInteractionField.Enabled(), 'Log Interaction option is enabled.');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportStandardSalesDraftInvoiceRequestPageHandlerForLogInteractionExecute(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
+    var
+        LogInteraction: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(LogInteraction);
+        StandardSalesDraftInvoice.LogInteractionField.SetValue(LogInteraction);
+
+        StandardSalesDraftInvoice.SaveAsPdf(Format(CreateGuid()));
     end;
 }
 

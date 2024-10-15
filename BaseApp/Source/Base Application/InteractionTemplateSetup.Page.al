@@ -64,6 +64,12 @@ page 5186 "Interaction Template Setup"
                     Caption = 'Order Confirmations';
                     ToolTip = 'Specifies the code of the interaction template to use when recording sales order confirmations as interactions.';
                 }
+                field("Sales Draft Invoices"; Rec."Sales Draft Invoices")
+                {
+                    ApplicationArea = Basic, Suite, RelationshipMgmt;
+                    Caption = 'Draft Invoices';
+                    ToolTip = 'Specifies the code of the interaction template to use when recording sales draft invoices as interactions.';
+                }
                 field("Sales Quotes"; Rec."Sales Quotes")
                 {
                     ApplicationArea = Basic, Suite, RelationshipMgmt;

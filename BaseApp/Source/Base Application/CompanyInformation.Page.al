@@ -117,14 +117,14 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the responsible person who will be contacted by the tax authorities when general questions occur.';
                 }
-                field(GLN; GLN)
+                field(GLN; Rec.GLN)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company in connection with electronic document exchange.';
                 }
                 field("Use GLN in Electronic Document"; Rec."Use GLN in Electronic Document")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
                 }
                 field("EORI Number"; Rec."EORI Number")
