@@ -34,6 +34,7 @@ table 11731 "Cash Document Line"
 
             trigger OnValidate()
             begin
+                TestField("Advance Letter Link Code", '');
                 GetCashDeskEvent;
                 if CashDeskEvent."Account Type" <> CashDeskEvent."Account Type"::" " then
                     CashDeskEvent.TestField("Account Type", "Account Type");
@@ -1125,11 +1126,16 @@ table 11731 "Cash Document Line"
     begin
         GetDocHeader;
 
+        Amount := Round(Amount, Currency."Amount Rounding Precision");
+
         if CashDocHeader."Currency Code" <> '' then
             "Amount (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY(CashDocHeader."Posting Date", CashDocHeader."Currency Code",
                   Amount, CashDocHeader."Currency Factor"))
         else
             "Amount (LCY)" := Round(Amount);
+
+        IF Amount <> xRec.Amount THEN
+            TestField("Advance Letter Link Code", '');
 
         if CashDocHeader."Amounts Including VAT" then
             Validate("Amount Including VAT", Amount)

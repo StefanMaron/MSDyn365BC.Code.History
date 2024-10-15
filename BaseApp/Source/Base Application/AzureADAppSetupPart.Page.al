@@ -105,4 +105,3 @@ page 6301 "Azure AD App Setup Part"
         exit(RedirectUrl);
     end;
 }
-

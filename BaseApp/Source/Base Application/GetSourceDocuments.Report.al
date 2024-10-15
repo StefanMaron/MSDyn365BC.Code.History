@@ -621,7 +621,7 @@ report 5753 "Get Source Documents"
                 if NoSeriesLink."Shipping Wh. No. Series" <> '' then
                     WhseShptHeader."No. Series" := NoSeriesLink."Shipping Wh. No. Series";
         // NAVCZ
-        OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request");
+        OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line");
         WhseShptHeader.Insert(true);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
@@ -902,7 +902,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseShptHeaderInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request")
+    local procedure OnBeforeWhseShptHeaderInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; TransferLine: Record "Transfer Line")
     begin
     end;
 

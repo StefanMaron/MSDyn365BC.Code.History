@@ -618,7 +618,8 @@
         with SalesLine do begin
             if Type = Type::Item then begin
                 CostBaseAmount := "Line Amount";
-                if ("No." <> '') and ("Qty. Shipped (Base)" = 0) then
+                // Skip UoM validation for partially shipped documents and lines fetch through "Get Shipment Lines"
+                if ("No." <> '') and ("Qty. Shipped (Base)" = 0) and ("Shipment No." = '') then
                     TestField("Unit of Measure Code");
             end;
             if "Qty. per Unit of Measure" = 0 then
@@ -815,16 +816,7 @@
         QtyToInvoiceBase := RemQtyToBeInvoicedBase;
 
         with SalesHeader do begin
-            if (SalesLine."Qty. to Ship" <> 0) and (SalesLine."Purch. Order Line No." <> 0) then begin
-                TempDropShptPostBuffer."Order No." := SalesLine."Purchase Order No.";
-                TempDropShptPostBuffer."Order Line No." := SalesLine."Purch. Order Line No.";
-                TempDropShptPostBuffer.Quantity := -SalesLine."Qty. to Ship";
-                TempDropShptPostBuffer."Quantity (Base)" := -SalesLine."Qty. to Ship (Base)";
-                TempDropShptPostBuffer."Item Shpt. Entry No." :=
-                  PostAssocItemJnlLine(SalesHeader, SalesLine, TempDropShptPostBuffer.Quantity, TempDropShptPostBuffer."Quantity (Base)");
-                TempDropShptPostBuffer.Insert();
-                SalesLine."Appl.-to Item Entry" := TempDropShptPostBuffer."Item Shpt. Entry No.";
-            end;
+            ProcessAssocItemJnlLine(SalesHeader, SalesLine, TempDropShptPostBuffer);
 
             Clear(TempPostedATOLink);
             TempPostedATOLink.SetRange("Order No.", SalesLine."Document No.");
@@ -863,6 +855,27 @@
         end;
 
         OnAfterPostItemLine(SalesHeader, SalesLine, QtyToInvoice, QtyToInvoiceBase, SuppressCommit);
+    end;
+
+    local procedure ProcessAssocItemJnlLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessAssocItemJnlLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (SalesLine."Qty. to Ship" <> 0) and (SalesLine."Purch. Order Line No." <> 0) then begin
+            TempDropShptPostBuffer."Order No." := SalesLine."Purchase Order No.";
+            TempDropShptPostBuffer."Order Line No." := SalesLine."Purch. Order Line No.";
+            TempDropShptPostBuffer.Quantity := -SalesLine."Qty. to Ship";
+            TempDropShptPostBuffer."Quantity (Base)" := -SalesLine."Qty. to Ship (Base)";
+            TempDropShptPostBuffer."Item Shpt. Entry No." :=
+                PostAssocItemJnlLine(SalesHeader, SalesLine, TempDropShptPostBuffer.Quantity, TempDropShptPostBuffer."Quantity (Base)");
+            TempDropShptPostBuffer.Insert();
+            SalesLine."Appl.-to Item Entry" := TempDropShptPostBuffer."Item Shpt. Entry No.";
+        end;
     end;
 
     local procedure PostItemChargeLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
@@ -1596,7 +1609,7 @@
                 Commit();
             end;
             IsHandled := false;
-            OnReleaseSalesDocumentOnBeforeSetStatus(SalesHeader, IsHandled);
+            OnReleaseSalesDocumentOnBeforeSetStatus(SalesHeader, IsHandled, SavedStatus, PreviewMode, SuppressCommit);
             if not IsHandled then
                 Status := Status::Released;
         end;
@@ -3646,7 +3659,7 @@
                     TempTrackingSpecification."Qty. to Invoice" += TempInvoicingSpecification."Qty. to Invoice";
                     TempTrackingSpecification.Modify();
                 end;
-                OnSaveInvoiceSpecificationOnAfterUpdateTempTrackingSpecification(TempTrackingSpecification);
+                OnSaveInvoiceSpecificationOnAfterUpdateTempTrackingSpecification(TempTrackingSpecification, TempInvoicingSpecification);
             until TempInvoicingSpecification.Next() = 0;
             TempInvoicingSpecification.DeleteAll();
         end;
@@ -7574,6 +7587,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessAssocItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineDeleteAll(var SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -8674,7 +8692,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReleaseSalesDocumentOnBeforeSetStatus(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    local procedure OnReleaseSalesDocumentOnBeforeSetStatus(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; SavedStatus: Enum "Sales Document Status"; PreviewMode: Boolean; SuppressCommit: Boolean);
     begin
     end;
 
@@ -8684,7 +8702,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSaveInvoiceSpecificationOnAfterUpdateTempTrackingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnSaveInvoiceSpecificationOnAfterUpdateTempTrackingSpecification(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempInvoicingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 

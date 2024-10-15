@@ -318,6 +318,7 @@ table 5079 "Marketing Setup"
     }
 
     var
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         Text010: Label 'The queue and storage folders cannot be the same. Choose a different folder.';
         ExchangeAccountNotConfiguredErr: Label 'You must set up an Exchange account for email logging.';
         DuplicateSearchQst: Label 'Do you want to generate duplicate search strings?';
@@ -330,7 +331,8 @@ table 5079 "Marketing Setup"
         StorageFolderNotSetTxt: Label 'Storage folder is not set.', Locked = true;
         StorageFolderSetTxt: Label 'Storage folder is set.', Locked = true;
         SetExchangeAccountPasswordTxt: Label 'Set Exchange account password.', Locked = true;
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        ExchangeTenantIdClearedTxt: Label 'Exchange tenant ID is cleared.', Locked = true;
+        ExchangeTenantIdSetTxt: Label 'Exchange tenant ID is set.', Locked = true;
 
     [Scope('OnPrem')]
     procedure SetQueueFolder(ExchangeFolder: Record "Exchange Folder")
@@ -519,6 +521,10 @@ table 5079 "Marketing Setup"
         end;
 
         IsolatedStorageManagement.Set("Exchange Tenant Id Key", TenantId, DATASCOPE::Company);
+        if TenantId <> '' then
+            SendTraceTag('0000D9J', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdSetTxt, DataClassification::SystemMetadata)
+        else
+            SendTraceTag('0000D9K', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdClearedTxt, DataClassification::SystemMetadata);
     end;
 
 

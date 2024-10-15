@@ -1,4 +1,4 @@
-table 246 "Requisition Line"
+﻿table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
     DataCaptionFields = "Journal Batch Name", "Line No.";
@@ -156,7 +156,13 @@ table 246 "Requisition Line"
             trigger OnLookup()
             var
                 Vend: Record Vendor;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupVendorNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if LookupVendor(Vend, true) then
                     Validate("Vendor No.", Vend."No.");
             end;
@@ -192,9 +198,7 @@ table 246 "Requisition Line"
 
                         Validate("Currency Code", Vend."Currency Code");
                         "Price Calculation Method" := Vend.GetPriceCalculationMethod();
-                        if Type = Type::Item then
-                            UpdateDescription;
-                        Validate(Quantity);
+                        ValidateItemDescriptionAndQuantity(Vend);
                     end else begin
                         if ValidateFields then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
@@ -224,9 +228,7 @@ table 246 "Requisition Line"
                 end;
                 "Supply From" := "Vendor No.";
 
-                CreateDim(
-                  DATABASE::Vendor, "Vendor No.",
-                  DimMgt.TypeToTableID3(Type), "No.");
+                UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type), "No.");
             end;
         }
         field(10; "Direct Unit Cost"; Decimal)
@@ -1651,6 +1653,18 @@ table 246 "Requisition Line"
         GLAcc.Get("No.");
         GLAcc.CheckGLAcc;
         GLAcc.TestField("Direct Posting", true);
+        CopyDescriptionFromGLAcc(GLAcc);
+    end;
+
+    local procedure CopyDescriptionFromGLAcc(GLAcc: Record "G/L Account")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyDescriptionFromGLAcc(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Description := GLAcc.Name;
     end;
 
@@ -1841,6 +1855,20 @@ table 246 "Requisition Line"
             end;
     end;
 
+    local procedure ValidateItemDescriptionAndQuantity(Vendor: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateItemDescriptionAndQuantity(Rec, Vendor, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Type = Type::Item then
+            UpdateDescription;
+        Validate(Quantity);
+    end;
+
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         ReserveReqLine.Block(SetBlock);
@@ -1876,6 +1904,22 @@ table 246 "Requisition Line"
             GetDimFromRefOrderLine(true);
 
         OnAfterCreateDim(Rec, xRec);
+    end;
+
+    procedure UpdateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        DimManagement: Codeunit DimensionManagement;
+        DimSetIDArr: array[10] of Integer;
+    begin
+        CreateDim(Type1, No1, Type2, No2);
+        if "Demand Type" <> DATABASE::"Sales Line" then
+            exit;
+        SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
+        DimSetIDArr[2] := SalesLine."Dimension Set ID";
+        DimSetIDArr[1] := "Dimension Set ID";
+        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        Validate("Dimension Set ID", DimSetIDArr[1]);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -2714,6 +2758,8 @@ table 246 "Requisition Line"
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := UserId;
 
+        UpdateDim(DATABASE::Vendor,"Vendor No.",DimMgt.TypeToTableID3(Type),"No.");
+
         OnAfterTransferFromUnplannedDemand(Rec, UnplannedDemand);
     end;
 
@@ -3452,7 +3498,17 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupVendorNo(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFromBinCode(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateItemDescriptionAndQuantity(var RequisitionLine: Record "Requisition Line"; Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 
@@ -3537,12 +3593,22 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateVendorNoOnAfterGetLocationCode(var RequisitionLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcStartingDate(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcEndingDate(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDescriptionFromGLAcc(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

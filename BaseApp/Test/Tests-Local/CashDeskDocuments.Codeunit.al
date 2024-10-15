@@ -530,6 +530,133 @@ codeunit 144100 "Cash Desk Documents"
         Assert.ExpectedError(PermissionErr);
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,CashDocumentStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATRounding()
+    var
+        BankAccount: Record "Bank Account";
+        CashDocumentHeader: Record "Cash Document Header";
+        CashDocumentLine: Record "Cash Document Line";
+        CashDocumentLineRounding: Record "Cash Document Line";
+        CashDocument: TestPage "Cash Document";
+        AmountNotMatchErr: Label 'Amount of rounding doesn''t match.';
+    begin
+        // [FEATURE] [Cash Desk]
+        // [SCENARIO] The rounding amount in cash document line is recalculated only if the amount in cash document lines is changes
+        Initialize();
+
+        // [GIVEN] Create Cash Desk
+        CreateCashDesk(BankAccount);
+
+        // [GIVEN] Create Receipt Cash Document
+        CreateCashDocument(CashDocumentHeader, CashDocumentLine, CashDocumentHeader."Cash Document Type"::Receipt, BankAccount."No.");
+
+        // [GIVEN] Set Amounts Including VAT
+        CashDocumentHeader.Validate("Amounts Including VAT", true);
+        CashDocumentHeader.Modify();
+
+        // [GIVEN] Set Amount to 119.71
+        CashDocumentLine.Validate(Amount, 119.71);
+        CashDocumentLine.Modify();
+
+        // [WHEN] Open Cash Document Statistics
+        CashDocument.OpenEdit();
+        CashDocument.GoToRecord(CashDocumentHeader);
+        CashDocument.Statistics.Invoke();
+
+        // [THEN] Rounding line must be created and rounding amount must be calculated
+        CashDocumentLineRounding.Reset();
+        CashDocumentLineRounding.SetRange("Cash Desk No.", CashDocumentHeader."Cash Desk No.");
+        CashDocumentLineRounding.SetRange("Cash Document No.", CashDocumentHeader."No.");
+        CashDocumentLineRounding.SetRange("Account Type", CashDocumentLine."Account Type"::"G/L Account");
+        CashDocumentLineRounding.SetFilter("Account No.", '%1|%2',
+            BankAccount."Debit Rounding Account", BankAccount."Credit Rounding Account");
+        CashDocumentLineRounding.SetRange("System-Created Entry", true);
+        CashDocumentLineRounding.FindFirst();
+        Assert.AreEqual(0.29, CashDocumentLineRounding.Amount, AmountNotMatchErr);
+
+        // [GIVEN] Change Amount to 119.70
+        CashDocumentLine.Validate(Amount, 119.70);
+        CashDocumentLine.Modify();
+
+        // [WHEN] Open Cash Document Statistics
+        CashDocument.Statistics.Invoke();
+
+        // [THEN] Amount in rounding line must be recalculated
+        CashDocumentLineRounding.FindFirst();
+        Assert.AreEqual(0.30, CashDocumentLineRounding.Amount, AmountNotMatchErr);
+
+        // [WHEN] Open Cash Document Statistics again
+        CashDocument.Statistics.Invoke();
+
+        // [THEN] Amount in rounding line mustn't be recalculated but the amount must be the same as before
+        CashDocumentLineRounding.FindFirst();
+        Assert.AreEqual(0.30, CashDocumentLineRounding.Amount, AmountNotMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentToleranceInCashDocument()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BankAccount: Record "Bank Account";
+        CashDocumentHeader: Record "Cash Document Header";
+        CashDocumentLine: Record "Cash Document Line";
+        CashDeskEvent: Record "Cash Desk Event";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        PaymentToleranceAmount: Decimal;
+        PostDocNo: Code[20];
+        MustExistErr: Label 'Detailed Customer Ledger Entry with payment tolerance must exist.';
+        AmountNotMatchErr: Label 'Amount of payment tolerance doesn''t match.';
+    begin
+        // [FEATURE] [Cash Desk]
+        // [SCENARIO] When the payment tolerance is enabled and Cash Document is applying e.g. Sales Invoice with different amount
+        // which is posted by Sales Invoice then Detailed Customer Ledger Entry with payment tolerance type must be created.
+        Initialize();
+
+        // [GIVEN] Enable payment tolerance
+        EnablePaymentTolerance();
+
+        // [GIVEN] Create Sales Invoice
+        CreateSalesInvoice(SalesHeader, SalesLine);
+
+        // [GIVEN] Post Sales Invoice
+        PostDocNo := PostSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Cash Desk
+        CreateCashDesk(BankAccount);
+
+        // [GIVEN] Create Receipt Cash Document
+        LibraryCashDesk.CreateCashDeskEvent(
+          CashDeskEvent, BankAccount."No.", CashDocumentHeader."Cash Document Type"::Receipt,
+          CashDeskEvent."Account Type"::Customer, '');
+        LibraryCashDesk.CreateCashDocumentHeader(CashDocumentHeader, CashDocumentHeader."Cash Document Type"::Receipt, BankAccount."No.");
+
+        // [GIVEN] Create Receipt Cash Document Line with application to created invoice and round the amount to an integer.
+        LibraryCashDesk.CreateCashDocumentLineWithCashDeskEvent(
+          CashDocumentLine, CashDocumentHeader, CashDeskEvent.Code, 0);
+        CashDocumentLine.Validate("Account No.", SalesHeader."Bill-to Customer No.");
+        CashDocumentLine.Modify(true);
+        CashDocumentLine.Validate("Applies-To Doc. Type", CashDocumentLine."Applies-To Doc. Type"::Invoice);
+        CashDocumentLine.Validate("Applies-To Doc. No.", PostDocNo);
+        PaymentToleranceAmount := CashDocumentLine.Amount - Round(CashDocumentLine.Amount, 1, '=');
+        CashDocumentLine.Validate(Amount, Round(CashDocumentLine.Amount, 1, '='));
+        CashDocumentLine.Modify(true);
+
+        // [WHEN] Post Cash Document
+        PostCashDocument(CashDocumentHeader);
+
+        // [THEN] Detailed Customer Ledger Entry with Payment Tolerance is created
+        DetailedCustLedgEntry.SetRange("Customer No.", CashDocumentLine."Account No.");
+        DetailedCustLedgEntry.SetRange("Document No.", CashDocumentHeader."No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Payment Tolerance");
+        Assert.IsTrue(DetailedCustLedgEntry.FindFirst(), MustExistErr);
+        Assert.AreEqual(-PaymentToleranceAmount, DetailedCustLedgEntry.Amount, AmountNotMatchErr);
+    end;
+
     local procedure CreateCashDesk(var BankAcc: Record "Bank Account")
     var
         BankAccPostingGroup: Record "Bank Account Posting Group";
@@ -654,7 +781,7 @@ codeunit 144100 "Cash Desk Documents"
         LibrarySales.CreateSalesHeader(SalesHdr, SalesHdr."Document Type"::Invoice, Cust."No.");
         LibrarySales.CreateSalesLine(
           SalesLn, SalesHdr, SalesLn.Type::"G/L Account", GetExistGLAccountNo, 1);
-        SalesLn.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        SalesLn.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(1000.01, 1000.99, 2));
         SalesLn.Modify(true);
     end;
 
@@ -760,11 +887,26 @@ codeunit 144100 "Cash Desk Documents"
         exit(LibrarySales.PostSalesDocument(SalesHdr, true, true));
     end;
 
+    local procedure EnablePaymentTolerance()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Max. Payment Tolerance Amount" := 1;
+        GeneralLedgerSetup.Modify();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure YesConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CashDocumentStatisticsModalPageHandler(var CashDocumentStatistics: TestPage "Cash Document Statistics")
+    begin
     end;
 }
 

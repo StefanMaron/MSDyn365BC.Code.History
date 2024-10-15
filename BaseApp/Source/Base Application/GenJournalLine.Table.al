@@ -174,6 +174,8 @@
                 Validate("VAT Date", "Posting Date"); // NAVCZ
                 ValidateCurrencyCode();
 
+                OnValidatePostingDateOnAfterValidateCurrencyCode(Rec, xRec);
+
                 if ("Posting Date" <> xRec."Posting Date") and (Amount <> 0) then
                     PaymentToleranceMgt.PmtTolGenJnl(Rec);
 
@@ -1209,6 +1211,8 @@
                 if ("Bal. Account Type" = "Bal. Account Type"::Employee) and ("Currency Code" <> '') then
                     Error(OnlyLocalCurrencyForEmployeeErr);
 
+                OnValidateBalAccountTypeOnBeforeSetBalAccountNo(Rec, xRec);
+
                 Validate("Bal. Account No.", '');
                 Validate("IC Partner G/L Acc. No.", '');
                 if "Bal. Account Type" in
@@ -1779,7 +1783,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
-                end
+                end;
             end;
         }
         field(91; "VAT Prod. Posting Group"; Code[20])
@@ -1821,7 +1825,7 @@
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine();
                     UpdatePricesFromJobJnlLine();
-                end
+                end;
             end;
         }
         field(92; "Bal. VAT Bus. Posting Group"; Code[20])
@@ -3639,7 +3643,7 @@
             "Document Date" := LastGenJnlLine."Posting Date";
             "VAT Date" := LastGenJnlLine."VAT Date"; // NAVCZ
             "Document No." := LastGenJnlLine."Document No.";
-            OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine);
+            OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine);
             if BottomLine and
                (Balance - LastGenJnlLine."Balance (LCY)" = 0) and
                not LastGenJnlLine.EmptyLine
@@ -3844,6 +3848,7 @@
                 begin
                     CustLedgEntry.SetRange("Customer No.", AccNo);
                     CustLedgEntry.SetRange("Applies-to ID", OriginalAppliesToID);
+                    OnRenumberAppliesToIDOnAfterCustLedgEntrySetFilters(GenJnlLine2, AccNo, CustLedgEntry);
                     if CustLedgEntry.FindSet then
                         repeat
                             CustLedgEntry2.Get(CustLedgEntry."Entry No.");
@@ -4655,6 +4660,7 @@
                     CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
                     CustLedgEntry.SetRange(Open, true);
+                    OnSetApplyToAmountOnAfterCustLedgEntrySetFilters(Rec, CustLedgEntry);
                     if CustLedgEntry.FindFirst then
                         if CustLedgEntry."Amount to Apply" = 0 then begin
                             CustLedgEntry.CalcFields("Remaining Amount");
@@ -4696,7 +4702,6 @@
         IsHandled: Boolean;
     begin
         if (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Customer) or
-           (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor) or
            (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor)
         then
             CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
@@ -4712,6 +4717,7 @@
                     CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                     CustLedgEntry.SetRange("Applies-to ID", TempGenJnlLine."Applies-to ID");
                     CustLedgEntry.SetRange(Open, true);
+                    OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithAppliesToID(TempGenJnlLine, CustLedgEntry);
                     if CustLedgEntry.FindSet then
                         repeat
                             CheckIfPostingDateIsEarlier(
@@ -4725,6 +4731,7 @@
                             CustLedgEntry.SetRange("Document Type", TempGenJnlLine."Applies-to Doc. Type");
                         CustLedgEntry.SetRange("Customer No.", TempGenJnlLine."Account No.");
                         CustLedgEntry.SetRange(Open, true);
+                        OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithoutAppliesToID(TempGenJnlLine, CustLedgEntry);
                         if CustLedgEntry.FindFirst then
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, CustLedgEntry."Posting Date", CustLedgEntry."Document Type", CustLedgEntry."Document No.");
@@ -4838,8 +4845,11 @@
             exit;
 
         TestField("Posting Date");
+
         Clear(TempJobJnlLine);
         TempJobJnlLine.DontCheckStdCost;
+        OnCreateTempJobJnlLimeOnBeforeValidateFields(TempJobJnlLine, Rec, XRec, CurrFieldNo);
+
         TempJobJnlLine.Validate("Job No.", "Job No.");
         TempJobJnlLine.Validate("Job Task No.", "Job Task No.");
         if CurrFieldNo <> FieldNo("Posting Date") then
@@ -4849,7 +4859,7 @@
         TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account");
         if "Job Currency Code" <> '' then begin
             if "Posting Date" = 0D then
-                CurrencyDate := WorkDate
+                CurrencyDate := WorkDate()
             else
                 CurrencyDate := "Posting Date";
 
@@ -5502,6 +5512,7 @@
         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
         CustLedgEntry.SetRange("Customer No.", AccNo);
         CustLedgEntry.SetRange(Open, true);
+        OnFindFirstCustLedgEntryWithAppliesToDocNoOnAfterSetFilters(Rec, AccNo, CustLedgEntry);
         exit(CustLedgEntry.FindFirst)
     end;
 
@@ -6423,6 +6434,8 @@
         "System-Created Entry" := true;
         "Financial Void" := true;
         Correction := true;
+
+        OnAfterCopyGenJnlLineFromPaymentCustLedgEntry(CustLedgEntry, Rec);
     end;
 
     procedure CopyFromPaymentVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry")
@@ -6440,6 +6453,8 @@
         "System-Created Entry" := true;
         "Financial Void" := true;
         Correction := true;
+
+        OnAfterCopyGenJnlLineFromPaymentVendLedgEntry(VendLedgEntry, Rec);
     end;
 
     procedure CopyFromPaymentEmpLedgEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry")
@@ -6457,6 +6472,8 @@
         "System-Created Entry" := true;
         "Financial Void" := true;
         Correction := true;
+
+        OnAfterCopyGenJnlLineFromPaymentEmplLedgEntry(EmployeeLedgerEntry, Rec);
     end;
 
     local procedure CopyVATSetupToJnlLines(): Boolean
@@ -7482,6 +7499,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineFromPaymentCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineFromPaymentVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineFromPaymentEmplLedgEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
@@ -7797,6 +7829,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateTempJobJnlLimeOnBeforeValidateFields(var TempJobJnlLine: Record "Job Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -7807,17 +7844,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFindFirstCustLedgEntryWithAppliesToDocNoOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetFAVATSetupOnBeforeCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetCustLedgerEntryOnAfterAssignCustomerNo(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnGetCustLedgerEntryOnAfterAssignCustomerNo(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetVendLedgerEntryOnAfterAssignVendorNo(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    local procedure OnGetVendLedgerEntryOnAfterAssignVendorNo(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -7852,7 +7894,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line")
+    local procedure OnRenumberAppliesToIDOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplyToAmountOnAfterCustLedgEntrySetFilters(GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean)
     begin
     end;
 
@@ -7923,6 +7975,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateAccountNoOnBeforeAssignValue(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithAppliesToID(TempGenJnlLine: Record "Gen. Journal Line" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithoutAppliesToID(TempGenJnlLine: Record "Gen. Journal Line" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -8251,6 +8313,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFAAddCurrExchRateOnCaseElse(GenJournalLine: Record "Gen. Journal Line"; DepreciationBook: Record "Depreciation Book"; var UseFAAddCurrExchRate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBalAccountTypeOnBeforeSetBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnAfterValidateCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

@@ -197,6 +197,7 @@ xmlport 31060 "VIES Declaration"
                 {
                     XmlName = 'VetaR';
                     UseTemporary = true;
+                    MinOccurs = Zero;
                     textattribute(cancelcode)
                     {
                         Occurrence = Optional;
@@ -245,7 +246,7 @@ xmlport 31060 "VIES Declaration"
                 {
                     XmlName = 'VetaS';
                     UseTemporary = true;
-
+                    MinOccurs = Zero;
                     fieldattribute(coslineno; CallOfStockLine."Report Line Number")
                     {
                         Occurrence = Optional;

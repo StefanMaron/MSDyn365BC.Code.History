@@ -1,4 +1,4 @@
-table 83 "Item Journal Line"
+﻿table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -33,7 +33,7 @@ table 83 "Item Journal Line"
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Item No."));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                        if IsDefaultBin() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
                     if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
@@ -318,7 +318,7 @@ table 83 "Item Journal Line"
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Location Code"));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                        if IsDefaultBin() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code");
                     end;
                     if "Entry Type" = "Entry Type"::Transfer then begin
@@ -782,7 +782,7 @@ table 83 "Item Journal Line"
                     "New Bin Code" := '';
                     if ("New Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("New Location Code");
-                        if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                        if IsDefaultBin() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "New Location Code", "New Bin Code")
                     end;
                 end;
@@ -1167,7 +1167,7 @@ table 83 "Item Journal Line"
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
                         GetLocation("Location Code");
-                        if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                        if IsDefaultBin() then
                             WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code")
                     end;
                     if ("Entry Type" = "Entry Type"::Transfer) and ("Location Code" = "New Location Code") then
@@ -4027,6 +4027,8 @@ table 83 "Item Journal Line"
                 then
                     Error(SalesBlockedErr);
         end;
+
+        OnAfterDisplayErrorIfItemIsBlocked(Item, Rec);
     end;
 
     procedure IsPurchaseReturn(): Boolean
@@ -4145,6 +4147,13 @@ table 83 "Item Journal Line"
             Item.TestField(Type, Item.Type::Inventory);
     end;
 
+    local procedure IsDefaultBin() Result: Boolean
+    begin
+        Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
+
+        OnAfterIsDefaultBin(Location, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var ItemJournalLine: Record "Item Journal Line"; var LastItemJournalLine: Record "Item Journal Line"; ItemJournalTemplate: Record "Item Journal Template")
     begin
@@ -4247,6 +4256,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromMachineCenter(var ItemJournalLine: Record "Item Journal Line"; MachineCenter: Record "Machine Center")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -4466,6 +4480,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLocationCode(ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDefaultBin(Location: Record Location; var Result: Boolean)
     begin
     end;
 }

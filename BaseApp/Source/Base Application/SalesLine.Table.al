@@ -1412,6 +1412,8 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
+                if "Prepmt. Amt. Inv." <> 0 then
+                    Error(CannotChangeVATGroupWithPrepmInvErr);
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 "VAT Difference" := 0;
                 // NAVCZ
@@ -1562,7 +1564,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBlanketOrderLineNo(IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Quantity Shipped", 0);
                 if "Blanket Order Line No." <> 0 then begin
                     SalesLine2.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.");
@@ -1719,6 +1728,8 @@
                                 if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then
                                     Validate("IC Partner Reference", ItemCrossReference."Cross-Reference No.");
                             end;
+                        else
+                            OnLookUpICPartnerReferenceTypeCaseElse();
                     end;
             end;
         }
@@ -2279,7 +2290,6 @@
             var
                 Item: Record Item;
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
-                ResUnitofMeasure: Record "Resource Unit of Measure";
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
             begin
                 TestJobPlanningLine();
@@ -2337,9 +2347,7 @@
                                 GetResource;
                                 "Unit of Measure Code" := Resource."Base Unit of Measure";
                             end;
-                            ResUnitofMeasure.Get("No.", "Unit of Measure Code");
-                            "Qty. per Unit of Measure" := ResUnitofMeasure."Qty. per Unit of Measure";
-                            OnAfterAssignResourceUOM(Rec, Resource, ResUnitofMeasure);
+                            AssignResourceUoM();
                             if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
                                 PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
                             FindResUnitCost();
@@ -2678,13 +2686,7 @@
             trigger OnValidate()
             begin
                 TestStatusOpen();
-                if ("Requested Delivery Date" <> xRec."Requested Delivery Date") and
-                   ("Promised Delivery Date" <> 0D)
-                then
-                    Error(
-                      Text028,
-                      FieldCaption("Requested Delivery Date"),
-                      FieldCaption("Promised Delivery Date"));
+                CheckPromisedDeliveryDate();
 
                 if "Requested Delivery Date" <> 0D then
                     Validate("Planned Delivery Date", "Requested Delivery Date")
@@ -3556,6 +3558,8 @@
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.', Comment = '%1 = Type caption %2 = No.';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
+        CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
+        CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
 
     procedure InitOutstanding()
     begin
@@ -4141,9 +4145,10 @@
                     OnUpdateUnitPriceOnBeforeFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
                     if not IsHandled then begin
                         GetPriceCalculationHandler(SalesHeader, PriceCalculation);
-                        if not ("Copied From Posted Doc." and IsCreditDocType) then
+                        if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
                             PriceCalculation.ApplyDiscount();
-                        ApplyPrice(CalledByFieldNo, PriceCalculation);
+                            ApplyPrice(CalledByFieldNo, PriceCalculation);
+                        end;
                     end;
                 end;
         end;
@@ -4301,6 +4306,8 @@
                 end else
                     Clear(VATPostingSetup);
             end; // NAVCZ
+            if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
+                Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
             "Prepmt. VAT Calc. Type" := VATPostingSetup."VAT Calculation Type";
             "Prepayment VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -4321,7 +4328,7 @@
         if IsHandled then
             exit;
 
-        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
+        if true then begin // NAVCZ
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then
                 "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
@@ -4386,8 +4393,8 @@
         if not IsHandled then
             if "Line Amount" <> xRec."Line Amount" then begin
                 "VAT Difference" := 0;
-            	"VAT Difference (LCY)" := 0; // NAVCZ
-            	"VAT Correction" := false; // NAVCZ
+                "VAT Difference (LCY)" := 0; // NAVCZ
+                "VAT Correction" := false; // NAVCZ
                 LineAmountChanged := true;
             end;
         if "Line Amount" <> Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") - "Line Discount Amount" then begin
@@ -4831,7 +4838,14 @@
     end;
 
     procedure SignedXX(Value: Decimal): Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSignedXX(Rec, Value, IsHandled);
+        if IsHandled then
+            exit(Value);
+
         case "Document Type" of
             "Document Type"::Quote,
           "Document Type"::Order,
@@ -5009,6 +5023,10 @@
                 SalesLine.Validate(Type, Type::Item);
                 SalesLine.Validate("No.", Item."No.");
                 SalesLine.Insert(true);
+
+                if SalesLine.IsAsmToOrderRequired() then
+                    SalesLine.AutoAsmToOrder();
+
                 if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then begin
                     TransferExtendedText.InsertSalesExtTextRetLast(SalesLine, LastSalesLine);
                     SalesLine."Line No." := LastSalesLine."Line No."
@@ -5201,8 +5219,10 @@
         TestField("No.");
         TestField(Quantity);
 
-        if Type <> Type::"Charge (Item)" then
-            Error(ItemChargeAssignmentErr);
+        if Type <> Type::"Charge (Item)" then begin
+            Message(ItemChargeAssignmentErr);
+            exit;
+        end;
 
         GetSalesHeader();
         Currency.Initialize(SalesHeader."Currency Code");
@@ -6924,6 +6944,7 @@
 
     procedure OutstandingInvoiceAmountFromShipment(SellToCustomerNo: Code[20]): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
     begin
         SalesLine.SetCurrentKey("Document Type", "Sell-to Customer No.", "Shipment No.");
@@ -6937,7 +6958,13 @@
     local procedure CheckShipmentRelation()
     var
         SalesShptLine: Record "Sales Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckShipmentRelation(IsHandled);
+        if IsHandled then
+            exit;
+
         SalesShptLine.Get("Shipment No.", "Shipment Line No.");
         if (Quantity * SalesShptLine."Qty. Shipped Not Invoiced") < 0 then
             FieldError("Qty. to Invoice", Text057);
@@ -6950,7 +6977,13 @@
     local procedure CheckRetRcptRelation()
     var
         ReturnRcptLine: Record "Return Receipt Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckRetRcptRelation(IsHandled);
+        if IsHandled then
+            exit;
+
         ReturnRcptLine.Get("Return Receipt No.", "Return Receipt Line No.");
         if (Quantity * (ReturnRcptLine.Quantity - ReturnRcptLine."Quantity Invoiced")) < 0 then
             FieldError("Qty. to Invoice", Text059);
@@ -8018,6 +8051,35 @@
             Validate("Unit Cost (LCY)", Item."Unit Cost" * "Qty. per Unit of Measure");
     end;
 
+    local procedure AssignResourceUoM()
+    var
+        ResUnitofMeasure: Record "Resource Unit of Measure";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAssignResourceUoM(ResUnitofMeasure, IsHandled);
+        if IsHandled then
+            exit;
+
+        ResUnitofMeasure.Get("No.", "Unit of Measure Code");
+        "Qty. per Unit of Measure" := ResUnitofMeasure."Qty. per Unit of Measure";
+
+        OnAfterAssignResourceUOM(Rec, Resource, ResUnitofMeasure);
+    end;
+
+    local procedure CheckPromisedDeliveryDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPromisedDeliveryDate(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Requested Delivery Date" <> xRec."Requested Delivery Date") and ("Promised Delivery Date" <> 0D) then
+            Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignFieldsForNo(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
@@ -8321,6 +8383,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDimensions(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSignedXX(var SalesLine: Record "Sales Line"; var Value: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -8879,6 +8946,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnLookUpICPartnerReferenceTypeCaseElse()
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATAmountsOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
     begin
@@ -8977,6 +9049,31 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeAssignResourceUoM(var ResUnitofMeasure: Record "Resource Unit of Measure"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPromisedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateBlanketOrderLineNo(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckShipmentRelation(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckRetRcptRelation(var IsHandled: Boolean)
     begin
     end;
 }

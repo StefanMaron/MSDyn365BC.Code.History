@@ -1,4 +1,4 @@
-codeunit 1522 "Workflow Request Page Handling"
+﻿codeunit 1522 "Workflow Request Page Handling"
 {
 
     trigger OnRun()
@@ -42,6 +42,8 @@ codeunit 1522 "Workflow Request Page Handling"
         AssignEntityToWorkflowEvent(DATABASE::"Sales Advance Letter Header", SalesAdvanceLetterCodeTxt);
         AssignEntityToWorkflowEvent(DATABASE::"Purch. Advance Letter Header", PurchAdvanceLetterCodeTxt);
         // NAVCZ
+
+        OnAfterAssignEntitiesToWorkflowEvents();
     end;
 
     local procedure InsertRequestPageEntities()
@@ -68,6 +70,8 @@ codeunit 1522 "Workflow Request Page Handling"
           PurchAdvanceLetterCodeTxt, PurchAdvanceLetterDescTxt,
           DATABASE::"Purch. Advance Letter Header", DATABASE::"Purch. Advance Letter Line");
         // NAVCZ
+
+        OnAfterInsertRequestPageEntities();
     end;
 
     local procedure InsertReqPageEntity(Name: Code[20]; Description: Text[100]; TableId: Integer; RelatedTableId: Integer)
@@ -133,6 +137,8 @@ codeunit 1522 "Workflow Request Page Handling"
         InsertPurchaseAdvanceLetterHeaderReqPageFields;
         InsertPurchaseAdvanceLetterLineReqPageFields;
         // NAVCZ
+
+        OnAfterInsertRequestPageFields();
     end;
 
     local procedure InsertIncomingDocumentReqPageFields()
@@ -374,6 +380,21 @@ codeunit 1522 "Workflow Request Page Handling"
         Vendor: Record Vendor;
     begin
         InsertReqPageField(DATABASE::Vendor, Vendor.FieldNo("No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignEntitiesToWorkflowEvents()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertRequestPageEntities()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertRequestPageFields()
+    begin
     end;
 }
 

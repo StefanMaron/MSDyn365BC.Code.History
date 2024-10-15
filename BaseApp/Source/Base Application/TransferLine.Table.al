@@ -562,6 +562,7 @@
 
             trigger OnValidate()
             var
+                TransferLine: Record "Transfer Line";
                 IsHandled: Boolean;
             begin
                 if CurrFieldNo <> 0 then
@@ -574,6 +575,9 @@
 
                 CheckItemAvailable(FieldNo("Shipment Date"));
                 DateConflictCheck;
+                if "Derived From Line No." = 0 then
+                    if DerivedLinesExist(TransferLine, "Document No.", "Line No.") then
+                        TransferLine.ModifyAll("Receipt Date", "Receipt Date");
             end;
         }
         field(40; "Derived From Line No."; Integer)
@@ -1641,6 +1645,13 @@
         IEItem: Record Item;
     begin
         exit(IEItem.Get(ItemNo));
+    end;
+
+    local procedure DerivedLinesExist(var TransferLine: Record "Transfer Line"; DocumentNo: Code[20]; DerivedFromLineNo: Integer): Boolean
+    begin
+        TransferLine.SetRange("Document No.", DocumentNo);
+        TransferLine.SetRange("Derived From Line No.", DerivedFromLineNo);
+        exit(not TransferLine.IsEmpty);
     end;
 
     procedure RowID1(Direction: Enum "Transfer Direction"): Text[250]
