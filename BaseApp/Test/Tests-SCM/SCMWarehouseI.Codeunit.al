@@ -2109,6 +2109,61 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ReallocateNonSpecificReservEntriesToAvailableItemLedgEntries()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNos: array[3] of Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Late Binding] [Item Tracking] [Reservation]
+        // [SCENARIO 367069] Reallocate non-specific reservation entries to available item ledger entries.
+        Initialize();
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+        LotNos[3] := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item.
+        // [GIVEN] Post three lots "L1", "L2", "L3" to inventory. Quantity of each lot = 1 pc.
+        LibraryItemTracking.CreateLotItem(Item);
+        CreateItemStockWithLot('', Item."No.", LotNos[1], Qty);
+        CreateItemStockWithLot('', Item."No.", LotNos[2], Qty);
+        CreateItemStockWithLot('', Item."No.", LotNos[3], Qty);
+
+        // [GIVEN] Create and auto-reserve sales order for 2 pcs.
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 2 * Qty, '');
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Lots "L1" and "L2" are reserved from inventory.
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[1], Qty);
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[2], Qty);
+
+        // [GIVEN] Create second sales order for 1 pc.
+        // [GIVEN] Assign lot no. "L1" to the sales line.
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Qty, '');
+        LibraryVariableStorage.Enqueue(LotNos[1]);
+        LibraryVariableStorage.Enqueue(Qty);
+        SalesLine.OpenItemTrackingLines();
+
+        // [WHEN] Post the second sales order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] The sales order is shipped.
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", Qty);
+
+        // [THEN] The reservation is reallocated - now lots "L2" and "L3" are reserved from inventory.
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[2], Qty);
+        VerifyReservationEntryLotQty(DATABASE::"Item Ledger Entry", LotNos[3], Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
