@@ -272,8 +272,22 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Settings';
                 Image = UserInterface;
-                RunObject = Page "User Settings List";
+                Scope = Repeater;
                 ToolTip = 'Manage the user interface settings for the users.';
+                trigger OnAction()
+                var
+                    UserPersonalization: Record "User Personalization";
+                    UserPersonalizationPage: Page "User Personalization";
+                    UserSettingsList: Page "User Settings List";
+                begin
+                    if UserPersonalization.Get(Rec."User Security ID") then begin
+                        UserPersonalizationPage.SetRecord(UserPersonalization);
+                        UserPersonalizationPage.Run();
+                    end else begin
+                        Message(MissingUserSettingsMsg, Rec."User Name");
+                        UserSettingsList.Run();
+                    end;
+                end;
             }
             action("User Setup")
             {
@@ -536,6 +550,7 @@ page 9800 Users
         Text004Err: Label '%1 cannot be empty.', Comment = '%1=user name';
         CreateUserInSaaSErr: Label 'Creating users is not allowed in the online environment.';
         DeleteUserInSaaSErr: Label 'Deleting users is not allowed in the online environment.';
+        MissingUserSettingsMsg: Label 'Some user settings, such as language, region, or time zone, weren''t specified when %1 was created, so default values were assigned. You can change them if needed.', Comment = '%1=user name';
         NoUserExists: Boolean;
         CreateQst: Label 'Do you want to create %1 as super user?', Comment = '%1=user name, e.g. europe\myaccountname';
         [InDataSet]

@@ -81,6 +81,7 @@ codeunit 137150 "SCM Warehouse UOM"
         WhsePickCreatedTxt: Label 'Pick activity no.';
         InsufficientQtyToPickInBinErr: Label 'The Qty. Outstanding (Base) %1 exceeds the quantity available to pick %2 of the Bin Content.', Comment = '%1: Field(Qty. Outstanding (Base)), %2: Quantity available to pick in bin.';
         UoMIsStillUsedError: Label 'You cannot delete the unit of measure because it is assigned to one or more records.';
+        ItemTrackingQtyHandledErr: Label 'The Qty Handled (Base) is incorrect on the Item Tracking line.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler')]
@@ -4357,6 +4358,73 @@ codeunit 137150 "SCM Warehouse UOM"
         PostWarehouseReceipt(WarehouseReceiptLine."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyHandledInPutAwayWithBreakbulkAndItemTracking()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        BoxUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PostedWarehouseReceiptHeader: Record "Posted Whse. Receipt Header";
+        ReservationEntry: Record "Reservation Entry";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        BoxesToPurchase: Decimal;
+        QtyPerBox: Decimal;
+        BoxesToPutAway: Decimal;
+        LotNo: Code[5];
+    begin
+        // Created for fix of bug 446567 - Register put-away registers wrong quantity
+        // Put-away of a tracked item with breakbulk from large to small unit of measure must register correct Qty handled in Item Tracking Line
+        Initialize();
+        BoxesToPurchase := LibraryRandom.RandIntInRange(10, 20);
+        QtyPerBox := LibraryRandom.RandIntInRange(5, 10);
+        BoxesToPutAway := LibraryRandom.RandIntInRange(1, 4);
+
+        // [GIVEN] Full WMS location with Allow Breakbulk = TRUE.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        Location.Validate("Allow Breakbulk", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item with item tracking and Base Unit of Measure = "PCS" and alternate Unit of Measure = "BOX"
+        LibraryInventory.CreateItem(Item);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify();
+        CreateItemUnitOfMeasure(BoxUnitOfMeasure, Item."No.", QtyPerBox);
+
+        // [GIVEN] Put-away Unit of Measure Code in the item is base unit
+        UpdateItemUOM(Item, BoxUnitOfMeasure.Code, '', Item."Base Unit of Measure");
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify();
+
+        // [GIVEN] A purchase order for PurchQty of the item in "BOX" UOM
+        CreateAndReleasePurchaseOrder(PurchaseHeader, Location.Code, Item."No.", BoxesToPurchase);
+
+        // [GIVEN] Posted receipt for full quantity with lot item tracking
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+        LibraryItemTracking.CreateWhseReceiptItemTracking(ReservationEntry, WarehouseReceiptLine, '', LibraryRandom.RandText(5), QtyPerBox * BoxesToPurchase);
+        PostWarehouseReceipt(WarehouseReceiptLine."No.");
+
+        // [WHEN] All generated warehouse activities are registered including breakbulk and actual Put-away activities
+        RegisterAllWarehouseActivies(
+          WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          BoxesToPutAway * QtyPerBox);
+
+        // [THEN] The Item Tracking Line has registered the correct "Qty Handled (Base)"
+        // Only the put-away activities should contribute to the "Qty Handled" - not breakbulk activities
+        FilterWhseItemTrackingLineByWhseReceipt(WarehouseReceiptLine, WhseItemTrackingLine);
+        WhseItemTrackingLine.SetLoadFields("Quantity Handled (Base)");
+        WhseItemTrackingLine.FindFirst();
+        Assert.AreEqual(QtyPerBox * BoxesToPutAway, WhseItemTrackingLine."Quantity Handled (Base)", ItemTrackingQtyHandledErr);
+    end;
+
     local procedure CreateAndPostWarehouseReceiptFromTransferOrder(var TransferHeader: Record "Transfer Header")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -5451,6 +5519,22 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
+    local procedure RegisterAllWarehouseActivies(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; BaseQtyToHandle: Decimal)
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.Validate("Qty. to Handle (Base)", BaseQtyToHandle);
+                WarehouseActivityLine.Modify();
+            until WarehouseActivityLine.Next() = 0;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
     local procedure RegisterWarehouseMovement(ItemNo: Code[20]; SourceNo: Code[20])
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
@@ -5461,6 +5545,19 @@ codeunit 137150 "SCM Warehouse UOM"
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::" ", SourceNo, WarehouseActivityLine."Activity Type"::Movement);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FilterWhseItemTrackingLineByWhseReceipt(WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        PostedWarehouseReceiptHeader: Record "Posted Whse. Receipt Header";
+    begin
+        PostedWarehouseReceiptHeader.SetCurrentKey("Whse. Receipt No.");
+        PostedWarehouseReceiptHeader.SetLoadFields("No.");
+        PostedWarehouseReceiptHeader.SetRange("Whse. Receipt No.", WarehouseReceiptLine."No.");
+        PostedWarehouseReceiptHeader.FindFirst();
+        WhseItemTrackingLine.SetRange("Source Type", DATABASE::"Posted Whse. Receipt Line");
+        WhseItemTrackingLine.SetRange("Source Subtype", 0);
+        WhseItemTrackingLine.SetRange("Source ID", PostedWarehouseReceiptHeader."No.");
     end;
 
     local procedure ReserveProductionOrderComponent(ItemNo: Code[20])

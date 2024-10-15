@@ -27,7 +27,7 @@ table 5092 Opportunity
         field(3; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -728,22 +728,22 @@ table 5092 Opportunity
                         Clear(Opp."No.");
                         Opp.Insert(true);
                         CreateCommentLines(TempRlshpMgtCommentLine, Opp."No.");
-                        ProcessFirstStage(OppEntry2, ActivateFirstStage, true);
+                        ProcessFirstStage(OppEntry2, ActivateFirstStage, true, SegLine."Salesperson Code");
                     until SegLine.Next() = 0;
         end else begin
             Opp.Insert(true);
             CreateCommentLines(TempRlshpMgtCommentLine, Opp."No.");
-            ProcessFirstStage(OppEntry2, ActivateFirstStage, false);
+            ProcessFirstStage(OppEntry2, ActivateFirstStage, false, '');
         end;
 
         OnAfterInsertOpportunity(Opp);
     end;
 
-    local procedure ProcessFirstStage(OpportunityEntry2: Record "Opportunity Entry"; ActivateFirstStage: Boolean; CalledForSegment: Boolean)
+    local procedure ProcessFirstStage(OpportunityEntry2: Record "Opportunity Entry"; ActivateFirstStage: Boolean; CalledForSegment: Boolean; SalesPersonCode: Code[20])
     var
         OpportunityEntry: Record "Opportunity Entry";
     begin
-        OnBeforeProcessFirstStage(Opp, OpportunityEntry2, ActivateFirstStage, CalledForSegment);
+        OnBeforeProcessFirstStage(Opp, OpportunityEntry2, ActivateFirstStage, CalledForSegment, SalesPersonCode);
 
         if ActivateFirstStage then begin
             OpportunityEntry.Init();
@@ -1228,7 +1228,7 @@ table 5092 Opportunity
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessFirstStage(var Opportunity: Record Opportunity; var OpportunityEntry2: Record "Opportunity Entry"; ActivateFirstStage: Boolean; CalledForSegment: Boolean)
+    local procedure OnBeforeProcessFirstStage(var Opportunity: Record Opportunity; var OpportunityEntry2: Record "Opportunity Entry"; ActivateFirstStage: Boolean; CalledForSegment: Boolean; SalesPersonCode: Code[20])
     begin
     end;
 

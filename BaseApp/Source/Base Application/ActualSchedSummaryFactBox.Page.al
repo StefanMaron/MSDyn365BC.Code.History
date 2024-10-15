@@ -5,7 +5,7 @@ page 956 "Actual/Sched. Summary FactBox"
 
     layout
     {
-        area(content)
+        area(Content)
         {
             field(FirstDaySummary; DateQuantity[1])
             {
@@ -55,19 +55,21 @@ page 956 "Actual/Sched. Summary FactBox"
                 Caption = 'Total';
                 Editable = false;
                 Style = Strong;
-                StyleExpr = TRUE;
+                StyleExpr = true;
                 ToolTip = 'Specifies the total.';
             }
             field(PresenceQty; PresenceQty)
             {
                 ApplicationArea = Jobs;
                 Caption = 'Total Presence';
+                DecimalPlaces = 2 : 2;
                 ToolTip = 'Specifies the total presence (calculated in days or hours) for all resources on the line.';
             }
             field(AbsenceQty; AbsenceQty)
             {
                 ApplicationArea = Jobs;
                 Caption = 'Total Absence';
+                DecimalPlaces = 2 : 2;
                 ToolTip = 'Specifies the total absence (calculated in days or hours) for all resources on the line.';
             }
         }
@@ -79,12 +81,12 @@ page 956 "Actual/Sched. Summary FactBox"
 
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
+        AbsenceQty: Decimal;
+        PresenceQty: Decimal;
+        TotalQuantity: Decimal;
         DateDescription: array[7] of Text[30];
         DateQuantity: array[7] of Text[30];
         TotalQtyText: Text[30];
-        TotalQuantity: Decimal;
-        PresenceQty: Decimal;
-        AbsenceQty: Decimal;
 
     procedure UpdateData(TimeSheetHeader: Record "Time Sheet Header")
     var
@@ -101,7 +103,7 @@ page 956 "Actual/Sched. Summary FactBox"
         CurrPage.Update(false);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateData(
         var TimeSheetHeader: Record "Time Sheet Header"; var DateDescription: array[7] of Text[30]; var DateQuantity: array[7] of Text[30];
         var TotalQtyText: Text[30]; var TotalQuantity: Decimal; var AbsenceQty: Decimal; var PresenceQty: Decimal; var IsHandled: Boolean)

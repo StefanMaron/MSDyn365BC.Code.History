@@ -16,7 +16,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyEmployeeRelative();
         ClassifyEmployeeQualification();
         ClassifyVATReportHeader();
+#if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Buffer");
+#endif
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Payment Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat - File Setup");

@@ -86,6 +86,9 @@ report 38 "Trial Balance by Period"
             column(Trial_Balance_by_PeriodCaption; Trial_Balance_by_PeriodCaptionLbl)
             {
             }
+            column(G_L_Account_Balance; Balance)
+            {
+            }
             dataitem(BlankLineCounter; "Integer")
             {
                 DataItemTableView = SORTING(Number);

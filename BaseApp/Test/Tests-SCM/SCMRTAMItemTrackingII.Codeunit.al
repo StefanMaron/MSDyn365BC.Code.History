@@ -2998,6 +2998,85 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandler,ConfirmHandler,MessageHandler')]
+    procedure NegativeConsumptionDoesNotStartBranchInItemTracing()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ProductionOrder: Record "Production Order";
+        TempItemTracingBuffer: Record "Item Tracing Buffer" temporary;
+        TempItemTracingBuffer2: Record "Item Tracing Buffer" temporary;
+        ItemTracingMgt: Codeunit "Item Tracing Mgt.";
+        Direction: Option Forward,Backward;
+        ShowComponents: Option No,"Item-tracked only",All;
+        CompLotNo: Code[20];
+        ProdLotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracing] [Consumption] [Reverse]
+        // [SCENARIO 447643] Reversed consumption does not make a root node in item tracing.
+        // [SCENARIO 447643] Usage of reversed consumption in another production order is shown as its sub-tree.
+        Initialize();
+        CompLotNo := LibraryUtility.GenerateGUID();
+        ProdLotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked production item "P" and component item "C".
+        LibraryItemTracking.CreateLotItem(CompItem);
+        LibraryItemTracking.CreateLotItem(ProdItem);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ProdItem."Base Unit of Measure", CompItem."No.");
+        UpdateProductionBOMNoOnItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Post item "C" to inventory, assign lot no. = "LC".
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', CompLotNo, ItemJournalLine."Quantity (Base)");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] First production order for item "P".
+        // [GIVEN] Assign lot no. "LP" for the production item, select lot "LC" for the component.
+        // [GIVEN] Post output and consumption.
+        CreateRefreshAndPostProductionOrderWithItemTracking(ProductionOrder, ProdItem."No.", ProdLotNo, CompItem."No.", CompLotNo, Qty);
+
+        // [GIVEN] Reverse the consumption, lot "LC" will be used for another production.
+        CreateAndPostConsumptionJournalWithItemTracking(ProductionOrder."No.", CompItem."No.", CompLotNo, -Qty);
+
+        // [GIVEN] Second production order for item "P".
+        // [GIVEN] Assign lot no. "LP" for the production item, select lot "LC" for the component.
+        // [GIVEN] Post output and consumption.
+        CreateRefreshAndPostProductionOrderWithItemTracking(ProductionOrder, ProdItem."No.", ProdLotNo, CompItem."No.", CompLotNo, Qty);
+
+        // [WHEN] Run item tracing for lot "LC" in Origin->Usage direction.
+        ItemTracingMgt.FindRecords(
+          TempItemTracingBuffer, TempItemTracingBuffer2, '', CompLotNo, '', '', '', Direction::Forward, ShowComponents::All);
+
+        // [THEN] Find the reversed consumption. Ensure it has indentation > 0, which means it is not a root node.
+        // [THEN] The item tracing tree will be as follows:
+        // [THEN] Invt. adjmt. +1 qty.
+        // [THEN] |__Consumption -1 qty., prod. order "1"
+        // [THEN] |____Consumption +1 qty., prod. order "1"
+        // [THEN] |______Consumption -1 qty., prod. order "2"
+        // [THEN] |________Output +1 qty., prod. order "2"
+        // [THEN] |____Output +1 qty., prod. order "1"
+        TempItemTracingBuffer.SetRange("Entry Type", TempItemTracingBuffer."Entry Type"::Consumption);
+        TempItemTracingBuffer.SetRange(Quantity, Qty);
+        TempItemTracingBuffer.FindFirst();
+        Assert.IsTrue(TempItemTracingBuffer.Level > 0, 'Reversed consumption cannot be the top node in Item Tracing tree.');
+        TempItemTracingBuffer.Reset();
+        TempItemTracingBuffer.Next();
+        TempItemTracingBuffer.TestField("Entry Type", TempItemTracingBuffer."Entry Type"::Consumption);
+        TempItemTracingBuffer.TestField("Document No.", ProductionOrder."No.");
+        TempItemTracingBuffer.TestField("Lot No.", CompLotNo);
+        TempItemTracingBuffer.Next();
+        TempItemTracingBuffer.TestField("Entry Type", TempItemTracingBuffer."Entry Type"::Output);
+        TempItemTracingBuffer.TestField("Document No.", ProductionOrder."No.");
+        TempItemTracingBuffer.TestField("Lot No.", ProdLotNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3455,6 +3534,22 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SalesInvoiceLine.FindFirst();
     end;
 
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderLine.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+    end;
+
     local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
@@ -3732,6 +3827,21 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ProductionOrder.Validate("Bin Code", BinCode);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateRefreshAndPostProductionOrderWithItemTracking(var ProductionOrder: Record "Production Order"; ProdItemNo: Code[20]; ProdLotNo: Code[20]; CompItemNo: Code[20]; CompLotNo: Code[20]; Qty: Decimal)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItemNo, '', '', Qty);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder);
+        LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', ProdLotNo, ProdOrderLine."Quantity (Base)");
+        FindProdOrderComponent(ProdOrderComponent, ProdOrderLine, CompItemNo);
+        LibraryItemTracking.CreateProdOrderCompItemTracking(
+          ReservationEntry, ProdOrderComponent, '', CompLotNo, ProdOrderComponent."Quantity (Base)");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
     local procedure CreateAndPostOutputJournalWithTracking(ProductionOrderNo: Code[20])
@@ -4139,6 +4249,22 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
     end;
 
+    local procedure CreateAndPostConsumptionJournalWithItemTracking(ProductionOrderNo: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Consumption, ItemNo, Qty);
+        ItemJournalLine.Validate("Order No.", ProductionOrderNo);
+        ItemJournalLine.Modify(true);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine."Quantity (Base)");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     local procedure CreateBinAndBinContent(var Bin: Record Bin; Item: Record Item; LocationCode: Code[10])
     var
         BinContent: Record "Bin Content";
@@ -4182,7 +4308,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         WhseWorksheetLine.Init();  // Required for PRECAL.
         BinContent.SetRange("Location Code", LocationCode);
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::WhseInternalPutawayHeader);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::WhseInternalPutawayHeader);
         WhseIntPutAwayRelease.Release(WhseInternalPutAwayHeader);
     end;
 

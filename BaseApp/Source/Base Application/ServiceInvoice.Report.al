@@ -563,7 +563,7 @@
                         column(VATClauseCode; TempVATAmountLine."VAT Clause Code")
                         {
                         }
-                        column(VATClauseDescription; VATClause.Description)
+                        column(VATClauseDescription; VATClauseText)
                         {
                         }
                         column(VATClauseDescription2; VATClause."Description 2")
@@ -589,7 +589,7 @@
                             TempVATAmountLine.GetLine(Number);
                             if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
                                 CurrReport.Skip();
-                            VATClause.GetDescription("Service Invoice Header");
+                            VATClauseText := VATClause.GetDescriptionText("Service Invoice Header");
                         end;
 
                         trigger OnPreDataItem()
@@ -800,6 +800,7 @@
         OrderNoText: Text[80];
         SalesPersonText: Text[50];
         VATNoText: Text[80];
+        VATClauseText: Text;
         ReferenceText: Text[80];
         TotalText: Text[50];
         TotalExclVATText: Text[50];

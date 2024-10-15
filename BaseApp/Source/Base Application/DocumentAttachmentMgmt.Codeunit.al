@@ -55,70 +55,160 @@ codeunit 1173 "Document Attachment Mgmt"
         exit(not DocumentAttachment.IsEmpty())
     end;
 
-    local procedure SetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    procedure SetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    begin
+        SetDocumentAttachmentFiltersForRecRefInternal(DocumentAttachment, RecRef);
+        OnAfterSetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
+    end;
+
+    internal procedure SetDocumentAttachmentFiltersForRecRefInternal(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
     var
         FieldRef: FieldRef;
         RecNo: Code[20];
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         LineNo: Integer;
+        FieldNo: Integer;
+        VATRepConfigType: Enum "VAT Report Configuration";
     begin
         DocumentAttachment.SetRange("Table ID", RecRef.Number);
-        case RecRef.Number() of
-            DATABASE::Customer,
-            DATABASE::Vendor,
-            DATABASE::Item,
-            DATABASE::Employee,
-            DATABASE::"Fixed Asset",
-            DATABASE::Resource,
-            DATABASE::Job:
-                begin
-                    FieldRef := RecRef.Field(1);
-                    RecNo := FieldRef.Value();
-                    DocumentAttachment.SetRange("No.", RecNo);
-                end;
-        end;
-        case RecRef.Number() of
-            DATABASE::"Sales Header",
-            DATABASE::"Purchase Header",
-            DATABASE::"Sales Line",
-            DATABASE::"Purchase Line":
-                begin
-                    FieldRef := RecRef.Field(1);
-                    DocType := FieldRef.Value();
-                    DocumentAttachment.SetRange("Document Type", DocType);
 
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value();
-                    DocumentAttachment.SetRange("No.", RecNo);
-                end;
+        if TableHasNumberFieldPrimayKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            RecNo := FieldRef.Value();
+            DocumentAttachment.SetRange("No.", RecNo);
         end;
-        case RecRef.Number() of
+
+        if TableHasDocTypePrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            DocType := FieldRef.Value();
+            DocumentAttachment.SetRange("Document Type", DocType);
+        end;
+
+        if TableHasLineNumberPrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            LineNo := FieldRef.Value();
+            DocumentAttachment.SetRange("Line No.", LineNo);
+        end;
+
+        if RecRef.Number = Database::"VAT Report Header" then begin
+            FieldRef := RecRef.Field(2);
+            VATRepConfigType := FieldRef.Value();
+            DocumentAttachment.SetRange("VAT Report Config. Code", VATRepConfigType);
+        end;
+    end;
+
+    internal procedure IsSalesDocumentFlow(TableNo: Integer): Boolean
+    begin
+        exit(TableNo in
+            [DATABASE::Customer,
+            DATABASE::"Sales Header",
             DATABASE::"Sales Line",
-            DATABASE::"Purchase Line":
-                begin
-                    FieldRef := RecRef.Field(4);
-                    LineNo := FieldRef.Value();
-                    DocumentAttachment.SetRange("Line No.", LineNo);
-                end;
-        end;
-        case RecRef.Number() of
             DATABASE::"Sales Invoice Header",
             DATABASE::"Sales Invoice Line",
             DATABASE::"Sales Cr.Memo Header",
             DATABASE::"Sales Cr.Memo Line",
+            DATABASE::Item]);
+    end;
+
+    internal procedure IsPurchaseDocumentFlow(TableNo: Integer): Boolean
+    begin
+        exit(TableNo in
+            [DATABASE::Vendor,
+            DATABASE::"Purchase Header",
+            DATABASE::"Purchase Line",
             DATABASE::"Purch. Inv. Header",
             DATABASE::"Purch. Inv. Line",
             DATABASE::"Purch. Cr. Memo Hdr.",
-            DATABASE::"Purch. Cr. Memo Line":
-                begin
-                    FieldRef := RecRef.Field(3);
-                    RecNo := FieldRef.Value();
-                    DocumentAttachment.SetRange("No.", RecNo);
-                end;
+            DATABASE::"Purch. Cr. Memo Line",
+            DATABASE::Item]);
+    end;
+
+    internal procedure IsFlowFieldsEditable(TableNo: Integer): Boolean
+    begin
+        exit(not (TableNo in
+            [DATABASE::"Sales Header",
+            DATABASE::"Sales Line",
+            DATABASE::"Purchase Header",
+            DATABASE::"Purchase Line",
+            DATABASE::"Sales Invoice Header",
+            DATABASE::"Sales Cr.Memo Header",
+            DATABASE::"Purch. Inv. Header",
+            DATABASE::"Purch. Cr. Memo Hdr.",
+            DATABASE::"Sales Invoice Line",
+            DATABASE::"Sales Cr.Memo Line",
+            DATABASE::"Purch. Inv. Line",
+            DATABASE::"Purch. Cr. Memo Line"]));
+    end;
+
+    internal procedure TableHasNumberFieldPrimayKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    begin
+        if TableNo in
+            [DATABASE::Customer,
+            DATABASE::Vendor,
+            DATABASE::Item,
+            DATABASE::Employee,
+            DATABASE::"Fixed Asset",
+            DATABASE::Job,
+            DATABASE::Resource,
+            DATABASE::"VAT Report Header"]
+        then begin
+            FieldNo := 1;
+            exit(true);
         end;
 
-        OnAfterSetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
+        if TableNo in
+            [DATABASE::"Sales Header",
+            DATABASE::"Sales Line",
+            DATABASE::"Purchase Header",
+            DATABASE::"Purchase Line",
+            DATABASE::"Sales Invoice Header",
+            DATABASE::"Sales Cr.Memo Header",
+            DATABASE::"Purch. Inv. Header",
+            DATABASE::"Purch. Cr. Memo Hdr.",
+            DATABASE::"Sales Invoice Line",
+            DATABASE::"Sales Cr.Memo Line",
+            DATABASE::"Purch. Inv. Line",
+            DATABASE::"Purch. Cr. Memo Line"]
+        then begin
+            FieldNo := 3;
+            exit(true);
+        end;
+
+        exit(false);
     end;
+
+    internal procedure TableHasDocTypePrimaryKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    begin
+        if TableNo in
+            [DATABASE::"Sales Header",
+            DATABASE::"Sales Line",
+            DATABASE::"Purchase Header",
+            DATABASE::"Purchase Line"]
+        then begin
+            FieldNo := 1;
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    internal procedure TableHasLineNumberPrimaryKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    begin
+        if TableNo in
+            [DATABASE::"Sales Line",
+            DATABASE::"Purchase Line",
+            DATABASE::"Sales Invoice Line",
+            DATABASE::"Sales Cr.Memo Line",
+            DATABASE::"Purch. Inv. Line",
+            DATABASE::"Purch. Cr. Memo Line"]
+        then begin
+            FieldNo := 4;
+            exit(true);
+        end;
+
+        exit(false);
+    end;
+
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteCustomer(var Rec: Record Customer; RunTrigger: Boolean)

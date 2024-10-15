@@ -29,6 +29,8 @@ codeunit 134327 "ERM Purchase Order"
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPlanning: Codeunit "Library - Planning";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryResource: Codeunit "Library - Resource";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -83,6 +85,8 @@ codeunit 134327 "ERM Purchase Order"
         RoundingTo0Err: Label 'Rounding of the field';
         RemitToCodeShouldNotBeEditableErr: Label 'Remit-to code should not be editable when vendor is not selected.';
         RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
+        UpdateLinesOrderDateAutomaticallyQst: Label 'You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?';
+
 
     [Test]
     [Scope('OnPrem')]
@@ -6784,6 +6788,174 @@ codeunit 134327 "ERM Purchase Order"
         LibraryReportDataset.AssertElementWithValueExists('RemitToAddress_Name', RemitAddress.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure UpdatePurchaseOrderDateWithoutUpdatingLinesOrderDates()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Order Date", today());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        Commit();
+        LibraryVariableStorage.Enqueue(UpdateLinesOrderDateAutomaticallyQst);
+        LibraryVariableStorage.Enqueue(false);
+        PurchaseHeader.Validate("Order Date", today() + 1);
+        LibraryVariableStorage.AssertEmpty();
+
+        Assert.AreNotEqual(PurchaseHeader."Order Date", PurchaseLine."Order Date", 'The purchase order date should be different from the purchase line order date');
+        Assert.AreEqual(PurchaseHeader."Order Date", today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (today() + 1), PurchaseHeader."Order Date"));
+        Assert.AreEqual(PurchaseLine."Order Date", today(), StrSubstNo('The purchase line order date should be %1. Instead, it is %2', today(), PurchaseLine."Order Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure UpdatePurchaseOrderDateUpdatesLinesOrderDates()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Order Date", today());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        Commit();
+        LibraryVariableStorage.Enqueue(UpdateLinesOrderDateAutomaticallyQst);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseHeader.Validate("Order Date", today() + 1);
+        PurchaseHeader.Modify(true);
+        LibraryVariableStorage.AssertEmpty();
+        PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
+
+        Assert.AreEqual(PurchaseHeader."Order Date", today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (today() + 1), PurchaseHeader."Order Date"));
+        Assert.AreEqual(PurchaseHeader."Order Date", PurchaseLine."Order Date", StrSubstNo('The purchase order date (%1) should be the same as the purchase line order date (%2)', PurchaseHeader."Order Date", PurchaseLine."Order Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetSalesOrdersHandler,ItemVendorCatalogHandler,ExplodeBOMHandler')]
+    procedure VerifySpecialSalesOrderLineValuesAreClearedOnExplodeBOMFromPurchaseOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO: 440130] Verify Special Sales Order Line values are cleared on Explode BOM action from Purchase Order for Assembly Item
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Create New Item with BOM Component
+        ItemNo := CreateItemWithBOMComponent();
+
+        // [GIVEN] Create Special Sales Order and Release
+        CreateSpecialSalesOrderForItem(SalesHeader, SalesLine, ItemNo);
+
+        // [GIVEN] Get Special Order on Requisition Worksheet and create Purchase Order
+        // [HANDLERS] GetSalesOrdersHandler, ItemVendorCatalogHandler
+        GetSpecialOrderOnRequisitionWorksheetAndCreatePurchaseOrder(Vendor);
+
+        // [WHEN] Find Created Purchase records and Open Purchase Order
+        OpenCreatedPurchaseOrder(PurchaseOrder, PurchaseLine, Vendor);
+
+        // [THEN] Verify Special Purchase Order and Sales Order are connected        
+        Assert.IsTrue(PurchaseLine."Special Order", 'Not Special Order.');
+        Assert.IsTrue(PurchaseLine."Special Order Sales No." = SalesHeader."No.", 'Orders are not connected.');
+        Assert.IsTrue(PurchaseLine."Special Order Sales Line No." = SalesLine."Line No.", 'Orders are not connected.');
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", '10000');
+        Assert.IsTrue(SalesLine."Special Order", 'Not Special Order.');
+        Assert.IsTrue(SalesLine."Special Order Purch. Line No." = PurchaseLine."Line No.", 'Orders are not connected.');
+        Assert.IsTrue(SalesLine."Special Order Purchase No." = PurchaseLine."Document No.", 'Orders are not connected.');
+
+        // [WHEN] Call Explode BOM action
+        // [HANDLER] ExplodeBOMHandler        
+        PurchaseOrder.PurchLines."E&xplode BOM".Invoke();
+
+        // [THEN] Verify special values on Sales Order and Purchase Order are cleared
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", '10000');
+        Assert.IsTrue(SalesLine."Special Order", 'Not Special Order.');
+        Assert.IsTrue(SalesLine."Special Order Purch. Line No." = 0, 'Values are not cleared.');
+        Assert.IsTrue(SalesLine."Special Order Purchase No." = '', 'Values are not cleared.');
+        Clear(PurchaseLine);
+        PurchaseLine.SetRange("Document No.", PurchaseOrder."No.".Value);
+        PurchaseLine.FindSet();
+        repeat
+            Assert.IsTrue(PurchaseLine."Special Order Sales No." = '', 'Values are not cleared.');
+            Assert.IsTrue(PurchaseLine."Special Order Sales Line No." = 0, 'Values are not cleared.');
+        until PurchaseLine.Next() = 0;
+    end;
+
+    [Test]
+    procedure VerifyShortcutDimensionValuesExistOnPurchaseOrderLineOnValidateLocation()
+    var
+        DimensionValue, DimensionValue2 : Record "Dimension Value";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARION: 454839] Verify Shortcut Dimension Values exists on Purchase Order line on validate Location Code
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Create two dimensions with Values and set them to Shortcut Dimension 3 Code and Shortcut Dimension 4 Code on General Ledger Setup
+        CreateDimensionAndSetupOnGeneralLedgerSetup(DimensionValue, DimensionValue2);
+
+        // [GIVEN] Create Location and set default dimensions
+        CreateLocationWithDefaultDimensions(Location, DimensionValue, DimensionValue2);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Open Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.");
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        // [WHEN] Set Location on Purchase Line
+        PurchaseOrder.PurchLines."Location Code".SetValue(Location.Code);
+
+        // [THEN] Verify Dimension Values exists on Purchase Order Line
+        PurchaseOrder.PurchLines.ShortcutDimCode3.AssertEquals(DimensionValue.Code);
+        PurchaseOrder.PurchLines.ShortcutDimCode4.AssertEquals(DimensionValue2.Code);
+    end;
+
+    [Test]
+    procedure VerifyPurchaseOrderCanBeInvoicedOnRenamedResourseWhichExistOnPurchaseLine()
+    var
+        Purchaseheader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [SCENARION: 452918] Verify Purchase Order can be invoiced on rename resource which exist on Purchase Line
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with Resource Line
+        CreatePurchaseOrderWithResourceLine(Purchaseheader, PurchaseLine, Resource);
+
+        // [GIVEN] Post Purchase Receipt for created Purchase Order
+        LibraryPurchase.PostPurchaseDocument(Purchaseheader, true, false);
+
+        // [WHEN] Rename a Resource
+        Resource.Rename(LibraryUtility.GenerateGUID());
+
+        // [THEN] Verify Resource is renamed on Purchase Line
+        PurchaseLine.Get(Purchaseheader."Document Type"::Order, Purchaseheader."No.", '10000');
+        Assert.IsTrue(PurchaseLine."No." = Resource."No.", 'Resource is not renamed on Purchase Line');
+
+        // [THEN] Verify Purchase Order can be invoiced
+        LibraryPurchase.PostPurchaseDocument(Purchaseheader, false, true);
+    end;
 
     local procedure Initialize()
     var
@@ -9711,6 +9883,218 @@ codeunit 134327 "ERM Purchase Order"
         ReturnShipmentLine.Type := ReturnShipmentLine.Type::Resource;
         ReturnShipmentLine."No." := LibraryResource.CreateResourceNo();
         ReturnShipmentLine.Insert();
+    end;
+
+    local procedure CreateItemWithBOMComponent(): Code[20]
+    var
+        Item: Record Item;
+        Item2: Record Item;
+    begin
+        // Create Item with BOM Component
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        CreateBOMComponent(Item."No.", Item2."No.");
+        exit(Item."No.");
+    end;
+
+    local procedure CreateBOMComponent(ParentItemNo: Code[20]; ItemNo: Code[20])
+    var
+        BOMComponent: Record "BOM Component";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        RecRef: RecordRef;
+    begin
+        // Create BOM Component with random Unit of Measure.
+        ItemUnitOfMeasure.Init();
+        ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        RecRef.GetTable(ItemUnitOfMeasure);
+        LibraryUtility.FindRecord(RecRef);
+        RecRef.SetTable(ItemUnitOfMeasure);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandInt(10), ItemUnitOfMeasure.Code);
+    end;
+
+    local procedure CreateSpecialSalesOrderForItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20])
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        CreateSalesLineWithPurchasingCode(
+          SalesHeader, SalesLine, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10), LibraryRandom.RandInt(100), '', CreatePurchasingCode(false, true));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+    end;
+
+    local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal; LocationCode: Code[10]; PurchasingCode: Code[10])
+    begin
+        CreateSalesLine(SalesHeader, SalesLine, Type, ItemNo, Quantity, LocationCode);
+        SalesLine.Validate("Purchasing Code", PurchasingCode);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchasingCode(DropShipment: Boolean; SpecialOrder: Boolean) PurchasingCode: Code[10]
+    var
+        Purchasing: Record Purchasing;
+    begin
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Drop Shipment", DropShipment);
+        Purchasing.Validate("Special Order", SpecialOrder);
+        Purchasing.Modify(true);
+        PurchasingCode := Purchasing.Code
+    end;
+
+    local procedure GetSpecialOrderOnRequisitionWorksheetAndCreatePurchaseOrder(var Vendor: Record Vendor)
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+        ReqWorksheet: TestPage "Req. Worksheet";
+    begin
+        SelectRequisitionTemplateAndCreateReqWkshName(ReqWkshTemplate);
+        OpenRequisitionWorksheetPage(ReqWorksheet, FindRequisitionWkshName(ReqWkshTemplate.Type::"Req."));
+        GetSpecialSalesOrderOnReqWorksheet(ReqWorksheet, Vendor);
+        FindCreatedRequisitionLine(ReqWorksheet, RequisitionLine);
+        ReqWkshCarryOutActionMessage(RequisitionLine);
+    end;
+
+    local procedure GetSpecialSalesOrderOnReqWorksheet(var ReqWorksheet: TestPage "Req. Worksheet"; var Vendor: Record Vendor)
+    var
+        ReplenishmentSystem: Enum "Replenishment System";
+    begin
+        ReqWorksheet.Action53.Invoke();
+        ReqWorksheet.First();
+        ReqWorksheet."Replenishment System".SetValue(ReplenishmentSystem::Purchase);
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        ReqWorksheet."Vendor No.".Lookup();
+        ReqWorksheet.Next();
+        ReqWorksheet.Previous();
+    end;
+
+    local procedure FindCreatedRequisitionLine(var ReqWorksheet: TestPage "Req. Worksheet"; var RequisitionLine: Record "Requisition Line")
+    begin
+        RequisitionLine.SetRange("No.", ReqWorksheet."No.".Value);
+        RequisitionLine.FindFirst();
+    end;
+
+    local procedure SelectRequisitionTemplateAndCreateReqWkshName(var ReqWkshTemplate: Record "Req. Wksh. Template")
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplate.Type::"Req.");
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        Commit();
+    end;
+
+    local procedure OpenRequisitionWorksheetPage(var ReqWorksheet: TestPage "Req. Worksheet"; Name: Code[20])
+    begin
+        ReqWorksheet.OpenEdit;
+        ReqWorksheet.CurrentJnlBatchName.SetValue(Name);
+    end;
+
+    local procedure OpenCreatedPurchaseOrder(var PurchaseOrder: TestPage "Purchase Order"; var PurchaseLine: Record "Purchase Line"; Vendor: Record Vendor)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.SetCurrentKey("Document Date");
+        PurchaseHeader.SetRange("Document Date", WorkDate());
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindLast();
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", '10000');
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GoToRecord(PurchaseHeader);
+    end;
+
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
+    begin
+        ReqWkshTemplate.SetRange(Type, Type);
+        ReqWkshTemplate.SetRange(Recurring, false);
+        ReqWkshTemplate.FindFirst();
+    end;
+
+    local procedure FindRequisitionWkshName(ReqWkshTemplateType: Enum "Req. Worksheet Template Type"): Code[10]
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplateType);
+        with RequisitionWkshName do begin
+            SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
+            FindFirst();
+            exit(Name);
+        end;
+    end;
+
+    local procedure ReqWkshCarryOutActionMessage(var RequisitionLine: Record "Requisition Line")
+    var
+        CarryOutActionMessage: Report "Carry Out Action Msg. - Req.";
+    begin
+        Commit();
+        CarryOutActionMessage.SetReqWkshLine(RequisitionLine);
+        CarryOutActionMessage.SetHideDialog(true);
+        CarryOutActionMessage.UseRequestPage(false);
+        CarryOutActionMessage.RunModal();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemVendorCatalogHandler(var ItemVendorCatalog: TestPage "Item Vendor Catalog")
+    var
+        VendorNo: Code[20];
+    begin
+        VendorNo := LibraryVariableStorage.DequeueText();
+        ItemVendorCatalog.New();
+        ItemVendorCatalog."Vendor No.".SetValue(VendorNo);
+        ItemVendorCatalog.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure GetSalesOrdersHandler(var GetSalesOrders: TestRequestPage "Get Sales Orders")
+    begin
+        GetSalesOrders."Sales Line".SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        GetSalesOrders.OK().Invoke();
+    end;
+
+    local procedure OpenPurchaseOrder(PurchaseHeader: Record "Purchase Header"; var PurchaseOrder: TestPage "Purchase Order")
+    begin
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+    end;
+
+    local procedure CreateLocationWithDefaultDimensions(var Location: Record Location; var DimValue: Record "Dimension Value"; var DimValue2: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimValue."Dimension Code", DimValue.Code);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimValue2."Dimension Code", DimValue2.Code);
+    end;
+
+    local procedure CreateDimensionAndSetupOnGeneralLedgerSetup(var DimensionValue: Record "Dimension Value"; var DimensionValue2: Record "Dimension Value")
+    begin
+        // Create two dimensions
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue2);
+
+        // Change Shortcut Dimension 3 Code and Shortcut Dimension 4 Code successfully updated on General Ledger Setup
+        LibraryERM.SetShortcutDimensionCode(3, DimensionValue."Dimension Code");
+        LibraryERM.SetShortcutDimensionCode(4, DimensionValue2."Dimension Code");
+    end;
+
+    local procedure CreatePurchaseOrderWithResourceLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var Resource: Record Resource)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate(PurchaseHeader."Vendor Invoice No.", LibraryRandom.RandText(35));
+        PurchaseHeader.Modify(true);
+
+        Resource.Get(LibraryResource.CreateResourceNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
     end;
 
 #if not CLEAN21

@@ -86,6 +86,10 @@ table 1223 "Data Exch. Column Def"
         {
             Caption = 'Blank Zero';
         }
+        field(20; "Export If Not Blank"; Boolean)
+        {
+            Caption = 'Export If Not Blank';
+        }
     }
 
     keys

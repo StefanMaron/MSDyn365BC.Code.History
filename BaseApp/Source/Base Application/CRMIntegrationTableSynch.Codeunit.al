@@ -821,7 +821,9 @@ codeunit 5340 "CRM Integration Table Synch."
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         JobId: Guid;
+        JobCreationTime: DateTime;
     begin
+        JobCreationTime := CurrentDateTime();
         JobId :=
           IntegrationTableSynch.BeginIntegrationSynchJob(
             TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Table ID");
@@ -831,6 +833,8 @@ codeunit 5340 "CRM Integration Table Synch."
             IntegrationTableSynch.EndIntegrationSynchJob();
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable);
         end;
+        if LatestLocalModifiedOn > JobCreationTime then
+            LatestLocalModifiedOn := JobCreationTime;
     end;
 
     local procedure PerformScheduledSynchFromIntegrationTable(var IntegrationTableMapping: Record "Integration Table Mapping") LatestIntegrationModifiedOn: DateTime
@@ -839,7 +843,9 @@ codeunit 5340 "CRM Integration Table Synch."
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         SourceRecordRef: RecordRef;
         JobId: Guid;
+        JobCreationTime: DateTime;
     begin
+        JobCreationTime := CurrentDateTime();
         JobId :=
           IntegrationTableSynch.BeginIntegrationSynchJob(
             TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Integration Table ID");
@@ -849,6 +855,8 @@ codeunit 5340 "CRM Integration Table Synch."
             IntegrationTableSynch.EndIntegrationSynchJob();
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::FromIntegrationTable);
         end;
+        if LatestIntegrationModifiedOn > JobCreationTime then
+            LatestIntegrationModifiedOn := JobCreationTime;
     end;
 
     local procedure SetOriginalCRMJobQueueEntryOnHold(IntegrationTableMapping: Record "Integration Table Mapping"; var JobQueueEntry: Record "Job Queue Entry"; var PrevStatus: Option)
@@ -940,7 +948,9 @@ codeunit 5340 "CRM Integration Table Synch."
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         JobId: Guid;
+        JobCreationTime: DateTime;
     begin
+        JobCreationTime := CurrentDateTime();
         JobId :=
           IntegrationTableSynch.BeginIntegrationSynchJob(
             TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Integration Table ID");
@@ -950,6 +960,8 @@ codeunit 5340 "CRM Integration Table Synch."
             IntegrationTableSynch.EndIntegrationSynchJob();
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::FromIntegrationTable);
         end;
+        if LatestIntegrationModifiedOn > JobCreationTime then
+            LatestIntegrationModifiedOn := JobCreationTime;
     end;
 
     local procedure PerformScheduledOptionSynchToIntegrationTable(var IntegrationTableMapping: Record "Integration Table Mapping") LatestIntegrationModifiedOn: DateTime
@@ -957,7 +969,9 @@ codeunit 5340 "CRM Integration Table Synch."
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         JobId: Guid;
+        JobCreationTime: DateTime;
     begin
+        JobCreationTime := CurrentDateTime();
         JobId :=
           IntegrationTableSynch.BeginIntegrationSynchJob(
             TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, IntegrationTableMapping."Table ID");
@@ -967,6 +981,8 @@ codeunit 5340 "CRM Integration Table Synch."
             IntegrationTableSynch.EndIntegrationSynchJob();
             CRMFullSynchReviewLine.FullSynchFinished(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable);
         end;
+        if LatestIntegrationModifiedOn > JobCreationTime then
+            LatestIntegrationModifiedOn := JobCreationTime;
     end;
 
     local procedure CacheFilteredCRMOptions(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")

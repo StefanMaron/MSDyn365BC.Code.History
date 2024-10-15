@@ -227,6 +227,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Data Exch. Field Grouping" = RIMD,
                   tabledata "Data Exch. FlowField Gr. Buff." = RIMD,
                   tabledata "Data Exchange Type" = RIMD,
+				  tabledata "Data Exch. Table Filter" = RIMD,
                   tabledata "Data Migration Entity" = RIMD,
                   tabledata "Data Migration Error" = RIMD,
                   tabledata "Data Migration Parameters" = RIMD,
@@ -637,7 +638,10 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Payable Employee Ledger Entry" = RIMD,
                   tabledata "Payable Vendor Ledger Entry" = RIMD,
                   tabledata "Payment Application Proposal" = RIMD,
+#if not CLEAN22
                   tabledata "Payment Buffer" = RIMD,
+#endif
+                  tabledata "Vendor Payment Buffer" = RIMD,
                   tabledata "Payment Export Data" = Rimd,
                   tabledata "Payment Export Remittance Text" = RIMD,
                   tabledata "Payment Jnl. Export Error Text" = RIMD,

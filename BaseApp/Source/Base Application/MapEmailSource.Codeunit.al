@@ -19,27 +19,26 @@ codeunit 8898 "Map Email Source"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::Email, 'OnFindRelatedAttachments', '', false, false)]
     local procedure FindRelatedAttachments(SourceTableId: Integer; SourceSystemID: Guid; var EmailRelatedAttachments: Record "Email Related Attachment")
     var
-        DocAttachment: Record "Document Attachment";
+        DocumentAttachment: Record "Document Attachment";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         SourceRecordRef: RecordRef;
-        FieldNo: Integer;
     begin
         SourceRecordRef.Open(SourceTableId);
         if not SourceRecordRef.GetBySystemId(SourceSystemID) then
             exit;
 
-        FieldNo := GetNoFieldFieldNumber(SourceTableId);
-        DocAttachment.SetRange("No.", SourceRecordRef.Field(FieldNo).Value());
-        if (FieldNo > 0) and DocAttachment.FindSet() then
+        DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRef(DocumentAttachment, SourceRecordRef);
+        if DocumentAttachment.FindSet() then
             repeat
                 EmailRelatedAttachments."Attachment Name" :=
-                    CopyStr(StrSubstNo(FileFormatTxt, DocAttachment."File Name", DocAttachment."File Extension"),
-                        1,
-                        MaxStrLen(EmailRelatedAttachments."Attachment Name")
-                    );
+                        CopyStr(StrSubstNo(FileFormatTxt, DocumentAttachment."File Name", DocumentAttachment."File Extension"),
+                            1,
+                            MaxStrLen(EmailRelatedAttachments."Attachment Name")
+                        );
                 EmailRelatedAttachments."Attachment Table ID" := Database::"Document Attachment";
-                EmailRelatedAttachments."Attachment System ID" := DocAttachment.SystemId;
+                EmailRelatedAttachments."Attachment System ID" := DocumentAttachment.SystemId;
                 EmailRelatedAttachments.Insert();
-            until DocAttachment.Next() = 0;
+            until DocumentAttachment.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::Email, 'OnGetAttachment', '', false, false)]
@@ -67,33 +66,6 @@ codeunit 8898 "Map Email Source"
         FileName := StrSubstNo(FileFormatTxt, DocAttachment."File Name", DocAttachment."File Extension");
 
         EmailMessage.AddAttachment(CopyStr(FileName, 1, 250), TenantMedia."Mime Type", AttachmentInStream);
-    end;
-
-    local procedure GetNoFieldFieldNumber(TableID: Integer): Integer
-    begin
-        case TableID of
-            DATABASE::Customer,
-            DATABASE::Vendor,
-            DATABASE::Item,
-            DATABASE::Employee,
-            DATABASE::"Fixed Asset",
-            DATABASE::Resource,
-            DATABASE::Job:
-                exit(1);
-            DATABASE::"Sales Header",
-            DATABASE::"Purchase Header",
-            DATABASE::"Sales Line",
-            DATABASE::"Purchase Line",
-            DATABASE::"Sales Invoice Header",
-            DATABASE::"Sales Cr.Memo Header",
-            DATABASE::"Purch. Inv. Header",
-            DATABASE::"Purch. Cr. Memo Hdr.",
-            DATABASE::"Sales Invoice Line",
-            DATABASE::"Sales Cr.Memo Line",
-            DATABASE::"Purch. Inv. Line",
-            DATABASE::"Purch. Cr. Memo Line":
-                exit(3);
-        end;
     end;
 
     var
