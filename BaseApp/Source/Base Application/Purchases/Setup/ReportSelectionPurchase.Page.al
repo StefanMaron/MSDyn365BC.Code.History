@@ -29,6 +29,7 @@ page 347 "Report Selection - Purchase"
             }
             repeater(Control1)
             {
+                FreezeColumn = "Report Caption";
                 ShowCaption = false;
                 field(Sequence; Rec.Sequence)
                 {
@@ -45,6 +46,7 @@ page 347 "Report Selection - Purchase"
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
+                    LookupPageID = Objects;
                     ToolTip = 'Specifies the display name of the report.';
                 }
                 field(Default; Rec.Default)
@@ -71,6 +73,7 @@ page 347 "Report Selection - Purchase"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the email body layout that is used.';
+                    Visible = false;
                 }
                 field(EmailBodyPublisher; Rec."Email Body Layout Publisher")
                 {
@@ -78,17 +81,51 @@ page 347 "Report Selection - Purchase"
                     ToolTip = 'Specifies the publisher of the email body layout that is used.';
                     Visible = false;
                 }
+                field(ReportLayoutName; Rec."Report Layout Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Name of the report layout that is used.';
+                    Visible = false;
+                }
+                field(EmailLayoutCaption; Rec."Email Body Layout Caption")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Name of the report layout that is used.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToSelectLayout(Rec."Email Body Layout Name", Rec."Email Body Layout AppID");
+                        CurrPage.Update(true);
+                    end;
+                }
+                field(ReportLayoutCaption; Rec."Report Layout Caption")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Name of the report layout that is used.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToSelectLayout(Rec."Report Layout Name", Rec."Report Layout AppID");
+                        CurrPage.Update(true);
+                    end;
+                }
+                field(ReportLayoutPublisher; Rec."Report Layout Publisher")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the publisher of the email Attachment layout that is used.';
+                    Visible = false;
+                }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the email body layout that is used.';
+                    ToolTip = 'Specifies the ID of the custom email body layout that is used.';
                     Visible = false;
                 }
                 field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the email body custom layout that is used.';
-                    Visible = CustomLayoutsExist;
+                    ToolTip = 'Specifies a description of the custom email body layout that is used.';
+                    Visible = not PlatformSelectionEnabled;
 
                     trigger OnDrillDown()
                     var
@@ -128,12 +165,12 @@ page 347 "Report Selection - Purchase"
     begin
         InitUsageFilter();
         SetUsageFilter(false);
-        CustomLayoutsExist := Rec.DoesAnyCustomLayotExist();
+        PlatformSelectionEnabled := Rec.UsePlatformLayoutSelection()
     end;
 
     var
         ReportUsage2: Enum "Report Selection Usage Purchase";
-        CustomLayoutsExist: Boolean;
+        PlatformSelectionEnabled: Boolean;
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin

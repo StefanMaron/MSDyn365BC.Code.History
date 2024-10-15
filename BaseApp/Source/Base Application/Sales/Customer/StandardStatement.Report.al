@@ -17,7 +17,6 @@ report 1316 "Standard Statement"
 {
     Caption = 'Customer Statement';
     DefaultRenderingLayout = "StandardStatement.docx";
-    WordMergeDataItem = Customer;
 
     dataset
     {

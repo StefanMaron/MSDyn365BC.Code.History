@@ -1323,6 +1323,8 @@ table 1003 "Job Planning Line"
         JobUsageLink: Record "Job Usage Link";
         IsHandled: Boolean;
     begin
+        ConfirmDeletion();
+
         ValidateModification(true, 0);
         CheckRelatedJobPlanningLineInvoice();
 
@@ -1431,6 +1433,7 @@ table 1003 "Job Planning Line"
         ControlUsageLinkErr: Label 'The %1 must be a %2 and %3 must be enabled, because linked Job Ledger Entries exist.', Comment = '%1 = Job Planning Line table name; %2 = Caption for field Schedule Line; %3 = Captiion for field Usage Link';
         JobUsageLinkErr: Label 'This %1 cannot be deleted because linked job ledger entries exist.', Comment = '%1 = Job Planning Line table name';
         BypassQtyValidation: Boolean;
+        CalledFromHeader: Boolean;
         LinkedJobLedgerErr: Label 'You cannot change this value because linked job ledger entries exist.';
         LineTypeErr: Label 'The %1 cannot be of %2 %3 because it is transferred to an invoice.', Comment = 'The Job Planning Line cannot be of Line Type Schedule, because it is transferred to an invoice.';
         QtyToTransferToInvoiceErr: Label '%1 may not be lower than %2 and may not exceed %3.', Comment = '%1 = Qty. to Transfer to Invoice field name; %2 = First value in comparison; %3 = Second value in comparison';
@@ -1441,6 +1444,7 @@ table 1003 "Job Planning Line"
         QtyGreaterErr: Label '%1 cannot be higher than %2.', Comment = '%1 = Caption for field Quantity; %2 = Captiion for field Qty. Transferred to Invoice';
         RequestedDeliveryDateErr: Label 'You cannot change the %1 when the %2 has been filled in.', Comment = '%1 = Caption for field Requested Delivery Date; %2 = Captiion for field Promised Delivery Date';
         NotPossibleJobPlanningLineErr: Label 'It is not possible to deleted job planning line transferred to an invoice.';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption("Qty. Posted"), %4 = "Qty. Posted", %5 = TableCaption';
 
     protected var
         Job: Record Job;
@@ -2759,6 +2763,8 @@ table 1003 "Job Planning Line"
             ToJobPlanningLine.Validate("Currency Factor", FromJobPlanningLine."Currency Factor");
             ToJobPlanningLine.Validate("Unit Cost", FromJobPlanningLine."Unit Cost");
             ToJobPlanningLine.Validate("Unit Price", FromJobPlanningLine."Unit Price");
+            if FromJobPlanningLine."Line Discount %" <> 0 then
+                ToJobPlanningLine.Validate("Line Discount %", FromJobPlanningLine."Line Discount %");
         end;
 
         OnAfterInitFromJobPlanningLine(ToJobPlanningLine, FromJobPlanningLine);
@@ -2955,6 +2961,30 @@ table 1003 "Job Planning Line"
         end;
 
         exit(Result);
+    end;
+
+    local procedure ConfirmDeletion()
+    begin
+        if CalledFromHeader then
+            exit;
+
+        if "Qty. Posted" < "Qty. Picked" then
+            if not Confirm(
+                StrSubstNo(
+                    ConfirmDeleteQst,
+                    FieldCaption("Qty. Picked"),
+                    "Qty. Picked",
+                    FieldCaption("Qty. Posted"),
+                    "Qty. Posted",
+                    TableCaption),
+                false)
+            then
+                Error('');
+    end;
+
+    procedure SuspendDeletionCheck(Suspend: Boolean)
+    begin
+        CalledFromHeader := Suspend;
     end;
 
     [IntegrationEvent(false, false)]
