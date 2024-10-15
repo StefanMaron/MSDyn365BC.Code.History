@@ -518,15 +518,18 @@ report 11000000 "Get Proposal Entries"
     end;
 
     local procedure BlankForeignCurrencyWithSameCurrencyCode()
+    var
+        ProposalLineLocal: Record "Proposal Line";
     begin
-        if ProposalLine.FindSet(true) then
+        ProposalLineLocal.SetRange("Our Bank No.", ProposalLine."Our Bank No.");
+        if ProposalLineLocal.FindSet(true) then
             repeat
-                if ProposalLine."Foreign Currency" = ProposalLine."Currency Code" then begin
-                    ProposalLine.Validate("Foreign Currency", '');
-                    ProposalLine.Validate("Foreign Amount", 0);
-                    ProposalLine.Modify();
+                if ProposalLineLocal."Foreign Currency" = ProposalLineLocal."Currency Code" then begin
+                    ProposalLineLocal.Validate("Foreign Currency", '');
+                    ProposalLineLocal.Validate("Foreign Amount", 0);
+                    ProposalLineLocal.Modify();
                 end;
-            until ProposalLine.Next() = 0;
+            until ProposalLineLocal.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

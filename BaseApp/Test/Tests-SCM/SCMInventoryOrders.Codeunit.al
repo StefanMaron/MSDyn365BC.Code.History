@@ -33,7 +33,8 @@ codeunit 137400 "SCM Inventory - Orders"
         IsInitialized: Boolean;
         CostError: Label '%1 must be equal to %2 in %3';
         DescriptionErr: Label 'Descriptions must be the same.';
-        ExpectedCostPostingDialog: Label 'If you change the %1, the program must update table %2.This can take several hours.\Do you really want to change the %1?';
+        ExpectedCostPostingEnableDialog: Label 'If you enable the %1, the program must update table %2.';
+        ExpectedCostPostingDisableDialog: Label 'If you disable the %1, the program must update table %2.';
         CalculateInvoiceDiscount: Boolean;
         CapableToPromise: Boolean;
         RequestedShipmentDate: Boolean;
@@ -245,10 +246,24 @@ codeunit 137400 "SCM Inventory - Orders"
         UpdateInventorySetup(ExpectedCostPostingToGL2);
 
         // Verify : Verify the Confirm message.
-        Assert.AreEqual(
-          StrSubstNo(
-            ExpectedCostPostingDialog, InventorySetup.FieldCaption("Expected Cost Posting to G/L"), PostValueEntrytoGL.TableCaption),
-          ConfirmMessage, UnknownError);
+        case ExpectedCostPostingToGL2 of
+            false:
+                if StrPos(
+                    ConfirmMessage,
+                    StrSubstNo(
+                        ExpectedCostPostingDisableDialog,
+                        InventorySetup.FieldCaption("Expected Cost Posting to G/L"), PostValueEntrytoGL.TableCaption())) = 0
+                then
+                    error(UnknownError);
+            true:
+                if StrPos(
+                    ConfirmMessage,
+                    StrSubstNo(
+                        ExpectedCostPostingEnableDialog,
+                        InventorySetup.FieldCaption("Expected Cost Posting to G/L"), PostValueEntrytoGL.TableCaption())) = 0
+                then
+                    error(UnknownError);
+        end;
 
         // Tear Down : Set Default value of Inventory Setup.
         UpdateInventorySetup(InventorySetup."Expected Cost Posting to G/L");

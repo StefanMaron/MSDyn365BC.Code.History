@@ -17,6 +17,7 @@ codeunit 144541 "Purchase Document - VAT"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
         IsInitialized: Boolean;
 
     [Test]
@@ -389,6 +390,44 @@ codeunit 144541 "Purchase Document - VAT"
         PurchaseHeader.TestField("Doc. Amount VAT", (VATAmount[1] + VATAmount[2] + VATAmount[3]) * AmountModificator);
     end;
 
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler')]
+    procedure GetProposalEntriesReportForMultiplePurchInvWithCurrency()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        TransactionMode: Record "Transaction Mode";
+        CurrencyCode: Code[10];
+        TransactionModeCode: Code[10];
+        VendorNo: array[3] of Code[20];
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Telebank] [Get Proposal Entries]
+        // [SCENARIO 461518] Foreign Currency when run Get Proposal Entries for multiple Invoices when Vendor, Bank Account and Purchase Invoice have the same FCY.
+        Initialize();
+
+        // [GIVEN] Our Bank Account with Currency "X".
+        // [GIVEN] Three Vendors with Currency Code "X" and Transaction Mode "T".
+        // [GIVEN] Two posted Purchase Invoices with Currency "X" and sum of Amounts "A" for each Vendor.
+        CurrencyCode := CreateCurrencyWithRandomExchangeRate();
+        TransactionModeCode := CreateVendorTransactionMode(CurrencyCode);
+        TransactionMode.Get(TransactionMode."Account Type"::Vendor, TransactionModeCode);
+        for i := 1 to ArrayLen(VendorNo) do begin
+            VendorNo[i] := CreateVendorWithCurrency(CurrencyCode, TransactionModeCode);
+            Amount[i] += CreatePostPurchaseInvoice(PurchaseHeader, VendorNo[i], CurrencyCode);
+            Amount[i] += CreatePostPurchaseInvoice(PurchaseHeader, VendorNo[i], CurrencyCode);
+        end;
+
+        // [WHEN] Run Get Proposal Entries Report.
+        Report.Run(Report::"Get Proposal Entries");
+
+        // [THEN] Three Proposal Lines with Currency Code "X" and Amount "A" were created - one for each Vendor.
+        // [THEN] Each line has blank Foreign Currency and Foreign Amount = 0.
+        VerifyForeignCurrencyAndAmountOnProposalLine(TransactionMode."Our Bank", VendorNo[1], CurrencyCode, Amount[1], '', 0);
+        VerifyForeignCurrencyAndAmountOnProposalLine(TransactionMode."Our Bank", VendorNo[2], CurrencyCode, Amount[2], '', 0);
+        VerifyForeignCurrencyAndAmountOnProposalLine(TransactionMode."Our Bank", VendorNo[3], CurrencyCode, Amount[3], '', 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purchase Document - VAT");
@@ -574,6 +613,22 @@ codeunit 144541 "Purchase Document - VAT"
             TestField(Amount, AmountInCurrency);
             TestField("Foreign Amount", ForeignAmount);
         end;
+    end;
+
+    local procedure VerifyForeignCurrencyAndAmountOnProposalLine(OurBankAccountCode: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[20]; AmountInCurrency: Decimal; ForeignCurrency: Code[20]; ForeignAmount: Decimal)
+    var
+        ProposalLine: Record "Proposal Line";
+    begin
+        ProposalLine.SetRange("Our Bank No.", OurBankAccountCode);
+        ProposalLine.SetRange("Account Type", ProposalLine."Account Type"::Vendor);
+        ProposalLine.SetRange("Account No.", VendorNo);
+        Assert.RecordCount(ProposalLine, 1);
+
+        ProposalLine.FindFirst();
+        ProposalLine.TestField("Currency Code", CurrencyCode);
+        ProposalLine.TestField(Amount, AmountInCurrency);
+        ProposalLine.TestField("Foreign Currency", ForeignCurrency);
+        ProposalLine.TestField("Foreign Amount", ForeignAmount);
     end;
 
     local procedure VerifyPurchaseCreditMemo(DocumentNo: Code[20]; DirectUnitCost: Decimal)

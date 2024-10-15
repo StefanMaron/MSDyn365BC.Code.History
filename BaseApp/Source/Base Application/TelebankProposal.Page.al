@@ -155,12 +155,14 @@ page 11000001 "Telebank Proposal"
                 field("Foreign Currency"; "Foreign Currency")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the currency code for the amounts on the proposal line.';
+                    Caption = 'Document Currency';
+                    ToolTip = 'Specifies the currency code of the documents from which the proposal line is created. If the field is empty, the document currency is either the local currency or the bank''s currency.';
                 }
                 field("Foreign Amount"; "Foreign Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total amount on the proposal line.';
+                    Caption = 'Amount in Document Currency';
+                    ToolTip = 'Specifies the total amount for the proposal line in the currency specified in the Document Currency field. The value is specified when the document currency differs from the bank''s currency.';
                 }
                 field("Transaction Date"; "Transaction Date")
                 {
