@@ -1,4 +1,4 @@
-table 303 "Finance Charge Memo Line"
+﻿table 303 "Finance Charge Memo Line"
 {
     Caption = 'Finance Charge Memo Line';
 
@@ -189,6 +189,7 @@ table 303 "Finance Charge Memo Line"
                                 "Tax Group Code" := GLAcc."Tax Group Code";
                                 Validate("Gen. Prod. Posting Group", GLAcc."Gen. Prod. Posting Group");
                                 Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
+                                OnValidateNoOnAfterAssignGLAccountValues(Rec, FinChrgMemoHeader, GLAcc);
                             end;
                     end;
             end;
@@ -913,6 +914,11 @@ table 303 "Finance Charge Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCustLedgEntryView(var CustLedgEntry: Record "Cust. Ledger Entry"; FinChrgTerms: Record "Finance Charge Terms"; FinChrgMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterAssignGLAccountValues(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; GLAccount: Record "G/L Account")
     begin
     end;
 

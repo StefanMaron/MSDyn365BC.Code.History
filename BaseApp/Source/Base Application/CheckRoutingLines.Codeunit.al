@@ -117,7 +117,7 @@ codeunit 99000752 "Check Routing Lines"
     begin
         SequenceNo := 1;
         if RoutingType = RoutingType::Parallel then begin
-            NameValueBufferEnqueue(TempNameValueBuffer, GetTerminalOperationNo(RoutingNo, VersionCode));
+            NameValueBufferEnqueue(TempNameValueBuffer, GetTerminalOperationNo(RoutingNo, VersionCode), Format(SequenceNo));
 
             while not TempNameValueBuffer.IsEmpty() do begin
                 CheckCircularReference(SequenceNo, MaxSequences, RoutingNo);
@@ -131,7 +131,8 @@ codeunit 99000752 "Check Routing Lines"
                         RtngLine.SetFilter("Operation No.", RoutingLine."Previous Operation No.");
                         if RtngLine.FindSet() then
                             repeat
-                                NameValueBufferEnqueue(TempNameValueBuffer, RtngLine."Operation No.");
+                                if not FindNameValueBufferRec(TempNameValueBuffer, RtngLine."Operation No.", Format(SequenceNo + 1)) then
+                                    NameValueBufferEnqueue(TempNameValueBuffer, RtngLine."Operation No.", Format(SequenceNo + 1));
                             until RtngLine.Next() = 0;
                     end;
                 end;
@@ -160,7 +161,7 @@ codeunit 99000752 "Check Routing Lines"
     begin
         SequenceNo := 1;
         if RoutingType = RoutingType::Parallel then begin
-            NameValueBufferEnqueue(TempNameValueBuffer, GetStartingOperationNo(RoutingNo, VersionCode));
+            NameValueBufferEnqueue(TempNameValueBuffer, GetStartingOperationNo(RoutingNo, VersionCode), Format(SequenceNo));
 
             while not TempNameValueBuffer.IsEmpty() do begin
                 CheckCircularReference(SequenceNo, MaxSequences, RoutingNo);
@@ -174,7 +175,8 @@ codeunit 99000752 "Check Routing Lines"
                         RtngLine.SetFilter("Operation No.", RoutingLine."Next Operation No.");
                         if RtngLine.FindSet() then
                             repeat
-                                NameValueBufferEnqueue(TempNameValueBuffer, RtngLine."Operation No.");
+                                if not FindNameValueBufferRec(TempNameValueBuffer, RtngLine."Operation No.", Format(SequenceNo + 1)) then
+                                    NameValueBufferEnqueue(TempNameValueBuffer, RtngLine."Operation No.", Format(SequenceNo + 1));
                             until RtngLine.Next() = 0;
                     end;
                 end;
@@ -228,16 +230,26 @@ codeunit 99000752 "Check Routing Lines"
         RoutingLine.Modify();
     end;
 
-    local procedure NameValueBufferEnqueue(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Value: Text[250])
+    local procedure NameValueBufferEnqueue(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Name: Text[250]; Value: Text)
     begin
-        TempNameValueBuffer.AddNewEntry('', Value);
+        TempNameValueBuffer.AddNewEntry(Name, Value);
     end;
 
-    local procedure NameValueBufferDequeue(var TempNameValueBuffer: Record "Name/Value Buffer" temporary) Value: Text[250]
+    local procedure NameValueBufferDequeue(var TempNameValueBuffer: Record "Name/Value Buffer" temporary) Name: Text[250]
     begin
+        TempNameValueBuffer.Reset();
         TempNameValueBuffer.FindFirst();
-        Value := TempNameValueBuffer.Value;
+        Name := TempNameValueBuffer.Name;
         TempNameValueBuffer.Delete();
+    end;
+
+    local procedure FindNameValueBufferRec(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Name: Text[250]; Value: Text) Found: Boolean
+    begin
+        TempNameValueBuffer.Reset();
+        TempNameValueBuffer.SetRange(Name, Name);
+        TempNameValueBuffer.SetRange(Value, Value);
+        Found := TempNameValueBuffer.FindFirst();
+        TempNameValueBuffer.Reset();
     end;
 
     local procedure CalcSequenceBack(RtngHeader: Record "Routing Header"; VersionCode: Code[20])
@@ -359,8 +371,14 @@ codeunit 99000752 "Check Routing Lines"
         RtngLine2: Record "Routing Line";
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
+        IsHandled: Boolean;
         NoOfProcesses: Integer;
     begin
+        IsHandled := false;
+        OnBeforeCheck(RtngHeader, VersionCode, IsHandled);
+        if IsHandled then
+            exit;
+
         ErrList := '';
 
         RtngLine.SetRange("Routing No.", RtngHeader."No.");
@@ -469,6 +487,11 @@ codeunit 99000752 "Check Routing Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPreviousOperations(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheck(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

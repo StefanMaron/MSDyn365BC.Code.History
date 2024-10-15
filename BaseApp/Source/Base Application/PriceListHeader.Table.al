@@ -62,11 +62,7 @@ table 7000 "Price List Header"
 
             trigger OnLookup()
             begin
-                CopyTo(PriceSource);
-                if PriceSource.LookupNo() then begin
-                    CheckIfLinesExist(FieldCaption("Source No."));
-                    CopyFrom(PriceSource);
-                end;
+                LookupSourceNo();
             end;
         }
         field(6; "Parent Source No."; Code[20])
@@ -500,13 +496,30 @@ table 7000 "Price List Header"
         exit(HasDraftLines(PriceListLine));
     end;
 
-    procedure HasDraftLines(var PriceListLine: Record "Price List Line"): Boolean;
+    procedure HasDraftLines(var PriceListLine: Record "Price List Line") Result: Boolean;
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasDraftLines(PriceListLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if (Status <> Status::Active) or not IsEditable() then
             exit(false);
         PriceListLine.SetRange("Price List Code", Code);
         PriceListLine.SetRange(Status, Status::Draft);
         exit(not PriceListLine.IsEmpty());
+    end;
+
+    procedure LookupSourceNo() Result: Boolean;
+    begin
+        CopyTo(PriceSource);
+        if PriceSource.LookupNo() then begin
+            CheckIfLinesExist(FieldCaption("Source No."));
+            CopyFrom(PriceSource);
+            Result := true;
+        end;
     end;
 
     local procedure UpdateStatus() Updated: Boolean;
@@ -565,6 +578,11 @@ table 7000 "Price List Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyToPriceSource(var PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasDraftLines(var PriceListLine: Record "Price List Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1,7 +1,8 @@
 codeunit 134907 "ERM Invoice and Reminder"
 {
     Permissions = TableData "Issued Reminder Header" = rimd,
-                  TableData "Issued Reminder Line" = rimd;
+                  TableData "Issued Reminder Line" = rimd,
+                  TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -546,6 +547,42 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastIssuedReminderLevelShouldNotBeLessZeroWhenCancelReminder()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        IssuedReminderLine: Record "Issued Reminder Line";
+        ReminderTerms: Record "Reminder Terms";
+        CancelIssuedReminder: Codeunit "Cancel Issued Reminder";
+    begin
+        // [FEATURE] [Last Issued Reminder Level]
+        // [SCENARIO 404002] When cancelling Reminder value of "Last Issued Reminder Level" Customer Ledger Entries should not become less then zero
+        Initialize();
+
+        // [GIVEN] CLE with "Last Issued Reminder Level" = 0;
+        MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo(), CustLedgerEntry."Document Type"::Invoice, 0);
+
+        // [GIVEN] Issued Reminder with line linked to CLE 
+        MockIssuedReminder(IssuedReminderHeader);
+        IssuedReminderHeader."Reminder Terms Code" := CreateReminderTerms();
+        IssuedReminderHeader.Modify();
+        IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
+        IssuedReminderLine.FindFirst();
+        IssuedReminderLine.Type := IssuedReminderLine.Type::"Customer Ledger Entry";
+        IssuedReminderLine."Entry No." := CustLedgerEntry."Entry No.";
+        IssuedReminderLine.Modify();
+
+        // [WHEN] Cancel Issued Reminder
+        CancelIssuedReminder.SetParameters(true, true, WorkDate(), true);
+        CancelIssuedReminder.Run(IssuedReminderHeader);
+
+        // [THEN] CLE "Last Issued Reminder Level" = 0;
+        CustLedgerEntry.Find();
+        CustLedgerEntry.TestField("Last Issued Reminder Level", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -944,6 +981,24 @@ codeunit 134907 "ERM Invoice and Reminder"
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
+    local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; LastIssuedReminderLevel: Integer)
+    var
+        LastEntryNo: Integer;
+    begin
+        with CustLedgerEntry do begin
+            if FindLast then
+                LastEntryNo := "Entry No.";
+            Init;
+            "Entry No." := LastEntryNo + 1;
+            "Customer No." := CustomerNo;
+            "Posting Date" := WorkDate;
+            "Document Type" := DocumentType;
+            "Document No." := CustomerNo;
+            "Last Issued Reminder Level" := LastIssuedReminderLevel;
+            Insert;
+        end;
     end;
 
     [ConfirmHandler]

@@ -19,9 +19,15 @@ codeunit 1021 "Job Jnl.-Post"
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlLine: Record "Job Journal Line";
         TempJnlBatchName: Code[10];
+        HideDialog: Boolean;
+        SuppressCommit: Boolean;
 
     local procedure "Code"()
+    var
+        JobJnlPostBatch: Codeunit "Job Jnl.-Post Batch";
     begin
+        OnBeforeCode(JobJnlLine, HideDialog, SuppressCommit);
+
         with JobJnlLine do begin
             JobJnlTemplate.Get("Journal Template Name");
             JobJnlTemplate.TestField("Force Posting Report", false);
@@ -35,18 +41,20 @@ codeunit 1021 "Job Jnl.-Post"
 
             TempJnlBatchName := "Journal Batch Name";
 
-            CODEUNIT.Run(CODEUNIT::"Job Jnl.-Post Batch", JobJnlLine);
+            JobJnlPostBatch.SetSuppressCommit(SuppressCommit);
+            JobJnlPostBatch.Run(JobJnlLine);
 
-            if "Line No." = 0 then
-                Message(Text002)
-            else
-                if TempJnlBatchName = "Journal Batch Name" then
-                    Message(Text003)
+            if not HideDialog then
+                if "Line No." = 0 then
+                    Message(Text002)
                 else
-                    Message(
-                      Text004 +
-                      Text005,
-                      "Journal Batch Name");
+                    if TempJnlBatchName = "Journal Batch Name" then
+                        Message(Text003)
+                    else
+                        Message(
+                          Text004 +
+                          Text005,
+                          "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
                 Reset;
@@ -57,6 +65,21 @@ codeunit 1021 "Job Jnl.-Post"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    procedure SetHideDialog(NewHideDialog: Boolean)
+    begin
+        HideDialog := NewHideDialog;
+    end;
+
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var JobJnlLine: Record "Job Journal Line"; var HideDialog: Boolean; var SuppressCommit: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

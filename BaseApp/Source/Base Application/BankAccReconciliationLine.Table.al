@@ -207,7 +207,8 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -218,7 +219,8 @@
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -383,6 +385,7 @@
                               "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
                             BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
                             BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                            OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
                             PAGE.Run(0, BankAccLedgEntry);
                         end;
                     Type::"Check Ledger Entry":
@@ -395,6 +398,7 @@
                               "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
                             CheckLedgEntry.SetRange("Statement No.", "Statement No.");
                             CheckLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                            OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
                             PAGE.Run(0, CheckLedgEntry);
                         end;
                 end;
@@ -565,6 +569,7 @@
                           "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
                         BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
                         BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                        OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
                         BankAccLedgEntry.LockTable();
                         CheckLedgEntry.LockTable();
                         if BankAccLedgEntry.Find('-') then
@@ -585,6 +590,7 @@
                           "Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
                         CheckLedgEntry.SetRange("Statement No.", "Statement No.");
                         CheckLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                        OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
                         BankAccLedgEntry.LockTable();
                         CheckLedgEntry.LockTable();
                         if CheckLedgEntry.Find('-') then
@@ -1325,6 +1331,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 }

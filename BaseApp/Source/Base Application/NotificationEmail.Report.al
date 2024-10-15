@@ -325,7 +325,13 @@ report 1320 "Notification Email"
     var
         ApprovalEntry: Record "Approval Entry";
         OverdueApprovalEntry: Record "Overdue Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTargetRecRef(RecRef, TargetRecRefOut, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Notification Entry".Type of
             "Notification Entry".Type::"New Record":
                 TargetRecRefOut := RecRef;
@@ -472,6 +478,11 @@ report 1320 "Notification Email"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDocumentTypeAndNumber(var NotificationEntry: Record "Notification Entry"; var RecRef: RecordRef; var DocumentType: Text; var DocumentNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTargetRecRef(RecRef: RecordRef; var TargetRecRefOut: RecordRef; var IsHandled: Boolean)
     begin
     end;
 

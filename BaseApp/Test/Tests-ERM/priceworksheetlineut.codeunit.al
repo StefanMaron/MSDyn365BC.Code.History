@@ -42,6 +42,7 @@ codeunit 134198 "Price Worksheet Line UT"
         ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
         SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
         SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
+        SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
         IsInitialized: Boolean;
 
     [Test]
@@ -582,6 +583,7 @@ codeunit 134198 "Price Worksheet Line UT"
     begin
         // [SCENARIO] "Cost Factor" validation with a non-zero value blanks "Unit Price".
         Initialize();
+        PriceWorksheetLine.Validate("Source Type", "Price Source Type"::"All Jobs");
         PriceWorksheetLine."Unit Price" := 10.15;
         PriceWorksheetLine.Validate("Cost Factor", 0);
         PriceWorksheetLine.TestField("Unit Price", 10.15);
@@ -2322,7 +2324,7 @@ codeunit 134198 "Price Worksheet Line UT"
         Initialize();
         // [GIVEN] Price List Line, where "Source Type" is 'Job', "Unit Price" is 2
         PriceWorksheetLine.Init();
-        PriceWorksheetLine."Source Type" := "Price Source Type"::Job;
+        PriceWorksheetLine.Validate("Source Type", "Price Source Type"::Job);
         PriceWorksheetLine."Unit Price" := 2;
         // [WHEN] Set "Cost Factor" as 1
         PriceWorksheetLine.Validate("Cost Factor", 1);
@@ -2331,7 +2333,25 @@ codeunit 134198 "Price Worksheet Line UT"
     end;
 
     [Test]
-    procedure T162_ValidateNonPostingJobTask()
+    procedure T162_ValidateCostFactorForNonJob()
+    var
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        // [FEATURE] [Cost Factor]
+        Initialize();
+        // [GIVEN] Price List Line, where "Source Type" is 'All Customers'
+        PriceWorksheetLine.Init();
+        PriceWorksheetLine.Validate("Source Type", "Price Source Type"::"All Customers");
+        PriceWorksheetLine."Asset Type" := "Price Asset Type"::"G/L Account";
+        PriceWorksheetLine."Asset No." := 'ACC';
+        // [WHEN] Set "Cost Factor" as 1
+        asserterror PriceWorksheetLine.Validate("Cost Factor", 1);
+        // [THEN] Error message: 'Source Group must be equal to Job'
+        Assert.ExpectedError(SourceGroupJobErr);
+    end;
+
+    [Test]
+    procedure T163_ValidateNonPostingJobTask()
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -2355,7 +2375,7 @@ codeunit 134198 "Price Worksheet Line UT"
     end;
 
     [Test]
-    procedure T163_ValidateJobNoAsSource()
+    procedure T164_ValidateJobNoAsSource()
     var
         Currency: Record Currency;
         Job: Record Job;
@@ -2378,7 +2398,7 @@ codeunit 134198 "Price Worksheet Line UT"
     end;
 
     [Test]
-    procedure T164_ValidateJobNoAsParentSource()
+    procedure T165_ValidateJobNoAsParentSource()
     var
         Currency: Record Currency;
         Job: Record Job;

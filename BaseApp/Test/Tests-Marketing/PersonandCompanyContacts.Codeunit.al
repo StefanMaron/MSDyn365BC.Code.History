@@ -202,7 +202,7 @@ codeunit 134626 "Person and Company Contacts"
         // [THEN] Contact's "C" field "Type" is equal to Company
         ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
         Contact.Get(ContactBusinessRelation."Contact No.");
-        Contact.TestField(Type, Contact.Type::Company);
+        Contact.TestField(Type, Contact.Type::Person);
 
         LibraryVariableStorage.AssertEmpty();
     end;

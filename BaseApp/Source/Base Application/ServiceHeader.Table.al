@@ -290,6 +290,7 @@
                 ShipToAddr: Record "Ship-to Address";
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
+                ShouldUpdateShipToAddressFields: Boolean;
             begin
                 if ("Ship-to Code" <> xRec."Ship-to Code") and
                    ("Customer No." = xRec."Customer No.")
@@ -317,7 +318,9 @@
                             end;
                 end;
 
-                if "Document Type" <> "Document Type"::"Credit Memo" then
+                ShouldUpdateShipToAddressFields := "Document Type" <> "Document Type"::"Credit Memo";
+                OnValidateShipToCodeOnAfterCalcShouldUpdateShipToAddressFields(Rec, ShouldUpdateShipToAddressFields);
+                if ShouldUpdateShipToAddressFields then
                     if "Ship-to Code" <> '' then begin
                         if xRec."Ship-to Code" <> '' then begin
                             GetCust("Customer No.");
@@ -2541,6 +2544,7 @@
 
         CheckDocumentTypeAlreadyUsed();
 
+        OnInsertOnBeforeInitRecord(Rec, xRec);
         InitRecord;
 
         Clear(ServLogMgt);
@@ -2801,6 +2805,7 @@
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        OnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
         if "Currency Code" <> '' then begin
             CurrencyDate := "Posting Date";
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
@@ -3274,9 +3279,8 @@
         end;
     end;
 
-    local procedure GetNoSeriesCode(): Code[20]
+    local procedure GetNoSeriesCode() NoSeriesCode: Code[20]
     var
-        NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3294,6 +3298,8 @@
             "Document Type"::"Credit Memo":
                 exit(ServSetup."Service Credit Memo Nos.");
         end;
+
+        OnAfterGetNoSeriesCode(Rec, ServSetup, NoSeriesCode);
     end;
 
     local procedure TestNoSeriesManual()
@@ -3367,6 +3373,8 @@
                 "Bill-to Contact" := Cust.Contact;
             end;
         end;
+
+        OnAfterUpdateBillToCont(Rec, Cust, Cont);
     end;
 
     local procedure UpdateCust(ContactNo: Code[20])
@@ -3437,6 +3445,7 @@
                     "Bill-to Contact" := Cust.Contact
                 else
                     "Bill-to Contact" := '';
+            OnUpdateBillToCustOnAfterUpdateBillToContact(Rec, Cust, Cont);
         end else begin
             "Bill-to Contact" := '';
             exit;
@@ -3631,7 +3640,13 @@
     var
         Location: Record Location;
         CompanyInfo: Record "Company Information";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateShipToAddress(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" = "Document Type"::"Credit Memo" then begin
             if "Location Code" <> '' then begin
                 Location.Get("Location Code");
@@ -3808,6 +3823,46 @@
         end;
 
         SetRange("Date Filter", 0D, WorkDate - 1);
+    end;
+
+    procedure OpenStatistics()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenStatistics(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CalcInvDiscForHeader();
+        Commit();
+        Page.RunModal(Page::"Service Statistics", Rec);
+    end;
+
+    procedure OpenOrderStatistics()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+        ServiceLine: Record "Service Line";
+        ServLines: Page "Service Lines";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenOrderStatistics(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesSetup.Get();
+        if SalesSetup."Calc. Inv. Discount" then begin
+            ServiceLine.Reset();
+            ServiceLine.SetRange("Document Type", "Document Type");
+            ServiceLine.SetRange("Document No.", "No.");
+            if ServiceLine.FindFirst() then begin
+                ServLines.SetTableView(ServiceLine);
+                ServLines.CalcInvDisc(ServiceLine);
+                Commit();
+            end;
+        end;
+        Page.RunModal(Page::"Service Order Statistics", Rec);
     end;
 
     local procedure CheckMandSalesPersonOrderData(ServiceMgtSetup: Record "Service Mgt. Setup")
@@ -4349,6 +4404,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCurrencyFactor(var ServiceHeader: Record "Service Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateShipToAddress(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyCustomerFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer)
     begin
     end;
@@ -4369,12 +4434,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoSeriesCode(var ServiceHeader: Record "Service Header"; ServiceMgtSetup: Record "Service Mgt. Setup"; var NoSeriesCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetPostingNoSeriesCode(var ServiceHeader: Record "Service Header"; var PostingNos: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBillToCont(var ServiceHeader: Record "Service Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
@@ -4464,6 +4539,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenOrderStatistics(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenStatistics(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestMandatoryFields(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
     begin
     end;
@@ -4547,6 +4632,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnAfterCalcShouldUpdateShipToAddressFields(var ServiceHeader: Record "Service Header"; var ShouldUpdateShipToAddressFields: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmRecalculatePrice(ServiceHeader: Record "Service Header"; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -4572,12 +4662,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeInitRecord(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnBeforeGetServLineNewDimSetID(var ServLine: Record "Service Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllLineDimOnBeforeGetServItemLineNewDimSetID(var ServItemLine: Record "Service Item Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBillToCustOnAfterUpdateBillToContact(var ServiceHeader: Record "Service Header"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
