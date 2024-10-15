@@ -390,7 +390,7 @@ page 5330 "CRM Connection Setup"
                 Promoted = true;
                 Enabled = Rec."Is Enabled";
                 PromotedCategory = Process;
-                ToolTip = 'Upgrades the connection to Dynamics 365 Sales to use certificate-based OAuth2 service-to-service authentication.';
+                ToolTip = 'Upgrades the connection to Dynamics 365 Sales to use certificate-based OAuth 2.0 service-to-service authentication.';
 
                 trigger OnAction()
                 var
@@ -727,7 +727,7 @@ page 5330 "CRM Connection Setup"
         AllScheduledJobsAreRunningMsg: Label 'An job queue is started and all scheduled synchronization jobs are ready or already processing.';
         SetupSuccessfulMsg: Label 'The default setup for %1 synchronization has completed successfully.', Comment = '%1 = CRM product name';
         CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
-        CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dynamics 365 Sales to use certificate-based OAuth2 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dynamics 365 sales environment. This user does not require a license.', Comment = '%1 - user name';
+        CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dynamics 365 Sales to use certificate-based OAuth 2.0 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dynamics 365 sales environment. This user does not require a license.', Comment = '%1 - user name';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnEnabledOnPageTxt: Label 'CRM Connection has been enabled from CRMConnectionSetupPage', Locked = true;

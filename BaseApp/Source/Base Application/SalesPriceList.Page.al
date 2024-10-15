@@ -184,7 +184,7 @@ page 7016 "Sales Price List"
                         ApplicationArea = All;
                         Importance = Additional;
                         Editable = PriceListIsEditable;
-                        ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
+                        ToolTip = 'Specifies whether users can change the values in the fields on the price list lines that contain default values from the header. This does not affect the ability to allow line or invoice discounts.';
                         trigger OnValidate()
                         begin
                             CurrPage.Lines.Page.SetHeader(Rec);
