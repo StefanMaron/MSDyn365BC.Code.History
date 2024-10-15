@@ -416,6 +416,8 @@ table 1001 "Job Task"
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
         JobPlanningLine.SetRange("Job No.", "Job No.");
         JobPlanningLine.SetRange("Job Task No.", "Job Task No.");
+        if CalledFromHeader then
+            JobPlanningLine.SuspendDeletionCheck(true);
         JobPlanningLine.DeleteAll(true);
 
         JobWIPTotal.DeleteEntriesForJobTask(Rec);
@@ -474,6 +476,7 @@ table 1001 "Job Task"
     var
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
+        CalledFromHeader: Boolean;
 
         CannotDeleteAssociatedEntriesErr: Label 'You cannot delete %1 because one or more entries are associated.', Comment = '%1=The job task table name.';
         CannotChangeAssociatedEntriesErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = The field name you are trying to change; %2 = The job task table name.';
@@ -600,6 +603,11 @@ table 1001 "Job Task"
         else
             PurchLine.SetRange("Job Task No.", JobTaskNo);
         OnAfterApplyPurchaseLineFilters(Rec, PurchLine);
+    end;
+
+    procedure SuspendDeletionCheck(Suspend: Boolean)
+    begin
+        CalledFromHeader := Suspend;
     end;
 
     [IntegrationEvent(false, false)]
