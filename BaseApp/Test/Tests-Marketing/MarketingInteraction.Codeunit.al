@@ -44,6 +44,7 @@ codeunit 136208 "Marketing Interaction"
         TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         FileLbl: Label '%1.%2', Comment = '%1 - Filename, 2% - Extension', Locked = true;
+        SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -699,10 +700,10 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO] SegmentLine.IsHTMLAttachment() returns FALSE for empty record
         Initialize;
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
         Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
     end;
 
@@ -720,10 +721,10 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine."Attachment No." := Attachment."No.";
 
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
 
         Assert.IsFalse(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
     end;
@@ -742,10 +743,10 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine."Attachment No." := Attachment."No.";
 
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
 
         Assert.IsTrue(TempSegmentLine.IsHTMLAttachment, TempSegmentLine.TableCaption);
 
@@ -767,12 +768,12 @@ codeunit 136208 "Marketing Interaction"
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
-        TempSegmentLine.PreviewSegLineHTMLContent();
+                TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.PreviewSegLineHTMLContent();
 #else
         TempSegmentLine.LoadAttachment(false);
         TempSegmentLine.PreviewHTMLContent();
-#endif  
+#endif
 
 
         // Verify "Content Preview" page is opened in ContentPreviewMPH handler
@@ -795,10 +796,10 @@ codeunit 136208 "Marketing Interaction"
         ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(Attachment);
         TempSegmentLine."Attachment No." := Attachment."No.";
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
 
         Assert.AreEqual(
           ContentBodyText,
@@ -824,10 +825,10 @@ codeunit 136208 "Marketing Interaction"
         NewContentBodyText := LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandIntInRange(2000, 3000), 0);
         TempSegmentLine."Attachment No." := Attachment."No.";
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
 
         TempSegmentLine.UpdateContentBodyTextInCustomLayoutAttachment(NewContentBodyText);
 
@@ -860,10 +861,10 @@ codeunit 136208 "Marketing Interaction"
 
         // [WHEN] Load attachment to "SL" with optimization (check if attachment already exists).
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
 
         // [THEN] Attachment was not loaded ("SL" Attachment = "A1")
         Assert.AreEqual(
@@ -897,10 +898,10 @@ codeunit 136208 "Marketing Interaction"
 
         // [WHEN] Load attachment to "SL" with Reload forcing
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(true);
+                TempSegmentLine.LoadSegLineAttachment(true);
 #else
         TempSegmentLine.LoadAttachment(true);
-#endif  
+#endif
 
         // [THEN] Attachment was loaded ("SL" Attachment = "A2")
         Assert.AreEqual(
@@ -930,10 +931,10 @@ codeunit 136208 "Marketing Interaction"
 
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
 #if CLEAN17
-        TempSegmentLine.LoadSegLineAttachment(false);
+                TempSegmentLine.LoadSegLineAttachment(false);
 #else
         TempSegmentLine.LoadAttachment(false);
-#endif  
+#endif
 
         LibraryVariableStorage.Enqueue(TempSegmentLine."Interaction Template Code");
         LibraryVariableStorage.Enqueue(TempSegmentLine."Language Code");
@@ -957,7 +958,7 @@ codeunit 136208 "Marketing Interaction"
         Initialize;
 
 #if CLEAN17
-        TempSegmentLine.FinishSegLineWizard(false);
+                TempSegmentLine.FinishSegLineWizard(false);
 #else
         TempSegmentLine.FinishWizard(false);
 #endif
@@ -977,7 +978,7 @@ codeunit 136208 "Marketing Interaction"
         Initialize;
 
 #if CLEAN17
-        asserterror TempSegmentLine.FinishSegLineWizard(false);
+                asserterror TempSegmentLine.FinishSegLineWizard(false);
 #else
         asserterror TempSegmentLine.FinishWizard(false);
 #endif
@@ -1002,7 +1003,7 @@ codeunit 136208 "Marketing Interaction"
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, '', '', 0D, '');
 
 #if CLEAN17
-        asserterror TempSegmentLine.FinishSegLineWizard(true);
+                asserterror TempSegmentLine.FinishSegLineWizard(true);
 #else
         asserterror TempSegmentLine.FinishWizard(true);
 #endif
@@ -1025,7 +1026,7 @@ codeunit 136208 "Marketing Interaction"
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), '', 0D, '');
 
 #if CLEAN17
-        asserterror TempSegmentLine.FinishSegLineWizard(true);
+                asserterror TempSegmentLine.FinishSegLineWizard(true);
 #else
         asserterror TempSegmentLine.FinishWizard(true);
 #endif
@@ -1048,7 +1049,7 @@ codeunit 136208 "Marketing Interaction"
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, MockContactNo(''), MockSalesPersonCode, 0D, '');
 
 #if CLEAN17
-        asserterror TempSegmentLine.FinishSegLineWizard(true);
+                asserterror TempSegmentLine.FinishSegLineWizard(true);
 #else
         asserterror TempSegmentLine.FinishWizard(true);
 #endif
@@ -1073,7 +1074,7 @@ codeunit 136208 "Marketing Interaction"
         MockSegmentLine(TempSegmentLine, InteractionTmplLanguage, ContactCode, MockSalesPersonCode, WorkDate, '');
 
 #if CLEAN17
-        asserterror TempSegmentLine.FinishSegLineWizard(true);
+                asserterror TempSegmentLine.FinishSegLineWizard(true);
 #else
         asserterror TempSegmentLine.FinishWizard(true);
 #endif
@@ -1099,7 +1100,7 @@ codeunit 136208 "Marketing Interaction"
 
         InteractionLogEntry.FindLast;
 #if CLEAN17
-        TempSegmentLine.FinishSegLineWizard(true);
+                TempSegmentLine.FinishSegLineWizard(true);
 #else
         TempSegmentLine.FinishWizard(true);
 #endif
@@ -2510,6 +2511,188 @@ codeunit 136208 "Marketing Interaction"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('ModalReportHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentEmailCorrTypeContNoEmail()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Email, Contact with no Email, Deliver = true should not be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Email);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with no email specified
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."E-Mail" := '';  // clear email field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Email and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Email);
+        Commit();
+
+        // [WHEN] Log Segment with "Deliver" = true
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        asserterror Segment.LogSegment.Invoke();
+
+        // [THEN] Error message appears stating "Contact or Contact Alt. Address should specify Email"
+        Assert.ExpectedError(StrSubstNo(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("E-Mail"), Contact."No."));
+
+        // [THEN] No Interaction Log Entries created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalReportHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentFaxCorrTypeContNoFax()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax No", Deliver = true should not be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Fax);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with empty "Fax No."
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."Fax No." := '';  // clear "Fax No." field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Fax and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Fax);
+        Commit();
+
+        // [WHEN] Log Segment with Deliver = true
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        asserterror Segment.LogSegment.Invoke();
+
+        // [THEN] Error message appears stating "Contact or Contact Alt. Address should specify 'Fax No'"
+        Assert.ExpectedError(StrSubstNo(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("Fax No."), Contact."No."));
+
+        // [THEN] No Interaction Log Entries created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentEmailCorrTypeContNoEmailNoDeliver()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        EmailFeature: Codeunit "Email Feature";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Email, Contact with empty "Email", Deliver = false should be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Email);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with no email specified
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."E-Mail" := '';  // clear email field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Email and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Email);
+        Commit();
+
+        // [WHEN] Log Segment with Deliver = False
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        Segment.LogSegment.Invoke();
+
+        // [THEN] Segment is logged and Interaction Log Entry created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure LogSegmentFaxCorrTypeContNoFaxNoDeliver()
+    var
+        SegmentHeader: Record "Segment Header";
+        InteractionTemplate: Record "Interaction Template";
+        Contact: Record Contact;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        EmailFeature: Codeunit "Email Feature";
+        Segment: TestPage Segment;
+        FileExtension: Text[250];
+    begin
+        // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax", Deliver = false should be logged
+        Initialize;
+
+        // [GIVEN] Interaction Template with Word attachment
+        FileExtension := 'DOC';
+
+        CreateInteractionTemplateWithCorrespondenceType(
+          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Fax);
+        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
+
+        // [GIVEN] Contact "C" with empty "Fax No." 
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact."Fax No." := '';  // clear "Fax No." field just to be sure
+        Contact.Modify();
+
+        // [GIVEN] Segment with Correspondence Type = Fax and Contact "C" specified
+        CreateSegmentWithInteractionTemplateAndContact(
+          SegmentHeader, InteractionTemplate.Code, Contact."No.",
+          SegmentHeader."Correspondence Type (Default)"::Fax);
+        Commit();
+        EnqueueVariablesForEmailDialog(Contact."E-Mail", SegmentHeader."Subject (Default)", '.' + FileExtension);
+
+        // [WHEN] Log Segment with Deliver = false
+        Segment.OpenView;
+        Segment.GotoRecord(SegmentHeader);
+        Segment.LogSegment.Invoke();
+
+        // [THEN] Segment is logged and Interaction Log Entry created
+        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(InteractionLogEntry, 1);
+    end;
+
     /*
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailEditorHandlerVerifyAttachment,CloseEmailEditorHandler')]
@@ -2686,6 +2869,13 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Phone No.", '1234567890');
+        Contact.Modify(true);
+    end;
+
+    local procedure CreateContactWithFaxNo(var Contact: Record Contact)
+    begin
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.Validate("Fax No.", '1234567890');
         Contact.Modify(true);
     end;
 
@@ -3504,6 +3694,14 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     procedure ModalReportHandler(var LogSegment: TestRequestPage "Log Segment")
     begin
         LogSegment.Deliver.SetValue(true);
+        LogSegment.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure LogSegmentDeliverFalseHandler(var LogSegment: TestRequestPage "Log Segment")
+    begin
+        LogSegment.Deliver.SetValue(false);
         LogSegment.OK.Invoke();
     end;
 

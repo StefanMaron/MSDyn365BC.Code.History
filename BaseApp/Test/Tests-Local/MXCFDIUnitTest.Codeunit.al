@@ -1966,10 +1966,13 @@ codeunit 144000 "MX CFDI Unit Test"
         DataTypeManagement: Codeunit "Data Type Management";
         CustDocRecRef: RecordRef;
         CustDocFieldRef: FieldRef;
+        FilterStr: Text;
     begin
         DataTypeManagement.GetRecordRef(CustomerDocumentHeaderVariant, CustDocRecRef);
         Field.SetRange(TableNo, DATABASE::"Document Header");
-        Field.SetFilter("No.", '<>%1', 3); // except key fields
+        FilterStr :=
+            StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8', 3, 10048, 10049, 10051, 10052, 10053, 10054, 10055);
+        Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat
@@ -1988,7 +1991,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         DataTypeManagement.GetRecordRef(CustomerDocumentLineVariant, CustDocLineRecRef);
         Field.SetRange(TableNo, DATABASE::"Document Line");
-        Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4', 3, 4, 89, 90); // except key fields
+        Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<>%5', 3, 4, 89, 90, 10003); // except key fields
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat
@@ -2030,11 +2033,14 @@ codeunit 144000 "MX CFDI Unit Test"
         CustDocRecRef: RecordRef;
         CustDocFieldRef: FieldRef;
         CustDocFieldValue: Text;
+        FilterStr: Text;
     begin
         DataTypeManagement.GetRecordRef(CustomerDocumentVariant, CustDocRecRef);
         DocHeaderRecRef.GetTable(TempDocumentHeader);
         Field.SetRange(TableNo, DATABASE::"Document Header");
-        Field.SetFilter("No.", '<>%1', 3);
+        FilterStr :=
+            StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8', 3, 10048, 10049, 10051, 10052, 10053, 10054, 10055);
+        Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat
@@ -2059,7 +2065,7 @@ codeunit 144000 "MX CFDI Unit Test"
         DataTypeManagement.GetRecordRef(CustomerDocumentLineVariant, CustDocLineRecRef);
         DocLineRecRef.GetTable(TempDocumentLine);
         Field.SetRange(TableNo, DATABASE::"Document Line");
-        Field.SetFilter("No.", '<>%1&<>%2', 3, 4);
+        Field.SetFilter("No.", '<>%1&<>%2&<>%3', 3, 4, 10003);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat

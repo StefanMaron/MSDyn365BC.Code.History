@@ -9581,6 +9581,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning And Manufacturing - NamedType PostJournalLinesConfirm)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1981732821 - NamedType 3154689621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Status must be equal to 'Certified']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning And Manufacturing - NamedType ProdBOMMustBeCertifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1981732821 - NamedType 607394547" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reservation Entry must be empty.]]></Val>

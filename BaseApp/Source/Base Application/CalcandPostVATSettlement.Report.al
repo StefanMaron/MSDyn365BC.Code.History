@@ -610,6 +610,8 @@
 
     trigger OnPostReport()
     begin
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries();
         OnAfterPostReport();
     end;
 

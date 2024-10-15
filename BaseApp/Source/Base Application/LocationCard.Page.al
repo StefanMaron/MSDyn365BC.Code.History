@@ -144,6 +144,57 @@
                         ToolTip = 'Specifies the location''s web site.';
                     }
                 }
+                group(ElectronicDocument)
+                {
+                    Caption = 'Electronic Document';
+                    field("SAT State Code"; "SAT State Code")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the state, entity, region, community, or similar definitions where the domicile of the origin and / or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                    }
+                    field("SAT Municipality Code"; "SAT Municipality Code")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the municipality, delegation or mayoralty, county, or similar definitions where the destination address of the goods or merchandise that are moved in the different means of transport is located.';
+                    }
+                    field("SAT Locality Code"; "SAT Locality Code")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the city, town, district, or similar definition where the domicile of origin and / or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                    }
+                    field("SAT Suburb Code"; SATSuburb."Suburb Code")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        Caption = 'SAT Suburb Code';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the SAT suburb code where the domicile of the origin or destination of the goods or merchandise that are moved in the different means of transport is located.';
+
+                        trigger OnAssistEdit()
+                        var
+                            SATSuburbList: Page "SAT Suburb List";
+                        begin
+                            SATSuburbList.SetRecord(SATSuburb);
+                            SATSuburbList.LookupMode := true;
+                            if SATSuburbList.RunModal() = ACTION::LookupOK then begin
+                                SATSuburbList.GetRecord(SATSuburb);
+                                "SAT Suburb ID" := SATSuburb.ID;
+                                Modify();
+                            end;
+                        end;
+                    }
+                    field("SAT Postal Code"; SATSuburb."Postal Code")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        Caption = 'SAT Postal Code';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the SAT postal code where the domicile of the origin or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                    }
+                }
             }
             group(Warehouse)
             {
@@ -521,6 +572,8 @@
     begin
         UpdateEnabled();
         TransitValidation;
+        Clear(SATSuburb);
+        if SATSuburb.Get("SAT Suburb ID") then;
     end;
 
     trigger OnInit()
@@ -560,6 +613,7 @@
     end;
 
     var
+        SATSuburb: Record "SAT Suburb";
         CalendarMgmt: Codeunit "Calendar Management";
         [InDataSet]
         OutboundWhseHandlingTimeEnable: Boolean;
