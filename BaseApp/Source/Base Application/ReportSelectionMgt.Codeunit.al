@@ -9,6 +9,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionSales;
+
         with ReportSelections do begin
             InitReportUsage(Usage::"Pro Forma S. Invoice");
             InitReportUsage(Usage::"S.Invoice Draft");
@@ -40,6 +42,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionPurch();
+
         with ReportSelections do begin
             InitReportUsage(Usage::"P.Quote");
             InitReportUsage(Usage::"P.Blanket");
@@ -66,6 +70,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionInvt();
+
         with ReportSelections do begin
             InitReportUsage(Usage::Inv1);
             InitReportUsage(Usage::Inv2);
@@ -88,6 +94,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionBank();
+
         with ReportSelections do begin
             InitReportUsage(Usage::"B.Stmt");
             InitReportUsage(Usage::"B.Recon.Test");
@@ -101,6 +109,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionCust();
+
         with ReportSelections do begin
             InitReportUsage(Usage::Reminder);
             InitReportUsage(Usage::"Fin.Charge");
@@ -116,6 +126,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionServ();
+
         with ReportSelections do begin
             InitReportUsage(Usage::"SM.Quote");
             InitReportUsage(Usage::"SM.Order");
@@ -134,6 +146,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelections: Record "Report Selections";
     begin
+        OnBeforeInitReportSelectionProd();
+
         with ReportSelections do begin
             InitReportUsage(Usage::M1);
             InitReportUsage(Usage::M2);
@@ -147,6 +161,8 @@ codeunit 1901 "Report Selection Mgt."
     var
         ReportSelectionWhse: Record "Report Selection Warehouse";
     begin
+        OnBeforeInitReportSelectionWhse();
+
         with ReportSelectionWhse do begin
             InitReportUsageWhse(Usage::Pick);
             InitReportUsageWhse(Usage::"Put-away");
@@ -365,6 +381,46 @@ codeunit 1901 "Report Selection Mgt."
             ReportSelectionWhse."Report ID" := ReportID;
             ReportSelectionWhse.Insert;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionSales()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionPurch()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionInvt()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionBank()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionCust()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionServ()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionProd()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitReportSelectionWhse()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

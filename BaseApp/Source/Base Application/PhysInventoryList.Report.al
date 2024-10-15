@@ -253,7 +253,7 @@ report 722 "Phys. Inventory List"
         ShowLotSN: Boolean;
         ShowNote: Boolean;
         ShowSummary: Boolean;
-        NoteTxt: Label '*', Comment = '{locked}';
+        NoteTxt: Label '*', Locked = true;
         EntryNo: Integer;
         GetLotNoCaption: Text[80];
         GetSerialNoCaption: Text[80];

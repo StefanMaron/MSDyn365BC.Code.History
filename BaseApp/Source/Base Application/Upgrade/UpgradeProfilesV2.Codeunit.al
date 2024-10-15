@@ -30,6 +30,12 @@ codeunit 104040 "Upgrade Profiles V2"
     end;
 
     trigger OnUpgradePerDatabase()
+    begin
+        DisableBlankProfile();
+        UpgradeProfileReferences();
+    end;
+
+    local procedure UpgradeProfileReferences()
     var
         TenantProfile: Record "Tenant Profile";
         AppProfile: Record "Profile";
@@ -52,6 +58,20 @@ codeunit 104040 "Upgrade Profiles V2"
             DataClassification::SystemMetadata);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForDatabaseTag());
+    end;
+
+    local procedure DisableBlankProfile()
+    var
+        BaseAppInstall: Codeunit "BaseApp Install";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDef: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDef.GetHideBlankProfileUpgradeTag()) then
+            exit;
+
+        BaseAppInstall.DisableBlankProfile();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDef.GetHideBlankProfileUpgradeTag());
     end;
 
     // Table-specific upgrade functions

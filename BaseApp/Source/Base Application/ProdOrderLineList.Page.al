@@ -142,25 +142,29 @@ page 5406 "Prod. Order Line List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date when the produced item must be available. The date is copied from the header of the production order.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Date';
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
                     Visible = false;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Date';
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
                     Visible = false;
                 }
@@ -268,6 +272,7 @@ page 5406 "Prod. Order Line List"
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -277,6 +282,10 @@ page 5406 "Prod. Order Line List"
 
     var
         ShortcutDimCode: array[8] of Code[20];
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDocument(var ProdOrderLine: Record "Prod. Order Line"; ProdOrder: Record "Production Order")

@@ -165,6 +165,7 @@ codeunit 134826 "UT Contact Table"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure SalesQuoteCustNameWhenCreateCustFromContact()
     var
@@ -584,6 +585,13 @@ codeunit 134826 "UT Contact Table"
 
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         Assert.RecordIsEmpty(ContactBusinessRelation);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

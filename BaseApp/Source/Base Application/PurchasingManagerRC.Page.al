@@ -709,7 +709,7 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Journal Templates")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Journal Templates';
                     RunObject = page "Item Journal Templates";
                 }
@@ -721,19 +721,19 @@ page 8905 "Purchasing Manager Role Center"
                 }
                 action("Item Disc. Groups")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Discount Groups';
                     RunObject = page "Item Disc. Groups";
                 }
                 action("Item Tracking Codes")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Item Tracking Codes';
                     RunObject = page "Item Tracking Codes";
                 }
                 action("Inventory Setup")
                 {
-                    ApplicationArea =;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Setup';
                     RunObject = page "Inventory Setup";
                 }

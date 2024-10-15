@@ -669,7 +669,14 @@ table 99000758 "Machine Center"
         PostCodeCheck: Codeunit "Post Code Check";
 
     procedure AssistEdit(OldMachineCenter: Record "Machine Center"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldMachineCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         with MachineCenter do begin
             MachineCenter := Rec;
             MfgSetup.Get;
@@ -714,6 +721,11 @@ table 99000758 "Machine Center"
           FlushingMethod::Backward:
                 exit("Open Shop Floor Bin Code");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var MachineCenter: Record "Machine Center"; OldMachineCenter: Record "Machine Center"; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

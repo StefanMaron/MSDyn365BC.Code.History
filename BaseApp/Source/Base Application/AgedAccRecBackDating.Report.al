@@ -348,12 +348,12 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                 column(PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_1__; PrintPercent(Customer."Credit Limit (LCY)", AccountTotalPerCurrency[1]))
                 {
                 }
-                column(DataItem1450085; AccountTotalPerCurrency[5] + AccountTotalPerCurrency[4] + AccountTotalPerCurrency[3] + AccountTotalPerCurrency[2] + AccountTotalPerCurrency[1])
+                column(AccountTotalPerCurrency_Control1450085; AccountTotalPerCurrency[5] + AccountTotalPerCurrency[4] + AccountTotalPerCurrency[3] + AccountTotalPerCurrency[2] + AccountTotalPerCurrency[1])
                 {
                     AutoFormatExpression = TempCurrency2.Code;
                     AutoFormatType = 1;
                 }
-                column(DataItem1450090; PrintPercent(Customer."Credit Limit (LCY)", AccountTotalPerCurrency[5] + AccountTotalPerCurrency[4] + AccountTotalPerCurrency[3] + AccountTotalPerCurrency[2] + AccountTotalPerCurrency[1]))
+                column(PrintPercent_Customer__Credit_Limit__LCY_Control1450090; PrintPercent(Customer."Credit Limit (LCY)", AccountTotalPerCurrency[5] + AccountTotalPerCurrency[4] + AccountTotalPerCurrency[3] + AccountTotalPerCurrency[2] + AccountTotalPerCurrency[1]))
                 {
                 }
                 column(PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_5__; PrintPercent(Customer."Credit Limit (LCY)", AccountTotalPerCurrency[5]))
@@ -472,7 +472,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                     AutoFormatExpression = '';
                     AutoFormatType = 1;
                 }
-                column(DataItem1450091; PrintPercent(Customer."Credit Limit (LCY)", AccountTotal[5] + AccountTotal[4] + AccountTotal[3] + AccountTotal[2] + AccountTotal[1]))
+                column(PrintPercent_Customer__Credit_Limit__LCY_Control1450091; PrintPercent(Customer."Credit Limit (LCY)", AccountTotal[5] + AccountTotal[4] + AccountTotal[3] + AccountTotal[2] + AccountTotal[1]))
                 {
                 }
                 column(AccountTotal_5_; AccountTotal[5])

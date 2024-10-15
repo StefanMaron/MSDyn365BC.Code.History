@@ -24,7 +24,7 @@ codeunit 28020 "Report Management APAC"
             Rounding::Hundreds:
                 exit(Round(Amount / 100, 0.1));
             Rounding::Thousands:
-                exit(Round(Amount / 1000, 0.1));
+                exit(Round(Amount / 1000, 1));
             Rounding::"Hundred Thousands":
                 exit(Round(Amount / 100000, 0.1));
             Rounding::Millions:

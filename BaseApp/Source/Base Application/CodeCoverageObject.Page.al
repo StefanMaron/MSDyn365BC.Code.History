@@ -5,6 +5,8 @@ page 9992 "Code Coverage Object"
     PageType = List;
     SourceTable = "Object";
     SourceTableView = WHERE(Type = FILTER(<> TableData));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with the Code Coverage AL Object page';
 
     layout
     {

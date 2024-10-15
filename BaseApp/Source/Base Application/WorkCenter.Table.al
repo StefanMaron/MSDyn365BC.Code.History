@@ -710,7 +710,14 @@ table 99000754 "Work Center"
         PostCodeCheck: Codeunit "Post Code Check";
 
     procedure AssistEdit(OldWorkCenter: Record "Work Center"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldWorkCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         with WorkCenter do begin
             WorkCenter := Rec;
             MfgSetup.Get;
@@ -728,9 +735,11 @@ table 99000754 "Work Center"
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Work Center", "No.", FieldNumber, ShortcutDimCode);
-        Modify;
-
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::"Work Center", "No.", FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
+	
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -772,6 +781,11 @@ table 99000754 "Work Center"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var WorkCenter: Record "Work Center"; var xWorkCenter: Record "Work Center"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var WorkCenter: Record "Work Center"; OldWorkCenter: Record "Work Center"; var IsHandled: Boolean);
     begin
     end;
 

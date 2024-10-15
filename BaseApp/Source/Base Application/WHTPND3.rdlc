@@ -1072,7 +1072,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!V1_purpose_of_payment_eg_rental__audit__lawyer__knowledge_of_doctor__building_expenses__prize__discount_or_any_other_benefit_Caption.Value</Value>
+                                  <Value>=Fields!V1_purpose_of_payment_eg_rental__audit__lawyer__knowledge_of_doctor__building_expenses.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2680,8 +2680,8 @@ End Function
         <Field Name="Total_income_and_tax_paying__including_with_Phor_Ngor_Dor_3_if_any_Caption">
           <DataField>Total_income_and_tax_paying__including_with_Phor_Ngor_Dor_3_if_any_Caption</DataField>
         </Field>
-        <Field Name="DataItem1500048">
-          <DataField>DataItem1500048</DataField>
+        <Field Name="V1_purpose_of_payment_eg_rental__audit__lawyer__knowledge_of_doctor__building_expenses">
+          <DataField>V1_purpose_of_payment_eg_rental__audit__lawyer__knowledge_of_doctor__building_expenses</DataField>
         </Field>
         <Field Name="V2_indicate_the_number_accordinglyCaption">
           <DataField>V2_indicate_the_number_accordinglyCaption</DataField>

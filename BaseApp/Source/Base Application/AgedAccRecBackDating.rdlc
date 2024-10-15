@@ -4295,7 +4295,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1_.Value</Value>
+                                  <Value>=Fields!AccountTotalPerCurrency_Control1450085.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -4564,7 +4564,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1__.Value</Value>
+                                  <Value>=Fields!PrintPercent_Customer__Credit_Limit__LCY_Control1450090.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -4939,7 +4939,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1_.Value</Value>
+                                  <Value>=Fields!AccountTotalPerCurrency_Control1450085.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -5557,7 +5557,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!PrintPercent_Customer__Credit_Limit__LCY___AccountTotal_5__AccountTotal_4__AccountTotal_3__AccountTotal_2__AccountTotal_1__.Value</Value>
+                                  <Value>=Fields!PrintPercent_Customer__Credit_Limit__LCY_Control1450091.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -6820,17 +6820,17 @@
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
-                                <Hidden>=IIF(Fields!PrintAccountDetails.Value AND  NOT ISNOTHING(Fields!AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1_.Value),FALSE,TRUE)</Hidden>
+                                <Hidden>=IIF(Fields!PrintAccountDetails.Value AND  NOT ISNOTHING(Fields!AccountTotalPerCurrency_Control1450085.Value),FALSE,TRUE)</Hidden>
                               </Visibility>
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
-                                <Hidden>=IIF(Fields!PrintAccountDetails.Value AND  NOT ISNOTHING(Fields!PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1__.Value),FALSE,TRUE)</Hidden>
+                                <Hidden>=IIF(Fields!PrintAccountDetails.Value AND  NOT ISNOTHING(Fields!PrintPercent_Customer__Credit_Limit__LCY_Control1450090.Value),FALSE,TRUE)</Hidden>
                               </Visibility>
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
-                                <Hidden>=IIF(not Fields!PrintAccountDetails.Value and  NOT ISNOTHING(Fields!AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1_.Value),FALSE,TRUE)</Hidden>
+                                <Hidden>=IIF(not Fields!PrintAccountDetails.Value and  NOT ISNOTHING(Fields!AccountTotalPerCurrency_Control1450085.Value),FALSE,TRUE)</Hidden>
                               </Visibility>
                             </TablixMember>
                             <TablixMember>
@@ -6840,7 +6840,7 @@
                             </TablixMember>
                             <TablixMember>
                               <Visibility>
-                                <Hidden>=IIF(Fields!PrintAccountDetails.Value AND NOT ISNOTHING(Fields!PrintPercent_Customer__Credit_Limit__LCY___AccountTotal_5__AccountTotal_4__AccountTotal_3__AccountTotal_2__AccountTotal_1__.Value) ,FALSE,TRUE)</Hidden>
+                                <Hidden>=IIF(Fields!PrintAccountDetails.Value AND NOT ISNOTHING(Fields!PrintPercent_Customer__Credit_Limit__LCY_Control1450091.Value) ,FALSE,TRUE)</Hidden>
                               </Visibility>
                             </TablixMember>
                             <TablixMember>
@@ -7368,14 +7368,14 @@ End Function
         <Field Name="PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_1__">
           <DataField>PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_1__</DataField>
         </Field>
-        <Field Name="DataItem1450085">
-          <DataField>DataItem1450085</DataField>
+        <Field Name="AccountTotalPerCurrency_Control1450085">
+          <DataField>AccountTotalPerCurrency_Control1450085</DataField>
         </Field>
-        <Field Name="DataItem1450085Format">
-          <DataField>DataItem1450085Format</DataField>
+        <Field Name="AccountTotalPerCurrency_Control1450085Format">
+          <DataField>AccountTotalPerCurrency_Control1450085Format</DataField>
         </Field>
-        <Field Name="DataItem1450090">
-          <DataField>DataItem1450090</DataField>
+        <Field Name="PrintPercent_Customer__Credit_Limit__LCY_Control1450090">
+          <DataField>PrintPercent_Customer__Credit_Limit__LCY_Control1450090</DataField>
         </Field>
         <Field Name="PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_5__">
           <DataField>PrintPercent_Customer__Credit_Limit__LCY___AccountTotalPerCurrency_5__</DataField>
@@ -7485,8 +7485,8 @@ End Function
         <Field Name="AccountTotal_5__AccountTotal_4__AccountTotal_3__AccountTotal_2__AccountTotal_1_Format">
           <DataField>AccountTotal_5__AccountTotal_4__AccountTotal_3__AccountTotal_2__AccountTotal_1_Format</DataField>
         </Field>
-        <Field Name="DataItem1450091">
-          <DataField>DataItem1450091</DataField>
+        <Field Name="PrintPercent_Customer__Credit_Limit__LCY_Control1450091">
+          <DataField>PrintPercent_Customer__Credit_Limit__LCY_Control1450091</DataField>
         </Field>
         <Field Name="AccountTotal_5_">
           <DataField>AccountTotal_5_</DataField>

@@ -148,32 +148,10 @@ page 400 "Purchase Invoice Statistics"
     begin
         ClearAll;
 
-        if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get("Currency Code");
+        Currency.Initialize("Currency Code");
 
-        PurchInvLine.SetRange("Document No.", "No.");
-        if PurchInvLine.Find('-') then
-            repeat
-                VendAmount := VendAmount + PurchInvLine.Amount;
-                AmountInclVAT := AmountInclVAT + PurchInvLine."Amount Including VAT";
-                if "Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount" / (1 + PurchInvLine."VAT %" / 100)
-                else
-                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount";
-                LineQty := LineQty + PurchInvLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (PurchInvLine.Quantity * PurchInvLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (PurchInvLine.Quantity * PurchInvLine."Gross Weight");
-                TotalVolume := TotalVolume + (PurchInvLine.Quantity * PurchInvLine."Unit Volume");
-                if PurchInvLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
-                if PurchInvLine."VAT %" <> VATPercentage then
-                    if VATPercentage = 0 then
-                        VATPercentage := PurchInvLine."VAT %"
-                    else
-                        VATPercentage := -1;
-            until PurchInvLine.Next = 0;
+        CalculateTotals();
+
         VATAmount := AmountInclVAT - VendAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -225,7 +203,53 @@ page 400 "Purchase Invoice Statistics"
         VATAmount: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
-        GLSetup: Record "General Ledger Setup";
-        IsPrePaymentLine: Boolean;
+
+    local procedure CalculateTotals()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(
+            Rec, VendAmount, AmountInclVAT, InvDiscAmount,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchInvLine.SetRange("Document No.", "No.");
+        if PurchInvLine.Find('-') then
+            repeat
+                VendAmount := VendAmount + PurchInvLine.Amount;
+                AmountInclVAT := AmountInclVAT + PurchInvLine."Amount Including VAT";
+                if "Prices Including VAT" then
+                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount" / (1 + PurchInvLine."VAT %" / 100)
+                else
+                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount";
+                LineQty := LineQty + PurchInvLine.Quantity;
+                TotalNetWeight := TotalNetWeight + (PurchInvLine.Quantity * PurchInvLine."Net Weight");
+                TotalGrossWeight := TotalGrossWeight + (PurchInvLine.Quantity * PurchInvLine."Gross Weight");
+                TotalVolume := TotalVolume + (PurchInvLine.Quantity * PurchInvLine."Unit Volume");
+                if PurchInvLine."Units per Parcel" > 0 then
+                    TotalParcels := TotalParcels + Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
+                if PurchInvLine."VAT %" <> VATPercentage then
+                    if VATPercentage = 0 then
+                        VATPercentage := PurchInvLine."VAT %"
+                    else
+                        VATPercentage := -1;
+
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    PurchInvLine, VendAmount, AmountInclVAT, InvDiscAmount,
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until PurchInvLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(PurchInvHeader: Record "Purch. Inv. Header"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchInvLine: Record "Purch. Inv. Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

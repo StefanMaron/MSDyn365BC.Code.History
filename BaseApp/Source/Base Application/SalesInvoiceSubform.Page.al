@@ -998,17 +998,18 @@
 
     trigger OnAfterGetCurrRecord()
     begin
-        GetTotalSalesHeader;
-        CalculateTotals;
-        UpdateEditableOnRow;
-        SetItemChargeFieldsStyle;
+        GetTotalSalesHeader();
+        CalculateTotals();
+        UpdateEditableOnRow();
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1021,7 +1022,7 @@
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
         end;
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -1033,9 +1034,9 @@
     trigger OnInit()
     begin
         SalesSetup.Get;
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1049,7 +1050,7 @@
         SetDefaultType;
 
         Clear(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()
@@ -1058,11 +1059,11 @@
         Location: Record Location;
     begin
         if Location.ReadPermission then
-            LocationCodeVisible := not Location.IsEmpty;
+            LocationCodeVisible := not Location.IsEmpty();
 
         IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var
@@ -1106,7 +1107,7 @@
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1115,7 +1116,7 @@
     begin
         SalesHeader.Get("Document Type", "Document No.");
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);
     end;
 
@@ -1124,13 +1125,13 @@
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
     begin
         SalesCalcDiscount.CalculateInvoiceDiscountOnLine(Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure ExplodeBOM()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Explode BOM", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure GetShipment()
@@ -1146,7 +1147,7 @@
             Commit;
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate then
+        if TransferExtendedText.MakeUpdate() then
             UpdatePage(true);
     end;
 
@@ -1199,6 +1200,8 @@
         CurrPageIsEditable := CurrPage.Editable;
         IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
     local procedure ValidateAutoReserve()
@@ -1224,8 +1227,11 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        CurrPage.SaveRecord;
-        SendLineInvoiceDiscountResetNotification;
+        if "Line Amount" <> xRec."Line Amount" then begin
+            CurrPage.SaveRecord;
+            SendLineInvoiceDiscountResetNotification;
+            CurrPage.Update(false);
+        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1285,6 +1291,11 @@
             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                 if xRec."Document No." = '' then
                     Type := Type::Item;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

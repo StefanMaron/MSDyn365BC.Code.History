@@ -3285,11 +3285,11 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1_.Value</Value>
+                                  <Value>=Fields!AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!AccountTotalPerCurrency_5__AccountTotalPerCurrency_4__AccountTotalPerCurrency_3__AccountTotalPerCurrency_2__AccountTotalPerCurrency_1_Format.Value</Format>
+                                    <Format>=Fields!AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_Format.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5062,11 +5062,11 @@ End Function
         <Field Name="AccountTotalPerCurrency_4_Format">
           <DataField>AccountTotalPerCurrency_4_Format</DataField>
         </Field>
-        <Field Name="DataItem1450061">
-          <DataField>DataItem1450061</DataField>
+        <Field Name="AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_">
+          <DataField>AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_</DataField>
         </Field>
-        <Field Name="DataItem1450061Format">
-          <DataField>DataItem1450061Format</DataField>
+        <Field Name="AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_Format">
+          <DataField>AccTotalPerCurrency_5__AccTotalPerCurrency_4__AccTotalPerCurrency_3__AccTotalPerCurrency_2__AccTotalPerCurrency_1_Format</DataField>
         </Field>
         <Field Name="AccountTotalPerCurrency_5_">
           <DataField>AccountTotalPerCurrency_5_</DataField>

@@ -147,7 +147,7 @@ report 14310 "WHT Report - PND 53"
             column(V1_purpose_of_payment_Caption; V1_purpose_of_payment_CaptionLbl)
             {
             }
-            column(DataItem1500048; DiscountOrAnyOtherBenefitLbl)
+            column(discount_or_any_other_benefit_from_promoting_the_products__winning_prize_in_compitition; DiscountOrAnyOtherBenefitLbl)
             {
             }
             column(Issued_forever_indicate_2Caption; Issued_forever_indicate_2CaptionLbl)

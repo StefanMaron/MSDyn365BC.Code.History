@@ -10,6 +10,7 @@ codeunit 2000 "Time Series Management"
         TempTimeSeriesForecast: Record "Time Series Forecast" temporary;
         AzureMLConnector: Codeunit "Azure ML Connector";
         ApiUri: Text;
+        [NonDebuggable]
         ApiKey: Text;
         NotInitializedErr: Label 'The connection has not been initialized. Initialize the connection before using the time series functionality.';
         InitializationErr: Label 'Oops, something went wrong when connecting to the Azure Machine Learning endpoint. Please contact your system administrator.';
@@ -31,6 +32,7 @@ codeunit 2000 "Time Series Management"
         UseStandardCredentials: Boolean;
         ForecastSecretNameTxt: Label 'ml-forecast', Locked = true;
 
+    [NonDebuggable]
     [TryFunction]
     procedure Initialize(Uri: Text; "Key": Text; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
     begin
@@ -426,6 +428,7 @@ codeunit 2000 "Time Series Management"
         exit(TimeSeriesModelOption);
     end;
 
+    [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
     procedure GetMLForecastCredentials(var ApiUri: Text[250]; var ApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)

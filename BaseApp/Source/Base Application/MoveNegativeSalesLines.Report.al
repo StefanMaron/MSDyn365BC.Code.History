@@ -109,6 +109,7 @@ report 6699 "Move Negative Sales Lines"
         if (FromDocType = FromDocType::"Return Order") or (FromDocType = FromDocType::"Credit Memo") then
             ToDocType := ToDocType2;
         ToSalesHeader."Document Type" := CopyDocMgt.SalesHeaderDocType(ToDocType);
+        OnBeforeCopySalesDoc(FromDocType, FromSalesHeader, ToSalesHeader);
         CopyDocMgt.CopySalesDoc(FromDocType, FromSalesHeader."No.", ToSalesHeader);
     end;
 
@@ -152,6 +153,11 @@ report 6699 "Move Negative Sales Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopySalesDoc(FromDocType: Option; FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header");
     begin
     end;
 }

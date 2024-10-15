@@ -392,7 +392,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.SetRange('No_PurchLine', PurchaseLine."No.");
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'LineNo_PurchaseLine', PurchaseLine."Line No."));
-        LibraryReportDataset.AssertCurrentRowValueEquals('No_PurchHdr', PurchaseHeader."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('PurchHeadNo', PurchaseHeader."No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchLine', PurchaseLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitofMeasure_PurchLine', PurchaseLine."Unit of Measure");
     end;
@@ -1598,6 +1598,31 @@ codeunit 134988 "ERM Purchase Reports III"
         VerifyStandardPurchaseOrderReceiptDates(PurchaseLine);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseQuoteRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteLineHeaderIsNotRepeated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        TextPurchaseLine: Record "Purchase Line";
+        ExpectedText: Text[10];
+    begin
+        // [FEATURE] [Purchase Quote] [Excel]
+        // [SCENARIO 331905] Report 404 "Purchase - Quote" shows only single captions for the lines, purchase lines go one after another
+        Initialize;
+
+        // [GIVEN] Purchase Quote with two lines with items and 3rd line with comment
+        CreatePurchaseQuoteWithThreeLines(PurchaseHeader, PurchaseLine, TextPurchaseLine, ExpectedText);
+
+        // [WHEN] Report 404 "Purchase - Quote" is run and result is saved as Excel at PurchaseQuoteRequestPageHandler
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        SavePurchaseQuoteReport(PurchaseHeader."No.", PurchaseHeader."Buy-from Vendor No.", true, false, false);
+
+        // [THEN] Purchase Lines go one after another, line captions section isn't repeated
+        VerifyPurchQuoteLinesGoOneAfterAnother(PurchaseLine, TextPurchaseLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2156,6 +2181,21 @@ codeunit 134988 "ERM Purchase Reports III"
         AnalysisColumn.Modify(true);
     end;
 
+    local procedure CreatePurchaseQuoteWithThreeLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: array[2] of Record "Purchase Line"; var TextPurchaseLine: Record "Purchase Line"; var ExpectedText: Text[10])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendor);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 5));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 5));
+
+        ExpectedText := LibraryUtility.GenerateGUID;
+        LibraryPurchase.CreatePurchaseLineSimple(TextPurchaseLine, PurchaseHeader);
+        TextPurchaseLine.Validate(Type, TextPurchaseLine.Type::" ");
+        TextPurchaseLine.Validate(Description, ExpectedText);
+        TextPurchaseLine.Modify(true);
+    end;
+
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         // Select General Journal Batch and clear General Journal Lines to make sure that no line exist before creating
@@ -2304,7 +2344,7 @@ codeunit 134988 "ERM Purchase Reports III"
         "Order": Report "Order";
     begin
         PurchaseHeader.SetRange("No.", DocumentNo);
-        LibraryReportValidation.SetFileName('test');
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         Clear(Order);
         Order.SetTableView(PurchaseHeader);
         Order.InitializeRequest(0, ShowInternalInfo, false, false);
@@ -2685,6 +2725,28 @@ codeunit 134988 "ERM Purchase Reports III"
           LibraryReportValidation.FormatDecimalValue(LinePrepmtAmountValue[1] + LinePrepmtAmountValue[2]));
     end;
 
+    local procedure VerifyPurchQuoteLinesGoOneAfterAnother(PurchaseLine: array[2] of Record "Purchase Line"; TextPurchaseLine: Record "Purchase Line")
+    var
+        DescriptionCaptionRowNo: Integer;
+        DescriptionCaptionColNo: Integer;
+        ItemNoCaptionRowNo: Integer;
+        ItemNoCaptionColNo: Integer;
+    begin
+        LibraryReportValidation.OpenExcelFile;
+        ItemNoCaptionColNo := LibraryReportValidation.FindColumnNoFromColumnCaption('Our No.');
+        ItemNoCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Our No.');
+        DescriptionCaptionColNo := LibraryReportValidation.FindColumnNoFromColumnCaption(TextPurchaseLine.FieldCaption(Description));
+        DescriptionCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption(TextPurchaseLine.FieldCaption(Description));
+
+        LibraryReportValidation.VerifyCellValue(ItemNoCaptionRowNo + 4, ItemNoCaptionColNo, PurchaseLine[1]."No.");
+        LibraryReportValidation.VerifyCellValue(DescriptionCaptionRowNo + 4, DescriptionCaptionColNo, PurchaseLine[1].Description);
+
+        LibraryReportValidation.VerifyCellValue(ItemNoCaptionRowNo + 5, ItemNoCaptionColNo, PurchaseLine[2]."No.");
+        LibraryReportValidation.VerifyCellValue(DescriptionCaptionRowNo + 5, DescriptionCaptionColNo, PurchaseLine[2].Description);
+
+        LibraryReportValidation.VerifyCellValue(DescriptionCaptionRowNo + 6, DescriptionCaptionColNo, TextPurchaseLine.Description);
+    end;
+
     local procedure VerifyAgedAccountsPayableNoOfHitsCodeCoverage(CodeLine: Text; NoOfHits: Integer)
     var
         CodeCoverage: Record "Code Coverage";
@@ -2823,6 +2885,24 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseQuote.ArchiveDocument.SetValue(ArchiveDocument);
         PurchaseQuote.LogInteraction.SetValue(LogInteraction);
         PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseQuoteRequestPageHandler(var PurchaseQuote: TestRequestPage "Purchase - Quote")
+    var
+        ShowInternalInfo: Variant;
+        ArchiveDocument: Variant;
+        LogInteraction: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ShowInternalInfo);
+        LibraryVariableStorage.Dequeue(ArchiveDocument);
+        LibraryVariableStorage.Dequeue(LogInteraction);
+        PurchaseQuote.NoOfCopies.SetValue(0);
+        PurchaseQuote.ShowInternalInfo.SetValue(ShowInternalInfo);
+        PurchaseQuote.ArchiveDocument.SetValue(ArchiveDocument);
+        PurchaseQuote.LogInteraction.SetValue(LogInteraction);
+        PurchaseQuote.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
     [RequestPageHandler]

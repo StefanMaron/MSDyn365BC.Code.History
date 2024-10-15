@@ -19,6 +19,7 @@ codeunit 6301 "Power BI Service Mgt."
         DotNetString: DotNet String;
         GenericErr: Label 'An error occurred while trying to get reports from the Power BI service. Please try again or contact your system administrator if the error persists.';
         PowerBiResourceNameTxt: Label 'Power BI Services';
+        OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
         ReportPageSizeTxt: Label '16:9', Locked = true;
         PowerBIurlErr: Label 'https://powerbi.microsoft.com', Locked = true;
         UnauthorizedErr: Label 'You do not have a Power BI account. You can get a Power BI account at the following location.';
@@ -732,6 +733,9 @@ codeunit 6301 "Power BI Service Mgt."
         // Sets values in table 6308 to indicate a report deployment session is currently running or
         // waiting to run. This lets us make sure we don't schedule any simulatenous sessions that would
         // accidentally deploy a report multiple times or something.
+        SendPowerBiOngoingDeploymentsTelemetry(PowerBIOngoingDeployments.FieldCaption("Is Deploying Reports"), IsDeploying);
+        PowerBIOngoingDeployments.LockTable();
+
         if PowerBIOngoingDeployments.Get(UserSecurityId) then begin
             PowerBIOngoingDeployments."Is Deploying Reports" := IsDeploying;
             PowerBIOngoingDeployments.Modify;
@@ -751,6 +755,9 @@ codeunit 6301 "Power BI Service Mgt."
         // Sets values in table 6308 to indicate a deployment retry session is currently running or
         // waiting to run. This lets us make sure we don't schedule any simulatenous sessions that would
         // accidentally retry an upload multiple times or something.
+        SendPowerBiOngoingDeploymentsTelemetry(PowerBIOngoingDeployments.FieldCaption("Is Retrying Uploads"), IsRetrying);
+        PowerBIOngoingDeployments.LockTable();
+
         if PowerBIOngoingDeployments.Get(UserSecurityId) then begin
             PowerBIOngoingDeployments."Is Retrying Uploads" := IsRetrying;
             PowerBIOngoingDeployments.Modify;
@@ -770,6 +777,9 @@ codeunit 6301 "Power BI Service Mgt."
         // Sets values in table 6308 to indicate a report deletion session is currently running or
         // waiting to run. This lets us make sure we don't schedule any simultaneous sessions that would
         // accidentally delete a report that is already trying to delete or something.
+        SendPowerBiOngoingDeploymentsTelemetry(PowerBIOngoingDeployments.FieldCaption("Is Deleting Reports"), IsDeleting);
+        PowerBIOngoingDeployments.LockTable();
+
         if PowerBIOngoingDeployments.Get(UserSecurityId) then begin
             PowerBIOngoingDeployments."Is Deleting Reports" := IsDeleting;
             PowerBIOngoingDeployments.Modify;
@@ -779,6 +789,16 @@ codeunit 6301 "Power BI Service Mgt."
             PowerBIOngoingDeployments."Is Deleting Reports" := IsDeleting;
             PowerBIOngoingDeployments.Insert;
         end;
+    end;
+
+    local procedure SendPowerBiOngoingDeploymentsTelemetry(FieldChanged: Text; NewValue: Boolean)
+    begin
+        SendTraceTag('0000AYR',
+            PowerBiTelemetryCategoryLbl,
+            Verbosity::Normal,
+            StrSubstNo(OngoingDeploymentTelemetryMsg, FieldChanged, NewValue),
+            DataClassification::SystemMetadata
+            );
     end;
 
     local procedure GetServiceRetries(): Integer
