@@ -437,7 +437,7 @@ codeunit 1720 "Deferral Utilities"
             DeferralHeader.Insert();
         end;
         DeferralHeader."Amount to Defer" := AdjustedDeferralAmount;
-        if AdjustStartDate then
+        if AdjustStartDate or (DeferralHeader."Initial Amount to Defer" = 0) then
             DeferralHeader."Initial Amount to Defer" := AmountToDefer;
         DeferralHeader."Calc. Method" := CalcMethod;
         DeferralHeader."Start Date" := AdjustedStartDate;

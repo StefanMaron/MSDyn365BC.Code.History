@@ -1300,7 +1300,7 @@ codeunit 31000 "Sales-Post Advances"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Qty. to Invoice", '<>0');
         IsHandled := false;
-        OnBeforePostPaymentCorrection(SalesInvHeader, SalesHeader, SalesLine, TempCustLedgEntry, TempSalesAdvanceLetterHeader2, DocNoForVATCorr, InvoicedAmount, IsHandled);
+        OnBeforePostPaymentCorrection(SalesInvHeader, SalesHeader, SalesLine, TempCustLedgEntry, TempSalesAdvanceLetterHeader2, DocNoForVATCorr, InvoicedAmount, IsHandled, GenJnlPostLine);
         if not IsHandled then
             case SalesHeader."Document Type" of
                 SalesHeader."Document Type"::Order:
@@ -5838,7 +5838,7 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostPaymentCorrection(SalesInvHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempSalesAdvanceLetterHeader: Record "Sales Advance Letter Header" temporary; var DocNoForVATCorr: Code[20]; var InvoicedAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforePostPaymentCorrection(SalesInvHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempSalesAdvanceLetterHeader: Record "Sales Advance Letter Header" temporary; var DocNoForVATCorr: Code[20]; var InvoicedAmount: Decimal; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

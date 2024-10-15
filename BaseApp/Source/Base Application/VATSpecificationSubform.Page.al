@@ -235,7 +235,7 @@ page 576 "VAT Specification Subform"
         if VATAmountLCYEditable then
             VATAmountLCYEditable := not UseExtAmount;
         ExtVATAmountLCYEditable :=
-          AllowVATDifference and not "Includes Prepayment" and ("Currency Code" <> '') and UseExtAmount;
+          AllowVATDifference and not "Includes Prepayment" and UseExtAmount;
         // NAVCZ
     end;
 

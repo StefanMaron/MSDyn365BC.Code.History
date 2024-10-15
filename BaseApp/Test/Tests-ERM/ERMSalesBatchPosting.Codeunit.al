@@ -1133,7 +1133,6 @@ codeunit 134391 "ERM Sales Batch Posting"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        ErrorMessage: Record "Error Message";
         SalesInvoicePage: TestPage "Sales Invoice";
         MaxAllowedVATDifference: Decimal;
         VATModifier: Decimal;
@@ -1171,15 +1170,9 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", 0D, false);
 
-        // the test fails in CZ. 
         SalesHeader.SetRecFilter();
-        Assert.RecordIsNotEmpty(SalesHeader);
 
-        ErrorMessage.FindLast();
-        ErrorMessage.TestField("Record ID", SalesHeader.RecordId);
-
-        Clear(SalesHeader);
-        LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        Assert.RecordIsEmpty(SalesHeader);
     end;
 
 
@@ -1329,7 +1322,6 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        UpdateGeneralLedgerSetup; // NAVCZ
         isInitialized := true;
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SaveSalesSetup();
@@ -1389,16 +1381,6 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := BachSessionID;
         BatchProcessingSessionMap.Insert();
-    end;
-
-    local procedure UpdateGeneralLedgerSetup()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        GLSetup."Use VAT Date" := true;
-        GLSetup.Modify();
     end;
 
     local procedure RunBatchPostSales(DocumentType: Enum "Sales Document Type"; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)

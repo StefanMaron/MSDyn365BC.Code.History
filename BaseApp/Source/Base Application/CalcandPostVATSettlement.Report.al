@@ -1,4 +1,4 @@
-#if not CLEAN17
+﻿#if not CLEAN17
 report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
@@ -450,6 +450,7 @@ report 20 "Calc. and Post VAT Settlement"
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
@@ -457,6 +458,7 @@ report 20 "Calc. and Post VAT Settlement"
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
                                     if IsNotSettlement(VATType) then
@@ -470,6 +472,7 @@ report 20 "Calc. and Post VAT Settlement"
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
@@ -479,6 +482,7 @@ report 20 "Calc. and Post VAT Settlement"
                                             repeat
                                                 VATType := IncrementGenPostingType(VATType);
                                                 VATEntry.SetRange(Type, VATType);
+                                                OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
                                     if IsNotSettlement(VATType) then begin
@@ -1018,6 +1022,16 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(true, false)]
     local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry"; var VATEntry2: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter(VATPostingSetup: Record "VAT Posting Setup"; VATType: enum "General Posting Type"; var VATEntry: Record "VAT Entry"; FindFirstEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnSalesTaxOnAfterVATEntrySetFilter(VATPostingSetup: Record "VAT Posting Setup"; VATType: enum "General Posting Type"; var VATEntry: Record "VAT Entry"; FindFirstEntry: Boolean)
     begin
     end;
 }

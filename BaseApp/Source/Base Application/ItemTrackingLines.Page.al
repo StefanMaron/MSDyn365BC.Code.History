@@ -1517,10 +1517,10 @@
                 end;
             "Item Tracking Lines Controls"::Reclass:
                 begin
-                    NewSerialNoVisible := SetAccess;
-                    NewSerialNoEditable := SetAccess;
-                    NewLotNoVisible := SetAccess;
-                    NewLotNoEditable := SetAccess;
+                    NewSerialNoVisible := not IsDirectTransfer and SetAccess;
+                    NewSerialNoEditable := not IsDirectTransfer and SetAccess;
+                    NewLotNoVisible := not IsDirectTransfer and SetAccess;
+                    NewLotNoEditable := not IsDirectTransfer and SetAccess;
                     NewPackageNoVisible := SetAccess;
                     NewPackageNoEditable := SetAccess;
                     NewExpirationDateVisible := SetAccess;
@@ -2723,8 +2723,7 @@
                 Rec."Warranty Date" := TempTrackingSpecification."Warranty Date";
                 Rec."Expiration Date" := TempTrackingSpecification."Expiration Date";
                 if CurrentRunMode = CurrentRunMode::Reclass then begin
-                    Rec."New Serial No." := TempTrackingSpecification."New Serial No.";
-                    Rec."New Lot No." := TempTrackingSpecification."New Lot No.";
+                    Rec.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
                     Rec."New Expiration Date" := TempTrackingSpecification."New Expiration Date";
                     OnRegisterItemTrackingLinesOnAfterReclass(Rec, TempTrackingSpecification);
                 end;

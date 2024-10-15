@@ -54,6 +54,8 @@ table 454 "Approval Entry"
             begin
                 if (xRec.Status = Status::Created) and (Status = Status::Open) then
                     "Date-Time Sent for Approval" := CreateDateTime(Today, Time);
+                if not (Status in [Status::Created, Status::Open]) then
+                    DeleteWorkflowEventQueue();
             end;
         }
         field(10; "Date-Time Sent for Approval"; DateTime)
@@ -204,6 +206,8 @@ table 454 "Approval Entry"
         NotificationEntry.SetRange(Type, NotificationEntry.Type::Approval);
         NotificationEntry.SetRange("Triggered By Record", RecordId);
         NotificationEntry.DeleteAll(true);
+
+        DeleteWorkflowEventQueue();
     end;
 
     trigger OnModify()
@@ -216,6 +220,14 @@ table 454 "Approval Entry"
         PageManagement: Codeunit "Page Management";
         RecNotExistTxt: Label 'The record does not exist.';
         ChangeRecordDetailsTxt: Label '; %1 changed from %2 to %3', Comment = 'Prefix = Record information %1 = field caption %2 = old value %3 = new value. Example: Customer 123455; Credit Limit changed from 100.00 to 200.00';
+
+    local procedure DeleteWorkflowEventQueue()
+    var
+        WorkflowEventQueue: Record "Workflow Event Queue";
+    begin
+        WorkflowEventQueue.SetRange("Record ID", RecordId);
+        WorkflowEventQueue.DeleteAll();
+    end;
 
     procedure GetLastEntryNo(): Integer;
     var

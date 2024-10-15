@@ -493,8 +493,15 @@ table 5600 "Fixed Asset"
         AcquireActionTxt: Label 'Acquire';
         FoundFALedgerEntriesErr: Label 'You cannot change the FA posting group because posted FA ledger entries use the existing posting group.';
 
-    procedure AssistEdit(OldFA: Record "Fixed Asset"): Boolean
+    procedure AssistEdit(OldFA: Record "Fixed Asset") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(FASetup, FA, Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with FA do begin
             FA := Rec;
             FASetup.Get();
@@ -650,6 +657,11 @@ table 5600 "Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var FASetup: Record "FA Setup"; var FixedAsset: Record "Fixed Asset"; var Rec: Record "Fixed Asset"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

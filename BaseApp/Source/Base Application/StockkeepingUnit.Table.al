@@ -942,7 +942,7 @@ table 5700 "Stockkeeping Unit"
         Error(Text006, FieldCaption("Transfer-from Code"), ErrorString, "Location Code", "Transfer-from Code");
     end;
 
-    local procedure TestNoEntriesExist(CurrentFieldName: Text[100])
+    protected procedure TestNoEntriesExist(CurrentFieldName: Text[100])
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin

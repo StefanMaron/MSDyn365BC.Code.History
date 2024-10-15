@@ -810,7 +810,6 @@ report 5607 "Fixed Asset - Projected Value"
             if not FirstTime then
                 GetNextDate;
             FirstTime := false;
-            CalculateDepr.ProjectedValue(TRUE); // NAVCZ
             CalculateDepr.Calculate(
               DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
               "Fixed Asset"."No.", DeprBookCode, UntilDate, EntryAmounts, 0D, DaysInFirstPeriod);
@@ -823,7 +822,6 @@ report 5607 "Fixed Asset - Projected Value"
     local procedure CalculateSecondDeprAmount(var Done: Boolean)
     begin
         GetNextDate;
-        CalculateDepr.ProjectedValue(TRUE); // NAVCZ
         CalculateDepr.Calculate(
           DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
           "Fixed Asset"."No.", DeprBookCode, UntilDate, EntryAmounts, DateFromProjection, 0);

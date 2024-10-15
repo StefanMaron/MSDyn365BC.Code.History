@@ -16,8 +16,8 @@ enum 847 "Cash Flow Source Type"
     value(9; "Fixed Assets Disposal") { Caption = 'Fixed Assets Disposal'; }
     value(10; "Service Orders") { Caption = 'Service Orders'; }
     value(11; "G/L Budget") { Caption = 'G/L Budget'; }
-    value(12; "Sales Advance Letters") { Caption = 'Sales Advance Letters'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
-    value(13; "Purchase Advance Letters") { Caption = 'Purchase Advance Letters'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
+    value(12; "Sales Advance Letters") { Caption = 'Sales Advance Letters (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
+    value(13; "Purchase Advance Letters") { Caption = 'Purchase Advance Letters (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
     value(14; "Job") { Caption = 'Job'; }
     value(15; "Tax") { Caption = 'Tax'; }
     value(16; "Azure AI") { Caption = 'Azure AI'; }

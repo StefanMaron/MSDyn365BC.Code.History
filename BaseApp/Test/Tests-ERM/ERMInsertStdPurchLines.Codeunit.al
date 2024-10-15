@@ -27,6 +27,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         RefMode: Option Manual,Automatic,"Always Ask";
         FieldNotVisibleErr: Label 'Field must be visible.';
         ResourceErr: Label 'Wrong values after validate from resource';
+        StdCodeDeleteConfirmLbl: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -1031,6 +1032,106 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Assert.RecordCount(PurchaseLine, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure StdPurchCodeWithStdVendPurchCodeDeleteConfirmYes()
+    var
+        Vendor: Record Vendor;
+        StdPurchCode: Record "Standard Purchase Code";
+        StdVendPurchCode: Record "Standard Vendor Purchase Code";
+        StdPurchCodeCode: Code[10];
+    begin
+        // [SCENARIO 412530] When user deletes Standard Purchase Code with Standard Vendor Purchase Code linked - confirmation appears, if yes - deletes linked entries
+        Initialize();
+
+        // [GIVEN] Standard Purchase Code with linked Standard Vendor Purchase Code
+        StdPurchCodeCode := CreateStandardPurchaseCodeWithItemLine();
+        StdPurchCode.Get(StdPurchCodeCode);
+        Vendor.Get(
+            GetNewVendNoWithStandardPurchCodeForCode(RefDocType::Order, RefMode::Automatic, StdPurchCodeCode));
+        LibraryVariableStorage.DequeueText(); // flush variable storage
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Standard Purchase Code is deleted
+        // [THEN] Confirmation message appears 
+        // [WHEN] User agrees with confirmation
+        StdPurchCode.Delete(True);
+
+        // [THEN] Standard Purchase Code and Standard Vendor Purchase Code linked are deleted
+        StdPurchCode.Reset();
+        StdPurchCode.SetRange("Code", StdPurchCodeCode);
+        Assert.RecordIsEmpty(StdPurchCode);
+        Assert.ExpectedConfirm(
+            StrSubstNo(StdCodeDeleteConfirmLbl, StdPurchCodeCode, StdVendPurchCode.TableCaption),
+            LibraryVariableStorage.DequeueText());
+        StdVendPurchCode.SetRange("Code", StdPurchCodeCode);
+        Assert.RecordIsEmpty(StdVendPurchCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure StdPurchCodeWithStdVendorPurchCodeDeleteConfirmNo()
+    var
+        Vendor: Record Vendor;
+        StdPurchCode: Record "Standard Purchase Code";
+        StdVendPurchCode: Record "Standard Vendor Purchase Code";
+        StdPurchCodeCode: Code[10];
+    begin
+        // [SCENARIO 412530] When user deletes Standard Purchase Code with Standard Vendor Purchase Code linked - confirmation appears, if no - no records deleted
+        Initialize();
+
+        // [GIVEN] Standard Purchase Code with linked Standard Vendor Purchase Code
+        StdPurchCodeCode := CreateStandardPurchaseCodeWithItemLine();
+        StdPurchCode.Get(StdPurchCodeCode);
+        Vendor.Get(
+            GetNewVendNoWithStandardPurchCodeForCode(RefDocType::Order, RefMode::Automatic, StdPurchCodeCode));
+
+        Commit;
+        LibraryVariableStorage.DequeueText(); // flush variable storage
+        LibraryVariableStorage.Enqueue(false);
+
+        // [WHEN] Standard Purchase Code is deleted
+        // [THEN] Confirmation message appears 
+        // [WHEN] User disagree with confirmation
+        AssertError StdPurchCode.Delete(true);
+        Assert.ExpectedError('');
+
+        // [THEN] Standard Purchase Code and Standard Vendor Purchase Code linked are not deleted
+        StdPurchCode.Reset();
+        StdPurchCode.SetRange("Code", StdPurchCodeCode);
+        Assert.RecordIsNotEmpty(StdPurchCode);
+
+        StdVendPurchCode.SetRange("Code", StdPurchCodeCode);
+        Assert.RecordIsNotEmpty(StdVendPurchCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StdPurchCodeNoStdVendorPurchCodeDeleteWithoutConfirm()
+    var
+        StdPurchCode: Record "Standard Purchase Code";
+        StdPurchCodeCode: Code[10];
+    begin
+        // [SCENARIO 412530] When user deletes Standard Purchase Code without Standard Vendor Purchase Code linked - no confirmation appears, record deleted.
+        Initialize();
+
+        // [GIVEN] Standard Purchase Code with no linked Standard Vendor Purchase Code
+        StdPurchCodeCode := CreateStandardPurchaseCodeWithItemLine();
+        StdPurchCode.Get(StdPurchCodeCode);
+
+        // [WHEN] Standard Sales Purchase is deleted
+        // [THEN] Confirmation message does not appear
+        StdPurchCode.Delete(True);
+
+        // [THEN] Standard Sales Purchase is deleted
+        StdPurchCode.Reset();
+        StdPurchCode.SetRange("Code", StdPurchCodeCode);
+        Assert.RecordIsEmpty(StdPurchCode);
+    end;
+
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1400,6 +1501,14 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.Enqueue(Question);
     end;
 
 }

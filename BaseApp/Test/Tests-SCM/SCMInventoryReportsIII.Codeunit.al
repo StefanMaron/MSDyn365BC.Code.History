@@ -1481,6 +1481,58 @@ codeunit 137350 "SCM Inventory Reports - III"
         Assert.AreEqual(0, SalesLine."Qty. to Ship", 'Expected qty. to be updated for line without location.');
     end;
 
+    [Test]
+    [HandlerFunctions('ItemRegisterValueRequestPageHandler')]
+    procedure ItemRegisterValueReportWithVariousItemEntryTypes()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemRegister: Record "Item Register";
+        Qty: Decimal;
+        UnitAmount: Decimal;
+    begin
+        // [FEATURE] [Item Register - Value]
+        // [SCENARIO 414201] Verifying "Item Register - Value" report for various item entry types in one item register entry.
+        Initialize();
+        Qty := LibraryRandom.RandInt(100);
+        UnitAmount := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create a positive adjustment and a negative adjustment line in one item journal batch.
+        SelectAndClearItemJournalBatch(ItemJournalBatch);
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo(), Qty);
+        ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        ItemJournalLine.Modify(true);
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Negative Adjmt.", LibraryInventory.CreateItemNo(), Qty);
+        ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post both item journal lines in a single transaction.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Run "Item Register - Value" report.
+        Commit();
+        ItemRegister.FindLast();
+        ItemRegister.SetRecFilter();
+        REPORT.Run(REPORT::"Item Register - Value", true, false, ItemRegister);
+
+        // [THEN] The report prints two lines -
+        // [THEN] The first is for the positive adjustment with "Positive Adjmt." cost > 0 and "Negative Adjmt." cost = 0.
+        // [THEN] The second is for the negative adjustment with "Positive Adjmt." cost = 0 and "Negative Adjmt." cost < 0.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemEntryTypeTotalCost13', Qty * UnitAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemEntryTypeTotalCost14', 0);
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemEntryTypeTotalCost13', 0);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemEntryTypeTotalCost14', -Qty * UnitAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -160,6 +160,7 @@ codeunit 393 "Reminder-Issue"
                         until DtldReminderLine.Next() = 0;
                 // NAVCZ
                 until ReminderLine.Next() = 0;
+            OnRunOnBeforeReminderLineDeleteAll(ReminderHeader, IssuedReminderHeader, NextEntryNo);
             // NAVCZ
             DtldReminderLine2.SetRange("Reminder No.", ReminderLine."Reminder No.");
             DtldReminderLine2.DeleteAll();
@@ -517,7 +518,7 @@ codeunit 393 "Reminder-Issue"
         CustLedgEntry.LockTable();
         CustLedgEntry.Get(ReminderFinChargeEntry."Customer Entry No.");
         CustLedgEntry."Last Issued Reminder Level" := ReminderFinChargeEntry."Reminder Level";
-        OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(CustLedgEntry);
+        OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(CustLedgEntry, ReminderFinChargeEntry);
         CustLedgEntry.Modify();
     end;
 
@@ -629,7 +630,7 @@ codeunit 393 "Reminder-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
     begin
     end;
 
@@ -665,6 +666,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeGenJnlLineInsertTotalAmount(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeReminderLineDeleteAll(var ReminderHeader: Record "Reminder Header"; var IssuedReminderHeader: Record "Issued Reminder Header"; NextEntryNo: Integer)
     begin
     end;
 

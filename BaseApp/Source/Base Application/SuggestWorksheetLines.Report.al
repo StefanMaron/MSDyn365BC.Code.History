@@ -614,7 +614,7 @@ report 840 "Suggest Worksheet Lines"
                         field("ConsiderSource[SourceType::""Sales Advance Letters""]"; ConsiderSource[SourceType::"Sales Advance Letters"])
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Sales Advances';
+                            Caption = 'Sales Advances (Obsolete)';
                             ToolTip = 'Specifies if sales advances will be sugested';
                             ObsoleteState = Pending;
                             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
@@ -624,7 +624,7 @@ report 840 "Suggest Worksheet Lines"
                         field("ConsiderSource[SourceType::""Purchase Advance Letters""]"; ConsiderSource[SourceType::"Purchase Advance Letters"])
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Purchase Advances';
+                            Caption = 'Purchase Advances (Obsolete)';
                             ToolTip = 'Specifies if purchase advances will be sugested';
                             ObsoleteState = Pending;
                             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
@@ -783,7 +783,6 @@ report 840 "Suggest Worksheet Lines"
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CashFlowManagement: Codeunit "Cash Flow Management";
-        Window: Dialog;
         ConsiderSource: array[16] of Boolean;
         SourceType: Enum "Cash Flow Source Type";
         CashFlowNo: Code[20];
@@ -826,6 +825,9 @@ report 840 "Suggest Worksheet Lines"
         XTAXRECEIVABLESCORRECTIONTxt: Label 'Tax from Sales entries';
         XTAXSALESORDERSTxt: Label 'Tax from Sales Orders';
         XTAXPURCHORDERSTxt: Label 'Tax from Purchase Orders';
+
+    protected var
+        Window: Dialog;
 
     local procedure InsertConditionMet(): Boolean
     begin

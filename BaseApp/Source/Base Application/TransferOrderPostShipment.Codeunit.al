@@ -162,7 +162,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             FinalizePosting(TransHeader, TransLine);
 
-            OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader);
+            OnRunOnBeforeCommit(TransHeader, TransShptHeader, PostedWhseShptHeader, SuppressCommit);
             if not (InvtPickPutaway or "Direct Transfer" or SuppressCommit) then begin
                 Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
@@ -414,6 +414,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WhseSplitSpecification: Boolean;
     begin
         if WhsePosting then begin
             TempWhseSplitSpecification.Reset();
@@ -425,7 +426,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TempHandlingSpecification2.SetRange("Buffer Status", 0);
             if TempHandlingSpecification2.Find('-') then begin
                 repeat
-                    if WhsePosting or WhseShip or InvtPickPutaway then begin
+                    WhseSplitSpecification := WhsePosting or WhseShip or InvtPickPutaway;
+                    OnInsertShptEntryRelationOnAfterCalcWhseSplitSpecification(
+                        TransLine, TransShptLine, TempHandlingSpecification2, TempWhseSplitSpecification, WhsePosting, WhseShip, InvtPickPutaway, WhseSplitSpecification);
+                    if WhseSplitSpecification then begin
                         if ItemTrackingMgt.GetWhseItemTrkgSetup(TransShptLine."Item No.") then begin
                             TempWhseSplitSpecification := TempHandlingSpecification2;
                             TempWhseSplitSpecification."Source Type" := DATABASE::"Transfer Line";
@@ -503,12 +507,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 WhseShptLine.SetRange("Source Type", DATABASE::"Transfer Line");
                 WhseShptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseShptLine.SetRange("Source Line No.", TransLine."Line No.");
-                if WhseShptLine.FindFirst then begin
-                    WhseShptLine.TestField("Qty. to Ship", TransShptLine.Quantity);
-                    WhsePostShpt.CreatePostedShptLine(
-                      WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
-                    OnInsertTransShptLineOnAfterCreatePostedShptLine(WhseShptLine, PostedWhseShptLine);
-                end;
+                if WhseShptLine.FindFirst then
+                    CreatePostedShptLineFromWhseShptLine(TransShptLine);
             end;
             OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine, TransLine, SuppressCommit, WhsePosting);
             if WhsePosting then
@@ -522,6 +522,22 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
         TransShptLine.Insert();
         OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, TransShptHeader);
+    end;
+
+    local procedure CreatePostedShptLineFromWhseShptLine(var TransferShipmentLine: Record "Transfer Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreatePostedShptLineFromWhseShptLine(TransferShipmentLine, WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseShptLine.TestField("Qty. to Ship", TransferShipmentLine.Quantity);
+        WhsePostShpt.CreatePostedShptLine(
+          WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
+
+        OnInsertTransShptLineOnAfterCreatePostedShptLine(WhseShptLine, PostedWhseShptLine);
     end;
 
     local procedure TransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal)
@@ -869,6 +885,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePostedShptLineFromWhseShptLine(var TransShptLine: Record "Transfer Shipment Line"; var WhseShptLine: Record "Warehouse Shipment Line"; var PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; TransShptHeader: Record "Transfer Shipment Header")
     begin
     end;
@@ -934,7 +955,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
+    local procedure OnInsertShptEntryRelationOnAfterCalcWhseSplitSpecification(TransLine: Record "Transfer Line"; var TransShptLine: Record "Transfer Shipment Line"; TempHandlingSpecification2: Record "Tracking Specification" temporary; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; WhsePosting: Boolean; WhseShip: Boolean; InvtPickPutaway: Boolean; var WhseSplitSpecification: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header"; var SuppressCommit: Boolean)
     begin
     end;
 

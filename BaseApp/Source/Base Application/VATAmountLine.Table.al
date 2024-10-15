@@ -912,6 +912,7 @@ table 290 "VAT Amount Line"
                             begin
                                 "VAT Base" :=
                                     Round(CalcLineAmount / (1 + "VAT %" / 100), Currency."Amount Rounding Precision") - "VAT Difference";
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                     "VAT Difference" +
                                     Round(
@@ -964,6 +965,7 @@ table 290 "VAT Amount Line"
                         "VAT Calculation Type"::"Reverse Charge VAT":
                             begin
                                 "VAT Base" := CalcLineAmount;
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                   "VAT Difference" +
                                   Round(
@@ -994,6 +996,7 @@ table 290 "VAT Amount Line"
                             begin
                                 OnUpdateLinesOnBeforeCalcSalesTaxVatBase(Rec);
                                 "VAT Base" := CalcLineAmount;
+                                OnUpdateLinesOnAfterCalcVATBaseSalesTax(Rec, Currency, PricesIncludingVAT);
                                 if "Use Tax" then
                                     "VAT Amount" := 0
                                 else
@@ -1052,8 +1055,10 @@ table 290 "VAT Amount Line"
                             "Calculated VAT Amount (LCY)" := "Calculated VAT Amount";
                             if ("VAT %" <> 0) and ("VAT Base" <> 0) then begin
                                 "Amount Including VAT (LCY)" := "Amount Including VAT";
-                                Validate("VAT Amount", "VAT Amount (LCY)");
                                 "Amount Including VAT" := "Amount Including VAT (LCY)";
+                                "VAT Amount" := "VAT Amount (LCY)";
+                                "VAT Difference" := "VAT Amount" - "Calculated VAT Amount";
+                                "VAT Difference (LCY)" := "VAT Difference";
                             end;
                         end else begin
                             "VAT Difference (LCY)" := 0;
@@ -1344,6 +1349,16 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLinesOnBeforeCalcSalesTaxVatBase(var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATBase(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATBaseSalesTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean)
     begin
     end;
 

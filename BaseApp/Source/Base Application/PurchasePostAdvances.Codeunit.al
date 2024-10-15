@@ -1300,7 +1300,7 @@ codeunit 31020 "Purchase-Post Advances"
             "Source No." := PurchAdvanceLetterHeader."Pay-to Vendor No.";
             "Posting No. Series" := "Posting No. Series";
         end;
-        OnAfterPostLetterPostToGL(PurchAdvanceLetterHeader, PrepaymentInvLineBuffer, PurchAdvanceLetterEntry, GenJournalLine, VATDate);
+        OnAfterPostLetterPostToGL(PurchAdvanceLetterHeader, PrepaymentInvLineBuffer, PurchAdvanceLetterEntry, GenJournalLine, VATDate, DocumentType);
     end;
 
     local procedure PostLetter_UpdtAdvLines(var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocType: Integer; GenJnlLineDocNo: Code[20]; LineAmount: Decimal; PostingDate: Date)
@@ -1378,7 +1378,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetFilter("Qty. to Invoice", '<>0');
         IsHandled := false;
-        OnBeforePostPaymentCorrection(PurchInvHeader, PurchHeader, PurchLine, TempVendLedgEntry, TempPurchAdvanceLetterHeader2, DocNoForVATCorr, InvoicedAmount, IsHandled);
+        OnBeforePostPaymentCorrection(PurchInvHeader, PurchHeader, PurchLine, TempVendLedgEntry, TempPurchAdvanceLetterHeader2, DocNoForVATCorr, InvoicedAmount, IsHandled, GenJnlPostLine);
         if not IsHandled then
             case PurchHeader."Document Type" of
                 PurchHeader."Document Type"::Order:
@@ -1550,7 +1550,7 @@ codeunit 31020 "Purchase-Post Advances"
         AdvanceLetterLineRelation.Modify();
     end;
 
-    local procedure DeductRndLetterLines(OrderNo: Code[20])
+    procedure DeductRndLetterLines(OrderNo: Code[20])
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
@@ -1998,7 +1998,7 @@ codeunit 31020 "Purchase-Post Advances"
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
-    local procedure PostPaymentCorrection(PurchInvHeader: Record "Purch. Inv. Header"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    procedure PostPaymentCorrection(PurchInvHeader: Record "Purch. Inv. Header"; var VendLedgEntry: Record "Vendor Ledger Entry")
     var
         GenJnlLine: Record "Gen. Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
@@ -2492,7 +2492,7 @@ codeunit 31020 "Purchase-Post Advances"
         LetterNoToInvoice := LetterNo;
     end;
 
-    local procedure FullyDeductedVendPrepmt(var PurchLine: Record "Purchase Line"): Boolean
+    procedure FullyDeductedVendPrepmt(var PurchLine: Record "Purchase Line"): Boolean
     begin
         if PurchLine.FindSet then
             repeat
@@ -3491,7 +3491,7 @@ codeunit 31020 "Purchase-Post Advances"
         until TempPurchAdvanceLetterEntry.Next() = 0;
     end;
 
-    local procedure SaveDeductionEntries()
+    procedure SaveDeductionEntries()
     var
         PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry";
         NextEntryNo: Integer;
@@ -4878,7 +4878,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchHeaderVATCurrencyFactor: Decimal;
 #endif
     begin
-        OnBeforeCalcVATCorrection(PurchHeader, TempVATAmountLine, IsHandled);
+        OnBeforeCalcVATCorrection(PurchHeader, TempVATAmountLine, IsHandled, TempPurchAdvanceLetterEntry);
         if IsHandled then
             exit;
 
@@ -6106,7 +6106,7 @@ codeunit 31020 "Purchase-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostLetterPostToGL(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry"; var GenJournalLine: Record "Gen. Journal Line"; VATDate: Date)
+    local procedure OnAfterPostLetterPostToGL(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry"; var GenJournalLine: Record "Gen. Journal Line"; VATDate: Date; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 
@@ -6146,7 +6146,7 @@ codeunit 31020 "Purchase-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcVATCorrection(PurchHeader: Record "Purchase Header"; TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCalcVATCorrection(PurchHeader: Record "Purchase Header"; TempVATAmountLine: Record "VAT Amount Line" temporary; var IsHandled: Boolean; var TempPurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry" temporary)
     begin
     end;
 
@@ -6161,7 +6161,7 @@ codeunit 31020 "Purchase-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostPaymentCorrection(PurchInvHeader: Record "Purch. Inv. Header"; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; var TempPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header" temporary; var DocNoForVATCorr: Code[20]; var InvoicedAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforePostPaymentCorrection(PurchInvHeader: Record "Purch. Inv. Header"; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; var TempPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header" temporary; var DocNoForVATCorr: Code[20]; var InvoicedAmount: Decimal; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

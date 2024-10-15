@@ -750,6 +750,7 @@ table 17 "G/L Entry"
         "User ID" := UserId;
         "No. Series" := GenJnlLine."Posting No. Series";
         "IC Partner Code" := GenJnlLine."IC Partner Code";
+	    "Prod. Order No." := GenJnlLine."Prod. Order No.";
         // NAVCZ
 #if not CLEAN17
         "VAT Date" := GenJnlLine."VAT Date";

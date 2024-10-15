@@ -425,11 +425,14 @@ codeunit 5611 "Calculate Normal Depreciation"
                 RemainingLife += CalcDeprBreakDays(0D, 0D, true);
             // NAVCZ
 #endif
-            if RemainingLife < 1 then
-                exit(-BookValue);
+            if RemainingLife < 1 then begin
+                Result := -BookValue;
+                OnCalcSLAmountOnAfterCalcResultForRemainingLifeExpired(FA, FADeprBook, BookValue, Result);
+                exit(Result);
+            end;
 
             IsHandled := false;
-            OnAfterCalcSL(FA, FADeprBook, UntilDate, BookValue, DeprBasis, DeprYears, NumberOfDays, DaysInFiscalYear, Result, IsHandled, RemainingLife);
+            OnAfterCalcSL(FA, FADeprBook, UntilDate, BookValue, DeprBasis, DeprYears, NumberOfDays, DaysInFiscalYear, Result, IsHandled, RemainingLife, FirstDeprDate);
             if IsHandled then
                 exit(Result);
 
@@ -927,21 +930,14 @@ codeunit 5611 "Calculate Normal Depreciation"
 
         if DepGroup."Depreciation Type" <> DepGroup."Depreciation Type"::"Straight-line Intangible" then
             if FADeprBook.Prorated then begin
-                if not ProjValue then begin
-                    TaxDeprAmount := TaxDeprAmount *
-                      DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
-                      CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
+                if DateFromProjection = 0D then begin
+                    TaxDeprAmount := TaxDeprAmount * DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
+                        CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
                     NumberOfDays2 := DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) -
-                      CalcDepreciatedDays(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
+                        CalcDepreciatedDays(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate);
                 end else begin
-                    CalculateProjectedValues(CalcStartOfFiscalYear(UntilDate), UntilDate);
-                    TaxDeprAmount := TaxDeprAmount *
-                      DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) / 360 -
-                      CalcDepreciatedAmount(FADeprBook."FA No.", FADeprBook."Depreciation Book Code", 0D, UntilDate) +
-                      TempFALedgEntry3.Amount;
-                    NumberOfDays2 :=
-                      DepreciationCalc.DeprDays(CalcStartOfFiscalYear(UntilDate), UntilDate, Year365Days) -
-                      NoOfProjectedDays;
+                    TaxDeprAmount := TaxDeprAmount * DepreciationCalc.DeprDays(DateFromProjection, UntilDate, Year365Days) / 360;
+                    NumberOfDays2 := DepreciationCalc.DeprDays(DateFromProjection, UntilDate, Year365Days);
                 end;
             end else
                 if TempFaktor < 1 then
@@ -1094,8 +1090,6 @@ codeunit 5611 "Calculate Normal Depreciation"
     begin
         NoOfProjectedDays := 0;
         TempFALedgEntry3.Reset();
-        if not TempFALedgEntry3.IsEmpty() then ///
-            error('STOP CalculateProjectedValues'); ///
         if StartDate <> 0D then
             TempFALedgEntry3.SetRange("FA Posting Date", StartDate, EndDate)
         else
@@ -1113,8 +1107,8 @@ codeunit 5611 "Calculate Normal Depreciation"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         // NAVCZ
-        IF ProjValue THEN
-            EXIT(TempFromDate >= CalcEndOfFiscalYear(AcquisitionDate));
+        if (DateFromProjection <> 0D) or FADeprBook.Prorated then
+            exit(TempFromDate >= CalcEndOfFiscalYear(AcquisitionDate));
 
         DepreciationCalc.SetFAFilter(FALedgerEntry, FANo, DeprBookCode, true);
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
@@ -1446,7 +1440,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean; var RemainingLife: Decimal)
+    local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean; var RemainingLife: Decimal; var FirstDeprDate: Date)
     begin
     end;
 
@@ -1469,6 +1463,11 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcSLAmountOnAfterCalcFromSLPercent(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; SLPercent: Decimal; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSLAmountOnAfterCalcResultForRemainingLifeExpired(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; var Result: Decimal)
     begin
     end;
 

@@ -2633,7 +2633,6 @@
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         GLSetupRead: Boolean;
         MfgSetupRead: Boolean;
-        UnitCost: Decimal;
         Text007: Label 'New ';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
         Text021: Label 'The entered bin code %1 is different from the bin code %2 in production order component %3.\\Are you sure that you want to post the consumption from bin code %1?';
@@ -2655,6 +2654,7 @@
     protected var
         ItemJnlLine: Record "Item Journal Line";
         PhysInvtEntered: Boolean;
+        UnitCost: Decimal;
 
     procedure EmptyLine(): Boolean
     begin

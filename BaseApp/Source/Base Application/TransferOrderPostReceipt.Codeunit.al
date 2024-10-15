@@ -184,7 +184,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, TransferDirection::Inbound);
             end;
 
-            OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader);
+            OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader, SuppressCommit);
             if not (InvtPickPutaway or SuppressCommit) then begin
                 Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
@@ -556,18 +556,29 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 WhseRcptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseRcptLine.SetRange("Source Line No.", TransLine."Line No.");
                 OnInsertTransRcptLineOnAfterWhseRcptLineSetFilters(TransLine, TransRcptLine, WhseRcptLine);
-                if WhseRcptLine.FindFirst then begin
-                    WhseRcptLine.TestField("Qty. to Receive", TransRcptLine.Quantity);
-                    WhsePostRcpt.SetItemEntryRelation(PostedWhseRcptHeader, PostedWhseRcptLine, TempItemEntryRelation2);
-                    WhsePostRcpt.CreatePostedRcptLine(
-                      WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification);
-                end;
+                if WhseRcptLine.FindFirst then
+                    CreatePostedRcptLineFromWhseRcptLine(TransRcptLine);
             end;
             OnInsertTransRcptLineOnBeforePostWhseJnlLine(TransRcptLine, TransLine, SuppressCommit, WhsePosting);
             if WhsePosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempWhseSplitSpecification);
             OnAfterTransRcptLineModify(TransRcptLine, TransLine, SuppressCommit);
         end;
+    end;
+
+    local procedure CreatePostedRcptLineFromWhseRcptLine(var TransferReceiptLine: Record "Transfer Receipt Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreatePostedRcptLineFromWhseRcptLine(TransferReceiptLine, WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseRcptLine.TestField("Qty. to Receive", TransferReceiptLine.Quantity);
+        WhsePostRcpt.SetItemEntryRelation(PostedWhseRcptHeader, PostedWhseRcptLine, TempItemEntryRelation2);
+        WhsePostRcpt.CreatePostedRcptLine(
+          WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification);
     end;
 
     local procedure CheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
@@ -772,6 +783,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePostedRcptLineFromWhseRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line"; var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransRcptHeader(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var Handled: Boolean)
     begin
     end;
@@ -842,7 +858,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeCommit(var TransHeader: Record "Transfer Header"; var TransRcptHeader: Record "Transfer Receipt Header"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
+    local procedure OnRunOnBeforeCommit(var TransHeader: Record "Transfer Header"; var TransRcptHeader: Record "Transfer Receipt Header"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var SuppressCommit: Boolean)
     begin
     end;
 

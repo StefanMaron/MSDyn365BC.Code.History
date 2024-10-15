@@ -134,6 +134,7 @@ page 9401 "VAT Amount Lines"
                     ApplicationArea = Basic, Suite;
                     Editable = VATAmountLCYEditable;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
+                    Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics will be discontinued.';
                     ObsoleteTag = '18.0';
@@ -231,16 +232,15 @@ page 9401 "VAT Amount Lines"
 
     trigger OnAfterGetRecord()
     begin
-        VATAmountEditable := AllowVATDifference and not "Includes Prepayment" and ("Currency Code" <> ''); // NAVCZ
-        VATAmountLCYEditable := AllowVATDifferenceOnThisTab; // NAVCZ
+        VATAmountEditable := AllowVATDifference and not "Includes Prepayment";
         InvoiceDiscountAmountEditable := AllowInvDisc and not "Includes Prepayment";
 #if not CLEAN17
-
         // NAVCZ
+        VATAmountLCYEditable := AllowVATDifferenceOnThisTab;
         if VATAmountLCYEditable then
             VATAmountLCYEditable := not UseExtAmount;
         ExtVATAmountLCYEditable :=
-          AllowVATDifference and not "Includes Prepayment" and ("Currency Code" <> '') and UseExtAmount;
+          AllowVATDifference and not "Includes Prepayment" and UseExtAmount;
         // NAVCZ
 #endif
     end;

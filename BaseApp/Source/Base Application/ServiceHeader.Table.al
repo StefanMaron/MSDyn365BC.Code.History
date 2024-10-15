@@ -4118,6 +4118,7 @@
 
         if Cust.Get("Customer No.") then
             Validate("Location Code", UserSetupMgt.GetLocation(2, Cust."Location Code", "Responsibility Center"));
+        OnInitRecordOnAfterValidateLocationCode(Rec, xRec);
 
         if "Document Type" in ["Document Type"::"Credit Memo"] then begin
             GLSetup.Get();
@@ -5376,6 +5377,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitInsertOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitRecordOnAfterValidateLocationCode(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
     begin
     end;
 

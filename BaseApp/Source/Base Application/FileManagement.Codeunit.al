@@ -187,6 +187,8 @@ codeunit 419 "File Management"
     end;
 #endif
 
+#pragma warning disable AS0022
+    [Scope('OnPrem')]
     procedure DownloadTempFile(ServerFileName: Text): Text
     var
         FileName: Text;
@@ -197,6 +199,7 @@ codeunit 419 "File Management"
         Download(ServerFileName, '', Path, AllFilesDescriptionTxt, FileName);
         exit(FileName);
     end;
+#pragma warning restore AS0022
 
 #if not CLEAN17
     [Scope('OnPrem')]
