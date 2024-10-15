@@ -2447,7 +2447,7 @@ table 83 "Item Journal Line"
         Text031: Label 'You can not insert item number %1 because it is not produced on released production order %2.';
         Text032: Label 'When posting, the entry %1 will be opened first.';
         Text033: Label 'If the item carries serial or lot numbers, then you must use the %1 field in the %2 window.';
-        RevaluationPerEntryNotAllowedErr: Label 'This item ledger entry has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
+        RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         Text26500: Label '%1 is required for Item %2.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
         MustBeIntegralNumberErr: Label 'must be integral number';
@@ -3942,7 +3942,7 @@ table 83 "Item Journal Line"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure SetItemChargeDimensions(ItemChargeNo: Code[20]; ItemLedgShptEntryNo: Integer)
     var
         ItemCharge: Record "Item Charge";
@@ -3961,7 +3961,6 @@ table 83 "Item Journal Line"
                 "Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
             end;
         end;
-        // NAVCZ
     end;
 
     procedure CheckItemJournalLineRestriction()

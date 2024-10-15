@@ -31,20 +31,20 @@ page 11758 "Registration Log"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies typ of account';
+                    ToolTip = 'Specifies type of account.';
                     Visible = false;
                 }
                 field("Account No."; "Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies No of account';
+                    ToolTip = 'Specifies No of account.';
                     Visible = false;
                 }
                 field(Status; Status)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the status of issued payment order lines';
+                    ToolTip = 'Specifies the status of the verification action.';
                 }
                 field("Verified Date"; "Verified Date")
                 {

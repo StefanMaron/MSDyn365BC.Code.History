@@ -442,6 +442,8 @@ page 39 "General Journal"
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord;
+                        Commit;
                         ShowDeferralSchedule;
                     end;
                 }

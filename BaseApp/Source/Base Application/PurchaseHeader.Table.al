@@ -336,9 +336,11 @@ table 38 "Purchase Header"
             var
                 Contact: Record Contact;
             begin
+                Contact.FilterGroup(2);
                 LookupContact("Pay-to Vendor No.", "Pay-to Contact No.", Contact);
                 if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
                     Validate("Pay-to Contact No.", Contact."No.");
+                Contact.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -754,6 +756,8 @@ table 38 "Purchase Header"
                                     VatFactor := 1;
                                 if not "Prices Including VAT" then
                                     VatFactor := 1 / VatFactor;
+                                if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Full VAT" then
+                                    VatFactor := 1;
                                 PurchLine."Direct Unit Cost" :=
                                   Round(PurchLine."Direct Unit Cost" * VatFactor, Currency."Unit-Amount Rounding Precision");
                                 PurchLine."Line Discount Amount" :=
@@ -763,10 +767,13 @@ table 38 "Purchase Header"
                                 LineInvDiscAmt := InvDiscRounding + PurchLine."Inv. Discount Amount" * VatFactor;
                                 PurchLine."Inv. Discount Amount" := Round(LineInvDiscAmt, Currency."Amount Rounding Precision");
                                 InvDiscRounding := LineInvDiscAmt - PurchLine."Inv. Discount Amount";
-                                if "Prices Including VAT" then
-                                    PurchLine."Line Amount" := PurchLine."Amount Including VAT" + PurchLine."Inv. Discount Amount"
+                                if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Full VAT" then
+                                    PurchLine."Line Amount" := PurchLine."Amount Including VAT"
                                 else
-                                    PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
+                                    if "Prices Including VAT" then
+                                        PurchLine."Line Amount" := PurchLine."Amount Including VAT" + PurchLine."Inv. Discount Amount"
+                                    else
+                                        PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
                             end;
                             OnValidatePricesIncludingVATOnBeforePurchLineModify(PurchHeader, PurchLine, Currency, RecalculatePrice);
                             PurchLine.Modify;
@@ -827,7 +834,7 @@ table 38 "Purchase Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = FIELD("Document Type"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -945,7 +952,7 @@ table 38 "Purchase Header"
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist ("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
                                                        "Document No." = FIELD("No."),
                                                        "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';
@@ -968,7 +975,7 @@ table 38 "Purchase Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                             "Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
@@ -978,7 +985,7 @@ table 38 "Purchase Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                             "Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -1245,9 +1252,11 @@ table 38 "Purchase Header"
                 if "Buy-from Vendor No." = '' then
                     exit;
 
+                Contact.FilterGroup(2);
                 LookupContact("Buy-from Vendor No.", "Buy-from Contact No.", Contact);
                 if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
                     Validate("Buy-from Contact No.", Contact."No.");
+                Contact.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -1973,14 +1982,14 @@ table 38 "Purchase Header"
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No.")));
             Caption = 'Amount Received Not Invoiced (LCY)';
             FieldClass = FlowField;
         }
         field(301; "Amt. Rcd. Not Invoiced (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Purchase Line"."Amt. Rcd. Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Purchase Line"."Amt. Rcd. Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                     "Document No." = FIELD("No.")));
             Caption = 'Amount Received Not Invoiced (LCY) Incl. VAT';
             FieldClass = FlowField;
@@ -2004,7 +2013,7 @@ table 38 "Purchase Header"
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Sum("Purchase Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
                                                                             "Document Type" = FIELD("Document Type")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
@@ -2012,7 +2021,7 @@ table 38 "Purchase Header"
         }
         field(5043; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Purchase Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Purchase Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                              "No." = FIELD("No."),
                                                                              "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -2197,7 +2206,7 @@ table 38 "Purchase Header"
         }
         field(5751; "Partially Invoiced"; Boolean)
         {
-            CalcFormula = Exist ("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = FIELD("Document Type"),
                                                        "Document No." = FIELD("No."),
                                                        Type = FILTER(<> " "),
                                                        "Location Code" = FIELD("Location Filter"),
@@ -2208,7 +2217,7 @@ table 38 "Purchase Header"
         }
         field(5752; "Completely Received"; Boolean)
         {
-            CalcFormula = Min ("Purchase Line"."Completely Received" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Purchase Line"."Completely Received" WHERE("Document Type" = FIELD("Document Type"),
                                                                            "Document No." = FIELD("No."),
                                                                            Type = FILTER(<> " "),
                                                                            "Location Code" = FIELD("Location Filter")));
@@ -2361,7 +2370,7 @@ table 38 "Purchase Header"
         }
         field(9001; "Pending Approvals"; Integer)
         {
-            CalcFormula = Count ("Approval Entry" WHERE("Table ID" = CONST(38),
+            CalcFormula = Count("Approval Entry" WHERE("Table ID" = CONST(38),
                                                         "Document Type" = FIELD("Document Type"),
                                                         "Document No." = FIELD("No."),
                                                         Status = FILTER(Open | Created)));
@@ -2851,6 +2860,7 @@ table 38 "Purchase Header"
 
     trigger OnDelete()
     var
+        PurchCommentLine: Record "Purch. Comment Line";
         PostPurchDelete: Codeunit "PostPurch-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         ShowPostedDocsToPrint: Boolean;
@@ -2963,7 +2973,6 @@ table 38 "Purchase Header"
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
         PurchHeader: Record "Purchase Header";
-        PurchCommentLine: Record "Purch. Comment Line";
         Cust: Record Customer;
         CompanyInfo: Record "Company Information";
         PostCode: Record "Post Code";
@@ -3425,22 +3434,23 @@ table 38 "Purchase Header"
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         TempInteger: Record "Integer" temporary;
         SalesHeader: Record "Sales Header";
+        TempPurchCommentLine: Record "Purch. Comment Line" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ConfirmManagement: Codeunit "Confirm Management";
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
         IsHandled: Boolean;
     begin
-        if not PurchLinesExist then
+        if not PurchLinesExist() then
             exit;
 
         IsHandled := false;
         OnRecreatePurchLinesOnBeforeConfirm(Rec, xRec, ChangedFieldName, HideValidationDialog, Confirmed, IsHandled);
         if not IsHandled then
-            if GetHideValidationDialog then
+            if GetHideValidationDialog() then
                 Confirmed := true
             else begin
-                if HasItemChargeAssignment then
+                if HasItemChargeAssignment() then
                     ConfirmText := ResetItemChargeAssignMsg
                 else
                     ConfirmText := RecreatePurchLinesMsg;
@@ -3448,9 +3458,9 @@ table 38 "Purchase Header"
             end;
 
         if Confirmed then begin
-            PurchLine.LockTable;
-            ItemChargeAssgntPurch.LockTable;
-            Modify;
+            PurchLine.LockTable();
+            ItemChargeAssgntPurch.LockTable();
+            Modify();
             OnBeforeRecreatePurchLines(Rec);
 
             PurchLine.Reset;
@@ -3484,8 +3494,10 @@ table 38 "Purchase Header"
                         PurchLine.Modify;
                     end;
                     OnRecreatePurchLinesOnBeforeTempPurchLineInsert(TempPurchLine, PurchLine);
-                    TempPurchLine.Insert;
-                until PurchLine.Next = 0;
+                    TempPurchLine.Insert();
+                until PurchLine.Next() = 0;
+
+                StorePurchCommentLineToTemp(TempPurchCommentLine);
 
                 TransferItemChargeAssgntPurchToTemp(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
 
@@ -3542,6 +3554,8 @@ table 38 "Purchase Header"
                     OnRecreatePurchLineOnAfterProcessAttachedToLineNo(TempPurchLine, PurchLine);
                 until TempPurchLine.Next = 0;
 
+                RestorePurchCommentLineFromTemp(TempPurchCommentLine);
+
                 RecreateItemChargeAssgntPurch(TempItemChargeAssgntPurch, TempPurchLine, TempInteger);
 
                 TempPurchLine.SetRange(Type);
@@ -3550,6 +3564,32 @@ table 38 "Purchase Header"
             end;
         end else
             Rec := xRec;
+    end;
+
+    local procedure StorePurchCommentLineToTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        PurchCommentLine.SetRange("Document Type", "Document Type");
+        PurchCommentLine.SetRange("No.", "No.");
+        if PurchCommentLine.FindSet() then
+            repeat
+                TempPurchCommentLine := PurchCommentLine;
+                TempPurchCommentLine.Insert();
+            until PurchCommentLine.Next() = 0;
+    end;
+
+    local procedure RestorePurchCommentLineFromTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        TempPurchCommentLine.SetRange("Document Type", "Document Type");
+        TempPurchCommentLine.SetRange("No.", "No.");
+        if TempPurchCommentLine.FindSet() then
+            repeat
+                PurchCommentLine := TempPurchCommentLine;
+                PurchCommentLine.Insert();
+            until TempPurchCommentLine.Next() = 0;
     end;
 
     local procedure RecreatePurchLinesFillItemChargeAssignment(PurchLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line" temporary; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
@@ -4702,11 +4742,17 @@ table 38 "Purchase Header"
         CountryRegion: Record "Country/Region";
     begin
         // NAVCZ
-        if "EU 3-Party Trade" then
+        if "EU 3-Party Intermediate Role" then
             exit(false);
         if "Intrastat Exclude" then
             exit(false);
-        exit(CountryRegion.IsIntrastat("VAT Country/Region Code", true));
+        if IsCreditDocType() then
+            exit(CountryRegion.IsIntrastat("VAT Country/Region Code", true));
+        if "VAT Country/Region Code" = "Ship-to Country/Region Code" then
+            exit(false);
+        if CountryRegion.IsLocalCountry("Ship-to Country/Region Code", true) then
+            exit(CountryRegion.IsIntrastat("VAT Country/Region Code", true));
+        exit(CountryRegion.IsIntrastat("Ship-to Country/Region Code", true));
     end;
 
     [Scope('OnPrem')]
@@ -5439,15 +5485,23 @@ table 38 "Purchase Header"
 
     local procedure SetDefaultPurchaser()
     var
+        UserSetupPurchaserCode: Code[20];
+    begin
+        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
+        if UserSetupPurchaserCode <> '' then
+            if SalespersonPurchaser.Get(UserSetupPurchaserCode) then
+                if not SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                    Validate("Purchaser Code", UserSetupPurchaserCode);
+    end;
+
+    local procedure GetUserSetupPurchaserCode(): Code[20]
+    var
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(UserId) then
             exit;
 
-        if UserSetup."Salespers./Purch. Code" <> '' then
-            if SalespersonPurchaser.Get(UserSetup."Salespers./Purch. Code") then
-                if not SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-                    Validate("Purchaser Code", UserSetup."Salespers./Purch. Code");
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
     procedure OnAfterValidateBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
@@ -5819,15 +5873,20 @@ table 38 "Purchase Header"
     end;
 
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
+    var
+        UserSetupPurchaserCode: Code[20];
     begin
+        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
         if PurchaserCodeToCheck <> '' then begin
             if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
-                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-                    PurchaserCodeToAssign := ''
-                else
+                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then begin
+                    if UserSetupPurchaserCode = '' then
+                        PurchaserCodeToAssign := ''
+                end else
                     PurchaserCodeToAssign := PurchaserCodeToCheck;
         end else
-            PurchaserCodeToAssign := '';
+            if UserSetupPurchaserCode = '' then
+                PurchaserCodeToAssign := '';
     end;
 
     procedure ValidatePurchaserOnPurchHeader(PurchaseHeader2: Record "Purchase Header"; IsTransaction: Boolean; IsPostAction: Boolean)

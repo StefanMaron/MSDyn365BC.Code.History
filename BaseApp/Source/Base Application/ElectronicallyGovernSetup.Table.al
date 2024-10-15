@@ -2,6 +2,7 @@ table 11761 "Electronically Govern. Setup"
 {
     Caption = 'Electronically Govern. Setup';
     ReplicateData = false;
+    Permissions = TableData 1261 = rimd;
 
     fields
     {

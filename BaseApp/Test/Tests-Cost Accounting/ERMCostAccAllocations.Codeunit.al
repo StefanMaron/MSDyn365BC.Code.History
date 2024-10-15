@@ -35,6 +35,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         TypeOfID: Option "Auto Generated",Custom;
         VariantField: Code[10];
         WrongBalanceErr: Label 'Wrong balance for cost center %1.';
+        CostCenterBlockedErr: Label '%1 must be equal to ''No''  in Cost Center: Code=%2. Current value is ''Yes''.';
 
     [Test]
     [Scope('OnPrem')]
@@ -861,7 +862,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     end;
 
     [Test]
-    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestAllocationWithTargetBlockedCostCenter()
     var
@@ -870,7 +871,8 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostCenter: Record "Cost Center";
         TotalShare: Decimal;
     begin
-        // [SCENARIO 344609] Stan can call "Cost Allocation" report with blocked Cost Center as target. System does not generate entries for such Cost Center.
+        // [FEATURE] [Report] [Cost Center]
+        // [SCENARIO 348340] Stan gets error on running "Cost Allocation" report with blocked Cost Center as target.
         Initialize();
 
         CreateAllocSourceWithCCenter(CostAllocationSource, TypeOfID::Custom);
@@ -884,9 +886,9 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         Commit();
 
         MaxLevel := CostAllocationSource.Level;
-        REPORT.Run(REPORT::"Cost Allocation");
+        asserterror REPORT.Run(REPORT::"Cost Allocation");
 
-        VerifyCostCenterBalance(CostAllocationTarget."Target Cost Center", 0);
+        Assert.ExpectedError(StrSubstNo(CostCenterBlockedErr, CostCenter.FieldName(Blocked), CostCenter.Code));
     end;
 
     local procedure Initialize()

@@ -540,10 +540,10 @@ codeunit 408 DimensionManagement
     local procedure CollectDefaultDimsToCheck(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDefaultDim: Record "Default Dimension" temporary)
     var
         DefaultDim: Record "Default Dimension";
-        DefaultDimPriority: array[2] of Record "Default Dimension Priority";
         NoFilter: array[2] of Code[20];
         i: Integer;
         j: Integer;
+        Priority: array[2] of Integer;
     begin
         NoFilter[2] := '';
         for i := 1 to ArrayLen(TableID) do
@@ -551,32 +551,43 @@ codeunit 408 DimensionManagement
                 DefaultDim.SetFilter("Value Posting", '<>%1', DefaultDim."Value Posting"::" ");
                 DefaultDim.SetRange("Table ID", TableID[i]);
                 NoFilter[1] := No[i];
-                for j := 1 to 2 do begin
-                    DefaultDim.SetRange("No.", NoFilter[j]);
-                    if DefaultDim.FindSet then
-                        repeat
-                            TempDefaultDim.SetRange("Dimension Code", DefaultDim."Dimension Code");
-                            if not TempDefaultDim.FindFirst then begin
-                                TempDefaultDim := DefaultDim;
-                                TempDefaultDim.Insert;
-                            end else
-                                if DefaultDimPriority[1].Get(SourceCode, DefaultDim."Table ID") then
-                                    if DefaultDimPriority[2].Get(SourceCode, TempDefaultDim."Table ID") then begin
-                                        if DefaultDimPriority[1].Priority < DefaultDimPriority[2].Priority then begin
-                                            TempDefaultDim.Delete;
-                                            TempDefaultDim := DefaultDim;
-                                            TempDefaultDim.Insert;
-                                        end
-                                    end else begin
-                                        TempDefaultDim.Delete;
+                if UseDefaultDimensions(TableID[i], No[i]) then // NAVCZ
+                    for j := 1 to 2 do begin
+                        DefaultDim.SetRange("No.", NoFilter[j]);
+                        if DefaultDim.FindSet then
+                            repeat
+                                TempDefaultDim.SetRange("Dimension Code", DefaultDim."Dimension Code");
+                                if not TempDefaultDim.FindFirst then begin
+                                    TempDefaultDim := DefaultDim;
+                                    TempDefaultDim.Insert();
+                                end else begin
+                                    Priority[1] := GetDimensionPriorityForTable(TempDefaultDim."Table ID");
+                                    Priority[2] := GetDimensionPriorityForTable(DefaultDim."Table ID");
+                                    if not PriorityGreaterThan(Priority[1], Priority[2]) then begin
+                                        if PriorityGreaterThan(Priority[2], Priority[1]) then
+                                            TempDefaultDim.DeleteAll();
                                         TempDefaultDim := DefaultDim;
-                                        TempDefaultDim.Insert;
+                                        TempDefaultDim.Insert();
                                     end;
-                        until DefaultDim.Next = 0;
-                end;
+                                end;
+                            until DefaultDim.Next = 0;
+                    end;
             end;
-
         OnAfterCheckDimValuePosting(TableID, No, TempDefaultDim);
+    end;
+
+    local procedure PriorityGreaterThan(Priority1: Integer; Priority2: Integer): Boolean
+    begin
+        exit((Priority1 > 0) AND ((Priority2 = 0) or (Priority1 < Priority2)));
+    end;
+
+    local procedure GetDimensionPriorityForTable(TableID: Integer): Integer
+    var
+        DefaultDimPriority: Record "Default Dimension Priority";
+    begin
+        if DefaultDimPriority.GET(SourceCode, TableID) then
+            exit(DefaultDimPriority.Priority);
+        exit(0);
     end;
 
     local procedure GetMissedMandatoryDimErr(DefaultDim: Record "Default Dimension"): Text
@@ -1087,44 +1098,45 @@ codeunit 408 DimensionManagement
             if (TableID[i] <> 0) and (No[i] <> '') then begin
                 DefaultDim.SetRange("Table ID", TableID[i]);
                 NoFilter[1] := No[i];
-                for j := 1 to 2 do begin
-                    DefaultDim.SetRange("No.", NoFilter[j]);
-                    if DefaultDim.FindSet then begin
-                        repeat
-                            TempDimBuf.SetRange("Dimension Code", DefaultDim."Dimension Code");
-                            case DefaultDim."Value Posting" of
-                                DefaultDim."Value Posting"::"Code Mandatory":
-                                    if (not TempDimBuf.FindFirst) or (TempDimBuf."Dimension Value Code" = '') then begin
-                                        LogError(
-                                          DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetMissedMandatoryDimErr(DefaultDim), '');
-                                        exit(false);
-                                    end;
-                                DefaultDim."Value Posting"::"Same Code":
-                                    if DefaultDim."Dimension Value Code" <> '' then begin
-                                        if (not TempDimBuf.FindFirst) or
-                                           (DefaultDim."Dimension Value Code" <> TempDimBuf."Dimension Value Code")
-                                        then begin
+                if UseDefaultDimensions(TableID[i], No[i]) then // NAVCZ
+                    for j := 1 to 2 do begin
+                        DefaultDim.SetRange("No.", NoFilter[j]);
+                        if DefaultDim.FindSet then begin
+                            repeat
+                                TempDimBuf.SetRange("Dimension Code", DefaultDim."Dimension Code");
+                                case DefaultDim."Value Posting" of
+                                    DefaultDim."Value Posting"::"Code Mandatory":
+                                        if (not TempDimBuf.FindFirst) or (TempDimBuf."Dimension Value Code" = '') then begin
                                             LogError(
-                                              DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeWrongDimErr(DefaultDim), '');
-                                            exit(false);
-                                        end
-                                    end else
-                                        if TempDimBuf.FindFirst then begin
-                                            LogError(
-                                              DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeBlankDimErr(DefaultDim), '');
+                                                DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetMissedMandatoryDimErr(DefaultDim), '');
                                             exit(false);
                                         end;
-                                DefaultDim."Value Posting"::"No Code":
-                                    if TempDimBuf.FindFirst then begin
-                                        LogError(
-                                          DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetNoCodeFilledDimErr(DefaultDim), '');
-                                        exit(false);
-                                    end;
-                            end;
-                        until DefaultDim.Next = 0;
-                        TempDimBuf.Reset;
+                                    DefaultDim."Value Posting"::"Same Code":
+                                        if DefaultDim."Dimension Value Code" <> '' then begin
+                                            if (not TempDimBuf.FindFirst) or
+                                               (DefaultDim."Dimension Value Code" <> TempDimBuf."Dimension Value Code")
+                                            then begin
+                                                LogError(
+                                                    DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeWrongDimErr(DefaultDim), '');
+                                                exit(false);
+                                            end
+                                        end else
+                                            if TempDimBuf.FindFirst then begin
+                                                LogError(
+                                                    DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeBlankDimErr(DefaultDim), '');
+                                                exit(false);
+                                            end;
+                                    DefaultDim."Value Posting"::"No Code":
+                                        if TempDimBuf.FindFirst then begin
+                                            LogError(
+                                                DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetNoCodeFilledDimErr(DefaultDim), '');
+                                            exit(false);
+                                        end;
+                                end;
+                            until DefaultDim.Next = 0;
+                            TempDimBuf.Reset;
+                        end;
                     end;
-                end;
             end;
         // NAVCZ
         if not CheckUserDimensionValues(0, TempDimBuf) then
@@ -2383,6 +2395,18 @@ codeunit 408 DimensionManagement
                 end;
             until DefaultDimension.Next = 0;
         end;
+    end;
+
+    local procedure UseDefaultDimensions(TableNo: Integer; No: Code[20]): Boolean
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        // NAVCZ
+        if TableNo <> Database::"Item Charge" then
+            exit(true);
+
+        ItemCharge.Get(No);
+        exit(not ItemCharge."Use Ledger Entry Dimensions");
     end;
 
     procedure ResolveDimValueFilter(var DimValueFilter: Text; DimensionCode: Code[20])

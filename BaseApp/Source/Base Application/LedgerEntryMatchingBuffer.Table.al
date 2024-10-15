@@ -61,6 +61,11 @@ table 1248 "Ledger Entry Matching Buffer"
             Caption = 'External Document No.';
             DataClassification = SystemMetadata;
         }
+        field(13; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+            DataClassification = SystemMetadata;
+        }
         field(20; "Remaining Amount"; Decimal)
         {
             Caption = 'Remaining Amount';
@@ -118,6 +123,7 @@ table 1248 "Ledger Entry Matching Buffer"
         "Posting Date" := CustLedgerEntry."Posting Date";
         "Document No." := CustLedgerEntry."Document No.";
         "External Document No." := CustLedgerEntry."External Document No.";
+        "Payment Reference" := CustLedgerEntry."Payment Reference";
 
         if UseLCYAmounts then
             "Remaining Amount" := CustLedgerEntry."Remaining Amt. (LCY)"
@@ -156,6 +162,7 @@ table 1248 "Ledger Entry Matching Buffer"
         "Posting Date" := VendorLedgerEntry."Posting Date";
         "Document No." := VendorLedgerEntry."Document No.";
         "External Document No." := VendorLedgerEntry."External Document No.";
+        "Payment Reference" := VendorLedgerEntry."Payment Reference";
 
         if UseLCYAmounts then
             "Remaining Amount" := VendorLedgerEntry."Remaining Amt. (LCY)"

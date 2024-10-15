@@ -174,6 +174,21 @@ table 9 "Country/Region"
         exit(CountryRegionCode <> CompanyInfo."Country/Region Code");
     end;
 
+    [Scope('OnPrem')]
+    procedure IsLocalCountry(CountryRegionCode: Code[10]; ShipTo: Boolean): Boolean
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        // NAVCZ
+        if CountryRegionCode = '' then
+            exit(true);
+
+        CompanyInfo.Get();
+        if ShipTo then
+            exit(CountryRegionCode = CompanyInfo."Ship-to Country/Region Code");
+        exit(CountryRegionCode = CompanyInfo."Country/Region Code");
+    end;
+
     procedure IsEUCountry(CountryRegionCode: Code[10]): Boolean
     var
         CountryRegion: Record "Country/Region";

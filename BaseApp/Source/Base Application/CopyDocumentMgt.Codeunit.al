@@ -1256,6 +1256,9 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     procedure TransfldsFromSalesToPurchLine(var FromSalesLine: Record "Sales Line"; var ToPurchLine: Record "Purchase Line")
+    var
+        DimMgt: Codeunit DimensionManagement;
+        DimensionSetIDArr: array[10] of Integer;
     begin
         OnBeforeTransfldsFromSalesToPurchLine(FromSalesLine, ToPurchLine);
 
@@ -1279,6 +1282,12 @@ codeunit 6620 "Copy Document Mgt."
             Validate("Direct Unit Cost");
             Description := FromSalesLine.Description;
             "Description 2" := FromSalesLine."Description 2";
+            if "Dimension Set ID" <> FromSalesLine."Dimension Set ID" then begin
+                DimensionSetIDArr[1] := "Dimension Set ID";
+                DimensionSetIDArr[2] := FromSalesLine."Dimension Set ID";
+                "Dimension Set ID" :=
+                  DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+            end;
             // NAVCZ
             "Tariff No." := FromSalesLine."Tariff No.";
             "Country/Region of Origin Code" := FromSalesLine."Country/Region of Origin Code";

@@ -107,9 +107,9 @@ codeunit 905 "Assembly Line Management"
             DueDateBeforeWorkDateMsgShown := (AssemblyLine."Due Date" < WorkDate) and ShowDueDateBeforeWorkDateMessage;
             AssemblyLine.ValidateLeadTimeOffset(
                 AssemblyHeader, BOMComponent."Lead-Time Offset", not DueDateBeforeWorkDateMsgShown and ShowDueDateBeforeWorkDateMessage);
-            AssemblyLine.Description := BOMComponent.Description;
             if AssemblyLine.Type = AssemblyLine.Type::Item then
                 AssemblyLine.Validate("Variant Code", BOMComponent."Variant Code");
+            AssemblyLine.Description := BOMComponent.Description;
             AssemblyLine.Position := BOMComponent.Position;
             AssemblyLine."Position 2" := BOMComponent."Position 2";
             AssemblyLine."Position 3" := BOMComponent."Position 3";

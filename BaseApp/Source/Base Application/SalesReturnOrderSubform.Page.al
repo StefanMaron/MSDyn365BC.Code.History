@@ -552,6 +552,8 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord();
+                        Commit();
                         ShowDeferralSchedule;
                     end;
                 }

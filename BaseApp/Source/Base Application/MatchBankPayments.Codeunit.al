@@ -50,7 +50,7 @@
         MatchingStmtLinesToRelatedPartyMsg: Label 'The matching of statement lines to related party is in progress.\\Please wait while the operation is being completed.\\#1####### @2@@@@@@@@@@@@@', Comment = '%1 = number of lines, %2 = progress bar';
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         BankAccountRecTotalAndMatchedLinesLbl: Label 'Total Bank Statement Lines: %1, of those applied: %2, and text-matched: %3', Locked = true;
-	MatchRelatedParty: Boolean;
+        MatchRelatedParty: Boolean;
         UseExtSetup: Boolean;
         NotApplyCustLedgerEntries: Boolean;
         NotApplyVendLedgerEntries: Boolean;
@@ -537,8 +537,9 @@
             OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled);
             if not IsHandled then
                 if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then
-                    DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-                    TempLedgerEntryMatchingBuffer."Document No.", TempLedgerEntryMatchingBuffer."External Document No.")
+                    DocumentMatching(
+                        BankPmtApplRule, BankAccReconciliationLine,TempLedgerEntryMatchingBuffer."Document No.",
+                        TempLedgerEntryMatchingBuffer."External Document No.",TempLedgerEntryMatchingBuffer."Payment Reference")
                 else
                     DocumentMatchingForBankLedgerEntry(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer);
 
@@ -605,7 +606,7 @@
         then begin
             RelatedPartyMatchingForAdvanceLetter(BankPmtApplRule, TempAdvanceLetterMatchingBuffer, BankAccReconciliationLine, AccountType);
             DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-              TempAdvanceLetterMatchingBuffer."Letter No.", TempAdvanceLetterMatchingBuffer."External Document No.");
+              TempAdvanceLetterMatchingBuffer."Letter No.", TempAdvanceLetterMatchingBuffer."External Document No.", '');
 
             AmountInclToleranceMatchingForAdvanceLetter(
               BankPmtApplRule, BankAccReconciliationLine, AccountType, TempAdvanceLetterMatchingBuffer."Remaining Amount");
@@ -1359,11 +1360,16 @@
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Partially;
     end;
 
-    local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35]; PaymentReference: Code[50])
     var
         SearchText: Text;
     begin
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No;
+
+        if (PaymentReference <> '') and (BankAccReconciliationLine."Payment Reference No." = PaymentReference) then begin
+            BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes;
+            exit;
+        end;
 
         SearchText := UpperCase(BankAccReconciliationLine."Transaction Text" + ' ' +
             BankAccReconciliationLine."Additional Transaction Info");
@@ -1533,7 +1539,7 @@
             -2: // Purchase Advance Letter
                 NoOfEntries +=
                   TempPurchAdvanceLetterMatchingBuffer.GetNoOfAdvanceLettersWithinRange(MinAmount, MaxAmount);
-                // NAVCZ
+        // NAVCZ
         end;
 
         if NoOfEntries = 1 then
@@ -1595,7 +1601,7 @@
                     exit(true);
                 if BankAccountNoWithoutSpecialChars(CustomerBankAccount."Bank Account No.") = ValueFromBankStatement then
                     exit(true);
-                // NAVCZ
+            // NAVCZ
             until CustomerBankAccount.Next = 0;
 
         exit(false);
@@ -1617,7 +1623,7 @@
                     exit(true);
                 if BankAccountNoWithoutSpecialChars(VendorBankAccount."Bank Account No.") = ValueFromBankStatement then
                     exit(true);
-                // NAVCZ
+            // NAVCZ
             until VendorBankAccount.Next = 0;
 
         exit(false);

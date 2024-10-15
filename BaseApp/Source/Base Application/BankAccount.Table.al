@@ -1019,7 +1019,7 @@ table 270 "Bank Account"
         if "No." = '' then begin
             // NAVCZ
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series"); 
+            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series");
             // NAVCZ
         end;
 
@@ -1084,6 +1084,7 @@ table 270 "Bank Account"
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = caption of field (Last Payment Statement No.)';
         CannotDeleteBalancingBankAccountErr: Label 'You cannot delete bank account that is used as balancing account in the Payment Registration Setup.', Locked = true;
         ConfirmDeleteBalancingBankAccountQst: Label 'This bank account is used as balancing account on the Payment Registration Setup page.\\Are you sure you want to delete it?';
+        CurrExchRateIsEmptyErr: Label 'There is no Currency Exchange Rate within the filter. Filters: %1.', Comment = '%1 = filters';
 
     procedure AssistEdit(OldBankAcc: Record "Bank Account"): Boolean
     begin
@@ -1280,7 +1281,7 @@ table 270 "Bank Account"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Replaced by functions TestNoSeries and GetNoSeriesCode','15.3')]
+    [Obsolete('Replaced by functions TestNoSeries and GetNoSeriesCode', '15.3')]
     procedure GetAccountNos(): Code[20]
     begin
         // NAVCZ
@@ -1521,6 +1522,20 @@ table 270 "Bank Account"
         TestField("Bank Statement Import Format");
         BankExportImportSetup.Get("Bank Statement Import Format");
         exit(BankExportImportSetup."Processing Codeunit ID");
+    end;
+
+    procedure CheckCurrExchRateExist(Date: Date)
+    var
+        CurrExchRate: Record "Currency Exchange Rate";
+    begin
+        // NAVCZ
+        if IsInLocalCurrency() then
+            exit;
+
+        CurrExchRate.SetRange("Currency Code", "Currency Code");
+        CurrExchRate.SetRange("Starting Date", 0D, Date);
+        if CurrExchRate.IsEmpty() then
+            Error(CurrExchRateIsEmptyErr, CurrExchRate.GetFilters());
     end;
 
     procedure IsLinkedToBankStatementServiceProvider(): Boolean

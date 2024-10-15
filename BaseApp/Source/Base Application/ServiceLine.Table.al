@@ -2156,6 +2156,7 @@ table 5902 "Service Line"
             trigger OnValidate()
             begin
                 UpdateDiscountsAmounts;
+		        UpdateUnitPrice(FieldNo(Warranty));
             end;
         }
         field(5936; "Contract No."; Code[20])

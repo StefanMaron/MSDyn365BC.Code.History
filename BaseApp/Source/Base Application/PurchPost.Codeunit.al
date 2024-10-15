@@ -1072,9 +1072,7 @@
                     PurchLine.TestField("Appl.-to Item Entry");
             end;
 
-            // NAVCZ
-            SetItemChargeDimensions(ItemChargeNo, ItemLedgShptEntryNo);
-            // NAVCZ
+            SetItemChargeDimensions(ItemChargeNo, ItemLedgShptEntryNo); // NAVCZ
 
             CollectPurchaseLineReservEntries(TempReservationEntry, ItemJnlLine);
             OriginalItemJnlLine := ItemJnlLine;
@@ -1281,9 +1279,6 @@
     local procedure PostItemChargePerOrder(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; ItemJnlLine2: Record "Item Journal Line"; ItemChargePurchLine: Record "Purchase Line"; var TempTrackingSpecificationChargeAssmt: Record "Tracking Specification" temporary)
     var
         NonDistrItemJnlLine: Record "Item Journal Line";
-        ItemCharge: Record "Item Charge";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         OriginalAmt: Decimal;
         OriginalAmtACY: Decimal;
@@ -1376,19 +1371,7 @@
             ItemJnlLine2."Shortcut Dimension 2 Code" := ItemChargePurchLine."Shortcut Dimension 2 Code";
             ItemJnlLine2."Dimension Set ID" := ItemChargePurchLine."Dimension Set ID";
             ItemJnlLine2."Gen. Prod. Posting Group" := ItemChargePurchLine."Gen. Prod. Posting Group";
-            // NAVCZ
-            if not ItemCharge.Get("Item Charge No.") then
-                Clear(ItemCharge);
-            if ItemCharge."Use Ledger Entry Dimensions" and (ItemJnlLine2."Item Shpt. Entry No." <> 0) then begin
-                ItemLedgerEntry.Get(ItemJnlLine2."Item Shpt. Entry No.");
-                DimSetEntry.SetRange("Dimension Set ID", ItemLedgerEntry."Dimension Set ID");
-                if not DimSetEntry.IsEmpty then begin
-                    ItemJnlLine2."Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
-                    ItemJnlLine2."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
-                    ItemJnlLine2."Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
-                end;
-            end;
-            // NAVCZ
+            ItemJnlLine2.SetItemChargeDimensions("Item Charge No.", ItemJnlLine2."Item Shpt. Entry No."); // NAVCZ
 
             OnPostItemChargePerOrderOnAfterCopyToItemJnlLine(
               ItemJnlLine2, ItemChargePurchLine, GLSetup, QtyToInvoice, TempItemChargeAssgntPurch);

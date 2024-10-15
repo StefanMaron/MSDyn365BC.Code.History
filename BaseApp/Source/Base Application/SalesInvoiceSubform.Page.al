@@ -542,6 +542,8 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord();
+                        Commit();
                         ShowDeferralSchedule;
                     end;
                 }

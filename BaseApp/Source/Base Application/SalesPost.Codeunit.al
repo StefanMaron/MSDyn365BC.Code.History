@@ -440,7 +440,7 @@
         CheckDimensions: Codeunit "Check Dimensions";
         ErrorContextElement: Codeunit "Error Context Element";
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
-        ReportDistributionManagement: Codeunit "Report Distribution Management";	
+        ReportDistributionManagement: Codeunit "Report Distribution Management";
         SetupRecID: RecordID;
         ModifyHeader: Boolean;
         RefreshTempLinesNeeded: Boolean;
@@ -1023,9 +1023,7 @@
             if not JobContractLine then begin
                 PostItemJnlLineBeforePost(ItemJnlLine, SalesLine, TempWhseJnlLine, PostWhseJnlLine, QtyToBeShippedBase);
 
-                // NAVCZ
-                SetItemChargeDimensions(ItemChargeNo, ItemLedgShptEntryNo);
-                // NAVCZ
+                SetItemChargeDimensions(ItemChargeNo, ItemLedgShptEntryNo); // NAVCZ
 
                 OriginalItemJnlLine := ItemJnlLine;
                 if not IsItemJnlPostLineHandled(ItemJnlLine, SalesLine, SalesHeader) then
@@ -1203,9 +1201,6 @@
     local procedure PostItemChargePerOrder(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; ItemJnlLine2: Record "Item Journal Line"; ItemChargeSalesLine: Record "Sales Line")
     var
         NonDistrItemJnlLine: Record "Item Journal Line";
-        ItemCharge: Record "Item Charge";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         QtyToInvoice: Decimal;
         Factor: Decimal;
@@ -1292,20 +1287,7 @@
             ItemJnlLine2."Shortcut Dimension 2 Code" := ItemChargeSalesLine."Shortcut Dimension 2 Code";
             ItemJnlLine2."Dimension Set ID" := ItemChargeSalesLine."Dimension Set ID";
             ItemJnlLine2."Gen. Prod. Posting Group" := ItemChargeSalesLine."Gen. Prod. Posting Group";
-
-            // NAVCZ
-            if not ItemCharge.Get("Item Charge No.") then
-                Clear(ItemCharge);
-            if ItemCharge."Use Ledger Entry Dimensions" and (ItemJnlLine2."Item Shpt. Entry No." <> 0) then begin
-                ItemLedgerEntry.Get(ItemJnlLine2."Item Shpt. Entry No.");
-                DimSetEntry.SetRange("Dimension Set ID", ItemLedgerEntry."Dimension Set ID");
-                if not DimSetEntry.IsEmpty() then begin
-                    ItemJnlLine2."Shortcut Dimension 1 Code" := ItemLedgerEntry."Global Dimension 1 Code";
-                    ItemJnlLine2."Shortcut Dimension 2 Code" := ItemLedgerEntry."Global Dimension 2 Code";
-                    ItemJnlLine2."Dimension Set ID" := ItemLedgerEntry."Dimension Set ID";
-                end;
-            end;
-            // NAVCZ
+            ItemJnlLine2.SetItemChargeDimensions("Item Charge No.", ItemJnlLine2."Item Shpt. Entry No."); // NAVCZ
 
             OnPostItemChargePerOrderOnAfterCopyToItemJnlLine(
               ItemJnlLine2, ItemChargeSalesLine, GLSetup, QtyToInvoice, TempItemChargeAssgntSales);
@@ -6977,7 +6959,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CheckItemChargeForReceive(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -7006,7 +6988,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CheckItemChargeForShip(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";

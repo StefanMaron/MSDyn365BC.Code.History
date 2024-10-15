@@ -24,6 +24,7 @@ codeunit 21 "Item Jnl.-Check Line"
         ItemJnlLine2: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
         ProdOrderLine: Record "Prod. Order Line";
+        FASetup: Record "FA Setup";
         DimMgt: Codeunit DimensionManagement;
         Text012: Label 'Warehouse handling is required for %1 = %2, %3 = %4, %5 = %6.';
         CalledFromInvtPutawayPick: Boolean;
@@ -82,8 +83,12 @@ codeunit 21 "Item Jnl.-Check Line"
             GLSetup.Get;
             if GLSetup."User Checks Allowed" and not CalledFromAdjustment then
                 UserChecksMgt.CheckItemJournalLine(ItemJnlLine);
-            if "FA No." <> '' then
+            if "FA No." <> '' then begin
                 TestField("Entry Type", "Entry Type"::"Negative Adjmt.");
+                FASetup.Get();
+                if FASetup."FA Maintenance By Maint. Code" then
+                    TestField("Maintenance Code");
+            end;
             // NAVCZ
 
             IsHandled := false;

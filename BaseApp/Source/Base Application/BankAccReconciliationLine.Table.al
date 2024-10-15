@@ -244,6 +244,10 @@ table 274 "Bank Acc. Reconciliation Line"
         {
             Caption = 'Related-Party City';
         }
+        field(27; "Payment Reference No."; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
         field(31; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';

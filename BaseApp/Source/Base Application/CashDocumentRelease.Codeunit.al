@@ -156,6 +156,7 @@ codeunit 11731 "Cash Document-Release"
             then
                 exit;
 
+            CalcFields("Amount Including VAT");
             case "Cash Document Type" of
                 "Cash Document Type"::Receipt:
                     CurrentBalance := BankAccount.CalcBalance + "Amount Including VAT";

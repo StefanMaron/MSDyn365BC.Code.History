@@ -945,6 +945,9 @@ table 37 "Sales Line"
             trigger OnValidate()
             begin
                 TestStatusOpen;
+                if ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT") and "Allow Invoice Disc." then
+                    Error(CannotAllowInvDiscountErr, FieldCaption("Allow Invoice Disc."));
+
                 if "Allow Invoice Disc." <> xRec."Allow Invoice Disc." then begin
                     if not "Allow Invoice Disc." then begin
                         "Inv. Discount Amount" := 0;
@@ -1404,6 +1407,8 @@ table 37 "Sales Line"
                 GetSalesHeader;
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
+                    Validate("Allow Invoice Disc.", false);
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
                 "VAT Clause Code" := VATPostingSetup."VAT Clause Code";
 
@@ -3513,6 +3518,7 @@ table 37 "Sales Line"
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.', Comment = '%1 = Type caption %2 = No.';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
+        CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
 
     procedure InitOutstanding()
     begin
@@ -4088,7 +4094,6 @@ table 37 "Sales Line"
 
     local procedure UpdatePrepmtAmounts()
     var
-        RemLineAmountToInvoice: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4096,6 +4101,21 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
+        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
+            "Prepayment VAT Difference" := 0;
+            if not PrePaymentLineAmountEntered then
+                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+            PrePaymentLineAmountEntered := false;
+        end;
+
+        if not IsTemporary() then
+            CheckPrepmtAmounts();
+    end;
+
+    local procedure CheckPrepmtAmounts()
+    var
+        RemLineAmountToInvoice: Decimal;
+    begin
         if "Prepayment %" <> 0 then begin
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
@@ -4103,9 +4123,6 @@ table 37 "Sales Line"
                 FieldError("Unit Price", StrSubstNo(Text047, FieldCaption("Prepayment %")));
         end;
         if true then begin // NAVCZ
-            "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then
-                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
             // NAVCZ
             if "Adjust Prepmt. Relation" and not IsServiceCharge then begin
                 if "Prepmt. Line Amount" + Currency."Amount Rounding Precision" < "Prepmt. Amt. Inv." then
@@ -4117,7 +4134,6 @@ table 37 "Sales Line"
                         Error(CannotChangePrepaidServiceChargeErr);
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
                 end;
-            PrePaymentLineAmountEntered := false;
             if ("Prepmt. Line Amount" <> 0) and (SalesHeader."Prepayment Type" <> SalesHeader."Prepayment Type"::Advance) then begin
                 RemLineAmountToInvoice :=
                   Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
@@ -4276,6 +4292,7 @@ table 37 "Sales Line"
                         begin
                             Amount := 0;
                             "VAT Base Amount" := 0;
+                            "Amount Including VAT" := ROUND(CalcLineAmount(), Currency."Amount Rounding Precision");
                         end;
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -5501,7 +5518,7 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
-        if Type = Type::Item then
+        if IsInventoriableItem() then
             case true of
                 ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and (Quantity >= 0):
                     if Location.RequireShipment("Location Code") then
@@ -6068,10 +6085,12 @@ table 37 "Sales Line"
 
         if "Prepmt Amt to Deduct" = 0 then
             LineAmount := Round(QtyToHandle * "Unit Price", Currency."Amount Rounding Precision")
-        else begin
-            LineAmount := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision");
-            LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
-        end;
+        else
+            if Quantity <> 0 then begin
+                LineAmount := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision");
+                LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
+            end else
+                LineAmount := 0;
 
         if QtyToHandle <> Quantity then
             LineDiscAmount := Round(LineAmount * "Line Discount %" / 100, Currency."Amount Rounding Precision")
@@ -6091,7 +6110,13 @@ table 37 "Sales Line"
         if "Line Discount %" = 100 then
             exit(0);
         // NAVCZ
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and
+
+        if IsCreditDocType() then
+            DocType := DocType::"Credit Memo"
+        else
+            DocType := DocType::Invoice;
+
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) and
            (SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Prepayment) // NAVCZ
         then
             if SalesPostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then

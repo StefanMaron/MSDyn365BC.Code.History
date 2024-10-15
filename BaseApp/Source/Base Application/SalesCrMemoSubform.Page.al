@@ -475,6 +475,8 @@ page 96 "Sales Cr. Memo Subform"
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord();
+                        Commit();
                         ShowDeferralSchedule;
                     end;
                 }

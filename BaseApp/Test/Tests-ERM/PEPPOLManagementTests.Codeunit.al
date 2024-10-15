@@ -762,7 +762,7 @@ codeunit 139155 "PEPPOL Management Tests"
     procedure GetAccountingCustomerPartyContact()
     var
         DummySalesHeader: Record "Sales Header";
-        Cont: Record Contact;
+        Customer: Record Customer;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         CustContactID: Text;
         CustContactName: Text;
@@ -770,29 +770,50 @@ codeunit 139155 "PEPPOL Management Tests"
         CustContactTelefax: Text;
         CustContactElectronicMail: Text;
     begin
-        // Setup
+        // [FEATURE] [UT]
+        // [SCENARIO 252033] GetAccountingCustomerPartyContact returns Bill-to Name when Contact is blank as ContactName
         Initialize;
 
-        Cont.Init;
-        Cont."No." := LibraryUtility.GenerateGUID;
-        Cont.Name := LibraryUtility.GenerateGUID;
-        Cont."Phone No." := LibraryUtility.GenerateGUID;
-        Cont."Telex No." := LibraryUtility.GenerateGUID;
-        Cont."E-Mail" := LibraryUtility.GenerateRandomEmail;
-        Cont.Insert;
+        Customer.Init;
+        Customer."No." := LibraryUtility.GenerateGUID;
+        Customer."Phone No." := LibraryUtility.GenerateGUID;
+        Customer."E-Mail" := LibraryUtility.GenerateGUID;
+        Customer.Insert;
 
-        DummySalesHeader."Bill-to Contact No." := Cont."No.";
+        DummySalesHeader."Bill-to Customer No." := Customer."No.";
+        DummySalesHeader."Bill-to Name" := LibraryUtility.GenerateGUID;
 
-        // Exercise
         PEPPOLMgt.GetAccountingCustomerPartyContact(
           DummySalesHeader, CustContactID, CustContactName, CustContactTelephone, CustContactTelefax, CustContactElectronicMail);
 
-        // Verify
-        // Assert.AreEqual(Cont."No.",CustContactID,'');
-        // Assert.AreEqual(Cont.Name,CustContactName,'');
-        // Assert.AreEqual(Cont."Phone No.",CustContactTelephone,'');
-        // Assert.AreEqual(Cont."Telex No.",CustContactTelefax,'');
-        // Assert.AreEqual(Cont.Email,CustContactElectronicMail,'');
+        Assert.AreEqual(DummySalesHeader."Bill-to Name", CustContactName, '');
+        Assert.AreEqual(Customer."Phone No.", CustContactTelephone, '');
+        Assert.AreEqual(Customer."E-Mail", CustContactElectronicMail, '');
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure GetAccountingCustomerPartyContactName()
+    var
+        DummySalesHeader: Record "Sales Header";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        CustContactID: Text;
+        CustContactName: Text;
+        CustContactTelephone: Text;
+        CustContactTelefax: Text;
+        CustContactElectronicMail: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 252033] GetAccountingCustomerPartyContact returns Bill-to Contact when not blank as ContactName
+        Initialize;
+
+        DummySalesHeader."Bill-to Name" := LibraryUtility.GenerateGUID;
+        DummySalesHeader."Bill-to Contact" := LibraryUtility.GenerateGUID;
+
+        PEPPOLMgt.GetAccountingCustomerPartyContact(
+          DummySalesHeader, CustContactID, CustContactName, CustContactTelephone, CustContactTelefax, CustContactElectronicMail);
+
+        Assert.AreEqual(DummySalesHeader."Bill-to Contact", CustContactName, '');
     end;
 
     [Test]
