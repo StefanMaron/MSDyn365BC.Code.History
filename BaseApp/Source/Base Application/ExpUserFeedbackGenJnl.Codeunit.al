@@ -42,6 +42,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 SetExportFlagOnAppliedCustVendLedgerEntry(GenJnlLine2, Flag);
                 GenJnlLine2.Validate("Check Exported", Flag);
                 GenJnlLine2.Validate("Exported to Payment File", Flag);
+                OnSetGivenExportFlagOnGenJnlLineOnBeforeGenJnlLineModify(GenJnlLine2, Flag);
                 GenJnlLine2.Modify(true);
             until GenJnlLine2.Next() = 0;
     end;
@@ -127,6 +128,11 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetExportFlagOnAppliedCustVendLedgerEntry(var GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetGivenExportFlagOnGenJnlLineOnBeforeGenJnlLineModify(var GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
     begin
     end;
 }

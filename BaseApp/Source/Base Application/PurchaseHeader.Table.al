@@ -104,7 +104,7 @@
                         Validate("Location Code", Vend."Location Code");
                 end;
 
-                OnValidateBuyFromVendorNoBeforeRecreateLines(Rec, CurrFieldNo);
+                OnValidateBuyFromVendorNoBeforeRecreateLines(Rec, CurrFieldNo, Vend);
 
                 if (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") or
                    (xRec."Currency Code" <> "Currency Code") or
@@ -357,7 +357,13 @@
             trigger OnValidate()
             var
                 ShipToAddr: Record "Ship-to Address";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipToCode(Rec, xRec, ShipToAddr, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckShipToCodeChange(Rec);
 
                 if "Ship-to Code" <> '' then begin
@@ -492,7 +498,7 @@
 
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor();
-                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not GetCalledFromWhseDoc() then
                         SkipJobCurrFactorUpdate := not ConfirmCurrencyFactorUpdate();
                 end;
 
@@ -2056,7 +2062,6 @@
 
             trigger OnValidate()
             var
-                ContBusinessRelation: Record "Contact Business Relation";
                 Cont: Record Contact;
             begin
                 TestStatusOpen();
@@ -2076,12 +2081,9 @@
                         exit;
                     end;
 
-                if ("Buy-from Vendor No." <> '') and ("Buy-from Contact No." <> '') then begin
-                    Cont.Get("Buy-from Contact No.");
-                    if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Vendor, "Buy-from Vendor No.") then
-                        if ContBusinessRelation."Contact No." <> Cont."Company No." then
-                            Error(Text038, Cont."No.", Cont.Name, "Buy-from Vendor No.");
-                end;
+                if ("Buy-from Vendor No." <> '') and ("Buy-from Contact No." <> '') then
+                    CheckContactRelatedToVendorCompany("Buy-from Contact No.", "Buy-from Vendor No.", FieldNo("Buy-from Contact No."));
+
                 if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") then
                     UpdateBuyFromVend("Buy-from Contact No.");
             end;
@@ -2095,7 +2097,13 @@
             var
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupPayToContactNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Pay-to Vendor No." <> '' then
                     if Cont.Get("Pay-to Contact No.") then
                         Cont.SetRange("Company No.", Cont."Company No.")
@@ -2115,7 +2123,6 @@
 
             trigger OnValidate()
             var
-                ContBusinessRelation: Record "Contact Business Relation";
                 Cont: Record Contact;
             begin
                 TestStatusOpen();
@@ -2135,12 +2142,10 @@
                         exit;
                     end;
 
-                if ("Pay-to Vendor No." <> '') and ("Pay-to Contact No." <> '') then begin
+                if ("Pay-to Vendor No." <> '') and ("Pay-to Contact No." <> '') then
                     Cont.Get("Pay-to Contact No.");
-                    if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Vendor, "Pay-to Vendor No.") then
-                        if ContBusinessRelation."Contact No." <> Cont."Company No." then
-                            Error(Text038, Cont."No.", Cont.Name, "Pay-to Vendor No.");
-                end;
+
+                CheckContactRelatedToVendorCompany("Pay-to Contact No.", "Pay-to Vendor No.", FieldNo("Pay-to Contact No."));
 
                 UpdatePayToVend("Pay-to Contact No.");
             end;
@@ -5267,7 +5272,13 @@
     var
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupBuyFromContactNo(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Buy-from Vendor No." <> '' then
             if Contact.Get("Buy-from Contact No.") then
                 Contact.SetRange("Company No.", Contact."Company No.")
@@ -6052,6 +6063,23 @@
         CopyPurchaseDocument.RunModal();
     end;
 
+    local procedure CheckContactRelatedToVendorCompany(ContactNo: Code[20]; VendorNo: Code[20]; CurrFieldNo: Integer);
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckContactRelatedToVendorCompany(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Contact.Get(ContactNo);
+        if ContactBusinessRelation.FindByRelation("Contact Business Relation Link to Table"::Vendor, VendorNo) then
+            if (ContactBusinessRelation."Contact No." <> Contact."Company No.") and (ContactBusinessRelation."Contact No." <> Contact."No.") then
+                Error(Text038, Contact."No.", Contact.Name, VendorNo);
+    end;
+
     local procedure CheckBlockedVendOnDocs(Vend: Record Vendor)
     var
         IsHandled: Boolean;
@@ -6180,6 +6208,11 @@
             exit;
 
         PurchLine.DeleteAll(true);
+    end;
+
+    procedure GetCalledFromWhseDoc(): Boolean
+    begin
+        exit(CalledFromWhseDoc);
     end;
 
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
@@ -6780,6 +6813,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContactRelatedToVendorCompany(PurchaseHeader: Record "Purchase Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDocDim(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6958,7 +6996,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateBuyFromVendorNoBeforeRecreateLines(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
+    local procedure OnValidateBuyFromVendorNoBeforeRecreateLines(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var Vendor: Record Vendor)
     begin
     end;
 
@@ -7304,6 +7342,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitPostingNoSeries(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCode(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var ShipToAddr: Record "Ship-to Address"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBuyFromContactNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPayToContactNo(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

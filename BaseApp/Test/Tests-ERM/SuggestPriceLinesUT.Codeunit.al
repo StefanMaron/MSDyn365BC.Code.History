@@ -1954,7 +1954,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [WHEN] Set "Asset Type" is 'Item', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
         Item[1].SetRange("No.", Item[1]."No.", Item[2]."No.");
-        LibraryVariableStorage.Enqueue(Item[1].GetView()); // to "Asset Filter"
+        SuggestPriceLinesUT.Enqueue(Item[1].GetView(false)); // to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
         MinQty := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         SalesPriceList.SuggestLines.Invoke();
@@ -2000,7 +2000,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [WHEN] Set "Asset Type" is 'Item', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
         Item[1].SetRange("No.", Item[1]."No.", Item[2]."No.");
-        LibraryVariableStorage.Enqueue(Item[1].GetView()); // to "Asset Filter"
+        SuggestPriceLinesUT.Enqueue(Item[1].GetView(false)); // to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
         MinQty := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         PurchasePriceList.SuggestLines.Invoke();
@@ -2127,7 +2127,7 @@ codeunit 134168 "Suggest Price Lines UT"
         // [WHEN] Set "Asset Type" is 'Item', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
         LibraryVariableStorage.Enqueue(Format("Price Asset Type"::Item));
         Item[1].SetRange("No.", Item[1]."No.", Item[2]."No.");
-        LibraryVariableStorage.Enqueue(Item[1].GetView()); // to "Asset Filter"
+        SuggestPriceLinesUT.Enqueue(Item[1].GetView(false)); // to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
         MinQty := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         LibraryVariableStorage.Enqueue(1); // "Adjustment Factor"
@@ -2175,13 +2175,13 @@ codeunit 134168 "Suggest Price Lines UT"
         // [WHEN] Set "Asset Type" is 'Service Cost', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
         LibraryVariableStorage.Enqueue(Format("Price Asset Type"::"Service Cost"));
         ServiceCost[1].SetRange(Code, ServiceCost[1].Code, ServiceCost[2].Code);
-        LibraryVariableStorage.Enqueue(ServiceCost[1].GetView()); // to "Asset Filter"
+        SuggestPriceLinesUT.Enqueue(ServiceCost[1].GetView(false)); // to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
         MinQty := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         LibraryVariableStorage.Enqueue(2); // "Adjustment Factor"
         PriceWorksheet.SuggestLines.Invoke();
 
-        //ServiceCost [THEN] Two price worksheet lines for default sales price list are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
+        // [THEN] Two price worksheet lines for default sales price list are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
         VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 2);
@@ -2223,13 +2223,13 @@ codeunit 134168 "Suggest Price Lines UT"
         // [WHEN] Set "Asset Type" is 'Service Cost', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding and click 'Ok'
         LibraryVariableStorage.Enqueue(Format("Price Asset Type"::"Service Cost"));
         ServiceCost[1].SetRange(Code, ServiceCost[1].Code, ServiceCost[2].Code);
-        LibraryVariableStorage.Enqueue(ServiceCost[1].GetView()); // to "Asset Filter"
+        SuggestPriceLinesUT.Enqueue(ServiceCost[1].GetView(false)); // to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
         MinQty := LibraryRandom.RandDec(100, 2);
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         LibraryVariableStorage.Enqueue(3); // "Adjustment Factor"
         PriceWorksheet.SuggestLines.Invoke();
 
-        //ServiceCost [THEN] Two price worksheet lines for default purchase price list are added for Items 'A' and 'B' , where "Unit Cost" is 'X' and 'Y', "Minimum Quantity" is 5
+        // [THEN] Two price worksheet lines for default purchase price list are added for Items 'A' and 'B' , where "Unit Cost" is 'X' and 'Y', "Minimum Quantity" is 5
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
         VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 3);
@@ -2271,7 +2271,7 @@ codeunit 134168 "Suggest Price Lines UT"
 
         // [WHEN] Set "Asset Type" is 'Item', "Asset Filter" is 'A', no rounding and click 'Ok'
         Item.SetRange("No.", Item."No.");
-        LibraryVariableStorage.Enqueue(Item.GetView()); // to "Asset Filter"
+        SuggestPriceLinesUT.Enqueue(Item.GetView(false)); // to set "Asset Filter" in OnAfterSetFilterByFilterPageBuilder
         LibraryVariableStorage.Enqueue(WorkDate() + 1); // "Exchange Rate Date"
         SalesPriceList.SuggestLines.Invoke();
 
@@ -2838,7 +2838,7 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsFalse(SuggestPriceLines."Force Defaults".Visible(), '"Force Defaults".Visible');
 
         SuggestPriceLines."Product Type".SetValue('Item');
-        SuggestPriceLines."Product Filter".SetValue(LibraryVariableStorage.DequeueText());
+        SuggestPriceLines."Product Filter".AssistEdit();//  .SetValue(LibraryVariableStorage.DequeueText());
         SuggestPriceLines."Minimum Quantity".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestPriceLines.OK().Invoke()
     end;
@@ -2863,7 +2863,7 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
         SuggestPriceLines."Product Type".SetValue(LibraryVariableStorage.DequeueText());
-        SuggestPriceLines."Product Filter".SetValue(LibraryVariableStorage.DequeueText());
+        SuggestPriceLines."Product Filter".AssistEdit();
         SuggestPriceLines."Minimum Quantity".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestPriceLines."Adjustment Factor".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestPriceLines.OK().Invoke()
@@ -2875,7 +2875,7 @@ codeunit 134168 "Suggest Price Lines UT"
         Assert.IsTrue(SuggestPriceLines."Exchange Rate Date".Visible(), '"Exchange Rate Date".Visible');
 
         SuggestPriceLines."Product Type".SetValue('Item');
-        SuggestPriceLines."Product Filter".SetValue(LibraryVariableStorage.DequeueText());
+        SuggestPriceLines."Product Filter".AssistEdit();
         SuggestPriceLines."Exchange Rate Date".SetValue(LibraryVariableStorage.DequeueDate());
         SuggestPriceLines.OK().Invoke()
     end;
@@ -3010,6 +3010,11 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(TheNotification.Message());
     end;
 
+    procedure Enqueue(TextValue: Text);
+    begin
+        LibraryVariableStorage.Enqueue(TextValue);
+    end;
+
     local procedure StoreVarLineNoRemove(var DuplicatePriceLines: TestPage "Duplicate Price Lines")
     var
         LineNo: Integer;
@@ -3060,5 +3065,11 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListFilters.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
         PriceListFilters.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
         PriceListFilters.OK().Invoke();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Price Line Filters", 'OnAfterSetFilterByFilterPageBuilder', '', false, false)]
+    local procedure OnAfterSetFilterByFilterPageBuilder(TableCaptionValue: Text; var FilterValue: Text[2048]);
+    begin
+        FilterValue := LibraryVariableStorage.DequeueText();
     end;
 }

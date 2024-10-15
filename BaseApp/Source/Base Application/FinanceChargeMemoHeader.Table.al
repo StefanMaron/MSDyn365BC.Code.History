@@ -1,4 +1,4 @@
-table 302 "Finance Charge Memo Header"
+﻿table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;
@@ -435,8 +435,6 @@ table 302 "Finance Charge Memo Header"
     }
 
     trigger OnDelete()
-    var
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         FinChrgMemoIssue.DeleteHeader(Rec, IssuedFinChrgMemoHdr);
 
@@ -447,15 +445,8 @@ table 302 "Finance Charge Memo Header"
         FinChrgMemoCommentLine.SetRange("No.", "No.");
         FinChrgMemoCommentLine.DeleteAll();
 
-        if IssuedFinChrgMemoHdr."No." <> '' then begin
-            Commit();
-            if ConfirmManagement.GetResponse(
-                 StrSubstNo(Text001, IssuedFinChrgMemoHdr."No."), true)
-            then begin
-                IssuedFinChrgMemoHdr.SetRecFilter;
-                IssuedFinChrgMemoHdr.PrintRecords(true, false, false)
-            end;
-        end;
+        if IssuedFinChrgMemoHdr."No." <> '' then
+            PrintConfirmation();
 
         PostCodeCheck.DeleteAddressID(DATABASE::"Finance Charge Memo Header", Rec.GetPosition, 0);
     end;
@@ -810,6 +801,25 @@ table 302 "Finance Charge Memo Header"
         with FinChrgMemoHeader do begin
             Copy(Rec);
             ReportSelection.PrintForCust(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FieldNo("Customer No."));
+        end;
+    end;
+
+    local procedure PrintConfirmation()
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintConfirmation(Rec, IssuedFinChrgMemoHdr, IsHandled);
+        if IsHandled then
+            exit;
+
+        Commit();
+        if ConfirmManagement.GetResponse(
+                StrSubstNo(Text001, IssuedFinChrgMemoHdr."No."), true)
+        then begin
+            IssuedFinChrgMemoHdr.SetRecFilter();
+            IssuedFinChrgMemoHdr.PrintRecords(true, false, false)
         end;
     end;
 
@@ -1170,6 +1180,11 @@ table 302 "Finance Charge Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; Customer: Record "Customer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintConfirmation(var FinChargeMemoHeader: Record "Finance Charge Memo Header"; var IssuedFinChrgMemoHdr: Record "Issued Fin. Charge Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -2180,7 +2180,7 @@
                 DocumentType::Statistic:
                     exit("Prepmt. Line Amount");
                 DocumentType::Invoice:
-                    if "Inv. Discount Amount" <> 0 then
+                    if ("Inv. Discount Amount" <> 0) and ("Prepmt. Line Amount" > ("Inv. Discount Amount" * "Prepayment %" / 100)) then
                         exit("Prepmt. Line Amount" - ("Inv. Discount Amount" * "Prepayment %" / 100) - "Prepmt. Amt. Inv.")
                     else
                         exit("Prepmt. Line Amount" - "Prepmt. Amt. Inv.");
@@ -2340,12 +2340,12 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInvoice(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreditMemo(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;

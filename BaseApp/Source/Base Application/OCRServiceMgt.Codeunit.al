@@ -631,7 +631,13 @@ codeunit 1294 "OCR Service Mgt."
         TempBlob: Codeunit "Temp Blob";
         XMLDOMManagement: Codeunit "XML DOM Management";
         InStream: InStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetOriginalOCRXMLRootNode(IncomingDocument, OriginalXMLRootNode, IsHandled);
+        if IsHandled then
+            exit;
+
         IncomingDocument.TestField(Posted, false);
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         IncomingDocumentAttachment.SetRange("Generated from OCR", true);
@@ -1288,6 +1294,11 @@ codeunit 1294 "OCR Service Mgt."
     begin
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success then
             Session.LogMessage('000089Q', OCRServiceUserCreatedInvoiceOutOfOCRedDocumentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetOriginalOCRXMLRootNode(IncomingDocument: Record "Incoming Document"; var OriginalXMLRootNode: DotNet XmlNode; var IsHandled: Boolean)
+    begin
     end;
 }
 
