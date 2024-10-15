@@ -1642,6 +1642,8 @@ page 30 "Item Card"
                         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
                         ItemTemplMgt.UpdateItemFromTemplate(Rec);
+                        EnableControls();
+                        CurrPage.Update();
                     end;
                 }
                 action(SaveAsTemplate)
@@ -2849,6 +2851,7 @@ page 30 "Item Card"
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
             OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
+            EnableControls();
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else

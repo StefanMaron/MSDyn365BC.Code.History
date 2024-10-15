@@ -55,8 +55,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesReceiptTxt: Label 'Sales Receipt';
         YesUseDefaultSettingsTxt: Label 'Yes (Use Default Settings)';
         PdfTxt: Label 'PDF';
-        ProfileSelectionCustomerQst: Label 'Confirm the first profile and use it for all selected customers.,Confirm the profile for each customer.,Use the default profile for all selected customers without confirmation.';
-        ProfileSelectionVendorQst: Label 'Confirm the first profile and use it for all selected vendors.,Confirm the profile for each vendor.,Use the default profile for all selected vendors without confirmation.';
+        ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
         InterruptedByEventSubscriberErr: Label 'Interrupted by an event subscriber';
@@ -1254,10 +1253,9 @@ codeunit 139197 DocumentSendingPostTests
 
         SalesCrMemoHeader.SendRecords;
 
-        // [THEN] Both invoices printed in seperate documents
+        // [THEN] Both invoices printed in a single document
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesCrMemoHeader1."No.", FileName);
-        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesCrMemoHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1315,10 +1313,9 @@ codeunit 139197 DocumentSendingPostTests
 
         SalesInvoiceHeader.SendRecords;
 
-        // [THEN] Both invoices printed in separate documents
+        // [THEN] Both invoices printed in a single document
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader1."No.", FileName);
-        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -3372,10 +3369,9 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.SendRecords;
 
-        // [THEN] Both invoices printed in separate documents
+        // [THEN] Both invoices printed in a single document
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader1."No.", FileName);
-        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -3431,7 +3427,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = "d@d.com"
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "d@d.com" // system gets from Document Layout of Bill-to Customer
 
@@ -3471,7 +3467,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3511,7 +3507,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3551,7 +3547,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3591,7 +3587,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = ���e@e.com���
+        // [GIVEN] “Sell-to Email” = “e@e.com”
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "e@e.com" // system gets Sales Document."Sell-to E-Mail"
 
@@ -3631,7 +3627,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = <blank> // system gets Sales Document."Sell-to E-Mail"
 
@@ -3671,7 +3667,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = "d@d.com"
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "d@d.com"
 
@@ -3711,7 +3707,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = "b@b.com"
 
@@ -3751,7 +3747,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = "c@c.com"
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = <blank>
 
@@ -3791,7 +3787,7 @@ codeunit 139197 DocumentSendingPostTests
         // [GIVEN] "Document Layout"[Customer-1]."E-Mail" = <blank>
         // [GIVEN] "Document Layout"[Customer-2]."E-Mail" = <blank>
         // [GIVEN] Posted Sales Order where "Sell-to Customer" = Customer[1], "Bill-to Customer" = Customer[2]
-        // [GIVEN] ���Sell-to Email��� = <blank>
+        // [GIVEN] “Sell-to Email” = <blank>
         // [WHEN] Send Email for posted sales invoice
         // [THEN] Target Email Address = <blank>
 
@@ -4886,7 +4882,7 @@ codeunit 139197 DocumentSendingPostTests
     procedure VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         LibraryVariableStorage.DequeueInteger; // dummy dequeue to test calls count
-        Assert.ExpectedMessage(ProfileSelectionCustomerQst, Options);
+        Assert.ExpectedMessage(ProfileSelectionQst, Options);
         Assert.ExpectedMessage(CustomerProfileSelectionInstrTxt, Instruction);
         Assert.AreEqual(3, Choice, 'Wrong default profile method selection option.');
         Choice := 0;
@@ -4897,7 +4893,7 @@ codeunit 139197 DocumentSendingPostTests
     procedure VerifyAndCancelVendorProfileSelectionMethodStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         LibraryVariableStorage.DequeueInteger; // dummy dequeue to test calls count
-        Assert.ExpectedMessage(ProfileSelectionVendorQst, Options);
+        Assert.ExpectedMessage(ProfileSelectionQst, Options);
         Assert.ExpectedMessage(VendorProfileSelectionInstrTxt, Instruction);
         Assert.AreEqual(3, Choice, 'Wrong default profile method selection option.');
         Choice := 0;

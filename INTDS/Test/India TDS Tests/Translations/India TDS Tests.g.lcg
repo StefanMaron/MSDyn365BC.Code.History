@@ -59,6 +59,15 @@
       <Cmt Name="Dev"><![CDATA[%1 and %2 = TCS Amount and TCS field Caption]D;]A;(LookupHint=Codeunit TDS On General Jnl - Method VerifyTDSEntry - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 627248516 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TDS On Payment Jnl - NamedType VerifyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 627248516 - Method 48770508 - NamedType 1947391627" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>

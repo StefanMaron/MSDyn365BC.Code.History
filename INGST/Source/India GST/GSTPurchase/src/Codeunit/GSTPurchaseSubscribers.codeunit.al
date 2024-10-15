@@ -36,16 +36,8 @@ codeunit 18080 "GST Purchase Subscribers"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostPurchaseDoc', '', false, false)]
     local procedure SetPaytoVendorFields(var PurchaseHeader: Record "Purchase Header")
-    var
-        PayToVendor: Record vendor;
-        GSTPostingManagement: Codeunit "GST Posting Management";
     begin
-        if (PurchaseHeader."Pay-to Vendor No." <> '') and (PurchaseHeader."Buy-from Vendor No." <> PurchaseHeader."Pay-to Vendor No.") then
-            if PayToVendor.Get(PurchaseHeader."Pay-to Vendor No.") then begin
-                GSTPostingManagement.SetPaytoVendorNo(PurchaseHeader."Pay-to Vendor No.");
-                GSTPostingManagement.SetBuyerSellerRegNo(PayToVendor."GST Registration No.");
-                GSTPostingManagement.SetBuyerSellerStateCode(PayToVendor."State Code");
-            end;
+        SetPayToVendorFieldsForPurchase(PurchaseHeader);
     end;
 
 #if not CLEAN20      
@@ -131,20 +123,19 @@ codeunit 18080 "GST Purchase Subscribers"
     end;
 
     //Invoice Discount Calculation
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch - Calc Disc. By Type", 'OnAfterResetRecalculateInvoiceDisc', '', False, False)]
-    local procedure ReCalculateGST(var PurchaseHeader: Record "Purchase Header")
+    procedure ReCalculateGST(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         CalculateTax: Codeunit "Calculate Tax";
     begin
-        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetCurrentKey("Document Type", "Document No.", "GST Group Code");
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetFilter("GST Group Code", '<>%1', '');
         if PurchaseLine.FindSet() then
             repeat
                 CalculateTax.CallTaxEngineOnPurchaseLine(PurchaseLine, PurchaseLine);
             until PurchaseLine.Next() = 0;
-
     end;
 
     //Purchase Quote to Order
@@ -483,6 +474,40 @@ codeunit 18080 "GST Purchase Subscribers"
     local procedure OnBeforemakeOrderActionEventForQuote(Rec: Record "Purchase Header")
     begin
         ValidateCurrentShippingToOptionForOrder(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterValidateEvent', 'GST Group Code', false, false)]
+    local procedure OnAfterValidateGSTGroup(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line")
+    begin
+        if Rec."GST Group Code" = '' then
+            exit;
+
+        CalculateTaxOnPurchase(Rec, xRec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterValidateEvent', 'GST Credit', false, false)]
+    local procedure OnAfterValidateGSTCredit(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line")
+    begin
+        if Rec."GST Credit" = Rec."GST Credit"::" " then
+            exit;
+
+        CalculateTaxOnPurchase(Rec, xRec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterValidateEvent', 'HSN/SAC Code', false, false)]
+    local procedure OnAfterValidateHSNSACCode(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line")
+    begin
+        if (Rec."GST Group Code" = '') and (Rec."HSN/SAC Code" = '') then
+            exit;
+
+        CalculateTaxOnPurchase(Rec, xRec);
+    end;
+
+    local procedure CalculateTaxOnPurchase(PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    var
+        CalculateTax: Codeunit "Calculate Tax";
+    begin
+        CalculateTax.CallTaxEngineOnPurchaseLine(PurchaseLine, xPurchaseLine);
     end;
 
     local procedure CalculateAsPerShipToOptionforQuoteAndInvoice(var ShipToOptions: Option "Default (Company Address)",Location,"Custom Address"; PurchaseHeader: Record "Purchase Header")
@@ -1476,7 +1501,7 @@ codeunit 18080 "GST Purchase Subscribers"
     end;
 
     local procedure UpdateCurrGSTJurisdictionType(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
-    begin        
+    begin
         if PurchaseHeader."GST Vendor Type" in [PurchaseHeader."GST Vendor Type"::SEZ, PurchaseHeader."GST Vendor Type"::Import] then begin
             PurchaseLine."GST Jurisdiction Type" := PurchaseLine."GST Jurisdiction Type"::Interstate;
             exit;
@@ -1542,6 +1567,21 @@ codeunit 18080 "GST Purchase Subscribers"
             else
                 IsEditable := true;
         end;
+    end;
+
+    local procedure SetPayToVendorFieldsForPurchase(var PurchaseHeader: Record "Purchase Header")
+    var
+        PayToVendor: Record vendor;
+        GSTPostingManagement: Codeunit "GST Posting Management";
+    begin
+        if (PurchaseHeader."Pay-to Vendor No." <> '') and (PurchaseHeader."Buy-from Vendor No." <> PurchaseHeader."Pay-to Vendor No.") then begin
+            if PayToVendor.Get(PurchaseHeader."Pay-to Vendor No.") then begin
+                GSTPostingManagement.SetPaytoVendorNo(PurchaseHeader."Pay-to Vendor No.");
+                GSTPostingManagement.SetBuyerSellerRegNo(PayToVendor."GST Registration No.");
+                GSTPostingManagement.SetBuyerSellerStateCode(PayToVendor."State Code");
+            end;
+        end else
+            GSTPostingManagement.SetPaytoVendorNo(PurchaseHeader."Pay-to Vendor No.");
     end;
 
     local procedure CheckUnregisteredReverseCharge(PurchHeader: Record "Purchase Header")

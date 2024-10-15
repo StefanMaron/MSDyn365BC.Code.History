@@ -28,7 +28,6 @@ tableextension 18392 "GST Transfer Line Ext" extends "Transfer Line"
         {
             DataClassification = CustomerContent;
             Caption = 'GST Group Code';
-            Editable = false;
             TableRelation = "GST Group";
             trigger OnValidate()
             begin
@@ -39,7 +38,6 @@ tableextension 18392 "GST Transfer Line Ext" extends "Transfer Line"
         {
             DataClassification = CustomerContent;
             Caption = 'HSN/SAC Code';
-            Editable = false;
             TableRelation = "HSN/SAC".Code where("GST Group Code" = field("GST Group Code"));
         }
         field(18396; Exempted; Boolean)
