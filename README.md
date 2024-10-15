@@ -19,14 +19,10 @@ The repository will automatically update itself from the artifacts once a day:
 
 ## Differences
 
-Main differences between the https://github.com/StefanMaron/MSDyn365BC.Code.History repo:
-- Builds on sandbox instead of OnPrem artifacts to include hotfixes
-- localization branches only include the localized code, so some of them are empty, some just have the base app (Check w1 branches for all the other code)
+Main differences between the old version of the repo:
 - the commits are added by pipelines to reduce runtime
 - the pipelines will be scheduled to run daily once the initial load is done.
-- there will be branches to cover NextMajor/Minor as well (Look out for suffix vNext in the branches)
 - the main branch is just holding the scripts, switch branch to see the BC Code
-- Because of the crazy number of versions, I did limit this repo to start with 23.5
 - to keep the size of this repo at least in some boundaries, I decided to not include any translation files.
 
 ## Partial Clone (Subset of Branches)
