@@ -1,7 +1,7 @@
 page 5602 "Fixed Asset Statistics"
 {
     Caption = 'Fixed Asset Statistics';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = Card;

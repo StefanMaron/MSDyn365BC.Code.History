@@ -2616,6 +2616,76 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         WarehouseShipmentHeader.TestField("Shipment Date", SalesHeader."Shipment Date");
     end;
 
+    [Test]
+    procedure VerifyRegisterWarehousePickForAdditionalUoMWhenShippedQtyIsRounded()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        AdditionalItemUOM: Record "Item Unit of Measure";
+        Bin: Record Bin;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [SCENARIO 493233] Verify Register Warehouse Pick for additional UoM when shipped qty is rounded 
+        Initialize();
+        ItemJournalSetup();
+
+        // [GIVEN] Create Item with additional UoM
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create additional UoM for Item
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(AdditionalItemUOM, Item."No.", UnitOfMeasure.Code, 7.39368);
+
+        // [GIVEN] Set additional UoM to Sales UoM
+        Item.Validate("Sales Unit of Measure", UnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create and Register Warehouse Item Journal Line
+        FindBinForPickZone(Bin, LocationWhite.Code, true);  // PICK Zone.
+        UpdateInventoryUsingWhseJournal(Bin, Item, 1000, '');
+
+        // [GIVEN] Calc. Warehouse Adj. for Item and Post Item Journal
+        CalcWhseAdjustmentAndPostItemJournalLine(Item);
+
+        // [GIVEN] Create Sales Order with Item and Release
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, Item."No.", 192, LocationWhite.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order
+        CreateWarehouseShipmentFromSalesHeader(SalesHeader);
+
+        // [GIVEN] Create Warehouse Pick from Warehouse Shipment
+        CreatePickFromWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        // [GIVEN] Register Pick
+        RegisterWarehouseActivity(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Post Ship for Warehouse Shipment
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Create and Register Warehouse Item Journal Line
+        UpdateInventoryUsingWhseJournal(Bin, Item, 1000, '');
+
+        // [GIVEN] Calc. Warehouse Adj. for Item and Post Item Journal
+        CalcWhseAdjustmentAndPostItemJournalLine(Item);
+
+        // [GIVEN] Create Warehouse Pick
+        CreatePickFromWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+
+        // [WHEN] Register Pick
+        RegisterWarehouseActivity(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [THEN] Verify Warehouse Pick is registed, and warehouse shipment is posted
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5142,6 +5212,43 @@ codeunit 137155 "SCM Warehouse - Shipping II"
             ItemLedgerEntry.TestField(Quantity, Quantity);
             ItemLedgerEntry.Next();
         end;
+    end;
+
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20])
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        FilterWarehouseShipmentLine(WarehouseShipmentLine, SourceNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+    end;
+
+    local procedure FilterWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceNo: Code[20])
+    begin
+        WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+    end;
+
+    local procedure CalcWhseAdjustmentAndPostItemJournalLine(Item: Record Item)
+    begin
+        SelectAndClearItemJournalBatch(ItemJournalBatch."Template Type"::Item);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure SelectAndClearItemJournalBatch(Type: Enum "Item Journal Template Type")
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, Type);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+    end;
+
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
     end;
 
     [ModalPageHandler]

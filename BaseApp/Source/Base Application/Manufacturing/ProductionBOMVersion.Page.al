@@ -1,7 +1,7 @@
 page 99000809 "Production BOM Version"
 {
     Caption = 'Production BOM Version';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = ListPlus;
     SourceTable = "Production BOM Version";
 
