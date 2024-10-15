@@ -224,12 +224,14 @@ page 99000915 "Work Center Task List"
 
                     trigger OnAction()
                     var
+                        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
                         CalculateProdOrder: Codeunit "Calculate Prod. Order";
                     begin
                         if "Prod. Order No." = '' then
                             exit;
 
-                        CalculateProdOrder.AssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(Rec);
+                        ProdOrderRoutingLine.Copy(Rec);
+                        CalculateProdOrder.AssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(ProdOrderRoutingLine);
 
                         CurrPage.Update();
                     end;
