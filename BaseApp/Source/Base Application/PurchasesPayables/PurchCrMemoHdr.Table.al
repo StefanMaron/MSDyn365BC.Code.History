@@ -556,6 +556,11 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Price Calculation Method';
         }
+        field(8001; "Draft Cr. Memo SystemId"; Guid)
+        {
+            Caption = 'Draft Cr. Memo System Id';
+            DataClassification = SystemMetadata;
+        }
         field(10501; "Type of Supply Code"; Code[10])
         {
             Caption = 'Type of Supply Code';

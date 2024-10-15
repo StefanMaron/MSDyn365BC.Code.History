@@ -1866,6 +1866,7 @@ page 30 "Item Card"
                     Caption = 'Marketing Text';
                     Image = TextFieldConfirm;
                     ToolTip = 'Review and edit the marketing text';
+                    Visible = EntityTextEnabled;
 
                     trigger OnAction()
                     var

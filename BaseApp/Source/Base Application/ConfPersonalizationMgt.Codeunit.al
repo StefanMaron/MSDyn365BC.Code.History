@@ -363,6 +363,27 @@ codeunit 9170 "Conf./Personalization Mgt."
             until UserGroupMember.Next() = 0;
     end;
 
+    [Scope('OnPrem')]
+    procedure ChangePersonalizationForUserGroupMembers(xUserGroup: Record "User Group"; UserGroup: Record "User Group")
+    var
+        UserGroupMember: Record "User Group Member";
+        UserPersonalization: Record "User Personalization";
+    begin
+        UserGroupMember.SetRange("User Group Code", UserGroup.Code);
+        if UserGroupMember.FindSet() then
+            repeat
+                UserPersonalization.Get(UserGroupMember."User Security ID");
+                if (UserPersonalization."Profile ID" = xUserGroup."Default Profile ID") and
+                   (not UserHasOtherUserGroupsSupportingProfile(UserGroupMember."User Security ID", xUserGroup."Default Profile ID", UserGroup.Code))
+                then begin
+                    UserPersonalization.Validate("Profile ID", UserGroup."Default Profile ID");
+                    UserPersonalization.Scope := UserGroup."Default Profile Scope";
+                    UserPersonalization."App ID" := UserGroup."Default Profile App ID";
+                    UserPersonalization.Modify(true);
+                end;
+            until UserGroupMember.Next() = 0;
+    end;
+
     local procedure UserHasOtherUserGroupsSupportingProfile(UserSecurityID: Guid; ProfileID: Code[30]; UserGroupCode: Code[20]): Boolean
     var
         UserGroupMember: Record "User Group Member";

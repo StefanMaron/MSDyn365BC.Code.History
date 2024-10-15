@@ -494,6 +494,7 @@
         // Apply and Unapply General Journal Lines for Payment and Invoice. Take a Random Amount greater than 100 (Standard Value).
         CreateGeneralJournalLine(GenJournalLine, 1, EmployeeNo, DocumentType, Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("VAT Reporting Date", PostingDate);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;

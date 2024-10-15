@@ -565,6 +565,7 @@
                   tabledata "Production Order" = rm,
                   tabledata "Purch. Comment Line" = RIMD,
                   tabledata "Purch. Comment Line Archive" = RIMD,
+                  tabledata "Purch. Cr. Memo Entity Buffer" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = IM,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,

@@ -61,6 +61,7 @@ codeunit 139606 "Shpfy Shipping Test"
         OrderLine."Shopify Product Id" := Any.IntegerInRange(10000, 99999);
         OrderLine."Shopify Variant Id" := Any.IntegerInRange(10000, 99999);
         OrderLine."Line Id" := Any.IntegerInRange(10000, 99999);
+        OrderLine.Quantity := Any.IntegerInRange(1, 10);
         OrderLine.Insert();
 
         exit(OrderHeader."Shopify Order Id");
@@ -87,13 +88,14 @@ codeunit 139606 "Shpfy Shipping Test"
                 FulfillmentOrderLine."Shopify Order Id" := FulfillmentOrderHeader."Shopify Order Id";
                 FulfillmentOrderLine."Shopify Product Id" := OrderLine."Shopify Product Id";
                 FulfillmentOrderLine."Shopify Variant Id" := OrderLine."Shopify Variant Id";
+                FulfillmentOrderLine."Remaining Quantity" := OrderLine.Quantity;
                 FulfillmentOrderLine.Insert();
             until OrderLine.Next() = 0;
 
         exit(FulfillmentOrderHeader."Shopify Fulfillment Order Id");
     end;
 
-    local procedure CreateRandomSalesShipment(var SalesShipmentHeader: record "Sales Shipment Header"; ShopifyOrderId: BigInteger; LocationCode: Code[10])
+    local procedure CreateRandomSalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header"; ShopifyOrderId: BigInteger; LocationCode: Code[10])
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         OrderLine: Record "Shpfy Order Line";
@@ -113,7 +115,7 @@ codeunit 139606 "Shpfy Shipping Test"
                 SalesShipmentLine.Type := SalesShipmentLine.type::Item;
                 SalesShipmentLine."No." := Any.AlphanumericText(MaxStrLen(SalesShipmentLine."No."));
                 SalesShipmentLine."Shpfy Order Line Id" := OrderLine."Line Id";
-                SalesShipmentLine.Quantity := Any.DecimalInRange(10, 0);
+                SalesShipmentLine.Quantity := OrderLine.Quantity;
                 SalesShipmentLine."Location Code" := LocationCode;
                 SalesShipmentLine.Insert();
             until OrderLine.Next() = 0;

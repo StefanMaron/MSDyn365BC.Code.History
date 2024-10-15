@@ -2493,7 +2493,7 @@
     begin
         exit(not (TableId in [Database::"Integration Table Mapping", Database::"Integration Field Mapping",
                                                 Database::"Sales Invoice Entity Aggregate", Database::"Sales Order Entity Buffer", Database::"Sales Quote Entity Buffer",
-                                                Database::"Sales Cr. Memo Entity Buffer", Database::"Purch. Inv. Entity Aggregate"]))
+                                                Database::"Sales Cr. Memo Entity Buffer", Database::"Purch. Inv. Entity Aggregate", Database::"Purch. Cr. Memo Entity Buffer"]));
 
     end;
 

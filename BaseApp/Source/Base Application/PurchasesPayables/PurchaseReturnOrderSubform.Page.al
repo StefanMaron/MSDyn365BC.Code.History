@@ -401,6 +401,18 @@ page 6641 "Purchase Return Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
                 field("Return Qty. to Ship"; Rec."Return Qty. to Ship")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -1189,6 +1201,7 @@ page 6641 "Purchase Return Order Subform"
     trigger OnOpenPage()
     var
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         AttachingLinesEnabled :=
             PurchasesPayablesSetup."Auto Post Non-Invt. via Whse." = PurchasesPayablesSetup."Auto Post Non-Invt. via Whse."::"Attached/Assigned";
@@ -1197,6 +1210,7 @@ page 6641 "Purchase Return Order Subform"
         SetItemReferenceVisibility();
 
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
+        ShowNonDedVATInLines := NonDeductibleVAT.ShowNonDeductibleVATInLines();
     end;
 
     var
@@ -1221,6 +1235,7 @@ page 6641 "Purchase Return Order Subform"
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
         AttachingLinesEnabled: Boolean;
+        ShowNonDedVATInLines: Boolean;
 
     protected var
         TotalPurchaseHeader: Record "Purchase Header";

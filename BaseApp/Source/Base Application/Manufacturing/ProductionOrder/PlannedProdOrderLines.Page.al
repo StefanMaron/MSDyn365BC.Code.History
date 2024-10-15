@@ -444,6 +444,7 @@ page 99000814 "Planned Prod. Order Lines"
                     Caption = 'Ro&uting';
                     Image = Route;
                     ToolTip = 'View or edit the operations list of the parent item on the line.';
+                    ShortCutKey = 'Ctrl+Alt+R';
 
                     trigger OnAction()
                     begin
@@ -456,6 +457,7 @@ page 99000814 "Planned Prod. Order Lines"
                     Caption = 'Components';
                     Image = Components;
                     ToolTip = 'View or edit the production order components of the parent item on the line.';
+                    ShortCutKey = 'Ctrl+Alt+C';
 
                     trigger OnAction()
                     begin

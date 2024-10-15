@@ -22,24 +22,24 @@
             if not Confirm(Text000) then
                 exit;
 
-        SalesShptLine.Copy(Rec);
+        SalesShipmentLine.Copy(Rec);
         Code();
         UpdateItemAnalysisView.UpdateAll(0, true);
-        Rec := SalesShptLine;
+        Rec := SalesShipmentLine;
     end;
 
     var
-        SalesShptLine: Record "Sales Shipment Line";
-        TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
-        TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
+        SalesShipmentLine: Record "Sales Shipment Line";
+        TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary;
+        TempGlobalItemLedgerEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
-        UndoPostingMgt: Codeunit "Undo Posting Management";
+        UndoPostingManagement: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        WhseUndoQty: Codeunit "Whse. Undo Quantity";
+        WhseUndoQuantity: Codeunit "Whse. Undo Quantity";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
-        AsmPost: Codeunit "Assembly-Post";
-        UOMMgt: Codeunit "Unit of Measure Management";
-        ATOWindow: Dialog;
+        AssemblyPost: Codeunit "Assembly-Post";
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+        ATOWindowDialog: Dialog;
         HideDialog: Boolean;
         NextLineNo: Integer;
 
@@ -62,97 +62,97 @@
 
     local procedure "Code"()
     var
-        PostedWhseShptLine: Record "Posted Whse. Shipment Line";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
         SalesLine: Record "Sales Line";
-        ServItem: Record "Service Item";
+        ServiceItem: Record "Service Item";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
-        Window: Dialog;
+        WindowDialog: Dialog;
         ItemShptEntryNo: Integer;
         DocLineNo: Integer;
         DeleteServItems: Boolean;
         PostedWhseShptLineFound: Boolean;
     begin
-        with SalesShptLine do begin
+        with SalesShipmentLine do begin
             Clear(ItemJnlPostLine);
             SetCurrentKey("Item Shpt. Entry No.");
             SetFilter(Quantity, '<>0');
             SetRange(Correction, false);
-            OnCodeOnAfterSalesShptLineSetFilters(SalesShptLine);
+            OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine);
             if IsEmpty() then
                 Error(AlreadyReversedErr);
             FindFirst();
             repeat
                 if not HideDialog then
-                    Window.Open(Text003);
-                CheckSalesShptLine(SalesShptLine);
+                    WindowDialog.Open(Text003);
+                CheckSalesShptLine(SalesShipmentLine);
             until Next() = 0;
 
-            ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
-            ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
-            if ServItem.FindFirst() then
-                DeleteServItems := ShouldDeleteServItems(ServItem);
+            ServiceItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
+            ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
+            if ServiceItem.FindFirst() then
+                DeleteServItems := ShouldDeleteServItems(ServiceItem);
 
             Find('-');
             repeat
-                OnCodeOnBeforeUndoLoop(SalesShptLine);
-                TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty() then
-                    TempGlobalItemLedgEntry.DeleteAll();
+                OnCodeOnBeforeUndoLoop(SalesShipmentLine);
+                TempGlobalItemLedgerEntry.Reset();
+                if not TempGlobalItemLedgerEntry.IsEmpty() then
+                    TempGlobalItemLedgerEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
                 if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
-                    Window.Open(Text001);
+                    WindowDialog.Open(Text001);
 
                 if Type = Type::Item then begin
                     PostedWhseShptLineFound :=
-                    WhseUndoQty.FindPostedWhseShptLine(
-                        PostedWhseShptLine, DATABASE::"Sales Shipment Line", "Document No.",
+                    WhseUndoQuantity.FindPostedWhseShptLine(
+                        PostedWhseShipmentLine, DATABASE::"Sales Shipment Line", "Document No.",
                         DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
 
                     Clear(ItemJnlPostLine);
-                    ItemShptEntryNo := PostItemJnlLine(SalesShptLine, DocLineNo);
+                    ItemShptEntryNo := PostItemJnlLine(SalesShipmentLine, DocLineNo);
                 end else
-                    DocLineNo := GetCorrectionLineNo(SalesShptLine);
+                    DocLineNo := GetCorrectionLineNo(SalesShipmentLine);
 
-                InsertNewShipmentLine(SalesShptLine, ItemShptEntryNo, DocLineNo);
-                OnAfterInsertNewShipmentLine(SalesShptLine, PostedWhseShptLine, PostedWhseShptLineFound, DocLineNo, ItemShptEntryNo);
+                InsertNewShipmentLine(SalesShipmentLine, ItemShptEntryNo, DocLineNo);
+                OnAfterInsertNewShipmentLine(SalesShipmentLine, PostedWhseShipmentLine, PostedWhseShptLineFound, DocLineNo, ItemShptEntryNo);
 
                 if PostedWhseShptLineFound then
-                    WhseUndoQty.UndoPostedWhseShptLine(PostedWhseShptLine);
+                    WhseUndoQuantity.UndoPostedWhseShptLine(PostedWhseShipmentLine);
 
-                TempWhseJnlLine.SetRange("Source Line No.", "Line No.");
-                WhseUndoQty.PostTempWhseJnlLineCache(TempWhseJnlLine, WhseJnlRegisterLine);
+                TempWarehouseJournalLine.SetRange("Source Line No.", "Line No.");
+                WhseUndoQuantity.PostTempWhseJnlLineCache(TempWarehouseJournalLine, WhseJnlRegisterLine);
 
-                UndoPostATO(SalesShptLine, WhseJnlRegisterLine);
+                UndoPostATO(SalesShipmentLine, WhseJnlRegisterLine);
 
-                UpdateOrderLine(SalesShptLine);
+                UpdateOrderLine(SalesShipmentLine);
                 if PostedWhseShptLineFound then
-                    WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
+                    WhseUndoQuantity.UpdateShptSourceDocLines(PostedWhseShipmentLine);
 
                 if ("Blanket Order No." <> '') and ("Blanket Order Line No." <> 0) then
-                    UpdateBlanketOrder(SalesShptLine);
+                    UpdateBlanketOrder(SalesShipmentLine);
 
                 if DeleteServItems then
-                    DeleteSalesShptLineServItems(SalesShptLine);
+                    DeleteSalesShptLineServItems(SalesShipmentLine);
 
                 "Quantity Invoiced" := Quantity;
                 "Qty. Invoiced (Base)" := "Quantity (Base)";
                 "Qty. Shipped Not Invoiced" := 0;
                 Correction := true;
 
-                OnBeforeSalesShptLineModify(SalesShptLine);
+                OnBeforeSalesShptLineModify(SalesShipmentLine);
                 Modify();
-                OnAfterSalesShptLineModify(SalesShptLine, DocLineNo);
+                OnAfterSalesShptLineModify(SalesShipmentLine, DocLineNo);
 
-                UndoFinalizePostATO(SalesShptLine);
+                UndoFinalizePostATO(SalesShipmentLine);
             until Next() = 0;
 
             MakeInventoryAdjustment();
         end;
 
-        OnAfterCode(SalesShptLine);
+        OnAfterCode(SalesShipmentLine);
     end;
 
     local procedure ShouldDeleteServItems(var ServiceItem: Record "Service Item") Result: Boolean
@@ -160,7 +160,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetDeleteServItems(SalesShptLine, ServiceItem, HideDialog, Result, IsHandled);
+        OnBeforeGetDeleteServItems(SalesShipmentLine, ServiceItem, HideDialog, Result, IsHandled);
         if IsHandled then
             exit;
 
@@ -170,27 +170,27 @@
             Result := true;
     end;
 
-    local procedure CheckSalesShptLine(SalesShptLine: Record "Sales Shipment Line")
+    local procedure CheckSalesShptLine(SalesShipmentLine2: Record "Sales Shipment Line")
     var
-        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         IsHandled: Boolean;
         SkipTestFields: Boolean;
         SkipUndoPosting: Boolean;
         SkipUndoInitPostATO: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesShptLine(SalesShptLine, IsHandled, SkipTestFields, SkipUndoPosting, SkipUndoInitPostATO);
+        OnBeforeCheckSalesShptLine(SalesShipmentLine2, IsHandled, SkipTestFields, SkipUndoPosting, SkipUndoInitPostATO);
         if not IsHandled then
-            with SalesShptLine do begin
+            with SalesShipmentLine2 do begin
                 if not SkipTestFields then begin
                     if Correction then
                         Error(AlreadyReversedErr);
 
                     IsHandled := false;
-                    OnCheckSalesShptLineOnBeforeHasInvoicedNotReturnedQuantity(SalesShptLine, IsHandled);
+                    OnCheckSalesShptLineOnBeforeHasInvoicedNotReturnedQuantity(SalesShipmentLine2, IsHandled);
                     if not IsHandled then
                         if "Qty. Shipped Not Invoiced" <> Quantity then
-                            if HasInvoicedNotReturnedQuantity(SalesShptLine) then
+                            if HasInvoicedNotReturnedQuantity(SalesShipmentLine2) then
                                 Error(Text005);
                 end;
                 if Type = Type::Item then begin
@@ -198,42 +198,41 @@
                         TestField("Drop Shipment", false);
 
                     if not SkipUndoPosting then begin
-                        UndoPostingMgt.TestSalesShptLine(SalesShptLine);
+                        UndoPostingManagement.TestSalesShptLine(SalesShipmentLine2);
 
                         IsHandled := false;
-                        OnCheckSalesShptLineOnBeforeCollectItemLedgEntries(SalesShptLine, TempItemLedgEntry, IsHandled);
+                        OnCheckSalesShptLineOnBeforeCollectItemLedgEntries(SalesShipmentLine2, TempItemLedgerEntry, IsHandled);
                         if not IsHandled then
-                            UndoPostingMgt.CollectItemLedgEntries(
-                                TempItemLedgEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                        UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.", "Qty. Shipped Not Invoiced" <> Quantity);
+                            UndoPostingManagement.CollectItemLedgEntries(
+                                TempItemLedgerEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+                        UndoPostingManagement.CheckItemLedgEntries(TempItemLedgerEntry, "Line No.", "Qty. Shipped Not Invoiced" <> Quantity);
                     end;
                     if not SkipUndoInitPostATO then
-                        UndoInitPostATO(SalesShptLine);
+                        UndoInitPostATO(SalesShipmentLine2);
                 end;
             end;
 
-        OnAfterCheckSalesShptLine(SalesShptLine, TempItemLedgEntry);
+        OnAfterCheckSalesShptLine(SalesShipmentLine2, TempItemLedgerEntry);
     end;
 
-    procedure GetCorrectionLineNo(SalesShptLine: Record "Sales Shipment Line") Result: Integer;
+    procedure GetCorrectionLineNo(SalesShipmentLine2: Record "Sales Shipment Line") Result: Integer;
     var
-        SalesShptLine2: Record "Sales Shipment Line";
+        SalesShipmentLine3: Record "Sales Shipment Line";
         LineSpacing: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetCorrectionLineNo(SalesShptLine, Result, IsHandled);
+        OnBeforeGetCorrectionLineNo(SalesShipmentLine2, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
-        with SalesShptLine do begin
-            SalesShptLine2.SetRange("Document No.", "Document No.");
-            SalesShptLine2."Document No." := "Document No.";
-            SalesShptLine2."Line No." := "Line No.";
-            SalesShptLine2.Find('=');
-
-            if SalesShptLine2.Find('>') then begin
-                LineSpacing := (SalesShptLine2."Line No." - "Line No.") div 2;
+        with SalesShipmentLine2 do begin
+            SalesShipmentLine3.SetRange("Document No.", "Document No.");
+            SalesShipmentLine3."Document No." := "Document No.";
+            SalesShipmentLine3."Line No." := "Line No.";
+            SalesShipmentLine3.Find('=');
+            if SalesShipmentLine3.Find('>') then begin
+                LineSpacing := (SalesShipmentLine3."Line No." - "Line No.") div 2;
                 if LineSpacing = 0 then
                     Error(Text002);
             end else
@@ -241,141 +240,144 @@
 
             Result := "Line No." + LineSpacing;
         end;
-        OnAfterGetCorrectionLineNo(SalesShptLine, Result);
+        OnAfterGetCorrectionLineNo(SalesShipmentLine2, Result);
     end;
 
-    local procedure PostItemJnlLine(SalesShptLine: Record "Sales Shipment Line"; var DocLineNo: Integer): Integer
+    local procedure PostItemJnlLine(SalesShipmentLine2: Record "Sales Shipment Line"; var DocLineNo: Integer): Integer
     var
-        ItemJnlLine: Record "Item Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
         SalesLine: Record "Sales Line";
-        SalesShptHeader: Record "Sales Shipment Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
         SourceCodeSetup: Record "Source Code Setup";
-        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
-        ItemLedgEntryNotInvoiced: Record "Item Ledger Entry";
+        TempApplyToItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        ItemLedgerEntryNotInvoiced: Record "Item Ledger Entry";
         ItemLedgEntryNo: Integer;
         RemQtyBase: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforePostItemJnlLine(
-            SalesShptLine, DocLineNo, ItemLedgEntryNo, IsHandled, TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, TempWhseJnlLine, NextLineNo);
+            SalesShipmentLine2, DocLineNo, ItemLedgEntryNo, IsHandled, TempGlobalItemLedgerEntry, TempGlobalItemEntryRelation, TempWarehouseJournalLine, NextLineNo);
         if IsHandled then
             exit(ItemLedgEntryNo);
 
-        with SalesShptLine do begin
-            DocLineNo := GetCorrectionLineNo(SalesShptLine);
+        with SalesShipmentLine2 do begin
+            DocLineNo := GetCorrectionLineNo(SalesShipmentLine2);
 
             SourceCodeSetup.Get();
-            SalesShptHeader.Get("Document No.");
+            SalesShipmentHeader.Get("Document No.");
 
-            ItemJnlLine.Init();
-            ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
-            ItemJnlLine."Item No." := "No.";
-            ItemJnlLine."Posting Date" := SalesShptHeader."Posting Date";
-            ItemJnlLine."Document No." := "Document No.";
-            ItemJnlLine."Document Line No." := DocLineNo;
-            ItemJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            ItemJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            ItemJnlLine."Location Code" := "Location Code";
-            ItemJnlLine."Source Code" := SourceCodeSetup.Sales;
-            ItemJnlLine.Correction := true;
-            ItemJnlLine."Variant Code" := "Variant Code";
-            ItemJnlLine."Bin Code" := "Bin Code";
-            ItemJnlLine."Document Date" := SalesShptHeader."Document Date";
+            ItemJournalLine.Init();
+            ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Sale;
+            ItemJournalLine."Item No." := "No.";
+            ItemJournalLine."Posting Date" := SalesShipmentHeader."Posting Date";
+            ItemJournalLine."Document No." := "Document No.";
+            ItemJournalLine."Document Line No." := DocLineNo;
+            ItemJournalLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
+            ItemJournalLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
+            ItemJournalLine."Location Code" := "Location Code";
+            ItemJournalLine."Source Code" := SourceCodeSetup.Sales;
+            ItemJournalLine.Correction := true;
+            ItemJournalLine."Variant Code" := "Variant Code";
+            ItemJournalLine."Bin Code" := "Bin Code";
+            ItemJournalLine."Document Date" := SalesShipmentHeader."Document Date";
 
-            OnAfterCopyItemJnlLineFromSalesShpt(ItemJnlLine, SalesShptHeader, SalesShptLine, TempWhseJnlLine, WhseUndoQty);
+            OnAfterCopyItemJnlLineFromSalesShpt(ItemJournalLine, SalesShipmentHeader, SalesShipmentLine2, TempWarehouseJournalLine, WhseUndoQuantity);
 
-            UndoPostingMgt.CollectItemLedgEntries(
-                TempApplyToEntryList, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+            UndoPostingManagement.CollectItemLedgEntries(
+                TempApplyToItemLedgerEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
 
             if ("Qty. Shipped Not Invoiced" = Quantity) or
-               not UndoPostingMgt.AreAllItemEntriesCompletelyInvoiced(TempApplyToEntryList)
+               not UndoPostingManagement.AreAllItemEntriesCompletelyInvoiced(TempApplyToItemLedgerEntry)
             then
-                WhseUndoQty.InsertTempWhseJnlLine(
-                    ItemJnlLine,
+                WhseUndoQuantity.InsertTempWhseJnlLine(
+                    ItemJournalLine,
                     DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
-                    TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
-            OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(SalesShptLine, ItemJnlLine, TempWhseJnlLine, NextLineNo);
+                    TempWarehouseJournalLine."Reference Document"::"Posted Shipment".AsInteger(), TempWarehouseJournalLine, NextLineNo);
+            OnPostItemJnlLineOnAfterInsertTempWhseJnlLine(SalesShipmentLine2, ItemJournalLine, TempWarehouseJournalLine, NextLineNo);
 
-            if GetInvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
+            if GetInvoicedShptEntries(SalesShipmentLine2, ItemLedgerEntryNotInvoiced) then begin
                 RemQtyBase := -("Quantity (Base)" - "Qty. Invoiced (Base)");
+                OnPostItemJnlLineOnAfterCalcRemQtyBase(RemQtyBase, ItemJournalLine, SalesShipmentLine2, ItemLedgerEntryNotInvoiced);
                 repeat
-                    ItemJnlLine."Applies-to Entry" := ItemLedgEntryNotInvoiced."Entry No.";
-                    ItemJnlLine.Quantity := ItemLedgEntryNotInvoiced.Quantity;
-                    ItemJnlLine."Quantity (Base)" := ItemLedgEntryNotInvoiced.Quantity;
-                    OnPostItemJnlLineOnBeforeRunItemJnlPostLine(ItemJnlLine, ItemLedgEntryNotInvoiced, SalesShptLine, SalesShptHeader);
-                    ItemJnlPostLine.Run(ItemJnlLine);
-                    OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJnlLine);
-                    RemQtyBase -= ItemJnlLine.Quantity;
-                    if ItemLedgEntryNotInvoiced.Next() = 0 then;
+                    ItemJournalLine."Applies-to Entry" := ItemLedgerEntryNotInvoiced."Entry No.";
+                    ItemJournalLine.Quantity := ItemLedgerEntryNotInvoiced.Quantity;
+                    ItemJournalLine."Quantity (Base)" := ItemLedgerEntryNotInvoiced.Quantity;
+                    IsHandled := false;
+                    OnPostItemJnlLineOnBeforeRunItemJnlPostLine(ItemJournalLine, ItemLedgerEntryNotInvoiced, SalesShipmentLine2, SalesShipmentHeader, IsHandled);
+                    if not IsHandled then
+                        ItemJnlPostLine.Run(ItemJournalLine);
+                    OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJournalLine);
+                    RemQtyBase -= ItemJournalLine.Quantity;
+                    if ItemLedgerEntryNotInvoiced.Next() = 0 then;
                 until (RemQtyBase = 0);
-                OnItemJnlPostLineOnAfterGetInvoicedShptEntriesOnBeforeExit(ItemJnlLine, SalesShptLine);
-                exit(ItemJnlLine."Item Shpt. Entry No.");
+                OnItemJnlPostLineOnAfterGetInvoicedShptEntriesOnBeforeExit(ItemJournalLine, SalesShipmentLine2);
+                exit(ItemJournalLine."Item Shpt. Entry No.");
             end;
 
-            UndoPostingMgt.PostItemJnlLineAppliedToList(
-                ItemJnlLine, TempApplyToEntryList, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, "Qty. Shipped Not Invoiced" <> Quantity);
+            UndoPostingManagement.PostItemJnlLineAppliedToList(
+                ItemJournalLine, TempApplyToItemLedgerEntry, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgerEntry, TempGlobalItemEntryRelation, "Qty. Shipped Not Invoiced" <> Quantity);
 
-            OnAfterPostItemJnlLine(ItemJnlLine, SalesShptLine);
+            OnAfterPostItemJnlLine(ItemJournalLine, SalesShipmentLine2);
             exit(0); // "Item Shpt. Entry No."
         end;
     end;
 
-    local procedure InsertNewShipmentLine(OldSalesShptLine: Record "Sales Shipment Line"; ItemShptEntryNo: Integer; DocLineNo: Integer)
+    local procedure InsertNewShipmentLine(OldSalesShipmentLine: Record "Sales Shipment Line"; ItemShptEntryNo: Integer; DocLineNo: Integer)
     var
-        NewSalesShptLine: Record "Sales Shipment Line";
+        NewSalesShipmentLine: Record "Sales Shipment Line";
     begin
-        with OldSalesShptLine do begin
-            NewSalesShptLine.Init();
-            NewSalesShptLine.Copy(OldSalesShptLine);
-            NewSalesShptLine."Line No." := DocLineNo;
-            NewSalesShptLine."Appl.-from Item Entry" := "Item Shpt. Entry No.";
-            NewSalesShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
-            NewSalesShptLine.Quantity := -Quantity;
-            NewSalesShptLine."Qty. Shipped Not Invoiced" := 0;
-            NewSalesShptLine."Quantity (Base)" := -"Quantity (Base)";
-            NewSalesShptLine."Quantity Invoiced" := NewSalesShptLine.Quantity;
-            NewSalesShptLine."Qty. Invoiced (Base)" := NewSalesShptLine."Quantity (Base)";
-            NewSalesShptLine.Correction := true;
-            NewSalesShptLine."Dimension Set ID" := "Dimension Set ID";
-            OnBeforeNewSalesShptLineInsert(NewSalesShptLine, OldSalesShptLine);
-            NewSalesShptLine.Insert();
-            OnAfterNewSalesShptLineInsert(NewSalesShptLine, OldSalesShptLine);
+        with OldSalesShipmentLine do begin
+            NewSalesShipmentLine.Init();
+            NewSalesShipmentLine.Copy(OldSalesShipmentLine);
+            NewSalesShipmentLine."Line No." := DocLineNo;
+            NewSalesShipmentLine."Appl.-from Item Entry" := "Item Shpt. Entry No.";
+            NewSalesShipmentLine."Item Shpt. Entry No." := ItemShptEntryNo;
+            NewSalesShipmentLine.Quantity := -Quantity;
+            NewSalesShipmentLine."Qty. Shipped Not Invoiced" := 0;
+            NewSalesShipmentLine."Quantity (Base)" := -"Quantity (Base)";
+            NewSalesShipmentLine."Quantity Invoiced" := NewSalesShipmentLine.Quantity;
+            NewSalesShipmentLine."Qty. Invoiced (Base)" := NewSalesShipmentLine."Quantity (Base)";
+            NewSalesShipmentLine.Correction := true;
+            NewSalesShipmentLine."Dimension Set ID" := "Dimension Set ID";
+            OnBeforeNewSalesShptLineInsert(NewSalesShipmentLine, OldSalesShipmentLine);
+            NewSalesShipmentLine.Insert();
+            OnAfterNewSalesShptLineInsert(NewSalesShipmentLine, OldSalesShipmentLine);
 
-            InsertItemEntryRelation(TempGlobalItemEntryRelation, NewSalesShptLine);
+            InsertItemEntryRelation(TempGlobalItemEntryRelation, NewSalesShipmentLine);
         end;
     end;
 
-    procedure UpdateOrderLine(SalesShptLine: Record "Sales Shipment Line")
+    procedure UpdateOrderLine(SalesShipmentLine2: Record "Sales Shipment Line")
     var
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateOrderLine(SalesShptLine, IsHandled, TempGlobalItemLedgEntry);
+        OnBeforeUpdateOrderLine(SalesShipmentLine2, IsHandled, TempGlobalItemLedgerEntry);
         if IsHandled then
             exit;
 
-        SalesLine.Get(SalesLine."Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
-        OnUpdateOrderLineOnBeforeUpdateSalesLine(SalesShptLine, SalesLine);
-        UndoPostingMgt.UpdateSalesLine(
-            SalesLine, SalesShptLine.Quantity - SalesShptLine."Quantity Invoiced",
-            SalesShptLine."Quantity (Base)" - SalesShptLine."Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
-        OnAfterUpdateSalesLine(SalesLine, SalesShptLine);
+        SalesLine.Get(SalesLine."Document Type"::Order, SalesShipmentLine2."Order No.", SalesShipmentLine2."Order Line No.");
+        OnUpdateOrderLineOnBeforeUpdateSalesLine(SalesShipmentLine2, SalesLine);
+        UndoPostingManagement.UpdateSalesLine(
+            SalesLine, SalesShipmentLine2.Quantity - SalesShipmentLine2."Quantity Invoiced",
+            SalesShipmentLine2."Quantity (Base)" - SalesShipmentLine2."Qty. Invoiced (Base)", TempGlobalItemLedgerEntry);
+        OnAfterUpdateSalesLine(SalesLine, SalesShipmentLine2);
     end;
 
-    procedure UpdateBlanketOrder(SalesShptLine: Record "Sales Shipment Line")
+    procedure UpdateBlanketOrder(SalesShipmentLine2: Record "Sales Shipment Line")
     var
         BlanketOrderSalesLine: Record "Sales Line";
         xBlanketOrderSalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateBlanketOrder(SalesShptLine, IsHandled);
+        OnBeforeUpdateBlanketOrder(SalesShipmentLine2, IsHandled);
         if IsHandled then
             exit;
 
-        with SalesShptLine do
+        with SalesShipmentLine2 do
             if BlanketOrderSalesLine.Get(
                  BlanketOrderSalesLine."Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.")
             then begin
@@ -390,103 +392,98 @@
                     BlanketOrderSalesLine."Quantity Shipped" :=
                       BlanketOrderSalesLine."Quantity Shipped" -
                       Round(
-                        "Qty. per Unit of Measure" / BlanketOrderSalesLine."Qty. per Unit of Measure" * Quantity, UOMMgt.QtyRndPrecision());
+                        "Qty. per Unit of Measure" / BlanketOrderSalesLine."Qty. per Unit of Measure" * Quantity,
+                        UnitOfMeasureManagement.QtyRndPrecision());
 
                 BlanketOrderSalesLine."Qty. Shipped (Base)" := BlanketOrderSalesLine."Qty. Shipped (Base)" - "Quantity (Base)";
-                OnBeforeBlanketOrderInitOutstanding(BlanketOrderSalesLine, SalesShptLine);
+                OnBeforeBlanketOrderInitOutstanding(BlanketOrderSalesLine, SalesShipmentLine2);
                 BlanketOrderSalesLine.InitOutstanding();
                 BlanketOrderSalesLine.Modify();
 
-                AsmPost.UpdateBlanketATO(xBlanketOrderSalesLine, BlanketOrderSalesLine);
+                AssemblyPost.UpdateBlanketATO(xBlanketOrderSalesLine, BlanketOrderSalesLine);
             end;
     end;
 
-    local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewSalesShptLine: Record "Sales Shipment Line")
+    local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewSalesShipmentLine: Record "Sales Shipment Line")
     var
         ItemEntryRelation: Record "Item Entry Relation";
     begin
         if TempItemEntryRelation.Find('-') then
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
-                ItemEntryRelation.TransferFieldsSalesShptLine(NewSalesShptLine);
+                ItemEntryRelation.TransferFieldsSalesShptLine(NewSalesShipmentLine);
                 ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next() = 0;
     end;
 
-    local procedure DeleteSalesShptLineServItems(SalesShptLine: Record "Sales Shipment Line")
+    local procedure DeleteSalesShptLineServItems(SalesShipmentLine2: Record "Sales Shipment Line")
     var
-        ServItem: Record "Service Item";
+        ServiceItem: Record "Service Item";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDeleteSalesShptLineServItems(SalesShptLine, IsHandled);
+        OnBeforeDeleteSalesShptLineServItems(SalesShipmentLine2, IsHandled);
         if IsHandled then
             exit;
 
-        ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
-        ServItem.SetRange("Sales/Serv. Shpt. Document No.", SalesShptLine."Document No.");
-        ServItem.SetRange("Sales/Serv. Shpt. Line No.", SalesShptLine."Line No.");
-        ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Sales);
-        if ServItem.Find('-') then
+        ServiceItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
+        ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", SalesShipmentLine2."Document No.");
+        ServiceItem.SetRange("Sales/Serv. Shpt. Line No.", SalesShipmentLine2."Line No.");
+        ServiceItem.SetRange("Shipment Type", ServiceItem."Shipment Type"::Sales);
+        if ServiceItem.Find('-') then
             repeat
-                if ServItem.CheckIfCanBeDeleted() = '' then
-                    if ServItem.Delete(true) then;
-            until ServItem.Next() = 0;
+                if ServiceItem.CheckIfCanBeDeleted() = '' then
+                    if ServiceItem.Delete(true) then;
+            until ServiceItem.Next() = 0;
     end;
 
-    local procedure UndoInitPostATO(var SalesShptLine: Record "Sales Shipment Line")
+    local procedure UndoInitPostATO(var SalesShipmentLine2: Record "Sales Shipment Line")
     var
-        PostedAsmHeader: Record "Posted Assembly Header";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        if SalesShptLine.AsmToShipmentExists(PostedAsmHeader) then begin
-            OpenATOProgressWindow(Text055, SalesShptLine, PostedAsmHeader);
-
-            AsmPost.UndoInitPostATO(PostedAsmHeader);
-
-            ATOWindow.Close();
+        if SalesShipmentLine2.AsmToShipmentExists(PostedAssemblyHeader) then begin
+            OpenATOProgressWindow(Text055, SalesShipmentLine2, PostedAssemblyHeader);
+            AssemblyPost.UndoInitPostATO(PostedAssemblyHeader);
+            ATOWindowDialog.Close();
         end;
     end;
 
-    local procedure UndoPostATO(var SalesShptLine: Record "Sales Shipment Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
+    local procedure UndoPostATO(var SalesShipmentLine2: Record "Sales Shipment Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     var
-        PostedAsmHeader: Record "Posted Assembly Header";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        if SalesShptLine.AsmToShipmentExists(PostedAsmHeader) then begin
-            OpenATOProgressWindow(Text056, SalesShptLine, PostedAsmHeader);
-
-            AsmPost.UndoPostATO(PostedAsmHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine);
-
-            ATOWindow.Close();
+        if SalesShipmentLine2.AsmToShipmentExists(PostedAssemblyHeader) then begin
+            OpenATOProgressWindow(Text056, SalesShipmentLine2, PostedAssemblyHeader);
+            AssemblyPost.UndoPostATO(PostedAssemblyHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine);
+            ATOWindowDialog.Close();
         end;
     end;
 
-    local procedure UndoFinalizePostATO(var SalesShptLine: Record "Sales Shipment Line")
+    local procedure UndoFinalizePostATO(var SalesShipmentLine2: Record "Sales Shipment Line")
     var
-        PostedAsmHeader: Record "Posted Assembly Header";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        if SalesShptLine.AsmToShipmentExists(PostedAsmHeader) then begin
-            OpenATOProgressWindow(Text057, SalesShptLine, PostedAsmHeader);
-
-            AsmPost.UndoFinalizePostATO(PostedAsmHeader);
-            SynchronizeATO(SalesShptLine);
-
-            ATOWindow.Close();
+        if SalesShipmentLine2.AsmToShipmentExists(PostedAssemblyHeader) then begin
+            OpenATOProgressWindow(Text057, SalesShipmentLine2, PostedAssemblyHeader);
+            AssemblyPost.UndoFinalizePostATO(PostedAssemblyHeader);
+            SynchronizeATO(SalesShipmentLine2);
+            ATOWindowDialog.Close();
         end;
     end;
 
-    local procedure SynchronizeATO(var SalesShptLine: Record "Sales Shipment Line")
+    local procedure SynchronizeATO(var SalesShipmentLine2: Record "Sales Shipment Line")
     var
         SalesLine: Record "Sales Line";
-        AsmHeader: Record "Assembly Header";
+        AssemblyHeader: Record "Assembly Header";
     begin
-        SalesLine.Get("Sales Document Type"::Order, SalesShptLine."Order No.", SalesShptLine."Order Line No.");
+        SalesLine.Get("Sales Document Type"::Order, SalesShipmentLine2."Order No.", SalesShipmentLine2."Order Line No.");
 
-        if SalesLine.AsmToOrderExists(AsmHeader) and (AsmHeader.Status = AsmHeader.Status::Released) then begin
-            AsmHeader.Status := AsmHeader.Status::Open;
-            AsmHeader.Modify();
+        if SalesLine.AsmToOrderExists(AssemblyHeader) and (AssemblyHeader.Status = AssemblyHeader.Status::Released) then begin
+            AssemblyHeader.Status := AssemblyHeader.Status::Open;
+            AssemblyHeader.Modify();
             SalesLine.AutoAsmToOrder();
-            AsmHeader.Status := AsmHeader.Status::Released;
-            AsmHeader.Modify();
+            AssemblyHeader.Status := AssemblyHeader.Status::Released;
+            AssemblyHeader.Modify();
         end else
             SalesLine.AutoAsmToOrder();
 
@@ -494,27 +491,28 @@
         SalesLine.Modify(true);
     end;
 
-    local procedure OpenATOProgressWindow(State: Text[250]; SalesShptLine: Record "Sales Shipment Line"; PostedAsmHeader: Record "Posted Assembly Header")
+    local procedure OpenATOProgressWindow(State: Text[250]; SalesShipmentLine2: Record "Sales Shipment Line"; PostedAssemblyHeader: Record "Posted Assembly Header")
     begin
-        ATOWindow.Open(State);
-        ATOWindow.Update(1,
+        ATOWindowDialog.Open(State);
+        ATOWindowDialog.Update(1,
           StrSubstNo(Text059,
-            SalesShptLine."Document No.", SalesShptLine.FieldCaption("Line No."), SalesShptLine."Line No."));
-        ATOWindow.Update(2, PostedAsmHeader."No.");
+            SalesShipmentLine2."Document No.", SalesShipmentLine2.FieldCaption("Line No."), SalesShipmentLine2."Line No."));
+        ATOWindowDialog.Update(2, PostedAssemblyHeader."No.");
     end;
 
-    procedure GetInvoicedShptEntries(SalesShptLine: Record "Sales Shipment Line"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    procedure GetInvoicedShptEntries(SalesShipmentLine2: Record "Sales Shipment Line"; var ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
     begin
-        ItemLedgEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
-        ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Sales Shipment");
-        ItemLedgEntry.SetRange("Document No.", SalesShptLine."Document No.");
-        ItemLedgEntry.SetRange("Document Line No.", SalesShptLine."Line No.");
-        ItemLedgEntry.SetTrackingFilterBlank();
-        ItemLedgEntry.SetRange("Completely Invoiced", false);
-        exit(ItemLedgEntry.FindSet());
+        ItemLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.SetRange("Document No.", SalesShipmentLine2."Document No.");
+        ItemLedgerEntry.SetRange("Document Line No.", SalesShipmentLine2."Line No.");
+        ItemLedgerEntry.SetTrackingFilterBlank();
+        ItemLedgerEntry.SetRange("Completely Invoiced", false);
+        OnGetInvoicedShptEntriesOnAfterSetFilters(ItemLedgerEntry, SalesShipmentLine);
+        exit(ItemLedgerEntry.FindSet());
     end;
 
-    local procedure HasInvoicedNotReturnedQuantity(SalesShipmentLine: Record "Sales Shipment Line"): Boolean
+    local procedure HasInvoicedNotReturnedQuantity(SalesShipmentLine2: Record "Sales Shipment Line"): Boolean
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         ReturnedInvoicedItemLedgerEntry: Record "Item Ledger Entry";
@@ -524,10 +522,10 @@
         InvoicedQuantity: Decimal;
         ReturnedInvoicedQuantity: Decimal;
     begin
-        if SalesShipmentLine.Type = SalesShipmentLine.Type::Item then begin
+        if SalesShipmentLine2.Type = SalesShipmentLine2.Type::Item then begin
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
-            ItemLedgerEntry.SetRange("Document No.", SalesShipmentLine."Document No.");
-            ItemLedgerEntry.SetRange("Document Line No.", SalesShipmentLine."Line No.");
+            ItemLedgerEntry.SetRange("Document No.", SalesShipmentLine2."Document No.");
+            ItemLedgerEntry.SetRange("Document Line No.", SalesShipmentLine2."Line No.");
             ItemLedgerEntry.FindSet();
             repeat
                 InvoicedQuantity += ItemLedgerEntry."Invoiced Quantity";
@@ -542,8 +540,8 @@
             until ItemLedgerEntry.Next() = 0;
             exit(InvoicedQuantity + ReturnedInvoicedQuantity <> 0);
         end else begin
-            SalesInvoiceLine.SetRange("Order No.", SalesShipmentLine."Order No.");
-            SalesInvoiceLine.SetRange("Order Line No.", SalesShipmentLine."Order Line No.");
+            SalesInvoiceLine.SetRange("Order No.", SalesShipmentLine2."Order No.");
+            SalesInvoiceLine.SetRange("Order Line No.", SalesShipmentLine2."Order Line No.");
             if SalesInvoiceLine.FindSet() then
                 repeat
                     SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
@@ -589,13 +587,13 @@
 
     local procedure MakeInventoryAdjustment()
     var
-        InvtSetup: Record "Inventory Setup";
-        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+        InventorySetup: Record "Inventory Setup";
+        InventoryAdjustmentHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InvtSetup.Get();
-        if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
-            InvtAdjmtHandler.SetJobUpdateProperties(true);
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        InventorySetup.Get();
+        if InventorySetup."Automatic Cost Adjustment" <> InventorySetup."Automatic Cost Adjustment"::Never then begin
+            InventoryAdjustmentHandler.SetJobUpdateProperties(true);
+            InventoryAdjustmentHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
         end;
     end;
 
@@ -715,7 +713,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforeRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header")
+    local procedure OnPostItemJnlLineOnBeforeRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNotInvoiced: Record "Item Ledger Entry"; SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -751,6 +749,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnItemJnlPostLineOnAfterGetInvoicedShptEntriesOnBeforeExit(var ItemJournalLine: Record "Item Journal Line"; var SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterCalcRemQtyBase(var RemQtyBase: Decimal; var ItemJournalLine: Record "Item Journal Line"; var SalesShipmentLine: Record "Sales Shipment Line"; var ItemLedgerEntryNotInvoiced: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetInvoicedShptEntriesOnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; SalesShipmentLine: Record "Sales Shipment Line")
     begin
     end;
 }
