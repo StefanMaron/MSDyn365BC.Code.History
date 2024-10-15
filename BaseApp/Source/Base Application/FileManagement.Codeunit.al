@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 419 "File Management"
 {
 
@@ -326,9 +325,12 @@ codeunit 419 "File Management"
 
     procedure GetFileNameMimeType(FileName: Text): Text
     var
-        MimeMapping: DotNet MimeMapping;
+        FileExtensionContentTypeProvider: DotNet FileExtensionContentTypeProvider;
+        ContentType: Text;
     begin
-        exit(MimeMapping.GetMimeMapping(FileName));
+        FileExtensionContentTypeProvider := FileExtensionContentTypeProvider.FileExtensionContentTypeProvider();
+        FileExtensionContentTypeProvider.TryGetContentType(FileName, ContentType);
+        exit(ContentType);
     end;
 
     procedure GetDirectoryName(FileName: Text): Text
@@ -575,7 +577,7 @@ codeunit 419 "File Management"
         Encoding: DotNet Encoding;
         EncodedTxt: Text;
     begin
-        StreamReader := StreamReader.StreamReader(Source, Encoding.Default, true);
+        StreamReader := StreamReader.StreamReader(Source, Encoding.GetEncoding(0), true);
         EncodedTxt := StreamReader.ReadToEnd();
         Destination.WriteText(EncodedTxt);
     end;
@@ -585,7 +587,7 @@ codeunit 419 "File Management"
         StreamWriter: DotNet StreamWriter;
         Encoding: DotNet Encoding;
     begin
-        StreamWriter := StreamWriter.StreamWriter(Destination, Encoding.Default);
+        StreamWriter := StreamWriter.StreamWriter(Destination, Encoding.GetEncoding(0));
         StreamWriter.Write(Source);
         StreamWriter.Close();
     end;
@@ -594,56 +596,6 @@ codeunit 419 "File Management"
     begin
         InText := DelChr(InText, '=', InvalidWindowsChrStringTxt);
         exit(GetSafeFileName(InText));
-    end;
-
-    [Obsolete('Merge to W1.', '19.0')]
-    [Scope('OnPrem')]
-    procedure BLOBImportWithFileType(var TempBlob: Codeunit "Temp Blob"; Name: Text): Text
-    var
-        NVInStream: InStream;
-        NVOutStream: OutStream;
-        UploadResult: Boolean;
-        ErrorMessage: Text;
-    begin
-        // NAVCZ
-        ClearLastError();
-
-        // There is no way to check if NVInStream is null before using it after calling the
-        // UPLOADINTOSTREAM therefore if result is false this is the only way we can throw the error.
-        UploadResult := UploadIntoStream(Text007, '', GetToFilterText('', Name), Name, NVInStream);
-        if UploadResult then begin
-            TempBlob.CreateOutStream(NVOutStream);
-            CopyStream(NVOutStream, NVInStream);
-            exit(Name);
-        end;
-        ErrorMessage := GetLastErrorText;
-        if ErrorMessage <> '' then
-            Error(ErrorMessage);
-
-        exit('');
-    end;
-
-    [Obsolete('Merge to W1.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetClientFileSize(FilePath: Text): Decimal
-    var
-        [RunOnClient]
-        FileInfo: DotNet FileInfo;
-    begin
-        // NAVCZ
-        FileInfo := FileInfo.FileInfo(FilePath);
-        exit(FileInfo.Length);
-    end;
-
-    [Obsolete('Merge to W1.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetServerFileSize(FilePath: Text): Decimal
-    var
-        FileInfo: DotNet FileInfo;
-    begin
-        // NAVCZ
-        FileInfo := FileInfo.FileInfo(FilePath);
-        exit(FileInfo.Length);
     end;
 
     [Scope('OnPrem')]
@@ -777,4 +729,4 @@ codeunit 419 "File Management"
     begin
     end;
 }
-#endif
+

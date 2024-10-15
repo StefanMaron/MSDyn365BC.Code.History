@@ -23,11 +23,10 @@ codeunit 11790 "Local Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetItemLedgerEntryShipmentMethodCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCashDeskWorkflowTemplatesCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCreditWorkflowTemplatesCodeUpgradeTag());
-#if CLEAN19
         PerCompanyUpgradeTags.Add(GetPaymentOrderWorkflowTemplatesCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAdvanceLetterWorkflowTemplatesCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetBankPaymentApplicationWithoutCodeUpgradeTag());
-#endif
+        PerCompanyUpgradeTags.Add(GetTextToAccountMappingWithoutCodeUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -126,7 +125,6 @@ codeunit 11790 "Local Upgrade Tag Definitions"
         exit('CZ-403757-CreditWorkflowTemplatesCode-20210629');
     end;
 
-#if CLEAN19
     internal procedure GetPaymentOrderWorkflowTemplatesCodeUpgradeTag(): Code[250]
     begin
         exit('CZ-403757-PaymentOrderWorkflowTemplatesCode-20210629');
@@ -141,5 +139,9 @@ codeunit 11790 "Local Upgrade Tag Definitions"
     begin
         exit('CZ-443967-BankPaymentApplicationWithoutCode-20220726');
     end;
-#endif
+
+    internal procedure GetTextToAccountMappingWithoutCodeUpgradeTag(): Code[250]
+    begin
+        exit('CZ-443967-TextToAccountMappingWithoutCode-20220726');
+    end;
 }

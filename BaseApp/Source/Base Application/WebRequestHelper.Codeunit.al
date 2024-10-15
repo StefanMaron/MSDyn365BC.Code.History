@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 1299 "Web Request Helper"
 {
 
@@ -109,23 +108,6 @@ codeunit 1299 "Web Request Helper"
         exit('');
     end;
 
-    [Obsolete('Unused function discontinued.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetWebProxy(Address: Text; UserName: Text; Password: Text; var WebProxy: DotNet WebProxy): Boolean
-    var
-        NetworkCredential: DotNet NetworkCredential;
-    begin
-        // NAVCZ
-        if Address <> '' then begin
-            WebProxy := WebProxy.WebProxy(Address);
-            WebProxy.UseDefaultCredentials := true;
-            if (UserName <> '') and (Password <> '') then
-                WebProxy.Credentials := NetworkCredential.NetworkCredential(UserName, Password);
-        end;
-
-        exit(not IsNull(WebProxy));
-    end;
-
     [TryFunction]
     [NonDebuggable]
     [Scope('OnPrem')]
@@ -154,10 +136,13 @@ codeunit 1299 "Web Request Helper"
         HttpWebResponse := HttpWebRequest.GetResponse();
 
         // We need to read using the right encoding, unless forced or unless no encoding can be determined
-        if IgnoreCharSet or not TryGetTextEncodingFromResponse(HttpWebResponse, TextEncodingVar) then
-            TempBlob.CreateInStream(ResponseInputStream) // Fallback to default encoding
+        if IgnoreCharSet then
+            TempBlob.CreateInStream(ResponseInputStream)
         else
-            TempBlob.CreateInStream(ResponseInputStream, TextEncodingVar);
+            if TryGetTextEncodingFromResponse(HttpWebResponse, TextEncodingVar) then
+                TempBlob.CreateInStream(ResponseInputStream, TextEncodingVar)
+            else
+                TempBlob.CreateInStream(ResponseInputStream); // Fallback to default encoding
 
         HttpWebResponse.GetResponseStream().CopyTo(ResponseInputStream);
 
@@ -218,4 +203,3 @@ codeunit 1299 "Web Request Helper"
     end;
 }
 
-#endif

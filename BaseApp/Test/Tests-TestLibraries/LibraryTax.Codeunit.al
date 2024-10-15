@@ -244,18 +244,8 @@ codeunit 143020 "Library - Tax"
     [Scope('OnPrem')]
     [Obsolete('Moved to "Library - Tax CZL" codeunit of "Core Localization Pack for Czech Tests" app.', '20.0')]
     procedure SetUseVATDate(UseVATDate: Boolean)
-#if not CLEAN19
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-#endif
     begin
-#if not CLEAN19
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Use VAT Date", UseVATDate);
-        GeneralLedgerSetup.Modify();
-#else
         exit;
-#endif
     end;
 }
 #endif

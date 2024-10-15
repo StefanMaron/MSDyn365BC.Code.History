@@ -343,13 +343,9 @@ table 11731 "Cash Document Line"
         field(31001; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
-#if not CLEAN19
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '22.0';
         }
         field(31125; "EET Transaction"; Boolean)
         {

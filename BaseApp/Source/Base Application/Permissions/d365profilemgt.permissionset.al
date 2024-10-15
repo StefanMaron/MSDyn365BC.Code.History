@@ -7,10 +7,7 @@ permissionset 2581 "D365 PROFILE MGT"
     IncludedPermissionSets = "Metadata - Read";
 
     Permissions = tabledata "All Profile" = IMD,
-                  tabledata Profile = IMD,
                   tabledata "Profile Configuration Symbols" = IMD,
-                  tabledata "Profile Metadata" = IMD,
-                  tabledata "Profile Page Metadata" = IMD,
                   tabledata "Tenant Profile" = IMD,
                   tabledata "Tenant Profile Extension" = IMD,
                   tabledata "Tenant Profile Page Metadata" = IMD,

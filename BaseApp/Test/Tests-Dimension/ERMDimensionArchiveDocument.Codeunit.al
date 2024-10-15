@@ -46,9 +46,7 @@ codeunit 134481 "ERM Dimension Archive Document"
     var
         SalesHeader: Record "Sales Header";
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-#if CLEAN19
         SalesHeaderArchive: Record "Sales Header Archive";
-#endif        
     begin
         // Verify Dimensions are deleted on deletion of Archived Purchase order.
 
@@ -56,12 +54,8 @@ codeunit 134481 "ERM Dimension Archive Document"
         Initialize();
         SalesOrderArchive(SalesHeader, TempDimensionSetEntry);
 
-#if not CLEAN19
-        DeleteArchiveSalesOrder(SalesHeader);
-#else
         FindSalesDocumentArchive(SalesHeaderArchive, SalesHeader);
         SalesHeaderArchive.Delete(true);
-#endif
 
         // Verify Dimension Set Entry and Dimension on Sales Line successfully updated.
         VerifyDimSetEntry(TempDimensionSetEntry, SalesHeader."Dimension Set ID");
@@ -94,21 +88,15 @@ codeunit 134481 "ERM Dimension Archive Document"
     var
         PurchaseHeader: Record "Purchase Header";
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-#if CLEAN19        
         PurchaseHeaderArchive: Record "Purchase Header Archive";
-#endif
     begin
         // Verify Dimensions are deleted on deletion of Archived Sales order.
 
         // Create Customer with Default Dimension, Item, Purchase Order.Archive Purchase Order and Post it.
         Initialize();
         PurchaseOrderArchive(PurchaseHeader, TempDimensionSetEntry);
-#if not CLEAN19        
-        DeleteArchivePurchOrder(PurchaseHeader);
-#else
         FindPurchDocumentArchive(PurchaseHeaderArchive, PurchaseHeader);
         PurchaseHeaderArchive.Delete(true);
-#endif
 
         // Verify Dimension Set Entry and Dimension on Purchase Line successfully updated.
         VerifyDimSetEntry(TempDimensionSetEntry, PurchaseHeader."Dimension Set ID");
@@ -635,30 +623,6 @@ codeunit 134481 "ERM Dimension Archive Document"
             TempDimensionSetEntry.Insert();
         until DimensionSetEntry.Next() = 0;
     end;
-
-#if not CLEAN19
-    local procedure DeleteArchiveSalesOrder(SalesHeader: Record "Sales Header")
-    var
-        SalesHeaderArchive: Record "Sales Header Archive";
-        DeleteSalesOrderVersions: Report "Delete Sales Order Versions";
-    begin
-        FindSalesDocumentArchive(SalesHeaderArchive, SalesHeader);
-        DeleteSalesOrderVersions.UseRequestPage(false);
-        DeleteSalesOrderVersions.SetTableView(SalesHeaderArchive);
-        DeleteSalesOrderVersions.Run();
-    end;
-
-    local procedure DeleteArchivePurchOrder(PurchaseHeader: Record "Purchase Header")
-    var
-        PurchaseHeaderArchive: Record "Purchase Header Archive";
-        DeletePurchaseOrderVersions: Report "Delete Purchase Order Versions";
-    begin
-        FindPurchDocumentArchive(PurchaseHeaderArchive, PurchaseHeader);
-        DeletePurchaseOrderVersions.UseRequestPage(false);
-        DeletePurchaseOrderVersions.SetTableView(PurchaseHeaderArchive);
-        DeletePurchaseOrderVersions.Run();
-    end;
-#endif
 
     local procedure FindSalesLineArchive(var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin

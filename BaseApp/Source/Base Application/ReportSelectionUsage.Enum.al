@@ -1,5 +1,4 @@
-#if not CLEAN19
-enum 77 "Report Selection Usage"
+﻿enum 77 "Report Selection Usage"
 {
     Extensible = true;
     AssignmentCompatibility = true;
@@ -77,11 +76,5 @@ enum 77 "Report Selection Usage"
     value(109; "P.Inventory Shipment") { Caption = 'Posted Inventory Shipment'; }
     value(110; "P.Inventory Receipt") { Caption = 'Posted Inventory Receipt'; }
     value(111; "P.Direct Transfer") { Caption = 'Posted Direct Transfer'; }
-    value(120; "S.Adv.Let") { Caption = 'S.Adv.Letter (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
-    value(121; "S.Adv.Inv") { Caption = 'S.Adv.Invoice (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
-    value(122; "S.Adv.CrM") { Caption = 'S.Adv.Credit Memo (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
-    value(123; "P.Adv.Let") { Caption = 'P.Adv.Letter (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
-    value(124; "P.Adv.Inv") { Caption = 'P.Adv.Invoice (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
-    value(125; "P.Adv.CrM") { Caption = 'P.Adv.Credit Memo (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '19.0'; }
 }
-#endif
+

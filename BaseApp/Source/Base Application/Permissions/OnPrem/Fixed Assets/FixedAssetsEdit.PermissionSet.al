@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 3846 "Fixed Assets - Edit"
 {
     Access = Public;
@@ -15,7 +14,6 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata "Default Dimension" = RIMD,
                   tabledata "Depreciation Table Header" = RIMD,
                   tabledata "Depreciation Table Line" = RIMD,
-                  tabledata "Detailed G/L Entry" = rm,
                   tabledata Employee = R,
                   tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Class" = RIMD,
@@ -61,5 +59,3 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata Vendor = R,
                   tabledata "Vendor Ledger Entry" = r;
 }
-
-#endif

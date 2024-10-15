@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 119 "User Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -40,6 +39,16 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which the user is allowed to post deferrals to the company.';
                 }
+                field("Sales Invoice Posting Policy"; Rec."Sales Invoice Posting Policy")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specify if you want user who posts warehouse shipment, sales shipments, or inventory pick to be able to post invoice/credit-memo as well.';
+                }
+                field("Purch. Invoice Posting Policy"; Rec."Purch. Invoice Posting Policy")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specify if you want user who posts purchase receipt or inventory put-away to be able to post invoice/credit-memo as well.';
+                }
                 field("Register Time"; Rec."Register Time")
                 {
                     ApplicationArea = Basic, Suite;
@@ -70,24 +79,6 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a user is a time sheet administrator. A time sheet administrator can access any time sheet and then edit, change, or delete it.';
                 }
-                field("Check Payment Orders"; Rec."Check Payment Orders")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies check payment orders allowed for posting (set in lines) for selected user.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
-                }
-                field("Check Bank Statements"; Rec."Check Bank Statements")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies check Bank Statemsnts allowed for posting (set in lines) for selected user.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
-                }
                 field(Email; "E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
@@ -117,39 +108,6 @@ page 119 "User Setup"
 
     actions
     {
-        area(navigation)
-        {
-            group("U&ser Check")
-            {
-                Caption = 'U&ser Check';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '19.0';
-            }
-        }
-
-        area(processing)
-        {
-            group("F&unctions")
-            {
-                Caption = 'F&unctions';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '19.0';
-            }
-        }
-        area(reporting)
-        {
-        }
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                Caption = 'Process';
-            }
-        }
     }
 
     trigger OnOpenPage()
@@ -158,4 +116,3 @@ page 119 "User Setup"
     end;
 }
 
-#endif

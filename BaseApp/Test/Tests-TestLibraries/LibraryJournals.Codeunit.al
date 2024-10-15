@@ -29,6 +29,7 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJournalLine.FieldNo("Line No.")));
         GenJournalLine.Insert(true);
         GenJournalLine.Validate("Posting Date", WorkDate());  // Defaults to work date.
+        GenJournalLine.Validate("VAT Reporting Date", WorkDate());
         GenJournalLine.Validate("Document Type", DocumentType);
         GenJournalLine.Validate("Account Type", AccountType);
         GenJournalLine.Validate("Account No.", AccountNo);
@@ -188,6 +189,7 @@ codeunit 131306 "Library - Journals"
             LastGenJnlLine."Document No." :=
               LibraryUtility.GenerateRandomCode(LastGenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line");
         LastGenJnlLine."Posting Date" := WorkDate();
+        LastGenJnlLine."VAT Reporting Date" := WorkDate();
     end;
 
     procedure SetPostWithJobQueue(PostWithJobQueue: Boolean)

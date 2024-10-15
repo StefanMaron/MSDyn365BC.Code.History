@@ -244,8 +244,16 @@ table 91 "User Setup"
             CalcFormula = Lookup(User."License Type" WHERE("User Name" = FIELD("User ID")));
             Caption = 'License Type';
             FieldClass = FlowField;
-            OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
-            OptionMembers = "Full User","Limited User","Device Only User","Windows Group","External User";
+            OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User,External Administrator,External Accountant,Application,AAD Group';
+            OptionMembers = "Full User","Limited User","Device Only User","Windows Group","External User","External Administrator","External Accountant","Application","AAD Group";
+        }
+        field(80; "Sales Invoice Posting Policy"; Enum "Invoice Posting Policy")
+        {
+            Caption = 'Sales Invoice Posting Policy';
+        }
+        field(90; "Purch. Invoice Posting Policy"; Enum "Invoice Posting Policy")
+        {
+            Caption = 'Purch. Invoice Posting Policy';
         }
         field(950; "Time Sheet Admin."; Boolean)
         {
@@ -277,24 +285,16 @@ table 91 "User Setup"
         field(11700; "Check Payment Orders"; Boolean)
         {
             Caption = 'Check Payment Orders';
-#if not CLEAN19
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '22.0';
         }
         field(11701; "Check Bank Statements"; Boolean)
         {
             Caption = 'Check Bank Statements';
-#if not CLEAN19
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '22.0';
         }
         field(11730; "Cash Resp. Ctr. Filter"; Code[10])
         {
@@ -428,24 +428,16 @@ table 91 "User Setup"
         {
             BlankZero = true;
             Caption = 'Bank Amount Approval Limit';
-#if not CLEAN19
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '22.0';
         }
         field(31111; "Unlimited Bank Approval"; Boolean)
         {
             Caption = 'Unlimited Bank Approval';
-#if not CLEAN19
-            ObsoleteState = Pending;
-#else
             ObsoleteState = Removed;
-#endif
             ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '22.0';
         }
         field(31112; "Cash Desk Amt. Approval Limit"; Integer)
         {
@@ -477,6 +469,9 @@ table 91 "User Setup"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "User ID")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -519,11 +514,6 @@ table 91 "User Setup"
         ApprovalUserSetup.Validate("User ID", User."User Name");
         ApprovalUserSetup.Validate("Sales Amount Approval Limit", GetDefaultSalesAmountApprovalLimit());
         ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit());
-#if not CLEAN19
-        // NAVCZ
-        ApprovalUserSetup.Validate("Bank Amount Approval Limit", GetDefaultBankApprovalLimit());
-        // NAVCZ
-#endif
         ApprovalUserSetup.Validate("E-Mail", User."Contact Email");
         UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit());
         if UserSetup.FindFirst() then
@@ -587,31 +577,6 @@ table 91 "User Setup"
         exit(0);
     end;
 
-#if not CLEAN19
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetDefaultBankApprovalLimit(): Integer
-    var
-        UserSetup: Record "User Setup";
-        DefaultApprovalLimit: Integer;
-        LimitedApprovers: Integer;
-    begin
-        // NAVCZ
-        UserSetup.SetRange("Unlimited Bank Approval", false);
-
-        if UserSetup.FindFirst() then begin
-            DefaultApprovalLimit := UserSetup."Bank Amount Approval Limit";
-            LimitedApprovers := UserSetup.Count();
-            UserSetup.SetRange("Bank Amount Approval Limit", DefaultApprovalLimit);
-            if LimitedApprovers = UserSetup.Count then
-                exit(DefaultApprovalLimit);
-        end;
-
-        // Return 0 if no user setup exists or no default value is found
-        exit(0);
-    end;
-
-#endif
     procedure HideExternalUsers()
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -623,7 +588,7 @@ table 91 "User Setup"
         OriginalFilterGroup := FilterGroup;
         FilterGroup := 2;
         CalcFields("License Type");
-        SetFilter("License Type", '<>%1', "License Type"::"External User");
+        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::"AAD Group");
         FilterGroup := OriginalFilterGroup;
     end;
 

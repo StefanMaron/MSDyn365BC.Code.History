@@ -1,14 +1,8 @@
 table 11703 "Text-to-Account Mapping Code"
 {
     Caption = 'Text-to-Account Mapping Code';
-#if not CLEAN19
-    LookupPageID = "Text-to-Account Mapping Codes";
-    ObsoleteState = Pending;
-    ObsoleteTag = '19.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '22.0';
-#endif
     ObsoleteReason = 'The table will no longer be used.';
 
     fields

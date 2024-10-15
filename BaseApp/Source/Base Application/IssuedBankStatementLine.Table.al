@@ -1,23 +1,15 @@
 table 11707 "Issued Bank Statement Line"
 {
     Caption = 'Issued Bank Statement Line';
-#if not CLEAN19
-    DrillDownPageID = "Issued Bank Statement Lines";
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
         field(1; "Bank Statement No."; Code[20])
         {
             Caption = 'Bank Statement No.';
-#if not CLEAN19
-            TableRelation = "Issued Bank Statement Header"."No.";
-#endif
         }
         field(2; "Line No."; Integer)
         {

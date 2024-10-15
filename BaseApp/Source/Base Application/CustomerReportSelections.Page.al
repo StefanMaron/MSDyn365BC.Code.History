@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9657 "Customer Report Selections"
 {
     Caption = 'Document Layouts';
@@ -39,14 +38,6 @@ page 9657 "Customer Report Selections"
                                 Rec.Usage := "Report Selection Usage"::Reminder;
                             "Custom Report Selection Sales"::Shipment:
                                 Rec.Usage := "Report Selection Usage"::"S.Shipment";
-                            // NAVCZ
-                            "Custom Report Selection Sales"::"Adv. Letter":
-                                Rec.Usage := Usage::"S.Adv.Let";
-                            "Custom Report Selection Sales"::"Adv. Invoice":
-                                Rec.Usage := Usage::"S.Adv.Inv";
-                            "Custom Report Selection Sales"::"Adv. Cr.Memo":
-                                Rec.Usage := Usage::"S.Adv.CrM";
-                            // NAVCZ
                             "Custom Report Selection Sales"::"Pro Forma Invoice":
                                 Rec.Usage := "Report Selection Usage"::"Pro Forma S. Invoice";
                             else
@@ -247,14 +238,6 @@ page 9657 "Customer Report Selections"
                 Usage2 := "Custom Report Selection Sales"::Reminder;
             "Report Selection Usage"::"S.Shipment":
                 Usage2 := "Custom Report Selection Sales"::Shipment;
-            // NAVCZ
-            CustomReportSelection.Usage::"S.Adv.Let":
-                Usage2 := Usage2::"Adv. Letter";
-            CustomReportSelection.Usage::"S.Adv.Inv":
-                Usage2 := Usage2::"Adv. Invoice";
-            CustomReportSelection.Usage::"S.Adv.CrM":
-                Usage2 := Usage2::"Adv. Cr.Memo";
-            // NAVCZ
             "Report Selection Usage"::"Pro Forma S. Invoice":
                 Usage2 := "Custom Report Selection Sales"::"Pro Forma Invoice";
 #if not CLEAN21
@@ -272,7 +255,7 @@ page 9657 "Customer Report Selections"
     local procedure FilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
     begin
         ReportSelections.SetFilter(
-            Usage, '%1|%2|%3|%4|%5|%6|%7|%8|%9|%10|%11|%12',
+            Usage, '%1|%2|%3|%4|%5|%6|%7|%8|%9',
             "Report Selection Usage"::"S.Quote",
             "Report Selection Usage"::"S.Order",
             "Report Selection Usage"::"S.Invoice",
@@ -281,9 +264,6 @@ page 9657 "Customer Report Selections"
             "Report Selection Usage"::JQ,
             "Report Selection Usage"::Reminder,
             "Report Selection Usage"::"S.Shipment",
-            "Report Selection Usage"::"S.Adv.Let",
-            "Report Selection Usage"::"S.Adv.Inv",
-            "Report Selection Usage"::"S.Adv.CrM",
             "Report Selection Usage"::"Pro Forma S. Invoice");
 
         OnAfterFilterCustomerUsageReportSelections(ReportSelections);
@@ -313,4 +293,3 @@ page 9657 "Customer Report Selections"
     end;
 }
 
-#endif

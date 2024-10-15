@@ -1,4 +1,3 @@
-#if not CLEAN19
 table 134 "Posted Docs. With No Inc. Buf."
 {
     Caption = 'Posted Docs. With No Inc. Buf.';
@@ -158,8 +157,6 @@ table 134 "Posted Docs. With No Inc. Buf."
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
-        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
-        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
         if PurchaseHeader.FindFirst() then
@@ -170,15 +167,6 @@ table 134 "Posted Docs. With No Inc. Buf."
         GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
         if GenJournalLine.FindFirst() then
             Error(AlreadyIncomingDocErr, GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name");
-        // NAVCZ
-        SalesAdvanceLetterHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if SalesAdvanceLetterHeader.FindFirst() then
-            Error(AlreadyIncomingDocErr, SalesAdvanceLetterHeader.TableCaption(), SalesAdvanceLetterHeader."No.");
-        PurchAdvanceLetterHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if PurchAdvanceLetterHeader.FindFirst() then
-            Error(AlreadyIncomingDocErr, PurchAdvanceLetterHeader.TableCaption(), PurchAdvanceLetterHeader."No.");
-        // NAVCZ
     end;
 }
 
-#endif

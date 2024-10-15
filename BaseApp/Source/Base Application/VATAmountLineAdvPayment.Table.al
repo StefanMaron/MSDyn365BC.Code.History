@@ -1,13 +1,9 @@
 table 31027 "VAT Amount Line Adv. Payment"
 {
     Caption = 'VAT Amount Line Adv. Payment';
-#if not CLEAN19
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
@@ -86,26 +82,5 @@ table 31027 "VAT Amount Line Adv. Payment"
     fieldgroups
     {
     }
-#if not CLEAN19
-
-    [Scope('OnPrem')]
-    procedure InsertLine()
-    var
-        VATAmountLineAdvPmt: Record "VAT Amount Line Adv. Payment";
-    begin
-        if not (("VAT Base (LCY)" = 0) and ("VAT Amount (LCY)" = 0)) then begin
-            VATAmountLineAdvPmt := Rec;
-            if Find() then begin
-                "VAT Base (LCY)" := "VAT Base (LCY)" + VATAmountLineAdvPmt."VAT Base (LCY)";
-                "VAT Amount (LCY)" := "VAT Amount (LCY)" + VATAmountLineAdvPmt."VAT Amount (LCY)";
-                "Amount Including VAT (LCY)" := "VAT Base (LCY)" + "VAT Amount (LCY)";
-                Modify();
-            end else begin
-                "Amount Including VAT (LCY)" := "VAT Base (LCY)" + "VAT Amount (LCY)";
-                Insert();
-            end;
-        end;
-    end;
-#endif
 }
 

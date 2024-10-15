@@ -1,5 +1,4 @@
-﻿#if not CLEAN19
-codeunit 6620 "Copy Document Mgt."
+﻿codeunit 6620 "Copy Document Mgt."
 {
 
     trigger OnRun()
@@ -375,7 +374,7 @@ codeunit 6620 "Copy Document Mgt."
             OnCopySalesDocSalesLineOnAfterSetFilters(FromSalesHeader, FromSalesLine, ToSalesHeader, RecalculateLines);
             if FromSalesLine.Find('-') then
                 repeat
-                    ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, MoveNegLines, FromSalesLine."Attached to Line No.");
+                    ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, MoveNegLines, FromSalesLine);
                     OnCopySalesDocSalesLineOnAfterCalcShouldRunIteration(FromSalesHeader, ToSalesHeader, FromSalesLine, ShouldRunIteration);
                     if ShouldRunIteration then begin
                         InitAsmCopyHandling(true);
@@ -511,7 +510,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure CopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
+    procedure CopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
         ToSalesLine: Record "Sales Line";
         FromSalesLineArchive: Record "Sales Line Archive";
@@ -610,19 +609,13 @@ codeunit 6620 "Copy Document Mgt."
                 if IncludeHeader then
                     ToSalesHeader."Dimension Set ID" := SavedDimSetId;
             end;
+
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
             "Applies-to ID" := '';
             "Opportunity No." := '';
             "Quote No." := '';
-            if ("Document Type" = "Document Type"::"Credit Memo") or ("Document Type" = "Document Type"::"Return Order") then begin
-                "Prepayment Type" := "Prepayment Type"::" ";
-                "Advance Letter No. Series" := '';
-                "Prepayment No. Series" := '';
-                "Prepmt. Cr. Memo No. Series" := '';
-                "Prepayment %" := 0;
-            end;
             OnCopySalesDocUpdateHeaderOnBeforeUpdateCustLedgerEntry(ToSalesHeader, FromDocType.AsInteger(), FromDocNo, OldSalesHeader);
 
             if ((FromDocType = "Sales Document Type From"::"Posted Invoice") and
@@ -957,7 +950,7 @@ codeunit 6620 "Copy Document Mgt."
             OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader, FromPurchLine, ToPurchHeader, RecalculateLines);
             if FromPurchLine.Find('-') then
                 repeat
-                    if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine."Attached to Line No.") then
+                    if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine) then
                         if CopyPurchDocLine(
                              ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, false,
                              ConvertToPurchaseDocumentTypeFrom(FromPurchHeader."Document Type"),
@@ -1029,7 +1022,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure CopyPurchDocPurchLineArchive(FromPurchHeaderArchive: Record "Purchase Header Archive"; var ToPurchHeader: Record "Purchase Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
+    procedure CopyPurchDocPurchLineArchive(FromPurchHeaderArchive: Record "Purchase Header Archive"; var ToPurchHeader: Record "Purchase Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
         ToPurchLine: Record "Purchase Line";
         FromPurchLineArchive: Record "Purchase Line Archive";
@@ -1130,13 +1123,6 @@ codeunit 6620 "Copy Document Mgt."
             "Applies-to Doc. No." := '';
             "Applies-to ID" := '';
             "Quote No." := '';
-            if ("Document Type" = "Document Type"::"Credit Memo") or ("Document Type" = "Document Type"::"Return Order") then begin
-                "Prepayment Type" := "Prepayment Type"::" ";
-                "Advance Letter No. Series" := '';
-                "Prepayment No. Series" := '';
-                "Prepmt. Cr. Memo No. Series" := '';
-                "Prepayment %" := 0;
-            end;
             OnCopyPurchDocUpdateHeaderOnBeforeUpdateVendLedgerEntry(ToPurchHeader, FromDocType.AsInteger(), FromDocNo);
 
             if ((FromDocType = "Purchase Document Type From"::"Posted Invoice") and
@@ -1458,7 +1444,7 @@ codeunit 6620 "Copy Document Mgt."
         CheckSalesRounding(FromSalesLine, RoundingLineInserted);
 
         CopyThisLine := not (((ToSalesHeader."Language Code" <> FromSalesHeader."Language Code") or RecalculateLines) and
-           (FromSalesLine."Attached to Line No." <> 0) or
+           FromSalesLine.IsExtendedText() or
            FromSalesLine."Prepayment Line" or RoundingLineInserted);
         OnCopySalesDocLineOnAfterCalcCopyThisLine(ToSalesHeader, FromSalesHeader, FromSalesLine, RoundingLineInserted, CopyThisLine, RecalculateLines);
         if not CopyThisLine then
@@ -1626,15 +1612,8 @@ codeunit 6620 "Copy Document Mgt."
         ClearSalesLastNoSFields(SalesHeader);
         with SalesHeader do begin
             Status := Status::Open;
-            if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then begin // NAVCZ
+            if "Document Type" <> "Document Type"::Order then
                 "Prepayment %" := 0;
-                // NAVCZ
-                "Prepayment Type" := "Prepayment Type"::" ";
-                "Advance Letter No. Series" := '';
-                "Prepayment No. Series" := '';
-                "Prepmt. Cr. Memo No. Series" := '';
-                // NAVCZ
-            end;
             if FromDocType = "Sales Document Type From"::"Return Order" then begin
                 CopySellToAddressToShipToAddress();
                 OnUpdateSalesHeaderWhenCopyFromSalesHeaderOnBeforeValidateShipToCode(SalesHeader);
@@ -1859,7 +1838,7 @@ codeunit 6620 "Copy Document Mgt."
         CheckPurchRounding(FromPurchLine, RoundingLineInserted);
 
         if ((ToPurchHeader."Language Code" <> FromPurchHeader."Language Code") or RecalculateLines) and
-           (FromPurchLine."Attached to Line No." <> 0) or
+           FromPurchLine.IsExtendedText() or
            FromPurchLine."Prepayment Line" or RoundingLineInserted
         then
             exit(false);
@@ -2011,15 +1990,8 @@ codeunit 6620 "Copy Document Mgt."
             Receive := false;
             Status := Status::Open;
             "IC Status" := "IC Status"::New;
-            if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then begin // NAVCZ
+            if "Document Type" <> "Document Type"::Order then
                 "Prepayment %" := 0;
-                // NAVCZ
-                "Prepayment Type" := "Prepayment Type"::" ";
-                "Advance Letter No. Series" := '';
-                "Prepayment No. Series" := '';
-                "Prepmt. Cr. Memo No. Series" := '';
-                // NAVCZ
-            end;
             if FromDocType in ["Purchase Document Type From"::Quote, "Purchase Document Type From"::"Blanket Order"] then
                 if OriginalPurchaseHeader."Posting Date" = 0D then
                     "Posting Date" := WorkDate()
@@ -2163,10 +2135,6 @@ codeunit 6620 "Copy Document Mgt."
             exit;
         if not FromPurchLine."System-Created Entry" then
             exit;
-        // NAVCZ
-        if FromPurchLine."Prepayment Line" then
-            exit;
-        // NAVCZ
 
         PurchSetup.Get();
         if PurchSetup."Invoice Rounding" then begin
@@ -2192,10 +2160,6 @@ codeunit 6620 "Copy Document Mgt."
             exit;
         if not FromSalesLine."System-Created Entry" then
             exit;
-        // NAVCZ
-        if FromSalesLine."Prepayment Line" then
-            exit;
-        // NAVCZ
 
         SalesSetup.Get();
         if SalesSetup."Invoice Rounding" then begin
@@ -5989,7 +5953,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
 
         if ((ToSalesHeader."Language Code" <> FromSalesHeaderArchive."Language Code") or RecalculateLines) and
-           (FromSalesLineArchive."Attached to Line No." <> 0)
+           FromSalesLineArchive.IsExtendedText()
         then
             exit(false);
 
@@ -6077,11 +6041,12 @@ codeunit 6620 "Copy Document Mgt."
         IsHandled := false;
         OnCopyArchSalesLineOnBeforeTransferExtendedText(ToSalesHeader, ToSalesLine, FromSalesHeaderArchive, FromSalesLineArchive, RecalculateLines, NextLineNo, TransferOldExtLines, IsHandled);
         if not IsHandled then
-            if not ((ToSalesHeader."Language Code" <> FromSalesHeaderArchive."Language Code") or RecalculateLines) then
-                ToSalesLine."Attached to Line No." :=
-                TransferOldExtLines.TransferExtendedText(
-                    FromSalesLineArchive."Line No.", NextLineNo, FromSalesLineArchive."Attached to Line No.")
-            else
+            if not ((ToSalesHeader."Language Code" <> FromSalesHeaderArchive."Language Code") or RecalculateLines) then begin
+                if FromSalesLineArchive.IsExtendedText() then
+                    ToSalesLine."Attached to Line No." :=
+                        TransferOldExtLines.TransferExtendedText(
+                          FromSalesLineArchive."Line No.", NextLineNo, FromSalesLineArchive."Attached to Line No.");
+            end else
                 if TransferExtendedText.SalesCheckIfAnyExtText(ToSalesLine, false) then begin
                     TransferExtendedText.InsertSalesExtText(ToSalesLine);
                     ToSalesLine2.SetRange("Document Type", ToSalesLine."Document Type");
@@ -6117,7 +6082,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
 
         if ((ToPurchHeader."Language Code" <> FromPurchHeaderArchive."Language Code") or RecalculateLines) and
-           (FromPurchLineArchive."Attached to Line No." <> 0)
+           FromPurchLineArchive.IsExtendedText()
         then
             exit(false);
 
@@ -6206,11 +6171,12 @@ codeunit 6620 "Copy Document Mgt."
         IsHandled := false;
         OnCopyArchPurchLineOnBeforeCopyArchPurchLineExtText(ToPurchHeader, ToPurchLine, FromPurchHeaderArchive, FromPurchLineArchive, NextLineNo, RecalculateLines, IsHandled, TransferOldExtLines);
         if not IsHandled then
-            if not ((ToPurchHeader."Language Code" <> FromPurchHeaderArchive."Language Code") or RecalculateLines) then
-                ToPurchLine."Attached to Line No." :=
-                  TransferOldExtLines.TransferExtendedText(
-                    FromPurchLineArchive."Line No.", NextLineNo, FromPurchLineArchive."Attached to Line No.")
-            else
+            if not ((ToPurchHeader."Language Code" <> FromPurchHeaderArchive."Language Code") or RecalculateLines) then begin
+                if FromPurchLineArchive.IsExtendedText() then
+                    ToPurchLine."Attached to Line No." :=
+                        TransferOldExtLines.TransferExtendedText(
+                          FromPurchLineArchive."Line No.", NextLineNo, FromPurchLineArchive."Attached to Line No.");
+            end else
                 if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then begin
                     TransferExtendedText.InsertPurchExtText(ToPurchLine);
                     ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
@@ -6456,7 +6422,6 @@ codeunit 6620 "Copy Document Mgt."
             "Prepmt. Cr. Memo No. Series" := OldSalesHeader."Prepmt. Cr. Memo No. Series";
             "Prepmt. Cr. Memo No." := OldSalesHeader."Prepmt. Cr. Memo No.";
             "Prepmt. Posting Description" := OldSalesHeader."Prepmt. Posting Description";
-            "Prepayment Type" := OldSalesHeader."Prepayment Type"; // NAVCZ
             SetSalespersonPurchaserCode("Salesperson Code");
             Area := OldSalesHeader.Area;
             "Exit Point" := OldSalesHeader."Exit Point";
@@ -6482,7 +6447,6 @@ codeunit 6620 "Copy Document Mgt."
             "Prepmt. Cr. Memo No. Series" := OldPurchHeader."Prepmt. Cr. Memo No. Series";
             "Prepmt. Cr. Memo No." := OldPurchHeader."Prepmt. Cr. Memo No.";
             "Prepmt. Posting Description" := OldPurchHeader."Prepmt. Posting Description";
-            "Prepayment Type" := OldPurchHeader."Prepayment Type"; // NAVCZ
             SetSalespersonPurchaserCode("Purchaser Code");
             Area := OldPurchHeader.Area;
             "Entry Point" := OldPurchHeader."Entry Point";
@@ -7234,26 +7198,26 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; MoveNegLines: Boolean; AttachedToLineNo: Integer): Boolean
+    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; MoveNegLines: Boolean; SalesLine: Record "Sales Line"): Boolean
     var
         AttachedToSalesLine: Record "Sales Line";
     begin
         if MoveNegLines then
-            if AttachedToLineNo <> 0 then
-                if AttachedToSalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", AttachedToLineNo) then
+            if SalesLine.IsExtendedText() then
+                if AttachedToSalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Attached to Line No.") then
                     if AttachedToSalesLine.Quantity >= 0 then
                         exit(true);
 
         exit(false);
     end;
 
-    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; AttachedToLineNo: Integer): Boolean
+    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; PurchLine: Record "Purchase Line"): Boolean
     var
         AttachedToPurchLine: Record "Purchase Line";
     begin
         if MoveNegLines then
-            if AttachedToLineNo <> 0 then
-                if AttachedToPurchLine.Get(PurchHeader."Document Type", PurchHeader."No.", AttachedToLineNo) then
+            if PurchLine.IsExtendedText() then
+                if AttachedToPurchLine.Get(PurchHeader."Document Type", PurchHeader."No.", PurchLine."Attached to Line No.") then
                     if AttachedToPurchLine.Quantity >= 0 then
                         exit(true);
 
@@ -10033,4 +9997,3 @@ codeunit 6620 "Copy Document Mgt."
     end;
 }
 
-#endif

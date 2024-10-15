@@ -32,6 +32,7 @@ codeunit 136114 "Service Order Check"
         CountError: Label '%1 %2 must exist.', Comment = '%1: Count of Lines;%2: Table Caption';
         PostingDateErr: Label 'Posting Date of Value Entry is incorrect';
         PostedShipmentDateTxt: Label 'Posted Shipment Date';
+        VATDateMissingErr: Label 'VAT Date field must be filled for service order';
         TestFieldCodeErr: Label 'TestField';
         ReleasedStatusErr: Label 'Release Status must be equal to ''%1''  in Service Header: Document Type=%2, No.=%3. Current value is ''%4''.', Comment = '%1 - Status, %2 - Document Type, %3 - Document No., %4 - Expected Status';
         ServiceLinesChangeMsg: Label 'You have changed %1 on the %2, but it has not been changed on the existing service lines.\You must update the existing service lines manually.';
@@ -55,6 +56,9 @@ codeunit 136114 "Service Order Check"
 
         // 3. Verify: Check that Service Order Exists.
         ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
+
+        // 3. Verify: VAT Date on Service Order
+        Assert.AreNotEqual('', ServiceHeader."VAT Reporting Date", VATDateMissingErr);
     end;
 
     [Test]

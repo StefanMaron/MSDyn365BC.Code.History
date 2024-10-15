@@ -1,7 +1,8 @@
 #if CLEAN21
 codeunit 396 NoSeriesManagement
 {
-    Permissions = TableData "No. Series Line" = rimd;
+    Permissions = tabledata "No. Series Line" = rimd,
+                  tabledata "No. Series" = r;
 
     trigger OnRun()
     begin
@@ -62,7 +63,7 @@ codeunit 396 NoSeriesManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitSeries(DefaultNoSeriesCode, OldNoSeriesCode, NewDate, NewNo, NewNoSeriesCode, NoSeries, IsHandled);
+        OnBeforeInitSeries(DefaultNoSeriesCode, OldNoSeriesCode, NewDate, NewNo, NewNoSeriesCode, NoSeries, IsHandled, NoSeriesCode);
         if IsHandled then
             exit;
 
@@ -113,6 +114,7 @@ codeunit 396 NoSeriesManagement
                 NoSeries.Code := OldNoSeriesCode;
         end else
             NoSeries.Code := NewNoSeriesCode;
+        OnSelectSeriesOnBeforePageRunModal(DefaultNoSeriesCode, NoSeries);
         if PAGE.RunModal(0, NoSeries) = ACTION::LookupOK then begin
             NewNoSeriesCode := NoSeries.Code;
             exit(true);
@@ -143,7 +145,7 @@ codeunit 396 NoSeriesManagement
         NewNo := GetNextNo(NoSeries.Code, 0D, true);
     end;
 
-    local procedure FilterSeries()
+    procedure FilterSeries()
     var
         NoSeriesRelationship: Record "No. Series Relationship";
         IsHandled: Boolean;
@@ -170,20 +172,18 @@ codeunit 396 NoSeriesManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, Result, IsHandled);
+        OnBeforeGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, Result, IsHandled, LastNoSeriesLine);
         if IsHandled then
             exit(Result);
 
         exit(DoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, false));
     end;
 
-#if not CLEAN21
-    // This function is deprecated. Use the function in the line below instead
+    [Obsolete('Use DoGetNextNo() instead', '21.0')]
     procedure GetNextNo3(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean; NoErrorsOrWarnings: Boolean): Code[20]
     begin
         exit(DoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, NoErrorsOrWarnings));
     end;
-#endif    
 
     /// <summary>
     /// Gets the next number in a number series.
@@ -281,8 +281,6 @@ codeunit 396 NoSeriesManagement
               NoSeriesLine."Ending No.", NoSeriesCode);
         end;
 
-        NoSeriesLine.Validate(Open);
-
         if ModifySeries and NoSeriesLine.Open and (not NoSeriesLine."Allow Gaps in Nos." or UpdateLastUsedDate) then
             ModifyNoSeriesLine(NoSeriesLine);
         if Not ModifySeries then
@@ -313,6 +311,7 @@ codeunit 396 NoSeriesManagement
         OnBeforeModifyNoSeriesLine(NoSeriesLine, IsHandled);
         if IsHandled then
             exit;
+        NoSeriesLine.Validate(Open);
         LastNoUsed := NoSeriesLine."Last No. Used";
         if NoSeriesLine."Allow Gaps in Nos." then
             NoSeriesLine."Last No. Used" := '';
@@ -329,13 +328,11 @@ codeunit 396 NoSeriesManagement
             exit(NoSeriesMgt.GetNextNoAfterRun());
     end;
 
-#if not CLEAN21
-    // This function is deprecated. Use the function in the line below instead
+    [Obsolete('Use SetParametersBeforeRun() instead', '21.0')]
     procedure GetNextNo1(NoSeriesCode: Code[20]; SeriesDate: Date)
     begin
         SetParametersBeforeRun(NoSeriesCode, SeriesDate);
     end;
-#endif    
 
     procedure SetParametersBeforeRun(NoSeriesCode: Code[20]; SeriesDate: Date)
     begin
@@ -344,13 +341,12 @@ codeunit 396 NoSeriesManagement
         OnAfterSetParametersBeforeRun(TryNoSeriesCode, TrySeriesDate, WarningNoSeriesCode);
     end;
 
-#if not CLEAN21
-    // This function is deprecated. Use the function in the line below instead
+
+    [Obsolete('Use GetNextNoAfterRun() instead', '21.0')]
     procedure GetNextNo2(): Code[20]
     begin
         exit(GetNextNoAfterRun());
     end;
-#endif    
 
     procedure GetNextNoAfterRun(): Code[20]
     begin
@@ -570,7 +566,7 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; var Result: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; var Result: Code[20]; var IsHandled: Boolean; var NoSeriesLine: Record "No. Series Line")
     begin
     end;
 
@@ -621,12 +617,17 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitSeries(DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; NewDate: Date; var NewNo: Code[20]; var NewNoSeriesCode: Code[20]; var NoSeries: Record "No. Series"; var IsHandled: Boolean)
+    local procedure OnBeforeInitSeries(DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; NewDate: Date; var NewNo: Code[20]; var NewNoSeriesCode: Code[20]; var NoSeries: Record "No. Series"; var IsHandled: Boolean; var NoSeriesCode: Code[20])
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectSeries(DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; var NewNoSeriesCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectSeriesOnBeforePageRunModal(DefaultNoSeriesCode: Code[20]; var NoSeries: Record "No. Series")
     begin
     end;
 }

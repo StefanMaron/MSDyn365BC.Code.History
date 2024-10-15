@@ -933,14 +933,14 @@ codeunit 139174 "CRM Coupling Record"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Customer.RecordId);
 
         // [THEN] Fields part is NOT editable
-        Assert.IsFalse(CRMCouplingRecord.CoupledFields.Editable, 'Fields part should be not editable');
-        Assert.IsTrue(CRMCouplingRecord.CoupledFields.First, 'There should be fields in the list part');
+        Assert.IsFalse(CRMCouplingRecord.CouplingFields.Editable, 'Fields part should be not editable');
+        Assert.IsTrue(CRMCouplingRecord.CouplingFields.First, 'There should be fields in the list part');
         IntegrationFieldMapping.FindFirst();
         ActualFieldCount := 1;
-        while CRMCouplingRecord.CoupledFields.Next() do begin
+        while CRMCouplingRecord.CouplingFields.Next() do begin
             ActualFieldCount += 1;
             // [THEN] First mapped field values are shown in the list part
-            if CRMCouplingRecord.CoupledFields."Field Name".Value = GetFldRefCaption(DATABASE::Customer, IntegrationFieldMapping."Field No.") then
+            if CRMCouplingRecord.CouplingFields."Field Name".Value = GetFldRefCaption(DATABASE::Customer, IntegrationFieldMapping."Field No.") then
                 VerifyFieldValues(Customer, CRMAccount, IntegrationFieldMapping, CRMCouplingRecord);
         end;
         // [THEN] Fields part contains 15 fields
@@ -978,14 +978,14 @@ codeunit 139174 "CRM Coupling Record"
           GetFldRefValue(RecRef, IntegrationFieldMapping."Integration Table Field No.");
         Assert.AreNotEqual('', ExpectedCRMValue, 'Expected CRM Value should not be blank');
         Assert.AreEqual(
-          ExpectedCRMValue, CRMCouplingRecord.CoupledFields."Integration Value".Value,
+          ExpectedCRMValue, CRMCouplingRecord.CouplingFields."Integration Value".Value,
           StrSubstNo('Incorrect CRM Value for the field %1', FieldCaption));
 
         RecRef.GetTable(Customer);
         ExpectedNAVValue := GetFldRefValue(RecRef, IntegrationFieldMapping."Field No.");
         Assert.AreNotEqual('', ExpectedNAVValue, 'Expected NAV Value should not be blank');
         Assert.AreEqual(
-          ExpectedNAVValue, CRMCouplingRecord.CoupledFields.Value.Value,
+          ExpectedNAVValue, CRMCouplingRecord.CouplingFields.Value.Value,
           StrSubstNo('Incorrect NAV Value for the field %1', FieldCaption));
     end;
 
@@ -1532,8 +1532,8 @@ codeunit 139174 "CRM Coupling Record"
         // by CRMAccountListHandler
 
         // [THEN] Values in the page now correspond to new CRM Account "B"
-        CRMCouplingRecord.CoupledFields.First;
-        CRMCouplingRecord.CoupledFields."Integration Value".AssertEquals(OtherCRMAccount.Name);
+        CRMCouplingRecord.CouplingFields.First;
+        CRMCouplingRecord.CouplingFields."Integration Value".AssertEquals(OtherCRMAccount.Name);
     end;
 
     local procedure Initialize()

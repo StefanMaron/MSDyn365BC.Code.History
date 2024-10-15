@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 2018 "Fixed Assets Journals - Post"
 {
     Access = Public;
@@ -18,7 +17,6 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "Currency Exchange Rate" = r,
                   tabledata Customer = r,
                   tabledata "Date Compr. Register" = r,
-                  tabledata "Detailed G/L Entry" = Ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "FA Allocation" = R,
@@ -72,4 +70,3 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata "VAT Setup Posting Groups" = r,
                   tabledata Vendor = r;
 }
-#endif

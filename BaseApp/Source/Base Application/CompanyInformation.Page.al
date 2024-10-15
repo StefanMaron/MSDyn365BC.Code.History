@@ -1,4 +1,3 @@
-﻿#if not CLEAN19
 Page 1 "Company Information"
 {
     AdditionalSearchTerms = 'change experience,suite,user interface,company badge';
@@ -17,7 +16,7 @@ Page 1 "Company Information"
             group(General)
             {
                 Caption = 'General';
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
@@ -104,12 +103,19 @@ Page 1 "Company Information"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
                 }
                 field("Industrial Classification"; Rec."Industrial Classification")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
+                }
+                field("Registration No."; Rec."Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 field(Picture; Picture)
                 {
@@ -417,23 +423,6 @@ Page 1 "Company Information"
                         "Custom System Indicator Text" := SystemIndicatorText;
                         SystemIndicatorOnAfterValidate();
                     end;
-                }
-            }
-            group(Registration)
-            {
-                Caption = 'Registration';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '19.0';
-                Visible = false;
-                field("Registration No."; Rec."Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number received from goverment.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
                 }
             }
             group("User Experience")
@@ -814,4 +803,3 @@ Page 1 "Company Information"
     end;
 }
 
-#endif

@@ -1002,20 +1002,6 @@ codeunit 134421 "Report Selections Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure UT_TestReportSelectionsUsageValues_Local()
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        Assert.AreEqual(ReportSelections.Usage::"S.Adv.Let", 120, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"S.Adv.Inv", 121, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"S.Adv.CrM", 122, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"P.Adv.Let", 123, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"P.Adv.Inv", 124, 'Wrong Usage option value.');
-        Assert.AreEqual(ReportSelections.Usage::"P.Adv.CrM", 125, 'Wrong Usage option value.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CopyFromReportSelectionsCustomerUT()
     var
         CustomReportSelection: Record "Custom Report Selection";

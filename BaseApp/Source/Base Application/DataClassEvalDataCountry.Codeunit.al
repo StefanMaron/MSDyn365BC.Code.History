@@ -19,51 +19,14 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
-#if not CLEAN19
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Pmt. Appl. Rule Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Text-to-Account Mapping Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Statement Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Bank Statement Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Bank Statement Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Bank Statement Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Order Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Payment Order Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Payment Order Line");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Calc. Line");
-#if not CLEAN19
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed G/L Entry");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Rate");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Fin. Charge Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Iss.Fin.Ch. Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Reminder Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Issued Reminder Line");
-#if not CLEAN19
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Advance Letter Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Adv. Payment Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Advance Link");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purch. Advance Letter Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purch. Advance Letter Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purch. Advance Letter Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Advance Letter Line Relation");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Amount Line Adv. Payment");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purchase Adv. Payment Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Advance Link Buffer - Entry");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Acc. Schedule");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Filter Line");
-#if not CLEAN19
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Column");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Value");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result History");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Extension");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;

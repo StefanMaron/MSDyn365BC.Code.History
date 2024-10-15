@@ -1,4 +1,3 @@
-﻿#if not CLEAN19
 codeunit 57 "Document Totals"
 {
 
@@ -11,8 +10,6 @@ codeunit 57 "Document Totals"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PreviousTotalSalesHeader: Record "Sales Header";
         PreviousTotalPurchaseHeader: Record "Purchase Header";
-        PreviousTotalSalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
-        PreviousTotalPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
         ForceTotalsRecalculation: Boolean;
@@ -27,7 +24,6 @@ codeunit 57 "Document Totals"
         TotalVATLbl: Label 'Total VAT';
         TotalAmountInclVatLbl: Label 'Total Incl. VAT';
         TotalAmountExclVATLbl: Label 'Total Excl. VAT';
-        TotalAmountLbl: Label 'Total';
         InvoiceDiscountAmountLbl: Label 'Invoice Discount Amount';
         RefreshMsgTxt: Label 'Totals or discounts may not be up-to-date. Choose the link to update.';
         TotalLineAmountLbl: Label 'Subtotal';
@@ -750,14 +746,6 @@ codeunit 57 "Document Totals"
         exit(GetCaptionClassWithCurrencyCode(TotalAmountExclVATLbl, CurrencyCode));
     end;
 
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetTotalCaption(CurrencyCode: Code[10]): Text
-    begin
-        // NAVCZ
-        exit(GetCaptionWithCurrencyCode(TotalAmountLbl, CurrencyCode));
-    end;
-
     local procedure GetCaptionClassWithCurrencyCode(CaptionWithoutCurrencyCode: Text; CurrencyCode: Code[10]): Text
     begin
         exit('3,' + GetCaptionWithCurrencyCode(CaptionWithoutCurrencyCode, CurrencyCode));
@@ -878,143 +866,6 @@ codeunit 57 "Document Totals"
             exit(PurchaseLine.Count <= 10);
 
         exit(PurchaseLine.Count <= 100);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure SalesAdvanceUpdateTotalsControls(CurrentSalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var TotalSalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var TotalSalesAdvanceLetterLine: Record "Sales Advance Letter Line")
-    begin
-        // NAVCZ
-        if CurrentSalesAdvanceLetterLine."Letter No." = '' then
-            exit;
-
-        TotalSalesAdvanceLetterHeader.Get(CurrentSalesAdvanceLetterLine."Letter No.");
-        SalesAdvanceUpdateTotals(TotalSalesAdvanceLetterHeader, CurrentSalesAdvanceLetterLine, TotalSalesAdvanceLetterLine);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    local procedure SalesAdvanceUpdateTotals(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; CurrentSalesAdvanceLetterLine: Record "Sales Advance Letter Line"; var TotalSalesAdvanceLetterLine: Record "Sales Advance Letter Line")
-    begin
-        // NAVCZ
-        SalesAdvanceLetterHeader.CalcFields("Amount Including VAT");
-
-        if (PreviousTotalSalesAdvanceLetterHeader."Amount Including VAT" = SalesAdvanceLetterHeader."Amount Including VAT") and
-           (PreviousTotalPurchAdvanceLetterHeader."No." = SalesAdvanceLetterHeader."No.") and
-           not SalesAdvanceLetterHeader."Amounts Including VAT"
-        then
-            exit;
-
-        if not SalesAdvanceCheckNumberOfLinesLimit(SalesAdvanceLetterHeader) then
-            exit;
-
-        SalesAdvanceCalculateTotals(CurrentSalesAdvanceLetterLine, TotalSalesAdvanceLetterLine);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    local procedure SalesAdvanceCalculateTotals(var TempCurrentSalesAdvanceLetterLine: Record "Sales Advance Letter Line" temporary; var TempTotalSalesAdvanceLetterLine: Record "Sales Advance Letter Line" temporary)
-    var
-        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
-        SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        TotalVATToInvoice: Decimal;
-        TotalVATInvoiced: Decimal;
-    begin
-        // NAVCZ
-        Clear(TempTotalSalesAdvanceLetterLine);
-        if SalesAdvanceLetterHeader.Get(TempCurrentSalesAdvanceLetterLine."Letter No.") then begin
-            SalesAdvanceLetterLine.CalcVATAmountLines(
-              SalesAdvanceLetterHeader, TempVATAmountLine, TempTotalSalesAdvanceLetterLine,
-              TotalVATToInvoice, TotalVATInvoiced);
-
-            if PreviousTotalSalesAdvanceLetterHeader."No." <> TempCurrentSalesAdvanceLetterLine."Letter No." then
-                PreviousTotalSalesAdvanceLetterHeader.Get(TempCurrentSalesAdvanceLetterLine."Letter No.");
-            PreviousTotalSalesAdvanceLetterHeader.CalcFields("Amount Including VAT");
-        end;
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure SalesAdvanceCheckNumberOfLinesLimit(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"): Boolean
-    var
-        SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
-    begin
-        // NAVCZ
-        SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-
-        exit(SalesAdvanceLetterLine.Count <= 100);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure PurchaseAdvanceUpdateTotalsControls(CurrentPurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TotalPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var TotalPurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
-    begin
-        // NAVCZ
-        if CurrentPurchAdvanceLetterLine."Letter No." = '' then
-            exit;
-
-        TotalPurchAdvanceLetterHeader.Get(CurrentPurchAdvanceLetterLine."Letter No.");
-        PurchaseAdvanceUpdateTotals(TotalPurchAdvanceLetterHeader, CurrentPurchAdvanceLetterLine, TotalPurchAdvanceLetterLine);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    local procedure PurchaseAdvanceUpdateTotals(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; CurrentPurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TotalPurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
-    begin
-        // NAVCZ
-        PurchAdvanceLetterHeader.CalcFields("Amount Including VAT");
-
-        if (PreviousTotalPurchAdvanceLetterHeader."Amount Including VAT" = PurchAdvanceLetterHeader."Amount Including VAT") and
-           (PreviousTotalPurchAdvanceLetterHeader."No." = PurchAdvanceLetterHeader."No.") and
-           not PurchAdvanceLetterHeader."Amounts Including VAT"
-        then
-            exit;
-
-        if not PurchaseAdvanceCheckNumberOfLinesLimit(PurchAdvanceLetterHeader) then
-            exit;
-
-        PurchaseAdvanceCalculateTotals(CurrentPurchAdvanceLetterLine, TotalPurchAdvanceLetterLine);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    local procedure PurchaseAdvanceCalculateTotals(var TempCurrentPurchAdvanceLetterLine: Record "Purch. Advance Letter Line" temporary; var TempTotalPurchAdvanceLetterLine: Record "Purch. Advance Letter Line" temporary)
-    var
-        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-        PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        TotalVATToInvoice: Decimal;
-        TotalVATInvoiced: Decimal;
-    begin
-        // NAVCZ
-        Clear(TempTotalPurchAdvanceLetterLine);
-        if PurchAdvanceLetterHeader.Get(TempCurrentPurchAdvanceLetterLine."Letter No.") then begin
-            PurchAdvanceLetterLine.CalcVATAmountLines(
-              PurchAdvanceLetterHeader, TempVATAmountLine, TempTotalPurchAdvanceLetterLine,
-              TotalVATToInvoice, TotalVATInvoiced);
-
-            if PreviousTotalPurchAdvanceLetterHeader."No." <> TempCurrentPurchAdvanceLetterLine."Letter No." then
-                PreviousTotalPurchAdvanceLetterHeader.Get(TempCurrentPurchAdvanceLetterLine."Letter No.");
-            PreviousTotalPurchAdvanceLetterHeader.CalcFields("Amount Including VAT");
-        end;
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure PurchaseAdvanceCheckNumberOfLinesLimit(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"): Boolean
-    var
-        PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
-    begin
-        // NAVCZ
-        PurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
-
-        exit(PurchAdvanceLetterLine.Count <= 100);
-    end;
-
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure CalculatePaymentOrderTotals(var PaymentOrderHeader: Record "Payment Order Header"; PaymentOrderLine: Record "Payment Order Line")
-    begin
-        // NAVCZ
-        if PaymentOrderHeader.Get(PaymentOrderLine."Payment Order No.") then
-            PaymentOrderHeader.CalcFields("Amount (Pay.Order Curr.)");
     end;
 
     local procedure CalculateSalesTaxForTempTotalPurchaseLine(PurchaseHeader: Record "Purchase Header"; CurrentPurchaseLine: Record "Purchase Line"; var TempTotalPurchaseLine: Record "Purchase Line" temporary)
@@ -1209,4 +1060,3 @@ codeunit 57 "Document Totals"
     end;
 }
 
-#endif

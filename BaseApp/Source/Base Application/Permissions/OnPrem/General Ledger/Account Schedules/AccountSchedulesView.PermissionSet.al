@@ -5,20 +5,9 @@ permissionset 5417 "Account Schedules - View"
     Assignable = false;
     Caption = 'Read account schedules';
     Permissions =
-#if not CLEAN19
-                  tabledata "Acc. Sched. Expression Buffer" = R,
-                  tabledata "Acc. Schedule Extension" = R,
-#endif
                   tabledata "Acc. Schedule Filter Line" = R,
                   tabledata "Acc. Schedule Line" = R,
                   tabledata "Acc. Schedule Name" = RI,
-#if not CLEAN19
-                  tabledata "Acc. Schedule Result Column" = R,
-                  tabledata "Acc. Schedule Result Header" = R,
-                  tabledata "Acc. Schedule Result History" = R,
-                  tabledata "Acc. Schedule Result Line" = R,
-                  tabledata "Acc. Schedule Result Value" = R,
-#endif
                   tabledata "Financial Report" = RI,
                   tabledata "Financial Report User Filters" = RIMD,
                   tabledata "Analysis View" = R,

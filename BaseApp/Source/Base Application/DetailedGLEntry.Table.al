@@ -1,19 +1,11 @@
 table 11778 "Detailed G/L Entry"
 {
     Caption = 'Detailed G/L Entry';
-#if CLEAN19
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     DataCaptionFields = "G/L Account No.";
-#if not CLEAN19
-    DrillDownPageID = "Detailed G/L Entries";
-    LookupPageID = "Detailed G/L Entries";
-#endif
 
     fields
     {
@@ -60,9 +52,6 @@ table 11778 "Detailed G/L Entry"
         field(10; "Unapplied by Entry No."; Integer)
         {
             Caption = 'Unapplied by Entry No.';
-#if not CLEAN19
-            TableRelation = "Detailed G/L Entry";
-#endif
         }
         field(11; "User ID"; Code[50])
         {

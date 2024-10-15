@@ -1,4 +1,3 @@
-﻿#if not CLEAN19
 page 279 "Source Code Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -30,24 +29,6 @@ page 279 "Source Code Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code linked to entries that are posted when you run the Close Income Statement batch job.';
-                }
-                field("Close Balance Sheet"; Rec."Close Balance Sheet")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for close balance sheet.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
-                }
-                field("Open Balance Sheet"; Rec."Open Balance Sheet")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the source code for open balance sheet.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '19.0';
-                    Visible = false;
                 }
                 field("VAT Settlement"; Rec."VAT Settlement")
                 {
@@ -396,6 +377,11 @@ page 279 "Source Code Setup"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the code that is linked to the entries that are posted from a production journal.';
                 }
+                field("Production Order"; Rec."Production Order")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the code that is used for def. dimension priorities on Prod. Order Components.';
+                }
             }
             group(Service)
             {
@@ -499,4 +485,3 @@ page 279 "Source Code Setup"
     end;
 }
 
-#endif

@@ -795,7 +795,6 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // SETUP: Create and Save data to update in a temporary table.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
         SalesHeader.Validate("Prices Including VAT", true);
-        SalesHeader.Validate("Prepayment Type", SalesHeader."Prepayment Type"::Prepayment); // NAVCZ
         ERMVATToolHelper.CreateSalesLines(SalesHeader, '', GetLineCount(false));
         TempRecRef.Open(DATABASE::"Sales Line", true);
         ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);

@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 441 "Prepayment Mgt."
 {
 
@@ -127,11 +126,6 @@ codeunit 441 "Prepayment Mgt."
         if IsHandled then
             exit(TestResult);
 
-        // NAVCZ
-        if SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Advance then
-            exit;
-        // NAVCZ
-
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
             exit(false);
 
@@ -157,11 +151,6 @@ codeunit 441 "Prepayment Mgt."
         if IsHandled then
             exit(TestResult);
 
-        // NAVCZ
-        if PurchaseHeader."Prepayment Type" = PurchaseHeader."Prepayment Type"::Advance then
-            exit;
-        // NAVCZ
-
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Quote then
             exit(false);
 
@@ -178,15 +167,8 @@ codeunit 441 "Prepayment Mgt."
 
     procedure TestSalesOrderLineForGetShptLines(SalesLine: Record "Sales Line")
     var
-        SalesHeader: Record "Sales Header";
         IsHandled: Boolean;
     begin
-        // NAVCZ
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        if SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Advance then
-            exit;
-        // NAVCZ
-
         IsHandled := false;
         OnBeforeTestSalesOrderLineForGetShptLines(SalesLine, IsHandled);
         if IsHandled then
@@ -198,15 +180,8 @@ codeunit 441 "Prepayment Mgt."
 
     procedure TestPurchaseOrderLineForGetRcptLines(PurchaseLine: Record "Purchase Line")
     var
-        PurchaseHeader: Record "Purchase Header";
         IsHandled: Boolean;
     begin
-        // NAVCZ
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        if PurchaseHeader."Prepayment Type" = PurchaseHeader."Prepayment Type"::Advance then
-            exit;
-        // NAVCZ
-
         IsHandled := false;
         OnBeforeTestPurchaseOrderLineForGetRcptLines(PurchaseLine, IsHandled);
         if IsHandled then
@@ -223,11 +198,6 @@ codeunit 441 "Prepayment Mgt."
         SalesInvHeader: Record "Sales Invoice Header";
         IsHandled: Boolean;
     begin
-        // NAVCZ
-        if SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Advance then
-            exit;
-        // NAVCZ
-
         SalesSetup.Get();
         if not SalesSetup."Check Prepmt. when Posting" then
             exit(false);
@@ -262,11 +232,6 @@ codeunit 441 "Prepayment Mgt."
         PurchInvHeader: Record "Purch. Inv. Header";
         IsHandled: Boolean;
     begin
-        // NAVCZ
-        if PurchaseHeader."Prepayment Type" = PurchaseHeader."Prepayment Type"::Advance then
-            exit;
-        // NAVCZ
-
         PurchasesPayablesSetup.Get();
         if not PurchasesPayablesSetup."Check Prepmt. when Posting" then
             exit(false);
@@ -414,5 +379,3 @@ codeunit 441 "Prepayment Mgt."
     end;
 }
 
-
-#endif

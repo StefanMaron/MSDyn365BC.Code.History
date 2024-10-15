@@ -1203,9 +1203,12 @@
         // [SCENARIO 380573] Purchase Invoice is posted with "Vendor Posting Group" from Purchase Header when "Vendor Posting Group" in Vendor Card is different
 
         Initialize();
+        SetPurchAllowMultiplePostingGroups(true);
 
         // [GIVEN] Vendor "X" with "Vendor Posting Group" "DOMESTIC"
         LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
           PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
@@ -1214,11 +1217,13 @@
 
         // [GIVEN] Purchase Invoice with Vendor "X" and "Vendor Posting Group" "FOREIGN"
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup.Code);
         PurchHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
         PurchHeader.Modify(true);
 
         // [WHEN] Post Purchase Invoice
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        SetPurchAllowMultiplePostingGroups(false);
 
         // [THEN] Vendor Ledger Entry with "Vendor Posting Group" "FOREIGN" is posted
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::Invoice, InvNo);
@@ -2106,7 +2111,6 @@
         // [SCENARIO 264555] When Purchase Order has Prepayment Invoice and Credit Memo posted and then Purchase Order is copied to new Purchase Order,
         // [SCENARIO 264555] then new Purchase Order has <blank> Last Prepayment No. and Last Prepmt. Cr. Memo No.
         Initialize();
-        InitializeUpdateGeneralLedgerSetup(false);
 
         // [GIVEN] Prepayment Invoice and Prepayment Credit Memo were posted for Purchase Order "PO"
         PreparePurchOrderWithPrepaymentInvAndCrMemo(PurchaseHeader);
@@ -2136,7 +2140,6 @@
         // [SCENARIO 264555] When Purchase Order has Prepayment Invoice and Credit Memo posted and then Purchase Order is archived and then Archived Purchase Order is copied to new Purchase Order,
         // [SCENARIO 264555] then new Purchase Order has <blank> Last Prepayment No. and Last Prepmt. Cr. Memo No.
         Initialize();
-        InitializeUpdateGeneralLedgerSetup(false);
 
         // [GIVEN] Prepayment Invoice and Prepayment Credit Memo were posted for Purchase Order "PO"
         PreparePurchOrderWithPrepaymentInvAndCrMemo(PurchaseHeader);
@@ -2531,7 +2534,6 @@
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
-        InitializeUpdateGeneralLedgerSetup(true);
         IsInitialized := true;
         Commit();
 
@@ -2539,15 +2541,6 @@
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Payables");
-    end;
-
-    local procedure InitializeUpdateGeneralLedgerSetup(UseVATDate: Boolean)
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        GLSetup.Get();
-        GLSetup."Use VAT Date" := UseVATDate;
-        GLSetup.Modify();
     end;
 
     local procedure PreparePurchOrderWithPrepaymentInvAndCrMemo(var PurchaseHeader: Record "Purchase Header")
@@ -2558,7 +2551,6 @@
         ModifyPurchPrepaymentAccount(PurchaseLine);
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
-        PurchaseHeader.Validate("Prepayment Type", PurchaseHeader."Prepayment Type"::Prepayment);
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader);
@@ -3213,6 +3205,16 @@
             "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");  // Blank value for Account No.
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.Run();
+    end;
+
+    local procedure SetPurchAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        PurchasesPayablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateUserSetupPurchRespCtrFilter(var UserSetup: Record "User Setup"; PurchRespCtrFilter: Code[10]) OldPurchRespCtrFilter: Code[10]

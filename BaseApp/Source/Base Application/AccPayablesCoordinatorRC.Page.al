@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9002 "Acc. Payables Coordinator RC"
 {
     Caption = 'Accounts Payable Coordinator';
@@ -249,38 +248,14 @@ page 9002 "Acc. Payables Coordinator RC"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Invoices';
                     RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(false));
                     ToolTip = 'Open the list of posted purchase invoices.';
-                }
-                action("Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoice';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
                     ToolTip = 'Open the list of posted purchase credit memos.';
-                }
-                action("Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Return Shipments")
                 {
@@ -417,4 +392,3 @@ page 9002 "Acc. Payables Coordinator RC"
     }
 }
 
-#endif

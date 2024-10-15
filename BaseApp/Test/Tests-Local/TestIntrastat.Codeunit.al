@@ -1,7 +1,11 @@
+#if not CLEAN22
 codeunit 134153 "Test Intrastat"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -32,7 +36,7 @@ codeunit 134153 "Test Intrastat"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         Initialize();
 
@@ -43,15 +47,14 @@ codeunit 134153 "Test Intrastat"
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
           FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType);
         Commit();
-        Filename := FileManagement.ServerTempFileName('txt');
 
         // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename);
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
+        Assert.IsTrue(FileTempBlob.HasValue(), FileNotCreatedErr);
 
         // Verify
         Commit();
-        asserterror RunIntrastatMakeDiskTaxAuth(Filename);
+        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
         Assert.ExpectedError(ReportedMustBeNoErr);
     end;
 
@@ -62,7 +65,7 @@ codeunit 134153 "Test Intrastat"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         Initialize();
 
@@ -72,17 +75,12 @@ codeunit 134153 "Test Intrastat"
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod, '');
         Commit();
-        Filename := FileManagement.ServerTempFileName('txt');
 
         // Exercise
-        asserterror RunIntrastatMakeDiskTaxAuth(Filename);
+        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
 
         // Verify
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
-#else
-        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
-#endif
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
     end;
 
     [Test]
@@ -251,7 +249,7 @@ codeunit 134153 "Test Intrastat"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
+        FileTempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Report] [Export]
         // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
@@ -273,11 +271,10 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine.Modify(true);
 
         // [WHEN] Run 'Intrastat - Make Disk Tax Auth' report
-        Filename := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(Filename);
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
 
         // [THEN] The file is created
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
+        Assert.IsTrue(FileTempBlob.HasValue(), FileNotCreatedErr);
     end;
 
     local procedure Initialize()
@@ -316,8 +313,6 @@ codeunit 134153 "Test Intrastat"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
-        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -386,11 +381,13 @@ codeunit 134153 "Test Intrastat"
         IntrastatJournal.Close();
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(Filename: Text)
+    local procedure RunIntrastatMakeDiskTaxAuth(var FileTempBlob: Codeunit "Temp Blob"; ExportFormat: Enum "Intrastat Export Format")
     var
         IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+        FileOutStream: OutStream;
     begin
-        IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
+        FileTempBlob.CreateOutStream(FileOutStream);
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
         IntrastatMakeDiskTaxAuth.RunModal();
     end;
@@ -542,4 +539,4 @@ codeunit 134153 "Test Intrastat"
         IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

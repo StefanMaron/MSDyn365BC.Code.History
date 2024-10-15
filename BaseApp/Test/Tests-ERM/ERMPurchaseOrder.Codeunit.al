@@ -86,7 +86,7 @@
         RemitToCodeShouldNotBeEditableErr: Label 'Remit-to code should not be editable when vendor is not selected.';
         RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?';
-        OrderDateErr: Label 'The purchase line order date is (%1), but it should be (%2).', Comment = '%1 - Actual Purchase Line Order Date; %2 - Expected Purchase Line Order Date';
+        OrderDateErr: Label 'The purchase order date (%1) should be the same as the purchase line order date (%2).', Comment = '%1 - Purchase Header Order Date; %2 - Purchase Line Order Date';
         DescriptionErr: Label 'The purchase line description (%1) should be the same as the random generated description (%2).', Comment = '%1 - Purchase Line Description; %2 - Random Generated Description';
 
     [Test]
@@ -2065,6 +2065,7 @@
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure QtyToReceiveInPurchaseLineIsCorrectlyUpdatedWithChangeInQty()
     var
@@ -6914,29 +6915,23 @@
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        Location: Record Location;
     begin
         Initialize();
 
-        LibraryWarehouse.CreateLocation(Location);
-
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Order Date", Today());
+        PurchaseHeader.Validate("Order Date", today());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
-        PurchaseLine.Validate("Location Code", Location.Code);
-        PurchaseLine.Modify(true);
         Commit();
         LibraryVariableStorage.Enqueue(UpdateLinesOrderDateAutomaticallyQst);
         LibraryVariableStorage.Enqueue(true);
-        PurchaseHeader.Validate("Order Date", Today() + 1);
+        PurchaseHeader.Validate("Order Date", today() + 1);
         PurchaseHeader.Modify(true);
         LibraryVariableStorage.AssertEmpty();
         PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
 
-        Assert.AreEqual(PurchaseHeader."Order Date", Today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (Today() + 1), PurchaseHeader."Order Date"));
+        Assert.AreEqual(PurchaseHeader."Order Date", today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (today() + 1), PurchaseHeader."Order Date"));
         Assert.AreEqual(PurchaseHeader."Order Date", PurchaseLine."Order Date", StrSubstNo('The purchase order date (%1) should be the same as the purchase line order date (%2)', PurchaseHeader."Order Date", PurchaseLine."Order Date"));
-        PurchaseLine.TestField("Location Code", Location.Code);
     end;
 
     [Test]
@@ -7106,15 +7101,11 @@
         PurchaseHeader.Validate("Order Date", Today());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
-        // [VERIFY] Verify Purchase Line has the same Order Date as Purchase Header
-        PurchaseLine.TestField("Order Date", PurchaseHeader."Order Date");
         Clear(PurchaseLine);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::" ", '', 0);
         Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(PurchaseLine.Description), 1), 1, MAXSTRLEN(PurchaseLine.Description));
         PurchaseLine.Validate(Description, Description);
         PurchaseLine.Modify(true);
-        // [VERIFY] Verify Purchase Line has blank Order Date
-        PurchaseLine.TestField("Order Date", 0D);
         Commit();
 
         // [WHEN] Update Order Date on Purchase Order
@@ -7125,10 +7116,10 @@
         LibraryVariableStorage.AssertEmpty();
         PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
 
-        // [VERIFY] Verify Purchase Line with blank Order Date and Description Text on Purchase Order Line.
+        // [VERIFY] Verify Purchase Line with Order Date and Description Text on Purchase Order Line.
         Assert.AreEqual(
-            0D, PurchaseLine."Order Date",
-            StrSubstNo(OrderDateErr, 0D, PurchaseLine."Order Date"));
+            PurchaseHeader."Order Date", PurchaseLine."Order Date",
+            StrSubstNo(OrderDateErr, PurchaseHeader."Order Date", PurchaseLine."Order Date"));
 
         Assert.AreEqual(
             PurchaseLine.Description, Description,
@@ -9230,7 +9221,7 @@
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCharge, true, true);
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
     local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -10165,6 +10156,7 @@
         RecRef.GetTable(ItemUnitOfMeasure);
         LibraryUtility.FindRecord(RecRef);
         RecRef.SetTable(ItemUnitOfMeasure);
+
         LibraryManufacturing.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandInt(10), ItemUnitOfMeasure.Code);
     end;
@@ -10352,7 +10344,34 @@
         Resource.Get(LibraryResource.CreateResourceNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
     end;
-    
+
+    local procedure CreateCustomerWithLocationAndShipToAddressWithoutLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    begin
+        CreateCustomerWithLocation(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+    end;
+
+    local procedure CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    var
+        ShipToLocation: Record Location;
+    begin
+        CreateCustomerWithLocation(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        LibraryWarehouse.CreateLocation(ShipToLocation);
+        ShipToAddress.Validate("Location Code", ShipToLocation.Code);
+        ShipToAddress.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithLocation(var Customer: Record Customer)
+    var
+        Location: Record Location;
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
+    end;
+
     local procedure CreatePurchaseOrderWithServiceCharge(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
@@ -10384,34 +10403,6 @@
         VendorInvoiceDisc.FindFirst();
         VendorInvoiceDisc.Validate("Service Charge", ServiceChargeAmt);
         VendorInvoiceDisc.Modify(true);
-    end;
-
-
-    local procedure CreateCustomerWithLocationAndShipToAddressWithoutLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
-    begin
-        CreateCustomerWithLocation(Customer);
-
-        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-    end;
-
-    local procedure CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
-    var
-        ShipToLocation: Record Location;
-    begin
-        CreateCustomerWithLocation(Customer);
-
-        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-        LibraryWarehouse.CreateLocation(ShipToLocation);
-        ShipToAddress.Validate("Location Code", ShipToLocation.Code);
-        ShipToAddress.Modify(true);
-    end;
-
-    local procedure CreateCustomerWithLocation(var Customer: Record Customer)
-    var
-        Location: Record Location;
-    begin
-        LibraryWarehouse.CreateLocation(Location);
-        LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
     end;
 
     local procedure SetFirstPurchaseLineNotToReceive(var PurchHeader: Record "Purchase Header"; ItemNo: Code[20])

@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9007 "Purchasing Agent Role Center"
 {
     Caption = 'Purchasing Agent';
@@ -184,16 +183,6 @@ page 9007 "Purchasing Agent Role Center"
                 RunObject = Page "Purchase Credit Memos";
                 ToolTip = 'Create purchase credit memos to mirror sales credit memos that vendors send to you for incorrect or damaged items that you have paid for and then returned to the vendor. If you need more control of the purchase return process, such as warehouse documents for the physical handling, use purchase return orders, in which purchase credit memos are integrated. Purchase credit memos can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature. Note: If you have not yet paid for an erroneous purchase, you can simply cancel the posted purchase invoice to automatically revert the financial transaction.';
             }
-            action("Purchase Advance Letters")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Purchase Advance Letters (Obsolete)';
-                RunObject = Page "Purchase Advance Letters";
-                ToolTip = 'Specifies purchase advance letters';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by Advanced Payments Localization for Czech.';
-                ObsoleteTag = '19.0';
-            }
             action("Assembly Orders")
             {
                 ApplicationArea = Assembly;
@@ -321,17 +310,6 @@ page 9007 "Purchasing Agent Role Center"
                     RunObject = Page "Posted Purchase Invoices";
                     ToolTip = 'Open the list of posted purchase invoices.';
                 }
-                action("Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoces';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
                 action("Posted Return Shipments")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -344,19 +322,7 @@ page 9007 "Purchasing Agent Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
                     ToolTip = 'Open the list of posted purchase credit memos.';
-                }
-                action("Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Assembly Orders")
                 {
@@ -515,4 +481,3 @@ page 9007 "Purchasing Agent Role Center"
     }
 }
 
-#endif

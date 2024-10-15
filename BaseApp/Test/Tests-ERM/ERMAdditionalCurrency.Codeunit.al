@@ -1,4 +1,4 @@
-codeunit 134043 "ERM Additional Currency"
+﻿codeunit 134043 "ERM Additional Currency"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -25,7 +25,6 @@ codeunit 134043 "ERM Additional Currency"
         FiscalPostingDateTok: Label 'C%1', Locked = true;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
-        InconsistentEntriesErr: Label 'You cannot apply these entries because unapplication could create inconsistent entries.';
 
     [Test]
     [Scope('OnPrem')]
@@ -666,12 +665,13 @@ codeunit 134043 "ERM Additional Currency"
         AddnlReportingCurrencyAmount := Round(
             CalculateAdditionalAmount(CurrencyExchangeRate, CurrencyACY, GenJournalLine."Amount (LCY)"), GetAmountRoundingPrecision);
 
-        asserterror CreateAndApplyPaymentToInvoice( // NAVCZ
+        CreateAndApplyPaymentToInvoice(
           GenJournalLine2, GenJournalLine2."Account Type"::Customer, GenJournalLine."Bal. Gen. Posting Type"::Sale,
           Customer."No.", GenJournalLine."Document No.", CurrencyFCY, -Amount);
 
-        // 3. Verify: Verify that occur expected error
-        Assert.ExpectedError(InconsistentEntriesErr); // NAVCZ
+        // 3. Verify: Verify G/L Entry for Additional Currency Amount. Verify Remaining Amount in Customer Ledger Entry.
+        VerifyGLEntryForACYPayment(GenJournalLine2, -AddnlReportingCurrencyAmount);
+        RemainingAmountLCYInCustomer(CustLedgerEntry."Document Type"::Invoice, Customer."No.", GenJournalLine."Document No.", 0);
     end;
 
     [Test]
@@ -852,12 +852,13 @@ codeunit 134043 "ERM Additional Currency"
         AddnlReportingCurrencyAmount := Round(
             CalculateAdditionalAmount(CurrencyExchangeRate, CurrencyACY, GenJournalLine."Amount (LCY)"), GetAmountRoundingPrecision);
 
-        asserterror CreateAndApplyPaymentToInvoice( // NAVCZ
+        CreateAndApplyPaymentToInvoice(
           GenJournalLine2, GenJournalLine2."Account Type"::Vendor, GenJournalLine."Bal. Gen. Posting Type"::Purchase,
           Vendor."No.", GenJournalLine."Document No.", CurrencyFCY, Amount);
 
-        // 3. Verify: Verify that occur expected error
-        Assert.ExpectedError(InconsistentEntriesErr); // NAVCZ
+        // 3. Verify: Verify G/L Entry for Additional Currency Amount. Verify Remaining Amount in Vendor Ledger Entry.
+        VerifyGLEntryForACYPayment(GenJournalLine2, -AddnlReportingCurrencyAmount);
+        RemainingAmountLCYInVendor(VendorLedgerEntry."Document Type"::Invoice, Vendor."No.", GenJournalLine."Document No.", 0);
     end;
 
     [Test]

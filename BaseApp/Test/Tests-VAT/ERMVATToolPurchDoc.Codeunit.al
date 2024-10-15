@@ -716,7 +716,6 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // SETUP: Create and Save data to update in a temporary table.
         ERMVATToolHelper.CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, ERMVATToolHelper.CreateVendor);
         PurchaseHeader.Validate("Prices Including VAT", true);
-        PurchaseHeader.Validate("Prepayment Type", PurchaseHeader."Prepayment Type"::Prepayment); // NAVCZ
         ERMVATToolHelper.CreatePurchaseLines(PurchaseHeader, '', GetLineCount(false));
         TempRecRef.Open(DATABASE::"Purchase Line", true);
         ERMVATToolHelper.CreateLinesRefPurchase(TempRecRef, PurchaseHeader);

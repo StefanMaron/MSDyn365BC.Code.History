@@ -62,6 +62,8 @@
         UsingCustomDocumentServiceTelemetryMsg: Label 'Using a Document Service retrieved from the database.', Locked = true;
         EmptyTokenTelemetryMsg: Label 'Empty access token from Azure AD Mgt.', Locked = true;
         SharepointStatusCodeTelemetryMsg: Label 'Sharepoint returned an error code: %1.', Locked = true;
+        SharepointEmptyFileTelemetryMsg: Label 'Sharepoint returned an empty file.', Locked = true;
+        SharepointFileTelemetryMsg: Label 'Sharepoint file size: %1', Locked = true;
         NoCompanyFolderTelemetryMsg: Label 'No company specific folder found, falling back to base Document Service folder.', Locked = true;
         NoCompanyOrBcFolderTelemetryMsg: Label 'No Document Service folder found, falling back to OneDrive root.', Locked = true;
         ConfigurationForTestConnectionTelemetryMsg: Label 'Configuration for test connection retrieved, with authentication: %1.', Locked = true;
@@ -71,6 +73,11 @@
         OneDriveFeatureNameTelemetryTxt: Label 'OneDrive', Locked = true;
         TokenRequestEventTelemetryTxt: Label 'Token Request', Locked = true;
         HttpsDomainTxt: Label 'https://%1', Locked = true;
+        ValueDoesNotExistErr: Label 'Value does not exist: %1', Comment = '%1 = The response details from OneDrive (e.g. "Your Drive is not available")';
+        DownloadUrlDoesNotExistErr: Label 'Download Url does not exist: %1', Comment = '%1 = The response details from OneDrive (e.g. "Your Drive is not available")';
+        SharepointUnexpectedErr: Label 'OneDrive returned an unexpected value. Try again later.';
+        SharepointItemIdMsg: Label 'OneDrive item: %1', Comment = '%1 = Item id of file', Locked = true;
+        SharepointUnableToGetDownloadUrlMsg: Label 'No download url returned by sharepoint.', Locked = true;
 
     [Scope('OnPrem')]
     procedure TestConnection()
@@ -100,18 +107,6 @@
         DocumentService.ValidateConnection();
         CheckError();
     end;
-
-#if not CLEAN19
-    [Scope('OnPrem')]
-    [Obsolete('Use SaveFile(SourcePath; TargetName; ConflictBehavior) instead', '19.0')]
-    procedure SaveFile(SourcePath: Text; TargetName: Text; Overwrite: Boolean): Text
-    begin
-        if Overwrite then
-            exit(SaveFile(SourcePath, TargetName, Enum::"Doc. Service Conflict Behavior"::Replace))
-        else
-            exit(SaveFile(SourcePath, TargetName, Enum::"Doc. Service Conflict Behavior"::Rename));
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SaveFile(SourcePath: Text; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"): Text
@@ -550,25 +545,13 @@
     local procedure GetDriveFolderInfo(FolderUrl: Text; var FolderJson: JsonObject)
     var
         HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
-        AzureADMgt: Codeunit "Azure AD Mgt.";
-        Token: Text;
         ResponseBody: Text;
         ErrorMessage: Text;
         ErrorDetails: Text;
         HttpStatusCode: DotNet HttpStatusCode;
         ResponseHeaders: DotNet NameValueCollection;
     begin
-        Token := AzureADMgt.GetAccessToken(GetGraphDomain(), AzureADMgt.GetO365ResourceName(), false);
-        if Token = '' then begin
-            Session.LogMessage('0000FMK', EmptyTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
-            LicenseError();
-        end;
-
-        HttpWebRequestMgt.Initialize(FolderUrl);
-        HttpWebRequestMgt.DisableUI();
-        HttpWebRequestMgt.SetMethod('GET');
-        HttpWebRequestMgt.SetReturnType('application/json');
-        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
+        InitializeWebRequest(FolderUrl, 'GET', 'application/json', HttpWebRequestMgt);
 
         if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
             Session.LogMessage('0000FML', StrSubstNo(SharepointStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
@@ -579,6 +562,165 @@
 
         if not FolderJson.ReadFrom(ResponseBody) then
             Error(SharepointInvalidJsonErr, ResponseBody);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure GetFileContent(var DocumentSharing: Record "Document Sharing")
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        TempBlob: Codeunit "Temp Blob";
+        ErrorMessage: Text;
+        ErrorDetails: Text;
+        FileUrl: Text;
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        ResolveItemId(DocumentSharing);
+        GetFileDownloadUrl(DocumentSharing, FileUrl);
+
+        InitializeWebRequest(FileUrl, 'GET', '', HttpWebRequestMgt);
+
+        if not HttpWebRequestMgt.SendRequestAndReadResponse(TempBlob, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
+            Session.LogMessage('0000IN8', StrSubstNo(SharepointStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+
+            CheckLicenseError(HttpStatusCode, ErrorDetails);
+            Error(SharepointUnexpectedStatusCodeErr, HttpStatusCode);
+        end;
+
+        if TempBlob.Length() = 0 then
+            Session.LogMessage('0000IN9', SharepointEmptyFileTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt)
+        else begin
+            Session.LogMessage('0000JB4', StrSubstNo(SharepointFileTelemetryMsg, TempBlob.Length()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            DocumentSharing.Data.CreateOutStream(OutStream);
+            TempBlob.CreateInStream(InStream);
+            CopyStream(OutStream, InStream);
+        end;
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure GetFileDownloadUrl(var DocumentSharing: Record "Document Sharing"; var FileUrl: Text)
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        ErrorMessage: Text;
+        ErrorDetails: Text;
+        MetadataUrl: Text;
+        ResponseBody: Text;
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+        JsonObject: JsonObject;
+        JsonToken: JsonToken;
+    begin
+        MetadataUrl := GetGraphFileByIdUrl(DocumentSharing."Item Id");
+
+        InitializeWebRequest(MetadataUrl, 'GET', 'application/json', HttpWebRequestMgt);
+
+        if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
+            Session.LogMessage('0000IN8', StrSubstNo(SharepointStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+
+            CheckLicenseError(HttpStatusCode, ErrorDetails);
+            Error(SharepointUnexpectedStatusCodeErr, HttpStatusCode);
+        end;
+
+        if not JsonObject.ReadFrom(ResponseBody) then
+            Error(SharepointInvalidJsonErr, ResponseBody);
+
+        if not JsonObject.Get('@microsoft.graph.downloadUrl', JsonToken) then
+            Error(DownloadUrlDoesNotExistErr, ResponseBody);
+
+        FileUrl := JsonToken.AsValue().AsText();
+
+        if FileUrl = '' then
+            Session.LogMessage('0000JWY', SharepointUnableToGetDownloadUrlMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+    end;
+
+    [TryFunction]
+    [NonDebuggable]
+    local procedure DeleteDriveItem(DocumentSharing: Record "Document Sharing")
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        ResponseBody: Text;
+        ErrorMessage: Text;
+        ErrorDetails: Text;
+        FileUrl: Text;
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+    begin
+        ResolveItemId(DocumentSharing);
+        FileUrl := GetGraphFileByIdUrl(DocumentSharing."Item Id");
+
+        InitializeWebRequest(FileUrl, 'DELETE', 'application/json', HttpWebRequestMgt);
+
+        if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
+            Session.LogMessage('0000J18', StrSubstNo(SharepointStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+
+            CheckLicenseError(HttpStatusCode, ErrorDetails);
+        end;
+    end;
+
+    [NonDebuggable]
+    local procedure ResolveItemId(var DocumentSharing: Record "Document Sharing")
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        JsonObject: JsonObject;
+        JsonToken: JsonToken;
+        JsonValue: JsonValue;
+        ResponseBody: Text;
+        ErrorMessage: Text;
+        ErrorDetails: Text;
+        FileUrl: Text;
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+    begin
+        // Item Id has already been retrieved.
+        if DocumentSharing."Item Id" <> '' then
+            exit;
+
+        FileUrl := GetGraphItemIdUrl(DocumentSharing);
+        InitializeWebRequest(FileUrl, 'GET', 'application/json', HttpWebRequestMgt);
+
+        if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders) then begin
+            Session.LogMessage('0000J19', StrSubstNo(SharepointStatusCodeTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+
+            CheckLicenseError(HttpStatusCode, ErrorDetails);
+            Error(SharepointUnexpectedStatusCodeErr, HttpStatusCode);
+        end;
+
+        if not JsonObject.ReadFrom(ResponseBody) then
+            Error(SharepointInvalidJsonErr, ResponseBody);
+
+        if not JsonObject.Get('id', JsonToken) then
+            Error(ValueDoesNotExistErr, ResponseBody);
+
+        JsonValue := JsonToken.AsValue();
+        DocumentSharing."Item Id" := CopyStr(JsonValue.AsText(), 1, MaxStrLen(DocumentSharing."Item Id"));
+
+        if DocumentSharing."Item Id" = '' then
+            Error(SharepointUnexpectedErr);
+
+        Session.LogMessage('0000JB5', StrSubstNo(SharepointItemIdMsg, DocumentSharing."Item Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeWebRequest(Url: Text; Method: Text; ReturnType: Text; var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
+    var
+        AzureADMgt: Codeunit "Azure AD Mgt.";
+        Token: Text;
+    begin
+        Token := AzureADMgt.GetAccessToken(GetGraphDomain(), AzureADMgt.GetO365ResourceName(), false);
+        if Token = '' then begin
+            Session.LogMessage('0000FMK', EmptyTokenTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+            LicenseError();
+        end;
+
+        HttpWebRequestMgt.Initialize(Url);
+        HttpWebRequestMgt.DisableUI();
+        HttpWebRequestMgt.SetMethod(Method);
+        HttpWebRequestMgt.SetReturnType(ReturnType);
+        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
     end;
 
     local procedure LicenseError()
@@ -605,14 +747,40 @@
         exit(GetDefaultFolderName());
     end;
 
-    local procedure GetGraphDriveRootUrl(): Text
+    local procedure GetGraphDriveUrl(): Text
     var
         Domain: Text;
     begin
         Domain := GetGraphDomain();
 
         Domain := DelChr(Domain, '>', '/');
-        exit(Domain + '/v1.0/me/drive/root')
+        Domain += '/v1.0/me/drive';
+
+        exit(Domain);
+    end;
+
+    local procedure GetGraphDriveRootUrl(): Text
+    begin
+        exit(GetGraphDriveUrl() + '/root');
+    end;
+
+    local procedure GetGraphDriveItemUrl(): Text
+    begin
+        exit(GetGraphDriveUrl() + '/items');
+    end;
+
+    local procedure GetGraphItemIdUrl(DocumentSharing: Record "Document Sharing"): Text
+    var
+        FileUrl: Text;
+    begin
+        // The DocumentUri contains /Document at the start and needs to be removed for getting the file-path
+        FileUrl := ':/' + DocumentSharing.DocumentUri.Remove(1, StrLen(DocumentSharing.DocumentRootUri + '/Document'));
+        exit(GetGraphDriveRootUrl() + FileUrl);
+    end;
+
+    local procedure GetGraphFileByIdUrl(ItemId: Text): Text
+    begin
+        exit(GetGraphDriveItemUrl() + '/' + ItemId);
     end;
 
     local procedure MakeChildrenPathUrl(RootDriveUrl: Text; FolderString: Text): Text
@@ -1009,11 +1177,50 @@
         DocumentSharing.Share(FileName, FileExtension, InStream, Enum::"Document Sharing Intent"::Open);
     end;
 
+    procedure EditInOneDrive(FileName: Text; FileExtension: Text; var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        TempDocumentSharing: Record "Document Sharing" temporary;
+        DocumentSharing: Codeunit "Document Sharing";
+        CryptographyManagement: Codeunit "Cryptography Management";
+        HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512;
+        Hash: Text;
+        InStream: InStream;
+        OutStream: OutStream;
+    begin
+        TempDocumentSharing.Name := CopyStr(FileName, 1, MaxStrLen(TempDocumentSharing.Name));
+        TempDocumentSharing.Extension := CopyStr(FileExtension, 1, MaxStrLen(TempDocumentSharing.Extension));
+        TempDocumentSharing."Document Sharing Intent" := Enum::"Document Sharing Intent"::Edit;
+
+        TempBlob.CreateInStream(InStream);
+        TempDocumentSharing.Data.CreateOutStream(OutStream);
+        CopyStream(OutStream, Instream);
+        TempBlob.CreateInStream(InStream);
+
+        Hash := CryptographyManagement.GenerateHash(InStream, HashAlgorithmType::SHA1);
+
+        TempDocumentSharing.Insert();
+        DocumentSharing.Share(TempDocumentSharing);
+
+        TempBlob.CreateOutStream(OutStream);
+        TempDocumentSharing.Data.CreateInStream(InStream);
+        CopyStream(OutStream, InStream);
+        TempBlob.CreateInStream(InStream);
+
+        exit(Hash <> CryptographyManagement.GenerateHash(InStream, HashAlgorithmType::SHA1));
+    end;
+
     procedure OpenInOneDriveFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid)
     var
         DocumentSharingIntent: Enum "Document Sharing Intent";
     begin
         InvokeDocumentSharingFlowFromMedia(FileName, FileExtension, MediaId, DocumentSharingintent::Open);
+    end;
+
+    procedure EditInOneDriveFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid): Boolean
+    var
+        DocumentSharingIntent: Enum "Document Sharing Intent";
+    begin
+        exit(InvokeDocumentSharingFlowFromMedia(FileName, FileExtension, MediaId, DocumentSharingintent::Edit));
     end;
 
     procedure ShareWithOneDrive(FileName: Text; FileExtension: Text; InStream: InStream)
@@ -1030,10 +1237,15 @@
         InvokeDocumentSharingFlowFromMedia(FileName, FileExtension, MediaId, DocumentSharingintent::Share);
     end;
 
-    local procedure InvokeDocumentSharingFlowFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid; DocumentSharingIntent: Enum "Document Sharing Intent")
+    local procedure InvokeDocumentSharingFlowFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid; DocumentSharingIntent: Enum "Document Sharing Intent"): Boolean
     var
         TempDocumentSharing: Record "Document Sharing" temporary;
         TenantMedia: Record "Tenant Media";
+        CryptographyManagement: Codeunit "Cryptography Management";
+        HashAlgorithmType: Option MD5,SHA1,SHA256,SHA384,SHA512;
+        InStream: InStream;
+        OutStream: OutStream;
+        Hash: Text;
     begin
         SetFileNameAndExtension(TempDocumentSharing, FileName, FileExtension);
 
@@ -1042,7 +1254,19 @@
         TempDocumentSharing.Data := TenantMedia.Content;
         TempDocumentSharing."Document Sharing Intent" := DocumentSharingIntent;
         TempDocumentSharing.Insert();
+        TempDocumentSharing.Data.CreateInStream(InStream);
+        Hash := CryptographyManagement.GenerateHash(InStream, HashAlgorithmType::SHA1);
         Codeunit.Run(Codeunit::"Document Sharing", TempDocumentSharing);
+
+        if (DocumentSharingIntent = Enum::"Document Sharing Intent"::Edit) and
+            (Hash <> CryptographyManagement.GenerateHash(InStream, HashAlgorithmType::SHA1)) then begin
+            TempDocumentSharing.Data.CreateInStream(InStream);
+            TenantMedia.Content.CreateOutStream(OutStream);
+
+            CopyStream(OutStream, InStream);
+            TenantMedia.Modify();
+            exit(true);
+        end;
     end;
 
     [NonDebuggable]
@@ -1247,6 +1471,22 @@
         DocumentSharing.Modify();
 
         Handled := DocumentSharing.DocumentUri <> '';
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Sharing", 'OnGetFileContents', '', false, false)]
+    local procedure OnGetFileContents(var DocumentSharing: Record "Document Sharing" temporary; var Handled: Boolean)
+    begin
+        if Handled then
+            exit;
+        Handled := GetFileContent(DocumentSharing);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Sharing", 'OnDeleteDocument', '', false, false)]
+    local procedure OnDeleteDocument(var DocumentSharing: Record "Document Sharing" temporary; var Handled: Boolean)
+    begin
+        if Handled then
+            exit;
+        Handled := DeleteDriveItem(DocumentSharing);
     end;
 
     [IntegrationEvent(false, false)]

@@ -341,7 +341,6 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // Setup
-        CustLedgEntry.SetFilter("Prepayment Type", '<>%1', CustLedgEntry."Prepayment Type"::Advance); // NAVCZ
         FindOpenCustLedgEntryAndSetExtDoc(CustLedgEntry);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, CustLedgEntry."Customer No.",
@@ -365,7 +364,6 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // Setup
-        VendLedgEntry.SetFilter("Prepayment Type", '<>%1', VendLedgEntry."Prepayment Type"::Advance); // NAVCZ
         FindOpenVendLedgEntry(VendLedgEntry);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Vendor, VendLedgEntry."Vendor No.",
@@ -390,7 +388,6 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // Setup
-        CustLedgEntry.SetFilter("Prepayment Type", '<>%1', CustLedgEntry."Prepayment Type"::Advance); // NAVCZ
         FindOpenCustLedgEntryAndSetExtDoc(CustLedgEntry);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, CustLedgEntry."Customer No.",
@@ -416,7 +413,6 @@ codeunit 134920 "ERM General Journal UT"
         Initialize();
 
         // Setup
-        VendLedgEntry.SetFilter("Prepayment Type", '<>%1', VendLedgEntry."Prepayment Type"::Advance); // NAVCZ
         FindOpenVendLedgEntry(VendLedgEntry);
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Vendor, VendLedgEntry."Vendor No.",
@@ -3920,6 +3916,7 @@ codeunit 134920 "ERM General Journal UT"
 
         GeneralJournalBatches.OpenView();
         GeneralJournalBatches.FILTER.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GeneralJournalBatches.Filter.SetFilter(Name, GenJournalBatch.Name);
         GeneralJournalBatches."P&ost".Invoke();
 
         // Verify journals scheduled message is shown
@@ -3930,8 +3927,8 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.TestField("Job Queue Entry ID");
         GenJournalLine.TestField("Job Queue Status");
         GenJournalLine2.Get(GenJournalTemplate.Name, GenJournalBatch2.Name, GenJournalLine2."Line No.");
-        GenJournalLine2.TestField("Job Queue Entry ID");
-        GenJournalLine2.TestField("Job Queue Status");
+        // The batches needs to be marked in the ui
+        Assert.IsTrue(IsNullGuid(GenJournalLine2."Job Queue Entry ID"), 'Should not be posted');
     end;
 
     [Test]
@@ -3971,6 +3968,7 @@ codeunit 134920 "ERM General Journal UT"
 
         GeneralJournalBatches.OpenView();
         GeneralJournalBatches.FILTER.SetFilter("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GeneralJournalBatches.Filter.SetFilter(Name, GenJournalBatch.Name);
         GeneralJournalBatches."Post and &Print".Invoke();
 
         // Verify journals scheduled message is shown
@@ -3981,8 +3979,8 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.TestField("Job Queue Entry ID");
         GenJournalLine.TestField("Job Queue Status");
         GenJournalLine2.Get(GenJournalTemplate.Name, GenJournalBatch2.Name, GenJournalLine2."Line No.");
-        GenJournalLine2.TestField("Job Queue Entry ID");
-        GenJournalLine2.TestField("Job Queue Status");
+        // The batches needs to be marked in the ui
+        Assert.IsTrue(IsNullGuid(GenJournalLine2."Job Queue Entry ID"), 'Should not be posted');
     end;
 
     [Test]
@@ -4800,6 +4798,53 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RenumberDocNoMultipleLinesForDifferentNoSeries()
+    var
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        NoSeriesCode2: Code[20];
+        NewDocNo: Code[20];
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 383931] Different No. Series Gen. Journal lines are preserved after Renumber Document No.
+        Initialize();
+
+        // [GIVEN] Setup GL Accounts and two No. Series created (GU1.. and GU2..)
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateGLAccount(GLAccount2);
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        NoSeriesCode2 := LibraryERM.CreateNoSeriesCode();
+
+        // [GIVEN] Created two Gen. Journal Lines (GJL1 and GJL2) for each No. Series
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
+        CreateGenJournalLine(GenJournalLine2, GenJournalLine2."Document Type"::" ",
+          GenJournalLine2."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalLine2."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode2);
+
+        // [WHEN] Run "Renumber Document No" for lines
+        Commit();
+        GenJournalLine.RenumberDocumentNo();
+
+        // [THEN] GJL1 has "Doc No." from "GU1.." No. Series, GJL2 has "Doc No." from "GU2.." No. Series
+        Clear(NoSeriesManagement);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          10000, NewDocNo);
+        Clear(NoSeriesManagement);
+        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode2, WorkDate(), false);
+        VerifyGenJnlLineDocNo(GenJournalLine2."Journal Template Name", GenJournalLine2."Journal Batch Name",
+          10000, NewDocNo);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure KeepDescriptionBalGLAccount()
     var
@@ -5320,50 +5365,106 @@ codeunit 134920 "ERM General Journal UT"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
-    procedure RenumberDocNoMultipleLinesForDifferentNoSeries()
+    procedure VerifyVATAmountLCYInGenJnlLinesWhenFullVATAndCurrency()
     var
+        GenJournalLine: Array[4] of Record "Gen. Journal Line";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
         GLAccount: Record "G/L Account";
-        GLAccount2: Record "G/L Account";
-        GenJournalLine: Record "Gen. Journal Line";
-        GenJournalLine2: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        NoSeriesCode: Code[20];
-        NoSeriesCode2: Code[20];
-        NewDocNo: Code[20];
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CurrExchRate: Record "Currency Exchange Rate";
+        Currency: Record Currency;
+        GLAccountNo: Code[20];
+        BalGLAccountNo: Code[20];
+        VATAmountLCY: Decimal;
     begin
-        // [FEATURE] [No. Series]
-        // [SCENARIO 383931] Different No. Series Gen. Journal lines are preserved after Renumber Document No.
+        // [SCENARIO 450651] In a "Full VAT" and "Currency" scenario the VAT Amount (LCY) is not filled in General Journal Lines
         Initialize();
 
-        // [GIVEN] Setup GL Accounts and two No. Series created (GU1.. and GU2..)
-        LibraryERM.CreateGLAccount(GLAccount);
-        LibraryERM.CreateGLAccount(GLAccount2);
-        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
-        NoSeriesCode2 := LibraryERM.CreateNoSeriesCode();
+        // [GIVEN] Create currency with Exchange Rate.
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Description := LibraryUtility.GenerateGUID();
+        Currency.Modify();
+        LibraryERM.CreateExchangeRate(Currency.Code, Today, 1, 10);
 
-        // [GIVEN] Created two Gen. Journal Lines (GJL1 and GJL2) for each No. Series
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
-          GenJournalLine."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode);
-        CreateGenJournalLine(GenJournalLine2, GenJournalLine2."Document Type"::" ",
-          GenJournalLine2."Account Type"::"G/L Account", GLAccount."No.",
-          GenJournalLine2."Account Type"::"G/L Account", GLAccount2."No.", NoSeriesCode2);
+        // [GIVEN] Create Business Posting Group, Gen. Product Posting Group and General Posting Setup
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
 
-        // [WHEN] Run "Renumber Document No" for lines
-        Commit();
-        GenJournalLine.RenumberDocumentNo();
+        // [GIVEN] Create GL Account's
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        BalGLAccountNo := LibraryERM.CreateGLAccountNo();
 
-        // [THEN] GJL1 has "Doc No." from "GU1.." No. Series, GJL2 has "Doc No." from "GU2.." No. Series
-        Clear(NoSeriesManagement);
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
-        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
-          10000, NewDocNo);
-        Clear(NoSeriesManagement);
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode2, WorkDate(), false);
-        VerifyGenJnlLineDocNo(GenJournalLine2."Journal Template Name", GenJournalLine2."Journal Batch Name",
-          10000, NewDocNo);
+        // [GIVEN] Create VAT Business Posting Group, VAT Product Posting Group and VAT Posting Setup
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Full VAT";
+        VATPostingSetup."Sales VAT Account" := GLAccountNo;
+        VATPostingSetup."VAT %" := 100;
+        VATPostingSetup.Modify();
+
+        // [GIVEN] Update the GL Account with Posting Groups
+        GLAccount.Get(GLAccountNo);
+        GLAccount."Direct Posting" := true;
+        GLAccount."Gen. Posting Type" := GLAccount."Gen. Posting Type"::Sale;
+        GLAccount."Gen. Bus. Posting Group" := GenBusinessPostingGroup.Code;
+        GLAccount."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        GLAccount."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        GLAccount."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        GLAccount.Modify();
+
+        // [GIVEN] Create GenJournalTemplate and GenJournalBatch
+        CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify();
+
+        // [WHEN] Create 1st General Journal Line
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine[1], GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine[1]."Document Type"::" ",
+          GenJournalLine[1]."Account Type"::"G/L Account", GLAccountNo, GenJournalLine[1]."Bal. Account Type"::"G/L Account",
+          BalGLAccountNo, LibraryRandom.RandDec(100, 2));
+        GenJournalLine[1].Validate("Currency Code", '');
+        GenJournalLine[1].Modify();
+
+        // [WHEN] Create 2nd General Journal Line
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine[2], GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine[2]."Document Type"::" ",
+          GenJournalLine[2]."Account Type"::"G/L Account", BalGLAccountNo, GenJournalLine[2]."Bal. Account Type"::"G/L Account",
+          GLAccountNo, -LibraryRandom.RandDec(100, 2));
+        GenJournalLine[2].Validate("Currency Code", '');
+        GenJournalLine[2].Modify();
+
+        // [WHEN] Create 3rd General Journal Line
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine[3], GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine[3]."Document Type"::" ",
+          GenJournalLine[3]."Account Type"::"G/L Account", GLAccountNo, GenJournalLine[3]."Bal. Account Type"::"G/L Account",
+          BalGLAccountNo, LibraryRandom.RandDec(100, 2));
+        GenJournalLine[3].Validate("Currency Code", Currency.Code);
+        GenJournalLine[3].Modify();
+
+        VATAmountLCY :=
+        Round(
+            CurrExchRate.ExchangeAmtFCYToLCY(GenJournalLine[3]."Posting Date", GenJournalLine[3]."Currency Code", GenJournalLine[3]."VAT Amount", GenJournalLine[3]."Currency Factor"),
+            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+
+        // [WHEN] Create 4th General Journal Line
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine[4], GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine[4]."Document Type"::" ",
+          GenJournalLine[4]."Account Type"::"G/L Account", BalGLAccountNo, GenJournalLine[4]."Bal. Account Type"::"G/L Account",
+          GLAccountNo, -LibraryRandom.RandDec(100, 2));
+        GenJournalLine[4].Validate("Currency Code", Currency.Code);
+        GenJournalLine[4].Modify();
+
+        // [THEN] Verify VAT Amount (LCY) is filled in 3rd General Journal Line.
+        Assert.AreEqual(GenJournalLine[3]."VAT Amount (LCY)", VATAmountLCY, VATAmountLCYErr);
     end;
 
     [Test]

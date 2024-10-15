@@ -26,7 +26,7 @@ report 31252 "FA Assignment/Discard CZF"
                 column(Discard_ReportType; FADiscardLbl)
                 {
                 }
-                column(Discard_Type; "FA History Entry CZF".Type)
+                column(Discard_Type; Format("FA History Entry CZF".Type))
                 {
                 }
                 column(Discard_FirstName; FirstNameCaption)
@@ -134,7 +134,7 @@ report 31252 "FA Assignment/Discard CZF"
                 column(Assignment_ReportType; FAAssignmentLbl)
                 {
                 }
-                column(Assignment_Type; "FA History Entry CZF".Type)
+                column(Assignment_Type; Format("FA History Entry CZF".Type))
                 {
                 }
                 column(Assignment_LastName; LastNameCaption)

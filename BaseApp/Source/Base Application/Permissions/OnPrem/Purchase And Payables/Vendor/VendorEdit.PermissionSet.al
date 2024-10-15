@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 7371 "Vendor - Edit"
 {
     Access = Public;
@@ -19,7 +18,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata Currency = R,
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
-                  tabledata "Detailed G/L Entry" = rm,
                   tabledata "Detailed Vendor Ledg. Entry" = Rim,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
@@ -38,6 +36,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Gen. Journal Batch" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "Gen. Journal Template" = r,
+                  tabledata "IC Bank Account" = Rm,
                   tabledata "IC Partner" = Rm,
                   tabledata Insurance = r,
                   tabledata "Interaction Log Entry" = R,
@@ -131,5 +130,3 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Whse. Worksheet Line" = r,
                   tabledata "Work Center" = r;
 }
-
-#endif

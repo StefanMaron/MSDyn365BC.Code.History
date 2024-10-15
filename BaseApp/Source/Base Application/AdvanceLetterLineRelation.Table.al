@@ -1,16 +1,9 @@
 table 31026 "Advance Letter Line Relation"
 {
     Caption = 'Advance Letter Line Relation';
-#if not CLEAN19
-    DrillDownPageID = "Advance Letter Line Relations";
-    LookupPageID = "Advance Letter Line Relations";
-    Permissions =;
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
@@ -43,20 +36,10 @@ table 31026 "Advance Letter Line Relation"
         field(4; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
-#if not CLEAN19
-            TableRelation = IF (Type = CONST(Sale)) "Sales Advance Letter Header"."No."
-            ELSE
-            IF (Type = CONST(Purchase)) "Purch. Advance Letter Header"."No.";
-#endif
         }
         field(5; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
-#if not CLEAN19
-            TableRelation = IF (Type = CONST(Sale)) "Sales Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."))
-            ELSE
-            IF (Type = CONST(Purchase)) "Purch. Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
-#endif            
         }
         field(6; Amount; Decimal)
         {
@@ -128,141 +111,5 @@ table 31026 "Advance Letter Line Relation"
     fieldgroups
     {
     }
-#if not CLEAN19
-
-    trigger OnDelete()
-    var
-        AdvanceLetterLineRelation: Record "Advance Letter Line Relation";
-    begin
-        TestField("Deducted Amount", 0);
-        CancelRelation(Rec, true, true, false);
-
-        AdvanceLetterLineRelation.Reset();
-        AdvanceLetterLineRelation.SetRange(Type, Type);
-        AdvanceLetterLineRelation.SetRange("Document Type", "Document Type");
-        AdvanceLetterLineRelation.SetRange("Document No.", "Document No.");
-        AdvanceLetterLineRelation.SetRange("Document Line No.", "Document Line No.");
-        if AdvanceLetterLineRelation.FindSet(true, false) then
-            repeat
-                if not ((AdvanceLetterLineRelation."Letter No." = "Letter No.") and (AdvanceLetterLineRelation."Letter Line No." = "Letter Line No."))
-                then begin
-                    AdvanceLetterLineRelation."VAT Doc. VAT Difference" := 0;
-                    AdvanceLetterLineRelation.Modify();
-                end;
-            until AdvanceLetterLineRelation.Next() = 0;
-    end;
-
-    [Scope('OnPrem')]
-    procedure CancelRelation(AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; IsUpdateSalesPurchLine: Boolean; IsUpdateAdvPaymHeader: Boolean; IsDeleteRec: Boolean)
-    var
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        Currency: Record Currency;
-        PurchLine: Record "Purchase Line";
-        PurchHeader: Record "Purchase Header";
-        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
-        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-        SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
-        PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
-        SalesPostAdvances: Codeunit "Sales-Post Advances";
-        PurchPostAdvances: Codeunit "Purchase-Post Advances";
-        IsDocLineFound: Boolean;
-    begin
-        case AdvanceLetterLineRelation.Type of
-            AdvanceLetterLineRelation.Type::Sale:
-                begin
-                    SalesAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
-                    if IsUpdateSalesPurchLine then begin
-                        IsDocLineFound := SalesLine.Get(AdvanceLetterLineRelation."Document Type",
-                            AdvanceLetterLineRelation."Document No.",
-                            AdvanceLetterLineRelation."Document Line No.");
-                        if IsDocLineFound then begin
-                            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-                            if SalesLine."Currency Code" = '' then
-                                Currency.InitRoundingPrecision()
-                            else begin
-                                Currency.Get(SalesLine."Currency Code");
-                                Currency.TestField("Amount Rounding Precision");
-                            end;
-                            if SalesHeader."Prices Including VAT" then
-                                SalesLine."Prepmt. Amt. Inv." := SalesLine."Prepmt. Amt. Inv." -
-                                  AdvanceLetterLineRelation."Invoiced Amount" + AdvanceLetterLineRelation."Deducted Amount"
-                            else
-                                SalesLine."Prepmt. Amt. Inv." := SalesLine."Prepmt. Amt. Inv." -
-                                  Round((AdvanceLetterLineRelation."Invoiced Amount" - AdvanceLetterLineRelation."Deducted Amount") /
-                                    (1 + SalesLine."VAT %" / 100), Currency."Amount Rounding Precision");
-                            SalesLine.CalcPrepaymentToDeduct();
-                            SalesLine.Modify();
-                        end;
-                    end;
-
-                    if IsUpdateAdvPaymHeader then begin
-                        SalesAdvanceLetterHeader.Get("Letter No.");
-                        if SalesAdvanceLetterHeader."Order No." <> '' then begin
-                            SalesAdvanceLetterHeader."Order No." := '';
-                            SalesAdvanceLetterHeader.Modify();
-                        end;
-                    end;
-                end;
-            AdvanceLetterLineRelation.Type::Purchase:
-                begin
-                    PurchAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
-                    if IsUpdateSalesPurchLine then begin
-                        IsDocLineFound := PurchLine.Get(AdvanceLetterLineRelation."Document Type",
-                            AdvanceLetterLineRelation."Document No.",
-                            AdvanceLetterLineRelation."Document Line No.");
-                        if IsDocLineFound then begin
-                            PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
-                            if PurchLine."Currency Code" = '' then
-                                Currency.InitRoundingPrecision()
-                            else begin
-                                Currency.Get(PurchLine."Currency Code");
-                                Currency.TestField("Amount Rounding Precision");
-                            end;
-                            if PurchHeader."Prices Including VAT" then
-                                PurchLine."Prepmt. Amt. Inv." := PurchLine."Prepmt. Amt. Inv." -
-                                  AdvanceLetterLineRelation."Invoiced Amount" + AdvanceLetterLineRelation."Deducted Amount"
-                            else
-                                PurchLine."Prepmt. Amt. Inv." := PurchLine."Prepmt. Amt. Inv." -
-                                  Round((AdvanceLetterLineRelation."Invoiced Amount" - AdvanceLetterLineRelation."Deducted Amount") /
-                                    (1 + PurchLine."VAT %" / 100), Currency."Amount Rounding Precision");
-                            PurchLine.CalcPrepaymentToDeduct();
-                            PurchLine.Modify();
-                        end;
-                    end;
-
-                    if IsUpdateAdvPaymHeader then begin
-                        PurchAdvanceLetterHeader.Get("Letter No.");
-                        if PurchAdvanceLetterHeader."Order No." <> '' then begin
-                            PurchAdvanceLetterHeader."Order No." := '';
-                            PurchAdvanceLetterHeader.Modify();
-                        end;
-                    end;
-                end;
-        end;
-        if AdvanceLetterLineRelation."Deducted Amount" = 0 then begin
-            if IsDeleteRec then
-                AdvanceLetterLineRelation.Delete()
-        end else begin
-            AdvanceLetterLineRelation.Amount := AdvanceLetterLineRelation."Deducted Amount";
-            AdvanceLetterLineRelation."Invoiced Amount" := AdvanceLetterLineRelation."Deducted Amount";
-            AdvanceLetterLineRelation.Modify();
-        end;
-        case AdvanceLetterLineRelation.Type of
-            AdvanceLetterLineRelation.Type::Sale:
-                SalesPostAdvances.UpdInvAmountToLineRelations(SalesAdvanceLetterLine);
-            AdvanceLetterLineRelation.Type::Purchase:
-                PurchPostAdvances.UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
-        end;
-
-        OnAfterCancelRelation(AdvanceLetterLineRelation);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCancelRelation(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation")
-    begin
-    end;
-#endif
 }
 

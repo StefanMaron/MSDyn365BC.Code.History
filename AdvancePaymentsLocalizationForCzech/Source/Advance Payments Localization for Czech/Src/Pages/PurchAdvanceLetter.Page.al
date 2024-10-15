@@ -738,9 +738,56 @@ page 31181 "Purch. Advance Letter CZZ"
         }
         area(Promoted)
         {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                group(Category_Release)
+                {
+                    Caption = 'Release';
+                    ShowAs = SplitButton;
+
+                    actionref(Release_Promoted; Release)
+                    {
+                    }
+                    actionref(Reopen_Promoted; Reopen)
+                    {
+                    }
+                }
+            }
+            group(Category_RequestApproval)
+            {
+                Caption = 'Request Approval';
+
+                actionref(Approvals_Promoted; Approvals)
+                {
+                }
+                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                {
+                }
+                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Print';
+
+                actionref(PrintPromoted; Print)
+                {
+                }
+                actionref(PrintToAttachmentPromoted; PrintToAttachment)
+                {
+                }
+            }
+#if not CLEAN22
             group(Category_Report)
             {
                 Caption = 'Report';
+                ObsoleteTag = '22.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This group has been removed.';
+                Visible = false;
 
                 actionref(Print_Promoted; Print)
                 {
@@ -749,20 +796,14 @@ page 31181 "Purch. Advance Letter CZZ"
                 {
                 }
             }
-            group(Category_Release)
-            {
-                Caption = 'Release';
 
-                actionref(Release_Promoted; Release)
-                {
-                }
-                actionref(Reopen_Promoted; Reopen)
-                {
-                }
-            }
             group(Category_History)
             {
                 Caption = 'History';
+                ObsoleteTag = '22.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This group has been removed.';
+                Visible = false;
 
                 actionref(Entries_Promoted; Entries)
                 {
@@ -771,6 +812,10 @@ page 31181 "Purch. Advance Letter CZZ"
             group(Category_Approve)
             {
                 Caption = 'Approve';
+                ObsoleteTag = '22.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This group has been removed.';
+                Visible = false;
 
                 actionref(Approve_Promoted; Approve)
                 {
@@ -785,17 +830,21 @@ page 31181 "Purch. Advance Letter CZZ"
                 {
                 }
             }
-            group(Category_RequestApproval)
+#endif
+            group(Category_Category7)
             {
-                Caption = 'Request Approval';
+                Caption = 'Purchase Advance Letter';
 
-                actionref(Approvals_Promoted; Approvals)
+                actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
+                actionref(SuggestedUsage_Promoted; SuggestedUsage)
                 {
                 }
-                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
+                actionref(EntriesPromoted; Entries)
                 {
                 }
             }

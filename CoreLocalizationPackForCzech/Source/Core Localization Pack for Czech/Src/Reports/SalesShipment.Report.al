@@ -430,7 +430,7 @@ report 31191 "Sales Shipment CZL"
 
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(5) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode(5) <> '';
     end;
 
     local procedure IsReportInPreviewMode(): Boolean

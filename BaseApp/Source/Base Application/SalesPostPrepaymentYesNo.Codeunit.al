@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 443 "Sales-Post Prepayment (Yes/No)"
 {
     EventSubscriberInstance = Manual;
@@ -10,8 +9,6 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     var
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesPostAdvances: Codeunit "Sales-Post Advances";
-        LetterNoToInvoice: Code[20];
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
 
         Text000: Label 'Do you want to post the prepayments for %1 %2?';
@@ -27,12 +24,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
             if not ConfirmForDocument(SalesHeader, Text000) then
                 exit;
 
-            // NAVCZ
-            if "Prepayment Type" = "Prepayment Type"::Advance then
-                SalesPostAdvances.Invoice(SalesHeader)
-            else
-                // NAVCZ
-                PostPrepmtDocument(SalesHeader, "Document Type"::Invoice);
+            PostPrepmtDocument(SalesHeader, "Document Type"::Invoice);
 
             if Print then begin
                 Commit();
@@ -48,22 +40,13 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     procedure PostPrepmtCrMemoYN(var SalesHeader2: Record "Sales Header"; Print: Boolean)
     var
         SalesHeader: Record "Sales Header";
-        SalesInvHeader: Record "Sales Invoice Header";
     begin
         SalesHeader.Copy(SalesHeader2);
         with SalesHeader do begin
             if not ConfirmForDocument(SalesHeader, Text001) then
                 exit;
 
-            // NAVCZ
-            if "Prepayment Type" = "Prepayment Type"::Advance then begin
-                if GetSelectedInvoices(SalesHeader, SalesInvHeader) then
-                    SalesPostAdvances.CreditMemo(SalesHeader, SalesInvHeader)
-                else
-                    Print := false;
-            end else
-                // NAVCZ
-                PostPrepmtDocument(SalesHeader, "Document Type"::"Credit Memo");
+            PostPrepmtDocument(SalesHeader, "Document Type"::"Credit Memo");
 
             if Print then
                 GetReport(SalesHeader, 1);
@@ -147,39 +130,6 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         PrepmtDocumentType := NewPrepmtDocumentType;
     end;
 
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure GetSelectedInvoices(SalesHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Invoice Header"): Boolean
-    var
-        PostedSalesInvoices: Page "Posted Sales Invoices";
-    begin
-        // NAVCZ
-        with SalesHeader do begin
-            SalesInvHeader.SetCurrentKey("Prepayment Order No.");
-            SalesInvHeader.SetRange("Prepayment Order No.", "No.");
-            if LetterNoToInvoice <> '' then
-                SalesInvHeader.SetRange("Letter No.", LetterNoToInvoice);
-            SalesInvHeader.SetFilter("Reversed By Cr. Memo No.", '%1', '');
-            PostedSalesInvoices.SetTableView(SalesInvHeader);
-            PostedSalesInvoices.LookupMode(true);
-            if PostedSalesInvoices.RunModal() = ACTION::LookupOK then begin
-                PostedSalesInvoices.GetSelection(SalesInvHeader);
-                exit(true);
-            end;
-            exit(false);
-        end;
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure SetAdvLetterNo(LetterNo: Code[20])
-    begin
-        // NAVCZ
-        Clear(SalesPostAdvances);
-        LetterNoToInvoice := LetterNo;
-        SalesPostAdvances.SetLetterNo(LetterNo);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostPrepmtInvoiceYN(var SalesHeader: Record "Sales Header")
     begin
@@ -226,4 +176,3 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     end;
 }
 
-#endif

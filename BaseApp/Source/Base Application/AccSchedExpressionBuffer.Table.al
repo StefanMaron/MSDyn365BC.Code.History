@@ -1,13 +1,9 @@
 table 31084 "Acc. Sched. Expression Buffer"
 {
     Caption = 'Acc. Sched. Expression Buffer';
-#if CLEAN19
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {

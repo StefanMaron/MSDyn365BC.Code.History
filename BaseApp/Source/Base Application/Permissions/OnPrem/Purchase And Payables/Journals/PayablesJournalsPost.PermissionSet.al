@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 3602 "Payables Journals - Post"
 {
     Access = Public;
@@ -17,7 +16,6 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Date Compr. Register" = r,
-                  tabledata "Detailed G/L Entry" = Ri,
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
@@ -79,5 +77,3 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Workflow User Group" = R,
                   tabledata "Workflow User Group Member" = R;
 }
-
-#endif

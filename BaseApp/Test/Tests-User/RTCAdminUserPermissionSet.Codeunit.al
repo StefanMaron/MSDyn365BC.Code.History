@@ -33,7 +33,7 @@ codeunit 132901 RTCAdmin_User_PermissionSet
         case Version of
             '6.0':
                 ExpectedError := UserAnonymousIsNotAllowedTxt;
-            '6.1', '6.2':
+            '6.1', '6.2', '10.0':
                 ExpectedError := UserIsNotValidWinAccountTxt;
             else
                 Error(NotSupportedOS001, Version);

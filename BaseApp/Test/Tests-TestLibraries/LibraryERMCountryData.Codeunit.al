@@ -114,12 +114,6 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         UpdateVATPostingSetupOnPrepAccount();
         UpdateGenProdPostingSetupOnPrepAccount();
-
-        // NAVCZ
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Prepayment Type" := GeneralLedgerSetup."Prepayment Type"::Prepayments;
-        GeneralLedgerSetup.Modify();
-        // NAVCZ
     end;
 
     procedure UpdatePurchasesPayablesSetup()
@@ -129,8 +123,6 @@ codeunit 131305 "Library - ERM Country Data"
         // NAVCZ
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate());
-        PurchasesPayablesSetup."Default Orig. Doc. VAT Date" :=
-          PurchasesPayablesSetup."Default Orig. Doc. VAT Date"::"Posting Date";
         PurchasesPayablesSetup.Modify();
         // NAVCZ
     end;
@@ -221,15 +213,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdateLocalData()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        AccountingPeriod: Record "Accounting Period";
     begin
-        GeneralLedgerSetup.Get();
-        if GeneralLedgerSetup."Use VAT Date" and not AccountingPeriod.IsEmpty() then begin
-            GeneralLedgerSetup."Use VAT Date" := false;
-            GeneralLedgerSetup.Modify(true);
-        end;
+        exit;
     end;
 
     local procedure UpdateGenProdPostingSetupOnPrepAccount()

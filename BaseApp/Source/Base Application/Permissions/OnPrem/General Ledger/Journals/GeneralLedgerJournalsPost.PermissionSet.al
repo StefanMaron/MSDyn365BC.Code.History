@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 2118 "General Ledger Journals - Post"
 {
     Access = Public;
@@ -21,7 +20,6 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Date Compr. Register" = r,
-                  tabledata "Detailed G/L Entry" = Ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "Dynamic Request Page Entity" = R,
@@ -83,5 +81,3 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "Workflow User Group" = R,
                   tabledata "Workflow User Group Member" = R;
 }
-
-#endif

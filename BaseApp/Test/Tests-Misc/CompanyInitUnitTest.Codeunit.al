@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 134163 "Company Init Unit Test"
 {
     EventSubscriberInstance = Manual;
@@ -667,328 +666,178 @@ codeunit 134163 "Company Init Unit Test"
           BankPmtApplRule."Related Party Matched"::"Not Considered",
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::Yes,
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::Yes);
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 2,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 3,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 4,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 5,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 6,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 7,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",// NAVCZ
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 8,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",// NAVCZ
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 9,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 10,
           BankPmtApplRule."Related Party Matched"::No,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::High, 11,
           BankPmtApplRule."Related Party Matched"::No,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",// NAVCZ
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
-
-        // NAVCZ
-        CheckBankPmtApplRuleEntry(
-          BankPmtApplRule."Match Confidence"::High, 12,
-          BankPmtApplRule."Related Party Matched"::No,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 1,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 2,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 3,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 4,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::"Yes - Multiple",
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 5,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 6,
           BankPmtApplRule."Related Party Matched"::No,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 7,
-          BankPmtApplRule."Related Party Matched"::Partially,// NAVCZ
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",// NAVCZ
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple",
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Medium, 8,
-          BankPmtApplRule."Related Party Matched"::No,// NAVCZ
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",// NAVCZ
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::Yes,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Related Party Matched"::Partially,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
+
+        CheckBankPmtApplRuleEntry(
+          BankPmtApplRule."Match Confidence"::Medium, 9,
+          BankPmtApplRule."Related Party Matched"::No,
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
+          BankPmtApplRule."Amount Incl. Tolerance Matched"::"Not Considered",
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Low, 1,
           BankPmtApplRule."Related Party Matched"::Fully,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Low, 2,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Low, 3,
           BankPmtApplRule."Related Party Matched"::Partially,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Low, 4,
           BankPmtApplRule."Related Party Matched"::No,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
 
         CheckBankPmtApplRuleEntry(
           BankPmtApplRule."Match Confidence"::Low, 5,
           BankPmtApplRule."Related Party Matched"::No,
-          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Not Considered",// NAVCZ
+          BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches",
-          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered",
-          // NAVCZ
-          BankPmtApplRule."Variable Symbol Matched"::No,
-          BankPmtApplRule."Specific Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Constant Symbol Matched"::"Not Considered",
-          BankPmtApplRule."Bank Transaction Type"::Both);
-        // NAVCZ
+          BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered");
     end;
 
-    local procedure CheckBankPmtApplRuleEntry(MatchConfidence: Option; Prio: Integer; RelatedParty: Option; DocMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option; VariableSymbolMatch: Option; SpecificSymbolMatch: Option; ConstantSymbolMatch: Option; BankTransactionType: Option)
+    local procedure CheckBankPmtApplRuleEntry(MatchConfidence: Option; Prio: Integer; RelatedParty: Option; DocMatch: Option; AmountMatch: Option; DirectDebitCollectionMatch: Option)
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
@@ -998,12 +847,6 @@ codeunit 134163 "Company Init Unit Test"
         BankPmtApplRule.SetRange("Doc. No./Ext. Doc. No. Matched", DocMatch);
         BankPmtApplRule.SetRange("Amount Incl. Tolerance Matched", AmountMatch);
         BankPmtApplRule.SetRange("Direct Debit Collect. Matched", DirectDebitCollectionMatch);
-        // NAVCZ
-        BankPmtApplRule.SetRange("Variable Symbol Matched", VariableSymbolMatch);
-        BankPmtApplRule.SetRange("Specific Symbol Matched", SpecificSymbolMatch);
-        BankPmtApplRule.SetRange("Constant Symbol Matched", ConstantSymbolMatch);
-        BankPmtApplRule.SetRange("Bank Transaction Type", BankTransactionType);
-        // NAVCZ
         BankPmtApplRule.FindFirst();
     end;
 
@@ -1024,4 +867,3 @@ codeunit 134163 "Company Init Unit Test"
     end;
 }
 
-#endif

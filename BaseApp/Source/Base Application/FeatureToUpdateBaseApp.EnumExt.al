@@ -1,15 +1,6 @@
 #if not CLEAN20
 enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
 {
-#if not CLEAN19
-    value(5721; ItemReference)
-    {
-        Implementation = "Feature Data Update" = "Feature - Item Reference";
-        ObsoleteState = Pending;
-        ObsoleteReason = 'Feature ItemReference got enabled by default.';
-        ObsoleteTag = '19.0';
-    }
-#endif
 #if not CLEAN21
     value(7049; SalesPrices)
     {
@@ -28,14 +19,22 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteTag = '21.0';
     }
 #endif
+#if not CLEAN22
     value(5405; CurrencySymbolMapping)
     {
         Implementation = "Feature Data Update" = "Feature Map Currency Symbol";
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Feature CurrencySymbolMapping will be enabled by default in version 22.0.';
+        ObsoleteTag = '22.0';
     }
     value(5408; OptionMapping)
     {
         Implementation = "Feature Data Update" = "Feature - Option Mapping";
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Feature OptionMapping will be enabled by default in version 22.0.';
+        ObsoleteTag = '22.0';
     }
+#endif
     value(31429; ReplaceMultipleInterestRateCZ)
     {
         Implementation = "Feature Data Update" = "Feature Replace Mul. Int. Rate";

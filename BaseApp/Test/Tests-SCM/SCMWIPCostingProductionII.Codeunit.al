@@ -1825,6 +1825,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     begin
     end;
 
+#if not CLEAN20
     [ReportHandler]
     [Scope('OnPrem')]
     procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
@@ -1832,5 +1833,14 @@ codeunit 137004 "SCM WIP Costing Production-II"
         // NAVCZ
         AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
+#else
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var ExchRateAdjustment: Report "Exch. Rate Adjustment")
+    begin
+        // NAVCZ
+        ExchRateAdjustment.SaveAsExcel(TemporaryPath + '.xlsx')
+    end;
+#endif
 }
 

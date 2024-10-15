@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9003 "Acc. Receivables Adm. RC"
 {
     Caption = 'Accounts Receivable Administrator';
@@ -286,17 +285,6 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Sales Invoices";
                     ToolTip = 'Open the list of posted sales invoices.';
                 }
-                action("Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Sales Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoice';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
                 action("Posted Return Receipts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -311,19 +299,7 @@ page 9003 "Acc. Receivables Adm. RC"
                     Caption = 'Posted Sales Credit Memos';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
                     ToolTip = 'Open the list of posted sales credit memos.';
-                }
-                action("Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Sales Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Invoices")
                 {
@@ -332,35 +308,12 @@ page 9003 "Acc. Receivables Adm. RC"
                     RunObject = Page "Posted Purchase Invoices";
                     ToolTip = 'Open the list of posted purchase invoices.';
                 }
-                action(Action1220003)
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoice';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
                 action("Posted Purchase Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
                     ToolTip = 'Open the list of posted purchase credit memos.';
-                }
-                action(Action1220004)
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Issued Reminders")
                 {
@@ -571,4 +524,3 @@ page 9003 "Acc. Receivables Adm. RC"
     }
 }
 
-#endif

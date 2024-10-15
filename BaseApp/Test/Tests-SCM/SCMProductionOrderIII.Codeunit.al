@@ -1357,6 +1357,9 @@ codeunit 137079 "SCM Production Order III"
           ProductionOrder.Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure", 0, 0, 0, 0);
         VerifyValueEntryForEntryType(
           ValueEntry."Entry Type"::"Indirect Cost", ProductionOrder."No.", 0, CostAmount, 0, ProdOrderLine."Overhead Rate", CostAmount);
+
+        // Tear Down.
+        ResetInventorySetup(InventorySetup);
     end;
 
     [Test]
@@ -6814,6 +6817,15 @@ codeunit 137079 "SCM Production Order III"
     begin
         WorkCenter.Validate("Flushing Method", FlushingMethod);
         WorkCenter.Modify(true);
+    end;
+
+    local procedure ResetInventorySetup(var InventorySetup: Record "Inventory Setup")
+    begin
+        LibraryVariableStorage.Enqueue(ChangeExpectedCostPostingToGLMsg);
+        LibraryVariableStorage.Enqueue(UnadjustedValueEntriesNotCoveredMsg);
+        LibraryInventory.UpdateInventorySetup(
+          InventorySetup, InventorySetup."Automatic Cost Posting", InventorySetup."Expected Cost Posting to G/L",
+          InventorySetup."Automatic Cost Adjustment", InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period");
     end;
 
     local procedure UpdateProdOrderLineUnitOfMeasureCode(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])

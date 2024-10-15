@@ -20,7 +20,7 @@ page 31074 "Item Charge Card"
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies the number of the item charge.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies a description of the item charge number that you are setting up.';

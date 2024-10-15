@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 1297 "Http Web Request Mgt."
 {
     var
@@ -264,18 +263,6 @@ codeunit 1297 "Http Web Request Mgt."
     procedure SetContentType(ContentType: Text)
     begin
         HttpWebRequest.ContentType := ContentType;
-    end;
-
-    [Obsolete('Unused function discontinued.', '19.0')]
-    [Scope('OnPrem')]
-    procedure SetWebProxy(Address: Text; UserName: Text; Password: Text)
-    var
-        WebRequestHelper: Codeunit "Web Request Helper";
-        WebProxy: DotNet WebProxy;
-    begin
-        // NAVCZ
-        if WebRequestHelper.GetWebProxy(Address, UserName, Password, WebProxy) then
-            HttpWebRequest.Proxy := WebProxy;
     end;
 
     [Scope('OnPrem')]
@@ -555,4 +542,3 @@ codeunit 1297 "Http Web Request Mgt."
     end;
 }
 
-#endif

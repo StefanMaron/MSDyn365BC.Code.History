@@ -1,22 +1,15 @@
 table 31082 "Acc. Schedule Result Line"
 {
     Caption = 'Acc. Schedule Result Line';
-#if CLEAN19
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
         field(1; "Result Code"; Code[20])
         {
             Caption = 'Result Code';
-#if not CLEAN19
-            TableRelation = "Acc. Schedule Result Header";
-#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -35,12 +28,7 @@ table 31082 "Acc. Schedule Result Line"
             Caption = 'Totaling';
             TableRelation = IF ("Totaling Type" = CONST("Posting Accounts")) "G/L Account"
             ELSE
-            IF ("Totaling Type" = CONST("Total Accounts")) "G/L Account"
-#if not CLEAN19
-            ELSE
-            IF ("Totaling Type" = CONST(Custom)) "Acc. Schedule Extension"
-#endif
-            ;
+            IF ("Totaling Type" = CONST("Total Accounts")) "G/L Account";
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;

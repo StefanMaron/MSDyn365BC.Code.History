@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 378 "Transfer Extended Text"
 {
 
@@ -30,7 +29,7 @@ codeunit 378 "Transfer Extended Text"
         ExtTextHeader: Record "Extended Text Header";
     begin
         MakeUpdateRequired := false;
-        if IsDeleteAttachedLines(SalesLine."Line No.", SalesLine."No.", SalesLine."Attached to Line No.") then
+        if IsDeleteAttachedLines(SalesLine."Line No.", SalesLine."No.", SalesLine."Attached to Line No.") and not SalesLine.IsExtendedText() then
             MakeUpdateRequired := DeleteSalesLines(SalesLine);
 
         AutoText := false;
@@ -159,7 +158,7 @@ codeunit 378 "Transfer Extended Text"
         ExtTextHeader: Record "Extended Text Header";
     begin
         MakeUpdateRequired := false;
-        if IsDeleteAttachedLines(PurchLine."Line No.", PurchLine."No.", PurchLine."Attached to Line No.") then
+        if IsDeleteAttachedLines(PurchLine."Line No.", PurchLine."No.", PurchLine."Attached to Line No.") and not PurchLine.IsExtendedText() then
             MakeUpdateRequired := DeletePurchLines(PurchLine);
 
         AutoText := false;
@@ -253,7 +252,9 @@ codeunit 378 "Transfer Extended Text"
     var
         ToSalesLine: Record "Sales Line";
         IsHandled: Boolean;
+#if not CLEAN22
         CompatibilityMode: Boolean;
+#endif
     begin
         OnBeforeInsertSalesExtText(SalesLine, TempExtTextLine, IsHandled, MakeUpdateRequired, LastInsertedSalesLine);
         if IsHandled then
@@ -266,6 +267,7 @@ codeunit 378 "Transfer Extended Text"
         ToSalesLine.SetRange("Document No.", SalesLine."Document No.");
         ToSalesLine := SalesLine;
         OnInsertSalesExtTextRetLastOnBeforeToSalesLineFind(ToSalesLine);
+#if not CLEAN22
         CompatibilityMode := false; // Disable previous LineSpacing assignment
         OnInsertSalesExtTextRetLastOnBeforeSetCompatibilityMode(CompatibilityMode);
         If CompatibilityMode then
@@ -277,6 +279,7 @@ codeunit 378 "Transfer Extended Text"
                     Error(Text000);
             end else
                 LineSpacing := 10000;
+#endif
 
         NextLineNo := SalesLine."Line No." + LineSpacing;
 
@@ -707,20 +710,6 @@ codeunit 378 "Transfer Extended Text"
         TempExtTextLine.DeleteAll();
     end;
 
-    [Obsolete('Unused function discontinued.', '19.0')]
-    [Scope('OnPrem')]
-    procedure VATCheckIfAnyExtText(SalesInvHeader: Record "Sales Invoice Header"; StdTextCode: Code[10]): Boolean
-    var
-        ExtTextHeader: Record "Extended Text Header";
-    begin
-        // NAVCZ
-        SalesInvHeader.TestField("No.");
-        ExtTextHeader.SetRange("Table Name", 0);
-        ExtTextHeader.SetRange("No.", StdTextCode);
-        ExtTextHeader.SetRange("Sales Invoice", true);
-        exit(ReadExtTextLines(ExtTextHeader, SalesInvHeader."Document Date", SalesInvHeader."Language Code"));
-    end;
-
     local procedure IsDeleteAttachedLines(LineNo: Integer; No: Code[20]; AttachedToLineNo: Integer): Boolean
     begin
         exit((LineNo <> 0) and (AttachedToLineNo = 0) and (No <> ''));
@@ -896,10 +885,12 @@ codeunit 378 "Transfer Extended Text"
     begin
     end;
 
+#if not CLEAN22
+    [Obsolete('Temporary event to support enabling of compatibility mode', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnInsertSalesExtTextRetLastOnBeforeSetCompatibilityMode(var CompatibilityMode: Boolean)
     begin
     end;
+#endif
 }
 
-#endif

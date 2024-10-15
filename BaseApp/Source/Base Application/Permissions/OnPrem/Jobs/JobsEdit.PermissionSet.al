@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 6719 "Jobs - Edit"
 {
     Access = Public;
@@ -9,7 +8,6 @@ permissionset 6719 "Jobs - Edit"
                   tabledata Customer = R,
                   tabledata "Customer Bank Account" = R,
                   tabledata "Default Dimension" = RIMD,
-                  tabledata "Detailed G/L Entry" = r,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "G/L Entry" = r,
@@ -82,5 +80,3 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Work Type" = R;
 }
-
-#endif

@@ -1,14 +1,9 @@
 table 31086 "Acc. Schedule Result Header"
 {
     Caption = 'Acc. Schedule Result Header';
-#if not CLEAN19
-    LookupPageID = "Acc. Schedule Res. Header List";
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
@@ -82,31 +77,5 @@ table 31086 "Acc. Schedule Result Header"
     fieldgroups
     {
     }
-#if not CLEAN19
-    trigger OnDelete()
-    begin
-        AccScheduleResultValue.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultValue.IsEmpty() then
-            AccScheduleResultValue.DeleteAll();
-
-        AccScheduleResultHistory.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultHistory.IsEmpty() then
-            AccScheduleResultHistory.DeleteAll();
-
-        AccScheduleResultLine.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultLine.IsEmpty() then
-            AccScheduleResultLine.DeleteAll();
-
-        AccScheduleResultColumn.SetRange("Result Code", "Result Code");
-        if not AccScheduleResultColumn.IsEmpty() then
-            AccScheduleResultColumn.DeleteAll();
-    end;
-
-    var
-        AccScheduleResultValue: Record "Acc. Schedule Result Value";
-        AccScheduleResultHistory: Record "Acc. Schedule Result History";
-        AccScheduleResultLine: Record "Acc. Schedule Result Line";
-        AccScheduleResultColumn: Record "Acc. Schedule Result Column";
-#endif
 }
 

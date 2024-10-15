@@ -1,14 +1,9 @@
 table 31089 "Acc. Schedule Extension"
 {
     Caption = 'Acc. Schedule Extension';
-#if not CLEAN19
-    LookupPageID = "Acc. Schedule Extensions";
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {

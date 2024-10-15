@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 862 "Payables Documents - Post"
 {
     Access = Public;
@@ -18,7 +17,6 @@ permissionset 862 "Payables Documents - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Customer Bank Account" = R,
-                  tabledata "Detailed G/L Entry" = Ri,
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
@@ -31,6 +29,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Gen. Journal Template" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "General Posting Setup" = R,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = RIMD,
                   tabledata "IC Dimension" = R,
                   tabledata "IC Dimension Value" = R,
@@ -109,5 +108,3 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Warehouse Request" = RIMD,
                   tabledata "Whse. Put-away Request" = RIMD;
 }
-
-#endif

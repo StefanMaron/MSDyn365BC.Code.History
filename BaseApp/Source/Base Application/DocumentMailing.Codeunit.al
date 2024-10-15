@@ -1,5 +1,4 @@
-﻿#if not CLEAN19
-codeunit 260 "Document-Mailing"
+﻿codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
 
@@ -20,7 +19,6 @@ codeunit 260 "Document-Mailing"
         TempBlob: Codeunit "Temp Blob";
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
         ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No. or Job Number';
-        SalesAdvLetterTxt: Label 'Advance Letter';
         EmailSubjectPluralCapTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
         PdfFileNamePluralPurchaseTxt: Label '%1 (Purchase).pdf', Comment = '%1 = Document Type in plural form';
         PdfFileNamePluralSalesTxt: Label '%1 (Sales).pdf', Comment = '%1 = Document Type in plural form';
@@ -67,14 +65,6 @@ codeunit 260 "Document-Mailing"
             true,
             '',
             Enum::"Email Scenario"::Default));
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    procedure EmailFileFromSalesAdvLetterHeader(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; AttachmentFilePath: Text[250])
-    begin
-        // NAVCZ
-        with SalesAdvanceLetterHeader do
-            EmailFile(AttachmentFilePath, '', '', "No.", GetToAddressFromCustomer("Bill-to Customer No."), SalesAdvLetterTxt, false, 0);
     end;
 
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceReference: RecordRef): Boolean
@@ -223,8 +213,8 @@ codeunit 260 "Document-Mailing"
         FileManagement: Codeunit "File Management";
         AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
         if AttachmentFilePath <> '' then begin
-            Clear(TempBlob);
             FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
             TempBlob.CreateInStream(AttachmentStream);
             TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
@@ -251,8 +241,8 @@ codeunit 260 "Document-Mailing"
         FileManagement: Codeunit "File Management";
         AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
         if AttachmentFilePath <> '' then begin
-            Clear(TempBlob);
             FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
             TempBlob.CreateInStream(AttachmentStream);
             TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
@@ -290,8 +280,8 @@ codeunit 260 "Document-Mailing"
         FileManagement: Codeunit "File Management";
         AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
         if AttachmentFilePath <> '' then begin
-            Clear(TempBlob);
             FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
             TempBlob.CreateInStream(AttachmentStream);
             TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
@@ -318,8 +308,8 @@ codeunit 260 "Document-Mailing"
         FileManagement: Codeunit "File Management";
         AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
         if AttachmentFilePath <> '' then begin
-            Clear(TempBlob);
             FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
             TempBlob.CreateInStream(AttachmentStream);
             TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
@@ -656,11 +646,13 @@ codeunit 260 "Document-Mailing"
 
         TempEmailItem.GetAttachments(Attachments, AttachmentNames);
         // If true, that means we came from "EmailFile" call and need to get data from the document
-        if IsFromPostedDoc and (Attachments.Count() > 0) then begin
-            Name := CopyStr(AttachmentNames.Get(1), 1, 250);
-            GetAttachmentFileName(Name, PostedDocNo, EmailDocName, ReportUsage);
-            if Name <> AttachmentNames.Get(1) then
-                AttachmentNames.Set(1, Name);
+        if IsFromPostedDoc then begin
+            if Attachments.Count() > 0 then begin
+                Name := CopyStr(AttachmentNames.Get(1), 1, 250);
+                GetAttachmentFileName(Name, PostedDocNo, EmailDocName, ReportUsage);
+                if Name <> AttachmentNames.Get(1) then
+                    AttachmentNames.Set(1, Name);
+            end;
             EmailSubject := GetEmailSubject(PostedDocNo, EmailDocName, ReportUsage);
             TempEmailItem.AttachIncomingDocuments(PostedDocNo);
         end;
@@ -807,4 +799,3 @@ codeunit 260 "Document-Mailing"
     end;
 }
 
-#endif

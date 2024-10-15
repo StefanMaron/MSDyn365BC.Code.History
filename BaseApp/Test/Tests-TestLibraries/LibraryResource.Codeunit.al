@@ -83,7 +83,7 @@ codeunit 130511 "Library - Resource"
         ResourceGroup.Insert(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; Type: Option; "Code": Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
         ResourcePrice.Init();

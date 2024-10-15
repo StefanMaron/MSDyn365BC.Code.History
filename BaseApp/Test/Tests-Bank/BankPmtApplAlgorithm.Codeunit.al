@@ -1,4 +1,4 @@
-codeunit 134261 "Bank Pmt. Appl. Algorithm"
+﻿codeunit 134261 "Bank Pmt. Appl. Algorithm"
 {
     Permissions = TableData "Cust. Ledger Entry" = imd,
                   TableData "Vendor Ledger Entry" = imd,
@@ -12,8 +12,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         ZeroVATPostingSetup: Record "VAT Posting Setup";
@@ -161,8 +159,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankAccReconciliation, BankPmtApplRule, BankAccReconciliationLine."Account Type"::Customer, Amount, 0, 1, 1);
     end;
 
+
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,VerifyPaymentApplicationPageWithDisableSuggestions')]
     [Scope('OnPrem')]
     procedure TestCustNoMatchCustLegerEntriesDisabled()
     var
@@ -178,6 +177,9 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize();
 
         // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Cust. Ledger Entries Matching" := false;
+        BankPmtApplSettings.Modify();
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -187,14 +189,18 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount, '', '');
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."Cust. Ledger Entries Matching" := false;
-        BankPmtApplSettings.Modify();
+
         // Exercise
         RunMatch(BankAccReconciliation, true);
 
         // Verify
         VerifyNoMatch(BankAccReconciliationLine."Statement Line No.");
+
+        // Verify Apply manually still shows entries
+        LibraryVariableStorage.Enqueue(Format(TempBankPmtApplRule."Match Confidence"::None));
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
     end;
 
     [Test]
@@ -307,7 +313,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
         VerifyReconciliation(BankPmtApplRule, BankAccReconciliationLine."Statement Line No.");
 
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
         BankPmtApplRule."Match Confidence" := TempBankPmtApplRule."Match Confidence";
 
@@ -1179,6 +1185,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize();
 
         // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
+        BankPmtApplSettings.Modify();
+
         CreateCustomer(Customer);
         Customer.Name := 'JohnName1 DoeName2 Name3John';
         Customer.Modify();
@@ -1189,10 +1199,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
           Customer.Name, '');
-
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
-        BankPmtApplSettings.Modify();
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -1225,16 +1231,16 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Customer.Name := 'FirstName1 MiddleName2 LastName3';
         Customer.Modify();
 
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
+        BankPmtApplSettings.Modify();
+
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
           'MiddleName2 LastName3 FirstName1', '');
-
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
-        BankPmtApplSettings.Modify();
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -1262,6 +1268,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize();
 
         // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
+        BankPmtApplSettings.Modify();
+
         CreateCustomer(Customer);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -1271,10 +1281,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount / 2,
           'Payment for invoice x', '');
 
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
-        BankPmtApplSettings.Modify();
-
         // Exercise
         RunMatch(BankAccReconciliation, true);
 
@@ -1283,6 +1289,45 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
         VerifyMatchDetailsData(
           BankAccReconciliation, BankPmtApplRule, BankAccReconciliationLine."Account Type"::Customer, Amount / 2, 0, 0, 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyPaymentApplicationPageWithDisableSuggestions')]
+    [Scope('OnPrem')]
+    procedure TestVerifyApplyManuallyPageWithSuggestionsTurnedOff()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        Customer: Record Customer;
+        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        Amount: Decimal;
+    begin
+        Initialize();
+
+        // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Apply Man. Disable Suggestions" := true;
+        BankPmtApplSettings.Modify();
+
+        CreateCustomer(Customer);
+
+        Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
+        CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
+
+        CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
+        CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount,
+          Customer.Name, '');
+
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+
+        // Exercise
+        LibraryVariableStorage.Enqueue(Format(TempBankPmtApplRule."Match Confidence"::High));
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
+
+        // Verify is done in the modal handler
     end;
 
     [Test]
@@ -1584,8 +1629,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount * 2, TextMapper, '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -1678,8 +1722,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         UpdateBankReconciliationLine(BankAccReconciliationLine, '', Customer.Name, '', '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -1712,8 +1755,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Amount * 2, TextMapper, '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingCustomer(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, Customer."No."); // NAVCZ
+        LibraryERM.CreateAccountMappingCustomer(TextToAccMapping, TextMapper, Customer."No.");
 
         RunMatch(BankAccReconciliation, true);
 
@@ -2317,8 +2359,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
@@ -2333,7 +2374,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify
         Difference := 0;
         ExpectedNoOfEntries := 1;
-        TempBankPmtApplRule.Priority := 0; // NAVCZ
         Quality := TempBankPmtApplRule.GetTextMapperScore;
 
         VerifyMultipleApplicationsBankAccReconciliationLine(
@@ -2370,8 +2410,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
@@ -2762,7 +2801,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
 
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -2839,7 +2878,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -3843,6 +3882,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize();
 
         // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
+        BankPmtApplSettings.Modify();
+
         CreateVendor(Vendor);
         Vendor.Name := 'JohnName1 DoeName2 Name3John';
         Vendor.Modify();
@@ -3853,10 +3896,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
           Vendor.Name, '');
-
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
-        BankPmtApplSettings.Modify();
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -3889,16 +3928,16 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Vendor.Name := 'FirstName1 MiddleName2 LastName3';
         Vendor.Modify();
 
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
+        BankPmtApplSettings.Modify();
+
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
           'MiddleName2 LastName3 FirstName1', '');
-
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
-        BankPmtApplSettings.Modify();
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -3926,6 +3965,10 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize();
 
         // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
+        BankPmtApplSettings.Modify();
+
         CreateVendor(Vendor);
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -3934,10 +3977,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount / 2,
           'Payment for invoice x', '');
-
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."RelatedParty Name Matching" := BankPmtApplSettings."RelatedParty Name Matching"::"Exact Match with Permutations";
-        BankPmtApplSettings.Modify();
 
         // Exercise
         RunMatch(BankAccReconciliation, true);
@@ -4359,8 +4398,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount * 2, TextMapper, '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -4447,8 +4485,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         UpdateBankReconciliationLine(BankAccReconciliationLine, '', Vendor.Name, '', '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         RunMatch(BankAccReconciliation, true);
 
@@ -4481,8 +4518,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount * 2, TextMapper, '');
 
         // Exercise
-        LibraryERM.CreateAccountMappingVendor(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, Vendor."No."); // NAVCZ
+        LibraryERM.CreateAccountMappingVendor(TextToAccMapping, TextMapper, Vendor."No.");
 
         RunMatch(BankAccReconciliation, true);
 
@@ -5086,8 +5122,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
@@ -5102,7 +5137,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Verify
         Difference := 0;
         ExpectedNoOfEntries := 1;
-        TempBankPmtApplRule.Priority := 0; // NAVCZ
         Quality := TempBankPmtApplRule.GetTextMapperScore;
 
         VerifyMultipleApplicationsBankAccReconciliationLine(
@@ -5139,8 +5173,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateVendor(Vendor);
         TextMapper := GenerateTextToAccountMapping();
-        LibraryERM.CreateAccountMappingGLAccount(
-          TextToAccMapping, GetAccountMappingCode, TextMapper, LibraryERM.CreateGLAccountNo, ''); // NAVCZ
+        LibraryERM.CreateAccountMappingGLAccount(TextToAccMapping, TextMapper, LibraryERM.CreateGLAccountNo, '');
 
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
@@ -5330,7 +5363,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,VerifyPaymentApplicationPageWithDisableSuggestions')]
     [Scope('OnPrem')]
     procedure TestVendorNoMatchVendorLegerEntriesDisabled()
     var
@@ -5346,7 +5379,11 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize();
 
         // Setup
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Vendor Ledger Entries Matching" := false;
+        BankPmtApplSettings.Modify();
         CreateVendor(Vendor);
+
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         ExtDocNo := GenerateExtDocNo;
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", ExtDocNo, Amount);
@@ -5354,15 +5391,17 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CreateBankReconciliationAmountTolerance(BankAccReconciliation, 0);
         CreateBankReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, -Amount, '', '');
 
-        BankPmtApplSettings.GetOrInsert(GetBankPmtApplRuleCode(BankAccReconciliation));
-        BankPmtApplSettings."Vendor Ledger Entries Matching" := false;
-        BankPmtApplSettings.Modify();
-
         // Exercise
         RunMatch(BankAccReconciliation, true);
 
         // Verify
         VerifyNoMatch(BankAccReconciliationLine."Statement Line No.");
+
+        // Verify Apply manually still shows entries
+        LibraryVariableStorage.Enqueue(Format(TempBankPmtApplRule."Match Confidence"::None));
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
     end;
 
     [Test]
@@ -5567,7 +5606,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
 
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -5644,7 +5683,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes,
           BankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         Quality := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
 
         Assert.AreEqual(Quality, TempBankStatementMatchingBuffer.Quality, 'Score should be assigned to the line');
@@ -6022,9 +6061,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CleanupPreviousTestData;
         ClearGlobals;
         LibraryVariableStorage.Clear();
-        BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", GetBankPmtApplRuleCode); // NAVCZ
         BankPmtApplRule.DeleteAll();
-        LibraryERM.InsertDefaultMatchingRulesW1(GetBankPmtApplRuleCode); // NAVCZ
         BankPmtApplRule.InsertDefaultMatchingRules;
         BankPmtApplSettings.DeleteAll();
 
@@ -6033,7 +6070,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm");
 
         LibraryApplicationArea.EnableFoundationSetup();
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -6220,10 +6257,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Match Tolerance Type", ToleranceType);
         BankAccount.Validate("Match Tolerance Value", ToleranceValue);
-        // NAVCZ
-        BankAccount.Validate("Bank Pmt. Appl. Rule Code", GetBankPmtApplRuleCode);
-        BankAccount.Validate("Text-to-Account Mapping Code", GetAccountMappingCode);
-        // NAVCZ
         BankAccount.Modify(true);
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
@@ -6252,8 +6285,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           TempLedgerEntryMatchingBuffer,
           BankAccReconciliationLine."Statement Line No.",
           BankPmtApplRule."Related Party Matched"::Fully,
-          AccountType, TempLedgerEntryMatchingBuffer.GetApplicableRemainingAmount(BankAccReconciliationLine, false),
-          BankPmtApplRule); // NAVCZ
+          AccountType, TempLedgerEntryMatchingBuffer.GetApplicableRemainingAmount(BankAccReconciliationLine, false));
 
         TempBankStmtMultipleMatchLine.InsertLine(
           TempLedgerEntryMatchingBuffer,
@@ -6459,14 +6491,12 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.FindFirst();
 
-        TempBankPmtApplRule.Priority := 0; // NAVCZ
         Assert.AreEqual(TempBankPmtApplRule.GetTextMapperScore,
           TempBankStatementMatchingBuffer.Quality, 'Matching is wrong for statement line ' + Format(StatementLineNo));
     end;
 
     local procedure VerifyTextEntryConsidered(StatementLineNo: Integer)
     begin
-        TempBankPmtApplRule.Priority := 0; // NAVCZ
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.SetRange(Quality, TempBankPmtApplRule.GetTextMapperScore);
@@ -6522,7 +6552,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankAccount: Record "Bank Account";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
     begin
-        TempBankPmtApplRule.LoadRules(GetBankPmtApplRuleCode); // NAVCZ
+        TempBankPmtApplRule.LoadRules();
         TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
         BankPmtApplRule."Match Confidence" := TempBankPmtApplRule."Match Confidence";
 
@@ -6685,11 +6715,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         MatchBankPayments.Code(BankAccReconciliationLine);
 
         MatchBankPayments.GetBankStatementMatchingBuffer(TempBankStatementMatchingBuffer);
-        // NAVCZ
-        TempBankStatementMatchingBuffer.SetFilter("Account Type", '%1|%2',
-          TempBankStatementMatchingBuffer."Account Type"::Customer,
-          TempBankStatementMatchingBuffer."Account Type"::Vendor);
-        // NAVCZ
     end;
 
     [MessageHandler]
@@ -6732,6 +6757,18 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure VerifyPaymentApplicationPageWithDisableSuggestions(var PaymentApplication: TestPage "Payment Application")
+    begin
+        Assert.IsTrue(PaymentApplication.First(), 'Page must not be empty, suggestions should have been loaded');
+        Assert.AreEqual(PaymentApplication."Match Confidence".Value(), Format(TempBankPmtApplRule."Match Confidence"::None), 'No confidence should be set on the line');
+
+        PaymentApplication.SortEntriesBasedOnProbability.Invoke();
+        Assert.IsTrue(PaymentApplication.First(), 'Page must not be empty, suggestions should have been loaded');
+        Assert.AreEqual(PaymentApplication."Match Confidence".Value(), LibraryVariableStorage.DequeueText(), 'No confidence should be set on the line');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure VerifyMatchDetailsOnPaymentApplicationsPage(var PaymentApplication: TestPage "Payment Application")
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -6761,7 +6798,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         LibraryVariableStorage.Dequeue(ToleranceTypeVariant);
         LibraryVariableStorage.Dequeue(GoToEntryNoVariant);
 
-        PaymentApplication.FILTER.SetFilter("Account Type", Format(AccountTypeVariant)); // NAVCZ
         GoToEntryNo := GoToEntryNoVariant;
         if GoToEntryNo then begin
             LibraryVariableStorage.Dequeue(EntryNoVariant);
@@ -6886,30 +6922,6 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(AppliedPaymentEntry."Applied Amount", ExpectedAppliedAmount, 'Wrong amount set');
         Assert.AreEqual(AppliedPaymentEntry."Applies-to Entry No.", ExpectedAppliesToEntryNo, 'Wrong Applies-to Entry No. value is set');
         Assert.AreEqual(AppliedPaymentEntry.Quality, Quality, 'Wrong quality is set');
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    begin
-        // NAVCZ
-        if BankPmtApplRuleCode.Code = '' then
-            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    begin
-        // NAVCZ
-        if TextToAccMappingCode.Code = '' then
-            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
-        exit(TextToAccMappingCode.Code);
-    end;
-
-    local procedure GetBankPmtApplRuleCode(BankAccReconciliation: Record "Bank Acc. Reconciliation"): Code[10]
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        BankAccount.Get(BankAccReconciliation."Bank Account No.");
-        exit(BankAccount."Bank Pmt. Appl. Rule Code");
     end;
 }
 

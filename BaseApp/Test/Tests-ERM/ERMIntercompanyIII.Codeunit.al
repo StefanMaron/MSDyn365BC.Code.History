@@ -38,41 +38,6 @@ codeunit 134154 "ERM Intercompany III"
         InsufficientQtyErr: Label 'You have insufficient quantity of Item';
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,ICSetupPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestConfirmYesOpensIntercompanySetupWhenSetupIsMissing()
-    var
-#if not CLEAN20
-        FeatureKey: Record "Feature Key";
-#endif
-        ICSetup: Record "IC Setup";
-        ICPartnerList: TestPage "IC Partner List";
-    begin
-        // [SCENARIO ] When Intercompany Setup is missing, opening the Intercompany Partners page opens up a confirmation to setup intercompany information. Invoking Yes on the
-        // confirmation opens up the Intercompany Setup page
-        Initialize();
-#if not CLEAN20        
-        FeatureKey.Get('ICAutoAcceptTrans');
-        FeatureKey.Enabled := FeatureKey.Enabled::None;
-        FeatureKey.Modify();
-#endif
-
-        // [GIVEN] Company Information where IC Partner Code = ''
-        ICSetup.Get();
-        ICSetup.Validate("IC Partner Code", '');
-        ICSetup.Modify(true);
-
-        // [WHEN] Intercompany Partners page is not opened
-        asserterror ICPartnerList.OpenEdit;
-
-        // [THEN] Verification is that the ConfirmHandler is hit and the ICSetup page is hit
-#if not CLEAN20
-        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-        FeatureKey.Modify();
-#endif
-    end;
-
-    [Test]
     [HandlerFunctions('ComfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestConfirmNoDoesNotOpenIntercompanySetupWhenSetupIsMissing()
@@ -2745,6 +2710,440 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    procedure ICNavigateFromIncomingSalesOrderLine()
+    var
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        Customer: Record Customer;
+        HandledICInboxTransactions: TestPage "Handled IC Inbox Transactions";
+        SalesOrder: TestPage "Sales Order";
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        TransactionSource: Option "Returned by Partner","Created by Partner";
+        DocumentNo: Code[20];
+        ICPartnerCode: Code[20];
+        TransactionNo: Integer;
+    begin
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(true, false, true, false);
+        CreateCustomerWithICPartner(Customer);
+        ICPartnerCode := Customer."IC Partner Code";
+
+        // [GIVEN] A sales order received on IC Inbox.
+        DocumentNo := LibraryUtility.GenerateGUID();
+        MockICInboxTransaction(ICInboxTransaction, ICPartnerCode, ICInboxTransaction."Source Type"::"Sales Document", ICInboxTransaction."Document Type"::Order, DocumentNo);
+        MockICInboxSalesDocument(ICInboxSalesHeader, ICInboxTransaction, Customer."No.", 10, 100);
+        GetICTransactionKeyValues(ICInboxTransaction, TransactionNo, ICPartnerCode, TransactionSource);
+        // [GIVEN] The Sales Order was accepted
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+        Commit();
+        // [WHEN] Navigating from HandledInbox for this transaction
+        HandledICInboxTrans.Get(TransactionNo, ICPartnerCode, TransactionSource, Enum::"IC Transaction Document Type"::Order);
+        HandledICInboxTransactions.OpenEdit();
+        HandledICInboxTransactions.GoToRecord(HandledICInboxTrans);
+        SalesOrder.Trap();
+        HandledICInboxTransactions.GoToDocument.Invoke();
+        // [THEN] It should open the Sales Order
+        SalesOrder."External Document No.".AssertEquals(ICInboxSalesHeader."No.");
+        // Cleanup
+        CleanupIC(true, false, true, false);
+    end;
+
+    [Test]
+    procedure ICNavigateFromSalesInvoiceLine()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ICOutboxTransactions: TestPage "IC Outbox Transactions";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        DocumentNo: Code[20];
+        ICPartnerCode: Code[20];
+    begin
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(false, true, true, false);
+        CreateCustomerWithICPartner(Customer);
+        ICPartnerCode := Customer."IC Partner Code";
+
+        // [GIVEN] A posted sales invoice to an IC customer
+        DocumentNo := LibraryUtility.GenerateGUID();
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        // [GIVEN] The posted sales invoice IC transaction should be on the Outbox
+        ICOutboxTransactions.OpenEdit();
+        // [WHEN] Navigating from Outbox for this transaction
+        PostedSalesInvoice.Trap();
+        ICOutboxTransactions.GoToDocument.Invoke();
+        // [THEN] It should open the Posted Sales Invoice
+        PostedSalesInvoice."Pre-Assigned No.".AssertEquals(SalesHeader."No.");
+
+        // Cleanup
+        CleanupIC(false, true, true, false);
+    end;
+
+    [Test]
+    procedure ICNavigateFromOutgoingSalesOrderLine()
+    var
+        Customer: Record Customer;
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICOutboxTransactions: TestPage "IC Outbox Transactions";
+        SalesOrder: TestPage "Sales Order";
+        ICPartnerCode: Code[20];
+    begin
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(false, true, true, false);
+        CreateCustomerWithICPartner(Customer);
+        ICPartnerCode := Customer."IC Partner Code";
+        // [GIVEN] A Sales Order sent to an IC Partner
+        LibrarySales.CreateSalesOrderForCustomerNo(SalesHeader, Customer."No.");
+        SalesHeader.SetHideValidationDialog(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
+        // [WHEN] Running GotoDocument from IC Outbox
+        ICOutboxTransactions.OpenEdit();
+        SalesOrder.Trap();
+        ICOutboxTransactions.GoToDocument.Invoke();
+        // [THEN] The SalesOrder should open
+        SalesOrder."No.".AssertEquals(SalesHeader."No.");
+        CleanupIC(false, true, true, false);
+    end;
+
+    [Test]
+    procedure ICNavigateFromIncomingPurchaseOrderLine()
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        Vendor: Record Vendor;
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        HandledICInboxTransactions: TestPage "Handled IC Inbox Transactions";
+        PurchaseOrder: TestPage "Purchase Order";
+        TransactionSource: Option "Returned by Partner","Created by Partner";
+        ICPartnerCode: Code[20];
+        DocumentNo: Code[20];
+        TransactionNo: Integer;
+    begin
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(true, false, false, true);
+        CreateVendorWithICPartner(Vendor);
+        ICPartnerCode := Vendor."IC Partner Code";
+        // [GIVEN] A purchase order received as an IC transaction
+        DocumentNo := LibraryUtility.GenerateGUID();
+        MockICInboxTransaction(ICInboxTransaction, ICPartnerCode, ICInboxTransaction."Source Type"::"Purchase Document", ICInboxTransaction."Document Type"::Order, DocumentNo);
+        MockICInboxPurchaseDocument(ICInboxPurchaseHeader, ICInboxTransaction, Vendor."No.", 100);
+        GetICTransactionKeyValues(ICInboxTransaction, TransactionNo, ICPartnerCode, TransactionSource);
+        // [GIVEN] the purchase order was accepted
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+        Commit();
+        // [WHEN] Navigating from Handled Inbox to its related document
+        HandledICInboxTrans.Get(TransactionNo, ICPartnerCode, TransactionSource, Enum::"IC Transaction Document Type"::Order);
+        HandledICInboxTransactions.OpenEdit();
+        HandledICInboxTransactions.GoToRecord(HandledICInboxTrans);
+        PurchaseOrder.Trap();
+        HandledICInboxTransactions.GoToDocument.Invoke();
+        // [THEN] We should open the purchase order
+        PurchaseOrder."Vendor Order No.".AssertEquals(ICInboxPurchaseHeader."No.");
+        CleanupIC(true, false, false, true);
+    end;
+
+    [Test]
+    procedure ICNavigateFromPurchaseInvoiceLine()
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        Vendor: Record Vendor;
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        HandledICInboxTransactions: TestPage "Handled IC Inbox Transactions";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TransactionSource: Option "Returned by Partner","Created by Partner";
+        ICPartnerCode: Code[20];
+        DocumentNo: Code[20];
+        TransactionNo: Integer;
+    begin
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(true, false, false, true);
+        CreateVendorWithICPartner(Vendor);
+        ICPartnerCode := Vendor."IC Partner Code";
+
+        // [GIVEN] A purchase invoice received as an IC transaction
+        DocumentNo := LibraryUtility.GenerateGUID();
+        MockICInboxTransaction(ICInboxTransaction, ICPartnerCode, ICInboxTransaction."Source Type"::"Purchase Document", ICInboxTransaction."Document Type"::Invoice, DocumentNo);
+        MockICInboxPurchaseDocument(ICInboxPurchaseHeader, ICInboxTransaction, Vendor."No.", 100);
+        GetICTransactionKeyValues(ICInboxTransaction, TransactionNo, ICPartnerCode, TransactionSource);
+        // [GIVEN] the purchase invoice was accepted
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+        Commit();
+        // [WHEN] Navigating from Handled Inbox to its related document
+        HandledICInboxTrans.Get(TransactionNo, ICPartnerCode, TransactionSource, Enum::"IC Transaction Document Type"::Invoice);
+        HandledICInboxTransactions.OpenEdit();
+        HandledICInboxTransactions.GoToRecord(HandledICInboxTrans);
+        PurchaseInvoice.Trap();
+        HandledICInboxTransactions.GoToDocument.Invoke();
+
+        // [THEN] We should open the purchase invoice
+        PurchaseInvoice."Vendor Invoice No.".AssertEquals(ICInboxPurchaseHeader."No.");
+        CleanupIC(true, false, false, true);
+    end;
+
+    [Test]
+    procedure ICNavigateFromOutgoingPurchaseOrderLine()
+    var
+        Vendor: Record Vendor;
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        PurchaseHeader: Record "Purchase Header";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICOutboxTransactions: TestPage "IC Outbox Transactions";
+        PurchaseOrder: TestPage "Purchase Order";
+        ICPartnerCode: Code[20];
+    begin
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(false, true, false, true);
+        CreateVendorWithICPartner(Vendor);
+        ICPartnerCode := Vendor."IC Partner Code";
+        // [GIVEN] A Sales Order sent to an IC Partner
+        LibraryPurchase.CreatePurchaseOrderForVendorNo(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.SetHideValidationDialog(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
+        // [WHEN] Running GotoDocument from IC Outbox
+        ICOutboxTransactions.OpenEdit();
+        PurchaseOrder.Trap();
+        ICOutboxTransactions.GoToDocument.Invoke();
+        // [THEN] The SalesOrder should open
+        PurchaseOrder."No.".AssertEquals(PurchaseHeader."No.");
+        CleanupIC(false, true, false, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure RejectICSalesOrder()
+    var
+        Customer: Record Customer;
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        SalesHeader: Record "Sales Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        DimensionValue: array[5] of Record "Dimension Value";
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        SalesOrderPage: TestPage "Sales Order";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] An IC inbox transaction of type sales order was accepted and created. It is then rejected by that company 
+        Initialize();
+        CleanupIC(true, true, false, false);
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] A customer configured as IC Partner
+        CreateSetOfDimValues(DimensionValue);
+        CustomerNo := CreateCustomerWithDefaultDimensions(DimensionValue);
+        Customer.Get(CustomerNo);
+        // [GIVEN] A sales order IC inbox transaction
+        DocumentNo := LibraryUtility.GenerateGUID();
+        MockICInboxSalesOrder(ICInboxSalesHeader, DimensionValue, CustomerNo);
+        MockICInboxTransaction(ICInboxTransaction, Customer."IC Partner Code", ICInboxTransaction."Source Type"::"Sales Document", ICInboxTransaction."Document Type"::Order, DocumentNo);
+        ICInboxSalesHeader."IC Transaction No." := ICInboxTransaction."Transaction No.";
+        ICInboxSalesHeader.Modify();
+        ICInboxSalesHeader.Rename(ICInboxSalesHeader."IC Transaction No.", ICInboxSalesHeader."IC Partner Code", ICInboxSalesHeader."Transaction Source"::"Created by Partner");
+        // [GIVEN] The sales order was accepted and created
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+
+        // [WHEN] Running the action in the sales order page "Reject IC Order"
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
+        SalesOrderPage.OpenView();
+        SalesOrderPage.GoToRecord(SalesHeader);
+        SalesOrderPage."Reject IC Sales Order".Invoke();
+        Commit();
+
+        // [THEN] The Sales Order is removed
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        Assert.IsTrue(SalesHeader.IsEmpty(), 'The sales order should be removed after rejection');
+        // [THEN] An IC outbox rejection transaction is created
+        ICOutboxTransaction.SetRange("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
+        Assert.AreEqual(1, ICOutboxTransaction.Count(), 'There should be 1 rejection being created as an outbox transaction');
+
+        CleanupIC(true, true, false, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure RejectICPurchaseOrder()
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO] An IC inbox transaction of type purchase order was accepted and created. It is then rejected by that company 
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(true, true, false, false);
+        CreateVendorWithICPartner(Vendor);
+        DocumentNo := LibraryUtility.GenerateGUID();
+        // [GIVEN] A purchase order IC inbox transaction
+        MockICInboxTransaction(ICInboxTransaction, Vendor."IC Partner Code", ICInboxTransaction."Source Type"::"Purchase Document", ICInboxTransaction."Document Type"::Order, DocumentNo);
+        MockICInboxPurchaseDocument(ICInboxPurchaseHeader, ICInboxTransaction, Vendor."No.", 100);
+        // [GIVEN] The purchase order was accepted and created
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+        Commit();
+
+        // [WHEN] Running the action in the purchase order page "Reject IC Order"
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseOrderPage.OpenView();
+        PurchaseOrderPage.GoToRecord(PurchaseHeader);
+        PurchaseOrderPage."Reject IC Purchase Order".Invoke();
+        Commit();
+
+        // [THEN] The Purchase Order is removed
+        PurchaseHeader.Reset();
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        Assert.IsTrue(PurchaseHeader.IsEmpty(), 'The purchase order should be removed after rejection');
+        // [THEN] An IC outbox rejection transaction is created
+        ICOutboxTransaction.SetRange("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
+        Assert.AreEqual(1, ICOutboxTransaction.Count(), 'There should be 1 rejection being created as an outbox transaction');
+
+        CleanupIC(true, true, false, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure RejectICSalesInvoice()
+    var
+        Customer: Record Customer;
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        SalesHeader: Record "Sales Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        DimensionValue: array[5] of Record "Dimension Value";
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        SalesInvoicePage: TestPage "Sales Invoice";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] An IC inbox transaction of type sales invoice was accepted and created. It is then rejected by that company 
+        Initialize();
+        CleanupIC(true, true, false, false);
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] A customer configured as IC Partner
+        CreateSetOfDimValues(DimensionValue);
+        CustomerNo := CreateCustomerWithDefaultDimensions(DimensionValue);
+        Customer.Get(CustomerNo);
+        // [GIVEN] A sales invoice IC inbox transaction
+        DocumentNo := LibraryUtility.GenerateGUID();
+        MockICInboxTransaction(ICInboxTransaction, Customer."IC Partner Code", ICInboxTransaction."Source Type"::"Sales Document", ICInboxTransaction."Document Type"::Invoice, DocumentNo);
+        MockICInboxSalesDocument(ICInboxSalesHeader, ICInboxTransaction, CustomerNo, 5, 300);
+        // [GIVEN] The sales invoice was accepted and created
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+
+        // [WHEN] Running the action in the sales invoice page "Reject IC invoice"
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
+        SalesInvoicePage.OpenView();
+        SalesInvoicePage.GoToRecord(SalesHeader);
+        SalesInvoicePage."Reject IC Sales Invoice".Invoke();
+        Commit();
+
+        // [THEN] The Sales Invoice is removed
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        Assert.IsTrue(SalesHeader.IsEmpty(), 'The sales invoice should be removed after rejection');
+        // [THEN] An IC outbox rejection transaction is created
+        ICOutboxTransaction.SetRange("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
+        Assert.AreEqual(1, ICOutboxTransaction.Count(), 'There should be 1 rejection being created as an outbox transaction');
+
+        CleanupIC(true, true, false, false);
+    end;
+
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure RejectICPurchaseInvoice()
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransactions: TestPage "IC Inbox Transactions";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO] An IC inbox transaction of type purchase invoice was accepted and created. It is then rejected by that company 
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(true, true, false, false);
+        CreateVendorWithICPartner(Vendor);
+        DocumentNo := LibraryUtility.GenerateGUID();
+        // [GIVEN] A purchase invoice IC inbox transaction
+        MockICInboxTransaction(ICInboxTransaction, Vendor."IC Partner Code", ICInboxTransaction."Source Type"::"Purchase Document", ICInboxTransaction."Document Type"::Invoice, DocumentNo);
+        MockICInboxPurchaseDocument(ICInboxPurchaseHeader, ICInboxTransaction, Vendor."No.", 100);
+        // [GIVEN] The purchase invoice was accepted and created
+        ICInboxTransactions.OpenEdit();
+        ICInboxTransactions.Filter.SetFilter("Transaction No.", Format(ICInboxTransaction."Transaction No."));
+        ICInboxTransactions.Accept.Invoke();
+        Commit();
+
+        // [WHEN] Running the action in the purchase invoice page "Reject IC Invoice"
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseInvoicePage.OpenView();
+        PurchaseInvoicePage.GoToRecord(PurchaseHeader);
+        PurchaseInvoicePage."Reject IC Purchase Invoice".Invoke();
+        Commit();
+
+        // [THEN] The Purchase Invoice is removed
+        PurchaseHeader.Reset();
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::invoice);
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        Assert.IsTrue(PurchaseHeader.IsEmpty(), 'The purchase invoice should be removed after rejection');
+        // [THEN] An IC outbox rejection transaction is created
+        ICOutboxTransaction.SetRange("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
+        Assert.AreEqual(1, ICOutboxTransaction.Count(), 'There should be 1 rejection being created as an outbox transaction');
+
+        CleanupIC(true, true, false, false);
+    end;
+
     [Scope('OnPrem')]
     procedure VerifyICReferenceDocNoOnSalesHeader()
     var
@@ -2812,7 +3211,6 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
-    [HandlerFunctions('CompleteICInboxActionPageHandler')]
     procedure VerifySalesOrderIsCreatedFromICInboxForLineDiscountOver50AndPricesIncludingVATinICPurchaseOrder()
     var
         Customer: Record Customer;
@@ -2860,6 +3258,7 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure Initialize()
     var
+        ICSetup: Record "IC Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intercompany III");
@@ -2870,6 +3269,12 @@ codeunit 134154 "ERM Intercompany III"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intercompany III");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -2900,7 +3305,12 @@ codeunit 134154 "ERM Intercompany III"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+#if not CLEAN22
         GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccNo);
+#endif
+        GenJournalLine.Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
+        GenJournalLine.Validate("IC Account No.", ICPartnerGLAccNo);
+
         GenJournalLine.Validate("Document No.", DocNo);
         GenJournalLine.Modify(true);
     end;
@@ -2990,6 +3400,11 @@ codeunit 134154 "ERM Intercompany III"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("IC Partner Code", ICPartnerCode);
         Customer.Modify(true);
+    end;
+
+    local procedure CreateVendorWithICPartner(var Vendor: Record Vendor)
+    begin
+        CreateVendorWithICPartner(Vendor, CreateICPartnerCode());
     end;
 
     local procedure CreateVendorWithICPartner(var Vendor: Record Vendor; ICPartnerCode: Code[20])
@@ -3188,6 +3603,48 @@ codeunit 134154 "ERM Intercompany III"
         ICDimensionValue.FindFirst();
     end;
 
+    local procedure GetICTransactionKeyValues(var ICInboxTransaction: Record "IC Inbox Transaction"; var TransactionNo: Integer; var ICPartnerCode: Code[20]; var TransactionSource: Option "Returned by Partner","Created by Partner")
+    begin
+        TransactionNo := ICInboxTransaction."Transaction No.";
+        ICPartnerCode := ICInboxTransaction."IC Partner Code";
+        TransactionSource := ICInboxTransaction."Transaction Source";
+    end;
+
+    local procedure CleanupIC(Inbox: Boolean; Outbox: Boolean; Sales: Boolean; Purchase: Boolean)
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        ICOutboxSalesHeader: Record "IC Outbox Sales Header";
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceHeader: Record "Purchase Header";
+    begin
+        if Inbox then begin
+            ICInboxTransaction.DeleteAll();
+            HandledICInboxTrans.DeleteAll();
+        end;
+        if Outbox then begin
+            ICOutboxTransaction.DeleteAll();
+            HandledICOutboxTrans.DeleteAll();
+        end;
+        if Sales then begin
+            SalesHeader.DeleteAll();
+            SalesInvoiceHeader.DeleteAll();
+        end;
+        if Purchase then begin
+            PurchaseHeader.DeleteAll();
+            PurchaseInvoiceHeader.DeleteAll();
+        end;
+        if Inbox and Sales then
+            ICInboxSalesHeader.DeleteAll();
+        if Outbox and Sales then
+            ICOutboxSalesHeader.DeleteAll();
+    end;
+
     local procedure MockICInboxSalesOrder(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
     var
         ICPartnerRefType: Enum "IC Partner Reference Type";
@@ -3216,6 +3673,7 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxSalesHeader."Bill-to Customer No." := Customer."No.";
         ICInboxSalesHeader."Posting Date" := WorkDate();
         ICInboxSalesHeader."Document Date" := WorkDate();
+        ICInboxSalesHeader."No." := LibraryUtility.GenerateRandomCode(ICInboxSalesHeader.FieldNo("No."), DATABASE::"IC Inbox Sales Header");
         ICInboxSalesHeader.Insert();
     end;
 
@@ -3249,6 +3707,45 @@ codeunit 134154 "ERM Intercompany III"
           DimensionValue[4], DATABASE::"IC Inbox Purchase Header", 0);
         MockICDocumentDimension(ICInboxPurchaseHeader."IC Partner Code", ICInboxPurchaseHeader."IC Transaction No.",
           DimensionValue[5], DATABASE::"IC Inbox Purchase Line", MockICInboxPurchLine(ICInboxPurchaseHeader));
+    end;
+
+    local procedure MockICInboxPurchaseDocument(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; ICInboxTransaction: Record "IC Inbox Transaction"; VendorNo: Code[20]; QuantityValue: Decimal)
+    var
+        ICInboxPurchaseLine: Record "IC Inbox Purchase Line";
+        ICPurchaseDocumentType: Enum "IC Purchase Document Type";
+    begin
+        case ICInboxTransaction."Document Type" of
+            // Enums are incompatible
+            ICInboxTransaction."Document Type"::Order:
+                ICPurchaseDocumentType := ICPurchaseDocumentType::Order;
+            ICInboxTransaction."Document Type"::"Return Order":
+                ICPurchaseDocumentType := ICPurchaseDocumentType::"Return Order";
+            else
+                ICPurchaseDocumentType := ICInboxTransaction."Document Type";
+        end;
+
+        ICInboxPurchaseHeader.Init();
+        ICInboxPurchaseHeader."Document Type" := ICPurchaseDocumentType;
+        ICInboxPurchaseHeader."Pay-to Vendor No." := VendorNo;
+        ICInboxPurchaseHeader."No." := ICInboxTransaction."Document No.";
+        ICInboxPurchaseHeader."Vendor Order No." := ICInboxTransaction."Document No.";
+        ICInboxPurchaseHeader."Vendor Invoice No." := ICInboxTransaction."Document No.";
+        ICInboxPurchaseHeader."Buy-from Vendor No." := VendorNo;
+        ICInboxPurchaseHeader."Posting Date" := WorkDate();
+        ICInboxPurchaseHeader."Document Date" := WorkDate();
+        ICInboxPurchaseHeader."IC Partner Code" := ICInboxTransaction."IC Partner Code";
+        ICInboxPurchaseHeader."IC Transaction No." := ICInboxTransaction."Transaction No.";
+        ICInboxPurchaseHeader."Transaction Source" := ICInboxTransaction."Transaction Source";
+        ICInboxPurchaseHeader.Insert();
+
+        ICInboxPurchaseLine."Document Type" := ICPurchaseDocumentType;
+        ICInboxPurchaseLine."Document No." := ICInboxTransaction."Document No.";
+        ICInboxPurchaseLine.Quantity := QuantityValue;
+        ICInboxPurchaseLine."IC Partner Code" := ICInboxTransaction."IC Partner Code";
+        ICInboxPurchaseLine."IC Transaction No." := ICInboxTransaction."Transaction No.";
+        ICInboxPurchaseLine."Transaction Source" := ICInboxTransaction."Transaction Source";
+        ICInboxPurchaseLine."Line No." := LibraryUtility.GetNewRecNo(ICInboxPurchaseLine, ICInboxPurchaseLine.FieldNo("Line No."));
+        ICInboxPurchaseLine.Insert();
     end;
 
     local procedure MockICInboxPurchHeader(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; VendorNo: Code[20])
@@ -3312,7 +3809,11 @@ codeunit 134154 "ERM Intercompany III"
             "Document No." := LibraryUtility.GenerateGUID();
             "Posting Date" := LibraryRandom.RandDate(10);
             "Document Date" := LibraryRandom.RandDate(10);
-            "IC Partner G/L Acc. No." := LibraryUtility.GenerateGUID();
+            "IC Account Type" := "IC Journal Account Type"::"G/L Account";
+            "IC Account No." := LibraryUtility.GenerateGUID();
+#if not CLEAN22
+            "IC Partner G/L Acc. No." := "IC Account No.";
+#endif
             "Source Line No." := LibraryRandom.RandInt(100);
             Insert();
         end;
@@ -3364,10 +3865,20 @@ codeunit 134154 "ERM Intercompany III"
     local procedure MockICOutboxPurchaseDocument(var ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header"; ICOutboxTransaction: Record "IC Outbox Transaction"; VendorNo: Code[20]; QuantityValue: Decimal; DirectUnitCost: Decimal)
     var
         ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
+        ICPurchaseDocumentType: Enum "IC Purchase Document Type";
     begin
+        case ICOutboxTransaction."Document Type" of
+            // Enums are incompatible
+            ICOutboxTransaction."Document Type"::Order:
+                ICPurchaseDocumentType := ICPurchaseDocumentType::Order;
+            ICOutboxTransaction."Document Type"::"Return Order":
+                ICPurchaseDocumentType := ICPurchaseDocumentType::"Return Order";
+            else
+                ICPurchaseDocumentType := ICOutboxTransaction."Document Type";
+        end;
         with ICOutboxPurchaseHeader do begin
             Init();
-            "Document Type" := ICOutboxTransaction."Document Type";
+            "Document Type" := ICPurchaseDocumentType;
             "Buy-from Vendor No." := VendorNo;
             "No." := ICOutboxTransaction."Document No.";
             "Pay-to Vendor No." := VendorNo;
@@ -3380,7 +3891,7 @@ codeunit 134154 "ERM Intercompany III"
         end;
 
         with ICOutboxPurchaseLine do begin
-            "Document Type" := ICOutboxTransaction."Document Type";
+            "Document Type" := ICPurchaseDocumentType;
             "Document No." := ICOutboxTransaction."Document No.";
             Quantity := QuantityValue;
             "Direct Unit Cost" := DirectUnitCost;
@@ -3412,10 +3923,20 @@ codeunit 134154 "ERM Intercompany III"
     local procedure MockICInboxSalesDocument(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICInboxTransaction: Record "IC Inbox Transaction"; CustomerNo: Code[20]; QuantityValue: Decimal; UnitPrice: Decimal)
     var
         ICInboxSalesLine: Record "IC Inbox Sales Line";
+        ICSalesDocumentType: Enum "IC Sales Document Type";
     begin
+        case ICInboxTransaction."Document Type" of
+            // Enums ICSalesDocumentType and ICTransactionDocumentType are incompatible
+            ICInboxTransaction."Document Type"::Order:
+                ICSalesDocumentType := ICSalesDocumentType::Order;
+            ICInboxTransaction."Document Type"::"Return Order":
+                ICSalesDocumentType := ICSalesDocumentType::"Return Order";
+            else
+                ICSalesDocumentType := ICInboxTransaction."Document Type";
+        end;
         with ICInboxSalesHeader do begin
             Init();
-            "Document Type" := ICInboxTransaction."Document Type";
+            "Document Type" := ICSalesDocumentType;
             "Sell-to Customer No." := CustomerNo;
             "No." := ICInboxTransaction."Document No.";
             "Bill-to Customer No." := CustomerNo;
@@ -3428,7 +3949,7 @@ codeunit 134154 "ERM Intercompany III"
         end;
 
         with ICInboxSalesLine do begin
-            "Document Type" := ICInboxTransaction."Document Type";
+            "Document Type" := ICSalesDocumentType;
             "Document No." := ICInboxTransaction."Document No.";
             Quantity := QuantityValue;
             "Unit Price" := UnitPrice;
@@ -3945,16 +4466,6 @@ codeunit 134154 "ERM Intercompany III"
     procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
     begin
         GLPostingPreview.Close();
-    end;
-
-    [RequestPageHandler]
-    procedure CompleteICInboxActionPageHandler(var CompleteICInboxAction: TestRequestPage "Complete IC Inbox Action")
-    var
-        ICPartnerCode: Code[20];
-    begin
-        ICPartnerCode := LibraryVariableStorage.DequeueText();
-        CompleteICInboxAction."IC Inbox Transaction".SetFilter("IC Partner Code", ICPartnerCode);
-        CompleteICInboxAction.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSendICDocument', '', false, false)]

@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
@@ -23,14 +22,15 @@ codeunit 2 "Company-Initialize"
                   TableData "Nonstock Item Setup" = i,
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
-                  TableData "Trial Balance Setup" = i,
-                  TableData "Config. Setup" = i,
-                  TableData "User Group Member" = d;
+                  tabledata "Trial Balance Setup" = i,
+#if not CLEAN22
+                  TableData "User Group Member" = d,
+#endif
+                  TableData "Config. Setup" = i;
 
     trigger OnRun()
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
         TransformationRule: Record "Transformation Rule";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -51,10 +51,6 @@ codeunit 2 "Company-Initialize"
         InitJobWIPMethods();
         InitBankExportImportSetup();
         InitDocExchServiceSetup();
-        // NAVCZ
-        BankPmtApplRuleCode.InsertDefaultMatchingRuleCode();
-        BankPmtApplRule."Bank Pmt. Appl. Rule Code" := BankPmtApplRuleCode.GetDefaultCode();
-        // NAVCZ
         BankPmtApplRule.InsertDefaultMatchingRules();
         InsertClientAddIns();
         VATRegistrationLogMgt.InitServiceSetup();
@@ -76,8 +72,6 @@ codeunit 2 "Company-Initialize"
         Text000: Label 'Initializing company...';
         SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.';
         SEPACTNameTxt: Label 'SEPA Credit Transfer';
-        SEPACZCodeTxt: Label 'SEPACZ', Comment = 'No need to translate - but can be translated at will.'; // NAVCZ
-        SEPACZNameTxt: Label 'SEPA Czech'; // NAVCZ
         SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
         SEPADDNameTxt: Label 'SEPA Direct Debit';
         Text001: Label 'SALES';
@@ -205,10 +199,8 @@ codeunit 2 "Company-Initialize"
         SourceCodeGeneralDeferralTxt: Label 'General Deferral';
         SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
-        OPBALANCETxt: Label 'OPBALANCE';
-        OpenBalanceSheetTxt: Label 'Open Balance Sheet';
-        CLBALANCETxt: Label 'CLBALANCE';
-        CloseBalanceSheetTxt: Label 'Close Balance Sheet';
+        ProductionOrderLbl: Label 'PRODUCTION';
+        ProductionOrderTxt: Label 'Production Order';
 
     internal procedure InitializeCompany()
     var
@@ -242,8 +234,8 @@ codeunit 2 "Company-Initialize"
         DataMigrationSetup: Record "Data Migration Setup";
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         CompanyInfo: Record "Company Information";
-        ICSetup: Record "IC Setup";
         TrialBalanceSetup: Record "Trial Balance Setup";
+        ICSetup: Record "IC Setup";
     begin
         with GLSetup do
             if not FindFirst() then begin
@@ -482,8 +474,7 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
                 InsertSourceCode("Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
                 InsertSourceCode("Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
-                InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
-                InsertSourceCode("Close Balance Sheet", CLBALANCETxt, CloseBalanceSheetTxt); // NAVCZ
+                InsertSourceCode("Production Order", ProductionOrderLbl, ProductionOrderTxt);
                 Insert();
             end;
     end;
@@ -551,11 +542,6 @@ codeunit 2 "Company-Initialize"
             InsertBankExportImportSetup(SEPADDCodeTxt, SEPADDNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02", CODEUNIT::"SEPA DD-Check Line");
         end;
-        // NAVCZ
-        if not BankExportImportSetup.Get(SEPACZCodeTxt) then
-            InsertBankExportImportSetup(SEPACZCodeTxt, SEPACZNameTxt, BankExportImportSetup.Direction::Export,
-              CODEUNIT::"Exp. Launcher SEPA", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
-        // NAVCZ
     end;
 
     local procedure InitDocExchServiceSetup()
@@ -703,7 +689,7 @@ codeunit 2 "Company-Initialize"
         if ClientAddIn.Insert() then;
     end;
 
-    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Option; RecognizedSales: Option; SystemDefinedIndex: Integer)
+    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Enum "Job WIP Recognized Costs Type"; RecognizedSales: Enum "Job WIP Recognized Sales Type"; SystemDefinedIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -776,8 +762,10 @@ codeunit 2 "Company-Initialize"
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+#if not CLEAN22
         UserGroupMember: Record "User Group Member";
         UserGroupAccessControl: Record "User Group Access Control";
+#endif
         ApplicationAreaSetup: Record "Application Area Setup";
         CustomReportLayout: Record "Custom Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -788,10 +776,12 @@ codeunit 2 "Company-Initialize"
 
         AssistedCompanySetupStatus.SetRange("Company Name", Rec.Name);
         AssistedCompanySetupStatus.DeleteAll();
+#if not CLEAN22
         UserGroupMember.SetRange("Company Name", Rec.Name);
         UserGroupMember.DeleteAll();
         UserGroupAccessControl.SetRange("Company Name", Rec.Name);
         UserGroupAccessControl.DeleteAll();
+#endif
         ApplicationAreaSetup.SetRange("Company Name", Rec.Name);
         ApplicationAreaSetup.DeleteAll();
         CustomReportLayout.SetRange("Company Name", Rec.Name);
@@ -826,4 +816,3 @@ codeunit 2 "Company-Initialize"
     end;
 }
 
-#endif

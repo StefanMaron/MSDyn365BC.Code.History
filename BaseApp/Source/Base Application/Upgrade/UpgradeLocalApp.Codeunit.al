@@ -12,11 +12,9 @@ codeunit 104150 "Upgrade - Local App"
     trigger OnRun()
     begin
     end;
-#if CLEAN19
 
     var
         DefaultCodeTxt: Label 'DEFAULT';
-#endif
 
     trigger OnUpgradePerDatabase()
     var
@@ -44,11 +42,10 @@ codeunit 104150 "Upgrade - Local App"
         UpdateItemLedgerEntry();
         UpdateCashDeskWorkflowTemplate();
         UpdateCreditWorkflowTemplate();
-#if CLEAN19
         UpdatePaymentOrderWorkflowTemplate();
         UpdateAdvanceLetterWorkflowTemplate();
         UpdateBankPaymentApplicationRule();
-#endif
+        UpdateTextToAccountMapping();
     end;
 
     local procedure UpdateVATPostingSetup()
@@ -280,7 +277,6 @@ codeunit 104150 "Upgrade - Local App"
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetCreditWorkflowTemplatesCodeUpgradeTag());
     end;
 
-#if CLEAN19
     local procedure UpdatePaymentOrderWorkflowTemplate()
     var
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -315,7 +311,6 @@ codeunit 104150 "Upgrade - Local App"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
         BankPmtApplRule2: Record "Bank Pmt. Appl. Rule";
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         BankPmtApplSettings2: Record "Bank Pmt. Appl. Settings";
         UpgradeTag: Codeunit "Upgrade Tag";
@@ -334,8 +329,10 @@ codeunit 104150 "Upgrade - Local App"
                 BankPmtApplRule2."Bank Pmt. Appl. Rule Code" := BankPmtApplRule2.GetDefaultCode();
                 BankPmtApplRule2.Insert();
             until BankPmtApplRule.Next() = 0;
-            BankPmtApplRule.DeleteAll();
         end;
+
+        BankPmtApplRule.SetFilter("Bank Pmt. Appl. Rule Code", '<>%1', BankPmtApplRule.GetDefaultCode());
+        BankPmtApplRule.DeleteAll();
 
         if BankPmtApplSettings.Get(DefaultCodeTxt) then begin
             if BankPmtApplSettings2.Get(BankPmtApplRule.GetDefaultCode()) then
@@ -347,9 +344,26 @@ codeunit 104150 "Upgrade - Local App"
             BankPmtApplSettings.Delete();
         end;
 
+        BankPmtApplSettings.SetFilter(PrimaryKey, '<>%1', BankPmtApplRule.GetDefaultCode());
+        BankPmtApplSettings.DeleteAll();
+
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetBankPaymentApplicationWithoutCodeUpgradeTag());
     end;
-#endif
+
+    local procedure UpdateTextToAccountMapping()
+    var
+        TexttoAccountMapping: Record "Text-to-Account Mapping";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetTextToAccountMappingWithoutCodeUpgradeTag()) then
+            exit;
+
+        TexttoAccountMapping.SetFilter("Text-to-Account Mapping Code", '<>%1', TexttoAccountMapping.GetDefaultCode());
+        TexttoAccountMapping.DeleteAll();
+
+        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetTextToAccountMappingWithoutCodeUpgradeTag());
+    end;
 
     internal procedure DeleteWorkflowTemplate(WorkflowCode: Code[20])
     var

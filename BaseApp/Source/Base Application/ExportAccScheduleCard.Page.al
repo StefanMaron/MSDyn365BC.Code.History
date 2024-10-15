@@ -15,12 +15,12 @@ page 31083 "Export Acc. Schedule Card"
             group(General)
             {
                 Caption = 'General';
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies name of intrastat journal lines';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description of acc. schedule card';

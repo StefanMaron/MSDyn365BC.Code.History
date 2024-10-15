@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 3008 "Cost Accounting - Admin"
 {
     Access = Public;
@@ -20,9 +19,6 @@ permissionset 3008 "Cost Accounting - Admin"
                   tabledata "Cost Object" = RIMD,
                   tabledata "Cost Register" = RIMD,
                   tabledata "Cost Type" = RIMD,
-                  tabledata "Detailed G/L Entry" = Rm,
                   tabledata "G/L Account" = Rm,
                   tabledata "G/L Entry" = Rm;
 }
-
-#endif

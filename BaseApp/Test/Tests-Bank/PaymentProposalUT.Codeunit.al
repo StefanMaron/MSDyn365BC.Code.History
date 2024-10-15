@@ -11,8 +11,6 @@ codeunit 134267 "Payment Proposal UT"
     end;
 
     var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         ZeroVATPostingSetup: Record "VAT Posting Setup";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
@@ -2088,7 +2086,6 @@ codeunit 134267 "Payment Proposal UT"
         SecondLineAmount := Amount - FirstLineAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -2289,7 +2286,6 @@ codeunit 134267 "Payment Proposal UT"
         SecondLineAmount := Amount - FirstLineAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -2361,12 +2357,6 @@ codeunit 134267 "Payment Proposal UT"
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Due Date")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("External Document No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Match Confidence")));
-        // NAVCZ
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Variable Symbol")));
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Specific Symbol")));
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Constant Symbol")));
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Currency Factor")));
-        // NAVCZ
     end;
 
     local procedure GetPaymentProposalSpecificFields(var FieldRefArray: array[10] of FieldRef)
@@ -2497,7 +2487,6 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -2794,30 +2783,6 @@ codeunit 134267 "Payment Proposal UT"
     procedure MsgWantToApplyCreditMemoAndInvoices(Message: Text[1024])
     begin
         Assert.AreNotEqual(0, StrPos(Message, 'want to apply credit memos and invoices'), 'Wrong Message on Cr.Memo application')
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    begin
-        // NAVCZ
-        if BankPmtApplRuleCode.Code = '' then
-            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    begin
-        // NAVCZ
-        if TextToAccMappingCode.Code = '' then
-            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
-        exit(TextToAccMappingCode.Code);
-    end;
-
-    local procedure UpdateBankAccount(BankAcc: Record "Bank Account")
-    begin
-        // NAVCZ
-        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
-        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
-        BankAcc.Modify();
     end;
 }
 

@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 1400 DocumentNoVisibility
 {
     SingleInstance = true;
@@ -86,8 +85,7 @@ codeunit 1400 DocumentNoVisibility
         exit(Result);
     end;
 
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    procedure PurchaseDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order","Advance Letter"; DocNo: Code[20]): Boolean
+    procedure PurchaseDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]): Boolean
     var
         NoSeries: Record "No. Series";
         PurchaseNoSeriesSetup: Page "Purchase No. Series Setup";
@@ -602,184 +600,6 @@ codeunit 1400 DocumentNoVisibility
         exit(NoSeriesMgt.DoGetNextNo(NoSeriesCode, SeriesDate, false, true) = '');
     end;
 
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure SalesAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: Code[20]): Boolean
-    var
-        NoSeries: Record "No. Series";
-        SalesNoSeriesSetup: Page "Sales No. Series Setup";
-        SalesAdvNoSeriesSetup: Page "Sales Adv. No. Series Setup";
-        DocNoSeries: Code[20];
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo,"Advance Letter";
-        IsHandled: Boolean;
-        IsVisible: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        IsVisible := false;
-        OnBeforeSalesAdvanceLetterNoIsVisible(TemplateCode, DocNo, IsVisible, IsHandled);
-        if IsHandled then
-            exit(IsVisible);
-
-        if DocNo <> '' then
-            exit(false);
-
-        DocNoSeries := DetermineSalesAdvanceSeriesNo(TemplateCode);
-
-        if not NoSeries.Get(DocNoSeries) then begin
-            if TemplateCode <> '' then begin
-                SalesAdvNoSeriesSetup.SetTemplateCode(TemplateCode);
-                SalesAdvNoSeriesSetup.RunModal();
-            end else begin
-                SalesNoSeriesSetup.SetFieldsVisibility(DocType::"Advance Letter");
-                SalesNoSeriesSetup.RunModal();
-            end;
-
-            DocNoSeries := DetermineSalesAdvanceSeriesNo(TemplateCode);
-        end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure PurchaseAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: Code[20]): Boolean
-    var
-        NoSeries: Record "No. Series";
-        PurchaseNoSeriesSetup: Page "Purchase No. Series Setup";
-        PurchaseAdvNoSeriesSetup: Page "Purchase Adv. No. Series Setup";
-        DocNoSeries: Code[20];
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order","Advance Letter";
-        IsHandled: Boolean;
-        IsVisible: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        IsVisible := false;
-        OnBeforePurchaseAdvanceLetterNoIsVisible(TemplateCode, DocNo, IsVisible, IsHandled);
-        if IsHandled then
-            exit(IsVisible);
-
-        if DocNo <> '' then
-            exit(false);
-
-        DocNoSeries := DeterminePurchaseAdvanceSeriesNo(TemplateCode);
-
-        if not NoSeries.Get(DocNoSeries) then begin
-            if TemplateCode <> '' then begin
-                PurchaseAdvNoSeriesSetup.SetTemplateCode(TemplateCode);
-                PurchaseAdvNoSeriesSetup.RunModal();
-            end else begin
-                PurchaseNoSeriesSetup.SetFieldsVisibility(DocType::"Advance Letter");
-                PurchaseNoSeriesSetup.RunModal();
-            end;
-
-            DocNoSeries := DeterminePurchaseAdvanceSeriesNo(TemplateCode);
-        end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    local procedure DetermineSalesAdvanceSeriesNo(TemplateCode: Code[10]): Code[20]
-    var
-        SalesAdvPaymentTemplate: Record "Sales Adv. Payment Template";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
-        NoSeriesCode: Code[20];
-    begin
-        // NAVCZ
-        if TemplateCode <> '' then begin
-            SalesAdvPaymentTemplate.Get(TemplateCode);
-            NoSeriesCode := SalesAdvPaymentTemplate."Advance Letter Nos.";
-        end else begin
-            SalesReceivablesSetup.Get();
-            NoSeriesCode := SalesReceivablesSetup."Advance Letter Nos.";
-        end;
-
-        CheckNumberSeries(SalesAdvanceLetterHeader, NoSeriesCode, SalesAdvanceLetterHeader.FieldNo("No."));
-        exit(NoSeriesCode);
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    local procedure DeterminePurchaseAdvanceSeriesNo(TemplateCode: Code[10]): Code[20]
-    var
-        PurchaseAdvPaymentTemplate: Record "Purchase Adv. Payment Template";
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
-        NoSeriesCode: Code[20];
-    begin
-        // NAVCZ
-        if TemplateCode <> '' then begin
-            PurchaseAdvPaymentTemplate.Get(TemplateCode);
-            NoSeriesCode := PurchaseAdvPaymentTemplate."Advance Letter Nos.";
-        end else begin
-            PurchasesPayablesSetup.Get();
-            NoSeriesCode := PurchasesPayablesSetup."Advance Letter Nos.";
-        end;
-
-        CheckNumberSeries(PurchAdvanceLetterHeader, NoSeriesCode, PurchAdvanceLetterHeader.FieldNo("No."));
-        exit(NoSeriesCode);
-    end;
-
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    [Scope('OnPrem')]
-    procedure BankDocumentNoIsVisible(BankAccNo: Code[20]; DocType: Option "Bank Statement","Payment Order"; DocNo: Code[20]): Boolean
-    var
-        NoSeries: Record "No. Series";
-        BankNoSeriesSetup: Page "Bank No. Series Setup";
-        DocNoSeries: Code[20];
-        IsHandled: Boolean;
-        IsVisible: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        IsVisible := false;
-        OnBeforeBankDocumentNoIsVisible(BankAccNo, DocType, DocNo, IsVisible, IsHandled);
-        if IsHandled then
-            exit(IsVisible);
-
-        if DocNo <> '' then
-            exit(false);
-
-        if BankAccNo = '' then
-            exit(true);
-
-        DocNoSeries := DetermineBankSeriesNo(BankAccNo, DocType);
-
-        if not NoSeries.Get(DocNoSeries) then begin
-            BankNoSeriesSetup.SetFieldsVisibility(DocType);
-            BankNoSeriesSetup.SetBankAccountNo(BankAccNo);
-            BankNoSeriesSetup.RunModal();
-            DocNoSeries := DetermineBankSeriesNo(BankAccNo, DocType);
-        end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
-    end;
-
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    local procedure DetermineBankSeriesNo(BankAccNo: Code[20]; DocType: Option "Bank Statement","Payment Order"): Code[20]
-    var
-        BankAccount: Record "Bank Account";
-        BankStatementHeader: Record "Bank Statement Header";
-        PaymentOrderHeader: Record "Payment Order Header";
-    begin
-        // NAVCZ
-        BankAccount.Get(BankAccNo);
-        case DocType of
-            DocType::"Bank Statement":
-                begin
-                    CheckNumberSeries(BankStatementHeader, BankAccount."Bank Statement Nos.", BankStatementHeader.FieldNo("No."));
-                    exit(BankAccount."Bank Statement Nos.");
-                end;
-            DocType::"Payment Order":
-                begin
-                    CheckNumberSeries(PaymentOrderHeader, BankAccount."Payment Order Nos.", PaymentOrderHeader.FieldNo("No."));
-                    exit(BankAccount."Payment Order Nos.");
-                end;
-        end;
-    end;
-
     procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
     var
         NoSeries: Record "No. Series";
@@ -788,7 +608,6 @@ codeunit 1400 DocumentNoVisibility
         FieldRef: FieldRef;
         NewNo: Code[20];
         RecAlreadyExists: Boolean;
-        RememberToSaveNoSeries: Boolean;
     begin
         OnBeforeCheckNumberSeries(RecVariant, NoSeriesCode, FieldNo, NoSeries);
         if (RecVariant.IsRecord or RecVariant.IsInteger) and (NoSeriesCode <> '') and NoSeries.Get(NoSeriesCode) then begin
@@ -801,13 +620,11 @@ codeunit 1400 DocumentNoVisibility
             FieldRef.SetRange(NewNo);
             RecAlreadyExists := not RecRef.IsEmpty();
             while RecAlreadyExists do begin
-                RememberToSaveNoSeries := true;
+                NoSeriesMgt.SaveNoSeries();
                 NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
                 FieldRef.SetRange(NewNo);
                 RecAlreadyExists := not RecRef.IsEmpty();
             end;
-            if RememberToSaveNoSeries then
-                NoSeriesMgt.SaveNoSeries();
         end;
     end;
 
@@ -875,24 +692,5 @@ codeunit 1400 DocumentNoVisibility
     local procedure OnBeforeContactNoIsVisible(var IsVisible: Boolean; var IsHandled: Boolean)
     begin
     end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseAdvanceLetterNoIsVisible(TemplateCode: Code[10]; DocNo: code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeBankDocumentNoIsVisible(BankAccNo: Code[20]; DocType: Option; DocNo: Code[20]; var IsVisible: Boolean; var IsHandled: Boolean)
-    begin
-    end;
 }
 
-#endif

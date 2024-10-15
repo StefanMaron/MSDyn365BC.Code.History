@@ -1,25 +1,15 @@
 table 11711 "Issued Payment Order Line"
 {
     Caption = 'Issued Payment Order Line';
-#if not CLEAN19
-    DrillDownPageID = "Issued Payment Order Lines";
-    LookupPageID = "Issued Payment Order Lines";
-    Permissions = TableData "Issued Payment Order Line" = rm;
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
         field(1; "Payment Order No."; Code[20])
         {
             Caption = 'Payment Order No.';
-#if not CLEAN19
-            TableRelation = "Issued Payment Order Header"."No.";
-#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -168,16 +158,10 @@ table 11711 "Issued Payment Order Line"
         field(151; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
-#if not CLEAN19
-            TableRelation = IF ("Letter Type" = CONST(Purchase)) "Purch. Advance Letter Header";
-#endif
         }
         field(152; "Letter Line No."; Integer)
         {
             Caption = 'Letter Line No.';
-#if not CLEAN19
-            TableRelation = IF ("Letter Type" = CONST(Purchase)) "Purch. Advance Letter Line"."Line No." WHERE("Letter No." = FIELD("Letter No."));
-#endif
         }
         field(190; "VAT Uncertainty Payer"; Boolean)
         {
@@ -233,49 +217,4 @@ table 11711 "Issued Payment Order Line"
     fieldgroups
     {
     }
-#if not CLEAN19
-
-    var
-        ReallyCancelLineQst: Label 'Do you want to cancel payment order line?';
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    procedure LineCancel()
-    var
-        IssuedPaymentOrderLine: Record "Issued Payment Order Line";
-    begin
-        if not Confirm(ReallyCancelLineQst, false) then
-            Error('');
-
-        IssuedPaymentOrderLine := Rec;
-        IssuedPaymentOrderLine.LockTable();
-        IssuedPaymentOrderLine.Find();
-        IssuedPaymentOrderLine.Status := IssuedPaymentOrderLine.Status::Cancel;
-        IssuedPaymentOrderLine.Modify();
-
-        OnAfterIssuedPaymentOrderLineCancel(Rec);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    procedure ConvertTypeToGenJnlLineType(): Integer
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-    begin
-        case Type of
-            Type::Customer:
-                exit(GenJnlLine."Account Type"::Customer);
-            Type::Vendor:
-                exit(GenJnlLine."Account Type"::Vendor);
-            Type::"Bank Account":
-                exit(GenJnlLine."Account Type"::"Bank Account");
-        end;
-    end;
-
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIssuedPaymentOrderLineCancel(IssuedPaymentOrderLine: record "Issued Payment Order Line")
-    begin
-    end;
-#endif
 }

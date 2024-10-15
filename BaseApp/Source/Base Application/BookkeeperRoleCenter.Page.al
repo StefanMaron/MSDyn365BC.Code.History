@@ -161,14 +161,6 @@ page 9004 "Bookkeeper Role Center"
             separator(Action53)
             {
             }
-#if not CLEAN19
-            separator(Action1220006)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Orphaned page element removed.';
-                ObsoleteTag = '19.0';
-            }
-#endif
             action("VAT Reg&istration No. Check")
             {
                 ApplicationArea = VAT;
@@ -315,18 +307,6 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "Purchase Order List";
                 ToolTip = 'Create purchase orders to mirror sales documents that vendors send to you. This enables you to record the cost of purchases and to track accounts payable. Posting purchase orders dynamically updates inventory levels so that you can minimize inventory costs and provide better customer service. Purchase orders allow partial receipts, unlike with purchase invoices, and enable drop shipment directly from your vendor to your customer. Purchase orders can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature.';
             }
-#if not CLEAN19
-            action("Purchase Advance Letters")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Purchase Advance Letters (Obsolete)';
-                RunObject = Page "Purchase Advance Letters";
-                ToolTip = 'Specifies purchase advance letters';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                ObsoleteTag = '19.0';
-            }
-#endif
             action("Sales Invoices")
             {
                 ApplicationArea = Basic, Suite;
@@ -343,18 +323,6 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "Sales Order List";
                 ToolTip = 'Record your agreements with customers to sell certain products on certain delivery and payment terms. Sales orders, unlike sales invoices, allow you to ship partially, deliver directly from your vendor to your customer, initiate warehouse handling, and print various customer-facing documents. Sales invoicing is integrated in the sales order process.';
             }
-#if not CLEAN19
-            action("Sales Advance Letters")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Sales Advance Letters (Obsolete)';
-                RunObject = Page "Sales Advance Letters";
-                ToolTip = 'Specifies sales advance letter';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                ObsoleteTag = '19.0';
-            }
-#endif
             action(Approvals)
             {
                 ApplicationArea = Basic, Suite;
@@ -402,13 +370,18 @@ page 9004 "Bookkeeper Role Center"
                                     Recurring = CONST(true));
                 ToolTip = 'Define how to post transactions that recur with few or no changes to general ledger, bank, customer, vendor, or fixed asset accounts';
             }
+#if not CLEAN22
             action("Intrastat Journals")
             {
                 ApplicationArea = BasicEU;
                 Caption = 'Intrastat Journals';
                 RunObject = Page "Intrastat Jnl. Batches";
                 ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
             }
+#endif
         }
         area(sections)
         {
@@ -431,24 +404,8 @@ page 9004 "Bookkeeper Role Center"
                     Caption = 'Posted Sales Invoices';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Invoices";
-#if not CLEAN19
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(false));
-#endif
                     ToolTip = 'Open the list of posted sales invoices.';
                 }
-#if not CLEAN19
-                action("Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Sales Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoces';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Posted Return Receipts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -463,24 +420,8 @@ page 9004 "Bookkeeper Role Center"
                     Caption = 'Posted Sales Credit Memos';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Credit Memos";
-#if not CLEAN19
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
-#endif
                     ToolTip = 'Open the list of posted sales credit memos.';
                 }
-#if not CLEAN19
-                action("Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Sales Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Posted Purchase Receipts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -493,24 +434,8 @@ page 9004 "Bookkeeper Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Invoices';
                     RunObject = Page "Posted Purchase Invoices";
-#if not CLEAN19
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(false));
-#endif
                     ToolTip = 'Open the list of posted purchase invoices.';
                 }
-#if not CLEAN19
-                action(Action1220014)
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoces';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Posted Return Shipments")
                 {
                     ApplicationArea = Basic, Suite;
@@ -523,24 +448,8 @@ page 9004 "Bookkeeper Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
-#if not CLEAN19                    
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
-#endif
                     ToolTip = 'Open the list of posted purchase credit memos.';
                 }
-#if not CLEAN19
-                action(Action1220015)
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 action("Issued Reminders")
                 {
                     ApplicationArea = Suite;

@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9020 "Small Business Owner RC"
 {
     Caption = 'President - Small Business';
@@ -161,14 +160,6 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Inventory - Sales Back Orders";
                 ToolTip = 'View a list with the order lines whose shipment date has been exceeded. The following information is shown for the individual orders for each item: number, customer name, customer''s telephone number, shipment date, order quantity and quantity on back order. The report also shows whether there are other items for the customer on back order.';
             }
-#if not CLEAN19
-            separator(Action1220003)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Orphaned page element removed.';
-                ObsoleteTag = '19.0';
-            }
-#endif
             separator(Action129)
             {
             }
@@ -228,7 +219,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VAT Registration No. Chec&k")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT Registration No. Chec&k';
                 Image = "Report";
                 RunObject = Report "VAT Registration No. Check";
@@ -236,7 +227,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VAT E&xceptions")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT E&xceptions';
                 Image = "Report";
                 RunObject = Report "VAT Exceptions";
@@ -244,7 +235,7 @@ page 9020 "Small Business Owner RC"
             }
             action("V&AT Statement")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'V&AT Statement';
                 Image = "Report";
                 RunObject = Report "VAT Statement";
@@ -252,7 +243,7 @@ page 9020 "Small Business Owner RC"
             }
             action("G/L - VAT Reconciliation")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'G/L - VAT Reconciliation';
                 Image = "Report";
                 RunObject = Report "G/L - VAT Reconciliation";
@@ -479,19 +470,7 @@ page 9020 "Small Business Owner RC"
                     Caption = 'Posted Sales Invoices';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(false));
                     ToolTip = 'Open the list of posted sales invoices.';
-                }
-                action("Posted [Sales] Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Posted [Sales] Prepayment Invoices';
-                    RunObject = Page "Posted Sales Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies posted prepayment invoices';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Sales Credit Memos")
                 {
@@ -499,19 +478,7 @@ page 9020 "Small Business Owner RC"
                     Caption = 'Posted Sales Credit Memos';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
                     ToolTip = 'Open the list of posted sales credit memos.';
-                }
-                action("Posted [Sales] Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Posted [Sales] Prepayment Credit Memos';
-                    RunObject = Page "Posted Sales Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies posted prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Receipts")
                 {
@@ -525,38 +492,14 @@ page 9020 "Small Business Owner RC"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Invoices';
                     RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(false));
                     ToolTip = 'Open the list of posted purchase invoices.';
-                }
-                action("Posted [Purchase] Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Posted [Purchase] Prepayment Invoices';
-                    RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies posted prepayment invoices';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Purchase Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
                     ToolTip = 'Open the list of posted purchase credit memos.';
-                }
-                action("Posted [Purchase] Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Posted [Purchase] Prepayment Credit Memos';
-                    RunObject = Page "Posted Purchase Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies posted prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Issued Reminders")
                 {
@@ -1117,4 +1060,3 @@ page 9020 "Small Business Owner RC"
     }
 }
 
-#endif

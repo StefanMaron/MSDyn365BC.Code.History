@@ -13,7 +13,7 @@ page 823 "Name/Value Lookup"
             repeater(Control1000)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name.';

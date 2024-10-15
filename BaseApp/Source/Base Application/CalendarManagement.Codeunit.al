@@ -1,6 +1,6 @@
-#if not CLEAN19
 codeunit 7600 "Calendar Management"
 {
+    Permissions = tabledata "Base Calendar Change" = r;
 
     trigger OnRun()
     begin
@@ -27,8 +27,6 @@ codeunit 7600 "Calendar Management"
     begin
         RecRef.GetTable(SourceVariant);
         case RecRef.RecordId.TableNo of
-            database::"Bank Account":
-                SetSourceBankAccount(RecRef, CustomCalendarChange);
             Database::"Base Calendar":
                 SetSourceBaseCalendar(RecRef, CustomCalendarChange);
             Database::"Company Information":
@@ -53,14 +51,6 @@ codeunit 7600 "Calendar Management"
     [IntegrationEvent(false, false)]
     local procedure OnFillSourceRec(RecRef: RecordRef; var CustomCalendarChange: Record "Customized Calendar Change")
     begin
-    end;
-
-    local procedure SetSourceBankAccount(RecRef: RecordRef; var CustomCalendarChange: Record "Customized Calendar Change")
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        RecRef.SetTable(BankAccount);
-        CustomCalendarChange.SetSource(CustomCalendarChange."Source Type"::Bank, '', '', BankAccount."Base Calendar Code");
     end;
 
     local procedure SetSourceBaseCalendar(RecRef: RecordRef; var CustomCalendarChange: Record "Customized Calendar Change")
@@ -274,7 +264,6 @@ codeunit 7600 "Calendar Management"
         WhereUsedBaseCalendar: Record "Where Used Base Calendar";
     begin
         WhereUsedBaseCalendar.DeleteAll();
-        AddWhereUsedBaseCalendarBankAccount(BaseCalendarCode);
         AddWhereUsedBaseCalendarCompany(BaseCalendarCode);
         AddWhereUsedBaseCalendarCustomer(BaseCalendarCode);
         AddWhereUsedBaseCalendarLocation(BaseCalendarCode);
@@ -288,25 +277,6 @@ codeunit 7600 "Calendar Management"
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhereUsedEntries(BaseCalendarCode: code[10])
     begin
-    end;
-
-    local procedure AddWhereUsedBaseCalendarBankAccount(BaseCalendarCode: code[10])
-    var
-        BankAccount: Record "Bank Account";
-        WhereUsedBaseCalendar: Record "Where Used Base Calendar";
-    begin
-        BankAccount.Reset();
-        BankAccount.SetRange("Base Calendar Code", BaseCalendarCode);
-        if BankAccount.FindSet() then
-            repeat
-                WhereUsedBaseCalendar.Init();
-                WhereUsedBaseCalendar."Base Calendar Code" := BaseCalendarCode;
-                WhereUsedBaseCalendar."Source Type" := WhereUsedBaseCalendar."Source Type"::Bank;
-                WhereUsedBaseCalendar."Source Code" := BankAccount."No.";
-                WhereUsedBaseCalendar."Source Name" := BankAccount.Name;
-                WhereUsedBaseCalendar."Customized Changes Exist" := CustomizedChangesExist(BankAccount);
-                WhereUsedBaseCalendar.Insert();
-            until BankAccount.Next() = 0;
     end;
 
     local procedure AddWhereUsedBaseCalendarCompany(BaseCalendarCode: code[10])
@@ -739,4 +709,3 @@ codeunit 7600 "Calendar Management"
     end;
 }
 
-#endif

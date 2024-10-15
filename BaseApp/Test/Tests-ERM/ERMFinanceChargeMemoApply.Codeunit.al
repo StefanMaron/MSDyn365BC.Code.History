@@ -19,6 +19,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         RemainingAmountError: Label '%1 must be %2.';
+        VATDateError: Label 'VAT Date should be set on Finance Charge Memo';
         FinanceChargeMemoError: Label 'Finance Charge Memo must not be exist.';
         UnappliedError: Label '%1 %2 field must be true after Unapply entries.';
 
@@ -113,6 +114,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         CreateFinanceChargeMemoWithLines(FinanceChargeMemoHeader, Customer, FinanceChargeDate);
 
         VerifyFinChargeMemoRoundingLineExists(FinanceChargeMemoHeader."No.", CustomerPostingGroup."Invoice Rounding Account");
+        Assert.AreNotEqual('', FinanceChargeMemoHeader."VAT Reporting Date", VATDateError);
 
         LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
 

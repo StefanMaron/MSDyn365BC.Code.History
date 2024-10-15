@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 6207 "Recievables Journals - Post"
 {
     Access = Public;
@@ -7,6 +6,7 @@ permissionset 6207 "Recievables Journals - Post"
 
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Additional Fee Setup" = r,
+                  tabledata "Alt. Customer Posting Group" = r,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
@@ -24,7 +24,6 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "Customer Posting Group" = R,
                   tabledata "Date Compr. Register" = r,
                   tabledata "Detailed Cust. Ledg. Entry" = ri,
-                  tabledata "Detailed G/L Entry" = Ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "G/L Account" = r,
@@ -59,5 +58,3 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Setup Posting Groups" = R;
 }
-
-#endif

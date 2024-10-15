@@ -65,8 +65,8 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Generate CRM Full Synch Review Lines
         CRMFullSynchReviewLine.Generate;
 
-        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY'
-        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY');
+        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT'
+        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT');
         // [THEN] 'CONTACT' line, where "Dependency Filter" = 'CUSTOMER'
         VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
         // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
@@ -99,8 +99,8 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Generate CRM Full Synch Review Lines
         CRMFullSynchReviewLine.Generate;
 
-        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY'
-        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY');
+        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT'
+        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT');
         // [THEN] 'CONTACT' line, where "Dependency Filter" = 'CUSTOMER'
         VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
         // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
@@ -131,8 +131,8 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Generate CRM Full Synch Review Lines
         CRMFullSynchReviewLine.Generate();
 
-        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY'
-        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY');
+        // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT'
+        VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT');
         // [THEN] 'CONTACT' line, where "Dependency Filter" = 'CUSTOMER'
         VerifyDependencyFilter('CONTACT', 'CUSTOMER|VENDOR');
         // [THEN] 'OPPORTUNITY' line, where "Dependency Filter" = 'CONTACT'
@@ -291,6 +291,8 @@ codeunit 139187 "CRM Full Synchronization"
         // [GIVEN] new CRM Account 'B'
         CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        // [GIVEN] Payment terms is coupled
+        CouplePaymentTerms(Customer);
 
         // [GIVEN] 'CUSTOMER' line, where "Dependency Filter" is blank
         CRMFullSynchReviewLine.Name := 'CUSTOMER';
@@ -384,6 +386,9 @@ codeunit 139187 "CRM Full Synchronization"
         LibrarySales.CreateCustomer(Customer[2]);
         Customer[2]."Salesperson Code" := 'FAIL'; // to it fail during synchronization
         Customer[2].Modify();
+        // [GIVEN] Payment terms is coupled
+        CouplePaymentTerms(Customer[1]);
+        CouplePaymentTerms(Customer[2]);
 
         // [GIVEN] 'CUSTOMER' line, where "Dependency Filter" is blank
         CRMFullSynchReviewLine.Name := 'CUSTOMER';
@@ -576,9 +581,8 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [UI]
         Initialize();
         LibraryLowerPermissions.SetO365Full;
-        // [GIVEN] There are 12 CRM Itegration table mappings
+        // [GIVEN] There are 15 CRM Itegration table mappings
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
-        IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         IntegrationTableMapping.SetFilter(Name, '<>POSTEDSALESLINE-INV&<>SALESORDER-ORDER');
         MapCount := IntegrationTableMapping.Count();
@@ -593,7 +597,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Open "CRM Full Synch Review"
         CRMFullSynchReview.OpenEdit;
         Assert.RecordCount(CRMFullSynchReviewLine, MapCount);
-        // [THEN] "CRM Full Synch Review" page contains 12 Integartion Mapping data: Name, Direction.
+        // [THEN] "CRM Full Synch Review" page contains 15 Integartion Mapping data: Name, Direction.
         CRMFullSynchReview.Last;
         LastMapName := CRMFullSynchReview.Name.Value;
         CRMFullSynchReview.First;
@@ -695,12 +699,15 @@ codeunit 139187 "CRM Full Synchronization"
         // [GIVEN] Extended Prices are on
         Initialize(true, false);
         LibraryLowerPermissions.SetO365Full;
-        // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','PLHEADER-PRICE' are 'Finished'
+        // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','PLHEADER-PRICE', 'PAYMENT TERMS', 'SHIPMENT METHOD', 'SHIPPING AGENT' are 'Finished'
         CRMFullSynchReviewLine.Generate;
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('PLHEADER-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('PAYMENT TERMS', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('SHIPMENT METHOD', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
 
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start;
@@ -715,7 +722,7 @@ codeunit 139187 "CRM Full Synchronization"
         Counter := CRMFullSynchReviewLine.Count();
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
-        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 6); // 4 - Finished, 4 - Ready
+        Assert.RecordCount(CRMFullSynchReviewLine, Counter - 9); // 4 - Finished, 4 - Ready
     end;
 
     [Test]
@@ -797,6 +804,9 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('PAYMENT TERMS', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('SHIPMENT METHOD', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
         Finished := 1; // Item-product
 
@@ -841,11 +851,14 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('PAYMENT TERMS', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('SHIPMENT METHOD', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
+        SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
 #if not CLEAN21
         SetStatus('CUSTPRCGRP-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-        Finished := 4;
+        Finished := 7;
 #else
-        Finished := 3;
+        Finished := 6;
 #endif
 
         // [WHEN] Run "Start"
@@ -1337,6 +1350,22 @@ codeunit 139187 "CRM Full Synchronization"
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
         Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMId), Format(CRMId) + ' should be coupled');
+    end;
+
+    local procedure CouplePaymentTerms(Customer: Record Customer)
+    var
+        PaymentTerms: Record "Payment Terms";
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMAccount: Record "CRM Account";
+    begin
+        PaymentTerms.Get(Customer."Payment Terms Code");
+        CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
+        CRMOptionMapping."Option Value" := 1;
+        CRMOptionMapping."Option Value Caption" := PaymentTerms.Code;
+        CRMOptionMapping."Table ID" := Database::"Payment Terms";
+        CRMOptionMapping."Integration Table ID" := Database::"CRM Account";
+        CRMOptionMapping."Integration Field ID" := CRMAccount.FieldNo(CRMAccount.PaymentTermsCodeEnum);
+        if CRMOptionMapping.Insert() then;
     end;
 
     [ModalPageHandler]

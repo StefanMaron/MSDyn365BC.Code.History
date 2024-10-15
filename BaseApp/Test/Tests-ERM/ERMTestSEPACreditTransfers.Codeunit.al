@@ -1,4 +1,4 @@
-codeunit 134403 "ERM Test SEPA Credit Transfers"
+﻿codeunit 134403 "ERM Test SEPA Credit Transfers"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1141,21 +1141,12 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         MessageID := Format(LibraryRandom.RandInt(1000));
         PaymentExportData.Init();
         PaymentExportData."Entry No." := EntryNo;
-        // NAVCZ
-        PaymentExportData."Specific Symbol" := Format(LibraryRandom.RandInt(1000));
-        PaymentExportData."Variable Symbol" := Format(LibraryRandom.RandInt(1000));
-        PaymentExportData."Constant Symbol" := Format(LibraryRandom.RandInt(1000));
-        // NAVCZ
         // [WHEN] PaymentExportData.SetCreditTransferIDs("Y")
         PaymentExportData.SetCreditTransferIDs(MessageID);
         // [THEN] "Message ID" = "Y"
         // [THEN] "Payment Information ID" = "Y/X"
         // [THEN] "End-to-End ID" = "Y/X"
-        // NAVCZ
-        PaymentInformationID :=
-          StrSubstNo('VS%1/SS%2/KS%3',
-            PaymentExportData."Variable Symbol", PaymentExportData."Specific Symbol", PaymentExportData."Constant Symbol");
-        // NAVCZ
+        PaymentInformationID := MessageID + '/' + Format(EntryNo);
         with PaymentExportData do begin
             Assert.AreEqual(MessageID, "Message ID", MessageIDErr);
             Assert.AreEqual(PaymentInformationID, "Payment Information ID", PaymentInformationIDErr);
@@ -1748,10 +1739,9 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
         if EURCode = GetEURCurrencyCode then begin
-            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
-              LibraryRandom.RandDec(100, 2));
-            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-2Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
-              LibraryRandom.RandDec(100, 2));
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-2Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-3Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         end;
 
         Vendor.Init();

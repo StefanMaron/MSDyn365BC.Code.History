@@ -813,7 +813,7 @@ report 31036 "Finance Charge Memo CZ"
 
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(19) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Finance Charge Memo") <> '';
     end;
 
     procedure InitializeRequest(NewShowInternalInfo: Boolean; NewLogInteraction: Boolean)

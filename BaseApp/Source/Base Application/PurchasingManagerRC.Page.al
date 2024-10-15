@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 8905 "Purchasing Manager Role Center"
 {
     Caption = 'Purchasing Manager Role Center';
@@ -270,20 +269,17 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item Substitutions';
                         RunObject = report "Item Substitutions";
                     }
+                    // action("Order")
+                    // {
+                    //     ApplicationArea = Suite;
+                    //     Caption = 'Order';
+                    //     RunObject = codeunit 8815;
+                    // }
                     action("Purchasing Deferral Summary")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Purchasing Deferral Summary';
                         RunObject = report "Deferral Summary - Purchasing";
-                    }
-                    action("Purch. Advance Letter List")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Purch. Advance Letter List (Obsolete)';
-                        RunObject = report "Purch. Advance Letter List";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                        ObsoleteTag = '19.0';
                     }
                 }
             }
@@ -702,15 +698,6 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Report Selections Purchase';
                     RunObject = page "Report Selection - Purchase";
                 }
-                action("Adv. Payment Selection-Purch")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Adv. Payment Selection-Purch (Obsolete)';
-                    RunObject = page "Adv. Payment Selection - Purch";
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
                 action("Req. Worksheet")
                 {
                     ApplicationArea = Planning;
@@ -803,4 +790,3 @@ page 8905 "Purchasing Manager Role Center"
         }
     }
 }
-#endif

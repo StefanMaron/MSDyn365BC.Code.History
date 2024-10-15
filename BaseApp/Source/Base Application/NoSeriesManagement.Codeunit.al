@@ -1,7 +1,8 @@
 #if not CLEAN21
 codeunit 396 NoSeriesManagement
 {
-    Permissions = TableData "No. Series Line" = rimd;
+    Permissions = tabledata "No. Series Line" = rimd,
+                  tabledata "No. Series" = r;
 
     trigger OnRun()
     begin

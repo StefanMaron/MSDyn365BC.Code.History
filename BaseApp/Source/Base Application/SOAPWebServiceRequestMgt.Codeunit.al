@@ -1,4 +1,3 @@
-﻿#if not CLEAN19
 codeunit 1290 "SOAP Web Service Request Mgt."
 {
 
@@ -13,7 +12,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         Trace: Codeunit Trace;
         GlobalRequestBodyInStream: InStream;
         HttpWebResponse: DotNet HttpWebResponse;
-        WebProxy: DotNet WebProxy;
         GlobalPassword: Text;
         GlobalURL: Text;
         GlobalUsername: Text;
@@ -28,8 +26,7 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         GlobalProgressDialogEnabled: Boolean;
 
         BodyPathTxt: Label '/soap:Envelope/soap:Body', Locked = true;
-        EnvelopePathTxt: Label '/soap:Envelope', Locked = true;
-        ContentTypeTxt: Label 'text/xml; charset=utf-8', Locked = true;
+        ContentTypeTxt: Label 'multipart/form-data; charset=utf-8', Locked = true;
         FaultStringXmlPathTxt: Label '/soap:Envelope/soap:Body/soap:Fault/faultstring', Locked = true;
         NoRequestBodyErr: Label 'The request body is not set.';
         NoServiceAddressErr: Label 'The web service URI is not set.';
@@ -77,10 +74,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         if GlobalContentType = '' then
             GlobalContentType := ContentTypeTxt;
         HttpWebRequest.ContentType := GlobalContentType;
-        // NAVCZ
-        if not IsNull(WebProxy) then
-            HttpWebRequest.Proxy := WebProxy;
-        // NAVCZ
         if GlobalTimeout <= 0 then
             GlobalTimeout := 600000;
         HttpWebRequest.Timeout := GlobalTimeout;
@@ -97,14 +90,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         OnBeforeCreateSoapRequest(RequestOutStream, BodyContentInStream, XMLDoc, UserName, Password, TraceLogEnabled, IsHandled);
         if IsHandled then
             exit;
-
-        // NAVCZ
-        if HasSoapEnvelope(BodyContentInStream) then begin
-            CopyStream(RequestOutStream, BodyContentInStream);
-            TraceLogStreamToTempFile(BodyContentInStream, 'FullRequest', TempBlobDebugLog);
-            exit;
-        end;
-        // NAVCZ
 
         CreateEnvelope(XmlDoc, BodyXmlNode, Username, Password);
         AddBodyToEnvelope(BodyXmlNode, BodyContentInStream);
@@ -191,14 +176,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     procedure GetResponseContent(var ResponseBodyInStream: InStream)
     begin
         TempBlobResponseBody.CreateInStream(ResponseBodyInStream, GlobalStreamEncoding);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Merge to W1.', '19.0')]
-    procedure GetResponse(var ResponseInStream: InStream)
-    begin
-        // NAVCZ
-        TempBlobResponseInStream.CreateInStream(ResponseInStream);
     end;
 
     [Scope('OnPrem')]
@@ -346,17 +323,6 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         GlobalProgressDialogEnabled := false;
     end;
 
-    local procedure HasSoapEnvelope(BodyContentInStream: InStream): Boolean
-    var
-        XMLDOMMgt: Codeunit "XML DOM Management";
-        XmlDoc: DotNet XmlDocument;
-        SoapEnvelopeXmlNode: DotNet XmlNode;
-    begin
-        // NAVCZ
-        XMLDOMMgt.LoadXMLDocumentFromInStream(BodyContentInStream, XmlDoc);
-        exit(XMLDOMMgt.FindNodeWithNamespace(XmlDoc.DocumentElement, EnvelopePathTxt, 'soap', SoapNamespaceTxt, SoapEnvelopeXmlNode));
-    end;
-
     procedure HasJWTExpired(JsonWebToken: Text): Boolean
     var
         WebTokenAsJson: Text;
@@ -436,4 +402,3 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     end;
 }
 
-#endif

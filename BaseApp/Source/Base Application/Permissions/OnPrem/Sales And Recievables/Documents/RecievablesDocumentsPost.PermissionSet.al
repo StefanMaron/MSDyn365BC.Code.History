@@ -1,4 +1,3 @@
-#if not CLEAN19
 permissionset 2529 "Recievables Documents - Post"
 {
     Access = Public;
@@ -8,6 +7,8 @@ permissionset 2529 "Recievables Documents - Post"
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Activities Cue" = RIMD,
                   tabledata "Additional Fee Setup" = r,
+                  tabledata "Alt. Customer Posting Group" = r,
+                  tabledata "Alt. Vendor Posting Group" = r,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
@@ -25,7 +26,6 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "Customer Bank Account" = R,
                   tabledata "Customer Posting Group" = r,
                   tabledata "Detailed Cust. Ledg. Entry" = ri,
-                  tabledata "Detailed G/L Entry" = Ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "G/L Account" = r,
@@ -34,6 +34,7 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "G/L Register" = Rim,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "General Posting Setup" = r,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = RIMD,
                   tabledata "IC Dimension" = R,
                   tabledata "IC Dimension Value" = R,
@@ -120,5 +121,3 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "Warehouse Request" = RIMD,
                   tabledata "Whse. Pick Request" = RIMD;
 }
-
-#endif

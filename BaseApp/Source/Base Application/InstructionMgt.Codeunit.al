@@ -1,4 +1,3 @@
-﻿#if not CLEAN19
 codeunit 1330 "Instruction Mgt."
 {
     Permissions = TableData "My Notifications" = rimd;
@@ -18,8 +17,6 @@ codeunit 1330 "Instruction Mgt."
         MarkBookingAsInvoicedWarningDescriptionTxt: Label 'Show warning when you mark a Booking appointment as invoiced.';
         OfficeUpdateNotificationTxt: Label 'Notify user of Outlook add-in update.';
         OfficeUpdateNotificationDescriptionTxt: Label 'Ask user to update their Outlook add-in when an update is available.';
-        ConfirmAfterIssuingDocumentsTxt: Label 'Confirm after issuing documents. (Obsolete)';
-        ConfirmAfterIssuingDocumentsDescriptionTxt: Label 'Show warning when you issue a document where you can choose to view the issued document.';
         AutomaticLineItemsDialogNotificationTxt: Label 'Discover line items in Outlook add-in';
         AutomaticLineItemsDialogNotificationDescriptionTxt: Label 'Scan the email body for potential line items when you create documents in the Outlook add-in.';
         ClosingUnreleasedOrdersNotificationTxt: Label 'Warn about unreleased orders.';
@@ -101,13 +98,6 @@ codeunit 1330 "Instruction Mgt."
         exit('SHOWPOSTEDCONFIRMATIONMESSAGE');
     end;
 
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    procedure ShowIssuedConfirmationMessageCode(): Code[50]
-    begin
-        // NAVCZ
-        exit('SHOWISSUEDCONFIRMATIONMESSAGE');
-    end;
-
     procedure QueryPostOnCloseCode(): Code[50]
     begin
         exit('QUERYPOSTONCLOSE');
@@ -186,13 +176,6 @@ codeunit 1330 "Instruction Mgt."
     procedure GetOfficeUpdateNotificationId(): Guid
     begin
         exit('882980DE-C2F6-4D4F-BF39-BB3A9FE3D7DA');
-    end;
-
-    [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
-    procedure GetOpeningIssuedDocumentNotificationId(): Guid
-    begin
-        // NAVCZ
-        exit('E8DC5804-DBB8-4D42-816A-46EEBA3720E9');
     end;
 
 #if not CLEAN21
@@ -287,12 +270,6 @@ codeunit 1330 "Instruction Mgt."
           OfficeUpdateNotificationTxt,
           OfficeUpdateNotificationDescriptionTxt,
           IsEnabled(OfficeUpdateNotificationCode()));
-        // NAVCZ
-        MyNotifications.InsertDefault(GetOpeningIssuedDocumentNotificationId(),
-          ConfirmAfterIssuingDocumentsTxt,
-          ConfirmAfterIssuingDocumentsDescriptionTxt,
-          IsEnabled(GetOpeningIssuedDocumentNotificationId()));
-        // NAVCZ
         MyNotifications.InsertDefault(GetClosingUnreleasedOrdersNotificationId(),
           ClosingUnreleasedOrdersNotificationTxt,
           ClosingUnreleasedOrdersNotificationDescriptionTxt,
@@ -327,12 +304,6 @@ codeunit 1330 "Instruction Mgt."
                     EnableMessageForCurrentUser(PostingAfterWorkingDateNotAllowedCode())
                 else
                     DisableMessageForCurrentUser(PostingAfterWorkingDateNotAllowedCode());
-            // NAVCZ
-            GetOpeningIssuedDocumentNotificationId():
-                if NewEnabledState then
-                    EnableMessageForCurrentUser(ShowIssuedConfirmationMessageCode())
-                else
-                    DisableMessageForCurrentUser(ShowIssuedConfirmationMessageCode());
             GetClosingUnreleasedOrdersNotificationId():
                 if NewEnabledState then
                     EnableMessageForCurrentUser(ClosingUnreleasedOrdersCode())
@@ -367,4 +338,3 @@ codeunit 1330 "Instruction Mgt."
     end;
 }
 
-#endif

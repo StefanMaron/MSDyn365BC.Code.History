@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9006 "Order Processor Role Center"
 {
     Caption = 'Sales Order Processor';
@@ -16,6 +15,10 @@ page 9006 "Order Processor Role Center"
             {
                 AccessByPermission = TableData "Sales Shipment Header" = R;
                 ApplicationArea = Basic, Suite;
+            }
+            part("Intercompany Activities"; "Intercompany Activities")
+            {
+                ApplicationArea = Intercompany;
             }
             part("User Tasks Activities"; "User Tasks Activities")
             {
@@ -107,16 +110,6 @@ page 9006 "Order Processor Role Center"
                 RunPageView = WHERE("Completely Shipped" = CONST(true),
                                     "Shipped Not Invoiced" = CONST(true));
                 ToolTip = 'View sales documents that are fully shipped but not fully invoiced.';
-            }
-            action("Sales Advance Letters")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Sales Advance Letters (Obsolete)';
-                RunObject = Page "Sales Advance Letters";
-                ToolTip = 'Specifies sales advance letter';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                ObsoleteTag = '19.0';
             }
             action(Items)
             {
@@ -535,17 +528,6 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Posted Sales Invoices";
                     ToolTip = 'Open the list of posted sales invoices.';
                 }
-                action("Prepayment Invoices")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Sales Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoces';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
-                }
                 action(Action34)
                 {
                     ApplicationArea = Basic, Suite;
@@ -553,17 +535,6 @@ page 9006 "Order Processor Role Center"
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Credit Memos";
                     ToolTip = 'Open the list of posted sales credit memos.';
-                }
-                action("Prepayment Credit Memos")
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Credit Memos';
-                    RunObject = Page "Posted Sales Credit Memos";
-                    RunPageView = WHERE("Prepayment Credit Memo" = CONST(true));
-                    ToolTip = 'Specifies prepayment credit memos';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action("Posted Return Receipts")
                 {
@@ -611,17 +582,6 @@ page 9006 "Order Processor Role Center"
                     Caption = 'Posted Purchase Invoices';
                     RunObject = Page "Posted Purchase Invoices";
                     ToolTip = 'Open the list of posted purchase invoices.';
-                }
-                action(Action1220003)
-                {
-                    ApplicationArea = Prepayments;
-                    Caption = 'Prepayment Invoices';
-                    RunObject = Page "Posted Purchase Invoices";
-                    RunPageView = WHERE("Prepayment Invoice" = CONST(true));
-                    ToolTip = 'Specifies prepayment invoces';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-                    ObsoleteTag = '19.0';
                 }
                 action(Action86)
                 {
@@ -907,4 +867,3 @@ page 9006 "Order Processor Role Center"
     }
 }
 
-#endif

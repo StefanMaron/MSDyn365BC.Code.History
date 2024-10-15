@@ -1,15 +1,9 @@
 table 31017 "Advance Link"
 {
     Caption = 'Advance Link';
-#if not CLEAN19
-    DrillDownPageID = "Links to Advance Letter";
-    LookupPageID = "Links to Advance Letter";
-    ObsoleteState = Pending;
-#else
     ObsoleteState = Removed;
-#endif
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-    ObsoleteTag = '19.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
@@ -101,14 +95,5 @@ table 31017 "Advance Link"
     fieldgroups
     {
     }
-#if not CLEAN19
-
-    procedure GetLastEntryNo(): Integer;
-    var
-        FindRecordManagement: Codeunit "Find Record Management";
-    begin
-        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
-    end;
-#endif
 }
 
