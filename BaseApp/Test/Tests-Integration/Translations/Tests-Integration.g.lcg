@@ -106,11 +106,11 @@
   </Item>
   <Item ItemId=";Codeunit 2563049213 - NamedType 4196408258" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1|%2|%3|%4|]]></Val>
+      <Val><![CDATA[%1|%2|%3|%4|%5|%6|%7]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - ReportUsage, %2 - DocNo, %3 - DocName, %4 - CustNo]D;]A;(LookupHint=Codeunit Document Mailing Tests - NamedType JobQueueEntryParameterString)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - ReportUsage, %2 - DocNo, %3 - DocName, %4 - CustNo, %5 - DocumentNo FieldNo]D;]A;(LookupHint=Codeunit Document Mailing Tests - NamedType JobQueueEntryParameterString)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2563049213 - NamedType 4069372296" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -129,15 +129,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[Must be max. 10 chars and no spacing. (Send Invoice)]D;]A;(LookupHint=Codeunit Document Mailing Tests - NamedType MailingJobCategoryCodeTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2563049213 - NamedType 1485212386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Vendor]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Mailing Tests - NamedType VendorLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2933273639 - NamedType 2542021117" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

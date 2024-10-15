@@ -62,7 +62,6 @@ codeunit 7017 "Price List Management"
         PriceListLine."Price List Code" := ToPriceListHeader.Code;
         PriceListLine.SetNextLineNo();
         PriceListLine.CopyFrom(ToPriceListHeader, true);
-        PriceListLine."Amount Type" := "Price Amount Type"::Price;
         PriceListLine.CopyFrom(PriceAsset);
         ExistingPriceListLine.CopyPriceFrom(PriceAsset);
         AdjustAmount(PriceAsset."Unit Price", PriceLineFilters);

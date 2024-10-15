@@ -354,6 +354,7 @@ page 7004 "Sales Line Discounts"
         SalesCodeFilterCtrlEnable: Boolean;
         [InDataSet]
         CodeFilterCtrlEnable: Boolean;
+        [InDataSet]
         IsOnMobile: Boolean;
 
     protected var

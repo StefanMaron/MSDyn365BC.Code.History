@@ -1612,7 +1612,9 @@ codeunit 137159 "SCM Warehouse VII"
 
         // Exercise and Verify: Verify the error message when making Sales Order as
         // "Qty. to Ship" is more than the Quantity on the Sales Credit Memo add the Quantity on Sales Return Order.
-        BlanketOrderSalesLine.Find;
+        BlanketOrderSalesLine.Find();
+        BlanketOrderSalesLine.Validate("Qty. to Ship", BlanketOrderSalesLine.Quantity - PartialShipQty);
+        BlanketOrderSalesLine.Modify();
         MakeSalesOrderAndVerifyErr(SalesHeader, BlanketOrderSalesLine, PartialShipQty);
 
         // Reduce the Quantity to Ship on Sales Line then Make Sales Order.
@@ -1657,7 +1659,9 @@ codeunit 137159 "SCM Warehouse VII"
 
         // Exercise and Verify: Verify the error message when making Purchase Order
         // as "Qty. to Receive" is more than the Quantity on the Purchase Return Order add the Quantity on Purchase Credit Memo.
-        BlanketOrderPurchaseLine.Find;
+        BlanketOrderPurchaseLine.Find();
+        BlanketOrderPurchaseLine.Validate("Qty. to Receive", BlanketOrderPurchaseLine.Quantity - PartialReceiveQty);
+        BlanketOrderPurchaseLine.Modify();
         MakePurchaseOrderAndVerifyErr(PurchaseHeader, BlanketOrderPurchaseLine, PartialReceiveQty);
 
         // Reduce the Quantity to Receive on Purchase Line then Make Purchase Order.

@@ -150,15 +150,14 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                 BankAccReconLine.SetRange("Statement Line No.", BankAccRecMatchBuffer."Statement Line No.");
                 BankAccReconLine.SetRange("Statement No.", BankAccRecMatchBuffer."Statement No.");
                 BankAccReconLine.SetRange("Bank Account No.", BankAccRecMatchBuffer."Bank Account No.");
-                if BankAccReconLine.FindFirst() then
-                    RemoveReconNo(BankAccLedgEntry, BankAccReconLine, false);
-
-                BankAccReconLine."Applied Amount" := 0;
-                BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
-                BankAccReconLine.Validate("Statement Amount");
-                ModifyBankAccReconLine(BankAccReconLine);
-                DeletePaymentMatchDetails(BankAccReconLine);
-
+                RemoveReconNo(BankAccLedgEntry, BankAccReconLine, false);
+                if BankAccReconLine.FindFirst() then begin
+                    BankAccReconLine."Applied Amount" := 0;
+                    BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
+                    BankAccReconLine.Validate("Statement Amount");
+                    ModifyBankAccReconLine(BankAccReconLine);
+                    DeletePaymentMatchDetails(BankAccReconLine);
+                end
             until BankAccRecMatchBuffer.Next() = 0;
 
         BankAccRecMatchBuffer.DeleteAll();
@@ -264,8 +263,8 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
             "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
             BankAccLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
             BankAccLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
+            BankAccLedgEntry.TestField("Bank Account No.", BankAccReconLine."Bank Account No.");
         end;
-        BankAccLedgEntry.TestField("Bank Account No.", BankAccReconLine."Bank Account No.");
 
         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
         BankAccLedgEntry."Statement No." := '';
