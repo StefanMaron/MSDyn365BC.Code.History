@@ -129,7 +129,7 @@
                 then
                     TestField(Amount, 0, ErrorInfo.Create());
                 TestField("Discount Amount", 0, ErrorInfo.Create());
-                if Quantity < 0 then
+                if (Quantity < 0) and not Correction then
                     FieldError(Quantity, ErrorInfo.Create(StrSubstNo(Text003, FieldCaption("Entry Type"), "Entry Type"), true));
                 if Quantity <> "Invoiced Quantity" then
                     FieldError("Invoiced Quantity", ErrorInfo.Create(StrSubstNo(Text004, FieldCaption(Quantity)), true));

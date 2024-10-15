@@ -2061,7 +2061,8 @@
 
                 if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and
                    (AppliedQty < 0) and
-                   not CausedByTransfer
+                   not CausedByTransfer and
+                   not ItemLedgEntry.Correction
                 then begin
                     if ItemLedgEntry."Completely Invoiced" then
                         ItemLedgEntry."Completely Invoiced" := OldItemLedgEntry."Completely Invoiced";

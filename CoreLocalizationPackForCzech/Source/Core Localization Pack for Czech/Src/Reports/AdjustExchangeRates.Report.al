@@ -1454,6 +1454,7 @@ report 31004 "Adjust Exchange Rates CZL"
                     Temp2AdjustExchangeRateBuffer."Posting Date" := TempAdjustExchangeRateBuffer."Posting Date";
                     Temp2AdjustExchangeRateBuffer."IC Partner Code" := TempAdjustExchangeRateBuffer."IC Partner Code";
                     Temp2AdjustExchangeRateBuffer."Initial G/L Account No." := TempAdjustExchangeRateBuffer."Initial G/L Account No.";
+                    Temp2AdjustExchangeRateBuffer.Advance := TempAdjustExchangeRateBuffer.Advance;
                     Temp2AdjustExchangeRateBuffer.Insert();
                 end else
                     Temp2AdjustExchangeRateBuffer.Modify();

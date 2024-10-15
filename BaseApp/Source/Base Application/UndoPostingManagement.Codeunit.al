@@ -597,7 +597,12 @@
 
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
+            ItemJnlLine."Invoiced Quantity" := -TempApplyToItemLedgEntry."Invoiced Quantity";
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
+            if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then begin
+                ItemJnlLine."New Serial No." := TempApplyToItemLedgEntry."Serial No.";
+                ItemJnlLine."New Lot No." := TempApplyToItemLedgEntry."Lot No.";
+            end;
 
             // NAVCZ
             if (TempApplyToItemLedgEntry.Quantity < 0) and

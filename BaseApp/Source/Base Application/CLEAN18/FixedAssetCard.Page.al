@@ -322,6 +322,7 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Depreciation Books';
                 SubPageLink = "FA No." = FIELD("No.");
                 Visible = NOT Simple;
+                UpdatePropagation = Both;
             }
             group(Maintenance)
             {
@@ -686,7 +687,6 @@ page 5600 "Fixed Asset Card"
     end;
 
     var
-        FADepreciationBookOld: Record "FA Depreciation Book";
         FAAcquireWizardNotificationId: Guid;
         NoFieldVisible: Boolean;
         Simple: Boolean;
@@ -700,6 +700,7 @@ page 5600 "Fixed Asset Card"
 
     protected var
         FADepreciationBook: Record "FA Depreciation Book";
+        FADepreciationBookOld: Record "FA Depreciation Book";
 
     protected procedure ShowAcquisitionNotification()
     var
@@ -749,8 +750,10 @@ page 5600 "Fixed Asset Card"
                 if FADepreciationBook."FA No." = '' then begin
                     FADepreciationBook.Validate("FA No.", FixedAssetNo);
                     FADepreciationBook.Insert(true)
-                end else
-                    FADepreciationBook.Modify(true)
+                end else begin
+                    FADepreciationBook.Description := Rec.Description;
+                    FADepreciationBook.Modify(true);
+                end;
         end;
     end;
 

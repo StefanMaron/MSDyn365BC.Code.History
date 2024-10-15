@@ -42,7 +42,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
 
         // [THEN] The Fixed Asset Can be read again
         FixedAssetCard.OpenView;
@@ -52,7 +52,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FASetup.Get();
         FixedAssetCard.DepreciationBookCode.AssertEquals(FASetup."Default Depr. Book");
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
 
         // [THEN] "FA"."FA Posting Group" = FASubClass."Default FA Posting Group"
         FixedAsset.FindFirst();
@@ -114,7 +114,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
         FADepreciationBook.TestField("Depreciation Ending Date", EndingDate);
 
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenNew();
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
 
         // [WHEN] Fixed Asset Card filed out with asset 2 and record is moved to first asset
         FixedAssetCard.OpenNew();
@@ -150,7 +150,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [THEN] Fixed asset is saved as expected
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code);
-        FixedAssetCard.Next;
+        FixedAssetCard.Next();
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup2.Code);
     end;
 
@@ -184,7 +184,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.DepreciationBook.New;
         FixedAssetCard.DepreciationBook."Depreciation Book Code".SetValue(DepreciationBook.Code);
         FixedAssetCard.DepreciationBook."FA Posting Group".SetValue(FAPostingGroup.Code);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
 
         // [THEN] both books can be viewd in the card
         FixedAssetCard.OpenView;
@@ -192,7 +192,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.DepreciationBook."FA Posting Group".AssertEquals(FAPostingGroup.Code);
         FixedAssetCard.DepreciationBook.GotoKey(FixedAssetCard."No.".Value, DepreciationBook.Code);
         FixedAssetCard.DepreciationBook."FA Posting Group".AssertEquals(FAPostingGroup.Code);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -216,11 +216,11 @@ codeunit 134456 "ERM Fixed Asset Card"
         Assert.IsFalse(FixedAssetCard.AddMoreDeprBooks.Visible, 'AddMoreDeprBooks has to be invisible.');
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
         Assert.IsTrue(FixedAssetCard.AddMoreDeprBooks.Visible, 'AddMoreDeprBooks has to be visible');
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
 
         FixedAssetCard.OpenView;
         Assert.IsTrue(FixedAssetCard.AddMoreDeprBooks.Visible, 'AddMoreDeprBooks has to be visible');
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [WHEN] SubClass lookup is invoked
         // [THEN] All but Subclass2 can be found in the lookup
         FixedAssetCard."FA Subclass Code".Lookup;
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -292,8 +292,8 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [THEN] Page "FA Ledger Entries" showing 1 entries, where total "Amount" is equal to "A"
         FALedgerEntriesList.First;
         FALedgerEntriesList.Amount.AssertEquals(BookValue);
-        FALedgerEntriesList.Close;
-        FixedAssetCard.Close;
+        FALedgerEntriesList.Close();
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -371,7 +371,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         Assert.IsTrue(FixedAssetCard.DepreciationBook."Declining-Balance %".Visible, 'Declining-Balance % has to be visible');
         Assert.IsTrue(FixedAssetCard.DepreciationBook."Declining-Balance %".Editable, 'Declining-Balance % has to be editable');
 
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -417,8 +417,8 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [THEN] Page "FA Ledger Entries" showing entry, where "Amount" is 500
         FALedgerEntriesList.First;
         FALedgerEntriesList.Amount.AssertEquals(BookValue);
-        FALedgerEntriesList.Close;
-        FixedAssetCard.Close;
+        FALedgerEntriesList.Close();
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -458,7 +458,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.DepreciationBook."Depreciation Book Code".AssertEquals(FASetup."Default Depr. Book");
         FixedAssetCard.DepreciationBook.BookValue.AssertEquals(0);
 
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -500,7 +500,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [THEN] Book Value of the Fixed Asset equals 500
         ValidateBookValueMultibook(FixedAssetCard, FASetup."Default Depr. Book", BookValue);
 
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [Test]
@@ -822,9 +822,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [THEN] There are no more "FA Ledger Entries" lines.
         Assert.IsFalse(FALedgerEntries.Next, 'No more records expected');
 
-        FALedgerEntries.Close;
-        FixedAssetCard.Close;
-        FixedAssetStatistics.Close;
+        FALedgerEntries.Close();
+        FixedAssetCard.Close();
+        FixedAssetStatistics.Close();
     end;
 
     [Test]
@@ -977,7 +977,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [GIVEN] Mock FA Ledger Entry for created Fixed Asset
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        MockFALedgerEntryBookValue(FixedAsset."No.", DepreciationBook.Code, WorkDate, LibraryRandom.RandInt(100));
+        MockFALedgerEntryBookValue(FixedAsset."No.", DepreciationBook.Code, WorkDate(), LibraryRandom.RandInt(100));
 
         // [GIVEN] Change FA Subclass Code to ''
         asserterror FixedAsset.Validate("FA Subclass Code", '');
@@ -1042,7 +1042,7 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [GIVEN] Mock FA Ledger Entry for created Fixed Asset
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        MockFALedgerEntryBookValue(FixedAsset."No.", DepreciationBook.Code, WorkDate, LibraryRandom.RandInt(100));
+        MockFALedgerEntryBookValue(FixedAsset."No.", DepreciationBook.Code, WorkDate(), LibraryRandom.RandInt(100));
 
         // [WHEN] Changed FA Subclass to FA Subclass 2
         FixedAsset.Validate("FA Subclass Code", FASubclass[2].Code);
@@ -1305,6 +1305,45 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook.TestField("FA Posting Group", FAPostingGroup.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468467_FixedAssetDescriptionCopiedToFADepreciationBookDescription_FADescriptionAfterDepreciationBookCode()
+    var
+        FASetup: Record "FA Setup";
+        FixedAsset: Record "Fixed Asset";
+        FASubclass: Record "FA Subclass";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        DescriptionToSet: Text[100];
+    begin
+        // [FEATURE] [UT] [Fixed Asset Card]
+        // [SCENARIO 401954] "Fixed Asset".Description is copied to "FA Depreciation Book".Description when "Fixed Asset Card".Description is defined after "Fixed Asset Card".DepreciationBookCode.
+
+        // [GIVEN] FA Setup is in place.
+        FixedAssetAndDeprecationBookSetup(FASubclass);
+        FASetup.Get();
+        DescriptionToSet := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
+
+        // [GIVEN] Fixed Asset is created.
+        FixedAssetCard.OpenNew();
+
+        // [GIVEN] Fixed Asset is DepreciationBookCode is defined.
+        FixedAssetCard.DepreciationBookCode.SetValue(FASetup."Default Depr. Book");
+
+        // [WHEN] Fixed Asset is Description is defined.
+        FixedAssetCard.Description.SetValue(DescriptionToSet);
+        FixedAssetCard.Close();
+
+        // [WHEN] There is one "FA Depreciation Book" record for created Fixed Asset and its Description is equal to Description of Fixed Asset.
+        FixedAsset.FindFirst();
+        FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
+        Assert.RecordCount(FADepreciationBook, 1);
+
+        FADepreciationBook.FindFirst();
+        FADepreciationBook.TestField("Depreciation Book Code", FASetup."Default Depr. Book");
+        FADepreciationBook.TestField(Description, DescriptionToSet);
+    end;
+
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";
@@ -1339,6 +1378,8 @@ codeunit 134456 "ERM Fixed Asset Card"
 
     [Scope('OnPrem')]
     procedure CreateFADepreciationBookEmpty(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10]; PostingGroupCode: Code[20])
+    var
+        FixedAsset: Record "Fixed Asset";
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook."FA Posting Group" := PostingGroupCode;
@@ -1346,13 +1387,17 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook."Depreciation Starting Date" := 0D;
         FADepreciationBook."Depreciation Ending Date" := 0D;
         FADepreciationBook.Modify(true);
+
+        FixedAsset.Get(FANo);
+        FixedAsset."FA Posting Group" := PostingGroupCode;
+        FixedAsset.Modify();
     end;
 
     [Scope('OnPrem')]
     procedure CreateFADepreciationBookWithValue(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10]; PostingGroupCode: Code[20]; BookValue: Decimal)
     begin
         CreateFADepreciationBookEmpty(FADepreciationBook, FANo, DepreciationBookCode, PostingGroupCode);
-        MockFALedgerEntryBookValue(FANo, DepreciationBookCode, WorkDate, BookValue);
+        MockFALedgerEntryBookValue(FANo, DepreciationBookCode, WorkDate(), BookValue);
     end;
 
     local procedure DisposeFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal)

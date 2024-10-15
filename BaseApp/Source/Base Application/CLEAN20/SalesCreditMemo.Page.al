@@ -602,6 +602,11 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
+                field("Rcvd-from Country/Region Code"; Rec."Rcvd-from Country/Region Code")
+                {
+                    ApplicationArea = BasicEU, BasicCH, BasicNO;
+                    ToolTip = 'Specifies the country or region from which the items are returned for the purpose of Intrastat reporting.';
+                }
             }
         }
         area(factboxes)
@@ -1456,6 +1461,8 @@ page 44 "Sales Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
+        Rec.SetTrackInfoForCancellation();
+
         if OfficeMgt.IsAvailable then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
             if SalesCrMemoHeader.FindFirst() then
@@ -1564,25 +1571,11 @@ page 44 "Sales Credit Memo"
         IsPostingGroupEditable := SalesSetup."Allow Multiple Posting Groups";
     end;
 
-<<<<<<< App/Layers/CZ/BaseApp/CLEAN20/SalesCreditMemo.Page.al
-||||||| Base: App/Layers/W1/BaseApp/SalesCreditMemo.Page.al
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
     begin
     end;
 
-=======
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterSetControlAppearance(var SalesHeader: Record "Sales Header")
-    begin
-    end;
-
->>>>>>> App/Layers/W1/BaseApp/SalesCreditMemo.Page.al
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
