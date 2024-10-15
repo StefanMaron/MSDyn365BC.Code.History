@@ -134,7 +134,8 @@ codeunit 10202 "Entry Application Management"
 
         VendLedgEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.SetRange("Vendor No.", VendorNo);
+        if VendorNo <> '' then
+            VendLedgEntry.SetRange("Vendor No.", VendorNo);
         VendLedgEntry.SetRange("Posting Date", PeriodDate[1], PeriodDate[2]);
         if VendLedgEntry.FindSet then
             repeat
@@ -146,7 +147,8 @@ codeunit 10202 "Entry Application Management"
                     repeat
                         PmtDtldVendLedgEntry.SetFilter("Vendor Ledger Entry No.", '<>%1', VendLedgEntry."Entry No.");
                         PmtDtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-                        PmtDtldVendLedgEntry.SetRange("Vendor No.", VendorNo);
+                        if VendorNo <> '' then
+                            PmtDtldVendLedgEntry.SetRange("Vendor No.", VendorNo);
                         PmtDtldVendLedgEntry.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
                         PmtDtldVendLedgEntry.SetRange("Application No.", DtldVendLedgEntry."Application No.");
                         PmtDtldVendLedgEntry.FindSet();
