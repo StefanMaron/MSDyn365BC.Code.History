@@ -4108,6 +4108,57 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseActivityLine.TestField("Bin Code", PutawayBin1.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculateMultipleInventoryPageHandler,DimensionSelectionPageHandler')]
+    [Scope('OnPrem')]
+    procedure CalculateInventoryOnPhysicalInventoryJournalForMultipleItemUsingDimension()
+    var
+        DimensionValue: array[3] of Record "Dimension Value";
+        Item: array[2] of Record Item;
+        Location: array[3] of Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PhysInventoryJournal: TestPage "Phys. Inventory Journal";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 547458] When Item and Location both have Default Dimensions and Location has same dimensions but dimension values are different then
+        // no error will come on Calculate Inventory
+        Initialize();
+
+        // [GIVEN] Crate first item with default dimension
+        LibraryInventory.CreateItem(Item[1]);
+        CreateDefaultDimensionItem(DimensionValue[1], Item[1]."No.");
+
+        // [GIVEN] Create item
+        LibraryInventory.CreateItem(Item[2]);
+
+        // [GIVEN] Define quantity
+        Quantity := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create location with posting setups
+        CreateLocationWithPostingSetup(Location);
+
+        // [GIVEN] Define default dimension for 2 locations
+        CreateDefaultDimensionLocation(DimensionValue[2], Location[2].Code);
+        CreateDefaultDimensionLocation(DimensionValue[3], Location[3].Code);
+
+        // [GIVEN] Create Purchase Order with 2 items and 3 locations 
+        CreatePurchaseOrderWithMultipleItems(PurchaseHeader, Location, Item, Quantity);
+
+        // [GIVEN] Post the Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Enqueue the bith item to calculate inventory on them
+        LibraryVariableStorage.Enqueue(Item[1]."No.");
+        LibraryVariableStorage.Enqueue(Item[2]."No.");
+
+        // [WHEN] Open Physical Inventory Journal and run Calculate Inventory
+        PhysInventoryJournal.OpenEdit();
+        PhysInventoryJournal.CalculateInventory.Invoke();
+
+        // [THEN] Verify the Item Journal line created with correct default dimensions
+        VerifyItemJournalLine(Item[2]."No.", DimensionValue[2].Code, Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6404,6 +6455,58 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Location.Modify(true);
     end;
 
+    local procedure CreateDefaultDimensionLocation(var DimensionValue: Record "Dimension Value"; LocationCode: Code[10])
+    var
+        DefaultDimension: Record "Default Dimension";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
+        CreateDefaultDimension(DefaultDimension, DATABASE::Location, LocationCode, DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    procedure CreateDefaultDimension(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20]; DimensionCode: Code[20]; DimensionValueCode: Code[20])
+    begin
+        DefaultDimension.Init();
+        DefaultDimension.Validate("Table ID", TableID);
+        DefaultDimension.Validate("No.", No);
+        DefaultDimension.Validate("Dimension Code", DimensionCode);
+        DefaultDimension.Validate("Dimension Value Code", DimensionValueCode);
+        DefaultDimension.Insert(true);
+    end;
+
+    local procedure CreatePurchaseOrderWithMultipleItems(var PurchaseHeader: Record "Purchase Header"; Location: array[3] of Record Location; Item: array[2] of Record Item; Quantity: Decimal)
+    var
+        PurchaseLine: array[3] of Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item, Item[1]."No.", Quantity);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, Item[2]."No.", Quantity);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[3], PurchaseHeader, PurchaseLine[3].Type::Item, Item[2]."No.", Quantity);
+
+        PurchaseLine[1].Validate("Location Code", Location[1].Code);
+        PurchaseLine[1].Validate("Unit of Measure Code", Item[2]."Base Unit of Measure");
+        PurchaseLine[1].Modify(true);
+
+        PurchaseLine[2].Validate("Location Code", Location[2].Code);
+        PurchaseLine[2].Validate("Unit of Measure Code", Item[2]."Base Unit of Measure");
+        PurchaseLine[2].Modify(true);
+
+        PurchaseLine[3].Validate("Location Code", Location[3].Code);
+        PurchaseLine[3].Validate("Unit of Measure Code", Item[2]."Base Unit of Measure");
+        PurchaseLine[3].Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    local procedure CreateLocationWithPostingSetup(var Location: Array[3] of Record Location)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(Location) do
+            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[i]);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculateInventoryPageHandler(var CalculateInventory: TestRequestPage "Calculate Inventory")
@@ -6413,6 +6516,22 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         CalculateInventory.ByDimensions.AssistEdit();
         CalculateInventory.Item.SetFilter("No.", DequeueVariable);
+        CalculateInventory.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalculateMultipleInventoryPageHandler(var CalculateInventory: TestRequestPage "Calculate Inventory")
+    var
+        Item1: Text;
+        Item2: Text;
+        FilterText: Text;
+    begin
+        Item1 := LibraryVariableStorage.DequeueText();
+        Item2 := LibraryVariableStorage.DequeueText();
+        FilterText := Item1 + '|' + Item2;
+        CalculateInventory.ByDimensions.AssistEdit();
+        CalculateInventory.Item.SetFilter("No.", FilterText);
         CalculateInventory.OK().Invoke();
     end;
 
