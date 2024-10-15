@@ -118,6 +118,7 @@ report 5754 "Create Pick"
                         ApplicationArea = Warehouse;
                         BlankZero = true;
                         Caption = 'Max. No. of Pick Lines';
+                        MinValue = 0;
                         MultiLine = true;
                         ToolTip = 'Specifies if you want to create pick documents that have no more than the specified number of lines in each document.';
                     }
@@ -126,6 +127,7 @@ report 5754 "Create Pick"
                         ApplicationArea = Warehouse;
                         BlankZero = true;
                         Caption = 'Max. No. of Pick Source Docs.';
+                        MinValue = 0;
                         MultiLine = true;
                         ToolTip = 'Specifies if you want to create pick documents that each cover no more than the specified number of source documents.';
                     }
@@ -247,7 +249,6 @@ report 5754 "Create Pick"
         WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         PickQty: Decimal;
         PickQtyBase: Decimal;
-        TempMaxNoOfSourceDoc: Integer;
         OldFirstSetPickNo: Code[20];
         TotalQtyPickedBase: Decimal;
         PickListReportID: Integer;
@@ -354,7 +355,6 @@ report 5754 "Create Pick"
         ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
         Commit();
 
-        TempMaxNoOfSourceDoc := MaxNoOfSourceDoc;
         PickWhseActivHeader.SetRange(Type, PickWhseActivHeader.Type::Pick);
         PickWhseActivHeader.SetRange("No.", FirstSetPickNo, LastPickNo);
         PickWhseActivHeader.Find('-');
@@ -367,9 +367,8 @@ report 5754 "Create Pick"
                 OnBeforePrintPickList(PickWhseActivHeader, PickListReportID, IsHandled);
                 if not IsHandled then
                     WarehouseDocumentPrint.PrintPickHeader(PickWhseActivHeader);
-                TempMaxNoOfSourceDoc -= 1;
             end;
-        until ((PickWhseActivHeader.Next = 0) or (TempMaxNoOfSourceDoc = 0));
+        until PickWhseActivHeader.Next() = 0;
     end;
 
     procedure SetWkshPickLine(var PickWhseWkshLine2: Record "Whse. Worksheet Line")

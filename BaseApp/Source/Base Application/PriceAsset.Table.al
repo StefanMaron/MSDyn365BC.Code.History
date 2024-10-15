@@ -85,6 +85,22 @@ table 7003 "Price Asset"
         {
             DataClassification = SystemMetadata;
             TableRelation = "Work Type";
+            trigger OnValidate()
+            var
+                Resource: Record Resource;
+                WorkType: Record "Work Type";
+            begin
+                if not ("Asset Type" in ["Asset Type"::Resource, "Asset Type"::"Resource Group"]) then
+                    TestField("Asset Type", "Asset Type"::Resource);
+
+                if WorkType.Get("Work Type Code") and (WorkType."Unit of Measure Code" <> '') then
+                    "Unit of Measure Code" := WorkType."Unit of Measure Code"
+                else
+                    if ("Asset Type" = "Asset Type"::Resource) and ("Asset No." <> '') then begin
+                        Resource.Get("Asset No.");
+                        "Unit of Measure Code" := Resource."Base Unit of Measure";
+                    end;
+            end;
         }
     }
 
