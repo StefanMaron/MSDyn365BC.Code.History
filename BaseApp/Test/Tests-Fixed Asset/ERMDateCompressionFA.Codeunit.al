@@ -20,6 +20,7 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         FARegisterErr: Label 'FA Register must be deleted for Journal Batch Name %1 .', Comment = '%1 = Journal Batch Name';
+        DateLockedErr: Label 'The accounting periods for the period you wish to date compress must be Date Locked.';
 
     local procedure Initialize()
     var
@@ -27,6 +28,7 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryApplicationArea.EnableFoundationSetup;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
 
         if isInitialized then
             exit;
@@ -39,13 +41,14 @@ codeunit 134049 "ERM Date Compression FA"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressOpenFiscalYear()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         DateComprRegister: Record "Date Compr. Register";
+        AccountingPeriod: Record "Accounting Period";
+        SaveWorkDate: Date;
         FANo: Code[20];
     begin
         // Test the Date Compression with open Accounting Period.
@@ -53,11 +56,23 @@ codeunit 134049 "ERM Date Compression FA"
         // 1.Setup: Create and modify Fixed Asset, create General Journal Batch, create Generel Journal Line,
         // post the FA General Journal line.
         Initialize;
+        SaveWorkDate := WorkDate();
+        WorkDate(CalcDate('<-7y>', Today())); // must keep at least 5y uncompressed so 7 years ensures an always compressable date
+        // must have open accounting periods
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate());
+        AccountingPeriod.FindFirst(); // accouting periods were created in Initialize so we know these exist
+        AccountingPeriod.SetRange("New Fiscal Year");
+        AccountingPeriod.SetFilter("Starting Date", '>=%1', AccountingPeriod."Starting Date");
+        AccountingPeriod.ModifyAll(Closed, false);
+        AccountingPeriod.ModifyAll("Date Locked", false);
+
         FANo := CreateFixedAssetWithDimension;
         CreateGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, FANo, GenJournalLine."FA Posting Type"::"Acquisition Cost");
         PostingDateInGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        WorkDate(SaveWorkDate);
 
         // 2.Exercise: Run the Date Compress FA Ledger.
         asserterror
@@ -66,11 +81,10 @@ codeunit 134049 "ERM Date Compression FA"
             DateComprRegister."Period Length"::Day);
 
         // 3.Verify: Verify the Error message.
-        LibraryFiscalYear.VerifyDateCompressFALedgerError;
+        Assert.ExpectedError(DateLockedErr);
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressClosedFiscalYear()
     var
@@ -101,13 +115,13 @@ codeunit 134049 "ERM Date Compression FA"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressMaintenanceLedger()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
         FANo: Code[20];
         Amount: Decimal;
     begin
@@ -124,7 +138,7 @@ codeunit 134049 "ERM Date Compression FA"
 
         // 2. Exercise: Run the Date Compress Maintenance Ledger.
         RunDateCompressMaintenance(
-          FANo, LibraryFiscalYear.GetFirstPostingDate(true), WorkDate, false, false, DateComprRegister."Period Length"::Month);
+          FANo, LibraryFiscalYear.GetFirstPostingDate(true), DateCompression.CalcMaxEndDate(), false, false, DateComprRegister."Period Length"::Month);
 
         // 3. Verify: Verify the Maintenance Ledger Entry.
         VerifyMaintenanceLedgerEntry(FANo, Amount);
@@ -138,6 +152,7 @@ codeunit 134049 "ERM Date Compression FA"
         GenJournalLine: Record "Gen. Journal Line";
         FARegister: Record "FA Register";
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
     begin
         // Test Delete Empty FA Registers functionality after running Date Compress FA Ledger.
 
@@ -146,7 +161,7 @@ codeunit 134049 "ERM Date Compression FA"
         CreateAndPostGenJournalLines(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
         RunDateCompressFALedger(
           GenJournalLine."Account No.", LibraryFiscalYear.GetFirstPostingDate(true),
-          LibraryFiscalYear.GetLastPostingDate(true), DateComprRegister."Period Length"::Year);
+          DateCompression.CalcMaxEndDate(), DateComprRegister."Period Length"::Year);
         FindFARegister(FARegister, GenJournalLine."Journal Batch Name");
 
         // 2. Exercise: Run Delete Empty FA Registers Report.
@@ -166,6 +181,7 @@ codeunit 134049 "ERM Date Compression FA"
         GenJournalLine: Record "Gen. Journal Line";
         FARegister: Record "FA Register";
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
     begin
         // Test Delete Empty FA Registers functionality after running Date Compress Maintenance.
 
@@ -173,7 +189,7 @@ codeunit 134049 "ERM Date Compression FA"
         Initialize;
         CreateAndPostGenJournalLines(GenJournalLine, GenJournalLine."FA Posting Type"::Maintenance);
         RunDateCompressMaintenance(
-          GenJournalLine."Account No.", LibraryFiscalYear.GetFirstPostingDate(true), LibraryFiscalYear.GetLastPostingDate(true),
+          GenJournalLine."Account No.", LibraryFiscalYear.GetFirstPostingDate(true), DateCompression.CalcMaxEndDate(),
           true, true, DateComprRegister."Period Length"::Year);
         FindFARegister(FARegister, GenJournalLine."Journal Batch Name");
 
@@ -187,12 +203,12 @@ codeunit 134049 "ERM Date Compression FA"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressFixedAssetLedger()
     var
         GenJournalLine: Record "Gen. Journal Line";
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
         LastFALedgerEntryNo: Integer;
     begin
         // Test FA Ledger Entry exist or not after run Date Compress FA Ledger.
@@ -205,7 +221,7 @@ codeunit 134049 "ERM Date Compression FA"
         // 2. Exercise: Run Date Compress FA Ledger.
         RunDateCompressFALedger(
           GenJournalLine."Account No.", LibraryFiscalYear.GetFirstPostingDate(true),
-          LibraryFiscalYear.GetLastPostingDate(true), DateComprRegister."Period Length"::Year);
+          DateCompression.CalcMaxEndDate(), DateComprRegister."Period Length"::Year);
 
         // 3. Verify: FA Ledger Entry must exist.
         VerifyFALedgerEntryExists(LastFALedgerEntryNo, GenJournalLine."Account No.");

@@ -662,11 +662,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                 if not PurchOrderLine."Special Order" then
                     TestField("Sell-to Customer No.", SalesOrderLine."Sell-to Customer No.");
                 TestField(Type, SalesOrderLine.Type);
-                TestField(
-                  Quantity,
-                  Round(
-                    SalesOrderLine."Outstanding Quantity" * SalesOrderLine."Qty. per Unit of Measure" / "Qty. per Unit of Measure",
-                    UOMMgt.QtyRndPrecision()));
+
+                CheckRequsitionLineQuantity(ReqLine2);
                 TestField("No.", SalesOrderLine."No.");
                 TestField("Location Code", SalesOrderLine."Location Code");
                 TestField("Variant Code", SalesOrderLine."Variant Code");
@@ -704,6 +701,22 @@ codeunit 333 "Req. Wksh.-Make Order"
         end;
 
         OnAfterInsertPurchOrderLine(PurchOrderLine, NextLineNo, ReqLine2, PurchOrderHeader);
+    end;
+
+    local procedure CheckRequsitionLineQuantity(var RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRequsitionLineQuantity(RequisitionLine, PurchOrderLine, SalesOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        RequisitionLine.TestField(
+            Quantity,
+            Round(
+                SalesOrderLine."Outstanding Quantity" * SalesOrderLine."Qty. per Unit of Measure" / RequisitionLine."Qty. per Unit of Measure",
+                UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure CheckPurchOrderLineShipToCode(var RequisitionLine: Record "Requisition Line")
@@ -1589,6 +1602,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRequisitionLine(var ReqLine2: Record "Requisition Line"; SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRequsitionLineQuantity(var RequisitionLine: Record "Requisition Line"; var PurchOrderLine: Record "Purchase Line"; var SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

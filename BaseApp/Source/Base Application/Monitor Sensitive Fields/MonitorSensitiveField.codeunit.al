@@ -522,11 +522,11 @@ codeunit 1392 "Monitor Sensitive Field"
         NavApp.GetCurrentModuleInfo(Info);
         CurrentGlobalLanguage := GLOBALLANGUAGE();
 
-        GuidedExperience.InsertAssistedSetup(MonitorSetupTxt, CopyStr(MonitorSetupTxt, 1, 50), HelpMonitorDescriptionTxt, 0, ObjectType::Page,
+        GuidedExperience.InsertAssistedSetup(MonitorSetupTitleTxt, MonitorSetupShortTitleTxt, HelpMonitorDescriptionTxt, 5, ObjectType::Page,
             Page::"Monitor Field Setup Wizard", AssistedSetupGroup::"Set Up Extended Security", '', VideoCategory::Uncategorized, HelpMonitorFieldChangeTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-            Page::"Monitor Field Setup Wizard", Language.GetDefaultApplicationLanguageId(), MonitorSetupTxt);
+            Page::"Monitor Field Setup Wizard", Language.GetDefaultApplicationLanguageId(), MonitorSetupTitleTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
@@ -620,9 +620,10 @@ codeunit 1392 "Monitor Sensitive Field"
         MonitorStatusChangeTxt: Label 'Sensitive field monitor status has changed to %1', Locked = true;
         TableNoFilterTxt: Label '1..%1|%2..%3|%4..%5|%6..%7|%8|%9..1999999999|%10|%11', Locked = true;
         EmailAccountMissingErr: label 'You must specify the email account to send notification email from when field values change. Specify the account in the Notification Email Account field. If no accounts are available, you can add one.';
-        MonitorSetupTxt: Label 'Monitor Field Change Setup';
+        MonitorSetupTitleTxt: Label 'Set up field monitoring';
+        MonitorSetupShortTitleTxt: Label 'Set up field monitoring';
         HelpMonitorFieldChangeTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2128531', Locked = true;
-        HelpMonitorDescriptionTxt: Label 'Set up monitor field change feature';
+        HelpMonitorDescriptionTxt: Label 'You can monitor important fields when someone changes a value. Start field monitoring and specify the fields that you want to monitor. Then analyze the field monitoring telemetry.';
         DontShowThisAgainMsg: Label 'Don''t show this again.';
         EnableFieldMonitoringMsg: Label 'Enable Field Monitoring';
         OpenWorksheetMsg: Label 'Open the Monitored Fields Worksheet';

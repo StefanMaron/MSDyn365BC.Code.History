@@ -2795,10 +2795,10 @@ codeunit 136302 "Job Consumption Purchase"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
         LibraryInventory.UpdateGenProdPostingSetup;
         // Removing special prices
         PurchasePrice.DeleteAll(true);

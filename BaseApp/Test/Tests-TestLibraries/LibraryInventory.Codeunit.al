@@ -1033,9 +1033,13 @@ codeunit 132201 "Library - Inventory"
     procedure DateComprItemBudgetEntries(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Description: Text[50])
     var
         TmpItemBudgetEntry: Record "Item Budget Entry";
+        AnalysisView: Record "Analysis View";
         DateCompItemBudgetEntries: Report "Date Comp. Item Budget Entries";
+        RetainDimensions: Text;
     begin
-        DateCompItemBudgetEntries.InitializeRequest(AnalysisAreaSelection, StartDate, EndDate, PeriodLength, Description);
+        SetAnalysisViewDimensions(3 /*ObjectType::Report*/, Report::"Date Comp. Item Budget Entries", RetainDimensions);
+        AnalysisView.UpdateAllAnalysisViews(true);
+        DateCompItemBudgetEntries.InitializeRequest(AnalysisAreaSelection, StartDate, EndDate, PeriodLength, Description, RetainDimensions);
         if ItemBudgetEntry.HasFilter then
             TmpItemBudgetEntry.CopyFilters(ItemBudgetEntry)
         else begin
@@ -1043,8 +1047,47 @@ codeunit 132201 "Library - Inventory"
             TmpItemBudgetEntry.SetRange("Entry No.", ItemBudgetEntry."Entry No.");
         end;
         DateCompItemBudgetEntries.SetTableView(TmpItemBudgetEntry);
+        DateCompItemBudgetEntries.SetSkipAnalysisViewUpdateCheck();
         DateCompItemBudgetEntries.UseRequestPage(false);
         DateCompItemBudgetEntries.RunModal;
+    end;
+
+    local procedure SetAnalysisViewDimensions(ObjectType: Option; ObjectId: Integer; var RetainDimensions: Text[250])
+    var
+        SelectedDimension: Record "Selected Dimension";
+        AnalysisView: Record "Analysis View";
+        DimensionSelectionBuffer: Record "Dimension Selection Buffer";
+    begin
+        if AnalysisView.FindSet() then begin
+            repeat
+                if not SelectedDimension.Get(UserId, ObjectType, ObjectId, '', AnalysisView."Dimension 1 Code") then
+                    InsertSelectedDimension(ObjectType, ObjectId, AnalysisView."Dimension 1 Code");
+                if not SelectedDimension.Get(UserId, ObjectType, ObjectId, '', AnalysisView."Dimension 2 Code") then
+                    InsertSelectedDimension(ObjectType, ObjectId, AnalysisView."Dimension 2 Code");
+                if not SelectedDimension.Get(UserId, ObjectType, ObjectId, '', AnalysisView."Dimension 3 Code") then
+                    InsertSelectedDimension(ObjectType, ObjectId, AnalysisView."Dimension 3 Code");
+                if not SelectedDimension.Get(UserId, ObjectType, ObjectId, '', AnalysisView."Dimension 4 Code") then
+                    InsertSelectedDimension(ObjectType, ObjectId, AnalysisView."Dimension 4 Code");
+            until AnalysisView.Next() = 0;
+
+            RetainDimensions := DimensionSelectionBuffer.GetDimSelectionText(ObjectType, ObjectId, '');
+        end;
+    end;
+
+    local procedure InsertSelectedDimension(ObjectType: Option; ObjectId: Integer; DimensionCode: Text)
+    var
+        SelectedDimension: Record "Selected Dimension";
+    begin
+        if DimensionCode = '' then
+            exit;
+
+        SelectedDimension.Init();
+        SelectedDimension."User ID" := CopyStr(UserId, 1, MaxStrLen(SelectedDimension."User ID"));
+        SelectedDimension."Object Type" := ObjectType;
+        SelectedDimension."Object ID" := ObjectId;
+        SelectedDimension."Analysis View Code" := '';
+        SelectedDimension."Dimension Code" := CopyStr(DimensionCode, 1, MaxStrLen(SelectedDimension."Dimension Code"));
+        SelectedDimension.Insert();
     end;
 
     procedure FindItemJournalBatch(var ItemJnlBatch: Record "Item Journal Batch"; ItemJnlTemplate: Record "Item Journal Template")

@@ -45,6 +45,18 @@ table 247 "Intrastat Setup"
             ELSE
             IF ("Intrastat Contact Type" = CONST(Vendor)) Vendor."No.";
         }
+        field(8; "Use Advanced Checklist"; Boolean)
+        {
+            Caption = 'Use Advanced Checklist';
+#if CLEAN19
+            ObsoleteState = Removed;
+            ObsoleteTag = '22.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+#endif
+            ObsoleteReason = 'Unconditionally replaced by Advanced Intrastat Checklist';
+        }
     }
 
     keys

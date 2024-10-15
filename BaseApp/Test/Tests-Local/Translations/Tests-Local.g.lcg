@@ -2356,7 +2356,7 @@
   </Item>
   <Item ItemId=";Codeunit 1176904067 - NamedType 3683325401" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Gen. Prod. Posting Group must have a value in %1 Line: Document Type=Order, Document No.=%2, Line No.=%3. It cannot be zero or empty.]]></Val>
+      <Val><![CDATA[Gen. Prod. Posting Group must have a value in Item Charge: No.=%1. It cannot be zero or empty.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2365,7 +2365,7 @@
   </Item>
   <Item ItemId=";Codeunit 1176904067 - NamedType 44845539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Assert.IsTrue failed. No row found where Field 'PackageTrackingNoText']]></Val>
+      <Val><![CDATA[No row found where Field 'PackageTrackingNoText']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3281,6 +3281,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Misc. - NamedType WrongNoOfPurchOrdersErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType AdvChecklistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Intrastat file was not created]]></Val>
@@ -3297,15 +3306,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType ReportedMustBeNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 2514914921" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Transaction Type must have a value in Intrastat Jnl. Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType TransactionTypeMustHaveValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2679767859 - NamedType 2063252660" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

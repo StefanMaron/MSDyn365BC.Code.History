@@ -3898,6 +3898,7 @@ codeunit 144001 "MX CFDI"
         NameValueBuffer.DeleteAll();
         PostCode.ModifyAll("Time Zone", '');
         SetupCompanyInformation;
+        ClearLastError;
 
         if isInitialized then
             exit;
