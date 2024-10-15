@@ -1,4 +1,4 @@
-codeunit 128003 "Upgrade Status"
+codeunit 132803 "Upgrade Status"
 {
     procedure SetUpgradeStatusTriggered()
     var

@@ -59,7 +59,7 @@ page 221 "Resource Allocated per Job"
                     begin
                         DateControl;
                         SetColumns(SetWanted::Initial);
-                        DateFilterOnAfterValidate;
+                        CurrPage.Update();
                     end;
                 }
                 field(ColumnsSet; ColumnsSet)
@@ -91,7 +91,13 @@ page 221 "Resource Allocated per Job"
                 var
                     HorizontalRecord: Record "Job Planning Line";
                     ResAllPerJobFormWithMatrix: Page "Resource Alloc. per Job Matrix";
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnActionShowMatrix(JobRec, ResourceFilter, MatrixColumnCaptions, MatrixRecords, AmountType, IsHandled);
+                    If IsHandled then
+                        exit;
+
                     HorizontalRecord.SetRange("No.", ResourceFilter);
                     HorizontalRecord.SetRange(Type, HorizontalRecord.Type::Resource);
                     JobRec.SetRange("Resource Filter", ResourceFilter);
@@ -167,13 +173,14 @@ page 221 "Resource Allocated per Job"
     var
         MatrixMgt: Codeunit "Matrix Management";
     begin
-        MatrixMgt.GeneratePeriodMatrixData(SetWanted, 32, false, PeriodType, DateFilter, PKFirstRecInCurrSet, MatrixColumnCaptions,
-          ColumnsSet, CurrSetLength, MatrixRecords);
+        MatrixMgt.GeneratePeriodMatrixData(
+            SetWanted, 32, false, PeriodType, DateFilter, PKFirstRecInCurrSet, MatrixColumnCaptions,
+            ColumnsSet, CurrSetLength, MatrixRecords);
     end;
 
-    local procedure DateFilterOnAfterValidate()
+    [IntegrationEvent(false, false)]
+    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; AmountType: Option "Net Change","Balance at Date"; var IsHandled: Boolean)
     begin
-        CurrPage.Update;
     end;
 }
 

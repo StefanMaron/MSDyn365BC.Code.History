@@ -19,6 +19,7 @@ table 230 "Source Code"
             Caption = 'Simulation';
             ObsoleteReason = 'Discontinued feature';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

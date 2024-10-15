@@ -189,6 +189,7 @@ codeunit 8614 "Config. XML Exchange"
         "Field": Record "Field";
         ConfigPackageField: Record "Config. Package Field";
         ConfigPackage: Record "Config. Package";
+        ConfigProgressBarRecord: Codeunit "Config. Progress Bar";
         DocumentElement: DotNet XmlNode;
         FieldNode: DotNet XmlNode;
         RecordNode: DotNet XmlNode;
@@ -197,7 +198,11 @@ codeunit 8614 "Config. XML Exchange"
         PackageCodeNode: DotNet XmlNode;
         RecRef: RecordRef;
         FieldRef: FieldRef;
+        RecordCount: Integer;
+        ProcessedRecordCount: Integer;
+        StepCount: Integer;
         ExportMetadata: Boolean;
+        ShowDialog: Boolean;
     begin
         if ConfigMgt.IsSystemTable(ConfigPackageTable."Table ID") then
             exit;
@@ -224,7 +229,13 @@ codeunit 8614 "Config. XML Exchange"
         ExportMetadata := true;
         RecRef.Open(ConfigPackageTable."Table ID");
         ApplyPackageFilter(ConfigPackageTable, RecRef);
-        if RecRef.FindSet then
+        if RecRef.FindSet() then begin
+            RecordCount := RecRef.Count();
+            ShowDialog := (not HideDialog) and (RecordCount > 1000);
+            if ShowDialog then begin
+                StepCount := Round(RecordCount / 100, 1);
+                ConfigProgressBarRecord.Init(RecordCount, StepCount, ExportPackageTxt);
+            end;
             repeat
                 RecordNode := PackageXML.CreateElement(GetTableElementName(ConfigPackageTable."Table Name"));
                 TableNode.AppendChild(RecordNode);
@@ -257,8 +268,14 @@ codeunit 8614 "Config. XML Exchange"
                 if ConfigPackageTable."Dimensions as Columns" and ExcelMode then
                     AddDimensionFields(ConfigPackageField, RecRef, PackageXML, RecordNode, FieldNode, true);
                 ExportMetadata := false;
-            until RecRef.Next = 0
-        else begin
+                ProcessedRecordCount += 1;
+
+                if ShowDialog then
+                    ConfigProgressBarRecord.Update(StrSubstNo('%1: %2 records out of %3', ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
+            until RecRef.Next = 0;
+            if ShowDialog then
+                ConfigProgressBarRecord.Close();
+        end else begin
             RecordNode := PackageXML.CreateElement(GetTableElementName(ConfigPackageTable."Table Name"));
             TableNode.AppendChild(RecordNode);
 

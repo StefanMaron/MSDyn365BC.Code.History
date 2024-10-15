@@ -3,6 +3,7 @@ table 1440 "Headline RC Business Manager"
     Caption = 'Headline RC Business Manager';
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
+    ObsoleteTag = '15.0';
 
     fields
     {

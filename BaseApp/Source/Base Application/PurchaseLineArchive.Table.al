@@ -822,6 +822,7 @@ table 5110 "Purchase Line Archive"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5713; "Special Order"; Boolean)
         {

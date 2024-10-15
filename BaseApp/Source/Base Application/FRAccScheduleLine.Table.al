@@ -132,6 +132,7 @@ table 10801 "FR Acc. Schedule Line"
             ObsoleteState = Pending;
             OptionCaption = 'Definitive,Simulation';
             OptionMembers = Definitive,Simulation;
+            ObsoleteTag = '15.0';
         }
     }
 

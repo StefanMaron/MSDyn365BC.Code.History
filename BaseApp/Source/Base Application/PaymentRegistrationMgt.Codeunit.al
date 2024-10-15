@@ -99,7 +99,10 @@ codeunit 980 "Payment Registration Mgt."
 
                 Validate("Posting Date", TempPaymentRegistrationBuffer."Date Received");
                 Validate("Account Type", "Account Type"::Customer);
-                Validate("Document Type", "Document Type"::Payment);
+                if TempPaymentRegistrationBuffer."Document Type" = TempPaymentRegistrationBuffer."Document Type"::"Credit Memo" then
+                    Validate("Document Type", "Document Type"::Refund)
+                else
+                    Validate("Document Type", "Document Type"::Payment);
                 "Document No." := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", "Posting Date", false);
                 Validate("Bal. Account Type", PaymentRegistrationSetup.GetGLBalAccountType);
                 Validate("Account No.", TempPaymentRegistrationBuffer."Source No.");

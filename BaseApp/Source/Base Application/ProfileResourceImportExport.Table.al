@@ -4,6 +4,7 @@ table 9170 "Profile Resource Import/Export"
     ReplicateData = false;
     ObsoleteState = Pending;
     ObsoleteReason = 'Importing and exporting profile resources is no longer supported. AL profiles and customizations should be used instead.';
+    ObsoleteTag = '15.0';
 
     fields
     {

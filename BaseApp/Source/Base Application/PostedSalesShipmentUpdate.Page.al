@@ -89,7 +89,7 @@ page 1350 "Posted Sales Shipment - Update"
           ("Package Tracking No." <> xSalesShipmentHeader."Package Tracking No.") or
           ("Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code");
 
-        OnAfterRecordChanged(Rec, xRec, IsChanged);
+        OnAfterRecordChanged(Rec, xSalesShipmentHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]

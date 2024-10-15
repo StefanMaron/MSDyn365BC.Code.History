@@ -77,7 +77,7 @@ table 37 "Sales Line"
                         DeferralUtilities.RemoveOrSetDeferralSchedule('',
                           DeferralUtilities.GetSalesDeferralDocType, '', '',
                           xRec."Document Type", xRec."Document No.", xRec."Line No.",
-                          xRec.GetDeferralAmount, xRec."Posting Date", '', xRec."Currency Code", true);
+                          xRec.GetDeferralAmount(), xRec."Posting Date", '', xRec."Currency Code", true);
                 end;
                 AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
                 TempSalesLine := Rec;
@@ -135,12 +135,11 @@ table 37 "Sales Line"
             var
                 TempSalesLine: Record "Sales Line" temporary;
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
-                FindRecordMgt: Codeunit "Find Record Management";
                 IsHandled: Boolean;
             begin
                 GetSalesSetup;
-                if SalesSetup."Create Item from Item No." then
-                    "No." := FindRecordMgt.FindNoFromTypedValue(Type, "No.", not "System-Created Entry");
+
+                "No." := FindOrCreateRecordByNo("No.");
 
                 TestJobPlanningLine;
                 TestStatusOpen;
@@ -1414,7 +1413,8 @@ table 37 "Sales Line"
                                 "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
                                 Currency."Unit-Amount Rounding Precision");
 
-                UpdateAmounts;
+                OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
+                UpdateAmounts();
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -1496,7 +1496,14 @@ table 37 "Sales Line"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBlanketOrderNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Quantity Shipped", 0);
                 if "Blanket Order No." = '' then
                     "Blanket Order Line No." := 0
@@ -1570,11 +1577,21 @@ table 37 "Sales Line"
             trigger OnValidate()
             var
                 MaxLineAmount: Decimal;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateLineAmount(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type);
                 TestField(Quantity);
-                TestField("Unit Price");
-                GetSalesHeader;
+                IsHandled := false;
+                OnValidateLineAmountOnbeforeTestUnitPrice(Rec, IsHandled);
+                if not IsHandled then
+                    TestField("Unit Price");
+
+                GetSalesHeader();
 
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision");
@@ -2077,8 +2094,8 @@ table 37 "Sales Line"
             begin
                 GetSalesHeader;
                 if DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '', "Document Type", "Document No.", "Line No.") then
-                    DeferralUtilities.CreateDeferralSchedule("Deferral Code", DeferralUtilities.GetSalesDeferralDocType, '', '',
-                      "Document Type", "Document No.", "Line No.", GetDeferralAmount,
+                    DeferralUtilities.CreateDeferralSchedule("Deferral Code", DeferralUtilities.GetSalesDeferralDocType(), '', '',
+                      "Document Type", "Document No.", "Line No.", GetDeferralAmount(),
                       DeferralHeader."Calc. Method", "Returns Deferral Start Date",
                       DeferralHeader."No. of Periods", true,
                       DeferralHeader."Schedule Description", false,
@@ -2548,6 +2565,7 @@ table 37 "Sales Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5713; "Special Order"; Boolean)
         {
@@ -3314,7 +3332,13 @@ table 37 "Sales Line"
     procedure InitOutstandingAmount()
     var
         AmountInclVAT: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitOutstandingAmount(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Quantity = 0 then begin
             "Outstanding Amount" := 0;
             "Outstanding Amount (LCY)" := 0;
@@ -3533,10 +3557,15 @@ table 37 "Sales Line"
     end;
 
     local procedure CopyFromResource()
+    var
+        IsHandled: Boolean;
     begin
         Res.Get("No.");
         Res.CheckResourcePrivacyBlocked(false);
-        Res.TestField(Blocked, false);
+        IsHandled := false;
+        OnCopyFromResourceOnBeforeTestBlocked(Res, IsHandled);
+        if not IsHandled then
+            Res.TestField(Blocked, false);
         Res.TestField("Gen. Prod. Posting Group");
         Description := Res.Name;
         "Description 2" := Res."Name 2";
@@ -3794,7 +3823,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdatePrepmtSetupFields(Rec, IsHandled);
+        OnBeforeUpdatePrepmtSetupFields(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -3926,6 +3955,8 @@ table 37 "Sales Line"
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
         TotalQuantityBase: Decimal;
+        TotalVATBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeUpdateVATAmounts(Rec);
 
@@ -3936,6 +3967,11 @@ table 37 "Sales Line"
         SalesLine2.SetRange("VAT Identifier", "VAT Identifier");
         SalesLine2.SetRange("Tax Group Code", "Tax Group Code");
         SalesLine2.SetRange("Tax Area Code", "Tax Area Code");
+
+        IsHandled := false;
+        OnUpdateVATAmountsOnAfterSetSalesLineFilters(Rec, SalesLine2, IsHandled);
+        if IsHandled then
+            exit;
 
         if "Line Amount" = "Inv. Discount Amount" then begin
             Amount := 0;
@@ -3956,21 +3992,28 @@ table 37 "Sales Line"
             TotalAmount := 0;
             TotalAmountInclVAT := 0;
             TotalQuantityBase := 0;
+            TotalVATBaseAmount := 0;
             if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
                (("VAT Calculation Type" in
                  ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and ("VAT %" <> 0))
             then begin
                 SalesLine2.SetFilter("VAT %", '<>0');
                 if not SalesLine2.IsEmpty then begin
-                    SalesLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)");
+                    SalesLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Base Amount");
                     TotalLineAmount := SalesLine2."Line Amount";
                     TotalInvDiscAmount := SalesLine2."Inv. Discount Amount";
                     TotalAmount := SalesLine2.Amount;
                     TotalAmountInclVAT := SalesLine2."Amount Including VAT";
                     TotalQuantityBase := SalesLine2."Quantity (Base)";
+                    TotalVATBaseAmount := SalesLine2."VAT Base Amount";
                     OnAfterUpdateTotalAmounts(Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                 end;
             end;
+
+            OnUpdateVATAmountsOnBeforeCalcAmounts(
+                Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount, TotalVATBaseAmount, TotalQuantityBase, IsHandled);
+            if IsHandled then
+                exit;
 
             if SalesHeader."Prices Including VAT" then
                 case "VAT Calculation Type" of
@@ -4472,7 +4515,7 @@ table 37 "Sales Line"
             NewSalesLine."Line No." := 0;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowItemSub()
     var
         IsHandled: Boolean;
@@ -4666,7 +4709,7 @@ table 37 "Sales Line"
         end;
 
         IsHandled := false;
-        OnShowItemChargeAssgntOnBeforeCalcItemCharge(Rec, ItemChargeAssgntLineAmt, Currency, IsHandled);
+        OnShowItemChargeAssgntOnBeforeCalcItemCharge(Rec, ItemChargeAssgntLineAmt, Currency, IsHandled, ItemChargeAssgntSales);
         if not IsHandled then
             ItemChargeAssgntLineAmt :=
               Round(ItemChargeAssgntLineAmt * ("Qty. to Invoice" / Quantity), Currency."Amount Rounding Precision");
@@ -4839,7 +4882,7 @@ table 37 "Sales Line"
             if FindSet then
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
-                        DeferralAmount := GetDeferralAmount;
+                        DeferralAmount := GetDeferralAmount();
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0);
                         if VATAmountLine.Modified then begin
                             if not TempVATAmountLineRemainder.Get(
@@ -4948,7 +4991,7 @@ table 37 "Sales Line"
                             Modify;
                             LineWasModified := true;
 
-                            if ("Deferral Code" <> '') and (DeferralAmount <> GetDeferralAmount) then
+                            if ("Deferral Code" <> '') and (DeferralAmount <> GetDeferralAmount()) then
                                 UpdateDeferralAmounts();
 
                             TempVATAmountLineRemainder."Amount Including VAT" :=
@@ -5576,6 +5619,25 @@ table 37 "Sales Line"
             if not Item2.Get(ItemNo) then
                 exit(false);
         exit(true);
+    end;
+
+    local procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        FindRecordManagement: Codeunit "Find Record Management";
+        FoundNo: Text;
+    begin
+        GetSalesSetup;
+
+        if Type = Type::Item then begin
+            if Item.TryGetItemNoOpenCardWithView(
+                 FoundNo, SourceNo, SalesSetup."Create Item from Item No.", true, SalesSetup."Create Item from Item No.", '')
+            then
+                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
+        end else
+            exit(FindRecordManagement.FindNoFromTypedValue(Type, "No.", not "System-Created Entry"));
+
+        exit(SourceNo);
     end;
 
     procedure IsShipment(): Boolean
@@ -6401,7 +6463,14 @@ table 37 "Sales Line"
     end;
 
     procedure GetDeferralAmount() DeferralAmount: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDeferralAmount(Rec, IsHandled, DeferralAmount);
+        if IsHandled then
+            exit;
+
         if "VAT Base Amount" <> 0 then
             DeferralAmount := "VAT Base Amount"
         else
@@ -6428,7 +6497,7 @@ table 37 "Sales Line"
         DeferralUtilities.RemoveOrSetDeferralSchedule(
           "Deferral Code", DeferralUtilities.GetSalesDeferralDocType, '', '',
           "Document Type", "Document No.", "Line No.",
-          GetDeferralAmount, DeferralPostDate, Description, SalesHeader."Currency Code", AdjustStartDate);
+          GetDeferralAmount(), DeferralPostDate, Description, SalesHeader."Currency Code", AdjustStartDate);
     end;
 
     procedure UpdatePriceDescription()
@@ -6459,10 +6528,11 @@ table 37 "Sales Line"
     [Scope('OnPrem')]
     procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]): Boolean
     begin
-        exit(DeferralUtilities.OpenLineScheduleEdit(
-            "Deferral Code", DeferralUtilities.GetSalesDeferralDocType, '', '',
-            "Document Type", "Document No.", "Line No.",
-            GetDeferralAmount, PostingDate, Description, CurrencyCode));
+        exit(
+            DeferralUtilities.OpenLineScheduleEdit(
+                "Deferral Code", DeferralUtilities.GetSalesDeferralDocType, '', '',
+                "Document Type", "Document No.", "Line No.",
+                GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
     local procedure InitHeaderDefaults(SalesHeader: Record "Sales Header")
@@ -7085,6 +7155,16 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeferralAmount(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var DeferralAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitOutstandingAmount(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer)
     begin
     end;
@@ -7145,7 +7225,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdatePrepmtSetupFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdatePrepmtSetupFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7181,6 +7261,16 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateReturnReasonCode(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLineAmount(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBlanketOrderNo(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7340,7 +7430,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowItemChargeAssgntOnBeforeCalcItemCharge(var SalesLine: Record "Sales Line"; var ItemChargeAssgntLineAmt: Decimal; Currency: Record Currency; var IsHandled: Boolean)
+    local procedure OnShowItemChargeAssgntOnBeforeCalcItemCharge(var SalesLine: Record "Sales Line"; var ItemChargeAssgntLineAmt: Decimal; Currency: Record Currency; var IsHandled: Boolean; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
     begin
     end;
 
@@ -7475,6 +7565,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyFromResourceOnBeforeTestBlocked(var Resoiurce: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetDeferralPostDate(SalesHeader: Record "Sales Header"; var DeferralPostingDate: Date; SalesLine: Record "Sales Line")
     begin
     end;
@@ -7495,7 +7590,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBlanketOrderLookup(var SalesLine: Record "Sales Line"; IsHandled: Boolean)
+    local procedure OnBeforeBlanketOrderLookup(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7585,12 +7680,27 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnBeforeCalcAmounts(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var TotalAmount: Decimal; TotalAmountInclVAT: Decimal; var TotalLineAmount: Decimal; var TotalInvDiscAmount: Decimal; var TotalVATBaseAmount: Decimal; var TotalQuantityBase: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSelectItemEntryOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateAmountIncludingVATOnAfterAssignAmounts(var SalesLine: Record "Sales Line"; Currency: Record Currency);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLineAmountOnbeforeTestUnitPrice(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7616,6 +7726,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePurchasingCodeOnAfterAssignPurchasingFields(var SalesLine: Record "Sales Line"; PurchasingCode: Record Purchasing)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Currency: Record Currency)
     begin
     end;
 

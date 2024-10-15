@@ -27,6 +27,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard: TestPage "Fixed Asset Card";
         Description: Text[100];
     begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 337570] System assigns "Default FA Posting Group" from "FA Sub Class" to newly created Fixed Asset
+
         // [GIVEN] FA Setup is in place
         FixedAsset.DeleteAll;
         LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
@@ -34,7 +37,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
 
-        // [WHEN] Fixed Asset Card filed out and closed
+        // [WHEN] Fixed Asset Card filled out and closed
         FixedAssetCard.OpenNew;
         FixedAssetCard.Description.SetValue(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
@@ -44,10 +47,15 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard.OpenView;
         FixedAssetCard.Description.AssertEquals(Description);
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
+        FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code); // FA Posting Group of FA Depreciation Book
         FASetup.Get;
         FixedAssetCard.DepreciationBookCode.AssertEquals(FASetup."Default Depr. Book");
         FixedAssetCard.FAPostingGroup.AssertEquals(FAPostingGroup.Code);
         FixedAssetCard.Close;
+
+        // [THEN] "FA"."FA Posting Group" = FASubClass."Default FA Posting Group"
+        FixedAsset.FindFirst;
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
     end;
 
     [Test]
@@ -837,6 +845,36 @@ codeunit 134456 "ERM Fixed Asset Card"
         FALedgerEntries.Close;
         FixedAssetCard.Close;
         FixedAssetStatistics.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardFAPostingGroupValidation()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        Description: Text[100];
+    begin
+        // [FEATURE] [Posting Group]
+        // [SCENARIO 337570] System assigns "Default FA Posting Group" from "FA Sub Class" to newly created Fixed Asset when "FA Class Code" is already set in fixed asset.
+
+        FixedAsset.DeleteAll();
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+        Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
+
+        FixedAssetCard.OpenNew();
+        FixedAssetCard.Description.SetValue(Description);
+        FixedAssetCard."FA Class Code".SetValue(FAClass.Code);
+        FixedAssetCard."FA Subclass Code".SetValue(FASubclass.Code);
+        FixedAssetCard.Close();
+
+        FixedAsset.FindFirst();
+        FixedAsset.TestField("FA Posting Group", FAPostingGroup.Code);
     end;
 
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")

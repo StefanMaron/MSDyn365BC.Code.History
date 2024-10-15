@@ -25,6 +25,8 @@ report 953 "Move Time Sheets to Archive"
 
             trigger OnPreDataItem()
             begin
+                OnBeforePreDataItemTimesheetHeader("Time Sheet Header");
+
                 CounterTotal := Count;
                 Window.Open(Text001);
             end;
@@ -54,5 +56,10 @@ report 953 "Move Time Sheets to Archive"
         Text001: Label 'Moving time sheets to archive  #1########## @2@@@@@@@@@@@@@';
         Text002: Label '%1 time sheets have been moved to the archive.';
         CounterTotal: Integer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreDataItemTimesheetHeader(var TimeSheetHeader: Record "Time Sheet Header")
+    begin
+    end;
 }
 

@@ -335,6 +335,7 @@ table 17 "G/L Entry"
             ObsoleteState = Removed;
             OptionCaption = 'Definitive,Simulation';
             OptionMembers = Definitive,Simulation;
+            ObsoleteTag = '15.0';
         }
         field(10811; "Applies-to ID"; Code[50])
         {

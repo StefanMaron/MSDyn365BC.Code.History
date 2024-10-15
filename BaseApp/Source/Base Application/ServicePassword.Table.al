@@ -4,6 +4,7 @@ table 1261 "Service Password"
     ObsoleteReason = 'The suggested way to store the secrets is Isolated Storage, therefore Service Password will be removed.';
     ObsoleteState = Removed;
     ReplicateData = false;
+    ObsoleteTag = '15.0';
 
     fields
     {

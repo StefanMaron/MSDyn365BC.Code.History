@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>18.55741cm</Width>
+                  <Width>18.5cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -10552,7 +10552,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
               <BreakLocation>End</BreakLocation>
             </PageBreak>
             <Height>14.05112cm</Height>
-            <Width>18.55741cm</Width>
+            <Width>18.5cm</Width>
             <Style>
               <FontFamily>Segoe UI</FontFamily>
               <FontSize>8pt</FontSize>
@@ -12001,8 +12001,8 @@ Cstr(Fields!CompanyInfoEMail.Value)
         <PageWidth>21cm</PageWidth>
         <InteractiveHeight>11in</InteractiveHeight>
         <InteractiveWidth>8.5in</InteractiveWidth>
-        <LeftMargin>1.76389cm</LeftMargin>
-        <RightMargin>1.05833cm</RightMargin>
+        <LeftMargin>1.4cm</LeftMargin>
+        <RightMargin>1cm</RightMargin>
         <TopMargin>1.05833cm</TopMargin>
         <BottomMargin>1.48167cm</BottomMargin>
         <Style>

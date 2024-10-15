@@ -16,6 +16,7 @@ table 9176 "Experience Tier Setup"
             Caption = 'Invoicing';
             ObsoleteState = Pending;
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
+            ObsoleteTag = '15.0';
         }
         field(100; Basic; Boolean)
         {

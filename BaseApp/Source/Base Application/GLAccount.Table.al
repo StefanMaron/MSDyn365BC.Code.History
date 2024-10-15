@@ -634,6 +634,7 @@ table 15 "G/L Account"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(10810; "G/L Entry Type Filter"; Option)
         {
@@ -643,6 +644,7 @@ table 15 "G/L Account"
             ObsoleteState = Removed;
             OptionCaption = 'Definitive,Simulation';
             OptionMembers = Definitive,Simulation;
+            ObsoleteTag = '15.0';
         }
         field(10811; "Detailed Balance"; Boolean)
         {

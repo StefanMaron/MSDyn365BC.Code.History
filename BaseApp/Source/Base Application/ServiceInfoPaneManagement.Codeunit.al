@@ -1,4 +1,4 @@
-codeunit 5972 "Service Info-Pane Management"
+﻿codeunit 5972 "Service Info-Pane Management"
 {
 
     trigger OnRun()
@@ -30,6 +30,7 @@ codeunit 5972 "Service Info-Pane Management"
             Item.SetRange("Variant Filter", ServLine."Variant Code");
             Item.SetRange("Location Filter", ServLine."Location Code");
             Item.SetRange("Drop Shipment Filter", false);
+            OnCalcAvailabilityOnAfterSetItemFilters(Item);
 
             exit(
               AvailableToPromise.QtyAvailabletoPromise(
@@ -90,7 +91,14 @@ codeunit 5972 "Service Info-Pane Management"
     var
         ServItem: Record "Service Item";
         ServItemComponent: Record "Service Item Component";
+        ResultValue: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcNoOfServItemComponents(ServItemLine, ResultValue, IsHandled);
+        if IsHandled then
+            exit(ResultValue);
+
         if ServItem.Get(ServItemLine."Service Item No.") then begin
             ServItemComponent.Reset;
             ServItemComponent.SetRange(Active, true);
@@ -134,7 +142,14 @@ codeunit 5972 "Service Info-Pane Management"
         ServOrderAllocMgt: Codeunit ServAllocationManagement;
         NoOfSkilledResources: Integer;
         ResourceSkillType: Option Resource,"Service Item Group",Item,"Service Item";
+        ResultValue: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcNoOfSkilledResources(ServItemLine, ResultValue, IsHandled);
+        IF IsHandled THEN
+            exit(0);
+
         if ServItem.Get(ServItemLine."Service Item No.") then begin
             Res.Reset;
             if Res.Find('-') then
@@ -187,6 +202,21 @@ codeunit 5972 "Service Info-Pane Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcNoOfTroubleshootings(ServItemLine: Record "Service Item Line"; var ResultValue: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcNoOfServItemComponents(ServItemLine: Record "Service Item Line"; var ResultValue: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcNoOfSkilledResources(ServItemLine: Record "Service Item Line"; var ResultValue: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailabilityOnAfterSetItemFilters(var Item: Record Item)
     begin
     end;
 }
