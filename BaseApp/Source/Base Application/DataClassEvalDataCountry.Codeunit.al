@@ -1,4 +1,16 @@
-#if not CLEAN20
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Sales.Archive;
+using System.Privacy;
+
 codeunit 1752 "Data Class. Eval. Data Country"
 {
 
@@ -19,14 +31,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Calc. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Rate");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Fin. Charge Memo Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Iss.Fin.Ch. Memo Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Reminder Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Issued Reminder Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Acc. Schedule");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Filter Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;
@@ -234,4 +238,3 @@ codeunit 1752 "Data Class. Eval. Data Country"
     begin
     end;
 }
-#endif

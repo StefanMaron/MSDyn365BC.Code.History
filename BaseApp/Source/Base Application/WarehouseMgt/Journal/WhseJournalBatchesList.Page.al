@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Journal;
+
+using Microsoft.Foundation.Reporting;
+
 page 7329 "Whse. Journal Batches List"
 {
     Caption = 'Whse. Journal Batches List';
@@ -138,18 +142,18 @@ page 7329 "Whse. Journal Batches List"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        if Find(Which) then begin
+        if Rec.Find(Which) then begin
             WhseJnlBatch := Rec;
             while true do begin
-                if WMSManagement.LocationIsAllowed("Location Code") then
+                if WMSManagement.LocationIsAllowed(Rec."Location Code") then
                     exit(true);
-                if Next(1) = 0 then begin
+                if Rec.Next(1) = 0 then begin
                     Rec := WhseJnlBatch;
-                    if Find(Which) then
+                    if Rec.Find(Which) then
                         while true do begin
-                            if WMSManagement.LocationIsAllowed("Location Code") then
+                            if WMSManagement.LocationIsAllowed(Rec."Location Code") then
                                 exit(true);
-                            if Next(-1) = 0 then
+                            if Rec.Next(-1) = 0 then
                                 exit(false);
                         end;
                 end;
@@ -168,14 +172,14 @@ page 7329 "Whse. Journal Batches List"
 
         WhseJnlBatch := Rec;
         repeat
-            NextSteps := Next(Steps / Abs(Steps));
-            if WMSManagement.LocationIsAllowed("Location Code") then begin
+            NextSteps := Rec.Next(Steps / Abs(Steps));
+            if WMSManagement.LocationIsAllowed(Rec."Location Code") then begin
                 RealSteps := RealSteps + NextSteps;
                 WhseJnlBatch := Rec;
             end;
         until (NextSteps = 0) or (RealSteps = Steps);
         Rec := WhseJnlBatch;
-        Find();
+        Rec.Find();
         exit(RealSteps);
     end;
 
@@ -189,9 +193,9 @@ page 7329 "Whse. Journal Batches List"
         WhseJnlTemplate: Record "Warehouse Journal Template";
     begin
         if not CurrPage.LookupMode then
-            if GetFilter("Journal Template Name") <> '' then
-                if GetRangeMin("Journal Template Name") = GetRangeMax("Journal Template Name") then
-                    if WhseJnlTemplate.Get(GetRangeMin("Journal Template Name")) then
+            if Rec.GetFilter("Journal Template Name") <> '' then
+                if Rec.GetRangeMin("Journal Template Name") = Rec.GetRangeMax("Journal Template Name") then
+                    if WhseJnlTemplate.Get(Rec.GetRangeMin("Journal Template Name")) then
                         exit(WhseJnlTemplate.Name + ' ' + WhseJnlTemplate.Description);
     end;
 }

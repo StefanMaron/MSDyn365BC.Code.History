@@ -136,7 +136,7 @@
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
@@ -271,7 +271,7 @@
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
@@ -1243,6 +1243,8 @@
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Pmt Disc for Cust/Vendor");
 
@@ -1266,6 +1268,12 @@
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryERMCountryData.UpdateVATPostingSetup();
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         FindUpdateVATPostingSetupVATPct(GetW1VATPct);
         FindUpdateGeneralPostingSetupAccounts();
@@ -1785,7 +1793,7 @@
         CurrencyExchangeRate.Modify(true);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     local procedure CreateAndPostDocument(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";

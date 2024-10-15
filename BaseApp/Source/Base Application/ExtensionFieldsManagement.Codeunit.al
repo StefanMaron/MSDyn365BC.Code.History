@@ -1,6 +1,12 @@
 #if not CLEAN21
 codeunit 31094 "Extension Fields Management"
 {
+    ObsoleteReason = 'The codeunit is not used anymore.';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0072
+
     [Obsolete('The function is not used anymore.', '21.0')]
     procedure GetRecordExtensionFields(RecordID: RecordID; var FieldValueDictionary: Dictionary of [Text[30], Text])
     var

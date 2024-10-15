@@ -1,4 +1,4 @@
-﻿codeunit 134260 "Bank Pmt. Appl. Rule UT"
+codeunit 134260 "Bank Pmt. Appl. Rule UT"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -56,19 +56,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestInsertingLineChecksPriority()
-    var
-        BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
-    begin
-        // [SCENARIO 274504] Inserting line raises error if priority is invalid
-        Initialize();
-
-        asserterror InsertRuleWithPriority(BankPmtApplRule, AnyConfidence, MinPriority - 1);
-        Assert.ExpectedError(StrSubstNo('The %1 you entered is invalid', BankPmtApplRule.FieldCaption(Priority)));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestRenamingLineUpdatesTheScore()
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
@@ -79,7 +66,7 @@
         InsertRule(BankPmtApplRule, AnyConfidence);
         Score := BankPmtApplRule.Score;
 
-        BankPmtApplRule.Rename('', BankPmtApplRule."Match Confidence", BankPmtApplRule.Priority - 1); // NAVCZ
+        BankPmtApplRule.Rename(BankPmtApplRule."Match Confidence", BankPmtApplRule.Priority - 1);
 
         Assert.AreEqual(CalculateScore(BankPmtApplRule), BankPmtApplRule.Score, 'Score was not updated after renaming a record');
         Assert.AreNotEqual(Score, BankPmtApplRule.Score, 'Score should have been changed by renaming a record');
@@ -182,7 +169,7 @@
           "Doc. No./Ext. Doc. No. Matched",
           ParameterBankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
 
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
         Assert.AreEqual(0, MatchScore, 'Wrong rule was selected, expected no rules found');
     end;
@@ -199,7 +186,7 @@
         ParameterBankPmtApplRule.Validate(
           "Doc. No./Ext. Doc. No. Matched", ParameterBankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
 
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
         Assert.AreEqual(0, MatchScore, 'Wrong rule was selected');
@@ -230,7 +217,7 @@
           "Doc. No./Ext. Doc. No. Matched", ParameterBankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
         // Verify
@@ -273,7 +260,7 @@
           "Doc. No./Ext. Doc. No. Matched", ParameterBankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
         // Verify
@@ -313,7 +300,7 @@
           "Amount Incl. Tolerance Matched", ParameterBankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         Assert.AreEqual(TempBankPmtApplRule.Count, 2, 'Wrong number of rules was found in the rule table');
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
@@ -355,7 +342,7 @@
           "Amount Incl. Tolerance Matched", ParameterBankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
         // Verify
@@ -396,7 +383,7 @@
           "Amount Incl. Tolerance Matched", ParameterBankPmtApplRule."Amount Incl. Tolerance Matched"::"One Match");
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
         // Verify
@@ -437,7 +424,7 @@
           "Amount Incl. Tolerance Matched", ParameterBankPmtApplRule."Amount Incl. Tolerance Matched"::"Multiple Matches");
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
         // Verify
@@ -468,7 +455,7 @@
           "Doc. No./Ext. Doc. No. Matched",
           ParameterBankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
 
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
 
         // Execute
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
@@ -497,7 +484,7 @@
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         Initialize();
-        asserterror BankPmtApplRule.LoadRules();
+        asserterror BankPmtApplRule.LoadRules;
 
         Assert.ExpectedError('Programming error: The LoadRules function can only be called from temporary records');
     end;
@@ -518,7 +505,7 @@
         BankPmtApplRule.Modify(true);
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
 
         // Verify
         Assert.AreEqual(TempBankPmtApplRule.Count, 1, 'Wrong number of rules has been added');
@@ -528,13 +515,13 @@
         BankPmtApplRule2.Validate("Doc. No./Ext. Doc. No. Matched", BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No);
         BankPmtApplRule2.Modify(true);
 
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         Assert.AreEqual(TempBankPmtApplRule.Count, 2, 'Wrong number of rules has been added');
 
         // Verify call can remove values
         Clear(BankPmtApplRule);
         BankPmtApplRule.DeleteAll();
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
 
         Assert.IsTrue(TempBankPmtApplRule.IsEmpty, 'Rules table should be empty');
     end;
@@ -548,7 +535,7 @@
         Initialize();
 
         InsertRule(BankPmtApplRule, BankPmtApplRule."Match Confidence"::Medium);
-        BankPmtApplRule.Rename('', BankPmtApplRule."Match Confidence"::Medium, 1); // NAVCZ
+        BankPmtApplRule.Rename(BankPmtApplRule."Match Confidence"::Medium, 1);
 
         Assert.IsTrue(
           BankPmtApplRule.GetTextMapperScore > BankPmtApplRule.Score,
@@ -577,7 +564,7 @@
         ParameterBankPmtApplRule.Validate("Amount Incl. Tolerance Matched", BankPmtApplRule."Amount Incl. Tolerance Matched");
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         Assert.AreEqual(TempBankPmtApplRule.Count, 1, 'Wrong number of rules was found in the rule table');
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 
@@ -607,7 +594,7 @@
         ParameterBankPmtApplRule.Validate("Amount Incl. Tolerance Matched", BankPmtApplRule."Amount Incl. Tolerance Matched");
 
         // Execute
-        TempBankPmtApplRule.LoadRules();
+        TempBankPmtApplRule.LoadRules;
         Assert.AreEqual(TempBankPmtApplRule.Count, 1, 'Wrong number of rules was found in the rule table');
         MatchScore := TempBankPmtApplRule.GetBestMatchScore(ParameterBankPmtApplRule);
 

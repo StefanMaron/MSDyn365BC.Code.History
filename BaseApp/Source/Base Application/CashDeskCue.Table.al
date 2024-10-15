@@ -13,24 +13,24 @@ table 11749 "Cash Desk Cue"
         }
         field(10; "Open Documents"; Integer)
         {
-            CalcFormula = Count("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
-                                                              Status = CONST(Open)));
+            CalcFormula = count("Cash Document Header" where("Cash Desk No." = field("Cash Desk Filter"),
+                                                              Status = const(Open)));
             Caption = 'Open Documents';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; "Released Documents"; Integer)
         {
-            CalcFormula = Count("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
-                                                              Status = CONST(Released)));
+            CalcFormula = count("Cash Document Header" where("Cash Desk No." = field("Cash Desk Filter"),
+                                                              Status = const(Released)));
             Caption = 'Released Documents';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Posted Documents"; Integer)
         {
-            CalcFormula = Count("Posted Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
-                                                                     "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = count("Posted Cash Document Header" where("Cash Desk No." = field("Cash Desk Filter"),
+                                                                     "Posting Date" = field("Date Filter")));
             Caption = 'Posted Documents';
             Editable = false;
             FieldClass = FlowField;
@@ -45,7 +45,7 @@ table 11749 "Cash Desk Cue"
         {
             Caption = 'Cash Desk Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
+            TableRelation = "Bank Account" where("Account Type" = const("Cash Desk"));
         }
     }
 

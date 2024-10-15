@@ -1,11 +1,17 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
 page 578 "Change Global Dim. Log Entries"
 {
     Caption = 'Log Entries';
     Editable = false;
     PageType = ListPart;
     SourceTable = "Change Global Dim. Log Entry";
-    SourceTableView = SORTING(Progress)
-                      WHERE("Table ID" = FILTER(> 0));
+    SourceTableView = sorting(Progress)
+                      where("Table ID" = filter(> 0));
 
     layout
     {
@@ -32,7 +38,7 @@ page 578 "Change Global Dim. Log Entries"
                 {
                     ApplicationArea = Suite;
                 }
-                field(Progress; Progress)
+                field(Progress; Rec.Progress)
                 {
                     ApplicationArea = Suite;
                 }
@@ -81,7 +87,7 @@ page 578 "Change Global Dim. Log Entries"
 
                 trigger OnAction()
                 begin
-                    ShowError();
+                    Rec.ShowError();
                 end;
             }
         }
@@ -89,10 +95,10 @@ page 578 "Change Global Dim. Log Entries"
 
     trigger OnAfterGetCurrRecord()
     begin
-        if Status in [Status::Incomplete, Status::Scheduled] then
+        if Rec.Status in [Rec.Status::Incomplete, Rec.Status::Scheduled] then
             IsRerunEnabled := true
         else
-            if Status = Status::" " then
+            if Rec.Status = Rec.Status::" " then
                 IsRerunEnabled := not AreAllLinesInBlankStatus()
             else
                 IsRerunEnabled := false;
@@ -100,14 +106,13 @@ page 578 "Change Global Dim. Log Entries"
 
     trigger OnAfterGetRecord()
     begin
-        if "Total Records" <> "Completed Records" then
-            UpdateStatus();
+        if Rec."Total Records" <> Rec."Completed Records" then
+            Rec.UpdateStatus();
         SetStyle();
     end;
 
     var
         IsRerunEnabled: Boolean;
-        [InDataSet]
         Style: Text;
 
     local procedure AreAllLinesInBlankStatus(): Boolean
@@ -120,15 +125,15 @@ page 578 "Change Global Dim. Log Entries"
 
     local procedure SetStyle()
     begin
-        case Status of
-            Status::" ":
+        case Rec.Status of
+            Rec.Status::" ":
                 Style := 'Subordinate';
-            Status::Completed:
+            Rec.Status::Completed:
                 Style := 'Favorable';
-            Status::Scheduled,
-          Status::"In Progress":
+            Rec.Status::Scheduled,
+          Rec.Status::"In Progress":
                 Style := 'Ambiguous';
-            Status::Incomplete:
+            Rec.Status::Incomplete:
                 Style := 'Unfavorable'
         end;
     end;

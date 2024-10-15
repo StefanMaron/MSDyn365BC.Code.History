@@ -30,15 +30,15 @@ table 11735 "Posted Cash Document Header"
         }
         field(7; Amount; Decimal)
         {
-            CalcFormula = Sum("Posted Cash Document Line".Amount WHERE("Cash Desk No." = FIELD("Cash Desk No."),
-                                                                        "Cash Document No." = FIELD("No.")));
+            CalcFormula = sum("Posted Cash Document Line".Amount where("Cash Desk No." = field("Cash Desk No."),
+                                                                        "Cash Document No." = field("No.")));
             Caption = 'Amount';
             FieldClass = FlowField;
         }
         field(8; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Posted Cash Document Line"."Amount (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
-                                                                                "Cash Document No." = FIELD("No.")));
+            CalcFormula = sum("Posted Cash Document Line"."Amount (LCY)" where("Cash Desk No." = field("Cash Desk No."),
+                                                                                "Cash Document No." = field("No.")));
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
         }
@@ -55,8 +55,6 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Created ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(18; "Released ID"; Code[50])
@@ -64,8 +62,6 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Released ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(19; "Posted ID"; Code[50])
@@ -73,8 +69,6 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Posted ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(20; "Cash Document Type"; Option)
@@ -96,13 +90,13 @@ table 11735 "Posted Cash Document Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(24; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(25; "Currency Factor"; Decimal)
         {
@@ -135,36 +129,36 @@ table 11735 "Posted Cash Document Header"
         }
         field(51; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Posted Cash Document Line"."VAT Base Amount" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
-                                                                                   "Cash Document No." = FIELD("No.")));
+            CalcFormula = sum("Posted Cash Document Line"."VAT Base Amount" where("Cash Desk No." = field("Cash Desk No."),
+                                                                                   "Cash Document No." = field("No.")));
             Caption = 'VAT Base Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(52; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Posted Cash Document Line"."Amount Including VAT" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
-                                                                                        "Cash Document No." = FIELD("No.")));
+            CalcFormula = sum("Posted Cash Document Line"."Amount Including VAT" where("Cash Desk No." = field("Cash Desk No."),
+                                                                                        "Cash Document No." = field("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
         }
         field(55; "VAT Base Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Posted Cash Document Line"."VAT Base Amount (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
-                                                                                         "Cash Document No." = FIELD("No.")));
+            CalcFormula = sum("Posted Cash Document Line"."VAT Base Amount (LCY)" where("Cash Desk No." = field("Cash Desk No."),
+                                                                                         "Cash Document No." = field("No.")));
             Caption = 'VAT Base Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(56; "Amount Including VAT (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Posted Cash Document Line"."Amount Including VAT (LCY)" WHERE("Cash Desk No." = FIELD("Cash Desk No."),
-                                                                                              "Cash Document No." = FIELD("No.")));
+            CalcFormula = sum("Posted Cash Document Line"."Amount Including VAT (LCY)" where("Cash Desk No." = field("Cash Desk No."),
+                                                                                              "Cash Document No." = field("No.")));
             Caption = 'Amount Including VAT (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -226,15 +220,15 @@ table 11735 "Posted Cash Document Header"
         field(91; "Partner No."; Code[20])
         {
             Caption = 'Partner No.';
-            TableRelation = IF ("Partner Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Partner Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Partner Type" = CONST(Contact)) Contact
-            ELSE
-            IF ("Partner Type" = CONST("Salesperson/Purchaser")) "Salesperson/Purchaser"
-            ELSE
-            IF ("Partner Type" = CONST(Employee)) Employee;
+            TableRelation = if ("Partner Type" = const(Customer)) Customer
+            else
+            if ("Partner Type" = const(Vendor)) Vendor
+            else
+            if ("Partner Type" = const(Contact)) Contact
+            else
+            if ("Partner Type" = const("Salesperson/Purchaser")) "Salesperson/Purchaser"
+            else
+            if ("Partner Type" = const(Employee)) Employee;
         }
         field(98; "Canceled Document"; Boolean)
         {

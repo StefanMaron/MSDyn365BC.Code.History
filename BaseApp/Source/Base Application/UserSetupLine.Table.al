@@ -27,43 +27,43 @@ table 11796 "User Setup Line"
         field(30; "Code / Name"; Code[20])
         {
             Caption = 'Code / Name';
-            TableRelation = IF (Type = CONST("Location (quantity increase)")) Location
-            ELSE
-            IF (Type = CONST("Location (quantity decrease)")) Location
-            ELSE
-            IF (Type = CONST("Release Location (quantity increase)")) Location
-            ELSE
-            IF (Type = CONST("Release Location (quantity decrease)")) Location
-            ELSE
-            IF (Type = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF (Type = CONST("Paym. Order")) "Bank Account"
-            ELSE
-            IF (Type = CONST("Bank Stmt")) "Bank Account"
-            ELSE
-            IF (Type = CONST("General Journal")) "Gen. Journal Template"
-            ELSE
-            IF (Type = CONST("Item Journal")) "Item Journal Template"
-            ELSE
-            IF (Type = CONST("Resource Journal")) "Res. Journal Template"
-            ELSE
-            IF (Type = CONST("Job Journal")) "Job Journal Template"
-            ELSE
-            IF (Type = CONST("Intrastat Journal")) "Intrastat Jnl. Template"
-            ELSE
-            IF (Type = CONST("FA Journal")) "FA Journal Template"
-            ELSE
-            IF (Type = CONST("Insurance Journal")) "Insurance Journal Template"
-            ELSE
-            IF (Type = CONST("FA Reclass. Journal")) "FA Reclass. Journal Template"
-            ELSE
-            IF (Type = CONST("Req. Worksheet")) "Req. Wksh. Template"
-            ELSE
-            IF (Type = CONST("VAT Statement")) "VAT Statement Template"
-            ELSE
-            IF (Type = CONST("Whse. Journal")) "Warehouse Journal Template"
-            ELSE
-            IF (Type = CONST("Whse. Worksheet")) "Whse. Worksheet Template";
+            TableRelation = if (Type = const("Location (quantity increase)")) Location
+            else
+            if (Type = const("Location (quantity decrease)")) Location
+            else
+            if (Type = const("Release Location (quantity increase)")) Location
+            else
+            if (Type = const("Release Location (quantity decrease)")) Location
+            else
+            if (Type = const("Bank Account")) "Bank Account"
+            else
+            if (Type = const("Paym. Order")) "Bank Account"
+            else
+            if (Type = const("Bank Stmt")) "Bank Account"
+            else
+            if (Type = const("General Journal")) "Gen. Journal Template"
+            else
+            if (Type = const("Item Journal")) "Item Journal Template"
+            else
+            if (Type = const("Resource Journal")) "Res. Journal Template"
+            else
+            if (Type = const("Job Journal")) "Job Journal Template"
+            else
+            if (Type = const("Intrastat Journal")) "Intrastat Jnl. Template"
+            else
+            if (Type = const("FA Journal")) "FA Journal Template"
+            else
+            if (Type = const("Insurance Journal")) "Insurance Journal Template"
+            else
+            if (Type = const("FA Reclass. Journal")) "FA Reclass. Journal Template"
+            else
+            if (Type = const("Req. Worksheet")) "Req. Wksh. Template"
+            else
+            if (Type = const("VAT Statement")) "VAT Statement Template"
+            else
+            if (Type = const("Whse. Journal")) "Warehouse Journal Template"
+            else
+            if (Type = const("Whse. Worksheet")) "Whse. Worksheet Template";
         }
     }
 

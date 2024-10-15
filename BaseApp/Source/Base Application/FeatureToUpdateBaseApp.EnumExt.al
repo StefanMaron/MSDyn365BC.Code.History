@@ -1,4 +1,9 @@
-#if not CLEAN20
+namespace System.Environment.Configuration;
+
+#if not CLEAN21
+using Microsoft.Pricing.Calculation;
+#endif
+
 enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
 {
 #if not CLEAN21
@@ -35,12 +40,8 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteTag = '22.0';
     }
 #endif
-    value(31429; ReplaceMultipleInterestRateCZ)
+    value(5409; EnablePlatformBasedReportSelection)
     {
-        Implementation = "Feature Data Update" = "Feature Replace Mul. Int. Rate";
-        ObsoleteState = Pending;
-        ObsoleteReason = 'Feature Multiple Interest Rate CZ will be replaced by Finance Charge Interest Rate by default.';
-        ObsoleteTag = '20.0';
+        Implementation = "Feature Data Update" = "Feature - Report Selection";
     }
 }
-#endif

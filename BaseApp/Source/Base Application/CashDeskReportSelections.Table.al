@@ -21,7 +21,7 @@ table 11759 "Cash Desk Report Selections"
         field(3; "Report ID"; Integer)
         {
             Caption = 'Report ID';
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Report));
 
             trigger OnValidate()
             begin
@@ -30,8 +30,8 @@ table 11759 "Cash Desk Report Selections"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
-                                                                           "Object ID" = FIELD("Report ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+                                                                           "Object ID" = field("Report ID")));
             Caption = 'Report Caption';
             Editable = false;
             FieldClass = FlowField;

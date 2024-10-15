@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Foundation.Enums;
+
 page 538 "Dimension Combinations"
 {
     ApplicationArea = Dimensions;
@@ -123,7 +128,7 @@ page 538 "Dimension Combinations"
 
     trigger OnAfterGetRecord()
     begin
-        Name := GetMLName(GlobalLanguage);
+        Rec.Name := Rec.GetMLName(GlobalLanguage);
     end;
 
     trigger OnOpenPage()

@@ -1,3 +1,12 @@
+﻿namespace Microsoft.EServices.EDocument;
+
+using System.Azure.Identity;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Privacy;
+using System.Utilities;
+
 page 9553 "Document Service Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -954,10 +963,10 @@ page 9553 "Document Service Setup"
         LocationChangeTxt: Label 'The OneDrive domain %1 will be used instead of ''%2''', Comment = '%1=The new OneDrive domain to be used, %2=The old OneDrive location that had previously been configured.';
         DefaultFailedTxt: Label 'Your OneDrive location could not be automatically determined and could change from ''%1''. Check https://portal.office.com/onedrive for more information.', Comment = '%1=The old OneDrive location that had previously been configured.';
         AuthChangeTxt: Label 'OAuth will be used for authentication';
-        OAuthSaasTxt: Label 'The Azure Active Directory Application used for authentication no longer requires admin approval.';
-        OAuthChangeNotSetupTxt: Label 'The Azure Active Directory Application used for authentication will be configured for all %1 integrations.', Comment = '%1=The short product name (e.g. Business Central)';
-        OAuthChangeWithSetupTxt: Label 'The Azure Active Directory Application used for authentication will be configured for all %1 integrations. This means the client id will change to %2, you may want to test it has the correct permissions.', Comment = '%1=The short product name (e.g. Business Central), %2=The new client id, this is in the form of a guid.';
-        OAuthChangeWithSetupSameClientTxt: Label 'The Azure Active Directory Application used for authentication will be configured for all %1 integrations. This has already been configured with the same client id (%2).', Comment = '%1=The short product name (e.g. Business Central), %2=The client id, this is in the form of a guid.';
+        OAuthSaasTxt: Label 'The Microsoft Entra Application used for authentication no longer requires admin approval.';
+        OAuthChangeNotSetupTxt: Label 'The Microsoft Entra Application used for authentication will be configured for all %1 integrations.', Comment = '%1=The short product name (e.g. Business Central)';
+        OAuthChangeWithSetupTxt: Label 'The Microsoft Entra Application used for authentication will be configured for all %1 integrations. This means the client id will change to %2, you may want to test it has the correct permissions.', Comment = '%1=The short product name (e.g. Business Central), %2=The new client id, this is in the form of a guid.';
+        OAuthChangeWithSetupSameClientTxt: Label 'The Microsoft Entra Application used for authentication will be configured for all %1 integrations. This has already been configured with the same client id (%2).', Comment = '%1=The short product name (e.g. Business Central), %2=The client id, this is in the form of a guid.';
         ProductNotNotifyTxt: Label '%1 does not notify users about these changes.', Comment = '%1=The short product name (e.g. Business Central)';
         DocumentServiceCodeTemplateTxt: Label 'ONEDRIVE', Locked = true;
         OverwriteExistingDocServiceQst: Label 'An existing setup already exists for %1. Can this be replaced?', Comment = '%1=The short product name (e.g. Business Central)';

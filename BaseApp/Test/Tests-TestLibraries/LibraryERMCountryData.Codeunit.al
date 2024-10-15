@@ -305,11 +305,13 @@ codeunit 131305 "Library - ERM Country Data"
         UserSetup: Record "User Setup";
     begin
         // NAVCZ
-        UserSetup.Init();
-        UserSetup."User ID" := UserId;
+        if not UserSetup.Get(UserId) then begin
+            UserSetup.Init();
+            UserSetup."User ID" := UserId;
+            UserSetup.Insert();
+        end;
         UserSetup."Time Sheet Admin." := true;
-        if not UserSetup.Insert(true) then
-            UserSetup.Modify(true);
+        UserSetup.Modify(true);
     end;
 }
 

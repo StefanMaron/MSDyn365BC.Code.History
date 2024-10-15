@@ -1,14 +1,8 @@
 table 11783 "Multiple Interest Rate"
 {
     Caption = 'Multiple Interest Rate';
-#if not CLEAN20
-    LookupPageID = "Multiple Interest Rates";
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
-#endif
     ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
 
     fields

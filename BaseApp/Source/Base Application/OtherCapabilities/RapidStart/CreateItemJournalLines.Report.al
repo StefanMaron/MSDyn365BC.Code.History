@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Journal;
+
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+
 report 8613 "Create Item Journal Lines"
 {
     ApplicationArea = Basic, Suite;
@@ -9,7 +18,7 @@ report 8613 "Create Item Journal Lines"
     {
         dataitem(Item; Item)
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Statistics Group", "Vendor No.", Blocked;
 
             trigger OnAfterGetRecord()

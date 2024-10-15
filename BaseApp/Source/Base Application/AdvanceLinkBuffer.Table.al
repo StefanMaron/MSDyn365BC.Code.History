@@ -39,11 +39,11 @@ table 31018 "Advance Link Buffer"
             Caption = 'No.';
             DataClassification = SystemMetadata;
             Editable = false;
-            TableRelation = IF (Type = CONST("G/L Account")) "G/L Account"."No."
-            ELSE
-            IF (Type = CONST(Customer)) Customer."No."
-            ELSE
-            IF (Type = CONST(Vendor)) Vendor."No.";
+            TableRelation = if (Type = const("G/L Account")) "G/L Account"."No."
+            else
+            if (Type = const(Customer)) Customer."No."
+            else
+            if (Type = const(Vendor)) Vendor."No.";
         }
         field(6; "Currency Code"; Code[10])
         {

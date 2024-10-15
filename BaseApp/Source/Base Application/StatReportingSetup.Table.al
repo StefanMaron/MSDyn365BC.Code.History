@@ -80,7 +80,7 @@ table 31065 "Stat. Reporting Setup"
         field(56; "VIES Declaration Report No."; Integer)
         {
             Caption = 'VIES Declaration Report No.';
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Report));
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
             ObsoleteTag = '20.0';

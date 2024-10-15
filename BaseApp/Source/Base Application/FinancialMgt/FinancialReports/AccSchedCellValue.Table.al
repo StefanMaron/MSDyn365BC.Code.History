@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 #pragma warning disable AS0109
 table 342 "Acc. Sched. Cell Value"
 #pragma warning restore AS0109
@@ -40,11 +42,12 @@ table 342 "Acc. Sched. Cell Value"
             TableRelation = "Acc. Schedule Name";
 #if CLEAN21
             ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
 #endif
             ObsoleteReason = 'The field is not used anymore.';
-            ObsoleteTag = '21.0';
         }
     }
 

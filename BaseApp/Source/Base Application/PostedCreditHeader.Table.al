@@ -19,9 +19,9 @@ table 31057 "Posted Credit Header"
         field(15; "Company No."; Code[20])
         {
             Caption = 'Company No.';
-            TableRelation = IF (Type = CONST(Customer)) Customer
-            ELSE
-            IF (Type = CONST(Vendor)) Vendor;
+            TableRelation = if (Type = const(Customer)) Customer
+            else
+            if (Type = const(Vendor)) Vendor;
         }
         field(20; "Company Name"; Text[100])
         {
@@ -93,7 +93,7 @@ table 31057 "Posted Credit Header"
         }
         field(90; "Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Posted Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
+            CalcFormula = sum("Posted Credit Line"."Ledg. Entry Rem. Amt. (LCY)" where("Credit No." = field("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

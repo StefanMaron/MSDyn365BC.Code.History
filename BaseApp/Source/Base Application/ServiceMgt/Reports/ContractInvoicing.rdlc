@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString />
+      </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <Height>2in</Height>
+        <Style />
+      </Body>
+      <Width>6.5in</Width>
+      <Page>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankPos(ByVal Value As Decimal)
+    if Value &gt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankZeroAndPos(ByVal Value As Decimal)
+    if Value &gt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNeg(ByVal Value As Decimal)
+    if Value &lt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNegAndZero(ByVal Value As Decimal)
+    if Value &lt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+</Code>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
+        </Field>
+        <Field Name="InvoiceToDate">
+          <DataField>InvoiceToDate</DataField>
+        </Field>
+        <Field Name="PostingDate">
+          <DataField>PostingDate</DataField>
+        </Field>
+        <Field Name="TblCptnServContractFilters">
+          <DataField>TblCptnServContractFilters</DataField>
+        </Field>
+        <Field Name="ServContractFilters">
+          <DataField>ServContractFilters</DataField>
+        </Field>
+        <Field Name="ContractInvoicingTestCaption">
+          <DataField>ContractInvoicingTestCaption</DataField>
+        </Field>
+        <Field Name="PageNoCaption">
+          <DataField>PageNoCaption</DataField>
+        </Field>
+        <Field Name="InvoiceToDateCaption">
+          <DataField>InvoiceToDateCaption</DataField>
+        </Field>
+        <Field Name="PostingDateCaption">
+          <DataField>PostingDateCaption</DataField>
+        </Field>
+        <Field Name="InvoicePeriodCaption">
+          <DataField>InvoicePeriodCaption</DataField>
+        </Field>
+        <Field Name="NoofInvoicesCaption">
+          <DataField>NoofInvoicesCaption</DataField>
+        </Field>
+        <Field Name="LastInvDateCaption">
+          <DataField>LastInvDateCaption</DataField>
+        </Field>
+        <Field Name="NextInvDateCaption">
+          <DataField>NextInvDateCaption</DataField>
+        </Field>
+        <Field Name="DescriptionCaption">
+          <DataField>DescriptionCaption</DataField>
+        </Field>
+        <Field Name="AmountPerPeriodCaption">
+          <DataField>AmountPerPeriodCaption</DataField>
+        </Field>
+        <Field Name="ContractNoCaption">
+          <DataField>ContractNoCaption</DataField>
+        </Field>
+        <Field Name="NameCaption">
+          <DataField>NameCaption</DataField>
+        </Field>
+        <Field Name="CustomerNoCaption">
+          <DataField>CustomerNoCaption</DataField>
+        </Field>
+        <Field Name="CustNo_ServContract">
+          <DataField>CustNo_ServContract</DataField>
+        </Field>
+        <Field Name="Name_ServContract">
+          <DataField>Name_ServContract</DataField>
+        </Field>
+        <Field Name="ContractNo1_ServContract">
+          <DataField>ContractNo1_ServContract</DataField>
+        </Field>
+        <Field Name="InvPeriod_ServContract">
+          <DataField>InvPeriod_ServContract</DataField>
+        </Field>
+        <Field Name="AmtPerPeriod_ServContract">
+          <DataField>AmtPerPeriod_ServContract</DataField>
+        </Field>
+        <Field Name="AmtPerPeriod_ServContractFormat">
+          <DataField>AmtPerPeriod_ServContractFormat</DataField>
+        </Field>
+        <Field Name="NoOfInvoices">
+          <DataField>NoOfInvoices</DataField>
+        </Field>
+        <Field Name="LastInvDate_ServContract">
+          <DataField>LastInvDate_ServContract</DataField>
+        </Field>
+        <Field Name="NextInvDate_ServContract">
+          <DataField>NextInvDate_ServContract</DataField>
+        </Field>
+        <Field Name="IndicatorValue">
+          <DataField>IndicatorValue</DataField>
+        </Field>
+        <Field Name="ContractInvPeriod">
+          <DataField>ContractInvPeriod</DataField>
+        </Field>
+        <Field Name="ServLedgEntryAmt">
+          <DataField>ServLedgEntryAmt</DataField>
+        </Field>
+        <Field Name="ServLedgEntryAmtFormat">
+          <DataField>ServLedgEntryAmtFormat</DataField>
+        </Field>
+        <Field Name="InvSum">
+          <DataField>InvSum</DataField>
+        </Field>
+        <Field Name="InvSumFormat">
+          <DataField>InvSumFormat</DataField>
+        </Field>
+        <Field Name="InvoiceTotalCaption">
+          <DataField>InvoiceTotalCaption</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
+</Report>

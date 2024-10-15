@@ -608,7 +608,7 @@ codeunit 139187 "CRM Full Synchronization"
         I := 1;
         repeat
             Assert.IsTrue(
-              IntegrationTableMapping.Get(CRMFullSynchReview.Name),
+              IntegrationTableMapping.Get(CRMFullSynchReview.Name.Value()),
               StrSubstNo('Failed to find a (%1) map: %2', I, CRMFullSynchReview.Name));
             Assert.AreEqual(
               IntegrationTableMapping.Direction, CRMFullSynchReview.Direction.AsInteger,

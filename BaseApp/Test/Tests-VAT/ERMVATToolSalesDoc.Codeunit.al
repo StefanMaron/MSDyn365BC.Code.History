@@ -27,7 +27,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
-        GroupFilter: Label '%1|%2';
+        GroupFilter: Label '%1|%2', Locked = true;
 
     local procedure Initialize()
     var

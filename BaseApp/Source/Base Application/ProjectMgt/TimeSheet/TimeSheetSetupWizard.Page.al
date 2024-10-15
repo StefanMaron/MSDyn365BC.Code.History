@@ -1,3 +1,19 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.Resources.Setup;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Security.AccessControl;
+using System.Security.User;
+using System.Utilities;
+
 page 977 "Time Sheet Setup Wizard"
 {
     PageType = NavigatePage;
@@ -48,7 +64,7 @@ page 977 "Time Sheet Setup Wizard"
                     label("Para1.1.2")
                     {
                         ApplicationArea = Jobs;
-                        Caption = '​​​​This guide will help you set up time sheets and specify the participants in the​ process. Participants include the time sheet administrator, the employees or ​resources who register time, and the approvers.​';
+                        Caption = 'This guide will help you set up time sheets and specify the participants in the process. Participants include the time sheet administrator, the employees or resources who register time, and the approvers.';
                     }
                 }
                 group("Para1.2")
@@ -57,7 +73,7 @@ page 977 "Time Sheet Setup Wizard"
                     group("Para1.2.1")
                     {
                         Caption = '';
-                        InstructionalText = 'Choose Next to specify general settings, such as the first day of the week and the​ time sheet administrator.​';
+                        InstructionalText = 'Choose Next to specify general settings, such as the first day of the week and the time sheet administrator.';
                     }
                 }
             }
@@ -71,7 +87,7 @@ page 977 "Time Sheet Setup Wizard"
                     group("Para2.1.1")
                     {
                         ShowCaption = false;
-                        InstructionalText = 'Set up the participants in the time sheet process. ';
+                        InstructionalText = 'Set up the participants in the time sheet process.';
                         group(Required)
                         {
                             Caption = 'Required:';
@@ -212,13 +228,13 @@ page 977 "Time Sheet Setup Wizard"
                     label(TimeSheetAdminAddInfo)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'NOTE: You can add additional time sheet administrators on the User Setup page.';
+                        Caption = 'NOTE: You can add additional time sheet administrators on the User Setup page.';
                     }
                 }
             }
             group(Step4)
             {
-                InstructionalText = 'A time sheet approver is the person responsible for a job or project, such as a project manager, or the approver assigned to the resource, such as a manager.';
+                InstructionalText = 'A time sheet approver is the person responsible for a job or project, such as a project manager, or the approver assigned to the resource, such as a manager.';
                 Visible = Step = Step::Resources;
                 group(TimeSheetByJobApprovalGroup)
                 {
@@ -246,7 +262,7 @@ page 977 "Time Sheet Setup Wizard"
             }
             group(Step5)
             {
-                InstructionalText = 'Time sheets can be used to register and approve employee absences. This requires that employees are linked to resources.';
+                InstructionalText = 'Time sheets can be used to register and approve employee absences. This requires that employees are linked to resources.';
                 Visible = Step = Step::Employees;
                 group(TimeSheetEmployeesGroup)
                 {
@@ -254,7 +270,7 @@ page 977 "Time Sheet Setup Wizard"
                     label(TimeSheetEmployeesNoteInfo)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'NOTE: The links between employees and resources in the list below are suggested because their company email addresses match. If needed, you can change the suggested links.';
+                        Caption = 'NOTE: The links between employees and resources in the list below are suggested because their company email addresses match. If needed, you can change the suggested links.';
                     }
                     part(Employees; "Time Sheet Setup Employees")
                     {

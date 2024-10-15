@@ -36,9 +36,9 @@ table 31101 "VAT Control Report Line"
         field(15; "Bill-to/Pay-to No."; Code[20])
         {
             Caption = 'Bill-to/Pay-to No.';
-            TableRelation = IF (Type = CONST(Purchase)) Vendor
-            ELSE
-            IF (Type = CONST(Sale)) Customer;
+            TableRelation = if (Type = const(Purchase)) Vendor
+            else
+            if (Type = const(Sale)) Customer;
         }
         field(16; "VAT Registration No."; Text[20])
         {

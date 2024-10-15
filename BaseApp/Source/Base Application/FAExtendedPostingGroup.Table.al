@@ -22,9 +22,9 @@ table 31042 "FA Extended Posting Group"
         {
             Caption = 'Code';
             NotBlank = true;
-            TableRelation = IF ("FA Posting Type" = CONST(Disposal)) "Reason Code"
-            ELSE
-            IF ("FA Posting Type" = CONST(Maintenance)) Maintenance;
+            TableRelation = if ("FA Posting Type" = const(Disposal)) "Reason Code"
+            else
+            if ("FA Posting Type" = const(Maintenance)) Maintenance;
         }
         field(4; "Book Val. Acc. on Disp. (Gain)"; Code[20])
         {
@@ -68,9 +68,9 @@ table 31042 "FA Extended Posting Group"
         }
         field(8; "Allocated Book Value % (Gain)"; Decimal)
         {
-            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
-                                                                    "Allocation Type" = CONST("Book Value (Gain)"),
-                                                                    "Reason/Maintenance Code" = FIELD(Code)));
+            CalcFormula = sum("FA Allocation"."Allocation %" where(Code = field("FA Posting Group Code"),
+                                                                    "Allocation Type" = const("Book Value (Gain)"),
+                                                                    "Reason/Maintenance Code" = field(Code)));
             Caption = 'Allocated Book Value % (Gain)';
             DecimalPlaces = 1 : 1;
             Editable = false;
@@ -78,9 +78,9 @@ table 31042 "FA Extended Posting Group"
         }
         field(9; "Allocated Book Value % (Loss)"; Decimal)
         {
-            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
-                                                                    "Allocation Type" = CONST("Book Value (Loss)"),
-                                                                    "Reason/Maintenance Code" = FIELD(Code)));
+            CalcFormula = sum("FA Allocation"."Allocation %" where(Code = field("FA Posting Group Code"),
+                                                                    "Allocation Type" = const("Book Value (Loss)"),
+                                                                    "Reason/Maintenance Code" = field(Code)));
             Caption = 'Allocated Book Value % (Loss)';
             DecimalPlaces = 1 : 1;
             Editable = false;
@@ -88,9 +88,9 @@ table 31042 "FA Extended Posting Group"
         }
         field(10; "Allocated Maintenance %"; Decimal)
         {
-            CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
-                                                                    "Allocation Type" = CONST(Maintenance),
-                                                                    "Reason/Maintenance Code" = FIELD(Code)));
+            CalcFormula = sum("FA Allocation"."Allocation %" where(Code = field("FA Posting Group Code"),
+                                                                    "Allocation Type" = const(Maintenance),
+                                                                    "Reason/Maintenance Code" = field(Code)));
             Caption = 'Allocated Maintenance %';
             DecimalPlaces = 1 : 1;
             Editable = false;

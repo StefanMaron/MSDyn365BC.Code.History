@@ -140,9 +140,9 @@ table 31089 "Acc. Schedule Extension"
         field(56; "Posting Group Filter"; Code[250])
         {
             Caption = 'Posting Group Filter';
-            TableRelation = IF ("Source Table" = CONST("Customer Entry")) "Customer Posting Group"
-            ELSE
-            IF ("Source Table" = CONST("Vendor Entry")) "Vendor Posting Group";
+            TableRelation = if ("Source Table" = const("Customer Entry")) "Customer Posting Group"
+            else
+            if ("Source Table" = const("Vendor Entry")) "Vendor Posting Group";
             ValidateTableRelation = false;
         }
         field(57; "Posting Date Filter"; Code[20])

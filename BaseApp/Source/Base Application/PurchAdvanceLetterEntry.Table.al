@@ -41,12 +41,12 @@ table 31022 "Purch. Advance Letter Entry"
         field(16; "Purchase Line No."; Integer)
         {
             Caption = 'Purchase Line No.';
-            TableRelation = "Purch. Inv. Line"."Line No." WHERE("Document No." = FIELD("Document No."));
+            TableRelation = "Purch. Inv. Line"."Line No." where("Document No." = field("Document No."));
         }
         field(17; "Deduction Line No."; Integer)
         {
             Caption = 'Deduction Line No.';
-            TableRelation = "Purch. Inv. Line"."Line No." WHERE("Document No." = FIELD("Document No."));
+            TableRelation = "Purch. Inv. Line"."Line No." where("Document No." = field("Document No."));
         }
         field(18; "Posting Date"; Date)
         {
@@ -60,11 +60,11 @@ table 31022 "Purch. Advance Letter Entry"
         field(20; "Vendor Entry No."; Integer)
         {
             Caption = 'Vendor Entry No.';
-            TableRelation = "Vendor Ledger Entry"."Entry No." WHERE(Prepayment = CONST(true));
+            TableRelation = "Vendor Ledger Entry"."Entry No." where(Prepayment = const(true));
         }
         field(21; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }
@@ -78,8 +78,6 @@ table 31022 "Purch. Advance Letter Entry"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(53; "Transaction No."; Integer)
@@ -112,13 +110,13 @@ table 31022 "Purch. Advance Letter Entry"
         }
         field(80; "VAT Base Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Base Amount (LCY)';
         }
         field(85; "VAT Amount (LCY)"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Amount (LCY)';
         }
@@ -129,13 +127,13 @@ table 31022 "Purch. Advance Letter Entry"
         }
         field(100; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
         }
         field(101; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }

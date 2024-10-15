@@ -622,7 +622,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyVendorPaymentRemainingAmountIsZero(GenJournalLine."Document No.");
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
@@ -712,7 +712,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyRefundAndCreditMemoRemainingAmountIsZero(CustomerNoToApply);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]

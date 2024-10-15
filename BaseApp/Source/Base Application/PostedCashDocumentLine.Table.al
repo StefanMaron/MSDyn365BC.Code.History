@@ -34,15 +34,15 @@ table 11736 "Posted Cash Document Line"
         field(6; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            TableRelation = IF ("Account Type" = CONST("G/L Account")) "G/L Account"."No."
-            ELSE
-            IF ("Account Type" = CONST(Customer)) Customer."No."
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) Vendor."No."
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account"."No."
-            ELSE
-            IF ("Account Type" = CONST("Fixed Asset")) "Fixed Asset"."No.";
+            TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account"."No."
+            else
+            if ("Account Type" = const(Customer)) Customer."No."
+            else
+            if ("Account Type" = const(Vendor)) Vendor."No."
+            else
+            if ("Account Type" = const("Bank Account")) "Bank Account"."No."
+            else
+            if ("Account Type" = const("Fixed Asset")) "Fixed Asset"."No.";
 
             trigger OnLookup()
             var
@@ -100,13 +100,13 @@ table 11736 "Posted Cash Document Line"
         field(8; "Posting Group"; Code[20])
         {
             Caption = 'Posting Group';
-            TableRelation = IF ("Account Type" = CONST("Fixed Asset")) "FA Posting Group"
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account Posting Group"
-            ELSE
-            IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group";
+            TableRelation = if ("Account Type" = const("Fixed Asset")) "FA Posting Group"
+            else
+            if ("Account Type" = const("Bank Account")) "Bank Account Posting Group"
+            else
+            if ("Account Type" = const(Customer)) "Customer Posting Group"
+            else
+            if ("Account Type" = const(Vendor)) "Vendor Posting Group";
         }
         field(13; Status; Option)
         {
@@ -147,13 +147,13 @@ table 11736 "Posted Cash Document Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(25; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(26; "Cash Document Type"; Option)
         {
@@ -186,21 +186,21 @@ table 11736 "Posted Cash Document Line"
         }
         field(51; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(52; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
             Editable = false;
         }
         field(53; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }
@@ -224,7 +224,7 @@ table 11736 "Posted Cash Document Line"
         }
         field(59; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
@@ -322,7 +322,7 @@ table 11736 "Posted Cash Document Line"
         }
         field(603; "VAT Base (Non Deductible)"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'VAT Base (Non Deductible)';
             Editable = false;
             ObsoleteState = Removed;
@@ -331,7 +331,7 @@ table 11736 "Posted Cash Document Line"
         }
         field(604; "VAT Amount (Non Deductible)"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             Caption = 'VAT Amount (Non Deductible)';
             Editable = false;
             ObsoleteState = Removed;

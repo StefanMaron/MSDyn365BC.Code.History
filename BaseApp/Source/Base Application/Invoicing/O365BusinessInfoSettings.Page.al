@@ -20,7 +20,7 @@ page 2130 "O365 Business Info Settings"
                 {
                     InstructionalText = 'Upload your company logo';
                     ShowCaption = false;
-                    field(Picture; Picture)
+                    field(Picture; Rec.Picture)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Your logo';
@@ -28,7 +28,7 @@ page 2130 "O365 Business Info Settings"
 
                         trigger OnValidate()
                         begin
-                            Modify(true);
+                            Rec.Modify(true);
                         end;
                     }
                 }
@@ -55,13 +55,13 @@ page 2130 "O365 Business Info Settings"
                             O365BrandColor: Record "O365 Brand Color";
                             O365BrandColors: Page "O365 Brand Colors";
                         begin
-                            if O365BrandColor.Get("Brand Color Code") then;
+                            if O365BrandColor.Get(Rec."Brand Color Code") then;
 
                             O365BrandColors.LookupMode := true;
                             O365BrandColors.SetRecord(O365BrandColor);
                             if O365BrandColors.RunModal() = ACTION::LookupOK then begin
                                 O365BrandColors.GetRecord(O365BrandColor);
-                                Validate("Brand Color Code", O365BrandColor.Code);
+                                Rec.Validate("Brand Color Code", O365BrandColor.Code);
                             end;
 
                             CurrPage.Update();
@@ -82,7 +82,7 @@ page 2130 "O365 Business Info Settings"
                             Commit();
                             TempStandardAddress.CopyFromCompanyInformation(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
-                                Get();
+                                Rec.Get();
                                 FullAddress := TempStandardAddress.ToString();
                             end;
                         end;
@@ -102,8 +102,8 @@ page 2130 "O365 Business Info Settings"
                         var
                             MailManagement: Codeunit "Mail Management";
                         begin
-                            if "E-Mail" <> '' then
-                                MailManagement.CheckValidEmailAddress("E-Mail");
+                            if Rec."E-Mail" <> '' then
+                                MailManagement.CheckValidEmailAddress(Rec."E-Mail");
                         end;
                     }
                     field("Home Page"; Rec."Home Page")
@@ -165,10 +165,10 @@ page 2130 "O365 Business Info Settings"
 
     local procedure Initialize()
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
     end;
 
@@ -176,9 +176,9 @@ page 2130 "O365 Business Info Settings"
     var
         O365BrandColor: Record "O365 Brand Color";
     begin
-        if not O365BrandColor.Get("Brand Color Code") then
+        if not O365BrandColor.Get(Rec."Brand Color Code") then
             if O365BrandColor.FindFirst() then
-                Validate("Brand Color Code", O365BrandColor.Code);
+                Rec.Validate("Brand Color Code", O365BrandColor.Code);
 
         BrandColorName := O365BrandColor.Name;
     end;

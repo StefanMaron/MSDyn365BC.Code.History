@@ -60,7 +60,7 @@ table 11760 "Uncertainty Payer Entry"
         }
         field(70; "Vendor Name"; Text[100])
         {
-            CalcFormula = Lookup(Vendor.Name WHERE("No." = FIELD("Vendor No.")));
+            CalcFormula = Lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
             FieldClass = FlowField;
         }

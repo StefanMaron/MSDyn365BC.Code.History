@@ -7,7 +7,7 @@ dotnet
 {
     assembly("Microsoft.Dynamics.Nav.PermissionTestHelper")
     {
-        Version = '22.0.0.0';
+        Version = '23.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 

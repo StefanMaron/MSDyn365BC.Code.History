@@ -30,11 +30,11 @@ table 11705 "Bank Statement Line"
         field(4; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST(Customer)) Customer."No."
-            ELSE
-            IF (Type = CONST(Vendor)) Vendor."No."
-            ELSE
-            IF (Type = CONST("Bank Account")) "Bank Account"."No.";
+            TableRelation = if (Type = const(Customer)) Customer."No."
+            else
+            if (Type = const(Vendor)) Vendor."No."
+            else
+            if (Type = const("Bank Account")) "Bank Account"."No.";
 
             trigger OnValidate()
             var
@@ -70,9 +70,9 @@ table 11705 "Bank Statement Line"
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
             Caption = 'Cust./Vendor Bank Account Code';
-            TableRelation = IF (Type = CONST(Customer)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("No."))
-            ELSE
-            IF (Type = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
+            TableRelation = if (Type = const(Customer)) "Customer Bank Account".Code WHERE("Customer No." = field("No."))
+            else
+            if (Type = const(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = field("No."));
 
             trigger OnValidate()
             var
@@ -127,7 +127,7 @@ table 11705 "Bank Statement Line"
         }
         field(11; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }

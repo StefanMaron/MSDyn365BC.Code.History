@@ -1,12 +1,19 @@
-#if not CLEAN20
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+
 permissionset 5417 "Account Schedules - View"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Read account schedules';
-    Permissions =
-                  tabledata "Acc. Schedule Filter Line" = R,
-                  tabledata "Acc. Schedule Line" = R,
+
+    Permissions = tabledata "Acc. Schedule Line" = R,
                   tabledata "Acc. Schedule Name" = RI,
                   tabledata "Financial Report" = RI,
                   tabledata "Financial Report User Filters" = RIMD,
@@ -18,11 +25,9 @@ permissionset 5417 "Account Schedules - View"
                   tabledata "Business Unit Setup" = R,
                   tabledata "Column Layout" = R,
                   tabledata "Column Layout Name" = R,
+                  tabledata "Consolidation Account" = R,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
-                  tabledata "Export Acc. Schedule" = R,
                   tabledata "G/L Account" = R,
                   tabledata "G/L Budget Name" = R;
 }
-
-#endif

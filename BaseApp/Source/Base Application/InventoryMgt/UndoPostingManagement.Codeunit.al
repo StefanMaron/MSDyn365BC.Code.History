@@ -1,4 +1,38 @@
-﻿#if not CLEAN20
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Assembly.History;
+using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Posting;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.InventoryDocument;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Worksheet;
+
 codeunit 5817 "Undo Posting Management"
 {
     Permissions = TableData "Reservation Entry" = i;
@@ -423,7 +457,7 @@ codeunit 5817 "Undo Posting Management"
     local procedure ShouldThrowErrorForPostedInvtPickLine(var PostedInvtPickLine: Record "Posted Invt. Pick Line"; UndoType: Integer; UndoID: Code[20]): Boolean
     var
         PostedInvtPickHeader: Record "Posted Invt. Pick Header";
-        CheckedPostedInvtPickHeaderList: List of [Text];        
+        CheckedPostedInvtPickHeaderList: List of [Text];
     begin
         if PostedInvtPickLine.IsEmpty() then
             exit(false);
@@ -688,67 +722,6 @@ codeunit 5817 "Undo Posting Management"
         ItemTrackingMgt.AdjustQuantityRounding(
           NonDistrQuantity, ItemJnlLine.Quantity,
           NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
-    end;
-
-    [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
-    [Scope('OnPrem')]
-    procedure PostItemJnlLineAppliedToListTr(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
-        NonDistrQuantity: Decimal;
-        NonDistrQuantityBase: Decimal;
-        ExpDate: Date;
-        DummyEntriesExist: Boolean;
-    begin
-        // NAVCZ
-        TempApplyToItemLedgEntry.FindSet(false, false); // Assertion: will fail if not found.
-        ItemJnlLine.TestField("Entry Type", ItemJnlLine."Entry Type"::Transfer);
-        NonDistrQuantity := UndoQty;
-        NonDistrQuantityBase := UndoQtyBase;
-        repeat
-            ItemJnlLine."Applies-to Entry" := 0;
-            // ItemJnlLine."Applies-to Entry" := TempApplyToEntryList."Entry No.";
-            ItemJnlLine."Item Shpt. Entry No." := 0;
-            ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
-            ItemJnlLine."Serial No." := TempApplyToItemLedgEntry."Serial No.";
-            ItemJnlLine."Lot No." := TempApplyToItemLedgEntry."Lot No.";
-            ItemJnlLine."New Serial No." := TempApplyToItemLedgEntry."Serial No.";
-            ItemJnlLine."New Lot No." := TempApplyToItemLedgEntry."Lot No.";
-
-            if (ItemJnlLine."Serial No." <> '') or
-               (ItemJnlLine."Lot No." <> '')
-            then begin
-                ItemTrackingSetup."Serial No." := ItemJnlLine."Serial No.";
-                ItemTrackingSetup."Lot No." := ItemJnlLine."Lot No.";
-                ExpDate := ItemTrackingMgt.ExistingExpirationDate(
-                    ItemJnlLine."Item No.",
-                    ItemJnlLine."Variant Code",
-                    ItemTrackingSetup,
-                    false, DummyEntriesExist);
-                ItemJnlLine."New Item Expiration Date" := ExpDate;
-                ItemJnlLine."Item Expiration Date" := ExpDate;
-            end;
-            // Quantity is filled in according to UOM:
-            ItemTrackingMgt.AdjustQuantityRounding(
-              NonDistrQuantity, ItemJnlLine.Quantity,
-              NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
-
-            NonDistrQuantity -= ItemJnlLine.Quantity;
-            NonDistrQuantityBase -= ItemJnlLine."Quantity (Base)";
-
-            ItemJnlLine."Invoiced Quantity" := ItemJnlLine.Quantity;
-            ItemJnlLine."Invoiced Qty. (Base)" := ItemJnlLine."Quantity (Base)";
-
-            ItemJnlPostLine.xSetExtLotSN(true);
-            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-            ItemJnlPostLine.CollectItemEntryRelation(TempItemEntryRelation);
-
-            TempItemLedgEntry := TempApplyToItemLedgEntry;
-            TempItemLedgEntry.Insert();
-        until TempApplyToItemLedgEntry.Next() = 0;
-        // NAVCZ
     end;
 
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
@@ -1340,107 +1313,6 @@ codeunit 5817 "Undo Posting Management"
         end;
     end;
 
-    [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
-    [Scope('OnPrem')]
-    procedure UpdateTransferLine(TransferLine: Record "Transfer Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
-    var
-        TransferLine1: Record "Transfer Line";
-        TransferLine2: Record "Transfer Line";
-        ResEntry: Record "Reservation Entry";
-        ItemEntryRel: Record "Item Entry Relation";
-        TransferLineReserve: Codeunit "Transfer Line-Reserve";
-        Line: Integer;
-        ResEntryNo: Integer;
-    begin
-        // NAVCZ
-        with TransferLine do begin
-            TransferLine1 := TransferLine;
-            "Quantity Shipped" := "Quantity Shipped" - UndoQty;
-            "Qty. Shipped (Base)" := "Qty. Shipped (Base)" - UndoQtyBase;
-            InitQtyInTransit();
-            InitOutstandingQty();
-            InitQtyToShip();
-            InitQtyToReceive();
-            Modify();
-            TransferLine1."Quantity (Base)" := 0;
-            TransferLineReserve.VerifyQuantity(TransferLine, TransferLine1);
-
-            if TempUndoneItemLedgEntry.FindSet(false, false) then
-                repeat
-                    if (TempUndoneItemLedgEntry."Serial No." <> '') or (TempUndoneItemLedgEntry."Lot No." <> '') then begin
-                        ResEntry.Reset();
-                        ResEntry.SetCurrentKey("Source ID");
-                        ResEntry.SetRange("Source Type", DATABASE::"Transfer Line");
-                        ResEntry.SetRange("Source ID", "Document No.");
-                        ResEntry.SetRange("Source Batch Name", '');
-                        ResEntry.SetRange("Source Prod. Order Line", "Line No.");
-                        ResEntry.SetRange("Serial No.", TempUndoneItemLedgEntry."Serial No.");
-                        ResEntry.SetRange("Lot No.", TempUndoneItemLedgEntry."Lot No.");
-                        while ResEntry.FindFirst() do begin
-                            if ResEntry."Source Ref. No." <> 0 then
-                                Line := ResEntry."Source Ref. No.";
-                            ResEntry.Delete();
-                        end;
-                        if ItemEntryRel.Get(TempUndoneItemLedgEntry."Entry No.") then begin
-                            ItemEntryRel.Undo := true;
-                            ItemEntryRel.Modify();
-                        end;
-
-                        ResEntry.Reset();
-                        Clear(ResEntryNo);
-                        if ResEntry.FindLast() then
-                            ResEntryNo := ResEntry."Entry No.";
-                        ResEntryNo += 1;
-                        ResEntry.Init();
-                        ResEntry."Entry No." := ResEntryNo;
-                        ResEntry.Positive := false;
-                        ResEntry."Item No." := TempUndoneItemLedgEntry."Item No.";
-                        ResEntry."Location Code" := "Transfer-from Code";
-                        ResEntry."Quantity (Base)" := TempUndoneItemLedgEntry.Quantity;
-                        ResEntry."Reservation Status" := ResEntry."Reservation Status"::Surplus;
-                        ResEntry."Creation Date" := Today;
-                        ResEntry."Source Type" := 5741;
-                        ResEntry."Source Subtype" := 0;
-                        ResEntry."Source ID" := "Document No.";
-                        ResEntry."Source Ref. No." := "Line No.";
-                        ResEntry."Expected Receipt Date" := 0D;
-                        ResEntry."Shipment Date" := "Shipment Date";
-                        ResEntry."Created By" := UserId;
-                        ResEntry."Qty. per Unit of Measure" := TempUndoneItemLedgEntry."Qty. per Unit of Measure";
-                        if TempUndoneItemLedgEntry."Serial No." <> '' then
-                            ResEntry.Quantity := -1
-                        else
-                            ResEntry.Quantity := ResEntry."Quantity (Base)" / ResEntry."Qty. per Unit of Measure";
-                        ResEntry."Qty. to Handle (Base)" := ResEntry."Quantity (Base)";
-                        ResEntry."Qty. to Invoice (Base)" := ResEntry."Quantity (Base)";
-                        ResEntry."Lot No." := TempUndoneItemLedgEntry."Lot No.";
-                        ResEntry."Variant Code" := TempUndoneItemLedgEntry."Variant Code";
-                        ResEntry."Serial No." := TempUndoneItemLedgEntry."Serial No.";
-                        ResEntry.Insert();
-                        ResEntryNo += 1;
-                        ResEntry."Entry No." := ResEntryNo;
-                        ResEntry.Positive := true;
-                        ResEntry."Location Code" := "Transfer-to Code";
-                        ResEntry."Quantity (Base)" := -ResEntry."Quantity (Base)";
-                        ResEntry."Source Subtype" := 1;
-                        ResEntry."Expected Receipt Date" := "Receipt Date";
-                        ResEntry."Shipment Date" := 0D;
-                        ResEntry.Quantity := -ResEntry.Quantity;
-                        ResEntry."Qty. to Handle (Base)" := ResEntry."Quantity (Base)";
-                        ResEntry."Qty. to Invoice (Base)" := ResEntry."Quantity (Base)";
-                        ResEntry.Insert();
-                    end;
-                until TempUndoneItemLedgEntry.Next() = 0;
-            if Line <> 0 then
-                TransferLine2.SetRange("Line No.", Line);
-            TransferLine2.SetRange("Document No.", "Document No.");
-            TransferLine2.SetRange("Derived From Line No.", "Line No.");
-            TransferLine2.SetRange(Quantity, UndoQty);
-            TransferLine2.FindFirst();
-            TransferLine2.Delete(true);
-        end;
-    end;
-
     procedure TransferSourceValues(var ItemJnlLine: Record "Item Journal Line"; EntryNo: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -1781,4 +1653,3 @@ codeunit 5817 "Undo Posting Management"
     begin
     end;
 }
-#endif

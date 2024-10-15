@@ -52,7 +52,7 @@ table 31072 "Stockkeeping Unit Template"
         field(50; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
         }
         field(60; "Gen. Prod. Posting Group"; Code[20])
         {

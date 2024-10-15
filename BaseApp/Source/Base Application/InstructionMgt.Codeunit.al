@@ -1,3 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Purchases.History;
+using Microsoft.Service.History;
+using System.Environment.Configuration;
+using System.Security.User;
+
 codeunit 1330 "Instruction Mgt."
 {
     Permissions = TableData "My Notifications" = rimd;

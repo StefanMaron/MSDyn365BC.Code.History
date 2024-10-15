@@ -22,7 +22,7 @@ table 31071 "Item Package Material"
         {
             Caption = 'Item Unit Of Measure Code';
             NotBlank = true;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(4; Weight; Decimal)
         {

@@ -1,4 +1,10 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 #if not CLEAN23
+namespace Microsoft.EServices.EDocument;
+
 enum 9550 "Doc. Service Conflict Behavior"
 {
     // These values map to an enum in the platform, and hence should not be extended by partners

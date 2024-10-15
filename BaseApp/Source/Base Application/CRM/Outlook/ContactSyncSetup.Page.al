@@ -1,3 +1,9 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.Utilities;
+using System.Privacy;
+using System.Security.AccessControl;
+
 page 6701 "Contact Sync. Setup"
 {
     Caption = 'Contact Sync. Setup';
@@ -31,7 +37,7 @@ page 6701 "Contact Sync. Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date/time that the Exchange server was synchronized.';
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Enable Background Synchronization';
@@ -42,9 +48,9 @@ page 6701 "Contact Sync. Setup"
                         PrivacyNotice: Codeunit "Privacy Notice";
                         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
                     begin
-                        if Enabled then
+                        if Rec.Enabled then
                             if not PrivacyNotice.ConfirmPrivacyNoticeApproval(PrivacyNoticeRegistrations.GetExchangePrivacyNoticeId()) then
-                                Enabled := false; // Privacy notice was not approved
+                                Rec.Enabled := false; // Privacy notice was not approved
                     end;
                 }
             }
@@ -141,7 +147,7 @@ page 6701 "Contact Sync. Setup"
 
                     trigger OnAction()
                     begin
-                        DeleteActivityLog();
+                        Rec.DeleteActivityLog();
                     end;
                 }
             }

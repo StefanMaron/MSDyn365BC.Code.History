@@ -19,11 +19,11 @@ table 31050 "Credit Header"
         field(15; "Company No."; Code[20])
         {
             Caption = 'Company No.';
-            TableRelation = IF (Type = CONST(Customer)) Customer
-            ELSE
-            IF (Type = CONST(Vendor)) Vendor
-            ELSE
-            IF (Type = CONST(Contact)) Contact."No." WHERE(Type = CONST(Company));
+            TableRelation = if (Type = const(Customer)) Customer
+            else
+            if (Type = const(Vendor)) Vendor
+            else
+            if (Type = const(Contact)) Contact."No." where(Type = const(Company));
         }
         field(20; "Company Name"; Text[100])
         {
@@ -112,14 +112,14 @@ table 31050 "Credit Header"
         }
         field(90; "Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
+            CalcFormula = sum("Credit Line"."Ledg. Entry Rem. Amt. (LCY)" where("Credit No." = field("No.")));
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(95; "Credit Balance (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Credit Line"."Amount (LCY)" WHERE("Credit No." = FIELD("No.")));
+            CalcFormula = sum("Credit Line"."Amount (LCY)" where("Credit No." = field("No.")));
             Caption = 'Credit Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;

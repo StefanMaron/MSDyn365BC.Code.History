@@ -417,9 +417,9 @@ page 2180 "O365 Import from Excel Wizard"
         TempO365FieldExcelMapping: Record "O365 Field Excel Mapping" temporary;
     begin
         TempO365FieldExcelMapping := Rec;
-        SetFilter("Excel Column No.", '<>%1', 0);
-        MappingExists := not IsEmpty();
-        Reset();
+        Rec.SetFilter("Excel Column No.", '<>%1', 0);
+        MappingExists := not Rec.IsEmpty();
+        Rec.Reset();
         Rec := TempO365FieldExcelMapping;
         CurrPage.Update(false);
     end;
@@ -432,7 +432,7 @@ page 2180 "O365 Import from Excel Wizard"
         O365ExcelColumns.LookupMode(true);
         if O365ExcelColumns.RunModal() = ACTION::LookupOK then begin
             O365ExcelColumns.GetRecord(TempStartRowCellNameValueBuffer);
-            Validate("Excel Column No.", TempStartRowCellNameValueBuffer.ID);
+            Rec.Validate("Excel Column No.", TempStartRowCellNameValueBuffer.ID);
             CheckMaxAllowedExcelColumnNo();
         end;
     end;
@@ -450,7 +450,7 @@ page 2180 "O365 Import from Excel Wizard"
 
     local procedure SetStyle(): Text
     begin
-        if "Excel Column No." = 0 then
+        if Rec."Excel Column No." = 0 then
             exit('');
 
         exit('Strong');
@@ -502,7 +502,7 @@ page 2180 "O365 Import from Excel Wizard"
         MaxColumnNo: Integer;
     begin
         MaxColumnNo := GetMaxExcelExcelColumnNo();
-        if "Excel Column No." > MaxColumnNo then
+        if Rec."Excel Column No." > MaxColumnNo then
             Error(ColumnNoOverLimitErr, MaxColumnNo);
     end;
 

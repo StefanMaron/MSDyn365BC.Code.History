@@ -1,3 +1,13 @@
+namespace System.Email;
+
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Outlook;
+using Microsoft.Utilities;
+using System;
+using System.Environment;
+using System.Security.AccessControl;
+using System.Security.User;
+
 codeunit 397 Mail
 {
 
@@ -67,7 +77,10 @@ codeunit 397 Mail
         OutlookMessageHelper.BodyFormat := 2;
         OutlookMessageHelper.ShowNewMailDialogOnSend := ShowNewMailDialogOnSend;
         OutlookMessageHelper.NewMailDialogIsModal := RunModal;
-        OutlookMessageHelper.AttachmentFileNames.Clear();
+        IsHandled := false;
+        OnCreateMessageOnBeforeClearAttachmentFileNames(IsHandled);
+        if not IsHandled then
+            OutlookMessageHelper.AttachmentFileNames.Clear();
         AddBodyline(Body);
     end;
 
@@ -348,6 +361,11 @@ codeunit 397 Mail
 
     [IntegrationEvent(true, false)]
     local procedure OnCreateAndSendMessageOnAfterAttachFile()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateMessageOnBeforeClearAttachmentFileNames(var IsHandled: Boolean);
     begin
     end;
 }

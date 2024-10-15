@@ -29,13 +29,5 @@ table 11703 "Text-to-Account Mapping Code"
     fieldgroups
     {
     }
-
-    trigger OnDelete()
-    var
-        TexttoAccountMapping: Record "Text-to-Account Mapping";
-    begin
-        TexttoAccountMapping.SetRange("Text-to-Account Mapping Code", Code);
-        TexttoAccountMapping.DeleteAll();
-    end;
 }
 

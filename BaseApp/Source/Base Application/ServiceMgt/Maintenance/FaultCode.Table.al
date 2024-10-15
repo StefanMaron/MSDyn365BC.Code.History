@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Service.Setup;
+
 table 5918 "Fault Code"
 {
     Caption = 'Fault Code';

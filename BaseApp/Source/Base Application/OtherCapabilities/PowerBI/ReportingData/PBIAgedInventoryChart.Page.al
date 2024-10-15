@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.PowerBI;
+
 page 6309 "PBI Aged Inventory Chart"
 {
     Caption = 'PBI Aged Inventory Chart';
@@ -13,19 +19,19 @@ page 6309 "PBI Aged Inventory Chart"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field(ID; ID)
+                field(ID; Rec.ID)
                 {
                     ApplicationArea = All;
                     Caption = 'ID';
                     ToolTip = 'Specifies the ID.';
                 }
-                field(Value; Value)
+                field(Value; Rec.Value)
                 {
                     ApplicationArea = All;
                     Caption = 'Value';
                     ToolTip = 'Specifies the value.';
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = All;
                     Caption = 'Date';

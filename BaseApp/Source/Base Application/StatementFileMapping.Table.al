@@ -15,7 +15,7 @@ table 11766 "Statement File Mapping"
         field(4; "Schedule Line No."; Integer)
         {
             Caption = 'Schedule Line No.';
-            TableRelation = "Acc. Schedule Line"."Line No." WHERE("Schedule Name" = FIELD("Schedule Name"));
+            TableRelation = "Acc. Schedule Line"."Line No." where("Schedule Name" = field("Schedule Name"));
         }
         field(5; "Schedule Column Layout Name"; Code[10])
         {
@@ -25,7 +25,7 @@ table 11766 "Statement File Mapping"
         field(6; "Schedule Column No."; Integer)
         {
             Caption = 'Schedule Column No.';
-            TableRelation = "Column Layout"."Line No." WHERE("Column Layout Name" = FIELD("Schedule Column Layout Name"));
+            TableRelation = "Column Layout"."Line No." where("Column Layout Name" = field("Schedule Column Layout Name"));
         }
         field(8; "Excel Cell"; Code[50])
         {

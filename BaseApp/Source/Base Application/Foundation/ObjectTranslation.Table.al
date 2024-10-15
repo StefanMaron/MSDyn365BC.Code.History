@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Globalization;
+
+using System.Reflection;
+
 table 377 "Object Translation"
 {
     Caption = 'Object Translation';
@@ -16,7 +24,7 @@ table 377 "Object Translation"
         {
             Caption = 'Object ID';
             NotBlank = true;
-            TableRelation = IF ("Object Type" = FILTER(> " ")) AllObj."Object ID" WHERE("Object Type" = FIELD("Object Type"));
+            TableRelation = if ("Object Type" = filter(> " ")) AllObj."Object ID" where("Object Type" = field("Object Type"));
         }
         field(3; "Language ID"; Integer)
         {
@@ -32,7 +40,7 @@ table 377 "Object Translation"
         }
         field(4; "Language Name"; Text[80])
         {
-            CalcFormula = Lookup ("Windows Language".Name WHERE("Language ID" = FIELD("Language ID")));
+            CalcFormula = Lookup("Windows Language".Name where("Language ID" = field("Language ID")));
             Caption = 'Language Name';
             Editable = false;
             FieldClass = FlowField;
@@ -43,8 +51,8 @@ table 377 "Object Translation"
         }
         field(6; "Object Name"; Text[30])
         {
-            CalcFormula = Lookup (Object.Name WHERE(Type = FIELD("Object Type"),
-                                                    ID = FIELD("Object ID")));
+            CalcFormula = Lookup(Object.Name where(Type = field("Object Type"),
+                                                    ID = field("Object ID")));
             Caption = 'Object Name';
             Editable = false;
             FieldClass = FlowField;

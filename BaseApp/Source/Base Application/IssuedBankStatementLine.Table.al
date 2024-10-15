@@ -24,20 +24,20 @@ table 11707 "Issued Bank Statement Line"
         field(4; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST(Customer)) Customer
-            ELSE
-            IF (Type = CONST(Vendor)) Vendor
-            ELSE
-            IF (Type = CONST("Bank Account")) "Bank Account"
-            ELSE
-            IF (Type = CONST("G/L Account")) "G/L Account";
+            TableRelation = if (Type = const(Customer)) Customer
+            else
+            if (Type = const(Vendor)) Vendor
+            else
+            if (Type = const("Bank Account")) "Bank Account"
+            else
+            if (Type = const("G/L Account")) "G/L Account";
         }
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
             Caption = 'Cust./Vendor Bank Account Code';
-            TableRelation = IF (Type = CONST(Customer)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("No."))
-            ELSE
-            IF (Type = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
+            TableRelation = if (Type = const(Customer)) "Customer Bank Account".Code where("Customer No." = field("No."))
+            else
+            if (Type = const(Vendor)) "Vendor Bank Account".Code where("Vendor No." = field("No."));
         }
         field(6; Description; Text[100])
         {
@@ -61,7 +61,7 @@ table 11707 "Issued Bank Statement Line"
         }
         field(11; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }

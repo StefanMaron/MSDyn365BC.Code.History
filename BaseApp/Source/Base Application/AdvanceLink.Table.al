@@ -36,9 +36,9 @@ table 31017 "Advance Link"
         field(7; "CV Ledger Entry No."; Integer)
         {
             Caption = 'CV Ledger Entry No.';
-            TableRelation = IF (Type = CONST(Sale)) "Cust. Ledger Entry"
-            ELSE
-            IF (Type = CONST(Purchase)) "Vendor Ledger Entry";
+            TableRelation = if (Type = const(Sale)) "Cust. Ledger Entry"
+            else
+            if (Type = const(Purchase)) "Vendor Ledger Entry";
         }
         field(8; "Currency Code"; Code[10])
         {
@@ -48,7 +48,7 @@ table 31017 "Advance Link"
         field(9; "Invoice No."; Code[20])
         {
             Caption = 'Invoice No.';
-            TableRelation = IF ("Entry Type" = CONST("Link To Letter")) "Sales Invoice Header"."No.";
+            TableRelation = if ("Entry Type" = const("Link To Letter")) "Sales Invoice Header"."No.";
         }
         field(10; "Posting Date"; Date)
         {

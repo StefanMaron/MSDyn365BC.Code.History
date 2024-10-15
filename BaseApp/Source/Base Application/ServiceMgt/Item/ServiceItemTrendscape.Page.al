@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Foundation.Enums;
+
 page 5983 "Service Item Trendscape"
 {
     Caption = 'Service Item Trendscape';
@@ -26,8 +30,8 @@ page 5983 "Service Item Trendscape"
                         Clear(ServItem);
                         ServItem."No." := ServItemNo;
                         if PAGE.RunModal(0, ServItem) = ACTION::LookupOK then begin
-                            Get(ServItem."No.");
-                            SetRange("No.", ServItem."No.");
+                            Rec.Get(ServItem."No.");
+                            Rec.SetRange("No.", ServItem."No.");
                             ServItemNo := ServItem."No.";
                             CurrPage.Update(false);
                         end;
@@ -38,8 +42,8 @@ page 5983 "Service Item Trendscape"
                         Clear(ServItem);
                         ServItem."No." := ServItemNo;
                         if ServItem.FindFirst() then begin
-                            Get(ServItem."No.");
-                            SetRange("No.", ServItem."No.");
+                            Rec.Get(ServItem."No.");
+                            Rec.SetRange("No.", ServItem."No.");
                             ServItemNo := ServItem."No.";
                         end;
                         ServItemNoOnAfterValidate();
@@ -106,7 +110,7 @@ page 5983 "Service Item Trendscape"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ServItemNo := "No.";
+        ServItemNo := Rec."No.";
         UpdateSubForm();
     end;
 

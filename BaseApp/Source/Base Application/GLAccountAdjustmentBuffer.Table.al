@@ -1,13 +1,8 @@
 table 11770 "G/L Account Adjustment Buffer"
 {
     Caption = 'G/L Account Adjustment Buffer';
-#if not CLEAN20
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
-#endif  
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
 
     fields

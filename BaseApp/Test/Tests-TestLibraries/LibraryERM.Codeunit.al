@@ -1576,22 +1576,6 @@
         VATClause.Insert(true);
     end;
 
-#if not CLEAN20
-    [Obsolete('The Registration No. field is obsoleted.', '20.0')]
-    procedure GenerateRegistrationNo(TableID: Integer): Text[20]
-    begin
-        // NAVCZ
-        exit(LibraryUtility.GenerateGUID());
-    end;
-
-    [Obsolete('The Tax Registration No. field is obsoleted.', '20.0')]
-    procedure GenerateTaxRegistrationNo(TableID: Integer): Text[20]
-    begin
-        // NAVCZ
-        exit(LibraryUtility.GenerateGUID());
-    end;
-#endif
-
     procedure GenerateVATRegistrationNo(CountryRegionCode: Code[10]) VATRegNo: Text[20]
     var
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
@@ -2448,7 +2432,7 @@
         AdjustAddReportingCurrency.Run();
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     // Old Adjust Exchange Rates
     procedure RunAdjustExchangeRatesSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
     begin

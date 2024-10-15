@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
+
 codeunit 416 "Release Service Document"
 {
     TableNo = "Service Header";

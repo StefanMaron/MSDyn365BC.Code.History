@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Utilities;
+
 page 5904 "Service Line List"
 {
     Caption = 'Service Line List';
@@ -139,7 +143,7 @@ page 5904 "Service Line List"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the warranty discount is excluded on this line.';
                 }
-                field(Warranty; Warranty)
+                field(Warranty; Rec.Warranty)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that a warranty discount is available on this line of type Item or Resource.';
@@ -201,7 +205,7 @@ page 5904 "Service Line List"
                     var
                         PageManagement: Codeunit "Page Management";
                     begin
-                        if ServHeader.Get("Document Type", "Document No.") then
+                        if ServHeader.Get(Rec."Document Type", Rec."Document No.") then
                             PageManagement.PageRun(ServHeader);
                     end;
                 }

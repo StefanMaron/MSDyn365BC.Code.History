@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System;
+using System.Xml;
+
 codeunit 7705 "Miniform Logon"
 {
     TableNo = "Miniform Header";
@@ -12,7 +17,7 @@ codeunit 7705 "Miniform Logon"
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
         if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
-            if Code <> CurrentCode then
+            if Rec.Code <> CurrentCode then
                 PrepareData()
             else
                 ProcessInput();
@@ -83,9 +88,9 @@ codeunit 7705 "Miniform Logon"
                             if not CheckPassword(TextValue) then
                                 exit;
                         else begin
-                                ADCSCommunication.FieldSetvalue(RecRef, FldNo, TextValue);
-                                RecRef.SetTable(ADCSUser);
-                            end;
+                            ADCSCommunication.FieldSetvalue(RecRef, FldNo, TextValue);
+                            RecRef.SetTable(ADCSUser);
+                        end;
                     end;
 
                     ActiveInputField := ADCSCommunication.GetActiveInputNo(CurrentCode, FldNo);

@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+
 page 5985 "Service Item Replacement"
 {
     Caption = 'Service Item Replacement';
@@ -174,7 +179,6 @@ page 5985 "Service Item Replacement"
         ServItem: Record "Service Item";
         ItemVariant: Record "Item Variant";
         ServItemVariantCode: Code[10];
-        [InDataSet]
         CopyComponentsEnable: Boolean;
 
         Text000: Label 'The %1 %2,%3 does not exists.', Comment = 'The Item Variant LS-10PC , LS-10PC-B does not exists.';

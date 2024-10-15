@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+
 page 9317 "Service Quotes"
 {
     ApplicationArea = Service;
@@ -7,7 +14,7 @@ page 9317 "Service Quotes"
     Editable = false;
     PageType = List;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = CONST(Quote));
+    SourceTableView = where("Document Type" = const(Quote));
     UsageCategory = Lists;
 
     layout
@@ -57,7 +64,7 @@ page 9317 "Service Quotes"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order.';
@@ -164,15 +171,15 @@ page 9317 "Service Quotes"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -207,7 +214,7 @@ page 9317 "Service Quotes"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Co&mments")
@@ -216,10 +223,10 @@ page 9317 "Service Quotes"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Statistics)
@@ -232,7 +239,7 @@ page 9317 "Service Quotes"
 
                     trigger OnAction()
                     begin
-                        OpenStatistics();
+                        Rec.OpenStatistics();
                     end;
                 }
                 action("Customer Card")
@@ -241,7 +248,7 @@ page 9317 "Service Quotes"
                     Caption = 'Customer Card';
                     Image = Customer;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information for the customer.';
                 }
@@ -329,9 +336,9 @@ page 9317 "Service Quotes"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
 
-        CopyCustomerFilter();
+        Rec.CopyCustomerFilter();
     end;
 }
 

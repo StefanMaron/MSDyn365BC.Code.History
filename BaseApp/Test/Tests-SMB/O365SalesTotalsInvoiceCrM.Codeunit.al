@@ -1223,7 +1223,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.IsTrue(SalesQuote.SalesLines."Invoice Disc. Pct.".Editable, FieldShouldBeEditableTxt);
         Assert.IsTrue(SalesQuote.SalesLines."Invoice Discount Amount".Editable, FieldShouldBeEditableTxt);
 
-        SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuote."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuote."No.".Value());
         SalesQuote.Close();
 
         SalesQuote.OpenView;
@@ -1237,7 +1237,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.IsTrue(SalesInvoice.SalesLines."Invoice Disc. Pct.".Editable, FieldShouldBeEditableTxt);
         Assert.IsTrue(SalesInvoice.SalesLines."Invoice Discount Amount".Editable, FieldShouldBeEditableTxt);
 
-        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value());
         SalesInvoice.Close();
 
         CreateOrderWithOneLineThroughTestPage(Customer, Item, LibraryRandom.RandInt(10), SalesOrder);
@@ -1245,7 +1245,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.IsTrue(SalesOrder.SalesLines."Invoice Disc. Pct.".Editable, FieldShouldBeEditableTxt);
         Assert.IsTrue(SalesOrder.SalesLines."Invoice Discount Amount".Editable, FieldShouldBeEditableTxt);
 
-        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.".Value());
         SalesOrder.Close();
 
         SalesOrder.OpenView;

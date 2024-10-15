@@ -25,7 +25,7 @@ table 11706 "Issued Bank Statement Header"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name where("No." = field("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -51,53 +51,53 @@ table 11706 "Issued Bank Statement Header"
         }
         field(9; Amount; Decimal)
         {
-            CalcFormula = Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = sum("Issued Bank Statement Line".Amount where("Bank Statement No." = field("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(10; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = sum("Issued Bank Statement Line"."Amount (LCY)" where("Bank Statement No." = field("No.")));
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; Debit; Decimal)
         {
-            CalcFormula = - Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
-                                                                          Positive = CONST(false)));
+            CalcFormula = - sum("Issued Bank Statement Line".Amount where("Bank Statement No." = field("No."),
+                                                                          Positive = const(false)));
             Caption = 'Debit';
             Editable = false;
             FieldClass = FlowField;
         }
         field(12; "Debit (LCY)"; Decimal)
         {
-            CalcFormula = - Sum("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
-                                                                                  Positive = CONST(false)));
+            CalcFormula = - sum("Issued Bank Statement Line"."Amount (LCY)" where("Bank Statement No." = field("No."),
+                                                                                  Positive = const(false)));
             Caption = 'Debit (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(13; Credit; Decimal)
         {
-            CalcFormula = Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No."),
-                                                                         Positive = CONST(true)));
+            CalcFormula = sum("Issued Bank Statement Line".Amount where("Bank Statement No." = field("No."),
+                                                                         Positive = const(true)));
             Caption = 'Credit';
             Editable = false;
             FieldClass = FlowField;
         }
         field(14; "Credit (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Issued Bank Statement Line"."Amount (LCY)" WHERE("Bank Statement No." = FIELD("No."),
-                                                                                 Positive = CONST(true)));
+            CalcFormula = sum("Issued Bank Statement Line"."Amount (LCY)" where("Bank Statement No." = field("No."),
+                                                                                 Positive = const(true)));
             Caption = 'Credit (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "No. of Lines"; Integer)
         {
-            CalcFormula = Count("Issued Bank Statement Line" WHERE("Bank Statement No." = FIELD("No.")));
+            CalcFormula = count("Issued Bank Statement Line" where("Bank Statement No." = field("No.")));
             Caption = 'No. of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -113,8 +113,6 @@ table 11706 "Issued Bank Statement Header"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(20; "Bank Statement Currency Code"; Code[10])
@@ -142,8 +140,6 @@ table 11706 "Issued Bank Statement Header"
             Caption = 'Pre-Assigned User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(35; "External Document No."; Code[35])
         {

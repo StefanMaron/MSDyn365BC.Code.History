@@ -1,4 +1,12 @@
-#if not CLEAN20
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+
 permissionset 3632 "Account Schedules - Edit"
 {
     Access = Public;
@@ -6,7 +14,6 @@ permissionset 3632 "Account Schedules - Edit"
     Caption = 'Edit account schedules';
 
     Permissions = tabledata "Acc. Sched. Chart Setup Line" = RIMD,
-                  tabledata "Acc. Schedule Filter Line" = RIMD,
                   tabledata "Acc. Schedule Line" = RIMD,
                   tabledata "Acc. Schedule Name" = RIMD,
                   tabledata "Financial Report" = RIMD,
@@ -20,11 +27,9 @@ permissionset 3632 "Account Schedules - Edit"
                   tabledata "Business Unit Setup" = R,
                   tabledata "Column Layout" = RIMD,
                   tabledata "Column Layout Name" = RIMD,
+                  tabledata "Consolidation Account" = R,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
-                  tabledata "Export Acc. Schedule" = RIMD,
                   tabledata "G/L Account Category" = RIMD,
                   tabledata "G/L Budget Name" = RI;
 }
-
-#endif

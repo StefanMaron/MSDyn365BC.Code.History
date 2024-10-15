@@ -1722,7 +1722,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         CreateItemTrackingCode(ItemTrackingCode, true, true, false);  // Serial and Lot as TRUE.
         LotNo := LibraryUtility.GenerateGUID();
         LotNo2 := LibraryUtility.GenerateGUID();
-        Quantity := LibraryRandom.RandInt(10);
+        Quantity := 1;
         LibraryInventory.CreateTrackedItem(
           Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
         LibraryWarehouse.CreateBin(Bin, LocationBlack.Code, LibraryUtility.GenerateGUID, '', '');

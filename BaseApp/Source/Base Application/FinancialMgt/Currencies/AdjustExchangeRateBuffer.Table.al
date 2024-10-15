@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
 #pragma warning disable AS0109
 table 331 "Adjust Exchange Rate Buffer"
 #pragma warning restore AS0109
@@ -81,11 +87,12 @@ table 331 "Adjust Exchange Rate Buffer"
             DataClassification = SystemMetadata;
 #if CLEAN21
             ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
 #endif
             ObsoleteReason = 'The field is not used anymore.';
-            ObsoleteTag = '21.0';
         }
         field(11761; "Document Type"; Option)
         {
@@ -119,11 +126,12 @@ table 331 "Adjust Exchange Rate Buffer"
             DataClassification = SystemMetadata;
 #if CLEAN21
             ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
 #endif
             ObsoleteReason = 'The field is not used anymore.';
-            ObsoleteTag = '21.0';
         }
     }
 

@@ -3382,11 +3382,14 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandLessThanExistingInventoryAndMaximumInventoryMQItem()
     var
         Item: Record Item;
+        ReorderPoint: Integer;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
         Initialize();
+
+        ReorderPoint := LibraryRandom.RandInt(10) + 20;
         CreateMQItem(
-          Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
+          Item, Item."Replenishment System"::Purchase, 2 * ReorderPoint, ReorderPoint, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointMaxInventoryAndExistingInventory(Item, true, Item."Maximum Inventory" - 1, Item."Reorder Point" + 1);  // Boolean - Existing Inventory More than Sales Quantity.
     end;
 
@@ -3395,11 +3398,14 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandMoreThanExistingInventoryLessThanMaximumInventoryMQItem()
     var
         Item: Record Item;
+        ReorderPoint: Integer;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
         Initialize();
+
+        ReorderPoint := LibraryRandom.RandInt(10) + 20;
         CreateMQItem(
-          Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
+            Item, Item."Replenishment System"::Purchase, 2 * ReorderPoint - 1, ReorderPoint, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointMaxInventoryAndExistingInventory(Item, false, Item."Reorder Point" - 1, Item."Reorder Point" + 1);  // Boolean - Existing Inventory less than Sales Qty and less than Maximum Inventory.
     end;
 
@@ -7018,9 +7024,10 @@ codeunit 137054 "SCM Supply Planning"
     local procedure VerifyPurchaseLine(DocumentNo: Code[20]; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
     begin
         SelectPurchaseLine(PurchaseLine, DocumentNo);
-        PurchaseLine.TestField(Quantity, Quantity);
+        Assert.AreEqual(Round(Quantity, UOMMgt.QtyRndPrecision()), PurchaseLine.Quantity, PurchaseLine.FieldCaption(Quantity));
     end;
 
     local procedure VerifyRequisitionLineForMaximumOrderQuantity(var RequisitionLine2: Record "Requisition Line"; No: Code[20]; ActionMessage: Enum "Action Message Type"; DueDate: Date; Quantity: Decimal; OriginalDueDate: Date; NoOfLine: Integer)
@@ -7035,10 +7042,13 @@ codeunit 137054 "SCM Supply Planning"
     end;
 
     local procedure VerifyQuantityAndDateOnRequisitionLine(var RequisitionLine2: Record "Requisition Line"; OriginalDueDate: Date; Quantity: Decimal; OriginalQuantity: Decimal)
+    var
+        UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        RequisitionLine2.TestField(Quantity, Quantity);
-        RequisitionLine2.TestField("Original Due Date", OriginalDueDate);
-        RequisitionLine2.TestField("Original Quantity", OriginalQuantity);
+        Assert.AreEqual(Round(Quantity, UOMMgt.QtyRndPrecision()), RequisitionLine2.Quantity, RequisitionLine2.FieldCaption(Quantity));
+        Assert.AreEqual(OriginalDueDate, RequisitionLine2."Original Due Date", RequisitionLine2.FieldCaption("Original Due Date"));
+        Assert.AreEqual(
+            Round(OriginalQuantity, UOMMgt.QtyRndPrecision()), RequisitionLine2."Original Quantity", RequisitionLine2.FieldCaption("Original Quantity"));
     end;
 
     local procedure VerifyRequisitionLineCount(ExpectedReqLinesCount: Integer)

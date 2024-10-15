@@ -1,7 +1,11 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.HumanResources.Employee;
+
 page 542 "Default Dimensions-Multiple"
 {
     Caption = 'Default Dimensions-Multiple';
-    DataCaptionExpression = GetCaption();
+    DataCaptionExpression = Rec.GetCaption();
     PageType = List;
     SourceTable = "Default Dimension";
     SourceTableTemporary = true;
@@ -21,8 +25,8 @@ page 542 "Default Dimensions-Multiple"
 
                     trigger OnValidate()
                     begin
-                        if (xRec."Dimension Code" <> '') and (xRec."Dimension Code" <> "Dimension Code") then
-                            Error(CannotRenameErr, TableCaption);
+                        if (xRec."Dimension Code" <> '') and (xRec."Dimension Code" <> Rec."Dimension Code") then
+                            Error(CannotRenameErr, Rec.TableCaption);
                     end;
                 }
                 field("Dimension Value Code"; Rec."Dimension Value Code")
@@ -40,7 +44,7 @@ page 542 "Default Dimensions-Multiple"
                         UpdateAllowedValues();
                     end;
                 }
-                field(AllowedValuesFilter; "Allowed Values Filter")
+                field(AllowedValuesFilter; Rec."Allowed Values Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension values that can be used for the selected account.';
@@ -49,10 +53,10 @@ page 542 "Default Dimensions-Multiple"
                     var
                         DimMgt: Codeunit DimensionManagement;
                     begin
-                        TestField("Dimension Code");
-                        TestField("Value Posting", "Value Posting"::"Code Mandatory");
+                        Rec.TestField("Dimension Code");
+                        Rec.TestField("Value Posting", Rec."Value Posting"::"Code Mandatory");
                         DimMgt.OpenAllowedDimValuesPerAccountDimMultiple(Rec, TempDimValuePerAccount);
-                        "Allowed Values Filter" := CopyStr(GetFullAllowedValuesFilter(TempDimValuePerAccount), 1, MaxStrLen("Allowed Values Filter"));
+                        Rec."Allowed Values Filter" := CopyStr(Rec.GetFullAllowedValuesFilter(TempDimValuePerAccount), 1, MaxStrLen(Rec."Allowed Values Filter"));
                         UpdateTempDimValuePerAcount(TempDimValuePerAccount);
                         CurrPage.Update();
                     end;
@@ -60,7 +64,7 @@ page 542 "Default Dimensions-Multiple"
                     trigger OnValidate()
                     begin
                         TempDimValuePerAccount.Reset();
-                        UpdateDimValuesPerAccountFromAllowedValuesFilter(TempDimValuePerAccount);
+                        Rec.UpdateDimValuesPerAccountFromAllowedValuesFilter(TempDimValuePerAccount);
                     end;
                 }
             }
@@ -73,14 +77,14 @@ page 542 "Default Dimensions-Multiple"
 
     trigger OnAfterGetRecord()
     begin
-        DimensionValueCodeOnFormat(Format("Dimension Value Code"));
-        ValuePostingOnFormat(Format("Value Posting"));
+        DimensionValueCodeOnFormat(Format(Rec."Dimension Value Code"));
+        ValuePostingOnFormat(Format(Rec."Value Posting"));
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
-        "Multi Selection Action" := "Multi Selection Action"::Delete;
-        Modify();
+        Rec."Multi Selection Action" := Rec."Multi Selection Action"::Delete;
+        Rec.Modify();
         exit(false);
     end;
 
@@ -91,19 +95,19 @@ page 542 "Default Dimensions-Multiple"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        SetRange("Dimension Code", "Dimension Code");
-        if not Find('-') and ("Dimension Code" <> '') then begin
-            "Multi Selection Action" := "Multi Selection Action"::Change;
-            Insert();
+        Rec.SetRange("Dimension Code", Rec."Dimension Code");
+        if not Rec.Find('-') and (Rec."Dimension Code" <> '') then begin
+            Rec."Multi Selection Action" := Rec."Multi Selection Action"::Change;
+            Rec.Insert();
         end;
-        SetRange("Dimension Code");
+        Rec.SetRange("Dimension Code");
         exit(false);
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        "Multi Selection Action" := "Multi Selection Action"::Change;
-        Modify();
+        Rec."Multi Selection Action" := Rec."Multi Selection Action"::Change;
+        Rec.Modify();
         exit(false);
     end;
 
@@ -138,18 +142,17 @@ page 542 "Default Dimensions-Multiple"
     var
         DefaultDim: Record "Default Dimension";
     begin
-        SetRange(
-          "Multi Selection Action", "Multi Selection Action"::Change);
-        if Find('-') then
+        Rec.SetRange("Multi Selection Action", Rec."Multi Selection Action"::Change);
+        if Rec.Find('-') then
             repeat
                 if TempDefaultDim3.Find('-') then
                     repeat
                         if DefaultDim.Get(
-                             TempDefaultDim3."Table ID", TempDefaultDim3."No.", "Dimension Code")
+                             TempDefaultDim3."Table ID", TempDefaultDim3."No.", Rec."Dimension Code")
                         then begin
-                            DefaultDim."Dimension Code" := "Dimension Code";
-                            DefaultDim."Dimension Value Code" := "Dimension Value Code";
-                            DefaultDim."Value Posting" := "Value Posting";
+                            DefaultDim."Dimension Code" := Rec."Dimension Code";
+                            DefaultDim."Dimension Value Code" := Rec."Dimension Value Code";
+                            DefaultDim."Value Posting" := Rec."Value Posting";
                             UpdateDimValuePerAccount(DefaultDim);
                             OnBeforeSetCommonDefaultCopyFields(DefaultDim, Rec);
                             DefaultDim.Modify(true);
@@ -157,25 +160,25 @@ page 542 "Default Dimensions-Multiple"
                             DefaultDim.Init();
                             DefaultDim."Table ID" := TempDefaultDim3."Table ID";
                             DefaultDim."No." := TempDefaultDim3."No.";
-                            DefaultDim."Dimension Code" := "Dimension Code";
-                            DefaultDim."Dimension Value Code" := "Dimension Value Code";
-                            DefaultDim."Value Posting" := "Value Posting";
+                            DefaultDim."Dimension Code" := Rec."Dimension Code";
+                            DefaultDim."Dimension Value Code" := Rec."Dimension Value Code";
+                            DefaultDim."Value Posting" := Rec."Value Posting";
                             UpdateDimValuePerAccount(DefaultDim);
                             OnBeforeSetCommonDefaultCopyFields(DefaultDim, Rec);
                             DefaultDim.Insert(true);
                         end;
                     until TempDefaultDim3.Next() = 0;
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 
     local procedure UpdateDimValuePerAccount(var DefaultDim: Record "Default Dimension")
     var
         DimValuePerAccount: Record "Dim. Value per Account";
     begin
-        if "Value Posting" <> "Value Posting"::"Code Mandatory" then
+        if Rec."Value Posting" <> Rec."Value Posting"::"Code Mandatory" then
             exit;
 
-        DefaultDim."Allowed Values Filter" := "Allowed Values Filter";
+        DefaultDim."Allowed Values Filter" := Rec."Allowed Values Filter";
         TempDimValuePerAccount.Reset();
         TempDimValuePerAccount.SetRange("Dimension Code", DefaultDim."Dimension Code");
         TempDimValuePerAccount.SetRange("No.", DefaultDim."No.");
@@ -198,11 +201,11 @@ page 542 "Default Dimensions-Multiple"
 
     local procedure UpdateAllowedValues()
     begin
-        ClearAllowedValuesFilter(TempDimValuePerAccount);
+        Rec.ClearAllowedValuesFilter(TempDimValuePerAccount);
 
-        if "Value Posting" = "Value Posting"::"Code Mandatory" then begin
+        if Rec."Value Posting" = Rec."Value Posting"::"Code Mandatory" then begin
             CreateDimValuesPerAccount();
-            "Allowed Values Filter" := GetAllowedValuesFilter();
+            Rec."Allowed Values Filter" := Rec.GetAllowedValuesFilter();
         end;
     end;
 
@@ -210,7 +213,7 @@ page 542 "Default Dimensions-Multiple"
     var
         DimValue: Record "Dimension Value";
     begin
-        DimValue.SetRange("Dimension Code", "Dimension Code");
+        DimValue.SetRange("Dimension Code", Rec."Dimension Code");
         if DimValue.FindSet() then
             repeat
                 CreateDimValuePerAccountFromDimValue2(DimValue);
@@ -271,58 +274,57 @@ page 542 "Default Dimensions-Multiple"
         Dim: Record Dimension;
         RecNo: Integer;
     begin
-        Reset();
-        DeleteAll();
+        Rec.Reset();
+        Rec.DeleteAll();
         if Dim.Find('-') then
             repeat
                 RecNo := 0;
                 TempDefaultDim2.SetRange("Dimension Code", Dim.Code);
-                SetRange("Dimension Code", Dim.Code);
+                Rec.SetRange("Dimension Code", Dim.Code);
                 if TempDefaultDim2.Find('-') then
                     repeat
-                        if FindFirst() then begin
-                            if "Dimension Value Code" <> TempDefaultDim2."Dimension Value Code" then
-                                if ("Multi Selection Action" <> 10) and
-                                   ("Multi Selection Action" <> 21)
+                        if Rec.FindFirst() then begin
+                            if Rec."Dimension Value Code" <> TempDefaultDim2."Dimension Value Code" then
+                                if (Rec."Multi Selection Action" <> 10) and
+                                   (Rec."Multi Selection Action" <> 21)
                                 then begin
-                                    "Multi Selection Action" :=
-                                      "Multi Selection Action" + 10;
-                                    "Dimension Value Code" := '';
+                                    Rec."Multi Selection Action" :=
+                                      Rec."Multi Selection Action" + 10;
+                                    Rec."Dimension Value Code" := '';
                                 end;
-                            if "Value Posting" <> TempDefaultDim2."Value Posting" then
-                                if ("Multi Selection Action" <> 11) and
-                                   ("Multi Selection Action" <> 21)
+                            if Rec."Value Posting" <> TempDefaultDim2."Value Posting" then
+                                if (Rec."Multi Selection Action" <> 11) and
+                                   (Rec."Multi Selection Action" <> 21)
                                 then begin
-                                    "Multi Selection Action" :=
-                                      "Multi Selection Action" + 11;
-                                    "Value Posting" := "Value Posting"::" ";
+                                    Rec."Multi Selection Action" :=
+                                      Rec."Multi Selection Action" + 11;
+                                    Rec."Value Posting" := Rec."Value Posting"::" ";
                                 end;
-                            Modify();
+                            Rec.Modify();
                             RecNo := RecNo + 1;
                         end else begin
                             Rec := TempDefaultDim2;
-                            Insert();
+                            Rec.Insert();
                             RecNo := RecNo + 1;
                         end;
-                        if "Value Posting" = "Value Posting"::"Code Mandatory" then
+                        if Rec."Value Posting" = Rec."Value Posting"::"Code Mandatory" then
                             FillDimValuePerAccountBuffer();
                     until TempDefaultDim2.Next() = 0;
 
-                if Find('-') and (RecNo <> TotalRecNo) then
-                    if ("Multi Selection Action" <> 10) and
-                       ("Multi Selection Action" <> 21)
+                if Rec.Find('-') and (RecNo <> TotalRecNo) then
+                    if (Rec."Multi Selection Action" <> 10) and
+                       (Rec."Multi Selection Action" <> 21)
                     then begin
-                        "Multi Selection Action" :=
-                          "Multi Selection Action" + 10;
-                        "Dimension Value Code" := '';
-                        Modify();
+                        Rec."Multi Selection Action" :=
+                          Rec."Multi Selection Action" + 10;
+                        Rec."Dimension Value Code" := '';
+                        Rec.Modify();
                     end;
             until Dim.Next() = 0;
 
-        Reset();
-        SetCurrentKey("Dimension Code");
-        SetFilter(
-          "Multi Selection Action", '<>%1', "Multi Selection Action"::Delete);
+        Rec.Reset();
+        Rec.SetCurrentKey("Dimension Code");
+        Rec.SetFilter("Multi Selection Action", '<>%1', Rec."Multi Selection Action"::Delete);
     end;
 
     local procedure FillDimValuePerAccountBuffer()
@@ -344,18 +346,18 @@ page 542 "Default Dimensions-Multiple"
 
     local procedure DimensionValueCodeOnFormat(Text: Text[1024])
     begin
-        if "Dimension Code" <> '' then
-            if ("Multi Selection Action" = 10) or
-               ("Multi Selection Action" = 21)
+        if Rec."Dimension Code" <> '' then
+            if (Rec."Multi Selection Action" = 10) or
+               (Rec."Multi Selection Action" = 21)
             then
                 Text := Text001;
     end;
 
     local procedure ValuePostingOnFormat(Text: Text[1024])
     begin
-        if "Dimension Code" <> '' then
-            if ("Multi Selection Action" = 11) or
-               ("Multi Selection Action" = 21)
+        if Rec."Dimension Code" <> '' then
+            if (Rec."Multi Selection Action" = 11) or
+               (Rec."Multi Selection Action" = 21)
             then
                 Text := Text001;
     end;
@@ -390,7 +392,7 @@ page 542 "Default Dimensions-Multiple"
         with Employee do
             if Find('-') then
                 repeat
-                    CopyDefaultDimToDefaultDim(DATABASE::Employee, "No.");
+                    CopyDefaultDimToDefaultDim(Database::Employee, "No.");
                 until Next() = 0;
     end;
 
@@ -446,18 +448,17 @@ page 542 "Default Dimensions-Multiple"
     var
         DefaultDim: Record "Default Dimension";
     begin
-        SetRange(
-         "Multi Selection Action", "Multi Selection Action"::Delete);
-        if Find('-') then
+        Rec.SetRange("Multi Selection Action", Rec."Multi Selection Action"::Delete);
+        if Rec.Find('-') then
             repeat
                 if TempDefaultDim3.Find('-') then
                     repeat
                         if DefaultDim.Get(
-                             TempDefaultDim3."Table ID", TempDefaultDim3."No.", "Dimension Code")
+                             TempDefaultDim3."Table ID", TempDefaultDim3."No.", Rec."Dimension Code")
                         then
                             DefaultDim.Delete(true);
                     until TempDefaultDim3.Next() = 0;
-            until Next() = 0;
+            until Rec.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

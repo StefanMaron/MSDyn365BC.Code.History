@@ -37,13 +37,13 @@ table 31001 "Sales Advance Letter Line"
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
         }
@@ -93,13 +93,13 @@ table 31001 "Sales Advance Letter Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(41; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(45; "Job No."; Code[20])
         {
@@ -164,7 +164,7 @@ table 31001 "Sales Advance Letter Line"
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
@@ -189,13 +189,13 @@ table 31001 "Sales Advance Letter Line"
         }
         field(31015; "Amount To Refund"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             BlankZero = true;
             Caption = 'Amount To Refund';
         }
         field(31016; "Customer Posting Group"; Code[20])
         {
-            CalcFormula = Lookup("Sales Advance Letter Header"."Customer Posting Group" WHERE("No." = FIELD("Letter No.")));
+            CalcFormula = Lookup("Sales Advance Letter Header"."Customer Posting Group" where("No." = field("Letter No.")));
             Caption = 'Customer Posting Group';
             Editable = false;
             FieldClass = FlowField;
@@ -207,13 +207,13 @@ table 31001 "Sales Advance Letter Line"
         }
         field(31018; "Document Linked Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Sale),
-                                                                           "Letter No." = FIELD("Letter No."),
-                                                                           "Letter Line No." = FIELD("Line No."),
-                                                                           "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation".Amount where(Type = const(Sale),
+                                                                           "Letter No." = field("Letter No."),
+                                                                           "Letter Line No." = field("Line No."),
+                                                                           "Document No." = field("Doc. No. Filter")));
             Caption = 'Document Linked Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -226,20 +226,20 @@ table 31001 "Sales Advance Letter Line"
         }
         field(31020; "Semifinished Linked Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Semifinished Linked Amount';
         }
         field(31021; "Document Linked Inv. Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Sale),
-                                                                                      "Letter No." = FIELD("Letter No."),
-                                                                                      "Letter Line No." = FIELD("Line No."),
-                                                                                      "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation"."Invoiced Amount" where(Type = const(Sale),
+                                                                                      "Letter No." = field("Letter No."),
+                                                                                      "Letter Line No." = field("Line No."),
+                                                                                      "Document No." = field("Doc. No. Filter")));
             Caption = 'Document Linked Inv. Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -252,26 +252,26 @@ table 31001 "Sales Advance Letter Line"
         }
         field(31023; "Document Linked Ded. Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Sale),
-                                                                                      "Letter No." = FIELD("Letter No."),
-                                                                                      "Letter Line No." = FIELD("Line No."),
-                                                                                      "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation"."Deducted Amount" where(Type = const(Sale),
+                                                                                      "Letter No." = field("Letter No."),
+                                                                                      "Letter Line No." = field("Line No."),
+                                                                                      "Document No." = field("Doc. No. Filter")));
             Caption = 'Document Linked Ded. Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31024; "Doc. Linked Amount to Deduct"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation"."Amount To Deduct" WHERE(Type = CONST(Sale),
-                                                                                       "Letter No." = FIELD("Letter No."),
-                                                                                       "Letter Line No." = FIELD("Line No."),
-                                                                                       "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation"."Amount To Deduct" where(Type = const(Sale),
+                                                                                       "Letter No." = field("Letter No."),
+                                                                                       "Letter Line No." = field("Line No."),
+                                                                                       "Document No." = field("Doc. No. Filter")));
             Caption = 'Doc. Linked Amount to Deduct';
             Editable = false;
             FieldClass = FlowField;

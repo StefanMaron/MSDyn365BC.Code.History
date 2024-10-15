@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 enum 61 "Electronic Document Format Usage"
 {
     Extensible = true;

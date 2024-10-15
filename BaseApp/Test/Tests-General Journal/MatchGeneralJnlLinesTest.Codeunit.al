@@ -1198,7 +1198,6 @@ codeunit 134251 "Match General Jnl Lines Test"
         LastLineNo: Integer;
     begin
         with TextToAccMapping do begin
-            SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
             if FindLast() then
                 LastLineNo := "Line No.";
 

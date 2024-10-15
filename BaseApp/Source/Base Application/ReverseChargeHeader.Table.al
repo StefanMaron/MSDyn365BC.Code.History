@@ -110,16 +110,12 @@ table 31093 "Reverse Charge Header"
         {
             Caption = 'City';
             TableRelation = "Post Code".City;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(27; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
             TableRelation = "Post Code";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(30; "Tax Office No."; Code[20])

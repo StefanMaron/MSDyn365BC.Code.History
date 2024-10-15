@@ -428,11 +428,11 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
 
         // [GIVEN] Reminder terms with Finance Charge Interest Rate.
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-        FinanceChargeTerms.Validate("Interest Period (Days)", LibraryRandom.RandInt(10));
-        FinanceChargeTerms.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeTerms.Validate("Interest Period (Days)", 3);
+        FinanceChargeTerms.Validate("Interest Rate", 3);
         FinanceChargeTerms.Validate("Add. Line Fee in Interest", true);
         FinanceChargeTerms.Modify(true);
-        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, DocumentDate - LibraryRandom.RandInt(3));
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, DocumentDate - 4);
         Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
         Customer.Modify(true);
 

@@ -16,16 +16,16 @@ table 11762 "Registration Country/Region"
         field(10; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            TableRelation = IF ("Account Type" = CONST(Customer)) Customer
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("Account Type" = CONST(Contact)) Contact;
+            TableRelation = if ("Account Type" = const(Customer)) Customer
+            else
+            if ("Account Type" = const(Vendor)) Vendor
+            else
+            if ("Account Type" = const(Contact)) Contact;
         }
         field(15; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
-            TableRelation = "Country/Region" WHERE("EU Country/Region Code" = FILTER(<> ''));
+            TableRelation = "Country/Region" where("EU Country/Region Code" = filter(<> ''));
         }
         field(20; "VAT Registration No."; Text[20])
         {
@@ -65,7 +65,7 @@ table 11762 "Registration Country/Region"
         {
             BlankZero = true;
             Caption = 'Intrastat Export Object No.';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = FIELD("Intrastat Export Object Type"));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = field("Intrastat Export Object Type"));
         }
         field(60; "Intrastat Exch.Rate Mandatory"; Boolean)
         {

@@ -38,8 +38,6 @@ table 31084 "Acc. Sched. Expression Buffer"
         {
             Caption = 'Dimension 1 Totaling';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -47,8 +45,6 @@ table 31084 "Acc. Sched. Expression Buffer"
         {
             Caption = 'Dimension 2 Totaling';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -56,8 +52,6 @@ table 31084 "Acc. Sched. Expression Buffer"
         {
             Caption = 'Dimension 3 Totaling';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }
@@ -65,8 +59,6 @@ table 31084 "Acc. Sched. Expression Buffer"
         {
             Caption = 'Dimension 4 Totaling';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
             //The property 'ValidateTableRelation' can only be set if the property 'TableRelation' is set
             //ValidateTableRelation = false;
         }

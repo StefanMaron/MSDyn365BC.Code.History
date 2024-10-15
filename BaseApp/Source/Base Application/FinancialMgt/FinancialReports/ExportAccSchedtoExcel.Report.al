@@ -1,24 +1,34 @@
-#if not CLEAN20
+﻿namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Environment;
+using System.IO;
+using System.Utilities;
+
 report 29 "Export Acc. Sched. to Excel"
 {
     Caption = 'Export Acc. Sched. to Excel';
     ProcessingOnly = true;
-    UseRequestPage = true;
+    UseRequestPage = false;
 
     dataset
     {
         dataitem("Integer"; "Integer")
         {
-            DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+            DataItemTableView = sorting(Number) where(Number = const(1));
 
             trigger OnAfterGetRecord()
             var
+                Company: Record Company;
                 Window: Dialog;
                 RecNo: Integer;
                 TotalRecNo: Integer;
                 RowNo: Integer;
                 ColumnNo: Integer;
-                ClientFileName: Text;
+                CompanyDisplayName, ClientFileName : Text;
             begin
                 if DoUpdateExistingWorksheet then
                     if not UploadClientFile(ClientFileName, ServerFileName) then
@@ -96,7 +106,7 @@ report 29 "Export Acc. Sched. to Excel"
                 if AccSchedLine.Find('-') then begin
                     if ColumnLayout.Find('-') then begin
                         RowNo := RowNo + 1;
-                        ColumnNo := 2; // Skip the "Row No." column.                       
+                        ColumnNo := 2; // Skip the "Row No." column.
                         repeat
                             ColumnNo := ColumnNo + 1;
                             EnterCell(
@@ -131,15 +141,20 @@ report 29 "Export Acc. Sched. to Excel"
 
                 Window.Close();
 
+                Company.Get(CompanyName());
+                CompanyDisplayName := Company."Display Name";
+                if CompanyDisplayName = '' then
+                    CompanyDisplayName := Company.Name;
+
                 if DoUpdateExistingWorksheet then begin
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
-                    TempExcelBuffer.WriteSheet('', CompanyName, UserId);
+                    TempExcelBuffer.WriteSheet('', CompanyDisplayName, UserId);
                     TempExcelBuffer.CloseBook();
                     if not TestMode then
                         TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
-                    TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyName, UserId);
+                    TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyDisplayName, UserId);
                     TempExcelBuffer.CloseBook();
                     if not TestMode then
                         TempExcelBuffer.OpenExcel();
@@ -150,24 +165,9 @@ report 29 "Export Acc. Sched. to Excel"
 
     requestpage
     {
-        SaveValues = true;
 
         layout
         {
-            area(content)
-            {
-                group(Options)
-                {
-                    Caption = 'Options';
-                    field(ExportAccLineNo; ExportAccLineNo)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Visible = false;
-                        Caption = 'Export Row No.';
-                        ToolTip = 'Specifies if row number has to be printed.';
-                    }
-                }
-            }
         }
 
         actions
@@ -195,8 +195,6 @@ report 29 "Export Acc. Sched. to Excel"
         ServerFileName: Text;
         SheetName: Text[250];
         DoUpdateExistingWorksheet: Boolean;
-        ColumnLayoutName: Code[10];
-        ExportAccLineNo: Boolean;
         TestMode: Boolean;
 
         Text000: Label 'Analyzing Data...\\';
@@ -209,8 +207,6 @@ report 29 "Export Acc. Sched. to Excel"
         AccSchedLine.CopyFilters(AccSchedLine2);
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName2);
         UseAmtsInAddCurr := UseAmtsInAddCurr2;
-
-        ColumnLayoutName := ColumnLayoutName2; // NAVCZ
     end;
 
     local procedure CalcColumnValue()
@@ -325,4 +321,4 @@ report 29 "Export Acc. Sched. to Excel"
     begin
     end;
 }
-#endif
+

@@ -24,20 +24,20 @@ table 11709 "Payment Order Line"
         field(4; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST(Customer)) Customer."No."
-            ELSE
-            IF (Type = CONST(Vendor)) Vendor."No."
-            ELSE
-            IF (Type = CONST(Employee)) Employee."No."
-            ELSE
-            IF (Type = CONST("Bank Account")) "Bank Account"."No.";
+            TableRelation = if (Type = const(Customer)) Customer."No."
+            else
+            if (Type = const(Vendor)) Vendor."No."
+            else
+            if (Type = const(Employee)) Employee."No."
+            else
+            if (Type = const("Bank Account")) "Bank Account"."No.";
         }
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
             Caption = 'Cust./Vendor Bank Account Code';
-            TableRelation = IF (Type = CONST(Customer)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("No."))
-            ELSE
-            IF (Type = CONST(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("No."));
+            TableRelation = if (Type = const(Customer)) "Customer Bank Account".Code where("Customer No." = field("No."))
+            else
+            if (Type = const(Vendor)) "Vendor Bank Account".Code where("Vendor No." = field("No."));
         }
         field(6; Description; Text[100])
         {
@@ -67,7 +67,7 @@ table 11709 "Payment Order Line"
         }
         field(11; "Amount to Pay"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Pay';
         }
@@ -144,15 +144,13 @@ table 11709 "Payment Order Line"
         {
             BlankZero = true;
             Caption = 'Applies-to C/V/E Entry No.';
-            TableRelation = IF (Type = CONST(Vendor)) "Vendor Ledger Entry"."Entry No." WHERE(Open = CONST(true),
-                                                                                             "On Hold" = CONST(''))
-            ELSE
-            IF (Type = CONST(Customer)) "Cust. Ledger Entry"."Entry No." WHERE(Open = CONST(true),
-                                                                                                                                                                    "On Hold" = CONST(''))
-            ELSE
-            IF (Type = CONST(Employee)) "Employee Ledger Entry"."Entry No." WHERE(Open = CONST(true));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if (Type = const(Vendor)) "Vendor Ledger Entry"."Entry No." where(Open = const(true),
+                                                                                             "On Hold" = const(''))
+            else
+            if (Type = const(Customer)) "Cust. Ledger Entry"."Entry No." where(Open = const(true),
+                                                                                                                                                                    "On Hold" = const(''))
+            else
+            if (Type = const(Employee)) "Employee Ledger Entry"."Entry No." where(Open = const(true));
 
             trigger OnLookup()
             var
@@ -289,7 +287,7 @@ table 11709 "Payment Order Line"
         }
         field(80; "Original Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Original Amount';
             Editable = false;
@@ -328,7 +326,7 @@ table 11709 "Payment Order Line"
         }
         field(140; "Remaining Pmt. Disc. Possible"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Pmt. Disc. Possible';
             Editable = false;

@@ -493,6 +493,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     procedure ReminderWithGracePeriodNotDue()
     var
         Customer: Record Customer;
+        ReminderTerms: Record "Reminder Terms";
         PostedInvoiceNo: Code[20];
         ReminderNo: Code[20];
     begin
@@ -501,7 +502,11 @@ codeunit 134376 "ERM Reminders - Grace Period"
         Initialize();
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days
         CreateCustomer(Customer);
-
+        ReminderTerms.SetRange(Code, Customer."Reminder Terms Code");
+        ReminderTerms.FindFirst();
+        Assert.RecordIsNotEmpty(ReminderTerms);
+        ReminderTerms.Validate("Minimum Amount (LCY)", 0);
+        ReminderTerms.Modify(true);
         // [GIVEN] Posted Sales Invoice "A" with Due Date = 01.01
         // This sales invoice needed to make sure that Reminder will be created
         CreateAndPostSalesInvoiceWithPostingDate(Customer."No.", WorkDate());
@@ -523,6 +528,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     var
         Customer: Record Customer;
         ReminderLine: Record "Reminder Line";
+        ReminderTerms: Record "Reminder Terms";
         PostedInvoiceNo: Code[20];
         ReminderNo: Code[20];
     begin
@@ -531,6 +537,11 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days and Payment Terms = 20 days
         CreateCustomerWithPaymentTerms(Customer);
+        ReminderTerms.SetRange(Code, Customer."Reminder Terms Code");
+        ReminderTerms.FindFirst();
+        Assert.RecordIsNotEmpty(ReminderTerms);
+        ReminderTerms.Validate("Minimum Amount (LCY)", 0);
+        ReminderTerms.Modify(true);
         // [GIVEN] Posted Sales Invoice "A" with Due Date = 01.01
         CreateAndPostSalesInvoiceWithPostingDate(Customer."No.", WorkDate());
         // [GIVEN] Posted Sales Invoice "B" with Due Date = 20.02
@@ -555,6 +566,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     var
         Customer: Record Customer;
         ReminderLine: Record "Reminder Line";
+        ReminderTerms: Record "Reminder Terms";
         PaymentNo: Code[20];
         ReminderNo: Code[20];
         PostedInvoiceNo: Code[20];
@@ -564,6 +576,11 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
         // [GIVEN] Customer with Reminder Code and Grace Period = 20 days
         CreateCustomer(Customer);
+        ReminderTerms.SetRange(Code, Customer."Reminder Terms Code");
+        ReminderTerms.FindFirst();
+        Assert.RecordIsNotEmpty(ReminderTerms);
+        ReminderTerms.Validate("Minimum Amount (LCY)", 0);
+        ReminderTerms.Modify(true);
         // [GIVEN] Posted Sales Invoice "A" with Due Date = 01.01
         // This sales invoice needed to make sure that Reminder will be created
         PostedInvoiceNo := CreateAndPostSalesInvoiceWithPostingDate(Customer."No.", WorkDate());
@@ -728,12 +745,20 @@ codeunit 134376 "ERM Reminders - Grace Period"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reminders - Grace Period");
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminders - Grace Period");
 
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();

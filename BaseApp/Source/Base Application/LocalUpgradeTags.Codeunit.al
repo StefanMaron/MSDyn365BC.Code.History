@@ -25,8 +25,12 @@ codeunit 11790 "Local Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetCreditWorkflowTemplatesCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPaymentOrderWorkflowTemplatesCodeUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAdvanceLetterWorkflowTemplatesCodeUpgradeTag());
-        PerCompanyUpgradeTags.Add(GetBankPaymentApplicationWithoutCodeUpgradeTag());
-        PerCompanyUpgradeTags.Add(GetTextToAccountMappingWithoutCodeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetReplaceMulIntRateSalesSetupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetReplaceMulIntRateFinChargeIntRateUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetReplaceMulIntRateFinanceChargeMemosUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetReplaceMulIntRateRemindersUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetReplaceMulIntRateIssuedFinanceChargeMemosUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetReplaceMulIntRateIssuedRemindersUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -135,13 +139,33 @@ codeunit 11790 "Local Upgrade Tag Definitions"
         exit('CZ-403757-AdvanceLetterWorkflowTemplatesCode-20210629');
     end;
 
-    internal procedure GetBankPaymentApplicationWithoutCodeUpgradeTag(): Code[250]
+    internal procedure GetReplaceMulIntRateSalesSetupUpgradeTag(): Code[250]
     begin
-        exit('CZ-443967-BankPaymentApplicationWithoutCode-20220726');
+        exit('CZ-461779-ReplaceMulIntRateSalesSetup-20220418');
     end;
 
-    internal procedure GetTextToAccountMappingWithoutCodeUpgradeTag(): Code[250]
+    internal procedure GetReplaceMulIntRateFinChargeIntRateUpgradeTag(): Code[250]
     begin
-        exit('CZ-443967-TextToAccountMappingWithoutCode-20220726');
+        exit('CZ-461779-ReplaceMulIntRateFinChargeIntRates-20220418');
+    end;
+
+    internal procedure GetReplaceMulIntRateFinanceChargeMemosUpgradeTag(): Code[250]
+    begin
+        exit('CZ-461779-ReplaceMulIntRateFinanceChargeMemos-20220418');
+    end;
+
+    internal procedure GetReplaceMulIntRateRemindersUpgradeTag(): Code[250]
+    begin
+        exit('CZ-461779-ReplaceMulIntRateReminders-20220418');
+    end;
+
+    internal procedure GetReplaceMulIntRateIssuedFinanceChargeMemosUpgradeTag(): Code[250]
+    begin
+        exit('CZ-461779-ReplaceMulIntRateIssuedFinanceChargeMemos-20220418');
+    end;
+
+    internal procedure GetReplaceMulIntRateIssuedRemindersUpgradeTag(): Code[250]
+    begin
+        exit('CZ-461779-ReplaceMulIntRateIssuedReminders-20220418');
     end;
 }

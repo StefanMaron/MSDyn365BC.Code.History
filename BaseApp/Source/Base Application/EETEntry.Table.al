@@ -54,8 +54,6 @@ table 31123 "EET Entry"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(62; "Creation Datetime"; DateTime)

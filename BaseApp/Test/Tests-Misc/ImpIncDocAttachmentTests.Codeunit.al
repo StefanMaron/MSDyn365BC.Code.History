@@ -2,6 +2,7 @@ codeunit 134419 "Imp. Inc.Doc. Attachment Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -60,8 +61,47 @@ codeunit 134419 "Imp. Inc.Doc. Attachment Tests"
 
         // [THEN] Attachment is identical to Dummy Document and Purchase Header is updated with Incoming Document Entry No.
         VerifyIncomingDocumentAttachment(IncomingDocumentAttachment, DummyText, FileName);
+        Assert.AreEqual(TempBlob.Length(), GetContentTempBlobLength(IncomingDocumentAttachment), 'Incorrect length for temp blob content');
         PurchaseHeader.Find('=');
         Assert.AreEqual(IncomingDocumentAttachment."Incoming Document Entry No.", PurchaseHeader."Incoming Document Entry No.", 'Incoming Document Entry No. should be updated in the document.');
+    end;
+
+    [Test]
+    procedure ExternalAttachmentTest()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        ImpIncDocAttachmentTests: Codeunit "Imp. Inc.Doc. Attachment Tests";
+        TempBlob: Codeunit "Temp Blob";
+        FileName: Text[250];
+        FileOutStream: OutStream;
+        FileNameTxt: Label 'dummy.pdf', Locked = true;
+        DummyText: Text;
+    begin
+        // [SCENARIO] External Storage removes the local attachment
+        Initialize();
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+
+        // [GIVEN] Dummy Document to Attach
+        TempBlob.CreateOutStream(FileOutStream);
+        DummyText := LibraryRandom.RandText(100);
+        FileOutStream.WriteText(DummyText);
+        FileName := FileNameTxt;
+
+        // [WHEN] When New Attachment for Purchase Document is created.
+        BindSubscription(ImpIncDocAttachmentTests);
+        IncomingDocumentAttachment.NewAttachmentFromPurchaseDocument(PurchaseHeader, FileName, TempBlob);
+
+        // [THEN] Attachment is blank
+        VerifyIncomingDocumentAttachment(IncomingDocumentAttachment, '', FileName);
+
+        // [THEN] Verify content length from external source
+        Clear(TempBlob);
+        IncomingDocumentAttachment.GetContent(TempBlob);
+        Assert.AreEqual(100, TempBlob.Length(), 'Incorrect content length');
+        UnbindSubscription(ImpIncDocAttachmentTests);
     end;
 
     local procedure VerifyIncomingDocumentAttachment(IncomingDocumentAttachment: Record "Incoming Document Attachment"; TextToTest: Text; FileName: Text[250])
@@ -81,4 +121,30 @@ codeunit 134419 "Imp. Inc.Doc. Attachment Tests"
         Assert.AreEqual(TextToTest, ActualFileContent, 'File Content should be identical');
     end;
 
+    local procedure GetContentTempBlobLength(IncomingDocumentAttachment: Record "Incoming Document Attachment"): Integer
+    var
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        Assert.IsTrue(IncomingDocumentAttachment.GetContent(TempBlob), 'Unable to get content as tempblob');
+        exit(TempBlob.Length());
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAttachBinaryFile', '', false, false)]
+    local procedure OnAttachBinaryFile(var Sender: Record "Incoming Document Attachment");
+    begin
+        Assert.AreEqual(100, Sender.Content.Length, 'Incorrect content length');
+        Clear(Sender.Content);
+    end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnGetBinaryContent', '', false, false)]
+    local procedure OnGetBinaryContent(var Sender: Record "Incoming Document Attachment"; var TempBlob: Codeunit "Temp Blob"; IncomingDocumentEntryNo: Integer);
+    var
+        FileOutStream: OutStream;
+        DummyText: Text;
+    begin
+        TempBlob.CreateOutStream(FileOutStream);
+        DummyText := LibraryRandom.RandText(100);
+        FileOutStream.WriteText(DummyText);
+    end;
 }

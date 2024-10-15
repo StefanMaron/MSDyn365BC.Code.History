@@ -1,3 +1,5 @@
+namespace System.DataAdministration;
+
 tableextension 3999 "Reten. Pol. Setup Line Ext." extends "Retention Policy Setup Line"
 {
     fields

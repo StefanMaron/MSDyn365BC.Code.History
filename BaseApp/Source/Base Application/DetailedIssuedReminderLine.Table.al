@@ -1,15 +1,8 @@
 table 11790 "Detailed Issued Reminder Line"
 {
     Caption = 'Detailed Issued Reminder Line';
-#if not CLEAN20
-    DrillDownPageID = "Detailed Issued Reminder Lines";
-    LookupPageID = "Detailed Issued Reminder Lines";
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
-#endif
     ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
 
     fields
@@ -53,7 +46,7 @@ table 11790 "Detailed Issued Reminder Line"
         }
         field(9; "Entry Type"; Option)
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Entry Type" WHERE("Entry No." = FIELD("Detailed Customer Entry No.")));
+            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Entry Type" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Entry Type';
             FieldClass = FlowField;
             OptionCaption = ',Initial Entry,Application,Unrealized Loss,Unrealized Gain,Realized Loss,Realized Gain,Payment Discount,Payment Discount (VAT Excl.),Payment Discount (VAT Adjustment),Appln. Rounding,Correction of Remaining Amount,Payment Tolerance,Payment Discount Tolerance,Payment Tolerance (VAT Excl.),Payment Tolerance (VAT Adjustment),Payment Discount Tolerance (VAT Excl.),Payment Discount Tolerance (VAT Adjustment)';
@@ -61,26 +54,26 @@ table 11790 "Detailed Issued Reminder Line"
         }
         field(10; "Posting Date"; Date)
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Posting Date" WHERE("Entry No." = FIELD("Detailed Customer Entry No.")));
+            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Posting Date" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Posting Date';
             FieldClass = FlowField;
         }
         field(11; "Document Type"; Enum "Gen. Journal Document Type")
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Document Type" WHERE("Entry No." = FIELD("Detailed Customer Entry No.")));
+            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Document Type" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Document Type';
             FieldClass = FlowField;
         }
         field(12; "Document No."; Code[20])
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Document No." WHERE("Entry No." = FIELD("Detailed Customer Entry No.")));
+            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Document No." where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Document No.';
             FieldClass = FlowField;
         }
         field(13; "Base Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry".Amount WHERE("Entry No." = FIELD("Detailed Customer Entry No.")));
+            CalcFormula = Lookup("Detailed Cust. Ledg. Entry".Amount where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Base Amount';
             FieldClass = FlowField;
         }

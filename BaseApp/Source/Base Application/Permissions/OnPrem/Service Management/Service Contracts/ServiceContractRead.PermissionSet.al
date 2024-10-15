@@ -1,3 +1,20 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Service.Contract;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Inventory.Location;
+using Microsoft.CRM.Team;
+
 permissionset 8933 "Service Contract - Read"
 {
     Access = Public;

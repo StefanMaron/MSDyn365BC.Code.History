@@ -30,17 +30,17 @@ table 31044 "FA History Entry"
         {
             Caption = 'Old Value';
             Editable = false;
-            TableRelation = IF (Type = CONST(Location)) "FA Location".Code
-            ELSE
-            IF (Type = CONST("Responsible Employee")) Employee."No.";
+            TableRelation = if (Type = CONST(Location)) "FA Location".Code
+            else
+            if (Type = CONST("Responsible Employee")) Employee."No.";
         }
         field(5; "New Value"; Code[20])
         {
             Caption = 'New Value';
             Editable = false;
-            TableRelation = IF (Type = CONST(Location)) "FA Location".Code
-            ELSE
-            IF (Type = CONST("Responsible Employee")) Employee."No.";
+            TableRelation = if (Type = CONST(Location)) "FA Location".Code
+            else
+            if (Type = CONST("Responsible Employee")) Employee."No.";
         }
         field(6; "Creation Date"; Date)
         {
@@ -68,8 +68,6 @@ table 31044 "FA History Entry"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
     }

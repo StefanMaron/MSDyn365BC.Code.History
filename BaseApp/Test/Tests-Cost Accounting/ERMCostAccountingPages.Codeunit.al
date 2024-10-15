@@ -43,7 +43,7 @@
         EntryNo: Integer;
         FailedToGetTheExpectedValidationError: Label 'Failed to get the expected validation error.';
         TestValidation: Label 'TestValidation';
-        CostTypeFilterDefinition: Label '%1..%2', Comment = '%1 - Field Value;%2 - Field Value';
+        CostTypeFilterDefinition: Label '%1..%2', Comment = '%1 - Field Value;%2 - Field Value', Locked = true;
         WrongFlowFilterValueErr: Label 'Wrong FLowFilter''s value on the page';
 
     [Test]
@@ -3516,7 +3516,7 @@
     var
         CostType: Record "Cost Type";
     begin
-        CostType.Get(CostJournalPage."Cost Type No.");
+        CostType.Get(CostJournalPage."Cost Type No.".Value());
         CostJournalPage.Next();
         CostJournalPage.Previous;
         Assert.AreEqual(
@@ -3534,7 +3534,7 @@
     var
         CostType: Record "Cost Type";
     begin
-        CostType.Get(CostJournalPage."Cost Type No.");
+        CostType.Get(CostJournalPage."Cost Type No.".Value());
         CostJournalPage.Next();
         CostJournalPage.Previous;
         Assert.AreEqual(

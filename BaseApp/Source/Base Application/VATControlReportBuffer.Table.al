@@ -38,9 +38,9 @@ table 31103 "VAT Control Report Buffer"
         {
             Caption = 'Bill-to/Pay-to No.';
             DataClassification = SystemMetadata;
-            TableRelation = IF (Type = CONST(Purchase)) Vendor
-            ELSE
-            IF (Type = CONST(Sale)) Customer;
+            TableRelation = if (Type = const(Purchase)) Vendor
+            else
+            if (Type = const(Sale)) Customer;
         }
         field(16; "VAT Registration No."; Text[20])
         {
@@ -201,7 +201,7 @@ table 31103 "VAT Control Report Buffer"
         }
         field(100; "VAT Control Rep. Section Desc."; Text[50])
         {
-            CalcFormula = Lookup("VAT Control Report Section".Description WHERE(Code = FIELD("VAT Control Rep. Section Code")));
+            CalcFormula = Lookup("VAT Control Report Section".Description where(Code = field("VAT Control Rep. Section Code")));
             Caption = 'VAT Control Rep. Section Desc.';
             Editable = false;
             FieldClass = FlowField;

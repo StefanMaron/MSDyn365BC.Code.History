@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
 table 5357 "CRM Contract"
 {
     // Dynamics CRM Version: 7.1.0.2040
@@ -303,7 +309,7 @@ table 5357 "CRM Contract"
         }
         field(35; ContactIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Contact".FullName WHERE(ContactId = FIELD(ContactId)));
+            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(ContactId)));
             Caption = 'ContactIdName';
             ExternalAccess = Read;
             ExternalName = 'contactidname';
@@ -312,7 +318,7 @@ table 5357 "CRM Contract"
         }
         field(36; AccountIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Account".Name WHERE(AccountId = FIELD(AccountId)));
+            CalcFormula = Lookup("CRM Account".Name where(AccountId = field(AccountId)));
             Caption = 'AccountIdName';
             ExternalAccess = Read;
             ExternalName = 'accountidname';
@@ -321,7 +327,7 @@ table 5357 "CRM Contract"
         }
         field(37; BillingContactIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Contact".FullName WHERE(ContactId = FIELD(BillingContactId)));
+            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(BillingContactId)));
             Caption = 'BillingContactIdName';
             ExternalAccess = Read;
             ExternalName = 'billingcontactidname';
@@ -330,7 +336,7 @@ table 5357 "CRM Contract"
         }
         field(38; BillingAccountIdName; Text[160])
         {
-            CalcFormula = Lookup ("CRM Account".Name WHERE(AccountId = FIELD(BillingAccountId)));
+            CalcFormula = Lookup("CRM Account".Name where(AccountId = field(BillingAccountId)));
             Caption = 'BillingAccountIdName';
             ExternalAccess = Read;
             ExternalName = 'billingaccountidname';
@@ -339,7 +345,7 @@ table 5357 "CRM Contract"
         }
         field(39; OriginatingContractName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Contract".Title WHERE(ContractId = FIELD(OriginatingContract)));
+            CalcFormula = Lookup("CRM Contract".Title where(ContractId = field(OriginatingContract)));
             Caption = 'OriginatingContractName';
             ExternalAccess = Read;
             ExternalName = 'originatingcontractname';
@@ -348,7 +354,7 @@ table 5357 "CRM Contract"
         }
         field(40; BillToAddressName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Customeraddress".Name WHERE(CustomerAddressId = FIELD(BillToAddress)));
+            CalcFormula = Lookup("CRM Customeraddress".Name where(CustomerAddressId = field(BillToAddress)));
             Caption = 'BillToAddressName';
             Description = 'Name of the address that is to be billed for the contract.';
             ExternalAccess = Read;
@@ -358,7 +364,7 @@ table 5357 "CRM Contract"
         }
         field(41; ServiceAddressName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Customeraddress".Name WHERE(CustomerAddressId = FIELD(ServiceAddress)));
+            CalcFormula = Lookup("CRM Customeraddress".Name where(CustomerAddressId = field(ServiceAddress)));
             Caption = 'ServiceAddressName';
             ExternalAccess = Read;
             ExternalName = 'serviceaddressname';
@@ -375,7 +381,7 @@ table 5357 "CRM Contract"
         }
         field(43; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -384,7 +390,7 @@ table 5357 "CRM Contract"
         }
         field(44; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -397,9 +403,9 @@ table 5357 "CRM Contract"
             Description = 'Select the customer account or contact to provide a quick link to additional customer details, such as address, phone number, activities, and orders.';
             ExternalName = 'customerid';
             ExternalType = 'Customer';
-            TableRelation = IF (CustomerIdType = CONST(account)) "CRM Account".AccountId
-            ELSE
-            IF (CustomerIdType = CONST(contact)) "CRM Contact".ContactId;
+            TableRelation = if (CustomerIdType = const(account)) "CRM Account".AccountId
+            else
+            if (CustomerIdType = const(contact)) "CRM Contact".ContactId;
         }
         field(46; CustomerIdType; Option)
         {
@@ -415,9 +421,9 @@ table 5357 "CRM Contract"
             Description = 'Select the customer account or contact to which the contract should be billed to provide a quick link to address and other customer details.';
             ExternalName = 'billingcustomerid';
             ExternalType = 'Customer';
-            TableRelation = IF (BillingCustomerIdType = CONST(account)) "CRM Account".AccountId
-            ELSE
-            IF (BillingCustomerIdType = CONST(contact)) "CRM Contact".ContactId;
+            TableRelation = if (BillingCustomerIdType = const(account)) "CRM Account".AccountId
+            else
+            if (BillingCustomerIdType = const(contact)) "CRM Contact".ContactId;
         }
         field(48; BillingCustomerIdType; Option)
         {
@@ -433,9 +439,9 @@ table 5357 "CRM Contract"
             Description = 'Enter the user or team who is assigned to manage the record. This field is updated every time the record is assigned to a different user.';
             ExternalName = 'ownerid';
             ExternalType = 'Owner';
-            TableRelation = IF (OwnerIdType = CONST(systemuser)) "CRM Systemuser".SystemUserId
-            ELSE
-            IF (OwnerIdType = CONST(team)) "CRM Team".TeamId;
+            TableRelation = if (OwnerIdType = const(systemuser)) "CRM Systemuser".SystemUserId
+            else
+            if (OwnerIdType = const(team)) "CRM Team".TeamId;
         }
         field(50; OwnerIdType; Option)
         {
@@ -512,7 +518,7 @@ table 5357 "CRM Contract"
         }
         field(59; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup ("CRM Transactioncurrency".CurrencyName WHERE(TransactionCurrencyId = FIELD(TransactionCurrencyId)));
+            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -538,7 +544,7 @@ table 5357 "CRM Contract"
         }
         field(62; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -556,7 +562,7 @@ table 5357 "CRM Contract"
         }
         field(64; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

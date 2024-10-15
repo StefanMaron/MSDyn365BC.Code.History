@@ -1,0 +1,431 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString />
+      </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <Height>2in</Height>
+        <Style />
+      </Body>
+      <Width>6.5in</Width>
+      <Page>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankPos(ByVal Value As Decimal)
+    if Value &gt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankZeroAndPos(ByVal Value As Decimal)
+    if Value &gt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNeg(ByVal Value As Decimal)
+    if Value &lt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNegAndZero(ByVal Value As Decimal)
+    if Value &lt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+</Code>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="No_ServiceShptHrd">
+          <DataField>No_ServiceShptHrd</DataField>
+        </Field>
+        <Field Name="DocumentDate">
+          <DataField>DocumentDate</DataField>
+        </Field>
+        <Field Name="EmailIdCaption">
+          <DataField>EmailIdCaption</DataField>
+        </Field>
+        <Field Name="HomePageCaption">
+          <DataField>HomePageCaption</DataField>
+        </Field>
+        <Field Name="SrvcShipHeaderCustNoCaption">
+          <DataField>SrvcShipHeaderCustNoCaption</DataField>
+        </Field>
+        <Field Name="WarrantyCaption">
+          <DataField>WarrantyCaption</DataField>
+        </Field>
+        <Field Name="CompanyInfo2Picture">
+          <DataField>CompanyInfo2Picture</DataField>
+        </Field>
+        <Field Name="CompanyInfo1Picture">
+          <DataField>CompanyInfo1Picture</DataField>
+        </Field>
+        <Field Name="CompanyInfo3Picture">
+          <DataField>CompanyInfo3Picture</DataField>
+        </Field>
+        <Field Name="ServiceShptCopyText">
+          <DataField>ServiceShptCopyText</DataField>
+        </Field>
+        <Field Name="ShipToAddr1">
+          <DataField>ShipToAddr1</DataField>
+        </Field>
+        <Field Name="CompanyAddr1">
+          <DataField>CompanyAddr1</DataField>
+        </Field>
+        <Field Name="ShipToAddr2">
+          <DataField>ShipToAddr2</DataField>
+        </Field>
+        <Field Name="CompanyAddr2">
+          <DataField>CompanyAddr2</DataField>
+        </Field>
+        <Field Name="ShipToAddr3">
+          <DataField>ShipToAddr3</DataField>
+        </Field>
+        <Field Name="CompanyAddr3">
+          <DataField>CompanyAddr3</DataField>
+        </Field>
+        <Field Name="ShipToAddr4">
+          <DataField>ShipToAddr4</DataField>
+        </Field>
+        <Field Name="CompanyAddr4">
+          <DataField>CompanyAddr4</DataField>
+        </Field>
+        <Field Name="ShipToAddr5">
+          <DataField>ShipToAddr5</DataField>
+        </Field>
+        <Field Name="PhoneNo_CompanyInfo">
+          <DataField>PhoneNo_CompanyInfo</DataField>
+        </Field>
+        <Field Name="ShipToAddr6">
+          <DataField>ShipToAddr6</DataField>
+        </Field>
+        <Field Name="HomePage">
+          <DataField>HomePage</DataField>
+        </Field>
+        <Field Name="EMailId">
+          <DataField>EMailId</DataField>
+        </Field>
+        <Field Name="CompanyInfoVATRegnNo">
+          <DataField>CompanyInfoVATRegnNo</DataField>
+        </Field>
+        <Field Name="CompanyInfoGiroNo">
+          <DataField>CompanyInfoGiroNo</DataField>
+        </Field>
+        <Field Name="CompanyInfoBankName">
+          <DataField>CompanyInfoBankName</DataField>
+        </Field>
+        <Field Name="CompanyInfoBankAccNo">
+          <DataField>CompanyInfoBankAccNo</DataField>
+        </Field>
+        <Field Name="CustNo_ServShptHrd">
+          <DataField>CustNo_ServShptHrd</DataField>
+        </Field>
+        <Field Name="ServShptHrdDocDt">
+          <DataField>ServShptHrdDocDt</DataField>
+        </Field>
+        <Field Name="SalesPersonText">
+          <DataField>SalesPersonText</DataField>
+        </Field>
+        <Field Name="SalesPurchPersonName">
+          <DataField>SalesPurchPersonName</DataField>
+        </Field>
+        <Field Name="No1_ServiceShptHrd">
+          <DataField>No1_ServiceShptHrd</DataField>
+        </Field>
+        <Field Name="ReferenceText">
+          <DataField>ReferenceText</DataField>
+        </Field>
+        <Field Name="YourRef_ServShptHrd">
+          <DataField>YourRef_ServShptHrd</DataField>
+        </Field>
+        <Field Name="ShipToAddr7">
+          <DataField>ShipToAddr7</DataField>
+        </Field>
+        <Field Name="ShipToAddr8">
+          <DataField>ShipToAddr8</DataField>
+        </Field>
+        <Field Name="CompanyAddr5">
+          <DataField>CompanyAddr5</DataField>
+        </Field>
+        <Field Name="CompanyAddr6">
+          <DataField>CompanyAddr6</DataField>
+        </Field>
+        <Field Name="CompanyAddr7">
+          <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
+        </Field>
+        <Field Name="PostingDate_ServShptHrd">
+          <DataField>PostingDate_ServShptHrd</DataField>
+        </Field>
+        <Field Name="PageCaption">
+          <DataField>PageCaption</DataField>
+        </Field>
+        <Field Name="OutputNo">
+          <DataField>OutputNo</DataField>
+        </Field>
+        <Field Name="ItemTrackingAppendixCaption">
+          <DataField>ItemTrackingAppendixCaption</DataField>
+        </Field>
+        <Field Name="PhoneNoCaption">
+          <DataField>PhoneNoCaption</DataField>
+        </Field>
+        <Field Name="VATRegNoCaption">
+          <DataField>VATRegNoCaption</DataField>
+        </Field>
+        <Field Name="GiroNoCaption">
+          <DataField>GiroNoCaption</DataField>
+        </Field>
+        <Field Name="BankNameCaption">
+          <DataField>BankNameCaption</DataField>
+        </Field>
+        <Field Name="BankAccNoCaption">
+          <DataField>BankAccNoCaption</DataField>
+        </Field>
+        <Field Name="ServiceShpHdrNoCaption">
+          <DataField>ServiceShpHdrNoCaption</DataField>
+        </Field>
+        <Field Name="ServiceShpHdrPostingDateCaption">
+          <DataField>ServiceShpHdrPostingDateCaption</DataField>
+        </Field>
+        <Field Name="CustNo_ServShptHrdCaption">
+          <DataField>CustNo_ServShptHrdCaption</DataField>
+        </Field>
+        <Field Name="DimText">
+          <DataField>DimText</DataField>
+        </Field>
+        <Field Name="DimensionLoop1Number">
+          <DataField>DimensionLoop1Number</DataField>
+        </Field>
+        <Field Name="HdrDimsCaption">
+          <DataField>HdrDimsCaption</DataField>
+        </Field>
+        <Field Name="ContractNo_ServShptItemLn">
+          <DataField>ContractNo_ServShptItemLn</DataField>
+        </Field>
+        <Field Name="Des_ServShptItemLn">
+          <DataField>Des_ServShptItemLn</DataField>
+        </Field>
+        <Field Name="SerialNo_ServShptItemLn">
+          <DataField>SerialNo_ServShptItemLn</DataField>
+        </Field>
+        <Field Name="ItemNo_ServShptItemLn">
+          <DataField>ItemNo_ServShptItemLn</DataField>
+        </Field>
+        <Field Name="ItemGrpCode_ServShptLn">
+          <DataField>ItemGrpCode_ServShptLn</DataField>
+        </Field>
+        <Field Name="ServItemNo_ServShptItemLn">
+          <DataField>ServItemNo_ServShptItemLn</DataField>
+        </Field>
+        <Field Name="Warranty">
+          <DataField>Warranty</DataField>
+        </Field>
+        <Field Name="LnNo_ServShptItemLn">
+          <DataField>LnNo_ServShptItemLn</DataField>
+        </Field>
+        <Field Name="SrvcShpItemLineCaption">
+          <DataField>SrvcShpItemLineCaption</DataField>
+        </Field>
+        <Field Name="ContractNo_ServShptItemLnCaption">
+          <DataField>ContractNo_ServShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="Des_ServShptItemLnCaption">
+          <DataField>Des_ServShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="SerialNo_ServShptItemLnCaption">
+          <DataField>SerialNo_ServShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="ItemNo_ServShptItemLnCaption">
+          <DataField>ItemNo_ServShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="ItemGrpCode_ServShptLnCaption">
+          <DataField>ItemGrpCode_ServShptLnCaption</DataField>
+        </Field>
+        <Field Name="ServItemNo_ServShptItemLnCaption">
+          <DataField>ServItemNo_ServShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="ServShptLnDescription">
+          <DataField>ServShptLnDescription</DataField>
+        </Field>
+        <Field Name="ShowInternalInfo">
+          <DataField>ShowInternalInfo</DataField>
+        </Field>
+        <Field Name="ShowCorrectionLines">
+          <DataField>ShowCorrectionLines</DataField>
+        </Field>
+        <Field Name="ShowLotSN">
+          <DataField>ShowLotSN</DataField>
+        </Field>
+        <Field Name="Type_ServiceShptItemLn">
+          <DataField>Type_ServiceShptItemLn</DataField>
+        </Field>
+        <Field Name="Qty_ServiceShptItemLn">
+          <DataField>Qty_ServiceShptItemLn</DataField>
+        </Field>
+        <Field Name="Qty_ServiceShptItemLnFormat">
+          <DataField>Qty_ServiceShptItemLnFormat</DataField>
+        </Field>
+        <Field Name="UnitofMeasure_ServShptLn">
+          <DataField>UnitofMeasure_ServShptLn</DataField>
+        </Field>
+        <Field Name="No_ServiceShptItemLn">
+          <DataField>No_ServiceShptItemLn</DataField>
+        </Field>
+        <Field Name="QtyInvoiced_ServShptLine">
+          <DataField>QtyInvoiced_ServShptLine</DataField>
+        </Field>
+        <Field Name="QtyInvoiced_ServShptLineFormat">
+          <DataField>QtyInvoiced_ServShptLineFormat</DataField>
+        </Field>
+        <Field Name="QtyConsumed_ServShptLine">
+          <DataField>QtyConsumed_ServShptLine</DataField>
+        </Field>
+        <Field Name="QtyConsumed_ServShptLineFormat">
+          <DataField>QtyConsumed_ServShptLineFormat</DataField>
+        </Field>
+        <Field Name="LnNo_ServiceShptItemLn">
+          <DataField>LnNo_ServiceShptItemLn</DataField>
+        </Field>
+        <Field Name="ServiceShpLineCaption">
+          <DataField>ServiceShpLineCaption</DataField>
+        </Field>
+        <Field Name="QtyInvoicedCaption">
+          <DataField>QtyInvoicedCaption</DataField>
+        </Field>
+        <Field Name="QtyConsumedCaption">
+          <DataField>QtyConsumedCaption</DataField>
+        </Field>
+        <Field Name="ServShptLnDescriptionCaption">
+          <DataField>ServShptLnDescriptionCaption</DataField>
+        </Field>
+        <Field Name="Qty_ServiceShptItemLnCaption">
+          <DataField>Qty_ServiceShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="UnitofMeasure_ServShptLnCaption">
+          <DataField>UnitofMeasure_ServShptLnCaption</DataField>
+        </Field>
+        <Field Name="No_ServiceShptItemLnCaption">
+          <DataField>No_ServiceShptItemLnCaption</DataField>
+        </Field>
+        <Field Name="DimText_DimLoop2">
+          <DataField>DimText_DimLoop2</DataField>
+        </Field>
+        <Field Name="DimensionLoop2Number">
+          <DataField>DimensionLoop2Number</DataField>
+        </Field>
+        <Field Name="LineDimsCaption">
+          <DataField>LineDimsCaption</DataField>
+        </Field>
+        <Field Name="BilltoCustNo_ServShptHrd">
+          <DataField>BilltoCustNo_ServShptHrd</DataField>
+        </Field>
+        <Field Name="CustAddr1">
+          <DataField>CustAddr1</DataField>
+        </Field>
+        <Field Name="CustAddr2">
+          <DataField>CustAddr2</DataField>
+        </Field>
+        <Field Name="CustAddr3">
+          <DataField>CustAddr3</DataField>
+        </Field>
+        <Field Name="CustAddr4">
+          <DataField>CustAddr4</DataField>
+        </Field>
+        <Field Name="CustAddr5">
+          <DataField>CustAddr5</DataField>
+        </Field>
+        <Field Name="CustAddr6">
+          <DataField>CustAddr6</DataField>
+        </Field>
+        <Field Name="CustAddr7">
+          <DataField>CustAddr7</DataField>
+        </Field>
+        <Field Name="CustAddr8">
+          <DataField>CustAddr8</DataField>
+        </Field>
+        <Field Name="BilltoAddrCaption">
+          <DataField>BilltoAddrCaption</DataField>
+        </Field>
+        <Field Name="BilltoCustNo_ServShptHrdCaption">
+          <DataField>BilltoCustNo_ServShptHrdCaption</DataField>
+        </Field>
+        <Field Name="TrackingSpecBufItemNo">
+          <DataField>TrackingSpecBufItemNo</DataField>
+        </Field>
+        <Field Name="TrackingSpecBufDesc">
+          <DataField>TrackingSpecBufDesc</DataField>
+        </Field>
+        <Field Name="TrackingSpecBufLotNo">
+          <DataField>TrackingSpecBufLotNo</DataField>
+        </Field>
+        <Field Name="TrackingSpecBufSerialNo">
+          <DataField>TrackingSpecBufSerialNo</DataField>
+        </Field>
+        <Field Name="TrackingSpecBufQty">
+          <DataField>TrackingSpecBufQty</DataField>
+        </Field>
+        <Field Name="TrackingSpecBufQtyFormat">
+          <DataField>TrackingSpecBufQtyFormat</DataField>
+        </Field>
+        <Field Name="ShowTotal">
+          <DataField>ShowTotal</DataField>
+        </Field>
+        <Field Name="ShowGroup">
+          <DataField>ShowGroup</DataField>
+        </Field>
+        <Field Name="QuantityCaption">
+          <DataField>QuantityCaption</DataField>
+        </Field>
+        <Field Name="SerialNoCaption">
+          <DataField>SerialNoCaption</DataField>
+        </Field>
+        <Field Name="LotNoCaption">
+          <DataField>LotNoCaption</DataField>
+        </Field>
+        <Field Name="DescriptionCaption">
+          <DataField>DescriptionCaption</DataField>
+        </Field>
+        <Field Name="TotalQty">
+          <DataField>TotalQty</DataField>
+        </Field>
+        <Field Name="TotalQtyFormat">
+          <DataField>TotalQtyFormat</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
+</Report>

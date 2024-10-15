@@ -462,48 +462,6 @@ codeunit 134150 "ERM Intrastat Journal"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestPackageNoIsIncludedInInternetAddressLink()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, '%1');
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(
-          SalesShipmentHeader."Package Tracking No.",
-          CopyStr(ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), StrLen(HttpTxt) + 1),
-          PackageTrackingNoErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestInternetAddressWithoutHttp()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, InternetURLTxt);
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), InvalidURLTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestInternetAddressWithHttp()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, HttpTxt + InternetURLTxt);
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), InvalidURLTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestNoPackageNoExistIfNoPlaceHolderExistInURL()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -3638,6 +3596,6 @@ codeunit 134150 "ERM Intrastat Journal"
     [Scope('OnPrem')]
     procedure MessageHandlerEmpty(Msg: Text[1024])
     begin
-    end;    
+    end;
 }
 #endif

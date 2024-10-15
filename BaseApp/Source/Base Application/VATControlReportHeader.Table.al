@@ -66,7 +66,7 @@ table 31100 "VAT Control Report Header"
         field(21; "VAT Statement Name"; Code[10])
         {
             Caption = 'VAT Statement Name';
-            TableRelation = "VAT Statement Name".Name WHERE("Statement Template Name" = FIELD("VAT Statement Template Name"));
+            TableRelation = "VAT Statement Name".Name where("Statement Template Name" = field("VAT Statement Template Name"));
         }
         field(51; "No. Series"; Code[20])
         {

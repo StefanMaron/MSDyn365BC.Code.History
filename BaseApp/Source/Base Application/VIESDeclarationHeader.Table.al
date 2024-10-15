@@ -120,16 +120,12 @@ table 31066 "VIES Declaration Header"
         {
             Caption = 'City';
             TableRelation = "Post Code".City;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(17; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
             TableRelation = "Post Code";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(18; "Tax Office Number"; Code[20])
@@ -169,14 +165,14 @@ table 31066 "VIES Declaration Header"
         }
         field(25; "Number of Pages"; Integer)
         {
-            CalcFormula = Max("VIES Declaration Line"."Report Page Number" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = max("VIES Declaration Line"."Report Page Number" where("VIES Declaration No." = field("No.")));
             Caption = 'Number of Pages';
             Editable = false;
             FieldClass = FlowField;
         }
         field(26; "Number of Lines"; Integer)
         {
-            CalcFormula = Count("VIES Declaration Line" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = count("VIES Declaration Line" where("VIES Declaration No." = field("No.")));
             Caption = 'Number of Lines';
             Editable = false;
             FieldClass = FlowField;
@@ -207,30 +203,30 @@ table 31066 "VIES Declaration Header"
         }
         field(30; "Purchase Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
-                                                                            "Trade Type" = CONST(Purchase)));
+            CalcFormula = sum("VIES Declaration Line"."Amount (LCY)" where("VIES Declaration No." = field("No."),
+                                                                            "Trade Type" = const(Purchase)));
             Caption = 'Purchase Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31; "Sales Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No."),
-                                                                            "Trade Type" = CONST(Sale)));
+            CalcFormula = sum("VIES Declaration Line"."Amount (LCY)" where("VIES Declaration No." = field("No."),
+                                                                            "Trade Type" = const(Sale)));
             Caption = 'Sales Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(32; "Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum("VIES Declaration Line"."Amount (LCY)" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = sum("VIES Declaration Line"."Amount (LCY)" where("VIES Declaration No." = field("No.")));
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
         }
         field(33; "Number of Supplies"; Decimal)
         {
-            CalcFormula = Sum("VIES Declaration Line"."Number of Supplies" WHERE("VIES Declaration No." = FIELD("No.")));
+            CalcFormula = sum("VIES Declaration Line"."Number of Supplies" where("VIES Declaration No." = field("No.")));
             Caption = 'Number of Supplies';
             Editable = false;
             FieldClass = FlowField;

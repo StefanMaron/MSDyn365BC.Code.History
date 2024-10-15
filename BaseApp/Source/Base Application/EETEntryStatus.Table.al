@@ -70,7 +70,7 @@ table 31124 "EET Entry Status"
     var
         ErrorMessage: Record "Error Message";
     begin
-        ErrorMessage.SetRange("Context Record ID", RecordId);
+        ErrorMessage.SetRange("Context Record ID", Rec.RecordId);
         ErrorMessage.DeleteAll();
     end;
 }

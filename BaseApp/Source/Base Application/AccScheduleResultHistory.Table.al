@@ -36,8 +36,6 @@ table 31088 "Acc. Schedule Result History"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(13; "Modified DateTime"; DateTime)

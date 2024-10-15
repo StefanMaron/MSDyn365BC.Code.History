@@ -1,3 +1,5 @@
+namespace Microsoft.EServices.EDocument;
+
 enum 477 "Report Inbox Output Type"
 {
     Extensible = true;

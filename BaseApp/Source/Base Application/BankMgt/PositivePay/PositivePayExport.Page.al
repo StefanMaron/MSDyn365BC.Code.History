@@ -1,3 +1,8 @@
+namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Check;
+
 page 1233 "Positive Pay Export"
 {
     Caption = 'Positive Pay Export';
@@ -60,7 +65,7 @@ page 1233 "Positive Pay Export"
             {
                 ApplicationArea = Suite;
                 Caption = 'Positive Pay Export Detail';
-                SubPageLink = "Bank Account No." = FIELD("No.");
+                SubPageLink = "Bank Account No." = field("No.");
             }
         }
     }
@@ -82,7 +87,7 @@ page 1233 "Positive Pay Export"
                     ExpPositivePayHandler: Codeunit "Exp. Positive Pay Handler";
                 begin
                     CheckLedgerEntry.SetCurrentKey("Bank Account No.", "Check Date");
-                    CheckLedgerEntry.SetRange("Bank Account No.", "No.");
+                    CheckLedgerEntry.SetRange("Bank Account No.", Rec."No.");
                     CheckLedgerEntry.SetRange("Check Date", LastUploadDateEntered, CutoffUploadDate);
                     if BankPaymentType <> Enum::"Bank Payment Type"::" " then
                         CheckLedgerEntry.SetRange("Bank Payment Type", BankPaymentType);
@@ -115,7 +120,7 @@ page 1233 "Positive Pay Export"
 
     trigger OnOpenPage()
     begin
-        PositivePayEntry.SetRange("Bank Account No.", "No.");
+        PositivePayEntry.SetRange("Bank Account No.", Rec."No.");
         if PositivePayEntry.FindLast() then begin
             LastUploadDateEntered := DT2Date(PositivePayEntry."Upload Date-Time");
             LastUploadTime := DT2Time(PositivePayEntry."Upload Date-Time");
@@ -134,7 +139,7 @@ page 1233 "Positive Pay Export"
     [Scope('OnPrem')]
     procedure UpdateSubForm()
     begin
-        CurrPage.PosPayExportDetail.PAGE.Set(LastUploadDateEntered, CutoffUploadDate, "No.");
+        CurrPage.PosPayExportDetail.PAGE.Set(LastUploadDateEntered, CutoffUploadDate, Rec."No.");
         CurrPage.PosPayExportDetail.PAGE.SetBankPaymentType(BankPaymentType);
     end;
 }

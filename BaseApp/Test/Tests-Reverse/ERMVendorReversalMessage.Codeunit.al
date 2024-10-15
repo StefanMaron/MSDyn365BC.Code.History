@@ -340,7 +340,7 @@
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateExchangeRate(GenJournalLine."Currency Code");
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRates(
           GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
 #else

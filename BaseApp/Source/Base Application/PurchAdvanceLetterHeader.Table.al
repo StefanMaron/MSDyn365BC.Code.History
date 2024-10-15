@@ -38,9 +38,9 @@ table 31020 "Purch. Advance Letter Header"
         field(9; "Pay-to City"; Text[30])
         {
             Caption = 'Pay-to City';
-            TableRelation = IF ("Pay-to Country/Region Code" = CONST('')) "Post Code".City
-            ELSE
-            IF ("Pay-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Pay-to Country/Region Code"));
+            TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code".City
+            else
+            if ("Pay-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Pay-to Country/Region Code"));
             ValidateTableRelation = false;
         }
         field(10; "Pay-to Contact"; Text[100])
@@ -68,13 +68,13 @@ table 31020 "Purch. Advance Letter Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(30; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(31; "Vendor Posting Group"; Code[20])
         {
@@ -99,6 +99,11 @@ table 31020 "Purch. Advance Letter Header"
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(42; "Format Region"; Text[80])
+        {
+            Caption = 'Format Region';
+            TableRelation = "Language Selection"."Language Tag";
+        }
         field(43; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
@@ -107,7 +112,7 @@ table 31020 "Purch. Advance Letter Header"
         field(44; "Order No."; Code[20])
         {
             Caption = 'Order No.';
-            TableRelation = "Purchase Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
         }
         field(46; Comment; Boolean)
         {
@@ -125,7 +130,7 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(61; "Amount Including VAT"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount Including VAT" where("Letter No." = field("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -151,9 +156,9 @@ table 31020 "Purch. Advance Letter Header"
         field(85; "Pay-to Post Code"; Code[20])
         {
             Caption = 'Pay-to Post Code';
-            TableRelation = IF ("Pay-to Country/Region Code" = CONST('')) "Post Code"
-            ELSE
-            IF ("Pay-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Pay-to Country/Region Code"));
+            TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code"
+            else
+            if ("Pay-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Pay-to Country/Region Code"));
             ValidateTableRelation = false;
         }
         field(86; "Pay-to County"; Text[30])
@@ -214,7 +219,7 @@ table 31020 "Purch. Advance Letter Header"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-            TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."));
+            TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("Pay-to Vendor No."));
         }
         field(11701; "Bank Account No."; Text[30])
         {
@@ -261,9 +266,9 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
-                                                                                "Letter No." = FIELD("No."),
-                                                                                Status = CONST(" ")));
+            CalcFormula = sum("Issued Payment Order Line"."Amount (LCY)" where("Letter Type" = const(Purchase),
+                                                                                "Letter No." = field("No."),
+                                                                                Status = const(" ")));
             Caption = 'Amount on Payment Order (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -293,7 +298,7 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(31009; "Semifinished Linked Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Semifinished Linked Amount';
@@ -309,33 +314,33 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(31013; "Amount To Link"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount To Link" where("Letter No." = field("No.")));
             Caption = 'Amount To Link';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31014; "Amount To Invoice"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Invoice" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount To Invoice" where("Letter No." = field("No.")));
             Caption = 'Amount To Invoice';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31015; "Amount To Deduct"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Deduct" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount To Deduct" where("Letter No." = field("No.")));
             Caption = 'Amount To Deduct';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31016; "Document Linked Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation".Amount WHERE(Type = CONST(Purchase),
-                                                                           "Letter No." = FIELD("No."),
-                                                                           "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation".Amount where(Type = const(Purchase),
+                                                                           "Letter No." = field("No."),
+                                                                           "Document No." = field("Doc. No. Filter")));
             Caption = 'Document Linked Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -348,45 +353,45 @@ table 31020 "Purch. Advance Letter Header"
         }
         field(31018; "Document Linked Inv. Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation"."Invoiced Amount" WHERE(Type = CONST(Purchase),
-                                                                                      "Letter No." = FIELD("No."),
-                                                                                      "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation"."Invoiced Amount" where(Type = const(Purchase),
+                                                                                      "Letter No." = field("No."),
+                                                                                      "Document No." = field("Doc. No. Filter")));
             Caption = 'Document Linked Inv. Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31019; "Document Linked Ded. Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Advance Letter Line Relation"."Deducted Amount" WHERE(Type = CONST(Purchase),
-                                                                                      "Letter No." = FIELD("No."),
-                                                                                      "Document No." = FIELD("Doc. No. Filter")));
+            CalcFormula = sum("Advance Letter Line Relation"."Deducted Amount" where(Type = const(Purchase),
+                                                                                      "Letter No." = field("No."),
+                                                                                      "Document No." = field("Doc. No. Filter")));
             Caption = 'Document Linked Ded. Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31020; "Amount Linked"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Linked" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount Linked" where("Letter No." = field("No.")));
             Caption = 'Amount Linked';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31021; "Amount Invoiced"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Invoiced" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount Invoiced" where("Letter No." = field("No.")));
             Caption = 'Amount Invoiced';
             Editable = false;
             FieldClass = FlowField;
         }
         field(31022; "Amount Deducted"; Decimal)
         {
-            CalcFormula = Sum("Purch. Advance Letter Line"."Amount Deducted" WHERE("Letter No." = FIELD("No.")));
+            CalcFormula = sum("Purch. Advance Letter Line"."Amount Deducted" where("Letter No." = field("No.")));
             Caption = 'Amount Deducted';
             Editable = false;
             FieldClass = FlowField;

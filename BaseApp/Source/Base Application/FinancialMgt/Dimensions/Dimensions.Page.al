@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Intercompany.GLAccount;
+
 page 536 Dimensions
 {
     ApplicationArea = Dimensions;
@@ -13,7 +17,7 @@ page 536 Dimensions
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the dimension.';
@@ -38,7 +42,7 @@ page 536 Dimensions
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a description of the dimension code.';
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -86,7 +90,7 @@ page 536 Dimensions
                     Caption = 'Dimension &Values';
                     Image = Dimensions;
                     RunObject = Page "Dimension Values";
-                    RunPageLink = "Dimension Code" = FIELD(Code);
+                    RunPageLink = "Dimension Code" = field(Code);
                     ToolTip = 'View or edit the dimension values for the current dimension.';
                 }
                 action("Account Type De&fault Dim.")
@@ -95,8 +99,8 @@ page 536 Dimensions
                     Caption = 'Account Type De&fault Dim.';
                     Image = DefaultDimension;
                     RunObject = Page "Account Type Default Dim.";
-                    RunPageLink = "Dimension Code" = FIELD(Code),
-                                  "No." = CONST('');
+                    RunPageLink = "Dimension Code" = field(Code),
+                                  "No." = const('');
                     ToolTip = 'Specify default dimension settings for account types such as customers, vendors, or items. For example, you can make a dimension required.';
                 }
                 action("Allowed Dimension Values per Account")
@@ -105,7 +109,7 @@ page 536 Dimensions
                     Caption = 'Allowed Dimension Values per Account';
                     Image = DefaultDimension;
                     RunObject = Page "Dim. Values per Account";
-                    RunPageLink = "Dimension Code" = FIELD(Code);
+                    RunPageLink = "Dimension Code" = field(Code);
                     ToolTip = 'Specify allowed dimension values settings for accounts such as customers, vendors, or items.';
                 }
                 action(Translations)
@@ -114,7 +118,7 @@ page 536 Dimensions
                     Caption = 'Translations';
                     Image = Translations;
                     RunObject = Page "Dimension Translations";
-                    RunPageLink = Code = FIELD(Code);
+                    RunPageLink = Code = field(Code);
                     ToolTip = 'View or edit translated dimensions. Translated item descriptions are automatically inserted on documents according to the language code.';
                 }
             }

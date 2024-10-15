@@ -1,4 +1,4 @@
-#if not CLEAN22
+﻿#if not CLEAN22
 codeunit 134153 "Test Intrastat"
 {
     Subtype = Test;
@@ -28,60 +28,6 @@ codeunit 134153 "Test Intrastat"
         ReportedMustBeNoErr: Label 'Reported must be equal to ''No''  in Intrastat Jnl. Batch';
         FileNotCreatedErr: Label 'Intrastat file was not created';
         AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskErrorOnSecondRun()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        Initialize();
-
-        // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        Commit();
-        RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
-        SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType);
-        Commit();
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
-        Assert.IsTrue(FileTempBlob.HasValue(), FileNotCreatedErr);
-
-        // Verify
-        Commit();
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
-        Assert.ExpectedError(ReportedMustBeNoErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskErrorOnBlankTransactionType()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        Initialize();
-
-        // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        Commit();
-        RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
-        SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod, '');
-        Commit();
-
-        // Exercise
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
-
-        // Verify
-        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
-    end;
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntratstatJnlFormReqPageHandler')]
@@ -243,40 +189,6 @@ codeunit 134153 "Test Intrastat"
         Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure IntrastatMakeDiskStatisticalValue()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Report] [Export]
-        // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
-        Initialize();
-
-        // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Validate("Source Type", 0);
-        IntrastatJnlLine.Validate("Item No.", '');
-        IntrastatJnlLine.Validate("Tariff No.", LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number"));
-        IntrastatJnlLine.Validate(Amount, 0);
-        IntrastatJnlLine.Validate("Statistical Value", LibraryRandom.RandDecInRange(100, 200, 2));
-        IntrastatJnlLine.Validate("Country/Region Code", FindCountryRegionCode);
-        IntrastatJnlLine.Modify(true);
-        SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType);
-        IntrastatJnlLine.Validate("Total Weight", LibraryRandom.RandIntInRange(100, 200));
-        IntrastatJnlLine.Modify(true);
-
-        // [WHEN] Run 'Intrastat - Make Disk Tax Auth' report
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, Enum::"Intrastat Export Format"::"2022");
-
-        // [THEN] The file is created
-        Assert.IsTrue(FileTempBlob.HasValue(), FileNotCreatedErr);
-    end;
-
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -379,17 +291,6 @@ codeunit 134153 "Test Intrastat"
         IntrastatJournal.GetEntries.Invoke;
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
-    end;
-
-    local procedure RunIntrastatMakeDiskTaxAuth(var FileTempBlob: Codeunit "Temp Blob"; ExportFormat: Enum "Intrastat Export Format")
-    var
-        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-        FileOutStream: OutStream;
-    begin
-        FileTempBlob.CreateOutStream(FileOutStream);
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat);
-        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.RunModal();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -539,4 +440,5 @@ codeunit 134153 "Test Intrastat"
         IntrastatFormReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
+
 #endif

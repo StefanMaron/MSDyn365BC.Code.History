@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System;
+using System.Xml;
+
 codeunit 7706 "Miniform Logoff"
 {
     TableNo = "Miniform Header";
@@ -11,7 +16,7 @@ codeunit 7706 "Miniform Logoff"
           RootNode, XMLDOMMgt, ADCSCommunication, ADCSUserId,
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
-        if Code <> CurrentCode then
+        if Rec.Code <> CurrentCode then
             SendForm(1)
         else
             Process();

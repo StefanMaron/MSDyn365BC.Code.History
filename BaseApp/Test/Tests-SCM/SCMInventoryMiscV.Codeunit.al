@@ -1309,6 +1309,8 @@ codeunit 137297 "SCM Inventory Misc. V"
     end;
 
     local procedure Initialize(Enable: Boolean)
+    var
+        WarehouseSetup: Record "Warehouse Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. V");
         LibraryItemReference.EnableFeature(Enable);
@@ -1323,7 +1325,10 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(Database::"Inventory Setup");
-
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        WarehouseSetup.Validate("Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed");
+        WarehouseSetup.Modify();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. V");
@@ -1682,9 +1687,19 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         Location.Validate("Bin Mandatory", true);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
         Location.Validate("Require Receive", true);
         Location.Validate("Require Shipment", true);
+        if Location."Require Pick" then
+            if Location."Require Shipment" then
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
+            else
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+
+        if Location."Require Put-away" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
+
         Location.Modify(true);
 
         LibraryWarehouse.CreateBin(Bin[1], Location.Code,

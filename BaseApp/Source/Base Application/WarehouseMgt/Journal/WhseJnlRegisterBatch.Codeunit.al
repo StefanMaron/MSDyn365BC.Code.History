@@ -1,3 +1,18 @@
+﻿namespace Microsoft.Warehouse.Journal;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Posting;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Tracking;
+using System.Utilities;
+
 codeunit 7304 "Whse. Jnl.-Register Batch"
 {
     Permissions = TableData "Warehouse Journal Batch" = rimd,
@@ -280,7 +295,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             if Find('-') then begin
                 repeat
                     ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                        DATABASE::"Warehouse Journal Line", 0, "Journal Batch Name",
+                        Database::"Warehouse Journal Line", 0, "Journal Batch Name",
                         "Journal Template Name", 0, "Line No.", "Location Code", true);
                 until Next() = 0;
                 DeleteAll();
@@ -347,7 +362,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrkgLine.SetCurrentKey(
           "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
           "Source Prod. Order Line", "Source Ref. No.", "Location Code");
-        WhseItemTrkgLine.SetRange("Source Type", DATABASE::"Warehouse Journal Line");
+        WhseItemTrkgLine.SetRange("Source Type", Database::"Warehouse Journal Line");
         WhseItemTrkgLine.SetRange("Source ID", WhseJnlLine."Journal Batch Name");
         WhseItemTrkgLine.SetRange("Source Batch Name", WhseJnlLine."Journal Template Name");
         WhseItemTrkgLine.SetRange("Source Ref. No.", WhseJnlLine."Line No.");
@@ -474,7 +489,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrkgLine.SetCurrentKey(
           "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
           "Source Prod. Order Line", "Source Ref. No.", "Location Code");
-        WhseItemTrkgLine.SetRange("Source Type", DATABASE::"Warehouse Journal Line");
+        WhseItemTrkgLine.SetRange("Source Type", Database::"Warehouse Journal Line");
         WhseItemTrkgLine.SetRange("Source ID", WhseJnlLine2."Journal Batch Name");
         WhseItemTrkgLine.SetRange("Source Batch Name", WhseJnlLine2."Journal Template Name");
         WhseItemTrkgLine.SetRange("Source Ref. No.", WhseJnlLine2."Line No.");
@@ -492,7 +507,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                     if ShouldCreateReservEntry then begin
                         ReservEntry.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.CreateReservEntryFor(
-                          DATABASE::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
+                          Database::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
                           Abs(WhseItemTrkgLine."Qty. to Handle"), Abs(WhseItemTrkgLine."Qty. to Handle (Base)"), ReservEntry);
                         CreateReservEntry.SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.SetDates(WhseItemTrkgLine."Warranty Date", WhseItemTrkgLine."Expiration Date");

@@ -30,35 +30,35 @@ table 31051 "Credit Line"
         field(20; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) Customer."No."
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) Vendor."No.";
+            TableRelation = if ("Source Type" = const(Customer)) Customer."No."
+            else
+            if ("Source Type" = const(Vendor)) Vendor."No.";
         }
         field(22; "Posting Group"; Code[20])
         {
             Caption = 'Posting Group';
-            TableRelation = IF ("Source Type" = CONST(Customer)) "Customer Posting Group"
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) "Vendor Posting Group";
+            TableRelation = if ("Source Type" = const(Customer)) "Customer Posting Group"
+            else
+            if ("Source Type" = const(Vendor)) "Vendor Posting Group";
         }
         field(23; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(24; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(25; "Source Entry No."; Integer)
         {
             Caption = 'Source Entry No.';
-            TableRelation = IF ("Source Type" = CONST(Customer)) "Cust. Ledger Entry"."Entry No." WHERE(Open = CONST(true))
-            ELSE
-            IF ("Source Type" = CONST(Vendor)) "Vendor Ledger Entry"."Entry No." WHERE(Open = CONST(true));
+            TableRelation = if ("Source Type" = const(Customer)) "Cust. Ledger Entry"."Entry No." where(Open = const(true))
+            else
+            if ("Source Type" = const(Vendor)) "Vendor Ledger Entry"."Entry No." where(Open = const(true));
 
             trigger OnLookup()
             var
@@ -129,26 +129,26 @@ table 31051 "Credit Line"
         }
         field(80; "Ledg. Entry Original Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Ledg. Entry Original Amount';
             Editable = false;
         }
         field(85; "Ledg. Entry Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Ledg. Entry Remaining Amount';
         }
         field(87; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(88; "Remaining Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Amount';
         }

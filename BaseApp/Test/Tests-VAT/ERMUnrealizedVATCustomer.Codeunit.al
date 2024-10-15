@@ -192,7 +192,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
 
         // 2. Exercise: Modify Exchange Rate with greater value and Run Adjust Exchange Rate Batch report.
         ModifyAmountInExchangeRate(CurrencyExchangeRate, CurrencyUpdateFactor);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
@@ -233,7 +233,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         DocumentNo := CreateAndPostSalesDocument(SalesLine, VATPostingSetup, CurrencyExchangeRate."Currency Code");
         CurrencyUpdateFactor := LibraryRandom.RandDec(100, 2);  // Use Random because value is not important.
         ModifyAmountInExchangeRate(CurrencyExchangeRate, CurrencyUpdateFactor);
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
@@ -1092,7 +1092,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         Amount := Round(AmountInclVAT / (1 + VATPostingSetup."VAT %" / 100));
 
         // [GIVEN] Adjusted exchange rate changed total invoice amount = 715 (1100 * 65 / 100), adjustment amount = 55 (715 - 660)
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
