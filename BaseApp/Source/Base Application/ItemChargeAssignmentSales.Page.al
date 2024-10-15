@@ -347,10 +347,12 @@ page 5814 "Item Charge Assignment (Sales)"
         QtyRetReceivedBase: Decimal;
         QtyToShipBase: Decimal;
         QtyShippedBase: Decimal;
-        UnitCost: Decimal;
         GrossWeight: Decimal;
         UnitVolume: Decimal;
         DataCaption: Text[250];
+
+    protected var
+        UnitCost: Decimal;
 
     local procedure UpdateQtyAssgnt()
     var

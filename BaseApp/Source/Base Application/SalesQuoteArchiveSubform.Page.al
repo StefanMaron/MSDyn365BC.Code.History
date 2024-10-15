@@ -31,6 +31,15 @@ page 5163 "Sales Quote Archive Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -265,7 +274,7 @@ page 5163 "Sales Quote Archive Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Co&mments")
@@ -277,12 +286,18 @@ page 5163 "Sales Quote Archive Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
+    end;
 
     trigger OnAfterGetRecord()
     var
@@ -294,12 +309,11 @@ page 5163 "Sales Quote Archive Subform"
         LineAmountOnFormat(Format("Line Amount"));
     end;
 
-    trigger OnOpenPage()
-    begin
-        SetDimensionsVisibility();
-    end;
-
     var
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -343,6 +357,13 @@ page 5163 "Sales Quote Archive Subform"
             Text := Format("Subtotal net", 0, '<Sign><Integer Thousand><Decimals,3>');
             "Line Amount" := "Subtotal net";
         end;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

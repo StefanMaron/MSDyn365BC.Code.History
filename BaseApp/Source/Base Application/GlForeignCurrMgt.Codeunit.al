@@ -48,18 +48,18 @@ codeunit 3010536 GlForeignCurrMgt
     end;
 
     [Scope('OnPrem')]
-    procedure GetCurrCode(AccNo: Code[20]; var GlLine: Record "Gen. Journal Line")
+    procedure GetCurrCode(AccNo: Code[20]; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        // Transfer Currency Code from GL Account to GlLine.Account or Bal. Account
+        // Transfer Currency Code from GL Account to GenJnlLine.Account or Bal. Account
 
         GLSetup.Get();
         GlAcc.Get(AccNo);
-        if (GlLine."Currency Code" = '') or (GlLine."Currency Code" = GLSetup."LCY Code") then
-            GlLine."Currency Code" := GlAcc."Currency Code";
+        if (GenJnlLine."Currency Code" = '') or (GenJnlLine."Currency Code" = GLSetup."LCY Code") then
+            GenJnlLine."Currency Code" := GlAcc."Currency Code";
     end;
 
     [Scope('OnPrem')]
-    procedure CheckCurrCode(GlLine: Record "Gen. Journal Line")
+    procedure CheckCurrCode(GenJnlLine: Record "Gen. Journal Line")
     begin
         // CHeck if Acc and Bal. Acc have same Curr Code as in Gl Line
 
@@ -67,13 +67,13 @@ codeunit 3010536 GlForeignCurrMgt
 
         ACYOnlyPosting :=
           (GLSetup."Additional Reporting Currency" <> '') and
-          (GlLine."Additional-Currency Posting" =
-           GlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
-          (GlLine."Currency Code" = GLSetup."Additional Reporting Currency");
+          (GenJnlLine."Additional-Currency Posting" =
+           GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+          (GenJnlLine."Currency Code" = GLSetup."Additional Reporting Currency");
 
-        if (GlLine."Currency Code" <> '') and (GlLine."Currency Code" <> GLSetup."LCY Code") then begin
-            CheckCurrOnAccount(GlLine."Account No.", GlLine."Account Type", GlLine."Currency Code", ACYOnlyPosting);
-            CheckCurrOnAccount(GlLine."Bal. Account No.", GlLine."Bal. Account Type", GlLine."Currency Code", ACYOnlyPosting);
+        if (GenJnlLine."Currency Code" <> '') and (GenJnlLine."Currency Code" <> GLSetup."LCY Code") then begin
+            CheckCurrOnAccount(GenJnlLine."Account No.", GenJnlLine."Account Type".AsInteger(), GenJnlLine."Currency Code", ACYOnlyPosting);
+            CheckCurrOnAccount(GenJnlLine."Bal. Account No.", GenJnlLine."Bal. Account Type".AsInteger(), GenJnlLine."Currency Code", ACYOnlyPosting);
         end;
     end;
 

@@ -23,11 +23,9 @@ table 5832 "Capacity Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(4; Type; Option)
+        field(4; Type; Enum "Capacity Type Journal")
         {
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center, ,Resource';
-            OptionMembers = "Work Center","Machine Center"," ",Resource;
         }
         field(6; "Document No."; Code[20])
         {
@@ -183,7 +181,7 @@ table 5832 "Capacity Ledger Entry"
         field(71; "Direct Cost"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
                                                                           "Entry Type" = CONST("Direct Cost")));
             Caption = 'Direct Cost';
             Editable = false;
@@ -192,7 +190,7 @@ table 5832 "Capacity Ledger Entry"
         field(72; "Overhead Cost"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
                                                                           "Entry Type" = CONST("Indirect Cost")));
             Caption = 'Overhead Cost';
             Editable = false;
@@ -200,9 +198,9 @@ table 5832 "Capacity Ledger Entry"
         }
         field(76; "Direct Cost (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
                                                                                 "Entry Type" = CONST("Direct Cost")));
             Caption = 'Direct Cost (ACY)';
             Editable = false;
@@ -210,9 +208,9 @@ table 5832 "Capacity Ledger Entry"
         }
         field(77; "Overhead Cost (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Capacity Ledger Entry No." = FIELD("Entry No."),
                                                                                 "Entry Type" = CONST("Indirect Cost")));
             Caption = 'Overhead Cost (ACY)';
             Editable = false;
@@ -248,7 +246,7 @@ table 5832 "Capacity Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

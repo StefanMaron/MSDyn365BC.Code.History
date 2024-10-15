@@ -616,7 +616,7 @@ codeunit 134163 "Company Init Unit Test"
         DACHReportSelections.TestField(Sequence);
     end;
 
-    local procedure CheckReportSelectionEntry(RecUsage: Integer; Sequence: Text; ReportId: Integer)
+    local procedure CheckReportSelectionEntry(RecUsage: Enum "Report Selection Usage"; Sequence: Text; ReportId: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin

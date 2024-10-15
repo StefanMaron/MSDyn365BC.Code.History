@@ -14,17 +14,17 @@ codeunit 5342 "CRM Synch. Helper"
         CRMProductName: Codeunit "CRM Product Name";
         CRMBaseCurrencyNotFoundInNAVErr: Label 'The currency with the ISO code ''%1'' cannot be found. Therefore, the exchange rate between ''%2'' and ''%3'' cannot be calculated.', Comment = '%1,%2,%3=the ISO code of a currency (example: DKK);';
         DynamicsCRMTransactionCurrencyRecordNotFoundErr: Label 'Cannot find the currency with the value ''%1'' in Common Data Service.', Comment = '%1=the currency code';
-        DynamicsCRMUoMNotFoundInGroupErr: Label 'Cannot find any unit of measure inside the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = CRM product name';
-        DynamicsCRMUoMFoundMultipleInGroupErr: Label 'Multiple units of measure were found in the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = CRM product name';
+        DynamicsCRMUoMNotFoundInGroupErr: Label 'Cannot find any unit of measure inside the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = CDS service name';
+        DynamicsCRMUoMFoundMultipleInGroupErr: Label 'Multiple units of measure were found in the unit group ''%1'' in %2.', Comment = '%1=Unit Group Name, %2 = CDS service name';
         IncorrectCRMUoMNameErr: Label 'The unit of measure in the unit group ''%1'' has an incorrect name: expected name ''%2'', found name ''%3''.', Comment = '%1=Unit Group name (ex: NAV PIECE), %2=Expected name (ex: PIECE), %3=Actual name (ex: BOX)';
         IncorrectCRMUoMQuantityErr: Label 'The quantity on the unit of measure ''%1'' should be 1.', Comment = '%1=unit of measure name (ex: PIECE).';
-        DynamicsCRMUomscheduleNotFoundErr: Label 'Cannot find the unit group ''%1'' in %2.', Comment = '%1 = unit group name, %2 = CRM product name';
+        DynamicsCRMUomscheduleNotFoundErr: Label 'Cannot find the unit group ''%1'' in %2.', Comment = '%1 = unit group name, %2 = CDS service name';
         IncorrectCRMUoMStatusErr: Label 'The unit of measure ''%1'' is not the base unit of measure of the unit group ''%2''.', Comment = '%1=value of the unit of measure, %2=value of the unit group';
         InvalidDestinationRecordNoErr: Label 'Invalid destination record number.';
         NavTxt: Label 'NAV', Locked = true;
         RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = table caption, %2 = primary key value, %3 = CRM Table caption';
         RecordNotFoundErr: Label '%1 could not be found in %2.', Comment = '%1=value;%2=table name in which the value was searched';
-        CanOnlyUseSystemUserOwnerTypeErr: Label 'Only %1 Owner of Type SystemUser can be mapped to Salespeople.', Comment = 'Dynamics CRM entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = CRM product name';
+        CanOnlyUseSystemUserOwnerTypeErr: Label 'Only %1 Owner of Type SystemUser can be mapped to Salespeople.', Comment = 'CDS entity owner property can be of type team or systemuser. Only the type systemuser is supported. %1 = CDS service name';
         DefaultNAVPriceListNameTxt: Label '%1 Default Price List', Comment = '%1 - product name';
         BaseCurrencyIsNullErr: Label 'The base currency is not defined. Disable and enable CRM connection to initialize setup properly.';
         CurrencyPriceListNameTxt: Label 'Price List in %1', Comment = '%1 - currency code';
@@ -861,7 +861,7 @@ codeunit 5342 "CRM Synch. Helper"
         CurrentOptionValue := OutlookSynchTypeConv.TextToOptionValue(Format(SourceFieldRef.Value()), SourceFieldRef.OptionMembers());
         // Allow 0 as it is the default value for CRM options.
         if (CurrentOptionValue <> 0) and (CurrentOptionValue <> AllowedOwnerTypeValue) then
-            Error(CanOnlyUseSystemUserOwnerTypeErr, CRMProductName.SHORT());
+            Error(CanOnlyUseSystemUserOwnerTypeErr, CRMProductName.CDSServiceName());
 
         SourceFieldRef := SourceRecordRef.Field(SourceOwnerIDFieldNo);
         CRMSystemUserID := SourceFieldRef.Value();
@@ -908,22 +908,22 @@ codeunit 5342 "CRM Synch. Helper"
 
         // CRM Unit Group - Not found
         if not FindCachedCRMUomschedule(CRMUomschedule) then
-            Error(DynamicsCRMUomscheduleNotFoundErr, CRMUnitGroupName, CRMProductName.SHORT());
+            Error(DynamicsCRMUomscheduleNotFoundErr, CRMUnitGroupName, CRMProductName.CDSServiceName());
 
         // CRM Unit Group  - Multiple found
         if CountCRMUomschedule(CRMUomschedule) > 1 then
-            Error(DynamicsCRMUoMFoundMultipleInGroupErr, CRMUnitGroupName, CRMProductName.SHORT());
+            Error(DynamicsCRMUoMFoundMultipleInGroupErr, CRMUnitGroupName, CRMProductName.CDSServiceName());
 
         // CRM Unit Group - One found - check its child unit of measure, should be just one
         CRMUom.SetRange(UoMScheduleId, CRMUomschedule.UoMScheduleId);
 
         // CRM Unit of Measure - not found
         if not FindCachedCRMUom(CRMUom) then
-            Error(DynamicsCRMUoMNotFoundInGroupErr, CRMUomschedule.Name, CRMProductName.SHORT());
+            Error(DynamicsCRMUoMNotFoundInGroupErr, CRMUomschedule.Name, CRMProductName.CDSServiceName());
 
         // CRM Unit of Measure - multiple found
         if CountCRMUom(CRMUom) > 1 then
-            Error(DynamicsCRMUoMFoundMultipleInGroupErr, CRMUomschedule.Name, CRMProductName.SHORT());
+            Error(DynamicsCRMUoMFoundMultipleInGroupErr, CRMUomschedule.Name, CRMProductName.CDSServiceName());
 
         // CRM Unit of Measure - one found, does it have the correct name?
         if CRMUom.Name <> UnitOfMeasureCode then
@@ -1258,7 +1258,7 @@ codeunit 5342 "CRM Synch. Helper"
     procedure ConvertTableToOption(SourceFieldRef: FieldRef; var OptionValue: Integer) TableIsMapped: Boolean
     var
         CRMOptionMapping: Record "CRM Option Mapping";
-        RecordRef: RecordRef;
+        CRMIntegrationRecord: Record "CRM Integration Record";
         RecID: RecordID;
     begin
         TableIsMapped := false;
@@ -1267,10 +1267,18 @@ codeunit 5342 "CRM Synch. Helper"
             TableIsMapped := true;
             if FindRecordIDByPK(SourceFieldRef.Relation(), SourceFieldRef.Value(), RecID) then begin
                 CRMOptionMapping.SetRange("Record ID", RecID);
-                if CRMOptionMapping.FindFirst() then
+                if CRMOptionMapping.FindFirst() then begin
                     OptionValue := CRMOptionMapping."Option Value";
+                    if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
+                        CRMIntegrationRecord."Option Mapping Failure" := false;
+                        CRMIntegrationRecord.Modify();
+                    end;
+                end else
+                    if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
+                        CRMIntegrationRecord."Option Mapping Failure" := true;
+                        CRMIntegrationRecord.Modify();
+                    end;
             end;
-            RecordRef.Close();
         end;
         exit(TableIsMapped);
     end;
@@ -1278,7 +1286,7 @@ codeunit 5342 "CRM Synch. Helper"
     procedure ConvertOptionToTable(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var TableValue: Text) TableIsMapped: Boolean
     var
         CRMOptionMapping: Record "CRM Option Mapping";
-        RecordRef: RecordRef;
+        CRMIntegrationRecord: Record "CRM Integration Record";
         RecID: RecordID;
         PrimaryKey: Variant;
     begin
@@ -1291,8 +1299,17 @@ codeunit 5342 "CRM Synch. Helper"
             if CRMOptionMapping.FindFirst() then begin
                 FindPKByRecordID(CRMOptionMapping."Record ID", PrimaryKey);
                 Evaluate(TableValue, PrimaryKey);
-            end else
+                if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
+                    CRMIntegrationRecord."Option Mapping Failure" := false;
+                    CRMIntegrationRecord.Modify();
+                end;
+            end else begin
                 TableValue := DestinationFieldRef.Value();
+                if CRMIntegrationRecord.FindByRecordID(SourceFieldRef.Record().RecordId) then begin
+                    CRMIntegrationRecord."Option Mapping Failure" := true;
+                    CRMIntegrationRecord.Modify();
+                end;
+            end;
         end;
         exit(TableIsMapped);
     end;

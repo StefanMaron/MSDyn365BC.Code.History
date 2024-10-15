@@ -32,11 +32,16 @@ report 91 "Export Consolidation"
                             TempDimBufOut.DeleteAll();
                             TempGLEntry := "G/L Entry";
                             TempGLEntry.Insert();
-                            if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                                Consolidate.InsertGLEntry(TempGLEntry)
-                            else begin
-                                UpdateExportedInfo(TempGLEntry);
-                                WriteFile(TempGLEntry, TempDimBufOut);
+                            case FileFormat of
+                                FileFormat::"Version F&O":
+                                    ExportFOConsolidation.InsertGLEntry(TempGLEntry);
+                                FileFormat::"Version 4.00 or Later (.xml)":
+                                    Consolidate.InsertGLEntry(TempGLEntry);
+                                FileFormat::"Version 3.70 or Earlier (.txt)":
+                                    begin
+                                        UpdateExportedInfo(TempGLEntry);
+                                        WriteFile(TempGLEntry, TempDimBufOut);
+                                    end;
                             end;
                         end;
                         Find('+');
@@ -83,13 +88,17 @@ report 91 "Export Consolidation"
                                 TempDimBufOut.DeleteAll();
                                 DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
                                 TempDimBufOut.SetRange("Entry No.", TempGLEntry."Entry No.");
-                                if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then begin
-                                    if (TempGLEntry."Debit Amount" <> 0) or (TempGLEntry."Credit Amount" <> 0) then
-                                        WriteFile(TempGLEntry, TempDimBufOut);
-                                end else begin
-                                    UpdateExportedInfo(TempGLEntry);
-                                    if TempGLEntry.Amount <> 0 then
-                                        WriteFile(TempGLEntry, TempDimBufOut);
+                                case FileFormat of
+                                    FileFormat::"Version 4.00 or Later (.xml)",
+                                    FileFormat::"Version F&O":
+                                        if (TempGLEntry."Debit Amount" <> 0) or (TempGLEntry."Credit Amount" <> 0) then
+                                            WriteFile(TempGLEntry, TempDimBufOut);
+                                    FileFormat::"Version 3.70 or Earlier (.txt)":
+                                        begin
+                                            UpdateExportedInfo(TempGLEntry);
+                                            if TempGLEntry.Amount <> 0 then
+                                                WriteFile(TempGLEntry, TempDimBufOut);
+                                        end;
                                 end;
                             until TempGLEntry.Next = 0;
                         end;
@@ -116,8 +125,12 @@ report 91 "Export Consolidation"
             begin
                 Window.Update(1, "No.");
                 Window.Update(2, '');
-                if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                    Consolidate.InsertGLAccount("G/L Account");
+                case FileFormat of
+                    FileFormat::"Version 4.00 or Later (.xml)":
+                        Consolidate.InsertGLAccount("G/L Account");
+                    FileFormat::"Version F&O":
+                        ExportFOConsolidation.ProcessGLBugdetEntries("No.", ConsolidStartDate, ConsolidEndDate);
+                end;
             end;
 
             trigger OnPostDataItem()
@@ -198,16 +211,21 @@ report 91 "Export Consolidation"
 
             trigger OnPostDataItem()
             begin
-                if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then begin
-                    Consolidate.SetGlobals(
-                      ProductVersion, FormatVersion, CompanyName,
-                      GLSetup."LCY Code", GLSetup."Additional Reporting Currency", ParentCurrencyCode,
-                      0, ConsolidStartDate, ConsolidEndDate);
-                    Consolidate.SetGlobals(
-                      ProductVersion, FormatVersion, CompanyName,
-                      GLSetup."LCY Code", GLSetup."Additional Reporting Currency", ParentCurrencyCode,
-                      Consolidate.CalcCheckSum, ConsolidStartDate, ConsolidEndDate);
-                    Consolidate.ExportToXML(ServerFileName);
+                case FileFormat of
+                    FileFormat::"Version 4.00 or Later (.xml)":
+                        begin
+                            Consolidate.SetGlobals(
+                              ProductVersion, FormatVersion, CompanyName,
+                              GLSetup."LCY Code", GLSetup."Additional Reporting Currency", ParentCurrencyCode,
+                              0, ConsolidStartDate, ConsolidEndDate);
+                            Consolidate.SetGlobals(
+                              ProductVersion, FormatVersion, CompanyName,
+                              GLSetup."LCY Code", GLSetup."Additional Reporting Currency", ParentCurrencyCode,
+                              Consolidate.CalcCheckSum, ConsolidStartDate, ConsolidEndDate);
+                            Consolidate.ExportToXML(ServerFileName);
+                        end;
+                    FileFormat::"Version F&O":
+                        ExportFOConsolidation.ExportFile(ServerFileName);
                 end;
             end;
 
@@ -240,27 +258,19 @@ report 91 "Export Consolidation"
                     {
                         ApplicationArea = Suite;
                         Caption = 'File Format';
-                        OptionCaption = 'Version 4.00 or Later (.xml),Version 3.70 or Earlier (.txt)';
+                        OptionCaption = 'Version 4.00 or Later (.xml),Version 3.70 or Earlier (.txt),Dynamics 365 Finance (.txt)';
                         ToolTip = 'Specifies the file format that you want to use for the consolidation. If the parent company that will perform the consolidation also has Dynamics NAV 4.0 or later versions, select the .xml format. Otherwise, select the .txt format.';
+
+                        trigger OnValidate()
+                        begin
+                            SetControlsVisibility();
+                        end;
                     }
                     field(ClientFileNameControl; ClientFileName)
                     {
                         ApplicationArea = Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the file to be exported from a business unit to a consolidated company.';
-
-                        trigger OnAssistEdit()
-                        var
-                            FileManagement: Codeunit "File Management";
-                        begin
-                            if not IsWebClient then begin
-                                if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                                    ClientFileName := FileManagement.SaveFileDialog(Text011, ClientFileName, FileManagement.GetToFilterText('', '.xml'))
-                                else
-                                    ClientFileName := FileManagement.SaveFileDialog(Text008, ClientFileName, FileManagement.GetToFilterText('', '.txt'));
-                            end else
-                                Error(EnterFileNameErr);
-                        end;
                     }
                     group("Consolidation Period")
                     {
@@ -303,6 +313,19 @@ report 91 "Export Consolidation"
                         TableRelation = Currency;
                         ToolTip = 'Specifies the currency code of the company that will perform the consolidation.';
                     }
+                    group("Legal Entity ID")
+                    {
+                        ShowCaption = false;
+                        Visible = FOLegalEntityIDVisible;
+                        field("F&O Legal Entity ID"; FOLegalEntityID)
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'F&&O Legal Entity ID';
+                            ToolTip = 'Specifies the F&O Legal Entity ID of the company that will perform the consolidation.';
+                            Enabled = true;
+                            ShowMandatory = true;
+                        }
+                    }
                 }
             }
         }
@@ -310,6 +333,16 @@ report 91 "Export Consolidation"
         actions
         {
         }
+
+        trigger OnInit()
+        begin
+            FOLegalEntityIDVisible := false;
+        end;
+
+        trigger OnOpenPage()
+        begin
+            SetControlsVisibility();
+        end;
     }
 
     labels
@@ -343,6 +376,12 @@ report 91 "Export Consolidation"
         DimSelectionBuf.CompareDimText(3, REPORT::"Export Consolidation", '', ColumnDim, Text007);
         ServerFileName := FileMgt.ServerTempFileName('xml');
         IsWebClient;
+
+        if FileFormat = FileFormat::"Version F&O" then begin
+            if FOLegalEntityID = '' then
+                Error(LegalEntityIDEmptyErr);
+            ExportFOConsolidation.SetFOLegalEntityID(FOLegalEntityID);
+        end;
     end;
 
     var
@@ -356,9 +395,9 @@ report 91 "Export Consolidation"
         Text005: Label 'No.             #1##########\';
         Text006: Label 'Date            #2######';
         Text007: Label 'Copy Dimensions';
-        Text008: Label 'Export to Text File';
         Text009: Label 'A G/L Entry with posting date on a closing date (%1) was found while exporting nonclosing entries. G/L Account No. = %2.';
         Text010: Label 'When using closing dates, the starting and ending dates must be the same.';
+        LegalEntityIDEmptyErr: Label 'You must provide a value in the F&O Legal Entity ID field.';
         TempGLEntry: Record "G/L Entry" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         Dim: Record Dimension;
@@ -373,45 +412,55 @@ report 91 "Export Consolidation"
         GLSetup: Record "General Ledger Setup";
         DimBufMgt: Codeunit "Dimension Buffer Management";
         Consolidate: Codeunit Consolidate;
+        ExportFOConsolidation: Codeunit "Export F/O Consolidation";
         ClientTypeManagement: Codeunit "Client Type Management";
         Window: Dialog;
         GLEntryFile: File;
         ServerFileName: Text;
-        FileFormat: Option "Version 4.00 or Later (.xml)","Version 3.70 or Earlier (.txt)";
+        FileFormat: Option "Version 4.00 or Later (.xml)","Version 3.70 or Earlier (.txt)","Version F&O";
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;
         TransferPerDay: Boolean;
         TransferPerDayReq: Boolean;
+        [InDataSet]
+        FOLegalEntityIDVisible: Boolean;
         ColumnDim: Text[250];
         ParentCurrencyCode: Code[10];
-        Text011: Label 'Export to XML File';
+        FOLegalEntityID: Code[4];
         ClientFileName: Text;
-        EnterFileNameErr: Label 'Enter a file name.';
 
     local procedure WriteFile(var GLEntry2: Record "G/L Entry"; var DimBuf: Record "Dimension Buffer")
     var
         GLEntryNo: Integer;
     begin
-        if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-            GLEntryNo := Consolidate.InsertGLEntry(GLEntry2)
-        else
-            GLEntryFile.Write(
-              StrSubstNo(
-                '<02>#1################## #2####### #3####################',
-                GLEntry2."G/L Account No.",
-                GLEntry2."Posting Date",
-                GLEntry2.Amount));
+        case FileFormat of
+            FileFormat::"Version 4.00 or Later (.xml)":
+                GLEntryNo := Consolidate.InsertGLEntry(GLEntry2);
+            FileFormat::"Version F&O":
+                GLEntryNo := ExportFOConsolidation.InsertGLEntry(GLEntry2);
+            FileFormat::"Version 3.70 or Earlier (.txt)":
+                GLEntryFile.Write(
+                  StrSubstNo(
+                    '<02>#1################## #2####### #3####################',
+                    GLEntry2."G/L Account No.",
+                    GLEntry2."Posting Date",
+                    GLEntry2.Amount));
+        end;
 
         if DimBuf.Find('-') then begin
             repeat
-                if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                    Consolidate.InsertEntryDim(DimBuf, GLEntryNo)
-                else
-                    GLEntryFile.Write(
-                      StrSubstNo(
-                        '<03>#1################## #2##################',
-                        DimBuf."Dimension Code",
-                        DimBuf."Dimension Value Code"));
+                case FileFormat of
+                    FileFormat::"Version 4.00 or Later (.xml)":
+                        Consolidate.InsertEntryDim(DimBuf, GLEntryNo);
+                    FileFormat::"Version F&O":
+                        ExportFOConsolidation.InsertEntryDim(DimBuf, GLEntryNo);
+                    FileFormat::"Version 3.70 or Earlier (.txt)":
+                        GLEntryFile.Write(
+                          StrSubstNo(
+                            '<03>#1################## #2##################',
+                            DimBuf."Dimension Code",
+                            DimBuf."Dimension Value Code"));
+                end;
             until DimBuf.Next = 0;
         end;
     end;
@@ -496,11 +545,17 @@ report 91 "Export Consolidation"
     begin
         FileFormat := NewFileFormat;
         ClientFileName := NewFileName;
+        ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Export Consolidation", '');
     end;
 
     local procedure IsWebClient(): Boolean
     begin
         exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop]);
+    end;
+
+    local procedure SetControlsVisibility()
+    begin
+        FOLegalEntityIDVisible := FileFormat = FileFormat::"Version F&O";
     end;
 
     [IntegrationEvent(false, false)]

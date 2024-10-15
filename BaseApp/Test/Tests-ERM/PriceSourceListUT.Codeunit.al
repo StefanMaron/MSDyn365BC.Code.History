@@ -31,9 +31,9 @@ codeunit 134121 "Price Source List UT"
         SourceType: Enum "Price Source Type";
     begin
         Initialize();
-        // [WHEN] Add "All Customers" and "All Vendors" sources
+        // [WHEN] Add "All Customers" and "Customer" sources
         PriceSourceList.Add(SourceType::"All Customers");
-        PriceSourceList.Add(SourceType::"All Vendors");
+        PriceSourceList.Add(SourceType::"Customer");
         // [THEN] GetList returns two records
         PriceSourceList.GetList(TempPriceSource);
         Assert.RecordCount(TempPriceSource, 2);
@@ -324,17 +324,15 @@ codeunit 134121 "Price Source List UT"
     var
         Customer: Record Customer;
         Job: Record Job;
-        Vendor: Record Vendor;
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceSourceList: Codeunit "Price Source List";
         SourceType: Enum "Price Source Type";
     begin
         Initialize();
-        // [GIVEN] Customer 'C', Vendor 'V', Job 'J' are in the list
+        // [GIVEN] Customer 'C', "All Customers", Job 'J' are in the list
         LibraryJob.CreateJob(Job);
         PriceSourceList.Add(SourceType::Job, Job."No.");
-        LibraryPurchase.CreateVendor(Vendor);
-        PriceSourceList.Add(SourceType::Vendor, Vendor."No.");
+        PriceSourceList.Add(SourceType::"All Customers");
         LibrarySales.CreateCustomer(Customer);
         PriceSourceList.Add(SourceType::Customer, Customer."No.");
         // [WHEN] GetSourceGroup()
@@ -355,9 +353,8 @@ codeunit 134121 "Price Source List UT"
         SourceType: Enum "Price Source Type";
     begin
         Initialize();
-        // [GIVEN] Customer 'C' (level 0), Job 'J' (level 1), Job Task 'JT' (level 2) are in the list
-        LibrarySales.CreateCustomer(Customer);
-        PriceSourceList.Add(SourceType::Customer, Customer."No.");
+        // [GIVEN] "All Jobs" (level 0), Job 'J' (level 1), Job Task 'JT' (level 2) are in the list
+        PriceSourceList.Add(SourceType::"All Jobs");
         LibraryJob.CreateJob(Job);
         PriceSourceList.IncLevel();
         PriceSourceList.Add(SourceType::Job, Job."No.");

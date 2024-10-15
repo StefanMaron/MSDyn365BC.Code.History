@@ -287,7 +287,7 @@ codeunit 137093 "SCM Kitting - D4"
         exit(ItemVariant.Code);
     end;
 
-    local procedure CreatePurchaseDocType(var PurchaseHeader: Record "Purchase Header"; OrderType: Option; ItemNo: Code[20]; VariantCode: Code[10]; PurchaseQty: Integer; LocationCode: Code[10]; ReceiptDate: Date)
+    local procedure CreatePurchaseDocType(var PurchaseHeader: Record "Purchase Header"; OrderType: Enum "Purchase Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; PurchaseQty: Integer; LocationCode: Code[10]; ReceiptDate: Date)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -325,7 +325,7 @@ codeunit 137093 "SCM Kitting - D4"
         exit(Qty);
     end;
 
-    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Integer; ShipmentDate: Date; LocationCode: Code[10])
+    local procedure CreateSaleDocType(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; VariantCode: Code[10]; SalesQty: Integer; ShipmentDate: Date; LocationCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin

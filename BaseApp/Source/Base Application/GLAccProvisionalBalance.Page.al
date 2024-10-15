@@ -223,7 +223,7 @@ page 11500 "G/L Acc. Provisional Balance"
     trigger OnOpenPage()
     begin
         GLSetup.Get();
-        if not GLLines2.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
+        if not GenJnlLine2.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
             Error('');
     end;
 
@@ -231,8 +231,8 @@ page 11500 "G/L Acc. Provisional Balance"
         Text000: Label 'GL Account temp. Balance all Journals';
         Text001: Label 'GL Account temp. Balance actuals Journal';
         Text002: Label 'Balance Journal';
-        GlLines: Record "Gen. Journal Line";
-        GLLines2: Record "Gen. Journal Line";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlLine2: Record "Gen. Journal Line";
         GlAcc: Record "G/L Account";
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -353,44 +353,44 @@ page 11500 "G/L Acc. Provisional Balance"
     end;
 
     [Scope('OnPrem')]
-    procedure AddNotPosted(_No: Code[20]; _Currency: Code[10]; _AccType: Integer)
+    procedure AddNotPosted(AccountNo: Code[20]; CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type")
     begin
         JournalAmtLCY := 0;
         JournalAmtFCY := 0;
 
-        if _No = '' then
+        if AccountNo = '' then
             exit;
 
-        GlLines.Reset();
+        GenJnlLine.Reset();
         if not AllJournals then begin
-            GlLines.SetRange("Journal Template Name", "Journal Template Name");
-            GlLines.SetRange("Journal Batch Name", "Journal Batch Name");
-            GlLines.SetRange("Line No.", 0, "Line No.");
+            GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
+            GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
+            GenJnlLine.SetRange("Line No.", 0, "Line No.");
         end;
 
-        GlLines.SetRange("Account Type", _AccType);
-        GlLines.SetRange("Account No.", _No);
-        if GlLines.Find('-') then
+        GenJnlLine.SetRange("Account Type", AccountType);
+        GenJnlLine.SetRange("Account No.", AccountNo);
+        if GenJnlLine.Find('-') then
             repeat
-                JournalAmtLCY := JournalAmtLCY + GlLines."Amount (LCY)" - GlLines."VAT Amount (LCY)";
+                JournalAmtLCY := JournalAmtLCY + GenJnlLine."Amount (LCY)" - GenJnlLine."VAT Amount (LCY)";
 
-                if (_Currency <> '') and (GlLines."Currency Code" = _Currency) then
-                    JournalAmtFCY := JournalAmtFCY + GlLines.Amount - GlLines."VAT Amount";
+                if (CurrencyCode <> '') and (GenJnlLine."Currency Code" = CurrencyCode) then
+                    JournalAmtFCY := JournalAmtFCY + GenJnlLine.Amount - GenJnlLine."VAT Amount";
 
-            until GlLines.Next = 0;
-        GlLines.SetRange("Account Type");
-        GlLines.SetRange("Account No.");
+            until GenJnlLine.Next = 0;
+        GenJnlLine.SetRange("Account Type");
+        GenJnlLine.SetRange("Account No.");
 
-        GlLines.SetRange("Bal. Account Type", _AccType);
-        GlLines.SetRange("Bal. Account No.", _No);
-        if GlLines.Find('-') then
+        GenJnlLine.SetRange("Bal. Account Type", AccountType);
+        GenJnlLine.SetRange("Bal. Account No.", AccountNo);
+        if GenJnlLine.Find('-') then
             repeat
-                JournalAmtLCY := JournalAmtLCY - GlLines."Amount (LCY)" - GlLines."Bal. VAT Amount (LCY)";
+                JournalAmtLCY := JournalAmtLCY - GenJnlLine."Amount (LCY)" - GenJnlLine."Bal. VAT Amount (LCY)";
 
-                if (_Currency <> '') and (GlLines."Currency Code" = _Currency) then
-                    JournalAmtFCY := JournalAmtFCY - GlLines.Amount - GlLines."Bal. VAT Amount";
+                if (CurrencyCode <> '') and (GenJnlLine."Currency Code" = CurrencyCode) then
+                    JournalAmtFCY := JournalAmtFCY - GenJnlLine.Amount - GenJnlLine."Bal. VAT Amount";
 
-            until GlLines.Next = 0;
+            until GenJnlLine.Next = 0;
     end;
 }
 

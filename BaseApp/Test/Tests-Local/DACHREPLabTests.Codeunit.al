@@ -45,7 +45,7 @@ codeunit 142500 "DACH REP Lab Tests"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; Type: Option; AmountType: Option)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; Type: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATStatementName: Record "VAT Statement Name";
         VATStatementTemplate: Record "VAT Statement Template";
@@ -71,15 +71,12 @@ codeunit 142500 "DACH REP Lab Tests"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GLVATReconciliationReportHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
-    var
-        PeriodSelection: Option "Before and Within Period","Within Period";
-        EntrySelection: Option Open,Closed,"Open and Closed";
     begin
         UpdateGLVATReconciliationReportRequestPage(
-          GLVATReconciliation, PeriodSelection::"Before and Within Period", EntrySelection, false);  // Use Additional Reporting Currency - FALSE.
+          GLVATReconciliation, "VAT Statement Report Period Selection"::"Before and Within Period", "VAT Statement Report Selection"::Open, false);  // Use Additional Reporting Currency - FALSE.
     end;
 
-    local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Option; EntrySelection: Option; UseAmtsInAddCurr: Boolean)
+    local procedure UpdateGLVATReconciliationReportRequestPage(GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation"; PeriodSelection: Enum "VAT Statement Report Period Selection"; EntrySelection: Enum "VAT Statement Report Selection"; UseAmtsInAddCurr: Boolean)
     begin
         GLVATReconciliation.StartDate.SetValue(WorkDate);
         GLVATReconciliation.EndDateReq.SetValue(WorkDate);

@@ -199,7 +199,7 @@ report 11512 "Sales Picking List"
                         column(EmptyString; '')
                         {
                         }
-                        column(TypeTypeTitle; Type < Type::Title)
+                        column(TypeTypeTitle; Type.AsInteger() < Type::Title.AsInteger())
                         {
                         }
                         column(DocumentNo_Line; "Document No.")

@@ -2,9 +2,12 @@ page 2860 "Native - Units of Measure"
 {
     Caption = 'nativeInvoicingUnitsOfMeasure', Locked = true;
     DelayedInsert = true;
-    ODataKeyFields = Id;
-    PageType = List;
     SourceTable = "Unit of Measure";
+    PageType = List;
+    ODataKeyFields = SystemId;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {
@@ -12,10 +15,10 @@ page 2860 "Native - Units of Measure"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
-                    Caption = 'id', Locked = true;
+                    Caption = 'Id', Locked = true;
                 }
                 field("code"; Code)
                 {

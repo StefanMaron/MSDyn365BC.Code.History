@@ -36,6 +36,15 @@ page 139 "Posted Purch. Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
                 }
                 field("IC Partner Code"; "IC Partner Code")
                 {
@@ -360,7 +369,7 @@ page 139 "Posted Purch. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -372,7 +381,7 @@ page 139 "Posted Purch. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action(ItemTrackingEntries)
@@ -411,7 +420,7 @@ page 139 "Posted Purch. Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
                 action(DeferralSchedule)
@@ -466,15 +475,20 @@ page 139 "Posted Purch. Invoice Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
         TotalPurchInvHeader: Record "Purch. Inv. Header";
         DocumentTotals: Codeunit "Document Totals";
-        ShortcutDimCode: array[8] of Code[20];
         IsFoundation: Boolean;
         VATAmount: Decimal;
+        [InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -511,6 +525,13 @@ page 139 "Posted Purch. Invoice Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

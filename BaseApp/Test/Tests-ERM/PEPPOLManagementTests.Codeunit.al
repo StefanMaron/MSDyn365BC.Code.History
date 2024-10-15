@@ -793,7 +793,7 @@ codeunit 139155 "PEPPOL Management Tests"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure GetAccountingCustomerPartyContactName()
     var
         DummySalesHeader: Record "Sales Header";
@@ -3082,7 +3082,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Item.Modify();
     end;
 
-    local procedure CreateGenericSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreateGenericSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Cust: Record Customer;
         CountryRegion: Record "Country/Region";
@@ -3132,7 +3132,7 @@ codeunit 139155 "PEPPOL Management Tests"
         Item.Modify(true);
     end;
 
-    local procedure CreateElectronicDocumentFormatSetup(NewCode: Code[20]; NewUsage: Option; NewCodeunitID: Integer)
+    local procedure CreateElectronicDocumentFormatSetup(NewCode: Code[20]; NewUsage: Enum "Electronic Document Format Usage"; NewCodeunitID: Integer)
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
@@ -3225,7 +3225,7 @@ codeunit 139155 "PEPPOL Management Tests"
         exit(CreatePostSalesDoc(CreateCustomerWithAddressAndGLN, DummySalesHeader."Document Type"::"Credit Memo"));
     end;
 
-    local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Option): Code[20]
+    local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -3243,7 +3243,7 @@ codeunit 139155 "PEPPOL Management Tests"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePostSalesDocWithShipToAddress(CustomerNo: Code[20]; DocumentType: Option): Code[20]
+    local procedure CreatePostSalesDocWithShipToAddress(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -3319,7 +3319,7 @@ codeunit 139155 "PEPPOL Management Tests"
         ServiceCrMemoHeader.FindFirst;
     end;
 
-    local procedure CreatePostServiceDoc(DocumentType: Option): Code[20]
+    local procedure CreatePostServiceDoc(DocumentType: Enum "Service Document Type"): Code[20]
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";

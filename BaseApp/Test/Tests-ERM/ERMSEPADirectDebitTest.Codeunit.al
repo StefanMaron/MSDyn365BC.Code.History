@@ -601,7 +601,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
     end;
 
-    local procedure CreateCustomerWithBankAccount(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account"; PaymentMethodCode: Code[10]; PartnerType: Option)
+    local procedure CreateCustomerWithBankAccount(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account"; PaymentMethodCode: Code[10]; PartnerType: Enum "Partner Type")
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -720,7 +720,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
-    local procedure EnqueueRequestPage(FromDate: Date; ToDate: Date; PartnerType: Option; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
+    local procedure EnqueueRequestPage(FromDate: Date; ToDate: Date; PartnerType: Enum "Partner Type"; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
     begin
         LibraryVariableStorage.Enqueue(FromDate);
         LibraryVariableStorage.Enqueue(ToDate);
@@ -758,12 +758,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         PmtJnlExportErrorText.FindFirst();
     end;
 
-    local procedure PostWorkdateSalesInvoiceSEPADirectDebit(var Customer: Record Customer; MandateFromDate: Date; MandateToDate: Date; Partnertype: Option): Code[20]
+    local procedure PostWorkdateSalesInvoiceSEPADirectDebit(var Customer: Record Customer; MandateFromDate: Date; MandateToDate: Date; Partnertype: Enum "Partner Type"): Code[20]
     begin
         exit(PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, MandateFromDate, MandateToDate, Partnertype, ''));
     end;
 
-    local procedure PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(var Customer: Record Customer; MandateFromDate: Date; MandateToDate: Date; Partnertype: Option; CurrencyCode: Code[10]): Code[20]
+    local procedure PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(var Customer: Record Customer; MandateFromDate: Date; MandateToDate: Date; PartnerType: Enum "Partner Type"; CurrencyCode: Code[10]): Code[20]
     var
         CustomerBankAccount: Record "Customer Bank Account";
         PaymentMethod: Record "Payment Method";
@@ -773,7 +773,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Item: Record Item;
     begin
         CreateDirectDebitPaymentMethod(PaymentMethod);
-        CreateCustomerWithBankAccount(Customer, CustomerBankAccount, PaymentMethod.Code, Partnertype);
+        CreateCustomerWithBankAccount(Customer, CustomerBankAccount, PaymentMethod.Code, PartnerType);
         LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, CustomerBankAccount."Customer No.",
           CustomerBankAccount.Code, MandateFromDate, MandateToDate);
         LibraryInventory.CreateItem(Item);
@@ -793,7 +793,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
           PostWorkdateSalesInvoiceSEPADirectDebit(Customer2, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
     end;
 
-    local procedure RunCreateDirectDebitCollectionReport(FromDate: Date; ToDate: Date; PartnerType: Option; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
+    local procedure RunCreateDirectDebitCollectionReport(FromDate: Date; ToDate: Date; PartnerType: Enum "Partner Type"; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)
     begin
         EnqueueRequestPage(FromDate, ToDate, PartnerType, BankAccNo, ValidCustMandate, ValidInvMandate);
         Commit();

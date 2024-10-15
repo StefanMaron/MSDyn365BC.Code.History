@@ -1600,7 +1600,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccReconLine.Modify(true);
     end;
 
-    local procedure CreateBankPmtRecWithLineApplyAmount(BankAccount: Record "Bank Account"; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StmtLineAmt: Decimal; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateBankPmtRecWithLineApplyAmount(BankAccount: Record "Bank Account"; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StmtLineAmt: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     begin
         CreateBankPmtReconcWithLine(BankAccount, BankAccReconciliation, BankAccReconciliationLine, TransactionDate, StmtLineAmt);
         BankAccReconciliationLine.Validate("Account Type", AccountType);

@@ -32,7 +32,6 @@ codeunit 135509 "Tax Group Entity E2E Test"
     procedure TestVerifyIDandLastDateModified()
     var
         TempTaxGroupBuffer: Record "Tax Group Buffer" temporary;
-        IntegrationRecord: Record "Integration Record";
         TaxGroupCode: Text;
         TaxGroupGUID: Text;
         BlankGuid: Guid;
@@ -45,9 +44,6 @@ codeunit 135509 "Tax Group Entity E2E Test"
         Commit();
 
         // [THEN] the Tax Group should have an integration id and last date time modified
-        Assert.IsTrue(IntegrationRecord.Get(TaxGroupGUID), 'Could not find the integration record with Code ' + TaxGroupCode);
-        Assert.AreNotEqual(IntegrationRecord."Integration ID", BlankGuid,
-          'Integration record should not get the blank guid with Code ' + TaxGroupCode);
         TempTaxGroupBuffer.LoadRecords;
         TempTaxGroupBuffer.Get(TaxGroupGUID);
         Assert.AreNotEqual(TempTaxGroupBuffer."Last Modified DateTime", BlankDateTime, 'Last Modified Date Time should be updated');
@@ -200,11 +196,11 @@ codeunit 135509 "Tax Group Entity E2E Test"
         if GeneralLedgerSetup.UseVat then begin
             LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
             TaxGroupCode := VATProductPostingGroup.Code;
-            TaxGroupId := VATProductPostingGroup.Id;
+            TaxGroupId := VATProductPostingGroup.SystemId;
         end else begin
             LibraryERM.CreateTaxGroup(TaxGroup);
             TaxGroupCode := TaxGroup.Code;
-            TaxGroupId := TaxGroup.Id;
+            TaxGroupId := TaxGroup.SystemId;
         end;
     end;
 
@@ -253,12 +249,12 @@ codeunit 135509 "Tax Group Entity E2E Test"
         LibraryGraphMgt.VerifyIDInJson(TaxGroupJSON);
 
         if GeneralLedgerSetup.UseVat then begin
-            VATProductPostingGroup.SetRange(Id, TaxGroupID);
+            VATProductPostingGroup.SetRange(SystemId, TaxGroupID);
             Assert.IsTrue(VATProductPostingGroup.FindFirst, 'VAT Product Group was not created for given ID');
             ExpectedCode := VATProductPostingGroup.Code;
             ExpectedDecritpion := VATProductPostingGroup.Description;
         end else begin
-            TaxGroup.SetFilter(Id, TaxGroupID);
+            TaxGroup.SetFilter(SystemId, TaxGroupID);
             Assert.IsTrue(TaxGroup.FindFirst, 'Tax Group was not created for given ID');
             ExpectedCode := TaxGroup.Code;
             ExpectedDecritpion := TaxGroup.Description;
@@ -275,10 +271,10 @@ codeunit 135509 "Tax Group Entity E2E Test"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         if GeneralLedgerSetup.UseVat then begin
-            VATProductPostingGroup.SetRange(Id, TaxGroupId);
+            VATProductPostingGroup.SetRange(SystemId, TaxGroupId);
             Assert.IsFalse(VATProductPostingGroup.FindFirst, 'VATProductPostingGroup should be deleted.');
         end else begin
-            TaxGroup.SetRange(Id, TaxGroupId);
+            TaxGroup.SetRange(SystemId, TaxGroupId);
             Assert.IsFalse(TaxGroup.FindFirst, 'TaxGroup should be deleted.');
         end;
     end;

@@ -314,7 +314,7 @@ codeunit 11503 CHMgt
         end;
     end;
 
-    local procedure FindFirstVendLedgEntryWithAppliesToDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; AppliestoDocType: Option; AppliestoDocNo: Code[20]): Boolean
+    local procedure FindFirstVendLedgEntryWithAppliesToDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; AppliestoDocType: Enum "Gen. Journal Document Type"; AppliestoDocNo: Code[20]): Boolean
     begin
         with VendorLedgerEntry do begin
             Reset;

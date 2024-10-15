@@ -270,7 +270,7 @@ codeunit 3010531 EsrMgt
             LastLineNo := LastLineNo + 10000;
             GenJournalLine."Line No." := LastLineNo;
             GenJournalLine."Document No." := NextDocNo;
-            GenJournalLine."Account Type" := ESRSetup."Bal. Account Type";
+            GenJournalLine."Account Type" := "Gen. Journal Account Type".FromInteger(ESRSetup."Bal. Account Type");
 
             GeneralLedgerSetup.Get();
             if GeneralLedgerSetup."LCY Code" <> Currency then

@@ -163,7 +163,7 @@ report 11563 "SR G/L Acc Sheet Bal Account"
                     else
                         BalAccType := '';
 
-                    GetBalAccName("Bal. Account Type", "Bal. Account No.");
+                    GetBalAccName("Bal. Account Type".AsInteger(), "Bal. Account No.");
                 end;
 
                 trigger OnPreDataItem()
@@ -311,7 +311,7 @@ report 11563 "SR G/L Acc Sheet Bal Account"
                     else
                         BalAccType := '';
 
-                    GetBalAccName("Bal. Account Type", "Bal. Account No.");
+                    GetBalAccName("Bal. Account Type".AsInteger(), "Bal. Account No.");
                 end;
 
                 trigger OnPreDataItem()
@@ -361,7 +361,7 @@ report 11563 "SR G/L Acc Sheet Bal Account"
                 then
                     CurrReport.Skip();
 
-                if not(NotFirstPage and NewPagePerAcc) then
+                if not (NotFirstPage and NewPagePerAcc) then
                     NotFirstPage := true;
             end;
 

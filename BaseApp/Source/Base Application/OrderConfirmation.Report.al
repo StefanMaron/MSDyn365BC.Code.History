@@ -650,8 +650,8 @@ report 205 "Order Confirmation"
                             NNCVATAmt2 := VATAmount;
                             NNCTotalExclVAT2 := VATBaseAmount;
 
-                            Sales_Nu_Type := SalesLine.Type;
-                            Sales_Nu_Type_Title := SalesLine.Type::Title;
+                            Sales_Nu_Type := SalesLine.Type.AsInteger();
+                            Sales_Nu_Type_Title := SalesLine.Type::Title.AsInteger();
 
                             NewPageLine := "Sales Line".Type = "Sales Line".Type::"New Page";
                             if NewPageLine then begin

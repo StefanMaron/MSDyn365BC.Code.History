@@ -74,7 +74,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
-                    ToolTip = 'Specifies the id of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Common Data Service environment.', Comment = 'Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("Client Secret"; ClientSecret)
                 {
@@ -132,7 +132,7 @@ page 7200 "CDS Connection Setup"
                         RefreshStatuses := true;
                         CurrPage.Update(true);
                         if "Is Enabled" then begin
-                            SendTraceTag('0000CDE', CategoryTok, Verbosity::Normal, CDSConnEnabledOnPageTxt, DataClassification::SystemMetadata);
+                            Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                             if "Ownership Model" = "Ownership Model"::Person then
                                 if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
                                     CDSSetupDefaults.RunCoupleSalespeoplePage();
@@ -150,7 +150,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'Common Data Service Version';
                     Editable = false;
                     StyleExpr = CDSVersionStatusStyleExpr;
-                    ToolTip = 'Specifies the version of the Common Data Service.';
+                    ToolTip = 'Specifies the version of Common Data Service that you are connected to.';
 
                     trigger OnDrillDown()
                     begin
@@ -166,7 +166,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'Solution Version';
                     Editable = false;
                     StyleExpr = SolutionVersionStatusStyleExpr;
-		    ToolTip = 'Specifies whether an integration solution is installed and configured in Common Data Service. You cannot change this setting.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether an integration solution is installed and configured in Common Data Service. You cannot change this setting.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnDrillDown()
                     begin
@@ -298,13 +298,14 @@ page 7200 "CDS Connection Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Process;
-                Enabled = IsEditable and SoftwareAsAService;
+                Enabled = IsEditable;
                 ToolTip = 'Runs Common Data Service Connection Setup Wizard.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
                 begin
+                    CDSIntegrationImpl.RegisterAssistedSetup();
                     Commit(); // Make sure all data is committed before we run the wizard
                     AssistedSetup.Run(Page::"CDS Connection Setup Wizard");
                     CurrPage.Update(false);
@@ -418,7 +419,7 @@ page 7200 "CDS Connection Setup"
                         exit;
 
                     SynchronizeNow(false);
-                    Message(SyncNowSuccessMsg, IntegrationSynchJobList.Caption());
+                    Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption());
                 end;
             }
         }
@@ -439,10 +440,10 @@ page 7200 "CDS Connection Setup"
                     CDSIntegrationImpl.ImportAndConfigureIntegrationSolution(Rec, true);
 
                     if CDSIntegrationImpl.CheckIntegrationRequirements(Rec, true) then begin
-                        SendTraceTag('0000CDH', CategoryTok, Verbosity::Normal, SuccessfullyRedeployedSolutionTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000CDH', SuccessfullyRedeployedSolutionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         Message(DeploySucceedMsg)
                     end else begin
-                        SendTraceTag('0000CDI', CategoryTok, Verbosity::Error, UnsuccessfullyRedeployedSolutionTxt, DataClassification::SystemMetadata);
+                        Session.LogMessage('0000CDI', UnsuccessfullyRedeployedSolutionTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         Message(DeployFailedMsg);
                     end;
                     RefreshStatuses := true;
@@ -639,7 +640,7 @@ page 7200 "CDS Connection Setup"
         UserPassword: Text;
         [NonDebuggable]
         ClientSecret: Text;
-        ResetIntegrationTableMappingConfirmQst: Label 'This will delete all existing integration table mappings and Common Data Service synchronization jobs and install the default integration table mappings and jobs for Common Data Service synchronization.\\Are you sure that you want to continue?';
+        ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Common Data Service. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Common Data Service Connection Setup)';
         UnfavorableCDSVersionMsg: Label 'This version of Common Data Service might not work correctly with the base integration solution. We recommend you upgrade to a supported version.';
@@ -656,8 +657,8 @@ page 7200 "CDS Connection Setup"
         DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
         ConnectionSuccessMsg: Label 'The connection test was successful. The settings are valid.';
         ConnectionFailedMsg: Label 'The connection test has failed. %1.', Comment = '%1 = Connection test failure error message';
-        SynchronizeModifiedQst: Label 'This will synchronize all modified records in all Integration Table Mappings.\\Do you want to continue?';
-        SyncNowSuccessMsg: Label 'Synchronize Modified Records completed.\Open %1 window for details.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
+        SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
+        SyncNowScheduledMsg: Label 'Synchronization of modified records is scheduled.\You can view details on the %1 page.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
         SetupSuccessfulMsg: Label 'The default setup for Common Data Service synchronization has completed successfully.';
         DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Common Data Service?';
         UsersAddedToTeamMsg: Label 'Count of users added to the default owning team: %1.', Comment = '%1 - count of users.';
@@ -811,6 +812,6 @@ page 7200 "CDS Connection Setup"
     local procedure GetJobQueueEntriesObjectIDToRunFilter(): Text
     begin
         exit(
-          StrSubstNo('%1', CODEUNIT::"Integration Synch. Job Runner"));
+          StrSubstNo('%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner"));
     end;
 }

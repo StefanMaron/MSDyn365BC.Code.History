@@ -41,7 +41,7 @@ codeunit 1353 "Generate Master Data Telemetry"
             Company.Id, Format(Company."Evaluation Company", 0, 9), Format(CompanyInformationMgt.IsDemoCompany, 0, 9),
             CustomerCount, VendorCount, ItemCount, GLAccountCount, ContactCount);
 
-        SendTraceTag('000018V', AlCompanyMasterdataCategoryTxt, VERBOSITY::Normal, TelemetryMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000018V', TelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AlCompanyMasterdataCategoryTxt);
     end;
 
     [IntegrationEvent(false, false)]

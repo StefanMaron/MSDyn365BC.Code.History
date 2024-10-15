@@ -618,14 +618,12 @@ report 26100 "Swiss VAT Statement"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if you want to include VAT entries that are either open or closed, or both open and closed entries.';
                     }
                     field(PeriodSelection; PeriodSelection)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries that are from the specified period or also include entries from before the period.';
                     }
                     field(NormalRatePct; NormalRateCur)
@@ -792,8 +790,8 @@ report 26100 "Swiss VAT Statement"
         Text008: Label 'Closed by VAT Register No. %1';
         Text009: Label 'VAT Statement Cipher number %1 is defined more than one time in VAT Statement %2 %3', Comment = '%1=VAT Cipher;%2=Statement template name;%3=Statment Name';
         Text010: Label 'VAT 2010';
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         Cipher500Amt: Decimal;
         Cipher510Amt: Decimal;
@@ -974,7 +972,7 @@ report 26100 "Swiss VAT Statement"
                 if VatEntry2.FindSet then
                     repeat
                         if (VatEntry2.Type = VatStmtLineRgstrAmt."Gen. Posting Type") or
-                           (VatStmtLineRgstrAmt."Gen. Posting Type" = 0)
+                           (VatStmtLineRgstrAmt."Gen. Posting Type" = "General Posting Type"::" ")
                         then
                             case VatStmtLineRgstrAmt."Amount Type" of
                                 VatStmtLineRgstrAmt."Amount Type"::Amount:

@@ -57,9 +57,6 @@ codeunit 26100 "Update VAT-CH"
         VATStatementLine: Record "VAT Statement Line";
         VATCipherSetup: Record "VAT Cipher Setup";
         LineNo: Integer;
-        VATLineType: Option "Account Totaling","VAT Entry Totaling","Row Totaling",Description;
-        GenPostingType: Option " ",Purchase,Sale,Settlement;
-        AmountType: Option " ",Amount,Base,"Unrealized Amount","Unrealized Base";
         Text046: Label 'Revenue at normal rate (other rate)';
         Text047: Label 'Revenue at reduced rate (other rate)';
         Text048: Label 'Revenue at Hotel rate (other rate)';
@@ -126,7 +123,7 @@ codeunit 26100 "Update VAT-CH"
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT");
 
-            InsertVatStatLine(Text007, '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+            InsertVatStatLine(Text007, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Revenue of Non-Tax. Services", VATCipherSetup.Miscellaneous);
             if FindSet then begin
@@ -134,7 +131,7 @@ codeunit 26100 "Update VAT-CH"
                     if "Sales VAT Stat. Cipher" <> VATCipherSetup."Reduction in Payments" then begin
                         InsertVatStatLine(
                           Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, true, false,
-                          VATLineType::"VAT Entry Totaling", AmountType::Base, GenPostingType::Sale, '');
+                          "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Sale, '');
                         InsertCipher200 := true;
                     end;
                 until Next = 0;
@@ -145,7 +142,7 @@ codeunit 26100 "Update VAT-CH"
                 repeat
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, false, false,
-                      VATLineType::"VAT Entry Totaling", AmountType::Base, GenPostingType::Sale, '');
+                      "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Sale, '');
                 until Next = 0;
                 InsertCipher200 := true;
             end;
@@ -155,7 +152,7 @@ codeunit 26100 "Update VAT-CH"
                 repeat
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, true, false,
-                      VATLineType::"VAT Entry Totaling", AmountType::Base, GenPostingType::Sale, '');
+                      "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Sale, '');
                 until Next = 0;
                 InsertCipher200 := true;
             end;
@@ -165,46 +162,46 @@ codeunit 26100 "Update VAT-CH"
                 repeat
                     InsertVatStatLine(
                       Format(Text007 + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '', '200', false, false, false,
-                      VATLineType::"VAT Entry Totaling", AmountType::Base, GenPostingType::Purchase, '');
+                      "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, "General Posting Type"::Purchase, '');
                 until Next = 0;
                 InsertCipher200 := true;
             end;
 
             if InsertCipher200 then begin
                 InsertVatStatLine(
-                  Text008, '200', 'Z200', true, false, false, VATLineType::"Row Totaling", AmountType, GenPostingType,
+                  Text008, '200', 'Z200', true, false, false, "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ",
                   VATCipherSetup."Total Revenue");
                 RowTotValue := 'Z200';
             end;
 
             CreateSalesStatLine(
-              VATCipherSetup."Revenue of Non-Tax. Services", Text009, false, false, Text007, true, false, false, GenPostingType::Sale,
+              VATCipherSetup."Revenue of Non-Tax. Services", Text009, false, false, Text007, true, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Revenue of Non-Tax. Services");
-            InsertVatStatLine('', '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
-            InsertVatStatLine(Text010, '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+            InsertVatStatLine('', '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
+            InsertVatStatLine(Text010, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
             CreateSalesStatLine(
-              VATCipherSetup."Deduction of Tax-Exempt", Text012, false, true, Text011, false, false, false, GenPostingType::Sale,
+              VATCipherSetup."Deduction of Tax-Exempt", Text012, false, true, Text011, false, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Deduction of Tax-Exempt");
             CreateSalesStatLine(
-              VATCipherSetup."Deduction of Services Abroad", Text014, false, true, Text013, false, false, false, GenPostingType::Sale,
+              VATCipherSetup."Deduction of Services Abroad", Text014, false, true, Text013, false, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Deduction of Services Abroad");
             CreateSalesStatLine(
-              VATCipherSetup."Deduction of Transfer", Text016, false, true, Text015, false, false, false, GenPostingType::Sale,
+              VATCipherSetup."Deduction of Transfer", Text016, false, true, Text015, false, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Deduction of Transfer");
             CreateSalesStatLine(
-              VATCipherSetup."Deduction of Non-Tax. Services", Text018, false, true, Text017, false, false, false, GenPostingType::Sale,
+              VATCipherSetup."Deduction of Non-Tax. Services", Text018, false, true, Text017, false, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Deduction of Non-Tax. Services");
             CreateSalesStatLine(
-              VATCipherSetup."Reduction in Payments", Text020, false, true, Text019, true, false, false, GenPostingType::Sale,
+              VATCipherSetup."Reduction in Payments", Text020, false, true, Text019, true, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Reduction in Payments");
             CreateSalesStatLine(
-              VATCipherSetup.Miscellaneous, Text022, false, true, Text021, false, false, false, GenPostingType::Sale,
+              VATCipherSetup.Miscellaneous, Text022, false, true, Text021, false, false, false, "General Posting Type"::Sale,
               VATCipherSetup.Miscellaneous);
 
             SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Deduction of Tax-Exempt", VATCipherSetup.Miscellaneous);
             if FindFirst then begin
                 InsertVatStatLine(Text023, 'Z220|Z221|Z225|Z230|Z235|Z280', 'Z289', true, false, true,
-                  VATLineType::"Row Totaling", AmountType, GenPostingType, VATCipherSetup."Total Deductions");
+                  "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VATCipherSetup."Total Deductions");
                 if RowTotValue <> '' then
                     RowTotValue := RowTotValue + '|' + 'Z289'
                 else
@@ -212,9 +209,9 @@ codeunit 26100 "Update VAT-CH"
             end;
             if RowTotValue <> '' then
                 InsertVatStatLine(
-                  Text024, RowTotValue, 'Z299', true, false, false, VATLineType::"Row Totaling", AmountType, GenPostingType,
+                  Text024, RowTotValue, 'Z299', true, false, false, "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ",
                   VATCipherSetup."Total Taxable Revenue");
-            InsertVatStatLine('', '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+            InsertVatStatLine('', '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
         end;
     end;
 
@@ -222,33 +219,33 @@ codeunit 26100 "Update VAT-CH"
     begin
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT");
-            InsertVatStatLine(Text025, '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+            InsertVatStatLine(Text025, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
             CreateSalesStatLine(
-              VATCipherSetup."Tax Normal Rate Serv. Before", Text027, false, false, Text026, true, false, true, GenPostingType::Sale,
+              VATCipherSetup."Tax Normal Rate Serv. Before", Text027, false, false, Text026, true, false, true, "General Posting Type"::Sale,
               VATCipherSetup."Tax Normal Rate Serv. Before");
             CreateSalesStatLine(
-              VATCipherSetup."Tax Normal Rate Serv. After", Text046, false, false, Text026, true, false, true, GenPostingType::Sale,
+              VATCipherSetup."Tax Normal Rate Serv. After", Text046, false, false, Text026, true, false, true, "General Posting Type"::Sale,
               VATCipherSetup."Tax Normal Rate Serv. After");
             CreateSalesStatLine(
-              VATCipherSetup."Tax Reduced Rate Serv. Before", Text029, false, false, Text028, true, false, true, GenPostingType::Sale,
+              VATCipherSetup."Tax Reduced Rate Serv. Before", Text029, false, false, Text028, true, false, true, "General Posting Type"::Sale,
               VATCipherSetup."Tax Reduced Rate Serv. Before");
             CreateSalesStatLine(
-              VATCipherSetup."Tax Reduced Rate Serv. After", Text047, false, false, Text028, true, false, true, GenPostingType::Sale,
+              VATCipherSetup."Tax Reduced Rate Serv. After", Text047, false, false, Text028, true, false, true, "General Posting Type"::Sale,
               VATCipherSetup."Tax Reduced Rate Serv. After");
             CreateSalesStatLine(
-              VATCipherSetup."Tax Hotel Rate Serv. Before", Text031, false, false, Text030, true, false, true, GenPostingType::Sale,
+              VATCipherSetup."Tax Hotel Rate Serv. Before", Text031, false, false, Text030, true, false, true, "General Posting Type"::Sale,
               VATCipherSetup."Tax Hotel Rate Serv. Before");
             CreateSalesStatLine(
-              VATCipherSetup."Tax Hotel Rate Serv. After", Text048, false, false, Text030, true, false, true, GenPostingType::Sale,
+              VATCipherSetup."Tax Hotel Rate Serv. After", Text048, false, false, Text030, true, false, true, "General Posting Type"::Sale,
               VATCipherSetup."Tax Hotel Rate Serv. After");
             VATCalcType := VATCalcType::"Reverse Charge VAT";
             CreateSalesStatLine(
               VATCipherSetup."Acquisition Tax Before", Text033, false, false, Text032, false,
-              false, true, GenPostingType::Purchase, VATCipherSetup."Acquisition Tax Before");
+              false, true, "General Posting Type"::Purchase, VATCipherSetup."Acquisition Tax Before");
             CreateSalesStatLine(
               VATCipherSetup."Acquisition Tax After", Text049, false, false, Text032, false,
-              false, true, GenPostingType::Purchase, VATCipherSetup."Acquisition Tax After");
-            InsertVatStatLine('', '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+              false, true, "General Posting Type"::Purchase, VATCipherSetup."Acquisition Tax After");
+            InsertVatStatLine('', '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
         end;
     end;
 
@@ -257,7 +254,7 @@ codeunit 26100 "Update VAT-CH"
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Full VAT");
             SetRange("Sales VAT Stat. Cipher");
-            InsertVatStatLine(Text034, '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+            InsertVatStatLine(Text034, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
             CreatePurchStatLine(
               VATCipherSetup."Input Tax on Material and Serv", Text035, false, false, Text034, false, false,
               VATCipherSetup."Input Tax on Material and Serv");
@@ -273,7 +270,7 @@ codeunit 26100 "Update VAT-CH"
             SetRange("Purch. VAT Stat. Cipher", VATCipherSetup."Input Tax on Material and Serv", VATCipherSetup."Input Tax Cutbacks");
             if FindFirst then
                 InsertVatStatLine(Text042, 'Z400|Z405|Z410|Z415|Z420', 'Z479', true, false, false,
-                  VATLineType::"Row Totaling", AmountType, GenPostingType, VATCipherSetup."Total Input Tax");
+                  "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VATCipherSetup."Total Input Tax");
         end;
     end;
 
@@ -284,19 +281,19 @@ codeunit 26100 "Update VAT-CH"
             SetFilter("Sales VAT Stat. Cipher", '%1|%2', VATCipherSetup."Cash Flow Taxes", VATCipherSetup."Cash Flow Compensations");
             if not FindFirst then
                 exit;
-            InsertVatStatLine('', '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
-            InsertVatStatLine(Text043, '', '', true, false, false, VATLineType::Description, AmountType, GenPostingType, '');
+            InsertVatStatLine('', '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
+            InsertVatStatLine(Text043, '', '', true, false, false, "VAT Statement Line Type"::Description, "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", '');
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Full VAT");
             CreateSalesStatLine(
-              VATCipherSetup."Cash Flow Taxes", Text044, false, false, Text026, true, false, false, GenPostingType::Sale,
+              VATCipherSetup."Cash Flow Taxes", Text044, false, false, Text026, true, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Cash Flow Taxes");
             CreateSalesStatLine(
-              VATCipherSetup."Cash Flow Compensations", Text045, false, false, Text026, true, false, false, GenPostingType::Sale,
+              VATCipherSetup."Cash Flow Compensations", Text045, false, false, Text026, true, false, false, "General Posting Type"::Sale,
               VATCipherSetup."Cash Flow Compensations");
         end;
     end;
 
-    local procedure InsertVatStatLine(Txt: Text[50]; RowTotal: Text[30]; Number: Code[10]; PrintSign: Boolean; ReverseSign: Boolean; PrintRevSign: Boolean; VATLineType2: Option "Account Totaling","VAT Entry Totaling","Row Totaling",Description; AmountType2: Option " ",Amount,Base,"Unrealized Amount","Unrealized Base"; GenPostingType2: Option " ",Purchase,Sale,Settlement; VATStatCipher: Code[20])
+    local procedure InsertVatStatLine(Txt: Text[50]; RowTotal: Text[30]; Number: Code[10]; PrintSign: Boolean; ReverseSign: Boolean; PrintRevSign: Boolean; VATLineType2: Enum "VAT Statement Line Type"; AmountType2: Enum "VAT Statement Line Amount Type"; GenPostingType2: Enum "General Posting Type"; VATStatCipher: Code[20])
     begin
         with VATStatementLine do begin
             Init;
@@ -328,7 +325,7 @@ codeunit 26100 "Update VAT-CH"
         end;
     end;
 
-    local procedure CreateSalesStatLine(FromCipher: Code[20]; TotTxtConst: Text[50]; TotReverseSign: Boolean; TotPrintSign: Boolean; LinTxtConst: Text[50]; LinReverseSign: Boolean; LinPrintSign: Boolean; CheckCondition: Boolean; LinGenPostingType: Option " ",Purchase,Sale,Settlement; VatCipher: Code[20])
+    local procedure CreateSalesStatLine(FromCipher: Code[20]; TotTxtConst: Text[50]; TotReverseSign: Boolean; TotPrintSign: Boolean; LinTxtConst: Text[50]; LinReverseSign: Boolean; LinPrintSign: Boolean; CheckCondition: Boolean; LinGenPostingType: Enum "General Posting Type"; VatCipher: Code[20])
     begin
         with VATPostingSetup do begin
             SetRange("Sales VAT Stat. Cipher", FromCipher);
@@ -344,12 +341,12 @@ codeunit 26100 "Update VAT-CH"
                     InsertVatStatLine(
                       Format(LinTxtConst + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '',
                       CopyStr(FromCipher, 1, 10),
-                      false, LinReverseSign, LinPrintSign, VATLineType::"VAT Entry Totaling", AmountType::Base, LinGenPostingType,
+                      false, LinReverseSign, LinPrintSign, "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Base, LinGenPostingType,
                       '');
                 until Next = 0;
                 InsertVatStatLine(
                   Format(TotTxtConst, -50), Format(FromCipher, 0), 'Z' + '' + Format(FromCipher, 0), true, TotReverseSign, TotPrintSign,
-                  VATLineType::"Row Totaling", AmountType, GenPostingType, VatCipher);
+                  "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VatCipher);
             end;
         end;
     end;
@@ -363,12 +360,12 @@ codeunit 26100 "Update VAT-CH"
                     InsertVatStatLine(
                       Format(LinTxtConst + ' : ' + "VAT Bus. Posting Group" + ' / ' + "VAT Prod. Posting Group", -50), '',
                       CopyStr(FromCipher, 1, 10),
-                      false, LinReverseSign, LinPrintSign, VATLineType::"VAT Entry Totaling", AmountType::Amount, GenPostingType::Purchase,
+                      false, LinReverseSign, LinPrintSign, "VAT Statement Line Type"::"VAT Entry Totaling", "VAT Statement Line Amount Type"::Amount, "General Posting Type"::Purchase,
                       '');
                 until Next = 0;
                 InsertVatStatLine(
                   Format(TotTxtConst, -50), FromCipher, CopyStr('Z' + '' + FromCipher, 1, 10), true, TotReverseSign, TotPrintSign,
-                  VATLineType::"Row Totaling", AmountType, GenPostingType, VatCipher);
+                  "VAT Statement Line Type"::"Row Totaling", "VAT Statement Line Amount Type"::" ", "General Posting Type"::" ", VatCipher);
             end;
         end;
     end;

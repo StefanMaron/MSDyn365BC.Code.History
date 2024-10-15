@@ -273,7 +273,7 @@ codeunit 137049 "SCM Reservation"
         ProdOrderReservation(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
 
-    local procedure ProdOrderReservation(ProdOrderStatus: Option; ItemQty: Decimal; SalesQty: Decimal)
+    local procedure ProdOrderReservation(ProdOrderStatus: Enum "Production Order Status"; ItemQty: Decimal; SalesQty: Decimal)
     var
         ProductionOrder: Record "Production Order";
         Item: Record Item;
@@ -408,7 +408,7 @@ codeunit 137049 "SCM Reservation"
         DeleteProductionOrderReserve(ProductionOrder.Status::"Firm Planned");
     end;
 
-    local procedure DeleteProductionOrderReserve(Status: Option)
+    local procedure DeleteProductionOrderReserve(Status: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         Item: Record Item;
@@ -483,7 +483,7 @@ codeunit 137049 "SCM Reservation"
         ProdOrderReservationCancel(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
 
-    local procedure ProdOrderReservationCancel(ProdOrderStatus: Option; ItemQty: Decimal; SalesQty: Decimal)
+    local procedure ProdOrderReservationCancel(ProdOrderStatus: Enum "Production Order Status"; ItemQty: Decimal; SalesQty: Decimal)
     var
         ProductionOrder: Record "Production Order";
         Item: Record Item;
@@ -966,7 +966,7 @@ codeunit 137049 "SCM Reservation"
         ProductionOrderComponentReservation(ProductionOrder.Status::Released);  // Prod. Order Component reservation with Auto Reserve.
     end;
 
-    local procedure ProductionOrderComponentReservation(ProdOrderStatus: Option)
+    local procedure ProductionOrderComponentReservation(ProdOrderStatus: Enum "Production Order Status")
     var
         ProductionOrder: Record "Production Order";
         ParentItem: Record Item;
@@ -1072,7 +1072,7 @@ codeunit 137049 "SCM Reservation"
         ProdOrderReservationAndPostToGL(ProductionOrder.Status::Released, InitialInventory, InitialInventory);
     end;
 
-    local procedure ProdOrderReservationAndPostToGL(ProdOrderStatus: Option; ItemQty: Decimal; SalesQty: Decimal)
+    local procedure ProdOrderReservationAndPostToGL(ProdOrderStatus: Enum "Production Order Status"; ItemQty: Decimal; SalesQty: Decimal)
     var
         ProductionOrder: Record "Production Order";
         Item: Record Item;
@@ -1718,7 +1718,7 @@ codeunit 137049 "SCM Reservation"
             DATABASE::"Transfer Line":
                 begin
                     TransferLine.Get(SourceID, SourceRefNo);
-                    ReservMgt.SetTransferLine(TransferLine, 0); // 0 stands for outbound
+                    ReservMgt.SetTransferLine(TransferLine, "Transfer Direction"::Outbound); // 0 stands for outbound
                 end;
             DATABASE::"Prod. Order Component":
                 begin
@@ -1792,12 +1792,12 @@ codeunit 137049 "SCM Reservation"
     begin
         CreatePurchaseLine(PurchaseLine, ItemNo, UOMCode, Qty, LocationCode, PurchaseLine."Document Type"::Order, WorkDate);
         RoundingIssuesCreateReservationEntry(true, false, ItemNo, PurchaseLine.Quantity, PurchaseLine."Quantity (Base)",
-          DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
+          DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
           PurchaseLine."Qty. per Unit of Measure", LotNo, PurchaseLine."Expected Receipt Date");
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, PurchaseLine."Quantity (Base)",
-              DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
+              DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
               0, '', PurchaseLine."Qty. per Unit of Measure", LotNo, 0D);
     end;
 
@@ -1811,17 +1811,17 @@ codeunit 137049 "SCM Reservation"
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, PurchaseLine."No.", -PurchaseLine.Quantity, -PurchaseLine."Quantity (Base)",
-              DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
+              DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
               PurchaseLine."Qty. per Unit of Measure", LotNo, PurchaseLine."Expected Receipt Date");
 
         RoundingIssuesCreateReservationEntry(false, false, PurchaseLine."No.", -PurchaseLine.Quantity, -PurchaseLine."Quantity (Base)",
-          DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
+          DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
           PurchaseLine."Qty. per Unit of Measure", LotNo, PurchaseLine."Expected Receipt Date");
 
         ShipmentDate := PurchaseLine."Expected Receipt Date";
         QtyToReserve := PurchaseLine.Quantity;
         QtyToReserveBase := PurchaseLine."Quantity (Base)";
-        SourceSubType := PurchaseLine."Document Type";
+        SourceSubType := PurchaseLine."Document Type".AsInteger();
         SourceID := PurchaseLine."Document No.";
         SourceRefNo := PurchaseLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -1833,12 +1833,12 @@ codeunit 137049 "SCM Reservation"
     begin
         CreateProdOrderLine(ProdOrderLine, ItemNo, UOMCode, Qty, LocationCode, WorkDate);
         RoundingIssuesCreateReservationEntry(true, false, ItemNo, ProdOrderLine.Quantity, ProdOrderLine."Quantity (Base)",
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, ProdOrderLine."Line No.", '',
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, ProdOrderLine."Line No.", '',
           ProdOrderLine."Qty. per Unit of Measure", LotNo, ProdOrderLine."Due Date");
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, ProdOrderLine."Quantity (Base)",
-              DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, ProdOrderLine."Line No.", '',
+              DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, ProdOrderLine."Line No.", '',
               ProdOrderLine."Qty. per Unit of Measure", LotNo, 0D);
     end;
 
@@ -1851,18 +1851,18 @@ codeunit 137049 "SCM Reservation"
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, ProdOrderComp."Item No.", -ProdOrderComp.Quantity,
               -ProdOrderComp."Quantity (Base)",
-              DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.",
+              DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.",
               ProdOrderComp."Prod. Order Line No.", '', ProdOrderComp."Qty. per Unit of Measure", LotNo, ProdOrderComp."Due Date");
 
         RoundingIssuesCreateReservationEntry(false, false, ProdOrderComp."Item No.", -ProdOrderComp.Quantity,
           -ProdOrderComp."Quantity (Base)",
-          DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.",
+          DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.",
           ProdOrderComp."Prod. Order Line No.", '', ProdOrderComp."Qty. per Unit of Measure", LotNo, ProdOrderComp."Due Date");
 
         ShipmentDate := ProdOrderComp."Due Date";
         QtyToReserve := ProdOrderComp.Quantity;
         QtyToReserveBase := ProdOrderComp."Quantity (Base)";
-        SourceSubType := ProdOrderComp.Status;
+        SourceSubType := ProdOrderComp.Status.AsInteger();
         SourceID := ProdOrderComp."Prod. Order No.";
         SourceRefNo := ProdOrderComp."Line No.";
         SourceProdOrderLineNo := ProdOrderComp."Prod. Order Line No.";
@@ -1912,12 +1912,12 @@ codeunit 137049 "SCM Reservation"
         AsmHeader.Insert();
 
         RoundingIssuesCreateReservationEntry(true, false, ItemNo, AsmHeader.Quantity, AsmHeader."Quantity (Base)",
-          DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", 0, 0, '',
+          DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, 0, '',
           AsmHeader."Qty. per Unit of Measure", LotNo, AsmHeader."Due Date");
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, AsmHeader."Quantity (Base)",
-              DATABASE::"Assembly Header", AsmHeader."Document Type", AsmHeader."No.", 0, 0, '',
+              DATABASE::"Assembly Header", AsmHeader."Document Type".AsInteger(), AsmHeader."No.", 0, 0, '',
               AsmHeader."Qty. per Unit of Measure", LotNo, AsmHeader."Due Date");
     end;
 
@@ -1944,17 +1944,17 @@ codeunit 137049 "SCM Reservation"
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, AsmLine."No.", -AsmLine.Quantity, -AsmLine."Quantity (Base)",
-              DATABASE::"Assembly Line", AsmLine."Document Type", AsmLine."Document No.", AsmLine."Line No.", 0, '',
+              DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmLine."Line No.", 0, '',
               AsmLine."Qty. per Unit of Measure", LotNo, AsmLine."Due Date");
 
         RoundingIssuesCreateReservationEntry(false, false, AsmLine."No.", -AsmLine.Quantity, -AsmLine."Quantity (Base)",
-          DATABASE::"Assembly Line", AsmLine."Document Type", AsmLine."Document No.", AsmLine."Line No.", 0, '',
+          DATABASE::"Assembly Line", AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmLine."Line No.", 0, '',
           AsmLine."Qty. per Unit of Measure", LotNo, AsmLine."Due Date");
 
         ShipmentDate := AsmLine."Due Date";
         QtyToReserve := AsmLine.Quantity;
         QtyToReserveBase := AsmLine."Quantity (Base)";
-        SourceSubType := AsmLine."Document Type";
+        SourceSubType := AsmLine."Document Type".AsInteger();
         SourceID := AsmLine."Document No.";
         SourceRefNo := AsmLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -2008,12 +2008,12 @@ codeunit 137049 "SCM Reservation"
     begin
         CreateSaleLine(SalesLine, SalesLine."Document Type"::"Return Order", ItemNo, UOMCode, Qty, LocationCode, WorkDate);
         RoundingIssuesCreateReservationEntry(true, false, ItemNo, SalesLine.Quantity, SalesLine."Quantity (Base)",
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, '',
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, '',
           SalesLine."Qty. per Unit of Measure", LotNo, SalesLine."Shipment Date");
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, SalesLine."Quantity (Base)",
-              DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, '',
+              DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, '',
               SalesLine."Qty. per Unit of Measure", LotNo, SalesLine."Shipment Date");
     end;
 
@@ -2026,17 +2026,17 @@ codeunit 137049 "SCM Reservation"
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, SalesLine."No.", -SalesLine.Quantity, -SalesLine."Quantity (Base)",
-              DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, '',
+              DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, '',
               SalesLine."Qty. per Unit of Measure", LotNo, SalesLine."Shipment Date");
 
         RoundingIssuesCreateReservationEntry(false, false, SalesLine."No.", -SalesLine.Quantity, -SalesLine."Quantity (Base)",
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, '',
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, '',
           SalesLine."Qty. per Unit of Measure", LotNo, SalesLine."Shipment Date");
 
         ShipmentDate := SalesLine."Shipment Date";
         QtyToReserve := SalesLine.Quantity;
         QtyToReserveBase := SalesLine."Quantity (Base)";
-        SourceSubType := SalesLine."Document Type";
+        SourceSubType := SalesLine."Document Type".AsInteger();
         SourceID := SalesLine."Document No.";
         SourceRefNo := SalesLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -2050,17 +2050,17 @@ codeunit 137049 "SCM Reservation"
 
         if CreateReservationEntry then
             RoundingIssuesCreateReservationEntry(false, true, ServiceLine."No.", -ServiceLine.Quantity, -ServiceLine."Quantity (Base)",
-              DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.", 0, '',
+              DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0, '',
               ServiceLine."Qty. per Unit of Measure", LotNo, ServiceLine."Needed by Date");
 
         RoundingIssuesCreateReservationEntry(false, false, ServiceLine."No.", -ServiceLine.Quantity, -ServiceLine."Quantity (Base)",
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.", 0, '',
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0, '',
           ServiceLine."Qty. per Unit of Measure", LotNo, ServiceLine."Needed by Date");
 
         ShipmentDate := ServiceLine."Needed by Date";
         QtyToReserve := ServiceLine.Quantity;
         QtyToReserveBase := ServiceLine."Quantity (Base)";
-        SourceSubType := ServiceLine."Document Type";
+        SourceSubType := ServiceLine."Document Type".AsInteger();
         SourceID := ServiceLine."Document No.";
         SourceRefNo := ServiceLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -2627,7 +2627,7 @@ codeunit 137049 "SCM Reservation"
         ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
         ReservationEntry.Positive := false;
         ReservationEntry."Source Type" := DATABASE::"Sales Line";
-        ReservationEntry."Source Subtype" := SalesLine."Document Type";
+        ReservationEntry."Source Subtype" := SalesLine."Document Type".AsInteger();
         ReservationEntry."Source ID" := SalesLine."Document No.";
         ReservationEntry."Source Ref. No." := SalesLine."Line No.";
         ReservationEntry.Insert();
@@ -2727,7 +2727,7 @@ codeunit 137049 "SCM Reservation"
         end;
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; LocationCode: Code[10]; DocumentType: Option; ExpectedReceiptDate: Date)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; LocationCode: Code[10]; DocumentType: Enum "Purchase Document Type"; ExpectedReceiptDate: Date)
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         RecRef: RecordRef;
@@ -2807,7 +2807,7 @@ codeunit 137049 "SCM Reservation"
         TransferLine.Insert();
     end;
 
-    local procedure CreateSaleLine(var SalesLine: Record "Sales Line"; DocumentType: Option; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; LocationCode: Code[10]; ShipmentDate: Date)
+    local procedure CreateSaleLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; LocationCode: Code[10]; ShipmentDate: Date)
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         RecRef: RecordRef;
@@ -2909,7 +2909,7 @@ codeunit 137049 "SCM Reservation"
     begin
         CreatePurchaseLine(PurchaseLine, ItemNo, UOMCode, Qty, LocationCode, PurchaseLine."Document Type"::Order, ExpectedReceiptDate);
         RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, PurchaseLine."Quantity (Base)",
-          DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
+          DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
           0, '', PurchaseLine."Qty. per Unit of Measure", LotNo, PurchaseLine."Expected Receipt Date");
     end;
 
@@ -2921,12 +2921,12 @@ codeunit 137049 "SCM Reservation"
           ItemUnitOfMeasureCAS."Item No.", ItemUnitOfMeasureCAS.Code, Qty,
           LocationCode, PurchaseLine."Document Type"::Order, ExpectedReceiptDate);
         RoundingIssuesCreateReservationEntry(false, true, PurchaseLine."No.", -PurchaseLine.Quantity, -PurchaseLine."Quantity (Base)",
-          DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
+          DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", 0, '',
           PurchaseLine."Qty. per Unit of Measure", LotNo, PurchaseLine."Expected Receipt Date");
 
         QtyToReserve := PurchaseLine.Quantity;
         QtyToReserveBase := PurchaseLine."Quantity (Base)";
-        SourceSubType := PurchaseLine."Document Type";
+        SourceSubType := PurchaseLine."Document Type".AsInteger();
         SourceID := PurchaseLine."Document No.";
         SourceRefNo := PurchaseLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -2938,7 +2938,7 @@ codeunit 137049 "SCM Reservation"
     begin
         CreateProdOrderLine(ProdOrderLine, ItemNo, UOMCode, Qty, LocationCode, DueDate);
         RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, ProdOrderLine."Quantity (Base)",
-          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, ProdOrderLine."Line No.", '',
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, ProdOrderLine."Line No.", '',
           ProdOrderLine."Qty. per Unit of Measure", LotNo, ProdOrderLine."Due Date");
     end;
 
@@ -2949,12 +2949,12 @@ codeunit 137049 "SCM Reservation"
         CreateProdOrderComp(ProdOrderComp, ItemUnitOfMeasureCAS."Item No.", ItemUnitOfMeasureCAS.Code, Qty, LocationCode, DueDate);
         RoundingIssuesCreateReservationEntry(false, true, ProdOrderComp."Item No.", -ProdOrderComp.Quantity,
           -ProdOrderComp."Quantity (Base)",
-          DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.",
+          DATABASE::"Prod. Order Component", ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Line No.",
           ProdOrderComp."Prod. Order Line No.", '', ProdOrderComp."Qty. per Unit of Measure", LotNo, ProdOrderComp."Due Date");
 
         QtyToReserve := ProdOrderComp.Quantity;
         QtyToReserveBase := ProdOrderComp."Quantity (Base)";
-        SourceSubType := ProdOrderComp.Status;
+        SourceSubType := ProdOrderComp.Status.AsInteger();
         SourceID := ProdOrderComp."Prod. Order No.";
         SourceRefNo := ProdOrderComp."Line No.";
         SourceProdOrderLineNo := ProdOrderComp."Prod. Order Line No.";
@@ -3011,7 +3011,7 @@ codeunit 137049 "SCM Reservation"
     begin
         CreateSaleLine(SalesLine, SalesLine."Document Type"::"Return Order", ItemNo, UOMCode, Qty, LocationCode, ShipmentDate);
         RoundingIssuesCreateReservationEntry(true, true, ItemNo, 0, SalesLine."Quantity (Base)",
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, '',
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, '',
           SalesLine."Qty. per Unit of Measure", LotNo, SalesLine."Shipment Date");
     end;
 
@@ -3022,12 +3022,12 @@ codeunit 137049 "SCM Reservation"
         CreateSaleLine(SalesLine, SalesLine."Document Type"::Order, ItemUnitOfMeasureCAS."Item No.",
           ItemUnitOfMeasureCAS.Code, Qty, LocationCode, ShipmentDate);
         RoundingIssuesCreateReservationEntry(false, true, SalesLine."No.", -SalesLine.Quantity, -SalesLine."Quantity (Base)",
-          DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, '',
+          DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, '',
           SalesLine."Qty. per Unit of Measure", LotNo, SalesLine."Shipment Date");
 
         QtyToReserve := SalesLine.Quantity;
         QtyToReserveBase := SalesLine."Quantity (Base)";
-        SourceSubType := SalesLine."Document Type";
+        SourceSubType := SalesLine."Document Type".AsInteger();
         SourceID := SalesLine."Document No.";
         SourceRefNo := SalesLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -3039,12 +3039,12 @@ codeunit 137049 "SCM Reservation"
     begin
         CreateServiceLine(ServiceLine, ItemUnitOfMeasureCAS."Item No.", ItemUnitOfMeasureCAS.Code, Qty, LocationCode, NeedByDate);
         RoundingIssuesCreateReservationEntry(false, true, ServiceLine."No.", -ServiceLine.Quantity, -ServiceLine."Quantity (Base)",
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.", 0, '',
+          DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", ServiceLine."Line No.", 0, '',
           ServiceLine."Qty. per Unit of Measure", LotNo, ServiceLine."Needed by Date");
 
         QtyToReserve := ServiceLine.Quantity;
         QtyToReserveBase := ServiceLine."Quantity (Base)";
-        SourceSubType := ServiceLine."Document Type";
+        SourceSubType := ServiceLine."Document Type".AsInteger();
         SourceID := ServiceLine."Document No.";
         SourceRefNo := ServiceLine."Line No.";
         SourceProdOrderLineNo := 0;
@@ -3059,7 +3059,7 @@ codeunit 137049 "SCM Reservation"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; EntryType: Option)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; EntryType: Enum "Item Ledger Document Type")
     begin
         // Create Item Journal to populate Item Quantity.
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
@@ -3210,13 +3210,13 @@ codeunit 137049 "SCM Reservation"
         exit(Item.Inventory);
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure DeleteProductionOrder(Status: Option; SourceNo: Code[20])
+    local procedure DeleteProductionOrder(Status: Enum "Production Order Status"; SourceNo: Code[20])
     var
         ProductionOrder: Record "Production Order";
     begin
@@ -3241,7 +3241,7 @@ codeunit 137049 "SCM Reservation"
         ItemJournalLine.FindFirst;
     end;
 
-    local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; ReservationStatus: Option; SourceType: Integer)
+    local procedure FindReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; ReservationStatus: Enum "Reservation Status"; SourceType: Integer)
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Reservation Status", ReservationStatus);

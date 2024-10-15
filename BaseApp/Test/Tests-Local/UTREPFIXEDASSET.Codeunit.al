@@ -633,7 +633,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         end;
     end;
 
-    local procedure CreateFALedgerEntry(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option): Decimal
+    local procedure CreateFALedgerEntry(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"): Decimal
     var
         FALedgerEntry: Record "FA Ledger Entry";
         FALedgerEntry2: Record "FA Ledger Entry";
@@ -690,7 +690,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         exit(FixedAsset."No.");
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -698,14 +698,14 @@ codeunit 142059 "UT REP FIXEDASSET"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Option)
+    local procedure CreateGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Enum "Gen. Journal Template Type")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate(Type, Type);
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateAndPostFAGLJournal(FANo: Code[20]; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateAndPostFAGLJournal(FANo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -775,7 +775,7 @@ codeunit 142059 "UT REP FIXEDASSET"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure UpdateFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure UpdateFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GLAccount: Record "G/L Account";
     begin

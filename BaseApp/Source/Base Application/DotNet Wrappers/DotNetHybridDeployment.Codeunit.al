@@ -33,6 +33,12 @@ codeunit 3030 DotNet_HybridDeployment
     end;
 
     [Scope('OnPrem')]
+    procedure DisableDataLakeMigration(SourceProduct: Text) InstanceId: Text
+    begin
+        InstanceId := DotNetALHybridDeployManagement.DisableDataLakeMigration(SourceProduct);
+    end;
+
+    [Scope('OnPrem')]
     procedure DisableReplication(SourceProduct: Text) InstanceId: Text
     begin
         InstanceId := DotNetALHybridDeployManagement.DisableReplication(SourceProduct);
@@ -73,6 +79,12 @@ codeunit 3030 DotNet_HybridDeployment
     procedure GetVersionInformation(SourceProduct: Text) InstanceId: Text
     begin
         InstanceId := DotNetALHybridDeployManagement.GetVersionInformation(SourceProduct);
+    end;
+
+    [Scope('OnPrem')]
+    procedure InitiateDataLakeMigration(SourceProduct: Text; StorageAccountName: Text; StorageAccountKey: Text) InstanceId: Text
+    begin
+        InstanceId := DotNetALHybridDeployManagement.InitiateDataLakeMigration(SourceProduct, StorageAccountName, StorageAccountKey);
     end;
 
     [Scope('OnPrem')]

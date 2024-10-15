@@ -815,7 +815,9 @@ table 5092 Opportunity
         SalesHeader.Modify();
         "Sales Document Type" := "Sales Document Type"::Quote;
         "Sales Document No." := SalesHeader."No.";
-        Modify;
+        Modify();
+
+        OnCreateQuoteOnBeforePageRun(SalesHeader, Rec);
 
         PAGE.Run(PAGE::"Sales Quote", SalesHeader);
     end;
@@ -920,7 +922,7 @@ table 5092 Opportunity
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure FinishWizard()
     var
         ActivateFirstStage: Boolean;
@@ -1162,6 +1164,11 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateQuoteOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateQuoteOnBeforePageRun(var SalesHeader: Record "Sales Header"; var Opportunity: Record Opportunity)
     begin
     end;
 }

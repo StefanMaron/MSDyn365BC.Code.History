@@ -22,9 +22,7 @@ codeunit 5446 "Graph Webhook Sync To NAV"
         if IntegrationMappingCode = '' then
             exit;
 
-        SendTraceTag('000016Z', GraphSubscriptionManagement.TraceCategory, VERBOSITY::Verbose,
-          StrSubstNo(ReceivedNotificationTxt, "Change Type", IntegrationMappingCode, "Resource ID"),
-          DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000016Z', StrSubstNo(ReceivedNotificationTxt, "Change Type", IntegrationMappingCode, "Resource ID"), Verbosity::Verbose, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphSubscriptionManagement.TraceCategory);
 
         GraphConnectionSetup.RegisterConnections;
         GraphDataSetup.GetIntegrationTableMapping(IntegrationTableMapping, IntegrationMappingCode);

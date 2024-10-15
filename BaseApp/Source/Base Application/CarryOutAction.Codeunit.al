@@ -1,4 +1,4 @@
-﻿codeunit 99000813 "Carry Out Action"
+codeunit 99000813 "Carry Out Action"
 {
     Permissions = TableData "Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
@@ -353,11 +353,11 @@
             TransLine.Modify(true);
             ReqLineReserve.TransferReqLineToTransLine(ReqLine, TransLine, 0, true);
             ReqLineReserve.UpdateDerivedTracking(ReqLine);
-            ReservMgt.SetReservSource(TransLine, 0);
+            ReservMgt.SetReservSource(TransLine, "Transfer Direction"::Outbound);
             ReservMgt.DeleteReservEntries(false, TransLine."Outstanding Qty. (Base)");
             ReservMgt.ClearSurplus;
             ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
-            ReservMgt.SetReservSource(TransLine, 1);
+            ReservMgt.SetReservSource(TransLine, "Transfer Direction"::Inbound);
             ReservMgt.DeleteReservEntries(false, TransLine."Outstanding Qty. (Base)");
             ReservMgt.ClearSurplus;
             ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
@@ -554,7 +554,7 @@
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProdOrder.Status := ProdOrder.Status::"Firm Planned"
             else
-                ProdOrder.Status := ProdOrderChoice;
+                ProdOrder.Status := "Production Order Status".FromInteger(ProdOrderChoice);
             ProdOrder."No. Series" := ProdOrder.GetNoSeriesCode;
             if ProdOrder."No. Series" = ReqLine."No. Series" then
                 ProdOrder."No." := ReqLine."Ref. Order No.";
@@ -735,7 +735,7 @@
         PrintAsmOrder(AsmHeader);
         TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Assembly Header";
-        TempDocumentEntry."Document Type" := AsmHeader."Document Type"::Order;
+        TempDocumentEntry."Document Type" := AsmHeader."Document Type"::Order.AsInteger();
         TempDocumentEntry."Document No." := AsmHeader."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
         TempDocumentEntry.Insert();
@@ -898,13 +898,13 @@
 
     procedure PrintTransferOrder(TransHeader: Record "Transfer Header")
     var
-        ReportSelection: Record "Report Selections";
+        ReportSelections: Record "Report Selections";
         TransHeader2: Record "Transfer Header";
     begin
         if PrintOrder then begin
             TransHeader2 := TransHeader;
-            TransHeader2.SetRecFilter;
-            ReportSelection.PrintWithGUIYesNoWithCheck(ReportSelection.Usage::Inv1, TransHeader2, false, 0);
+            TransHeader2.SetRecFilter();
+            ReportSelections.PrintWithDialogWithCheckForCust("Report Selection Usage"::Inv1, TransHeader2, false, 0);
         end;
     end;
 
@@ -932,8 +932,8 @@
             if IsHandled then
                 exit;
 
-            PurchHeader2.SetRecFilter;
-            ReportSelection.PrintWithGUIYesNoWithCheckVendor(
+            PurchHeader2.SetRecFilter();
+            ReportSelection.PrintWithDialogWithCheckForVend(
               ReportSelection.Usage::"P.Order", PurchHeader2, false, PurchHeader2.FieldNo("Buy-from Vendor No."));
         end;
     end;
@@ -979,8 +979,8 @@
     begin
         if PrintOrder and (AsmHeader."Item No." <> '') then begin
             AsmHeader2 := AsmHeader;
-            AsmHeader2.SetRecFilter;
-            ReportSelections.PrintWithGUIYesNoWithCheck(ReportSelections.Usage::"Asm.Order", AsmHeader2, false, 0);
+            AsmHeader2.SetRecFilter();
+            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Asm.Order", AsmHeader2, false, 0);
         end;
     end;
 
@@ -991,8 +991,8 @@
     begin
         if PrintOrder and (ProdOrder."No." <> '') then begin
             ProdOrder2 := ProdOrder;
-            ProdOrder2.SetRecFilter;
-            ReportSelection.PrintWithGUIYesNoWithCheck(ReportSelection.Usage::"Prod.Order", ProdOrder2, false, 0);
+            ProdOrder2.SetRecFilter();
+            ReportSelection.PrintWithDialogWithCheckForCust(ReportSelection.Usage::"Prod.Order", ProdOrder2, false, 0);
         end;
     end;
 
@@ -1003,7 +1003,7 @@
         PlanningRtngLine: Record "Planning Routing Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         WMSManagement: Codeunit "WMS Management";
-        FlushingMethod: Option;
+        FlushingMethod: Enum "Flushing Method Routing";
     begin
         PlanningRtngLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningRtngLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
@@ -1034,13 +1034,15 @@
 
                 FlushingMethod := ProdOrderRtngLine."Flushing Method";
                 if ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Manual then
-                    ProdOrderRtngLine."To-Production Bin Code" := WMSManagement.GetProdCenterBinCode(
-                        PlanningRtngLine.Type, PlanningRtngLine."No.", ReqLine."Location Code", true,
-                        FlushingMethod)
+                    ProdOrderRtngLine."To-Production Bin Code" :=
+                        WMSManagement.GetProdCenterBinCode(
+                            PlanningRtngLine.Type, PlanningRtngLine."No.", ReqLine."Location Code", true,
+                            FlushingMethod.AsInteger())
                 else
-                    ProdOrderRtngLine."Open Shop Floor Bin Code" := WMSManagement.GetProdCenterBinCode(
-                        PlanningRtngLine.Type, PlanningRtngLine."No.", ReqLine."Location Code", true,
-                        FlushingMethod);
+                    ProdOrderRtngLine."Open Shop Floor Bin Code" :=
+                        WMSManagement.GetProdCenterBinCode(
+                            PlanningRtngLine.Type, PlanningRtngLine."No.", ReqLine."Location Code", true,
+                            FlushingMethod.AsInteger());
 
                 ProdOrderRtngLine.UpdateDatetime;
                 OnAfterTransferPlanningRtngLine(PlanningRtngLine, ProdOrderRtngLine);
@@ -1133,7 +1135,7 @@
 
         TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Production Order";
-        TempDocumentEntry."Document Type" := NewProdOrder.Status;
+        TempDocumentEntry."Document Type" := NewProdOrder.Status.AsInteger();
         TempDocumentEntry."Document No." := NewProdOrder."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
         TempDocumentEntry.Insert();

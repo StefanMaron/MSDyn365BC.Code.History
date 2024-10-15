@@ -1,4 +1,4 @@
-table 5005274 "Delivery Reminder Ledger Entry"
+﻿table 5005274 "Delivery Reminder Ledger Entry"
 {
     Caption = 'Delivery Reminder Ledger Entry';
     DrillDownPageID = "Deliv. Reminder Ledger Entries";
@@ -112,7 +112,7 @@ table 5005274 "Delivery Reminder Ledger Entry"
     fieldgroups
     {
     }
-    
+
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

@@ -23,7 +23,7 @@ report 99001014 "Update Unit Cost"
                     if not Item.Get("Item No.") then
                         CurrReport.Skip();
 
-                    if Item."Costing Method" > Item."Costing Method"::Average then
+                    if Item."Costing Method".AsInteger() > Item."Costing Method"::Average.AsInteger() then
                         CurrReport.Skip();
 
                     UpdateProdOrderCost.UpdateUnitCostOnProdOrder("Prod. Order Line", CalcMethod = CalcMethod::"All Levels", UpdateReservations);

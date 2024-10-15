@@ -133,14 +133,14 @@ table 232 "Gen. Journal Batch"
         }
         field(21; "Template Type"; Enum "Gen. Journal Template Type")
         {
-            CalcFormula = Lookup ("Gen. Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
+            CalcFormula = Lookup("Gen. Journal Template".Type WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup ("Gen. Journal Template".Recurring WHERE(Name = FIELD("Journal Template Name")));
+            CalcFormula = Lookup("Gen. Journal Template".Recurring WHERE(Name = FIELD("Journal Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;
@@ -148,6 +148,18 @@ table 232 "Gen. Journal Batch"
         field(23; "Suggest Balancing Amount"; Boolean)
         {
             Caption = 'Suggest Balancing Amount';
+        }
+        field(31; "Copy to Posted Jnl. Lines"; Boolean)
+        {
+            Caption = 'Copy to Posted Jnl. Lines';
+
+            trigger OnValidate()
+            begin
+                if "Copy to Posted Jnl. Lines" then begin
+                    GenJnlTemplate.Get("Journal Template Name");
+                    GenJnlTemplate.TestField("Copy to Posted Jnl. Lines", true);
+                end;
+            end;
         }
         field(8000; Id; Guid)
         {
@@ -170,8 +182,7 @@ table 232 "Gen. Journal Batch"
                 GLAccount: Record "G/L Account";
             begin
                 if not IsNullGuid(BalAccountId) then begin
-                    GLAccount.SetRange(Id, BalAccountId);
-                    if not GLAccount.FindFirst then
+                    if not GLAccount.GetBySystemId(BalAccountId) then
                         Error(BalAccountIdDoesNotMatchAGLAccountErr);
 
                     CheckGLAcc(GLAccount."No.");
@@ -179,6 +190,18 @@ table 232 "Gen. Journal Batch"
 
                 Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
                 Validate("Bal. Account No.", GLAccount."No.");
+            end;
+        }
+        field(9000; "Background Error Check"; Boolean)
+        {
+            Caption = 'Background Error Check';
+
+            trigger OnValidate()
+            var
+                JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+            begin
+                if "Background Error Check" then
+                    JournalErrorsMgt.TestIsEnabled();
             end;
         }
     }
@@ -193,6 +216,9 @@ table 232 "Gen. Journal Batch"
 
     fieldgroups
     {
+        fieldgroup(Brick; Name, "Journal Template Name", Description, "Bal. Account Type", "Bal. Account No.")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -366,7 +392,7 @@ table 232 "Gen. Journal Batch"
         if not GLAccount.Get("Bal. Account No.") then
             exit;
 
-        BalAccountId := GLAccount.Id;
+        BalAccountId := GLAccount.SystemId;
     end;
 
     [IntegrationEvent(false, false)]

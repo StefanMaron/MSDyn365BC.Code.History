@@ -6,11 +6,9 @@ table 5061 "Rlshp. Mgt. Comment Line"
 
     fields
     {
-        field(1; "Table Name"; Option)
+        field(1; "Table Name"; Enum "Rlshp. Mgt. Comment Line Table Name")
         {
             Caption = 'Table Name';
-            OptionCaption = 'Contact,Campaign,To-do,Web Source,Sales Cycle,Sales Cycle Stage,Opportunity';
-            OptionMembers = Contact,Campaign,"To-do","Web Source","Sales Cycle","Sales Cycle Stage",Opportunity;
         }
         field(2; "No."; Code[20])
         {

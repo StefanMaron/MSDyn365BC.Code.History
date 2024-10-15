@@ -219,7 +219,7 @@ report 3010534 "Service - Invoice ESR"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_ServiceInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Description_ServiceInvLine; Description)
@@ -236,7 +236,7 @@ report 3010534 "Service - Invoice ESR"
                         }
                         column(UnitPrice_ServiceInvLine; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_ServiceInvLine; "Line Discount %")
@@ -250,7 +250,7 @@ report 3010534 "Service - Invoice ESR"
                         }
                         column(NegOfInvDiscAmt; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -258,17 +258,17 @@ report 3010534 "Service - Invoice ESR"
                         }
                         column(Amt_ServiceInvLine; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludingVATExclAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludingVAT_ServiceInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -447,7 +447,7 @@ report 3010534 "Service - Invoice ESR"
                         DataItemTableView = SORTING(Number);
                         column(VATAmtLineVATBase; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmount; VATAmountLine."VAT Amount")

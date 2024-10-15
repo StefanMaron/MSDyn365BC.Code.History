@@ -263,7 +263,7 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     {
                         ApplicationArea = Location;
                         Caption = 'Combine Transfer Orders';
-                        ToolTip = 'Specifies whether to stop as soon as the batch job encounters an error.';
+                        ToolTip = 'Specifies whether to combine transfer orders with other orders that are being sent to and from the same locations.';
                     }
                 }
                 field(NoPlanningResiliency; NoPlanningResiliency)

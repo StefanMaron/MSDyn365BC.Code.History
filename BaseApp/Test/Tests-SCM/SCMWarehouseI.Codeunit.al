@@ -1479,7 +1479,7 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Create warehouse pick from sales order "S2" and set Lot No. = "L1"
         CreateWhsePickFromSalesOrder(SalesHeader);
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.ModifyAll("Lot No.", LotNo[1]);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
@@ -1582,10 +1582,10 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] Put away 6 pcs with lot "L1", do not handle lot "L2".
         SetQtyToHandleOnWhseActivityLine(
-          DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", LotNos[1], LotQty[1]);
-        SetQtyToHandleOnWhseActivityLine(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", LotNos[2], 0);
+          DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", LotNos[1], LotQty[1]);
+        SetQtyToHandleOnWhseActivityLine(DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", LotNos[2], 0);
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+          WarehouseActivityHeader, DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLine."Line No.");
 
         // [GIVEN] Delete the partially posted put-away document.
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -1646,7 +1646,7 @@ codeunit 137047 "SCM Warehouse I"
         CreateWhsePickFromSalesOrder(SalesHeader);
         SelectSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", TrackedItem."No.");
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
@@ -1654,8 +1654,8 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [THEN] Both items are successfully picked
-        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", Item."No.");
-        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", TrackedItem."No.");
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type".AsInteger(), SalesHeader."No.", Item."No.");
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type".AsInteger(), SalesHeader."No.", TrackedItem."No.");
     end;
 
     [ModalPageHandler]
@@ -1717,7 +1717,7 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Create warehouse shipment and pick from the sales order
         CreateWhsePickFromSalesOrder(SalesHeader);
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine[1]."Document Type", SalesLine[1]."Document No.", SalesLine[1]."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine[1]."Document Type".AsInteger(), SalesLine[1]."Document No.", SalesLine[1]."Line No.");
         WarehouseActivityLine.ModifyAll("Serial No.", SerialNo);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
@@ -1725,8 +1725,8 @@ codeunit 137047 "SCM Warehouse I"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [THEN] Both items are successfully picked
-        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", Item."No.");
-        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", TrackedItem."No.");
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type".AsInteger(), SalesHeader."No.", Item."No.");
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type".AsInteger(), SalesHeader."No.", TrackedItem."No.");
     end;
 
     [Test]
@@ -1769,7 +1769,7 @@ codeunit 137047 "SCM Warehouse I"
         for i := 1 to 2 do begin
             FindWarehouseActivityLine(
               WarehouseActivityLine,
-              DATABASE::"Sales Line", SalesLine[i]."Document Type", SalesLine[i]."Document No.", SalesLine[i]."Line No.");
+              DATABASE::"Sales Line", SalesLine[i]."Document Type".AsInteger(), SalesLine[i]."Document No.", SalesLine[i]."Line No.");
             WarehouseActivityLine.ModifyAll("Lot No.", LotNo[i]);
         end;
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
@@ -1782,7 +1782,7 @@ codeunit 137047 "SCM Warehouse I"
         for i := 3 to 4 do begin
             LibraryVariableStorage.Enqueue(LotNo[i]);
             LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
-            RequisitionLine.OpenItemTrackingLines;
+            RequisitionLine.OpenItemTrackingLines();
             RequisitionLine.Next;
         end;
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
@@ -1852,7 +1852,7 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Set Lot No. = "L1" on the pick line.
         CreateWhsePickFromSalesOrder(SalesHeader);
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.ModifyAll("Lot No.", LotNo[1]);
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
@@ -1863,7 +1863,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
         LibraryVariableStorage.Enqueue(LotNo[2]);
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
-        RequisitionLine.OpenItemTrackingLines;
+        RequisitionLine.OpenItemTrackingLines();
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
 
         // [WHEN] Register the warehouse pick but do not confirm deleting the reservation between the sales and the purchase.
@@ -1884,7 +1884,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [THEN] "Qty. Handled" on the outstanding pick line is equal to 0.
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityLine.TestField("Qty. Handled", 0);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1940,7 +1940,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(SerialNo[1]);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [GIVEN] Create another sales order for Item, Qty = 1
         CreateSalesDocumentWithLine(SalesLine, Item."No.", Location.Code, 1);
@@ -1950,7 +1950,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(SerialNo[2]);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // [THEN] Serial #2 is avaliable.
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, WrongMessageTextErr);
@@ -1991,7 +1991,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
-        RequisitionLine.OpenItemTrackingLines;
+        RequisitionLine.OpenItemTrackingLines();
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
 
         // [GIVEN] Post the newly created purchase order.
@@ -2004,7 +2004,7 @@ codeunit 137047 "SCM Warehouse I"
         // [GIVEN] Create a warehouse shipment and a warehouse pick from the sales order.
         CreateWhsePickFromSalesOrder(SalesHeader);
         FindWarehouseActivityLine(
-          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
 
         // [WHEN] Post the warehouse pick.
@@ -2016,7 +2016,7 @@ codeunit 137047 "SCM Warehouse I"
         // [THEN] The warehouse shipment can be successfully posted.
         WarehouseShipmentHeader.Get(
           LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
-            DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+            DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         LibraryVariableStorage.AssertEmpty;
@@ -2090,7 +2090,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] Autofill qty. to handle in the pick.
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+          WarehouseActivityHeader, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
         LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
 
         // [WHEN] Register the warehouse pick.
@@ -2451,14 +2451,14 @@ codeunit 137047 "SCM Warehouse I"
         DefaultDimension.Modify(true);
     end;
 
-    local procedure CreateSalesSetup(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20])
+    local procedure CreateSalesSetup(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20])
     begin
         // Create and Release Sales Document with and without Dimensions.
         CreateAndReleaseSalesDocument(SalesHeader, DocumentType, ItemNo, LocationCode, CustomerNo, true);
         CreateAndReleaseSalesDocument(SalesHeader2, DocumentType, ItemNo, LocationCode, CustomerNo, false);
     end;
 
-    local procedure CreateAndReleaseSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    local procedure CreateAndReleaseSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; DimensionSetEntryRequired: Boolean)
     begin
         CreateSalesDocument(SalesHeader, DocumentType, ItemNo, LocationCode, CustomerNo, DimensionSetEntryRequired);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -2477,7 +2477,7 @@ codeunit 137047 "SCM Warehouse I"
           ItemJournalLine."Entry Type"::Transfer, ItemNo, Quantity);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; DimensionSetEntryRequired: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         UpdateSalesHeader(SalesHeader, DimensionSetEntryRequired);
@@ -2592,20 +2592,20 @@ codeunit 137047 "SCM Warehouse I"
         UpdateDefaultDimension(DefaultDimension);
     end;
 
-    local procedure CreatePurchaseSetup(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20])
+    local procedure CreatePurchaseSetup(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20])
     begin
         // Create and Release Purchase Document with and without Dimensions.
         CreateAndReleasePurchDocument(PurchaseHeader, DocumentType, ItemNo, LocationCode, VendorNo, true);
         CreateAndReleasePurchDocument(PurchaseHeader2, DocumentType, ItemNo, LocationCode, VendorNo, false);
     end;
 
-    local procedure CreateAndReleasePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    local procedure CreateAndReleasePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; DimensionSetEntryRequired: Boolean)
     begin
         CreatePurchaseDocument(PurchaseHeader, DocumentType, ItemNo, LocationCode, VendorNo, DimensionSetEntryRequired);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; DimensionSetEntryRequired: Boolean)
     begin
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
@@ -2667,14 +2667,14 @@ codeunit 137047 "SCM Warehouse I"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
           LibraryPurchase.CreateVendorNo, ItemNo, Qty, LocationCode, WorkDate);
 
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
         WarehouseReceiptHeader.Get(
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
-            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
@@ -2706,7 +2706,8 @@ codeunit 137047 "SCM Warehouse I"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         WarehouseShipmentHeader.Get(
-          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
@@ -2729,7 +2730,7 @@ codeunit 137047 "SCM Warehouse I"
         end;
     end;
 
-    local procedure SelectPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; WhseShipmentNo: Code[20]; SourceDocument: Option; ItemNo: Code[20])
+    local procedure SelectPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; WhseShipmentNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20])
     begin
         PostedWhseShipmentLine.SetRange("Whse. Shipment No.", WhseShipmentNo);
         PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
@@ -2737,7 +2738,7 @@ codeunit 137047 "SCM Warehouse I"
         PostedWhseShipmentLine.FindFirst;
     end;
 
-    local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; No: Code[20])
+    local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -2745,7 +2746,7 @@ codeunit 137047 "SCM Warehouse I"
         SalesLine.FindFirst;
     end;
 
-    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; No: Code[20])
+    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; No: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -2945,7 +2946,7 @@ codeunit 137047 "SCM Warehouse I"
         PostedWhseShipmentLine.TestField(Quantity, TransferLine.Quantity);
     end;
 
-    local procedure SelectPostedWhseReceiptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseReceiptNo: Code[20]; SourceDocument: Option; ItemNo: Code[20])
+    local procedure SelectPostedWhseReceiptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseReceiptNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20])
     begin
         PostedWhseReceiptLine.SetRange("Whse. Receipt No.", WhseReceiptNo);
         PostedWhseReceiptLine.SetRange("Source Document", SourceDocument);
@@ -3010,7 +3011,7 @@ codeunit 137047 "SCM Warehouse I"
         ReservationEntry: Record "Reservation Entry";
     begin
         with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
             FindFirst;
             TestField("Reservation Status", "Reservation Status"::Reservation);
             TestField("Lot No.", LotNo);
@@ -3029,7 +3030,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         with ReservationEntry do begin
             SetSourceFilter(
-              DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", false);
+              DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", false);
             FindFirst;
             TestField("Reservation Status", "Reservation Status"::Surplus);
             TestField("Lot No.", LotNo);

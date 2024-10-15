@@ -113,7 +113,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarning);  // Enqueue value for ConfirmHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryVariableStorage.Dequeue(LotNo);
 
         // Exercise: Generate Purchase Order through Carry Out Action Msg.
@@ -139,7 +139,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         Item.Get(SalesLine."No.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarning);  // Enqueue value for ConfirmHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));  // Dates based on WORKDATE.
 
         // Exercise: Delete Item Tracking Lines from Planning Worksheet.
@@ -185,7 +185,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(SignFactor * SalesLine.Quantity);
 
         // Exercise: Assign Item Tracking on Sales Line.
-        asserterror SalesLine.OpenItemTrackingLines;
+        asserterror SalesLine.OpenItemTrackingLines();
 
         // Verify: Verify error for Select Quantity on Sales Line.
         Assert.ExpectedError(ExpectedError);
@@ -258,7 +258,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(ItemLedgerEntry."Expiration Date");
 
         // Exercise: Assign Item Tracking on Sales Line.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Verify: Verify Expiration Date on Item Tracking Summary page.Verification done in ItemTrackingSummaryPageHandler.
     end;
@@ -283,7 +283,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryERM.FindGLAccount(GLAccount);
         UpdateGeneralLedgerSetup(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", GLAccount."No.");
         LibraryVariableStorage.Enqueue(1);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Exercise: Post Sales Order.
         DocumentNo := PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", true);
@@ -445,7 +445,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, PurchaseLine."No.", Location.Code, PurchaseLine.Quantity / 2);  // Take partial Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarning);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Exercise: Create another Sales Order and assign Item Tracking.
         asserterror CreateSalesOrderWithIT(SalesLine, PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity / 2, 1);  // Taking partial Quantity and 0 for Quantity as Item Tracking code is Serial Specific.
@@ -614,7 +614,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(LotNo);
 
         // Exercise: Assign Item Tracking on Purchase Line.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // Verify: Verify Expiration Date on Reservation Entry.
         VerifyExpirationDateForItemTracking(PurchaseLine."No.", ExpirationDate);
@@ -715,7 +715,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
           PurchaseLine.Quantity - SalesLine.Quantity, 0, SalesLine.Quantity);
 
         // Exercise: Open Item Tracking Lines Page.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Verify: Verify Enqueue Quantity values on Item Tracking Summary Page Handler.
     end;
@@ -751,7 +751,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(QuantityBase);
 
         // Exercise: Open Item Tracking Lines Page.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Verify: Verify Enqueue Quantity values on Item Tracking Summary Page Handler.
     end;
@@ -778,7 +778,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, Item."No.", '', (PurchaseLine.Quantity - LibraryRandom.RandInt(10)));  // Take Random Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption::AssignQty);  // Enqueue value for ItemTrackingLinesPageHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryVariableStorage.Dequeue(QuantityBase);
         QtyBase := QuantityBase;
         EnqueueQuantityForReselectEntries(
@@ -787,7 +787,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // Enqueue value for ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler.
 
         // Exercise: Open Item Tracking Lines Page.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Verify: Verify Enqueue Quantity values on Item Tracking Summary Page Handler.
     end;
@@ -813,11 +813,11 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", Location.Code, LibraryRandom.RandInt(10));  // Take random for Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarning);  // Enqueue value for ConfirmHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         CreatePurchaseOrder(PurchaseLine, Item."No.", LibraryRandom.RandInt(10));  // Take Random Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(AvailabilityWarning);  // Enqueue value for ConfirmHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
 
         // Exercise: Post Purchase Order.
@@ -845,7 +845,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo2);  // Enqueue value for ItemTrackingLinesPageHandler.
 
         // Exercise: Open Item Tracking Lines Page.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // Verify: Item Tracking Page run without Availability Warning Error.
     end;
@@ -864,7 +864,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateSalesRetOrdWithIT(SalesLine);
 
         // Exercise: Assign Serial Numbers to Item tracking Lines.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
 
         // Verify: Verify Serial No Lines generated on the ItemTrackingLinesPageHandler.
     end;
@@ -882,7 +882,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // Setup: Create Sales Return Order, assign Serial No with Item Tracking, create Credit Memo with Get Return Receipt Lines.
         Initialize;
         CreateSalesRetOrdWithIT(SalesLine);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", false);
         CreateSalesCreditMemo(SalesHeader, SalesLine."No.", SalesLine."Sell-to Customer No.");
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
@@ -927,7 +927,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
             FindFirst;
             LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo); // Enqueue for ItemTrackingPageHandler.
             LibraryVariableStorage.Enqueue(PurchQuantity); // Enqueue for EnterQuantityToCreateHandlerForSetQuantityAssignLot.
-            OpenItemTrackingLines;
+            OpenItemTrackingLines();
         end;
 
         // [WHEN] Post Warehouse Receipt.
@@ -1281,7 +1281,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PurchaseLine.Validate("Location Code", Location.Code);
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         ExpDate := CalcDate(Item."Expiration Calculation", WorkDate);
@@ -1337,7 +1337,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     begin
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure AssignSerialNoAndReceivePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
@@ -1349,13 +1349,13 @@ codeunit 137261 "SCM Inventory Item Tracking II"
 
     local procedure AssignTrackingAndReserveOnSalesLine(SalesLine: Record "Sales Line"; SummaryOption: Option; Quantity: Decimal)
     begin
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         LibraryVariableStorage.Enqueue(SerialLotConfirmMessage);  // Enqueue value for ConfirmHandler.
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(SummaryOption);  // Enqueue value for ItemTrackingSummaryPageHandler.
         LibraryVariableStorage.Enqueue(Quantity);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure CalcRegenPlanAndCarryOutActionMsg(Item: Record Item; LocationCode: Code[10]; VendorNo: Code[20])
@@ -1443,7 +1443,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     begin
         CreatePurchaseOrder(PurchaseLine, ItemNo, LibraryRandom.RandInt(10) + 20);  // Quantity shoulb be always more thant 20 required for Test.
         LibraryVariableStorage.Enqueue(TrackOption);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         PostPurchaseOrder(PurchaseLine);
     end;
 
@@ -1507,7 +1507,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryWarehouse.CreateInvtPutPickMovement(
           WhseActivLine."Source Document"::"Prod. Output", ProdOrderLine."Prod. Order No.", true, false, false);
         LibraryWarehouse.FindWhseActivityBySourceDoc(
-          WhseActivHeader, DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+          WhseActivHeader, DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
         WhseActivLine.SetRange("No.", WhseActivHeader."No.");
         WhseActivLine.FindFirst;
         WhseActivLine.Validate("Bin Code", Bin.Code);
@@ -1737,7 +1737,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreatePurchaseOrder(PurchaseLine, ItemNo, PurchaseLine.Quantity);  // Take random Quantity.
         LibraryVariableStorage.Enqueue(TrackingOption::EditValue);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(LotNo);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateSalesRetOrdWithIT(var SalesLine: Record "Sales Line")
@@ -1779,7 +1779,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.", Location.Code, LibraryRandom.RandInt(10));  // Take random for Quantity.
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; No: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; No: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1797,7 +1797,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(SummaryOption::SetQuantity);  // Enqueue value for ItemTrackingSummaryPageHandler.
         LibraryVariableStorage.Enqueue(SetQuantity);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -1896,7 +1896,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         FindRequisitionLine(RequisitionLine, SalesLine."No.", SalesLine."Location Code");
         LibraryVariableStorage.Enqueue(TrackingOption::EditValue); // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(''); // Enqueue value for ItemTrackingLinesPageHandler.
-        RequisitionLine.OpenItemTrackingLines;
+        RequisitionLine.OpenItemTrackingLines();
     end;
 
     local procedure EnqueueQuantityForReselectEntries(TrackingOptionPar: Option; SummaryOption: Option; SummaryOption2: Option; TotalAvailableQuantity: Decimal; TotalRequestedQuantity: Decimal; CurrentPendingQuantity: Decimal)
@@ -1955,7 +1955,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         RequisitionLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1972,7 +1972,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptNo(SourceDocument: Option; SourceNo: Code[20]): Code[20]
+    local procedure FindWarehouseReceiptNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
@@ -2014,7 +2014,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; DocumentNo: Code[20]; Invoice: Boolean): Code[20]
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Invoice: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2045,7 +2045,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         RegisterWarehouseActivity(PurchaseLine."Document No.", WarehouseActivityHeader.Type::"Put-away", PurchaseLine."Location Code");
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
     begin
@@ -2074,7 +2074,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2139,7 +2139,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(TrackingOptionPar);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(Quantity);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure UpdateGeneralLedgerSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; AccountNo: Code[20])

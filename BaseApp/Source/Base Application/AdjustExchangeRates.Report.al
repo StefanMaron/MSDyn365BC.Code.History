@@ -342,7 +342,7 @@ report 595 "Adjust Exchange Rates"
                         CustLedgerEntry.SetRange("Date Filter", StartDate, EndDate);
                         CustLedgerEntry.CalcFields(Amount, "Remaining Amount", "Original Amt. (LCY)", "Remaining Amt. (LCY)");
                         AdjustCustomerLedgerEntry(CustLedgerEntry, PostingDate, false);
-                        Customer_Document_type := CustLedgerEntry."Document Type";
+                        Customer_Document_type := CustLedgerEntry."Document Type".AsInteger();
                         AdjAmount2 := AdjAmount;
                     end;
 
@@ -393,7 +393,7 @@ report 595 "Adjust Exchange Rates"
                         until CustLedgerEntry.Next = 0;
                     CustLedgerEntry.Reset();
 
-                OnCustomerAfterGetRecordOnAfterFindCustLedgerEntriesToAdjust(TempCustLedgerEntry);
+                    OnCustomerAfterGetRecordOnAfterFindCustLedgerEntriesToAdjust(TempCustLedgerEntry);
                 end;
 
                 trigger OnPostDataItem()
@@ -516,7 +516,7 @@ report 595 "Adjust Exchange Rates"
                         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount", "Original Amt. (LCY)", "Remaining Amt. (LCY)");
                         AdjustVendorLedgerEntry(VendorLedgerEntry, PostingDate, false);
                         AdjAmount2 := AdjAmount;
-                        Vendor_Document_type := VendorLedgerEntry."Document Type";
+                        Vendor_Document_type := VendorLedgerEntry."Document Type".AsInteger();
                     end;
 
                     trigger OnPreDataItem()
@@ -566,7 +566,7 @@ report 595 "Adjust Exchange Rates"
                         until VendorLedgerEntry.Next = 0;
                     VendorLedgerEntry.Reset();
 
-                OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(TempVendorLedgerEntry);
+                    OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(TempVendorLedgerEntry);
                 end;
 
                 trigger OnPostDataItem()
@@ -1578,7 +1578,7 @@ report 595 "Adjust Exchange Rates"
         end;
     end;
 
-    local procedure AdjustVATEntries(VATType: Integer; UseTax: Boolean)
+    local procedure AdjustVATEntries(VATType: Enum "General Posting Type"; UseTax: Boolean)
     begin
         Clear(VATEntry2);
         with VATEntry do begin

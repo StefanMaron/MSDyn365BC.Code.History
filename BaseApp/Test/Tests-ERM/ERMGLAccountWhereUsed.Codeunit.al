@@ -329,7 +329,7 @@ codeunit 134093 "ERM G/L Account Where-Used"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, 0,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 100);
 
         LibraryERM.CreateGenJnlAllocation(

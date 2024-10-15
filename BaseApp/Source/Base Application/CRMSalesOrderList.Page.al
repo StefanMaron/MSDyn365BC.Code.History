@@ -182,11 +182,9 @@ page 5353 "CRM Sales Order List"
                         if IsEmpty then
                             exit;
 
-                        SendTraceTag('0000DFA', CrmTelemetryCategoryTok, VERBOSITY::Normal,
-                            StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000DFA', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                         if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
-                            SendTraceTag('0000DFB', CrmTelemetryCategoryTok, VERBOSITY::Normal,
-                                StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('0000DFB', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                             Commit();
                             PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
                         end;

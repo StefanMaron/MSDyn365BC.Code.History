@@ -185,12 +185,12 @@ report 3010532 "Sales Invoice ESR"
                         }
                         column(LineAmount_Line; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(UnitPrice_Line; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(InvDiscountAmount_Line; "Inv. Discount Amount")
@@ -204,7 +204,7 @@ report 3010532 "Sales Invoice ESR"
                         }
                         column(Subtotalnet_Line; "Subtotal net")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TransferCaption; TransferCaptionLbl)

@@ -310,7 +310,7 @@ codeunit 392 "Reminder-Make"
         until ReminderLevel.Next(-1) = 0;
     end;
 
-    local procedure InsertReminderLine(ReminderNo: Code[20]; LineType: Integer; Description: Text[100]; var NextLineNo: Integer)
+    local procedure InsertReminderLine(ReminderNo: Code[20]; LineType: Enum "Reminder Line Type"; Description: Text[100]; var NextLineNo: Integer)
     var
         ReminderLine: Record "Reminder Line";
     begin
@@ -318,7 +318,7 @@ codeunit 392 "Reminder-Make"
         ReminderLine.Insert();
     end;
 
-    local procedure InitReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; LineType: Integer; Description: Text[100]; var NextLineNo: Integer)
+    local procedure InitReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; LineType: Enum "Reminder Line Type"; Description: Text[100]; var NextLineNo: Integer)
     begin
         NextLineNo := GetLastLineNo(ReminderHeader."No.") + 10000;
 

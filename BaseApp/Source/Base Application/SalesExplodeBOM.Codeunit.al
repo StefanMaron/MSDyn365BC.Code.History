@@ -1,4 +1,4 @@
-﻿codeunit 63 "Sales-Explode BOM"
+codeunit 63 "Sales-Explode BOM"
 {
     TableNo = "Sales Line";
 
@@ -214,7 +214,7 @@
                 ToSalesLine.Validate("Qty. to Assemble to Order");
 
                 if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine.Reserve = ToSalesLine.Reserve::Always) then
-                    ToSalesLine.AutoReserve;
+                    ToSalesLine.AutoReserve();
 
                 if Selection = 1 then begin
                     ToSalesLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";

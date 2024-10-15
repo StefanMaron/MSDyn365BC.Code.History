@@ -1,4 +1,4 @@
-﻿codeunit 5880 "Phys. Invt. Order-Finish"
+codeunit 5880 "Phys. Invt. Order-Finish"
 {
     TableNo = "Phys. Invt. Order Header";
 

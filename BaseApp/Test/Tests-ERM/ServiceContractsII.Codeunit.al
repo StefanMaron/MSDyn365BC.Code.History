@@ -872,12 +872,14 @@ codeunit 136145 "Service Contracts II"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceLine: Record "Service Invoice Line";
         ServiceInvoiceHeader: Record "Service Invoice Header";
+        SavedWorkDate: Date;
         CustomExchRate: Decimal;
     begin
         // [FEATURE] [FCY] [Rounding]
         // [SCENARIO 379879] Total amount is correct without rounding variance in Service Invoice with multiple lines for Prepaid Service Contract
 
         Initialize;
+        SavedWorkDate := WorkDate;
 
         // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 100/64.8824
         CustomExchRate := 100 / 64.8824;
@@ -901,8 +903,9 @@ codeunit 136145 "Service Contracts II"
 
         // [THEN] Total amount of multiple Service Lines is 56922.99 (36933 * 100/64.8824)
         VerifyServContractLineAmountSplitByPeriod(
-          ServContractHeader."Contract No.", ServContractLine."Service Item No.",
-          GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate, 12, 56922.99);
+                ServContractHeader."Contract No.", ServContractLine."Service Item No.",
+                GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true),
+                ServContractHeader."Next Invoice Period Start", 12, 56922.99);
 
         // [THEN] Some service invoice lines are going to be different.
         FilterServiceLine(ServiceLine, ServContractHeader."Contract No.", GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate);
@@ -1672,7 +1675,7 @@ codeunit 136145 "Service Contracts II"
         ServiceContractLine.Modify(true);
     end;
 
-    local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template"; ServicePeriodTxt: Text; InvoicePeriod: Option; CombineInvoices: Boolean; ContractLinesOnInvoice: Boolean; IsPrepaid: Boolean)
+    local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template"; ServicePeriodTxt: Text; InvoicePeriod: Enum "Service Contract Header Invoice Period"; CombineInvoices: Boolean; ContractLinesOnInvoice: Boolean; IsPrepaid: Boolean)
     var
         DefaultServicePeriod: DateFormula;
     begin
@@ -1688,7 +1691,7 @@ codeunit 136145 "Service Contracts II"
 
     local procedure CreateServiceContractTemplateInvPeriodYear(var ServiceContractTemplate: Record "Service Contract Template"; Prepaid: Boolean): Code[20]
     begin
-        CreateServiceContractTemplate(ServiceContractTemplate, '<1M>', ServiceContractTemplate."Invoice Period"::Year, true, false, Prepaid);
+        CreateServiceContractTemplate(ServiceContractTemplate, '<1M>', "Service Contract Header Invoice Period"::Year, true, false, Prepaid);
         exit(ServiceContractTemplate."No.");
     end;
 

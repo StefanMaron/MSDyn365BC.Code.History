@@ -32,10 +32,10 @@ codeunit 2151 "O365 Sales Email Management"
         EmailAddress: Text[250];
         EmailSubject: Text[250];
         EmailBody: Text;
-        ReportUsage: Integer;
+        ReportUsage: Enum "Report Selection Usage";
         HasBeenSent: Boolean;
         IsTestInvoice: Boolean;
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        DocumentType: Enum "Sales Document Type";
         DocumentName: Text[250];
         BodyText: Text;
     begin
@@ -48,30 +48,27 @@ codeunit 2151 "O365 Sales Email Management"
             EmailSubject := DocumentMailing.GetTestInvoiceEmailSubject;
             EmailBody := DocumentMailing.GetTestInvoiceEmailBody(CustomerNo);
 
-            if not ReportSelections.GetEmailBodyCustomText(
+            if not ReportSelections.GetEmailBodyTextForCust(
                  TempEmailItem."Body File Path", ReportUsage, DocumentRecordVariant, CustomerNo, EmailAddress, EmailBody)
             then
                 ;
-            EmailAddress := MailManagement.GetSenderEmailAddress;
+            EmailAddress := MailManagement.GetSenderEmailAddress(Enum::"Email Scenario"::Default);
             EmailParameter.SaveParameterValueWithReportUsage(
-              DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Address, EmailAddress);
+              DocumentNo, ReportUsage.AsInteger(), EmailParameter."Parameter Type"::Address.AsInteger(), EmailAddress);
         end else begin
-            EmailSubject := DocumentMailing.GetEmailSubject(DocumentNo, DocumentName, ReportUsage);
-            EmailBody := DocumentMailing.GetEmailBody(DocumentNo, ReportUsage, CustomerNo);
-            if not ReportSelections.GetEmailBody(TempEmailItem."Body File Path", ReportUsage, DocumentRecordVariant, CustomerNo, EmailAddress) then;
+            EmailSubject := DocumentMailing.GetEmailSubject(DocumentNo, DocumentName, ReportUsage.AsInteger());
+            EmailBody := DocumentMailing.GetEmailBody(DocumentNo, ReportUsage.AsInteger(), CustomerNo);
+            if not ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path", ReportUsage, DocumentRecordVariant, CustomerNo, EmailAddress) then;
         end;
 
-        if ReportSelections.FindEmailAttachmentUsage(ReportUsage, CustomerNo, TempReportSelections) then begin
+        if ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections) then begin
             // Create attachment
-            TempReportSelections.GetPdfReport(
+            TempReportSelections.GetPdfReportForCust(
               TempEmailItem."Attachment File Path", ReportUsage,
               DocumentRecordVariant, CustomerNo);
 
             DocumentMailing.GetAttachmentFileName(
-              TempEmailItem."Attachment Name",
-              DocumentNo,
-              DocumentName,
-              ReportUsage);
+              TempEmailItem."Attachment Name", DocumentNo, DocumentName, ReportUsage.AsInteger());
         end;
 
         TempEmailItem.Subject := EmailSubject;
@@ -94,18 +91,19 @@ codeunit 2151 "O365 Sales Email Management"
             O365HTMLTemplMgt.ReplaceBodyFileSendTo(
               TempEmailItem."Body File Path", EmailAddress, TempEmailItem."Send to");
         SaveEmailParametersIfChanged(
-          DocumentNo, ReportUsage, EmailAddress, TempEmailItem."Send to", TempEmailItem.Subject);
+          DocumentNo, ReportUsage.AsInteger(), EmailAddress, TempEmailItem."Send to", TempEmailItem.Subject);
 
         BodyText := TempEmailItem.GetBodyText;
         if not HasBeenSent then
             BodyText := DocumentMailing.ReplaceCustomerNameWithPlaceholder(CustomerNo, BodyText);
 
-        EmailParameter.SaveParameterValueWithReportUsage(DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Body, BodyText);
+        EmailParameter.SaveParameterValueWithReportUsage(
+            DocumentNo, ReportUsage.AsInteger(), EmailParameter."Parameter Type"::Body.AsInteger(), BodyText);
 
         exit(HasBeenSent);
     end;
 
-    local procedure InitializeDocumentSpecificVariables(var DocumentRecordVariant: Variant; var ReportUsage: Integer; var CustomerNo: Code[20]; var DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocumentNo: Code[20]; var IsTestInvoice: Boolean): Boolean
+    local procedure InitializeDocumentSpecificVariables(var DocumentRecordVariant: Variant; var ReportUsage: Enum "Report Selection Usage"; var CustomerNo: Code[20]; var DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; var IsTestInvoice: Boolean): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
@@ -152,9 +150,9 @@ codeunit 2151 "O365 Sales Email Management"
     begin
         if OldEmailAddress <> NewEmailAddress then
             EmailParameter.SaveParameterValueWithReportUsage(
-              DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Address, NewEmailAddress);
+              DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Address.AsInteger(), NewEmailAddress);
         EmailParameter.SaveParameterValueWithReportUsage(
-          DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Subject, NewEmailSubject);
+          DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Subject.AsInteger(), NewEmailSubject);
     end;
 
     local procedure GetDocumentName(IsTestInvoice: Boolean): Text[250]
@@ -178,8 +176,10 @@ codeunit 2151 "O365 Sales Email Management"
         ReportUsage: Integer;
         BodyText: Text;
     begin
-        NativeAPIGetEmailParametersFromId(DocumentId, DocumentNo, CustomerNo, EmailAddress, EmailSubject, EmailBody, ReportUsage, BodyText);
-        EmailParameter.SaveParameterValueWithReportUsage(DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Body, BodyText);
+        NativeAPIGetEmailParametersFromId(
+            DocumentId, DocumentNo, CustomerNo, EmailAddress, EmailSubject, EmailBody, ReportUsage, BodyText);
+        EmailParameter.SaveParameterValueWithReportUsage(
+            DocumentNo, ReportUsage, EmailParameter."Parameter Type"::Body.AsInteger(), BodyText);
     end;
 
     [Scope('OnPrem')]
@@ -196,8 +196,7 @@ codeunit 2151 "O365 Sales Email Management"
         DocumentName: Text[250];
         Cancelled: Boolean;
     begin
-        SalesHeader.SetRange(Id, DocumentId);
-        if SalesHeader.FindFirst then
+        if SalesHeader.GetBySystemId(DocumentId) then
             case SalesHeader."Document Type" of
                 SalesHeader."Document Type"::Invoice:
                     begin
@@ -219,7 +218,7 @@ codeunit 2151 "O365 Sales Email Management"
                     Error(CannotFindDocumentErr, DocumentId);
             end
         else begin
-            SalesInvoiceHeader.SetRange(Id, DocumentId);
+            SalesInvoiceHeader.GetBySystemId(DocumentId);
             if not SalesInvoiceHeader.FindFirst then
                 Error(CannotFindDocumentErr, DocumentId);
             SalesInvoiceHeader.CalcFields(Cancelled);
@@ -236,7 +235,9 @@ codeunit 2151 "O365 Sales Email Management"
         BodyText := DocumentMailing.GetEmailBody(DocumentNo, ReportUsage, CustomerNo);
 
         if not Cancelled then begin
-            if ReportSelections.GetEmailBodyCustomText(FilePath, ReportUsage, RecordVariant, CustomerNo, EmailAddress, BodyText) then
+            if ReportSelections.GetEmailBodyTextForCust(
+                FilePath, "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustomerNo, EmailAddress, BodyText)
+            then
                 EmailBody := NativeAPIGetEmailBody(FilePath);
 
             EmailSubject := DocumentMailing.GetEmailSubject(DocumentNo, DocumentName, ReportUsage);

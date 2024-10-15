@@ -21,11 +21,9 @@ codeunit 131305 "Library - ERM Country Data"
         CreateReverseChargeVATSetup;
     end;
 
-    procedure GetVATCalculationType(): Integer
-    var
-        DummyVATPostingSetup: Record "VAT Posting Setup";
+    procedure GetVATCalculationType(): Enum "Tax Calculation Type"
     begin
-        exit(DummyVATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        exit("Tax Calculation Type"::"Normal VAT");
     end;
 
     [Scope('OnPrem')]
@@ -33,7 +31,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         ReportSelections: Record "Report Selections";
     begin
-        exit(ReportSelections.Usage::"P.Quote");
+        exit(ReportSelections.Usage::"P.Quote".AsInteger());
     end;
 
     [Scope('OnPrem')]
@@ -41,7 +39,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         ReportSelections: Record "Report Selections";
     begin
-        exit(ReportSelections.Usage::"S.Quote");
+        exit(ReportSelections.Usage::"S.Quote".AsInteger());
     end;
 
     procedure SetupCostAccounting()
@@ -327,6 +325,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         NormalVATPostingSetup: Record "VAT Posting Setup";
+        LibraryUtility: Codeunit "Library - Utility";
     begin
         with VATPostingSetup do begin
             NormalVATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
@@ -336,8 +335,9 @@ codeunit 131305 "Library - ERM Country Data"
                 exit;
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProdPostingGroup);
             Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
+            Validate("VAT Identifier",
+               LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
             Validate("VAT %", 25); // Hardcoding to match W1.
-            Validate("VAT Identifier", VATProdPostingGroup);
             Validate("Sales VAT Account", NormalVATPostingSetup."Sales VAT Account");
             Validate("Purchase VAT Account", NormalVATPostingSetup."Purchase VAT Account");
             Modify(true);

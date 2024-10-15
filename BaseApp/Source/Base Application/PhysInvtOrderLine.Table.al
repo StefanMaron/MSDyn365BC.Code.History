@@ -1,4 +1,4 @@
-﻿table 5876 "Phys. Invt. Order Line"
+table 5876 "Phys. Invt. Order Line"
 {
     Caption = 'Phys. Invt. Order Line';
     DrillDownPageID = "Physical Inventory Order Lines";
@@ -166,7 +166,7 @@
         }
         field(52; "Qty. Exp. Item Tracking (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Exp. Phys. Invt. Tracking"."Quantity (Base)" WHERE("Order No" = FIELD("Document No."),
+            CalcFormula = Sum("Exp. Phys. Invt. Tracking"."Quantity (Base)" WHERE("Order No" = FIELD("Document No."),
                                                                                    "Order Line No." = FIELD("Line No.")));
             Caption = 'Qty. Exp. Item Tracking (Base)';
             DecimalPlaces = 0 : 5;
@@ -300,7 +300,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -421,16 +421,14 @@
         if EmptyLine then
             exit;
 
-        GetItem;
+        GetItem();
 
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         PhysInvtOrderHeader.TestField("Posting Date");
 
-        TestStatusOpen;
+        TestStatusOpen();
 
-        CalcQtyAndLastItemLedgExpected(
-          "Qty. Expected (Base)",
-          "Last Item Ledger Entry No.");
+        CalcQtyAndLastItemLedgExpected("Qty. Expected (Base)", "Last Item Ledger Entry No.");
 
         // Create Expected Phys. Invt. Tracking Lines:
         if "Use Item Tracking" then begin
@@ -464,7 +462,7 @@
                         end;
                     until ItemLedgEntry.Next = 0;
                 ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
-                TestQtyExpected;
+                TestQtyExpected();
             end else begin
                 if PhysInvtTrackingMgt.GetTrackingNosFromWhse(Item) then begin
                     WhseEntry.Reset();
@@ -491,15 +489,16 @@
                             end;
                         until WhseEntry.Next = 0;
                     ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
-                    TestQtyExpected;
+                    TestQtyExpected();
                 end else
-                    // In the case of
-                    // ItemTrkgMgtPhysInvtLine.LocationIsBinMandatory("Location Code") = Yes and
-                    // ItemTrkgMgtPhysInvtLine.GetTrackingNosFromWhse(Item) = No
-                    // Navision cannot create the records of table ExpPhysInvtTracking
-                    // In this case Navision must create the Reservation Entries by
-                    // analyzing the ItemLedgerEntries and WhseEntries during the function to Finish the Order.
-                    ;
+                    OnCalcQtyAndTrackLinesExpectedOnPhysInvtTrackingNotGet(Rec);
+                // In the case of
+                // ItemTrkgMgtPhysInvtLine.LocationIsBinMandatory("Location Code") = Yes and
+                // ItemTrkgMgtPhysInvtLine.GetTrackingNosFromWhse(Item) = No
+                // Navision cannot create the records of table ExpPhysInvtTracking
+                // In this case Navision must create the Reservation Entries by
+                // analyzing the ItemLedgerEntries and WhseEntries during the function to Finish the Order.
+                ;
             end;
         end;
 
@@ -511,15 +510,15 @@
         ItemLedgEntry: Record "Item Ledger Entry";
         WhseEntry: Record "Warehouse Entry";
     begin
-        GetPhysInvtOrderHeader;
+        GetPhysInvtOrderHeader();
         PhysInvtOrderHeader.TestField("Posting Date");
 
-        TestStatusOpen;
+        TestStatusOpen();
 
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
-        if ItemLedgEntry.FindLast then
+        if ItemLedgEntry.FindLast() then
             LastItemLedgEntryNo := ItemLedgEntry."Entry No."
         else
             LastItemLedgEntryNo := 0;
@@ -536,10 +535,10 @@
             OnCalcQtyAndLastItemLedgExpectedSetWhseEntryFilters(WhseEntry, Rec);
             WhseEntry.CalcSums("Qty. (Base)");
             QtyExpected := WhseEntry."Qty. (Base)";
+            OnCalcQtyAndLastItemLedgExpectedOnAfterCalcWhseEntryQtyExpected(WhseEntry, QtyExpected);
         end else begin
             TestField("Bin Code", '');
             ItemLedgEntry.Reset();
-
             ItemLedgEntry.SetCurrentKey(
               "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
             ItemLedgEntry.SetRange("Item No.", "Item No.");
@@ -549,6 +548,7 @@
             OnCalcQtyAndLastItemLedgExpectedSetItemLedgEntryFilters(ItemLedgEntry, Rec);
             ItemLedgEntry.CalcSums(Quantity);
             QtyExpected := ItemLedgEntry.Quantity;
+            OnCalcQtyAndLastItemLedgExpectedOnAfterCalcItemLedgEntryQtyExpected(ItemLedgEntry, QtyExpected);
         end;
     end;
 
@@ -932,6 +932,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndTrackLinesExpectedOnPhysInvtTrackingNotGet(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndLastItemLedgExpectedOnAfterCalcItemLedgEntryQtyExpected(var ItemLedgEntry: Record "Item Ledger Entry"; var QtyExpected: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyAndLastItemLedgExpectedOnAfterCalcWhseEntryQtyExpected(var WhseEntry: Record "Warehouse Entry"; var QtyExpected: Decimal)
     begin
     end;
 

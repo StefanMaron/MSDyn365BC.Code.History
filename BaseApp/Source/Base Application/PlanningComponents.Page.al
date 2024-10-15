@@ -270,7 +270,7 @@ page 99000862 "Planning Components"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -284,7 +284,7 @@ page 99000862 "Planning Components"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -305,7 +305,7 @@ page 99000862 "Planning Components"
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action(OrderTracking)

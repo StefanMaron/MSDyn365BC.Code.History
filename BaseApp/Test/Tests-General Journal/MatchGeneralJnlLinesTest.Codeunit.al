@@ -552,7 +552,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         GenJournalLine2.MatchSingleLedgerEntry;
 
         // Verify.
-        VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, '', 0, '', false);
+        VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, '', "Gen. Journal Account Type"::"G/L Account", '', false);
         VerifyCustLedgerEntry(CustLedgerEntry, true, '', 0);
     end;
 
@@ -588,7 +588,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         GenJournalLine2.MatchSingleLedgerEntry;
 
         // Verify.
-        VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, '', 0, '', false);
+        VerifyGenJnlLine(GenJournalLine2, GenJournalLine2."Document Type"::Payment, '', "Gen. Journal Account Type"::"G/L Account", '', false);
         VerifyVendorLedgerEntry(VendorLedgerEntry, true, '', 0);
     end;
 
@@ -1007,7 +1007,7 @@ codeunit 134251 "Match General Jnl Lines Test"
           GenJournalLine."Account Type"::"G/L Account", TextToAccMapping2."Debit Acc. No.", true);
     end;
 
-    local procedure AddMappingRule(AccountType: Option)
+    local procedure AddMappingRule(AccountType: Enum "Gen. Journal Account Type")
     var
         GLAccount: Record "G/L Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1160,7 +1160,7 @@ codeunit 134251 "Match General Jnl Lines Test"
     local procedure CreateGenJnlLineForMatching(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; Description: Text[250]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, 0, '', Amount);
+          GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '', Amount);
         GenJournalLine.Description :=
           CopyStr(Description, 1, LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo(Description)));
         GenJournalLine.Modify(true);
@@ -1179,7 +1179,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1215,7 +1215,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         end;
     end;
 
-    local procedure SetupGeneralJournal(var GenJournalLine2: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure SetupGeneralJournal(var GenJournalLine2: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1236,7 +1236,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         CreateGenJnlLineForMatching(GenJournalLine, GenJournalBatch, TextToAccMapping."Mapping Text", Amount);
     end;
 
-    local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; DocNo: Code[50]; AccountType: Option; AccountNo: Code[20]; Applied: Boolean)
+    local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Applied: Boolean)
     begin
         GenJnlLine.Find;
         GenJnlLine.TestField("Document Type", DocType);
@@ -1246,7 +1246,7 @@ codeunit 134251 "Match General Jnl Lines Test"
         GenJnlLine.TestField("Applied Automatically", Applied);
     end;
 
-    local procedure VerifyAppliedDocLine(GenJnlLine: Record "Gen. Journal Line"; DocType: Option)
+    local procedure VerifyAppliedDocLine(GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type")
     var
         GenJnlLine2: Record "Gen. Journal Line";
     begin

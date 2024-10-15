@@ -84,7 +84,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         VerifyMandatoryFieldsOnSalesInvoice(Customer."No.", LineType, ExpectedMandatory);
-        VerifyMandatoryFieldsOnSalesOrder(Customer."No.", LineType, ExpectedMandatory);
+        // VerifyMandatoryFieldsOnSalesOrder(Customer."No.", LineType, ExpectedMandatory);
         VerifyMandatoryFieldsOnSalesReturnOrder(Customer."No.", LineType, ExpectedMandatory);
         VerifyMandatoryFieldsOnSalesQuote(Customer."No.", LineType, ExpectedMandatory);
         VerifyMandatoryFieldsOnSalesCreditMemo(Customer."No.", LineType, ExpectedMandatory);

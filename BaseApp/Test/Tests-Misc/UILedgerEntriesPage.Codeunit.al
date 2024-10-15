@@ -22,7 +22,7 @@ codeunit 134343 "UI Ledger Entries Page"
         ExportedToPaymentFileEditableErr: Label 'Exported to Payment File field must be editable.';
         DescriptionEditableErr: Label 'Description field must be editable.';
         GLEntryExistsErr: Label 'You cannot delete change log entry %1 because G/L entry %2 exists.';
-	    LibrarySales: Codeunit "Library - Sales";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
@@ -133,6 +133,7 @@ codeunit 134343 "UI Ledger Entries Page"
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,DeleteChangeLogeRPH,ErrorMessagesMPH')]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure DeleteChangeLogEntriesForGLEntry()
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -490,6 +491,7 @@ codeunit 134343 "UI Ledger Entries Page"
         exit(GLEntry."Entry No.");
     end;
 
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     local procedure RunDeleteChangeLogEntries()
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -506,7 +508,7 @@ codeunit 134343 "UI Ledger Entries Page"
         ChangeLogEntry.TestField("New Value", NewDescription);
     end;
 
-    local procedure MockCustomerLedgerEntryWithDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure MockCustomerLedgerEntryWithDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         CustLedgerEntry.Get(MockCustLedgEntry);
         CustLedgerEntry."Customer No." := CustomerNo;
@@ -537,7 +539,7 @@ codeunit 134343 "UI Ledger Entries Page"
             exit("No.");
         end;
     end;
-    
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -555,6 +557,7 @@ codeunit 134343 "UI Ledger Entries Page"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
     procedure DeleteChangeLogeRPH(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;

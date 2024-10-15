@@ -315,7 +315,6 @@ report 790 "Calculate Inventory"
         ZeroQty: Boolean;
         ZeroQtySave: Boolean;
         IncludeItemWithNoTransaction: Boolean;
-        HideValidationDialog: Boolean;
         AdjustPosQty: Boolean;
         ItemTrackingSplit: Boolean;
         SkipDim: Boolean;
@@ -323,6 +322,9 @@ report 790 "Calculate Inventory"
         PosQty: Decimal;
         NegQty: Decimal;
         ItemNotOnInventoryErr: Label 'Items Not on Inventory.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure SetItemJnlLine(var NewItemJnlLine: Record "Item Journal Line")
     begin
@@ -511,7 +513,7 @@ report 790 "Calculate Inventory"
                         if "Order Type" = "Order Type"::Production then
                             OrderLineNo := "Order Line No.";
                         CreateReservEntry.CreateReservEntryFor(
-                            DATABASE::"Item Journal Line", "Entry Type", "Journal Template Name", "Journal Batch Name", OrderLineNo,
+                            DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Journal Batch Name", OrderLineNo,
                             "Line No.", "Qty. per Unit of Measure",
                             Abs(WhseEntry.Quantity), Abs(WhseEntry."Qty. (Base)"),
                             WhseEntry."Serial No.", WhseEntry."Lot No.");

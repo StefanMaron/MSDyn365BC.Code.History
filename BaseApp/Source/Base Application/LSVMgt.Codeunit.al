@@ -258,7 +258,7 @@ codeunit 3010831 LSVMgt
         LastLineNo: Integer;
         DebitDirectRecordNo: Integer;
         Transaction: Option " ",Credit,Cancellation,Correction;
-        BalanceAccountType: Option;
+        BalanceAccountType: Enum "Gen. Journal Account Type";
         PrevTransaction: Option " ",Credit,Cancellation,Correction;
         PostDate: Date;
         FirstPostingDate: Date;
@@ -578,7 +578,7 @@ codeunit 3010831 LSVMgt
         end;
     end;
 
-    local procedure SetBalanceAccounts(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountType: Option; BalanceAccountNo: Code[20])
+    local procedure SetBalanceAccounts(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountType: Enum "Gen. Journal Account Type"; BalanceAccountNo: Code[20])
     begin
         with GenJournalLine do begin
             if FindSet then
@@ -590,7 +590,7 @@ codeunit 3010831 LSVMgt
         end;
     end;
 
-    local procedure GetBalanceAccountType(LSVSetup: Record "LSV Setup"; var BalanceAccountType: Option)
+    local procedure GetBalanceAccountType(LSVSetup: Record "LSV Setup"; var BalanceAccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -600,7 +600,7 @@ codeunit 3010831 LSVMgt
             BalanceAccountType := GenJournalLine."Bal. Account Type"::"G/L Account";
     end;
 
-    local procedure InsertBalancingLine(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountType: Option; LSVSetup: Record "LSV Setup"; BalancingAmount: Decimal)
+    local procedure InsertBalancingLine(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountType: Enum "Gen. Journal Account Type"; LSVSetup: Record "LSV Setup"; BalancingAmount: Decimal)
     begin
         with GenJournalLine do begin
             "Account Type" := BalanceAccountType;

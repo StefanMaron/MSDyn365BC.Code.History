@@ -26,7 +26,6 @@ page 2318 "BC O365 Sales Customer Card"
                 field("Contact Type"; "Contact Type")
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
-                    OptionCaption = 'Company contact,Person';
                     ToolTip = 'Specifies if the contact is a company or a person.';
 
                     trigger OnValidate()

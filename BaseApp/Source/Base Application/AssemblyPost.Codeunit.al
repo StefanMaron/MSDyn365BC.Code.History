@@ -147,7 +147,7 @@ codeunit 900 "Assembly-Post"
                 AssemblySetup.Get();
                 if AssemblySetup."Copy Comments when Posting" then begin
                     CopyCommentLines(
-                      "Document Type", AssemblyCommentLine."Document Type"::"Posted Assembly",
+                      "Document Type".AsInteger(), AssemblyCommentLine."Document Type"::"Posted Assembly",
                       "No.", PostedAssemblyHeader."No.");
                     RecordLinkManagement.CopyLinks(AssemblyHeader, PostedAssemblyHeader);
                     OnPostOnAfterCopyComments(AssemblyHeader, PostedAssemblyHeader);
@@ -202,7 +202,7 @@ codeunit 900 "Assembly-Post"
         OnAfterFinalizePost(AssemblyHeader);
     end;
 
-    local procedure OpenWindow(DocType: Option)
+    local procedure OpenWindow(DocType: Enum "Assembly Document Type")
     var
         AsmHeader: Record "Assembly Header";
     begin
@@ -225,13 +225,13 @@ codeunit 900 "Assembly-Post"
     local procedure ValidatePostingDate(var AssemblyHeader: Record "Assembly Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
     begin
         if not PostingDateExists then
             PostingDateExists :=
-              BatchProcessingMgt.GetParameterBoolean(
-                AssemblyHeader.RecordId, BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate) and
-              BatchProcessingMgt.GetParameterDate(AssemblyHeader.RecordId, BatchPostParameterTypes.PostingDate, PostingDate);
+              BatchProcessingMgt.GetBooleanParameter(
+                AssemblyHeader.RecordId, "Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate) and
+              BatchProcessingMgt.GetDateParameter(
+                  AssemblyHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
 
         if PostingDateExists and (ReplacePostingDate or (AssemblyHeader."Posting Date" = 0D)) then
             AssemblyHeader."Posting Date" := PostingDate;
@@ -745,7 +745,7 @@ codeunit 900 "Assembly-Post"
                             ItemJnlLine."Entry Type"::"Assembly Output":
                                 TempTrackingSpecification."Source Type" := DATABASE::"Assembly Header";
                         end;
-                        TempTrackingSpecification."Source Subtype" := AssemblyHeader."Document Type";
+                        TempTrackingSpecification."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
                         TempTrackingSpecification."Source ID" := AssemblyHeader."No.";
                         TempTrackingSpecification."Source Batch Name" := '';
                         TempTrackingSpecification."Source Prod. Order Line" := 0;
@@ -782,9 +782,9 @@ codeunit 900 "Assembly-Post"
                 "Entry Type"::"Assembly Output":
                     WhseJnlLine."Source Type" := DATABASE::"Assembly Header";
             end;
-            WhseJnlLine."Source Subtype" := AssemblyHeader."Document Type";
+            WhseJnlLine."Source Subtype" := AssemblyHeader."Document Type".AsInteger();
             WhseJnlLine."Source Code" := SourceCode;
-            WhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+            WhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
             TestField("Order Type", "Order Type"::Assembly);
             WhseJnlLine."Source No." := "Order No.";
             WhseJnlLine."Source Line No." := "Order Line No.";
@@ -1095,7 +1095,7 @@ codeunit 900 "Assembly-Post"
             InitQtyToAssemble();
             Modify();
 
-            RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type", "Due Date", 0D);
+            RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type".AsInteger(), "Due Date", 0D);
             VerifyAsmHeaderReservAfterUndo(AsmHeader);
         end;
 
@@ -1116,7 +1116,7 @@ codeunit 900 "Assembly-Post"
                     InitQtyToConsume();
                     Modify();
 
-                    RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type", 0D, "Due Date");
+                    RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type".AsInteger(), 0D, "Due Date");
                     VerifyAsmLineReservAfterUndo(AsmLine);
                 end;
             until PostedAsmLine.Next() = 0;
@@ -1148,10 +1148,10 @@ codeunit 900 "Assembly-Post"
             Insert();
 
             CopyCommentLines(
-              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type",
+              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type".AsInteger(),
               PostedAsmHeader."No.", "No.");
 
-            RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type", "Due Date", 0D);
+            RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type".AsInteger(), "Due Date", 0D);
             VerifyAsmHeaderReservAfterUndo(AsmHeader);
         end;
 
@@ -1184,7 +1184,7 @@ codeunit 900 "Assembly-Post"
                     end;
                     Insert();
 
-                    RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type", 0D, "Due Date");
+                    RestoreItemTracking(TempItemLedgEntry, "Document No.", "Line No.", DATABASE::"Assembly Line", "Document Type".AsInteger(), 0D, "Due Date");
                     VerifyAsmLineReservAfterUndo(AsmLine);
                 end;
             until PostedAsmLine.Next() = 0;

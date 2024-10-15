@@ -5727,7 +5727,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TempBankStatementMatchingBuffer.DeleteAll();
     end;
 
-    local procedure MockAppliedPaymentEntry(var AppliedPaymentEntry: Record "Applied Payment Entry"; EntryNo: Integer; AccountType: Option)
+    local procedure MockAppliedPaymentEntry(var AppliedPaymentEntry: Record "Applied Payment Entry"; EntryNo: Integer; AccountType: Enum "Gen. Journal Account Type")
     begin
         AppliedPaymentEntry.Init();
         AppliedPaymentEntry."Statement No." :=
@@ -5890,7 +5890,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateOneToManyBankStatementMatchingBufferLine(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempBankStmtMultipleMatchLine: Record "Bank Stmt Multiple Match Line" temporary; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option)
+    local procedure CreateOneToManyBankStatementMatchingBufferLine(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempBankStmtMultipleMatchLine: Record "Bank Stmt Multiple Match Line" temporary; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type")
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
@@ -6138,7 +6138,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.AreEqual(0, AppliedPaymentEntry.Count, 'No applications should be made. Filters: ' + AppliedPaymentEntry.GetFilters);
     end;
 
-    local procedure VerifyMatchDetailsData(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; AccountType: Option; Amount: Decimal; Tolerance: Decimal; ExpectedNumberOfEntriesWithinTolerance: Integer; ExpectedNumberOfEntriesOutsideTolerance: Integer)
+    local procedure VerifyMatchDetailsData(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal; Tolerance: Decimal; ExpectedNumberOfEntriesWithinTolerance: Integer; ExpectedNumberOfEntriesOutsideTolerance: Integer)
     var
         BankAccount: Record "Bank Account";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
@@ -6153,7 +6153,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           false, -1);
     end;
 
-    local procedure VerifyMatchDetailsData2(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; AccountType: Option; Amount: Decimal; Tolerance: Decimal; ToleranceType: Option; ExpectedNumberOfEntriesWithinTolerance: Integer; ExpectedNumberOfEntriesOutsideTolerance: Integer; GoToEntroNo: Boolean; EntryNo: Integer)
+    local procedure VerifyMatchDetailsData2(BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal; Tolerance: Decimal; ToleranceType: Option; ExpectedNumberOfEntriesWithinTolerance: Integer; ExpectedNumberOfEntriesOutsideTolerance: Integer; GoToEntroNo: Boolean; EntryNo: Integer)
     var
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
     begin
@@ -6362,7 +6362,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         ToleranceTypeVariant: Variant;
         GoToEntryNoVariant: Variant;
         EntryNoVariant: Variant;
-        AccountType: Option;
+        AccountType: Enum "Gen. Journal Account Type";
+        AccountTypeInt: Integer;
         GoToEntryNo: Boolean;
     begin
         LibraryVariableStorage.Dequeue(MatchConfidenceVariant);
@@ -6382,7 +6383,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
             Assert.IsTrue(PaymentApplication.FindFirstField("Applies-to Entry No.", EntryNoVariant), 'Cannot find row on the page');
         end;
 
-        AccountType := AccountTypeVariant;
+        AccountTypeInt := AccountTypeVariant;
+        AccountType := "Gen. Journal Account Type".FromInteger(AccountTypeInt);
 
         // Verify Overall Confidence matches
         Assert.AreEqual(
@@ -6473,7 +6475,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         TempBankStatementMatchingBuffer.Reset();
     end;
 
-    local procedure VerifyMultipleApplicationsBankAccReconciliationLine(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Quality: Integer; ExpectedDifference: Decimal; ExpectedAppliedAmount: Decimal; AccountType: Option; AccountNo: Code[20]; ExpectedNoOfEntries: Integer)
+    local procedure VerifyMultipleApplicationsBankAccReconciliationLine(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Quality: Integer; ExpectedDifference: Decimal; ExpectedAppliedAmount: Decimal; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ExpectedNoOfEntries: Integer)
     begin
         BankAccReconciliationLine.Get(
           BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",

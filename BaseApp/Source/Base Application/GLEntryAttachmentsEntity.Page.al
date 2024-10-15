@@ -24,11 +24,6 @@ page 5512 "G/L Entry Attachments Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'id', Locked = true;
-
-                    trigger OnValidate()
-                    begin
-                        GraphMgtAttachmentBuffer.RegisterFieldSet(FieldNo(Id), TempFieldBuffer);
-                    end;
                 }
                 field(fileName; "File Name")
                 {

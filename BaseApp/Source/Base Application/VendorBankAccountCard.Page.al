@@ -125,6 +125,7 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = FaxNoEnable;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where the vendor has the bank account.';
                 }
                 field("E-Mail"; "E-Mail")

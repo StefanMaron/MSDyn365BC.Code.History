@@ -1,4 +1,4 @@
-﻿codeunit 1233 "SEPA DD-Check Line"
+codeunit 1233 "SEPA DD-Check Line"
 {
     TableNo = "Direct Debit Collection Entry";
 

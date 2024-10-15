@@ -574,6 +574,65 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestBottleneckAssignments()
+    var
+        RootItem: Record Item;
+        InventoryItem: Record Item;
+        NonInventoryItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        CalculateBOMTree: Codeunit "Calculate BOM Tree";
+        TreeType: Option " ",Availability,Cost;
+
+    begin
+        LibraryAssembly.CreateItem(RootItem, RootItem."Costing Method"::Standard, RootItem."Replenishment System"::Assembly, '', '');
+        LibraryAssembly.CreateItem(InventoryItem, InventoryItem."Costing Method"::Standard, InventoryItem."Replenishment System"::Assembly, '', '');
+        LibraryAssembly.CreateItem(NonInventoryItem, NonInventoryItem."Costing Method"::Standard, NonInventoryItem."Replenishment System"::Assembly, '', '');
+
+        NonInventoryItem.Type := NonInventoryItem.Type::"Non-Inventory";
+        NonInventoryItem.Modify();
+
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, InventoryItem."No.", RootItem."No.", '', BOMComponent."Resource Usage Type"::Direct, 1, true);
+
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, NonInventoryItem."No.", RootItem."No.", '', BOMComponent."Resource Usage Type"::Direct, 1, true);
+
+        // Exercise
+        CalculateBOMTree.SetShowTotalAvailability(true);
+        RootItem.SetRange("No.", RootItem."No.");
+        RootItem.SetRange("Date Filter", 0D, WorkDate);
+        CalculateBOMTree.GenerateTreeForItems(RootItem, BOMBuffer, TreeType::Availability);
+
+        // Verify: Inventory Item is bottleneck
+        BOMBuffer.SetRange("No.", InventoryItem."No.");
+        BomBuffer.FindFirst();
+        Assert.IsTrue(BOMBuffer.Bottleneck, 'Inventory item should be a bottleneck');
+
+        // Verify: Non inventory Item is not a bottleneck
+        BOMBuffer.SetRange("No.", NonInventoryItem."No.");
+        BomBuffer.FindFirst();
+        Assert.IsFalse(BOMBuffer.Bottleneck, 'Non inventory item should never be a bottleneck');
+
+        // Adjust stock for Inventory Items
+        SelectItemJournal(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name, ItemJournalLine."Entry Type"::
+          "Positive Adjmt.", InventoryItem."No.", LibraryRandom.RandDec(10, 2));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        CalculateBOMTree.GenerateTreeForItems(RootItem, BOMBuffer, TreeType::Availability);
+
+        // Verify: Inventory Item is a bottleneck now
+        BOMBuffer.SetRange("No.", InventoryItem."No.");
+        BomBuffer.FindFirst();
+        Assert.IsTrue(BOMBuffer.Bottleneck, 'Inventory item should be a bottleneck');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CheckItemInTreeWithProdAndAssemblyBOM()
     var
         ParentItem: Record Item;
@@ -766,6 +825,15 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ProductionBOMHeader.Modify(true);
         ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
         ParentItem.Modify(true);
+    end;
+
+    local procedure SelectItemJournal(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     local procedure CreateAssemblyComponent(ParentItemNo: Code[20]): Code[20]

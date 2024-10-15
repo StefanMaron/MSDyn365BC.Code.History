@@ -1,4 +1,4 @@
-page 47 "Sales Invoice Subform"
+﻿page 47 "Sales Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -25,10 +25,10 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -43,13 +43,13 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type);
+                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -60,11 +60,11 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         ShowShortcutDimCode(ShortcutDimCode);
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Level; Level)
@@ -96,20 +96,46 @@ page 47 "Sales Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        CrossReferenceNoLookUp();
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        ItemReferenceMgt.SalesReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        OnCrossReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("IC Partner Code"; "IC Partner Code")
@@ -138,7 +164,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -155,7 +181,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -166,15 +192,15 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateEditableOnRow;
+                        UpdateEditableOnRow();
 
                         if "No." = xRec."No." then
                             exit;
 
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                         ShowShortcutDimCode(ShortcutDimCode);
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Return Reason Code"; "Return Reason Code")
@@ -193,7 +219,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -213,8 +239,8 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        ValidateAutoReserve;
-                        DeltaUpdateTotals;
+                        ValidateAutoReserve();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")
@@ -226,8 +252,8 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        ValidateAutoReserve;
-                        DeltaUpdateTotals;
+                        ValidateAutoReserve();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -261,7 +287,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Liable"; "Tax Liable")
@@ -278,7 +304,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -291,7 +317,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount %"; "Line Discount %")
@@ -304,7 +330,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -318,7 +344,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(LineDiscExists; LineDiscExists)
@@ -337,7 +363,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
@@ -348,10 +374,10 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                         InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                        ValidateInvoiceDiscountAmount;
+                        ValidateInvoiceDiscountAmount();
                     end;
                 }
                 field("Inv. Discount Amount"; "Inv. Discount Amount")
@@ -362,7 +388,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
@@ -379,8 +405,8 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdatePage(false);
                     end;
                 }
@@ -393,8 +419,8 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdatePage(false);
                     end;
                 }
@@ -667,8 +693,8 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
-                            ValidateInvoiceDiscountAmount;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -681,10 +707,10 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                 }
@@ -761,10 +787,14 @@ page 47 "Sales Invoice Subform"
                         Ellipsis = true;
                         Image = Price;
                         ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+                        Visible = not ExtendedPriceEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
 
                         trigger OnAction()
                         begin
-                            ShowPrices
+                            ShowPrices()
                         end;
                     }
                     action("Get Li&ne Discount")
@@ -775,10 +805,42 @@ page 47 "Sales Invoice Subform"
                         Ellipsis = true;
                         Image = LineDiscount;
                         ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                        Visible = not ExtendedPriceEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
 
                         trigger OnAction()
                         begin
-                            ShowLineDisc
+                            ShowLineDisc()
+                        end;
+                    }
+                    action(GetPrice)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Get &Price';
+                        Ellipsis = true;
+                        Image = Price;
+                        Visible = ExtendedPriceEnabled;
+                        ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+
+                        trigger OnAction()
+                        begin
+                            ShowPrices()
+                        end;
+                    }
+                    action(GetLineDiscount)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Get Li&ne Discount';
+                        Ellipsis = true;
+                        Image = LineDiscount;
+                        Visible = ExtendedPriceEnabled;
+                        ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+
+                        trigger OnAction()
+                        begin
+                            ShowLineDisc()
                         end;
                     }
                     action("E&xplode BOM")
@@ -908,7 +970,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ShowDimensions;
+                            ShowDimensions();
                         end;
                     }
                     action("Co&mments")
@@ -920,7 +982,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ShowLineComments;
+                            ShowLineComments();
                         end;
                     }
                     action("Item Charge &Assignment")
@@ -934,8 +996,8 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ShowItemChargeAssgnt;
-                            SetItemChargeFieldsStyle;
+                            ShowItemChargeAssgnt();
+                            SetItemChargeFieldsStyle();
                         end;
                     }
                     action("Item &Tracking Lines")
@@ -949,7 +1011,7 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines;
+                            OpenItemTrackingLines();
                         end;
                     }
                     action(DocAttach)
@@ -979,13 +1041,15 @@ page 47 "Sales Invoice Subform"
 
                         trigger OnAction()
                         begin
-                            ShowDeferralSchedule;
+                            ShowDeferralSchedule();
                         end;
                     }
                 }
             }
             group("Page")
             {
+                Caption = 'Page';
+
                 action(EditInExcel)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1064,8 +1128,8 @@ page 47 "Sales Invoice Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitType;
-        SetDefaultType;
+        InitType();
+        SetDefaultType();
 
         Clear(ShortcutDimCode);
         UpdateTypeText();
@@ -1074,6 +1138,7 @@ page 47 "Sales Invoice Subform"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         Location: Record Location;
     begin
         if Location.ReadPermission then
@@ -1081,8 +1146,10 @@ page 47 "Sales Invoice Subform"
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
         SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -1100,19 +1167,18 @@ page 47 "Sales Invoice Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
-        ShortcutDimCode: array[8] of Code[20];
         UpdateAllowedVar: Boolean;
         Text000: Label 'Unable to run this function while in View mode.';
-        LocationCodeVisible: Boolean;
-        DescriptionIndent: Integer;
-        DescriptionEmphasize: Boolean;
         InvDiscAmountEditable: Boolean;
-        UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1121,11 +1187,15 @@ page 47 "Sales Invoice Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        SuppressTotals: Boolean;
-
-    protected var
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+        SuppressTotals: Boolean;
+		[InDataSet]
+        ItemReferenceVisible: Boolean;
+        LocationCodeVisible: Boolean;
+        UnitofMeasureCodeIsChangeable: Boolean;
+        DescriptionIndent: Integer;
+        DescriptionEmphasize: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1169,7 +1239,7 @@ page 47 "Sales Invoice Subform"
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
@@ -1211,28 +1281,28 @@ page 47 "Sales Invoice Subform"
         InsertExtendedText(false);
 
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and (xRec."No." <> '') then
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
 
         OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     procedure UpdateEditableOnRow()
     begin
-        IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsCommentLine := not HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
-        CurrPageIsEditable := CurrPage.Editable;
+        CurrPageIsEditable := CurrPage.Editable();
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
-    local procedure ValidateAutoReserve()
+    protected procedure ValidateAutoReserve()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
         end;
 
         OnAfterValidateAutoReserve(Rec);
@@ -1260,7 +1330,7 @@ page 47 "Sales Invoice Subform"
 
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
     local procedure DescriptionOnFormat()
@@ -1285,7 +1355,7 @@ page 47 "Sales Invoice Subform"
         if SuppressTotals then
             exit;
 
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
 
         SalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
@@ -1326,6 +1396,13 @@ page 47 "Sales Invoice Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure SetDefaultType()

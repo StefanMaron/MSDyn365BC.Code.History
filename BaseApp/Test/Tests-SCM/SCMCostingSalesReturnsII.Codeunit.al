@@ -21,7 +21,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         LibraryPurchase: Codeunit "Library - Purchase";
         isInitialized: Boolean;
         ErrAmountsMustBeSame: Label 'Sales Amounts must be same.';
-        CostingMethod: array[2] of Integer;
+        CostingMethod: array[2] of Enum "Costing Method";
         ErrorGeneratedMustBeSame: Label 'Error Generated Must Be Same.';
         ErrAppFromItemEntryServiceTier: Label 'Appl.-from Item Entry must have a value in Sales Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.';
         MsgCorrectedInvoiceNo: Label 'have a Corrected Invoice No. Do you want to continue?';
@@ -155,8 +155,6 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         TempSalesLine: Record "Sales Line" temporary;
         TempItem: Record Item temporary;
         SalesOrderNo: Code[20];
-        ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Sales Return Order.
         Initialize;
@@ -168,7 +166,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
           CreateSalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", NoOfCharges, TempItem, SameItemTwice);
 
         // Move Negative Lines to a new Sales Order.
-        MoveNegativeLine(SalesHeader, SalesHeader2, FromDocType::"Return Order", ToDocType::Order);
+        MoveNegativeLine(SalesHeader, SalesHeader2, "Sales Document Type From"::"Return Order", "Sales Document Type From"::Order);
         CopySalesLinesToTemp(TempSalesLine, SalesLine);
 
         // Exercise: Post Sales Return Order and Run Adjust Cost Item Entries report.
@@ -410,8 +408,6 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         TempSalesLine: Record "Sales Line" temporary;
         TempItem: Record Item temporary;
         SalesOrderNo: Code[20];
-        ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
         Initialize;
@@ -422,7 +418,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesOrderNo :=
           CreateSalesDoc(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", NoOfCharges, TempItem, SameItemTwice);
         // Move Negative Lines to a new Sales Invoice.
-        MoveNegativeLine(SalesHeader, SalesHeader2, FromDocType::"Credit Memo", ToDocType::Invoice);
+        MoveNegativeLine(SalesHeader, SalesHeader2, "Sales Document Type From"::"Credit Memo", "Sales Document Type From"::Invoice);
         CopySalesLinesToTemp(TempSalesLine, SalesLine);
 
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
@@ -434,7 +430,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         VerifySalesAmount(TempSalesLine, SalesHeader, SalesOrderNo);
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; NoOfCharges: Integer; var TempItem: Record Item temporary; SameItemTwice: Boolean) SalesOrderNo: Code[20]
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; NoOfCharges: Integer; var TempItem: Record Item temporary; SameItemTwice: Boolean) SalesOrderNo: Code[20]
     var
         TempItemCharge: Record "Item Charge" temporary;
         SalesItemQty: Decimal;
@@ -706,13 +702,13 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         end;
     end;
 
-    local procedure CreateItemWithInventory(var Item: Record Item; ItemCostingMethod: Option FIFO,LIFO,Specific,"Average",Standard)
+    local procedure CreateItemWithInventory(var Item: Record Item; ItemCostingMethod: Enum "Costing Method")
     begin
         CreateItem(Item, ItemCostingMethod);
         UpdateItemInventory(Item."No.", LibraryRandom.RandInt(10) + 50);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Option FIFO,LIFO,Specific,"Average",Standard)
+    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", ItemCostingMethod);
@@ -756,7 +752,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
           PurchRcptLine."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
@@ -775,7 +771,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure FindItemLedgerEtry(ItemNo: Code[20]; EntryType: Option): Integer
+    local procedure FindItemLedgerEtry(ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"): Integer
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -997,7 +993,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     end;
 
     [Normal]
-    local procedure SelectSalesLines(var SalesLine: Record "Sales Line"; SalesHeaderNo: Code[20]; DocumentType: Option)
+    local procedure SelectSalesLines(var SalesLine: Record "Sales Line"; SalesHeaderNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", SalesHeaderNo);
@@ -1005,12 +1001,12 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     end;
 
     [Normal]
-    local procedure MoveNegativeLine(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; FromDocType: Option; ToDocType: Option)
+    local procedure MoveNegativeLine(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; ToDocType: Enum "Sales Document Type From")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         CopyDocumentMgt.SetProperties(true, false, true, true, true, false, false);
-        SalesHeader2."Document Type" := CopyDocumentMgt.SalesHeaderDocType(ToDocType);
+        SalesHeader2."Document Type" := CopyDocumentMgt.GetSalesDocumentType(ToDocType);
         CopyDocumentMgt.CopySalesDoc(FromDocType, SalesHeader."No.", SalesHeader2);
     end;
 

@@ -254,6 +254,7 @@ page 20 "General Ledger Entries"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
             systempart(Control1900383207; Links)
             {
@@ -290,7 +291,7 @@ page 20 "General Ledger Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -433,11 +434,12 @@ page 20 "General Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 var
@@ -485,7 +487,6 @@ page 20 "General Ledger Entries"
         IncomingDocument: Record "Incoming Document";
     begin
         HasIncomingDocument := IncomingDocument.PostedDocExists("Document No.", "Posting Date");
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnInit()

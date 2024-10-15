@@ -104,7 +104,7 @@ page 5005276 "Deliv. Reminder Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

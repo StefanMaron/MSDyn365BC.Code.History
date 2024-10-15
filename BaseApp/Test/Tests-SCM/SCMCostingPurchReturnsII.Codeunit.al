@@ -62,7 +62,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchReturnApplyCharge(Item."Costing Method"::FIFO, 1, -1);
     end;
 
-    local procedure PurchReturnApplyCharge(CostingMethod: Option; ChargeOnItem: Integer; SignFactor: Decimal)
+    local procedure PurchReturnApplyCharge(CostingMethod: Enum "Costing Method"; ChargeOnItem: Integer; SignFactor: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -249,7 +249,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchInvoiceApplyCharge(Item."Costing Method"::FIFO, 1);
     end;
 
-    local procedure PurchInvoiceApplyCharge(CostingMethod: Option; NoOfItemLine: Integer)
+    local procedure PurchInvoiceApplyCharge(CostingMethod: Enum "Costing Method"; NoOfItemLine: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -349,7 +349,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchaseLine.Modify(true);
         UpdateApplyToItemEntryNo(PurchaseLine, -1);
         CreatePurchaseLines(PurchaseLine, PurchaseHeader, Item."Costing Method"::FIFO, 1, 0);
-        MoveNegativeLines(PurchaseHeader, PurchaseHeader2, FromDocType::Order, ToDocType::"Return Order");
+        MoveNegativeLines(PurchaseHeader, PurchaseHeader2, "Purchase Document Type From"::Order, "Purchase Document Type From"::"Return Order");
         TransferPurchaseLineToTemp(TempPurchaseLine, PurchaseLine);
         FindPurchaseLine(PurchaseHeader2, PurchaseLine);
         TransferPurchaseLineToTemp(TempPurchaseLine2, PurchaseLine);
@@ -638,7 +638,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         end;
     end;
 
-    local procedure CreatePurchaseReturnSetup(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; CostingMethod: Option)
+    local procedure CreatePurchaseReturnSetup(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; CostingMethod: Enum "Costing Method")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -647,7 +647,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateItem(CostingMethod: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -659,13 +659,13 @@ codeunit 137032 "SCM Costing Purch Returns II"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; CostingMethod: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; CostingMethod: Enum "Costing Method")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         CreatePurchaseLines(PurchaseLine, PurchaseHeader, CostingMethod, 1, 0);
     end;
 
-    local procedure CreatePurchaseLines(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CostingMethod: Option; NoOfItems: Integer; NoOfCharges: Integer)
+    local procedure CreatePurchaseLines(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; CostingMethod: Enum "Costing Method"; NoOfItems: Integer; NoOfCharges: Integer)
     var
         "Count": Integer;
     begin
@@ -696,7 +696,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         CopyPurchaseDocument.RunModal;
     end;
 
-    local procedure PurchaseCopyDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Option ,,"Order",Invoice,"Return Order","Credit Memo"; FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo")
+    local procedure PurchaseCopyDocument(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; DocumentType: Enum "Purchase Document Type"; FromDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo")
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
@@ -791,7 +791,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         end;
     end;
 
-    local procedure UpdateItemChargeQtyToAssign(DocumentType: Option; DocumentNo: Code[20]; QtyToAssign: Decimal)
+    local procedure UpdateItemChargeQtyToAssign(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; QtyToAssign: Decimal)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
@@ -804,12 +804,12 @@ codeunit 137032 "SCM Costing Purch Returns II"
         end;
     end;
 
-    local procedure MoveNegativeLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; FromDocType: Option; ToDocType: Option)
+    local procedure MoveNegativeLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; ToDocType: Enum "Purchase Document Type From")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         CopyDocumentMgt.SetProperties(true, false, true, true, true, false, false);
-        PurchaseHeader2."Document Type" := CopyDocumentMgt.PurchHeaderDocType(ToDocType);
+        PurchaseHeader2."Document Type" := CopyDocumentMgt.GetPurchaseDocumentType(ToDocType);
         CopyDocumentMgt.CopyPurchDoc(FromDocType, PurchaseHeader."No.", PurchaseHeader2);
     end;
 
@@ -909,7 +909,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
           -ExpectedPurchaseInvoiceAmount + ExpectedPurchaseCrMemoAmount, ActualVendLedgerAmount, 0.1, ErrPurchaseAmountMustBeSame);
     end;
 
-    local procedure VerifyValueEntryType(ItemNo: Code[20]; IsAdjustment: Boolean; ExpectedEntryType: Option)
+    local procedure VerifyValueEntryType(ItemNo: Code[20]; IsAdjustment: Boolean; ExpectedEntryType: Enum "Cost Entry Type")
     var
         ValueEntry: Record "Value Entry";
     begin

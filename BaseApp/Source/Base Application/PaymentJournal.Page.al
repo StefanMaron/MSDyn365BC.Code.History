@@ -102,7 +102,7 @@ page 256 "Payment Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         EnableApplyEntriesAction;
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Account No."; "Account No.")
@@ -117,7 +117,7 @@ page 256 "Payment Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Recipient Bank Account"; "Recipient Bank Account")
@@ -576,6 +576,7 @@ page 256 "Payment Journal"
                     group("Account Name")
                     {
                         Caption = 'Account Name';
+                        Visible = false;
                         field(AccName; AccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -587,6 +588,7 @@ page 256 "Payment Journal"
                     group("Bal. Account Name")
                     {
                         Caption = 'Bal. Account Name';
+                        Visible = false;
                         field(BalAccName; BalAccName)
                         {
                             ApplicationArea = Basic, Suite;
@@ -626,6 +628,21 @@ page 256 "Payment Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
+            part(JournalLineDetails; "Journal Line Details FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -886,7 +903,7 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -1253,6 +1270,43 @@ page 256 "Payment Journal"
                     end;
                 }
             }
+            group(Errors)
+            {
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+            }
             group("P&osting")
             {
                 Caption = 'P&osting';
@@ -1465,7 +1519,7 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create a Flow';
                     Image = Flow;
-                    ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
 
                     trigger OnAction()
@@ -1484,7 +1538,7 @@ page 256 "Payment Journal"
                     Caption = 'See my Flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Flows that you created.';
+                    ToolTip = 'View and configure Power Automate flows that you created.';
                 }
             }
             group(Workflow)
@@ -1727,7 +1781,7 @@ page 256 "Payment Journal"
             SetControlAppearanceFromBatch;
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Payment Journal", 4, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Payment Journal", "Gen. Journal Template Type"::Payments, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
@@ -1745,6 +1799,7 @@ page 256 "Payment Journal"
         ReportPrint: Codeunit "Test Report-Print";
         DocPrint: Codeunit "Document-Print";
         CheckManagement: Codeunit CheckManagement;
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         DtaMgt: Codeunit DtaMgt;
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
@@ -1759,7 +1814,6 @@ page 256 "Payment Journal"
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         HasPmtFileErr: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         BalanceVisible: Boolean;
         [InDataSet]
@@ -1769,6 +1823,7 @@ page 256 "Payment Journal"
         DtaSetup: Record "DTA Setup";
         VendLedgEntry: Record "Vendor Ledger Entry";
         Text90600: Label 'Exchange Rate adjustments are only possible for foreign currency payments via LCY accounts\or accounts corresponding to the original currency of payment. ';
+        ExportAgainQst: Label 'One or more of the selected lines have already been exported. Do you want to export again?';
         EventFilter: Text;
         OpenApprovalEntriesExistForCurrUser: Boolean;
         OpenApprovalEntriesExistForCurrUserBatch: Boolean;
@@ -1794,6 +1849,11 @@ page 256 "Payment Journal"
         DebitCreditVisible: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1802,9 +1862,6 @@ page 256 "Payment Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        ExportAgainQst: Label 'One or more of the selected lines have already been exported. Do you want to export again?';
-
-    protected var
         ApplyEntriesActionEnabled: Boolean;
 
     local procedure CheckForPmtJnlErrors()
@@ -1867,11 +1924,8 @@ page 256 "Payment Journal"
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
         CanRequestFlowApprovalForAllLines: Boolean;
     begin
-        if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then
-            GenJournalBatch.Get("Journal Template Name", "Journal Batch Name")
-        else
-            if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
-                exit;
+        if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
 
         CheckOpenApprovalEntries(GenJournalBatch.RecordId);
 
@@ -1880,6 +1934,10 @@ page 256 "Payment Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
+        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        JournalErrorsMgt.SetFullBatchCheck(true);
     end;
 
     local procedure CheckOpenApprovalEntries(BatchRecordId: RecordID)

@@ -39,7 +39,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the customer
         // [THEN] The default dimension has been added to the customer
         LibrarySales.CreateCustomer(Customer);
-        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the vendor
         // [THEN] The default dimension has been added to the vendor
         LibraryPurchase.CreateVendor(Vendor);
-        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Item
         // [THEN] The default dimension has been added to the Item
         LibraryInventory.CreateItem(Item);
-        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Item, Item."No.", Item.Id);
+        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Employee
         // [THEN] The default dimension has been added to the Employee
         LibraryHumanResource.CreateEmployee(Employee);
-        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestCreateDefaultDimensionWithDimensionCode(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     [Test]
@@ -95,7 +95,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the customer
         // [THEN] The default dimension has been added to the customer
         LibrarySales.CreateCustomer(Customer);
-        TestCreateDefaultDimension(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestCreateDefaultDimension(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Vendor
         // [THEN] The default dimension has been added to the Vendor
         LibraryPurchase.CreateVendor(Vendor);
-        TestCreateDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestCreateDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -123,7 +123,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Item
         // [THEN] The default dimension has been added to the Item
         LibraryInventory.CreateItem(Item);
-        TestCreateDefaultDimension(DATABASE::Item, Item."No.", Item.Id);
+        TestCreateDefaultDimension(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -137,7 +137,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Employee
         // [THEN] The default dimension has been added to the Employee
         LibraryHumanResource.CreateEmployee(Employee);
-        TestCreateDefaultDimension(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestCreateDefaultDimension(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     [Test]
@@ -151,7 +151,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] a user issues a http request to create a default dimension without dimension id
         // [THEN] You get an error
         LibrarySales.CreateCustomer(Customer);
-        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Customer, Customer.Id);
+        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Customer, Customer.SystemId);
     end;
 
     [Test]
@@ -165,7 +165,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] a user issues a http request to create a default dimension without dimension id
         // [THEN] You get an error
         LibraryPurchase.CreateVendor(Vendor);
-        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Vendor, Vendor.Id);
+        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Vendor, Vendor.SystemId);
     end;
 
     [Test]
@@ -179,7 +179,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] a user issues a http request to create a default dimension without dimension id
         // [THEN] You get an error
         LibraryInventory.CreateItem(Item);
-        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Item, Item.Id);
+        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Item, Item.SystemId);
     end;
 
     [Test]
@@ -193,7 +193,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] a user issues a http request to create a default dimension without dimension id
         // [THEN] You get an error
         LibraryHumanResource.CreateEmployee(Employee);
-        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Employee, Employee.Id);
+        TestCreateDefaultDimensionFailsWithoutDimension(DATABASE::Employee, Employee.SystemId);
     end;
 
     [Test]
@@ -207,7 +207,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the customer, with mismatching dimesnion and dimension value
         // [THEN] You get an error
         LibrarySales.CreateCustomer(Customer);
-        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Customer, Customer.Id);
+        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Customer, Customer.SystemId);
     end;
 
     [Test]
@@ -221,7 +221,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Vendor, with mismatching dimesnion and dimension value
         // [THEN] You get an error
         LibraryPurchase.CreateVendor(Vendor);
-        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Vendor, Vendor.Id);
+        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Vendor, Vendor.SystemId);
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Item, with mismatching dimesnion and dimension value
         // [THEN] You get an error
         LibraryInventory.CreateItem(Item);
-        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Item, Item.Id);
+        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Item, Item.SystemId);
     end;
 
     [Test]
@@ -249,7 +249,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension on the Employee, with mismatching dimesnion and dimension value
         // [THEN] You get an error
         LibraryHumanResource.CreateEmployee(Employee);
-        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Employee, Employee.Id);
+        TestCreateDefaultDimensionFailsWithMismatchingDimensions(DATABASE::Employee, Employee.SystemId);
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension on the customer
         // [THEN] You get an error
         LibrarySales.CreateCustomer(Customer);
-        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Customer, Customer.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Customer, Customer.SystemId);
     end;
 
     [Test]
@@ -277,7 +277,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension on the Vendor
         // [THEN] You get an error
         LibraryPurchase.CreateVendor(Vendor);
-        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Vendor, Vendor.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Vendor, Vendor.SystemId);
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension on the Item
         // [THEN] You get an error
         LibraryInventory.CreateItem(Item);
-        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Item, Item.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Item, Item.SystemId);
     end;
 
     [Test]
@@ -305,7 +305,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension on the Employee
         // [THEN] You get an error
         LibraryHumanResource.CreateEmployee(Employee);
-        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Employee, Employee.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimension(DATABASE::Employee, Employee.SystemId);
     end;
 
     [Test]
@@ -319,7 +319,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension value on the customer
         // [THEN] You get an error
         LibrarySales.CreateCustomer(Customer);
-        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Customer, Customer.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Customer, Customer.SystemId);
     end;
 
     [Test]
@@ -333,7 +333,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension value on the Vendor
         // [THEN] You get an error
         LibraryPurchase.CreateVendor(Vendor);
-        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Vendor, Vendor.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Vendor, Vendor.SystemId);
     end;
 
     [Test]
@@ -347,7 +347,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension value on the Item
         // [THEN] You get an error
         LibraryInventory.CreateItem(Item);
-        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Item, Item.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Item, Item.SystemId);
     end;
 
     [Test]
@@ -361,7 +361,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to create a default dimension with a blocked dimension value on the Employee
         // [THEN] You get an error
         LibraryHumanResource.CreateEmployee(Employee);
-        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Employee, Employee.Id);
+        TestCreateDefaultDimensionFailsWithBlockedDimensionValue(DATABASE::Employee, Employee.SystemId);
     end;
 
     [Test]
@@ -375,7 +375,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to delete the default dimension on the customer
         // [THEN] The default dimension has been deleted from the customer's default dimensions
         LibrarySales.CreateCustomer(Customer);
-        TestDeleteDefaultDimension(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestDeleteDefaultDimension(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -389,7 +389,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to delete a default dimension on the Vendor
         // [THEN] The default dimension has been deleted from the vendor's default dimensions
         LibraryPurchase.CreateVendor(Vendor);
-        TestDeleteDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestDeleteDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -403,7 +403,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to delete a default dimension on the Item
         // [THEN] The default dimension has been deleted from the item's default dimensions
         LibraryInventory.CreateItem(Item);
-        TestDeleteDefaultDimension(DATABASE::Item, Item."No.", Item.Id);
+        TestDeleteDefaultDimension(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -417,7 +417,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to delete a default dimension on the Employee
         // [THEN] The default dimension has been deleted from the employee's default dimensions
         LibraryHumanResource.CreateEmployee(Employee);
-        TestDeleteDefaultDimension(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestDeleteDefaultDimension(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     [Test]
@@ -431,7 +431,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to get the default dimension on the customer
         // [THEN] The response contains the default dimension that has been added to the customer
         LibrarySales.CreateCustomer(Customer);
-        TestGetDefaultDimension(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestGetDefaultDimension(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -445,7 +445,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to get a default dimension on the Vendor
         // [THEN] The response contains the default dimension that has been added to the Vendor
         LibraryPurchase.CreateVendor(Vendor);
-        TestGetDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestGetDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -459,7 +459,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to get a default dimension on the Item
         // [THEN] The response contains the default dimension that has been added to the Item
         LibraryInventory.CreateItem(Item);
-        TestGetDefaultDimension(DATABASE::Item, Item."No.", Item.Id);
+        TestGetDefaultDimension(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -473,7 +473,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to get a default dimension on the Employee
         // [THEN] The response contains the default dimension that has been added to the Employee
         LibraryHumanResource.CreateEmployee(Employee);
-        TestGetDefaultDimension(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestGetDefaultDimension(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     [Test]
@@ -487,7 +487,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch the default dimension on the customer
         // [THEN] The default dimension has been updated for the customer
         LibrarySales.CreateCustomer(Customer);
-        TestPatchDefaultDimension(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestPatchDefaultDimension(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -501,7 +501,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch a default dimension on the Vendor
         // [THEN] The default dimension has been updated for the vendor
         LibraryPurchase.CreateVendor(Vendor);
-        TestPatchDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestPatchDefaultDimension(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch a default dimension on the Item
         // [THEN] The default dimension has been updated for the item
         LibraryInventory.CreateItem(Item);
-        TestPatchDefaultDimension(DATABASE::Item, Item."No.", Item.Id);
+        TestPatchDefaultDimension(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -529,7 +529,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch a default dimension on the Employee
         // [THEN] The default dimension has been updated for the employee
         LibraryHumanResource.CreateEmployee(Employee);
-        TestPatchDefaultDimension(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestPatchDefaultDimension(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     [Test]
@@ -543,7 +543,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch the default dimension with a blocked dimension value on the customer
         // [THEN] You get an error
         LibrarySales.CreateCustomer(Customer);
-        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -557,7 +557,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch a default dimension with a blocked dimension value on the Vendor
         // [THEN] You get an error
         LibraryPurchase.CreateVendor(Vendor);
-        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -571,7 +571,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch a default dimension with a blocked dimension value on the Item
         // [THEN] You get an error
         LibraryInventory.CreateItem(Item);
-        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Item, Item."No.", Item.Id);
+        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -585,7 +585,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch a default dimension with a blocked dimension value on the Employee
         // [THEN] You get an error
         LibraryHumanResource.CreateEmployee(Employee);
-        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestPatchDefaultDimensionFailsWithBlockedValue(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     [Test]
@@ -599,7 +599,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch the default dimension with a blocked dimension value on the customer
         // [THEN] You get an error
         LibrarySales.CreateCustomer(Customer);
-        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Customer, Customer."No.", Customer.Id);
+        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Customer, Customer."No.", Customer.SystemId);
     end;
 
     [Test]
@@ -613,7 +613,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch the default dimension with a blocked dimension value on the vendor
         // [THEN] You get an error
         LibraryPurchase.CreateVendor(Vendor);
-        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Vendor, Vendor."No.", Vendor.Id);
+        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Vendor, Vendor."No.", Vendor.SystemId);
     end;
 
     [Test]
@@ -627,7 +627,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch the default dimension with a blocked dimension value on the item
         // [THEN] You get an error
         LibraryInventory.CreateItem(Item);
-        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Item, Item."No.", Item.Id);
+        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Item, Item."No.", Item.SystemId);
     end;
 
     [Test]
@@ -641,7 +641,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         // [WHEN] The user posts a http request to patch the default dimension with a blocked dimension value on the employee
         // [THEN] You get an error
         LibraryHumanResource.CreateEmployee(Employee);
-        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Employee, Employee."No.", Employee.Id);
+        TestPatchDefaultDimensionFailsWhenChangingDimensionCode(DATABASE::Employee, Employee."No.", Employee.SystemId);
     end;
 
     local procedure TestCreateDefaultDimensionWithDimensionCode(TableNo: Integer; ParentNo: Code[20]; ParentId: Guid)
@@ -658,7 +658,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
+        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.SystemId));
         Commit();
 
         TargetURL :=
@@ -671,7 +671,7 @@ codeunit 135544 "Default Dimensions E2E Test"
           DefaultDimension.Get(TableNo, ParentNo, Dimension.Code), 'Default Dimension not created for the test entity.');
         Assert.AreEqual(
           DefaultDimension."Dimension Value Code", DimensionValue.Code, 'Unexpected default dimension value for the test entity.');
-        Assert.AreEqual(DefaultDimension.DimensionId, Dimension.Id, 'Unexpected dimension Id value for the test entity.');
+        Assert.AreEqual(DefaultDimension.DimensionId, Dimension.SystemId, 'Unexpected dimension Id value for the test entity.');
     end;
 
     local procedure TestCreateDefaultDimension(TableNo: Integer; ParentNo: Code[20]; ParentId: Guid)
@@ -689,8 +689,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.SystemId));
         Commit();
 
         TargetURL :=
@@ -718,7 +718,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
+        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.SystemId));
         Commit();
 
         TargetURL :=
@@ -748,8 +748,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         LibraryDimension.CreateDimension(Dimension2);
         LibraryDimension.CreateDimensionValue(DimensionValue2, Dimension2.Code);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.SystemId));
         Commit();
 
         TargetURL :=
@@ -777,8 +777,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         Dimension.Validate(Blocked, true);
         Dimension.Modify(true);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.SystemId));
         Commit();
 
         TargetURL :=
@@ -806,8 +806,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         DimensionValue.Validate(Blocked, true);
         DimensionValue.Modify(true);
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.SystemId));
         Commit();
 
         TargetURL :=
@@ -839,7 +839,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         DefaultDimension.Insert(true);
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
         Commit();
 
         TargetURL :=
@@ -873,8 +873,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         DefaultDimension.Insert(true);
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValueId := LowerCase(TypeHelper.GetGuidAsString(DimensionValue.SystemId));
         Commit();
 
         TargetURL :=
@@ -911,8 +911,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         DefaultDimension.Insert(true);
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.SystemId));
         Commit();
 
         TargetURL :=
@@ -954,8 +954,8 @@ codeunit 135544 "Default Dimensions E2E Test"
         DefaultDimension.Insert(true);
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
-        DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
+        DimensionValue2Id := LowerCase(TypeHelper.GetGuidAsString(DimensionValue2.SystemId));
         Commit();
 
         TargetURL :=
@@ -992,7 +992,7 @@ codeunit 135544 "Default Dimensions E2E Test"
         DefaultDimension.Insert(true);
 
         ParentIdAsText := LowerCase(TypeHelper.GetGuidAsString(ParentId));
-        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.Id));
+        DimensionId := LowerCase(TypeHelper.GetGuidAsString(Dimension.SystemId));
         Commit();
 
         TargetURL :=

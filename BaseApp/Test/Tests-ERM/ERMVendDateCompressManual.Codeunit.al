@@ -120,7 +120,7 @@ codeunit 134035 "ERM Vend Date Compress Manual"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; VendorNo: Code[20]; PostingDate: Date; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; PostingDate: Date; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,

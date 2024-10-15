@@ -566,7 +566,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
         // [THEN] Provided by User Tracking Specification is transferred to Sales Order via Transfer Order
         VerifyTrackingSpecification(
-          TempTrackingSpecification, DATABASE::"Sales Line", SalesLine."Document Type"::Order,
+          TempTrackingSpecification, DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(),
           SalesLine."Document No.", '', 0, SalesLine."Line No.", -1);
     end;
 
@@ -590,7 +590,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
         // [THEN] Provided by User Tracking Specification is transferred to Sales Order via Transfer Order
         VerifyTrackingSpecification(
-          TempTrackingSpecification, DATABASE::"Sales Line", SalesLine."Document Type"::Order,
+          TempTrackingSpecification, DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(),
           SalesLine."Document No.", '', 0, SalesLine."Line No.", -1);
     end;
 
@@ -614,7 +614,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
         // [THEN] Provided by User Tracking Specification is transferred to Sales Order via Transfer Order
         VerifyTrackingSpecification(
-          TempTrackingSpecification, DATABASE::"Sales Line", SalesLine."Document Type"::Order,
+          TempTrackingSpecification, DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(),
           SalesLine."Document No.", '', 0, SalesLine."Line No.", -1);
     end;
 
@@ -839,7 +839,7 @@ codeunit 137269 "SCM Transfer Reservation"
           TransferLine."Line No.", -1, ReservationEntry."Reservation Status"::Reservation, WorkDate);
         MockReservationEntry(
           ReservationEntry,
-          PurchaseLine."No.", true, DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.",
+          PurchaseLine."No.", true, DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.",
           PurchaseLine."Line No.", 1, ReservationEntry."Reservation Status"::Reservation, WorkDate);
 
         asserterror TransferLine.Validate("Shipment Date", TransferLine."Shipment Date" + 1);
@@ -871,7 +871,7 @@ codeunit 137269 "SCM Transfer Reservation"
           ReservationEntry."Reservation Status"::Tracking, WorkDate);
         MockReservationEntry(
           ReservationEntry,
-          Item."No.", true, DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", -1,
+          Item."No.", true, DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", -1,
           ReservationEntry."Reservation Status"::Tracking, WorkDate);
 
         TransferLine.Validate("Shipment Date", TransferLine."Shipment Date" + 1);
@@ -897,7 +897,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
         MockReservationEntry(
           ReservationEntry,
-          SalesLine."No.", false, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+          SalesLine."No.", false, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -1, ReservationEntry."Reservation Status"::Reservation, WorkDate);
         MockReservationEntry(
           ReservationEntry,
@@ -929,7 +929,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
         MockReservationEntry(
           ReservationEntry,
-          Item."No.", false, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+          Item."No.", false, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           -1, ReservationEntry."Reservation Status"::Tracking, WorkDate);
         MockReservationEntry(
           ReservationEntry,
@@ -1000,7 +1000,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] The sales order is now reserved from the inventory.
         with ReservationEntry do begin
             Reset;
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
             FindFirst;
             TestField(Quantity, -SalesLine.Quantity);
             Reset;
@@ -1054,7 +1054,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(TransferLine.Quantity);
-        TransferLine.OpenItemTrackingLines(0);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
 
         // [WHEN] Create inventory put-away for 90 pcs, define the lot no. = "L" and post it in order to receive the transfer.
@@ -1072,7 +1072,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] The sales order is now reserved from the inventory.
         with ReservationEntry do begin
             Reset;
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
             FindFirst;
             TestField(Quantity, -SalesLine.Quantity);
             Reset;
@@ -1119,7 +1119,7 @@ codeunit 137269 "SCM Transfer Reservation"
         CreateAndReleaseTransferOrder(TransferHeader, TransferLine, LocationSilver.Code, LocationBlue.Code, Item."No.", Qty);
 
         // [GIVEN] The outbound transfer is reserved from the inventory.
-        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", Direction::Outbound);
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
 
         // [WHEN] Create inventory pick for 90 pcs, define the lot no. = "L" on the pick line and post it in order to ship the transfer.
         CreateAndPostInventoryPickFromOutboundTransfer(
@@ -1190,7 +1190,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(TransferLine.Quantity);
-        TransferLine.OpenItemTrackingLines(0);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
 
         // [WHEN] Create inventory pick for 90 pcs post it in order to ship the transfer.
         CreateAndPostInventoryPickFromOutboundTransfer(
@@ -1216,7 +1216,7 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] The sales order is now reserved from the lot-tracked inbound transfer.
         with ReservationEntry do begin
             Reset;
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
             SetRange("Reservation Status", "Reservation Status"::Reservation);
             FindFirst;
             TestField(Quantity, -SalesLine.Quantity);
@@ -1271,7 +1271,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(TrackedQty);
-        TransferLine.OpenItemTrackingLines(0);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
 
         // [GIVEN] Create inventory pick, define lot no. = "L" and "Qty. to Handle" = 161 pcs.
         with WarehouseActivityLine do begin
@@ -1336,7 +1336,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(LotQty);
 
         // [WHEN] Insert item tracking on the purchase line. Lot No. = "L", Quantity = 100.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // [THEN] The item tracking on purchase line is pushed to the inbound transfer (via outbound transfer).
         // [THEN] Lot No. = "L", quantity = 100.
@@ -1441,7 +1441,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         LotQty := LibraryRandom.RandIntInRange(10, 20);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::ChangeLotQty);
@@ -1449,7 +1449,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(LotQty);
 
         // [WHEN] Modify item tracking on the purchase line. New quantity = 20.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // [THEN] The changes in item tracking on purchase line are pushed to the inbound transfer (via outbound transfer).
         // [THEN] Lot No. = "L", quantity = 20.
@@ -1497,14 +1497,14 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         LibraryVariableStorage.Enqueue(ItemTrackingOption::ChangeLotQty);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(0);
 
         // [WHEN] Clear item tracking on the purchase line.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
 
         // [THEN] Item tracking in inbound transfer has been deleted.
         ReservationEntry.SetSourceFilter(
@@ -1617,7 +1617,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, LocationFrom.Code, WorkDate);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignSerialNos);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Create transfer order from location "From" to location "To".
@@ -1761,7 +1761,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10]; ReorderingPolicy: Option; ReplenishmentSystem: Option; TransferFromCode: Code[10])
+    local procedure CreateItemSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10]; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System"; TransferFromCode: Code[10])
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -1861,7 +1861,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         CreateReserveAlwaysItemWithInventoryAndLocationsChain(Item, FromLocation, ToLocation, TransitLocation);
         CreateTransferLineQtyOne(TransferLine, Item."No.", FromLocation.Code, ToLocation.Code, TransitLocation.Code, WorkDate);
-        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", Direction::Outbound);
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
     end;
 
     local procedure CreateTransferLineQtyOne(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; FromLocationCode: Code[10]; ToLocationCode: Code[10]; TransitLocationCode: Code[10]; ReceiptDate: Date)
@@ -1913,7 +1913,7 @@ codeunit 137269 "SCM Transfer Reservation"
         CreateTransferOrderQtyOne(
           TransferHeader, TransferLine, ItemNo, FromLocationCode, ToLocationCode, InTransitLocation.Code, WorkDate);
         LibraryVariableStorage.Enqueue(ItemTrackingOption::SelectEntries);
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
         LibraryInventory.ReleaseTransferOrder(TransferHeader);
     end;
 
@@ -1978,7 +1978,7 @@ codeunit 137269 "SCM Transfer Reservation"
         JobPlanningLine.Modify();
     end;
 
-    local procedure CreateSKUWithPlanningParameters(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Option; TransferFromCode: Code[10]; ReorderingPolicy: Option)
+    local procedure CreateSKUWithPlanningParameters(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System"; TransferFromCode: Code[10]; ReorderingPolicy: Enum "Reordering Policy")
     begin
         Clear(SKU);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, LocationCode, ItemNo, '');
@@ -1992,7 +1992,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SKU.Modify(true);
     end;
 
-    local procedure AutoReserveTransferLine(var TransferLine: Record "Transfer Line"; AvailabilityDate: Date; Direction: Option Outbound,Inbound)
+    local procedure AutoReserveTransferLine(var TransferLine: Record "Transfer Line"; AvailabilityDate: Date; Direction: Enum "Transfer Direction")
     var
         ReservationManagement: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
@@ -2024,7 +2024,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
     local procedure AutoReserveTransferLineInbound(var TransferLine: Record "Transfer Line"; AvailabilityDate: Date)
     begin
-        AutoReserveTransferLine(TransferLine, AvailabilityDate, Direction::Inbound);
+        AutoReserveTransferLine(TransferLine, AvailabilityDate, "Transfer Direction"::Inbound);
     end;
 
     local procedure FindTransferInboundReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; SourceID: Code[20])
@@ -2047,7 +2047,7 @@ codeunit 137269 "SCM Transfer Reservation"
         CreateReserveAlwaysItemWithInventoryAndLocationsChain(Item, FromLocation, ToLocation, TransitLocation);
         CreateTransferOrderQtyOne(
           TransferHeader, TransferLine, Item."No.", FromLocation.Code, ToLocation.Code, TransitLocation.Code, WorkDate);
-        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", Direction::Outbound);
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
     end;
 
     local procedure CreateTransferLineQtyOneReservedOutbound(var TransferLine: Record "Transfer Line")
@@ -2061,7 +2061,7 @@ codeunit 137269 "SCM Transfer Reservation"
         CreateReserveAlwaysItemWithInventoryAndLocationsChain(Item, FromLocation, ToLocation, TransitLocation);
         CreateTransferOrderQtyOne(
           TransferHeader, TransferLine, Item."No.", FromLocation.Code, ToLocation.Code, TransitLocation.Code, WorkDate);
-        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", Direction::Outbound);
+        AutoReserveTransferLine(TransferLine, TransferLine."Shipment Date", "Transfer Direction"::Outbound);
     end;
 
     local procedure CreateReservedDemandQtyOne(ItemNo: Code[20]; LocationCode: Code[10]; ShipmentDate: Date)
@@ -2325,7 +2325,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine.Insert();
     end;
 
-    local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; IsPositive: Boolean; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; Qty: Decimal; ReservationStatus: Option; ShipmentDate: Date)
+    local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; IsPositive: Boolean; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; Qty: Decimal; ReservationStatus: Enum "Reservation Status"; ShipmentDate: Date)
     begin
         ReservationEntry."Item No." := ItemNo;
         ReservationEntry.Positive := IsPositive;

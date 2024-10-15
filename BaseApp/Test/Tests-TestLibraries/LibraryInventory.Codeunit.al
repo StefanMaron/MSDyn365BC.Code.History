@@ -434,7 +434,7 @@ codeunit 132201 "Library - Inventory"
         exit(ItemCharge."No.");
     end;
 
-    procedure CreateItemChargeAssignment(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
+    procedure CreateItemChargeAssignment(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
     var
         ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
         RecRef: RecordRef;
@@ -452,7 +452,7 @@ codeunit 132201 "Library - Inventory"
 
         RecRef.GetTable(ItemChargeAssignmentSales);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentSales.FieldNo("Line No."));
-        ItemChargeAssgntSales.InsertItemChargeAssgnt(ItemChargeAssignmentSales, DocType,
+        ItemChargeAssgntSales.InsertItemChargeAssignment(ItemChargeAssignmentSales, DocType,
           DocNo, DocLineNo, ItemNo, '', LineNo);
 
         ItemChargeAssignmentSales.Get(SalesLine."Document Type", SalesLine."Document No.",
@@ -461,7 +461,7 @@ codeunit 132201 "Library - Inventory"
         ItemChargeAssignmentSales.Modify(true);
     end;
 
-    procedure CreateItemChargeAssignPurchase(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
+    procedure CreateItemChargeAssignPurchase(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
     var
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
         RecRef: RecordRef;
@@ -479,7 +479,8 @@ codeunit 132201 "Library - Inventory"
 
         RecRef.GetTable(ItemChargeAssignmentPurch);
         LineNo := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentPurch.FieldNo("Line No."));
-        ItemChargeAssgntPurch.InsertItemChargeAssgnt(ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo);
+        ItemChargeAssgntPurch.InsertItemChargeAssignment(
+            ItemChargeAssignmentPurch, DocType, DocNo, DocLineNo, ItemNo, '', LineNo);
 
         ItemChargeAssignmentPurch.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", LineNo);
         ItemChargeAssignmentPurch.Validate("Qty. to Assign", PurchaseLine.Quantity);
@@ -505,7 +506,7 @@ codeunit 132201 "Library - Inventory"
         ItemCrossReference.Insert(true);
     end;
 
-    procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order"; ProductionOrderNo: Code[20])
+    procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Enum "Item Journal Template Type"; ProductionOrderNo: Code[20])
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -536,7 +537,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalTemplate.Insert(true);
     end;
 
-    procedure CreateItemJournalTemplateByType(var ItemJournalTemplate: Record "Item Journal Template"; TemplateType: Option)
+    procedure CreateItemJournalTemplateByType(var ItemJournalTemplate: Record "Item Journal Template"; TemplateType: Enum "Item Journal Template Type")
     begin
         CreateItemJournalTemplate(ItemJournalTemplate);
         ItemJournalTemplate.Validate(Type, TemplateType);
@@ -554,7 +555,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalBatch.Insert(true);
     end;
 
-    procedure CreateItemJournalBatchByType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    procedure CreateItemJournalBatchByType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -565,7 +566,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalBatch.Insert(true);
     end;
 
-    procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Text[20]; NewQuantity: Decimal)
+    procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Text[20]; NewQuantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
@@ -597,7 +598,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine.Modify(true);
     end;
 
-    procedure CreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option)
+    procedure CreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Entry Type")
     var
         NoSeries: Record "No. Series";
         NoSeriesManagement: Codeunit NoSeriesManagement;
@@ -620,7 +621,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine.Validate("Document No.", DocumentNo);
         ItemJournalLine.Modify(true);
 
-        OnAfterCreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatch, JournalTemplateName, JournalBatchName, EntryType);
+        OnAfterCreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatch, JournalTemplateName, JournalBatchName, EntryType.AsInteger());
     end;
 
     procedure CreateItemManufacturing(var Item: Record Item): Code[20]
@@ -1058,7 +1059,7 @@ codeunit 132201 "Library - Inventory"
         end;
     end;
 
-    procedure MakeItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; PostingDate: Date; EntryType: Option; Quantity: Decimal)
+    procedure MakeItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; Item: Record Item; PostingDate: Date; EntryType: Enum "Item Ledger Entry Type"; Quantity: Decimal)
     var
         RecRef: RecordRef;
     begin
@@ -1154,7 +1155,7 @@ codeunit 132201 "Library - Inventory"
         if not SaveAsStandardGenJournal.GetStdGeneralJournal(StandardGeneralJournal) then;
     end;
 
-    procedure SelectItemJournalTemplateName(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Option)
+    procedure SelectItemJournalTemplateName(var ItemJournalTemplate: Record "Item Journal Template"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     begin
         // Find Item Journal Template for the given Template Type.
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplateType);
@@ -1163,7 +1164,7 @@ codeunit 132201 "Library - Inventory"
             CreateItemJournalTemplateByType(ItemJournalTemplate, ItemJournalTemplateType);
     end;
 
-    procedure SelectItemJournalBatchName(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalBatchTemplateType: Option; ItemJournalTemplateName: Code[10])
+    procedure SelectItemJournalBatchName(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalBatchTemplateType: Enum "Item Journal Template Type"; ItemJournalTemplateName: Code[10])
     begin
         // Find Name for Batch Name.
         ItemJournalBatch.SetRange("Template Type", ItemJournalBatchTemplateType);

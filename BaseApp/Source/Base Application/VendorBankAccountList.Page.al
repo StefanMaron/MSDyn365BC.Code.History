@@ -156,6 +156,13 @@ page 426 "Vendor Bank Account List"
         Vendor.Get("Vendor No.");
     end;
 
+    trigger OnOpenPage()
+    var
+        MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
+    begin
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
+    end;
+
     var
         Vendor: Record Vendor;
 }

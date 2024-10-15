@@ -2069,7 +2069,7 @@ codeunit 137101 "SCM Kitting"
         ComponentItem: Record Item;
         ItemLedgerEntry: Record "Item Ledger Entry";
         AssemblyItemNo: Code[20];
-        EntryType: Option;
+        EntryType: Enum "Item Ledger Document Type";
     begin
         // Test and verify Applies-to Entry is correct on Item Ledger Entry after posting Item Journal that apply to undone Assembly Consumption Line from ILE page.
 
@@ -2625,7 +2625,7 @@ codeunit 137101 "SCM Kitting"
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         if Reserve then
-            SalesLine.ShowReservation;
+            SalesLine.ShowReservation();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as SHIP and INVOICE.
     end;
 
@@ -2707,7 +2707,7 @@ codeunit 137101 "SCM Kitting"
           BOMComponent."Resource Usage Type", LibraryRandom.RandInt(5), true);
     end;
 
-    local procedure CreateAssemblyItemSetup(var AssemblyItem: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; var Resource: Record Resource; AsmItemCostingMethod: Option; ComponentItemCostingMethod: Option) Quantity: Decimal
+    local procedure CreateAssemblyItemSetup(var AssemblyItem: Record Item; var ItemUnitOfMeasure: Record "Item Unit of Measure"; var Resource: Record Resource; AsmItemCostingMethod: Enum "Costing Method"; ComponentItemCostingMethod: Enum "Costing Method") Quantity: Decimal
     var
         BOMComponent: Record "BOM Component";
         ComponentItem: Record Item;
@@ -2835,7 +2835,7 @@ codeunit 137101 "SCM Kitting"
           BOMComponent, Item."No.", BOMComponent.Type::Resource, Resource."No.", 1, Resource."Base Unit of Measure");
     end;
 
-    local procedure CreateItemWithDimension(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItemWithDimension(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     var
         AssemblyLine: Record "Assembly Line";
     begin
@@ -2863,7 +2863,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.CreateItem(
           Item2, Item2."Costing Method"::Standard, Item2."Replenishment System"::Purchase, Item."Gen. Prod. Posting Group",
           Item."Inventory Posting Group");
-        LibraryCosting.CreateSalesPrice(SalesPrice, SalesPrice."Sales Type"::"All Customers", '', Item2."No.", 0D, '', '', '', 0);  // Use 0D for Starting Date and 0 for Minimum Quantity.
+        LibraryCosting.CreateSalesPrice(SalesPrice, "Sales Price Type"::"All Customers", '', Item2."No.", 0D, '', '', '', 0);  // Use 0D for Starting Date and 0 for Minimum Quantity.
         SalesPrice.Validate("Unit Price", Item2."Unit Price" + LibraryRandom.RandDec(100, 2));  // Use Different Sales Price.
         SalesPrice.Modify(true);
     end;
@@ -2915,7 +2915,7 @@ codeunit 137101 "SCM Kitting"
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(Item."No.", Qty, '');
         CreateSalesOrder(SalesLine, '', Item."No.", PartialQty);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
     end;
 
     local procedure CreateSalesLineWithBin(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; BinCode: Code[20]; Quantity: Decimal)
@@ -3020,7 +3020,7 @@ codeunit 137101 "SCM Kitting"
           BOMComponent."Resource Usage Type", LibraryRandom.RandInt(5), UseBaseUnitOfMeasure); // Use Base Unit of Measure as True and Variant Code as blank.
     end;
 
-    local procedure CreateAndUpdateItem(var Item: Record Item; ReplenishmentSystem: Option; CostingMethod: Option; StandardCost: Decimal)
+    local procedure CreateAndUpdateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; CostingMethod: Enum "Costing Method"; StandardCost: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         with Item do begin
@@ -3031,7 +3031,7 @@ codeunit 137101 "SCM Kitting"
         end;
     end;
 
-    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitofMeasure: Code[10]; ProductionBOMLineType: Option " ",Item,"Production BOM"; CompItemNo: Code[20]; QuantityPer: Decimal)
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitofMeasure: Code[10]; ProductionBOMLineType: Enum "Production BOM Line Type"; CompItemNo: Code[20]; QuantityPer: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -3042,7 +3042,7 @@ codeunit 137101 "SCM Kitting"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateCertifiedProductionBOMAndUpdateItem(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; ProductionBOMLineType: Option " ",Item,"Production BOM"; CompItemNo: Code[20]; QuantityPer: Decimal)
+    local procedure CreateCertifiedProductionBOMAndUpdateItem(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; ProductionBOMLineType: Enum "Production BOM Line Type"; CompItemNo: Code[20]; QuantityPer: Decimal)
     var
         Item: Record Item;
     begin
@@ -3076,7 +3076,7 @@ codeunit 137101 "SCM Kitting"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure CreateSalesOrderWithAssemblyItemAndUndoSalesShipment(var SalesLine: Record "Sales Line"; CostingMethod: Option; AutoAdjust: Boolean)
+    local procedure CreateSalesOrderWithAssemblyItemAndUndoSalesShipment(var SalesLine: Record "Sales Line"; CostingMethod: Enum "Costing Method"; AutoAdjust: Boolean)
     var
         ItemAssembled: Record Item;
     begin
@@ -3100,7 +3100,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.AddCompInventory(AssemblyHeader, AssemblyHeader."Posting Date", LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -3129,7 +3129,7 @@ codeunit 137101 "SCM Kitting"
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
     end;
 
-    local procedure CreateAndPostItemJournalApplToEntry(var EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJournalApplToEntry(var EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Qty: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -3145,7 +3145,7 @@ codeunit 137101 "SCM Kitting"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure DeleteAssemblyCommentLine(DocumentType: Option; DocumentNo: Code[20])
+    local procedure DeleteAssemblyCommentLine(DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
     var
         AssemblyCommentLine: Record "Assembly Comment Line";
     begin
@@ -3218,39 +3218,39 @@ codeunit 137101 "SCM Kitting"
         PostedAssemblyLine.FindFirst;
     end;
 
-    local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Option; ItemNo: Code[20])
+    local procedure FindAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; DocumentType: Enum "Assembly Document Type"; ItemNo: Code[20])
     begin
         AssemblyHeader.SetRange("Document Type", DocumentType);
         AssemblyHeader.SetRange("Item No.", ItemNo);
         AssemblyHeader.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         FilterOnItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         FilterOnItemLedgerEntry(ItemLedgerEntry, EntryType, ItemNo);
         ItemLedgerEntry.FindLast;
     end;
 
-    local procedure FilterOnItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])
+    local procedure FilterOnItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
     end;
 
-    local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ItemJournalLine.SetRange("Entry Type", EntryType);
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.FindFirst;
     end;
 
-    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentType: Option; ItemNo: Code[20])
+    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ValueEntry.SetRange("Document Type", DocumentType);
         ValueEntry.SetRange("Item No.", ItemNo);
@@ -3327,7 +3327,7 @@ codeunit 137101 "SCM Kitting"
           AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ParentItem."No.", '', LibraryRandom.RandInt(5), '');
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, SupplyQty); // Add Inventory = AssemblyLine.Quantity + SupplyQty for Component.
         FindAssemblyOrderLine(AssemblyLine, AssemblyHeader."No.", ChildItem."No.");
-        AssemblyLine.ShowReservation;
+        AssemblyLine.ShowReservation();
 
         CreatePurchaseOrderWithReceiptDate(PurchaseLine, ChildItem."No.", LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(AssemblyLine.Quantity); // Enqueue value to verify Gross Requirement.
@@ -3392,7 +3392,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; DocumentNo: Code[20]; Ship: Boolean; Invoice: Boolean): Code[20]
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Ship: Boolean; Invoice: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -3571,7 +3571,7 @@ codeunit 137101 "SCM Kitting"
         Item.Modify(true);
     end;
 
-    local procedure UpdatePostingDateOnSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure UpdatePostingDateOnSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; PostingDate: Date)
     begin
         SalesHeader.Get(DocumentType, DocumentNo);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -3887,7 +3887,7 @@ codeunit 137101 "SCM Kitting"
         ItemLedgerEntry.TestField("Global Dimension 2 Code", DimensionValueCode2);
     end;
 
-    local procedure VerifyInvoicedQtyOnItemLedgerEntry(EntryType: Option; ItemNo: Code[20]; InvoicedQty: Decimal)
+    local procedure VerifyInvoicedQtyOnItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; InvoicedQty: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3937,7 +3937,7 @@ codeunit 137101 "SCM Kitting"
         end;
     end;
 
-    local procedure VerifyPostingDateOnItemLedgerEntry(EntryType: Option; ItemNo: Code[20]; PostingDate: Date)
+    local procedure VerifyPostingDateOnItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; PostingDate: Date)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3945,7 +3945,7 @@ codeunit 137101 "SCM Kitting"
         ItemLedgerEntry.TestField("Posting Date", PostingDate);
     end;
 
-    local procedure VerifyCostAmountActualInILE(EntryType: Option; ItemNo: Code[20]; CostAmountActual: Decimal)
+    local procedure VerifyCostAmountActualInILE(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; CostAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3965,7 +3965,7 @@ codeunit 137101 "SCM Kitting"
         VerifyCostAmountActualInILE(ItemLedgerEntry."Entry Type"::Sale, ItemNo, -CostAmountActual);
     end;
 
-    local procedure VerifyCostAmountInLastILE(EntryType: Option; ItemNo: Code[20]; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyCostAmountInLastILE(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; CostAmountExpected: Decimal; CostAmountActual: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -3975,7 +3975,7 @@ codeunit 137101 "SCM Kitting"
         ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
 
-    local procedure VerifyOrderTypeOnItemJournalLine(EntryType: Option; ItemNo: Code[20]; OrderType: Option)
+    local procedure VerifyOrderTypeOnItemJournalLine(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; OrderType: Enum "Inventory Order Type")
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -3983,7 +3983,7 @@ codeunit 137101 "SCM Kitting"
         ItemJournalLine.TestField("Order Type", OrderType);
     end;
 
-    local procedure VerifyApplToEntryOnILE(EntryType: Option; ItemNo: Code[20]; ApplToEntry: Integer)
+    local procedure VerifyApplToEntryOnILE(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; ApplToEntry: Integer)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

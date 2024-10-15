@@ -172,9 +172,9 @@ page 9076 "Sales & Relationship Mgr. Act."
 
     trigger OnOpenPage()
     var
-        CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         Reset;
         if not Get then begin
@@ -186,7 +186,7 @@ page 9076 "Sales & Relationship Mgr. Act."
         SetFilter("Overdue Date Filter", '<>%1&..%2', 0D, WorkDate - 1);
         ShowIntelligentCloud := not EnvironmentInfo.IsSaaS;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
+        ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
         ShowIntegrationErrorsCue := ShowDataIntegrationCues and (not ShowD365SIntegrationCues);
     end;
 

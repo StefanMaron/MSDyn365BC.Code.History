@@ -14,6 +14,10 @@ page 9014 "Job Resource Manager RC"
                 {
                     ApplicationArea = Jobs;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
                 part(Control1907692008; "My Customers")
                 {
                     ApplicationArea = Jobs;
@@ -195,6 +199,9 @@ page 9014 "Job Resource Manager RC"
                     Caption = 'Resource Costs';
                     RunObject = Page "Resource Costs";
                     ToolTip = 'View or edit alternate costs for resources. Resource costs can apply to all resources, to resource groups or to individual resources. They can also be filtered so that they apply only to a specific work type code. For example, if an employee has a different hourly rate for overtime work, you can set up a resource cost for this work type.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Resource Prices")
                 {
@@ -202,6 +209,9 @@ page 9014 "Job Resource Manager RC"
                     Caption = 'Resource Prices';
                     RunObject = Page "Resource Prices";
                     ToolTip = 'View the prices of resources.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
                 }
                 action("Resource Service Zones")
                 {
@@ -250,6 +260,9 @@ page 9014 "Job Resource Manager RC"
                 Image = ResourcePrice;
                 RunObject = Page "Resource Price Changes";
                 ToolTip = 'Edit or update alternate resource prices, by running either the Suggest Res. Price Chg. (Res.) batch job or the Suggest Res. Price Chg. (Price) batch job.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("Resource Pr&ice Chg from Resource")
             {
@@ -258,6 +271,9 @@ page 9014 "Job Resource Manager RC"
                 Image = "Report";
                 RunObject = Report "Suggest Res. Price Chg. (Res.)";
                 ToolTip = 'Update the alternate prices in the Resource Prices window with the ones in the Resource Price Change s window.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("Resource Pri&ce Chg from Prices")
             {
@@ -266,6 +282,9 @@ page 9014 "Job Resource Manager RC"
                 Image = "Report";
                 RunObject = Report "Suggest Res. Price Chg.(Price)";
                 ToolTip = 'Update the alternate prices in the Resource Prices window with the ones in the Resource Price Change s window.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("I&mplement Resource Price Changes")
             {
@@ -274,6 +293,9 @@ page 9014 "Job Resource Manager RC"
                 Image = ImplementPriceChange;
                 RunObject = Report "Implement Res. Price Change";
                 ToolTip = 'Update the alternate prices in the Resource Prices window with the ones in the Resource Price Changes window. Price change suggestions can be created with the Suggest Res. Price Chg.(Price) or the Suggest Res. Price Chg. (Res.) batch job. You can also modify the price change suggestions in the Resource Price Changes window before you implement them.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
             }
             action("Create Time Sheets")
             {

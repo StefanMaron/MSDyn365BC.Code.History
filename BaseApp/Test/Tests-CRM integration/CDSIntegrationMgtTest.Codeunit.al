@@ -18,7 +18,7 @@ codeunit 139195 "CDS Integration Mgt Test"
         IsInitialized: Boolean;
         BaseSolutionUniqueNameTxt: Label 'bcbi_CdsBaseIntegration', Locked = true;
         BusinessUnitAlreadyCoupledErr: Label 'The coupling Common Data Service Business Unit is coupled to another BC Company.';
-        ConnectionRequiredFieldsErr: Label 'A URL, user name and password are required.';
+        ConnectionRequiredFieldsErr: Label 'A URL is required.';
         AdminUserPasswordWrongErr: Label 'Enter valid administrator credentials.';
         EmptyUserNameErr: Label 'Enter user name.';
         EmptyPasswordErr: Label 'Enter password.';

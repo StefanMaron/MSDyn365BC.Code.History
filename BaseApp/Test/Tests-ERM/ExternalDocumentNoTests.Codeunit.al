@@ -253,7 +253,7 @@ codeunit 134345 "External Document No. Tests"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocInNextFY(var PurchaseHeader: Record "Purchase Header"; DocType: Option; VendNo: Code[20]; GLAccNo: Code[20]; ExtDocNo: Text; PrepmtPct: Decimal)
+    local procedure CreatePurchDocInNextFY(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; GLAccNo: Code[20]; ExtDocNo: Text; PrepmtPct: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

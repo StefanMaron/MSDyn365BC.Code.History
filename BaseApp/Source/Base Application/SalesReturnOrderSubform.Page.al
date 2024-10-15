@@ -1,4 +1,4 @@
-page 6631 "Sales Return Order Subform"
+﻿page 6631 "Sales Return Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -25,12 +25,12 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        SetLocationCodeMandatory;
+                        NoOnAfterValidate();
+                        SetLocationCodeMandatory();
 
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -45,13 +45,13 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type);
+                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -62,13 +62,13 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         ShowShortcutDimCode(ShortcutDimCode);
 
-                        QuantityOnAfterValidate;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        QuantityOnAfterValidate();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -76,20 +76,46 @@ page 6631 "Sales Return Order Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '17.0';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        CrossReferenceNoLookUp();
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
+                    end;
+                }
+                field("Item Reference No."; "Item Reference No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ItemReferenceMgt: Codeunit "Item Reference Management";
+                    begin
+                        ItemReferenceMgt.SalesReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        OnCrossReferenceNoOnLookup(Rec);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("IC Partner Ref. Type"; "IC Partner Ref. Type")
@@ -112,7 +138,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Nonstock; Nonstock)
@@ -129,7 +155,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -141,15 +167,15 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateEditableOnRow;
+                        UpdateEditableOnRow();
 
                         if "No." = xRec."No." then
                             exit;
 
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                         ShowShortcutDimCode(ShortcutDimCode);
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Return Reason Code"; "Return Reason Code")
@@ -169,8 +195,8 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        LocationCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -187,7 +213,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        ReserveOnAfterValidate;
+                        ReserveOnAfterValidate();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -201,8 +227,8 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
-                        DeltaUpdateTotals;
+                        QuantityOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Reserved Quantity"; ReverseReservedQtySign)
@@ -232,8 +258,8 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
-                        DeltaUpdateTotals;
+                        UnitofMeasureCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -259,7 +285,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Liable"; "Tax Liable")
@@ -277,7 +303,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -288,7 +314,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount %"; "Line Discount %")
@@ -301,7 +327,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -315,7 +341,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount Amount"; "Line Discount Amount")
@@ -326,7 +352,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
@@ -340,8 +366,8 @@ page 6631 "Sales Return Order Subform"
                         CurrPage.SaveRecord;
                         AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                         InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                        ValidateInvoiceDiscountAmount;
-                        DeltaUpdateTotals;
+                        ValidateInvoiceDiscountAmount();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Inv. Discount Amount"; "Inv. Discount Amount")
@@ -352,7 +378,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Return Qty. to Receive"; "Return Qty. to Receive")
@@ -395,7 +421,7 @@ page 6631 "Sales Return Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -409,7 +435,7 @@ page 6631 "Sales Return Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -676,8 +702,8 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
-                            ValidateInvoiceDiscountAmount;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                     field("Invoice Disc. Pct."; InvoiceDiscountPct)
@@ -690,10 +716,10 @@ page 6631 "Sales Return Order Subform"
 
                         trigger OnValidate()
                         begin
-                            DocumentTotals.SalesDocTotalsNotUpToDate;
+                            DocumentTotals.SalesDocTotalsNotUpToDate();
                             AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                             InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                            ValidateInvoiceDiscountAmount;
+                            ValidateInvoiceDiscountAmount();
                         end;
                     }
                 }
@@ -781,7 +807,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        PageShowReservation;
+                        PageShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -794,7 +820,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -880,7 +906,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -892,7 +918,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowLineComments;
+                        ShowLineComments();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -906,8 +932,8 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ItemChargeAssgnt;
-                        SetItemChargeFieldsStyle;
+                        ItemChargeAssgnt();
+                        SetItemChargeFieldsStyle();
                     end;
                 }
                 action(ItemTrackingLines)
@@ -921,7 +947,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action(DocumentLineTracking)
@@ -933,7 +959,7 @@ page 6631 "Sales Return Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDocumentLineTracking;
+                        ShowDocumentLineTracking();
                     end;
                 }
                 action(DeferralSchedule)
@@ -950,8 +976,9 @@ page 6631 "Sales Return Order Subform"
                     begin
                         if ShowDeferrals("Posting Date", "Currency Code") then begin
                             "Returns Deferral Start Date" :=
-                              DeferralUtilities.GetDeferralStartDate(DeferralUtilities.GetSalesDeferralDocType, "Document Type",
-                                "Document No.", "Line No.", "Deferral Code", "Posting Date");
+                                DeferralUtilities.GetDeferralStartDate(
+                                    "Deferral Document Type"::Sales.AsInteger(), "Document Type".AsInteger(),
+                                    "Document No.", "Line No.", "Deferral Code", "Posting Date");
                             CurrPage.SaveRecord;
                         end;
                     end;
@@ -970,7 +997,7 @@ page 6631 "Sales Return Order Subform"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -981,18 +1008,18 @@ page 6631 "Sales Return Order Subform"
     begin
         GetTotalSalesHeader;
         CalculateTotals;
-        SetLocationCodeMandatory;
-        UpdateEditableOnRow;
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        SetLocationCodeMandatory();
+        UpdateEditableOnRow();
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
         UpdateCurrency;
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
-        SetItemChargeFieldsStyle;
+        UpdateTypeText();
+        SetItemChargeFieldsStyle();
         DescriptionIndent := 0;
         DescriptionOnFormat;
         LineAmountOnFormat;
@@ -1008,7 +1035,7 @@ page 6631 "Sales Return Order Subform"
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
         end;
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -1041,7 +1068,7 @@ page 6631 "Sales Return Order Subform"
             if xRec."Document No." = '' then
                 Type := Type::Item;
         Clear(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()
@@ -1051,7 +1078,8 @@ page 6631 "Sales Return Order Subform"
         if Location.ReadPermission then
             LocationCodeVisible := not Location.IsEmpty;
 
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
@@ -1069,7 +1097,6 @@ page 6631 "Sales Return Order Subform"
         AmountWithDiscountAllowed: Decimal;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
-        ShortcutDimCode: array[8] of Code[20];
         LocationCodeMandatory: Boolean;
         InvDiscAmountEditable: Boolean;
         TypeAsText: Text[30];
@@ -1079,6 +1106,11 @@ page 6631 "Sales Return Order Subform"
         LocationCodeVisible: Boolean;
         DescriptionIndent: Integer;
         CurrPageIsEditable: Boolean;
+		[InDataSet]
+        ItemReferenceVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1087,15 +1119,13 @@ page 6631 "Sales Return Order Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-
-    protected var
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Disc. (Yes/No)", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1104,20 +1134,25 @@ page 6631 "Sales Return Order Subform"
     begin
         SalesHeader.Get("Document Type", "Document No.");
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);
     end;
 
     procedure CalcInvDisc()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     local procedure ExplodeBOM()
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Explode BOM", Rec);
-        DocumentTotals.SalesDocTotalsNotUpToDate;
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
+    procedure SalesDocTotalsNotUpToDate()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -1141,7 +1176,7 @@ page 6631 "Sales Return Order Subform"
     local procedure PageShowReservation()
     begin
         Find;
-        ShowReservation;
+        ShowReservation();
     end;
 
     local procedure ShowTracking()
@@ -1149,12 +1184,12 @@ page 6631 "Sales Return Order Subform"
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetSalesLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     local procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt;
+        ShowItemChargeAssgnt();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)
@@ -1168,10 +1203,10 @@ page 6631 "Sales Return Order Subform"
     begin
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(8, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
-    local procedure NoOnAfterValidate()
+    procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
@@ -1182,56 +1217,56 @@ page 6631 "Sales Return Order Subform"
         OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
-    local procedure LocationCodeOnAfterValidate()
+    protected procedure LocationCodeOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
            ("Location Code" <> xRec."Location Code")
         then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure ReserveOnAfterValidate()
+    protected procedure ReserveOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and ("Outstanding Qty. (Base)" <> 0) then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
-    local procedure QuantityOnAfterValidate()
+    protected procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end;
 
         OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
 
-    local procedure ShipmentDateOnAfterValidate()
+    protected procedure ShipmentDateOnAfterValidate()
     begin
         if (Reserve = Reserve::Always) and
            ("Outstanding Qty. (Base)" <> 0) and
            ("Shipment Date" <> xRec."Shipment Date")
         then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
             CurrPage.Update(false);
         end else
             CurrPage.Update(true);
     end;
 
-    local procedure UnitofMeasureCodeOnAfterValida()
+    protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord;
-            AutoReserve;
+            AutoReserve();
         end;
     end;
 
@@ -1267,7 +1302,7 @@ page 6631 "Sales Return Order Subform"
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
-            SendLineInvoiceDiscountResetNotification;
+            SendLineInvoiceDiscountResetNotification();
     end;
 
     local procedure ReverseReservedQtySign(): Decimal
@@ -1325,6 +1360,13 @@ page 6631 "Sales Return Order Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReferenceMgt: Codeunit "Item Reference Management";
+    begin
+        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     local procedure UpdateCurrency()

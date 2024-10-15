@@ -44,7 +44,7 @@ page 7115 "Inventory Analysis Lines"
 
                     trigger OnValidate()
                     begin
-                        RowRefNoOnAfterValidate;
+                        RowRefNoOnAfterValidate();
                     end;
                 }
                 field(Description; Description)

@@ -306,7 +306,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         end;
     end;
 
-    local procedure CreateDetailedCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Option; DocumentType: Option; CustLedgerEntryNo: Integer)
+    local procedure CreateDetailedCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; CustLedgerEntryNo: Integer)
     var
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -369,7 +369,7 @@ codeunit 142071 "UT REP GERREPORTS - II"
         end;
     end;
 
-    local procedure CreateDetailedVendorLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Option; DocumentType: Option; VendorLedgerEntryNo: Integer)
+    local procedure CreateDetailedVendorLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; AmountLCY: Decimal; DebitAmountLCY: Decimal; CreditAmountLCY: Decimal; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; VendorLedgerEntryNo: Integer)
     var
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin

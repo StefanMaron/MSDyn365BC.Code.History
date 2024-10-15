@@ -106,13 +106,14 @@ codeunit 5513 "Graph Mgt - Time Registration"
         TimeSheetDetail."Dimension Set ID" := DimensionSetID;
 
         if Job.GetBySystemId(JobID) then begin
-            TimeSheetDetail."Job Id" := Job.Id;
+            TimeSheetDetail."Job Id" := Job.SystemId;
             TimeSheetDetail."Job No." := Job."No.";
         end;
 
         TimeSheetDetail.Insert(true);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     [Scope('OnPrem')]
     procedure UpdateIntegrationRecords(OnlyTimeSheetDetailsWithoutId: Boolean)
     var

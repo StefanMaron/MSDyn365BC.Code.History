@@ -22,7 +22,7 @@ page 941 "Blanket Assembly Order Subform"
 
                     trigger OnDrillDown()
                     begin
-                        ShowAvailabilityWarning;
+                        ShowAvailabilityWarningPage();
                     end;
                 }
                 field(Type; Type)
@@ -354,7 +354,7 @@ page 941 "Blanket Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Comments)
@@ -432,6 +432,8 @@ page 941 "Blanket Assembly Order Subform"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

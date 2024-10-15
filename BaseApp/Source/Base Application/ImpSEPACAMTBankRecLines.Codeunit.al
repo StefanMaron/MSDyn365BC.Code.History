@@ -12,9 +12,9 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         InitBalTypeDescriptor;
         DataExch.Get("Data Exch. Entry No.");
         RecRef.GetTable(Rec);
-        PreProcess(Rec);
+        RunPreProcess(Rec);
         ProcessDataExch.ProcessAllLinesColumnMapping(DataExch, RecRef);
-        PostProcess(Rec)
+        RunPostProcess(Rec);
     end;
 
     var
@@ -42,7 +42,7 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
         CrdDbtIndNodeText: Text;
         BalTypeDescriptorText: Text;
 
-    local procedure PreProcess(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    procedure RunPreProcess(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         DataExch: Record "Data Exch.";
         PrePostProcessXMLImport: Codeunit "Pre & Post Process XML Import";
@@ -59,7 +59,7 @@ codeunit 1261 "Imp. SEPA CAMT Bank Rec. Lines"
           DataExch, BankAccReconciliationLine."Bank Account No.", IBANNodeText, BankIDNodeText, CurrencyNodeText);
     end;
 
-    local procedure PostProcess(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    procedure RunPostProcess(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     var
         DataExch: Record "Data Exch.";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";

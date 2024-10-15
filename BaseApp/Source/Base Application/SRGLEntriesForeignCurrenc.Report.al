@@ -185,7 +185,7 @@ report 11521 "SR G/L Entries Foreign Currenc"
 
                         trigger OnValidate()
                         begin
-                            FromGlRegisterNoOnAfterValidate;
+                            FromGlRegisterNoOnAfterValidate();
                         end;
                     }
                     field("ToGlRegister.""No."""; ToGlRegister."No.")
