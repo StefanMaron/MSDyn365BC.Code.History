@@ -24,6 +24,7 @@
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
         GLEntryAmountErr: Label 'Amount must be same.';
         SpecifyInvNoSerieErr: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment invoices.';
@@ -3969,6 +3970,78 @@
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCancelledInvoiceAmountAndPostedCreditMemoAmountShouldMatch()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 477378] Verify that the cancelled invoice amount and posted credit memo should match in the case of prepayment.
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesDocument(SalesHeader, SalesLine, LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Update the Prepayment % in Sales Header.
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(50, 50));
+        SalesHeader.Modify();
+
+        // [GIVEN] Post the prepayment invoice, payment and apply Payment to the prepayment invoice.
+        PostPaymentToInvoice(
+            "Gen. Journal Account Type"::Customer,
+            SalesHeader."Sell-to Customer No.",
+            LibrarySales.PostSalesPrepaymentInvoice(SalesHeader),
+            -GetSalesPrepaymentInvoiceAmount(SalesHeader));
+
+        // [GIVEN] Change the status to Released in the Sales Header.
+        PrepaymentMgt.UpdatePendingPrepaymentSales();
+
+        // [GIVEN] Post partial Shipment.
+        FindSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create a Sales Header and Sales Line from Posted Shipment Line.
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        GetShipmentLines(SalesHeader, SalesHeader2);
+
+        // [GIVEN] Post a Sales Invoice.
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader2, true, true));
+
+        // [GIVEN] Update General Posting Setup.
+        GeneralPostingSetup.Get(SalesInvoiceHeader."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
+        GeneralPostingSetup.Modify();
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [WHEN] Post Cancelled Invoice.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [VERIFY] Verify that the cancelled invoice amount and posted credit memo should match.
+        SalesCrMemoHeader.CalcFields("Amount Including VAT");
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.FindFirst();
+        Assert.AreEqual(
+            SalesInvoiceHeader."Amount Including VAT",
+            SalesCrMemoHeader."Amount Including VAT",
+            StrSubstNo(
+                AmountErr,
+                SalesCrMemoHeader.FieldCaption("Amount Including VAT"),
+                SalesCrMemoHeader."Amount Including VAT",
+                SalesCrMemoHeader.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6402,6 +6475,28 @@
         SalesInvoiceLine.CalcSums("Amount Including VAT");
 
         exit(SalesInvoiceLine."Amount Including VAT");
+    end;
+
+    local procedure PostPaymentToInvoice(
+        AccountType: Enum "Gen. Journal Account Type";
+        AccountNo: Code[20];
+        DocumentNo: Code[20];
+        Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            AccountType,
+            AccountNo,
+            Amount);
+
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [ConfirmHandler]

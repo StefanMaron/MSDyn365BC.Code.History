@@ -1128,8 +1128,10 @@ table 5600 "Fixed Asset"
             FASetup.TestField("Future Depr. Book");
             exit(FASetup."Future Depr. Book");
         end;
-        FASetup.TestField("Default Depr. Book");
-        exit(FASetup."Default Depr. Book");
+        if FASetup."Default Depr. Book" <> '' then
+            exit(FASetup."Default Depr. Book")
+        else
+            exit('');
     end;
 
     procedure FieldsForAcquitionInGeneralGroupAreCompleted(): Boolean
