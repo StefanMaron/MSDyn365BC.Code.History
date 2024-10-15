@@ -96,6 +96,7 @@ table 36 "Sales Header"
                 LocationCode: Code[10];
                 ShouldSkipConfirmSellToCustomerDialog: Boolean;
                 IsHandled: Boolean;
+                ConfirmedShouldBeFalse: Boolean;
             begin
                 CheckCreditLimitIfLineNotInsertedYet();
                 if "No." = '' then
@@ -119,9 +120,10 @@ table 36 "Sales Header"
                           "Document Type");
 
                     ShouldSkipConfirmSellToCustomerDialog := GetHideValidationDialog() or not GuiAllowed();
-                    OnValidateSellToCustomerNoOnAfterCalcShouldSkipConfirmSellToCustomerDialog(Rec, ShouldSkipConfirmSellToCustomerDialog);
+                    ConfirmedShouldBeFalse := false;
+                    OnValidateSellToCustomerNoOnAfterCalcShouldSkipConfirmSellToCustomerDialog(Rec, ShouldSkipConfirmSellToCustomerDialog, ConfirmedShouldBeFalse);
                     if ShouldSkipConfirmSellToCustomerDialog then
-                        Confirmed := true
+                        Confirmed := true and not ConfirmedShouldBeFalse
                     else
                         Confirmed := Confirm(ConfirmChangeQst, false, SellToCustomerTxt);
                     if Confirmed then begin
@@ -1488,7 +1490,7 @@ table 36 "Sales Header"
         }
         field(86; "Bill-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+            CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
 
             trigger OnValidate()
@@ -1546,7 +1548,7 @@ table 36 "Sales Header"
         }
         field(89; "Sell-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Sell-to Country/Region Code";
+            CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
 
             trigger OnValidate()
@@ -1601,7 +1603,7 @@ table 36 "Sales Header"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
@@ -3922,11 +3924,12 @@ table 36 "Sales Header"
     procedure SalesLinesExist(): Boolean
     var
         IsHandled: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesLinesExist(Rec, IsHandled);
+        OnBeforeSalesLinesExist(Rec, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
@@ -4650,9 +4653,15 @@ table 36 "Sales Header"
     var
         Cont: Record Contact;
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled, Result: Boolean;
     begin
         if ("Bill-to Customer No." <> '') and ("Sell-to Customer No." <> '') then
             exit(true);
+
+        IsHandled := false;
+        OnCheckCustomerCreatedOnBeforeConfirmProcess(Rec, Prompt, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if Prompt then
             if not ConfirmManagement.GetResponseOrDefault(Text035, true) then
@@ -6348,6 +6357,7 @@ table 36 "Sales Header"
     local procedure CreateSalesLine(var TempSalesLine: Record "Sales Line" temporary)
     var
         IsHandled: Boolean;
+        ShouldValidateQuantity: Boolean;
     begin
         OnBeforeCreateSalesLine(TempSalesLine, IsHandled, Rec, SalesLine);
         if IsHandled then
@@ -6356,6 +6366,8 @@ table 36 "Sales Header"
         SalesLine.Init();
         SalesLine."Line No." := SalesLine."Line No." + 10000;
         SalesLine."Price Calculation Method" := "Price Calculation Method";
+
+        OnCreateSalesLineOnBeforeAssignType(SalesLine, TempSalesLine, Rec);
         SalesLine.Validate(Type, TempSalesLine.Type);
         OnCreateSalesLineOnAfterAssignType(SalesLine, TempSalesLine);
         if TempSalesLine."No." = '' then begin
@@ -6363,20 +6375,31 @@ table 36 "Sales Header"
             SalesLine."Description 2" := TempSalesLine."Description 2";
         end else begin
             SalesLine.Validate("No.", TempSalesLine."No.");
+            OnCreateSalesLineOnAfterValidateNo(SalesLine, TempSalesLine);
+
             if SalesLine.Type <> SalesLine.Type::" " then begin
                 OnCreateSalesLineOnBeforeTransferFieldsFromTempSalesLine(SalesLine, TempSalesLine, Rec);
                 SalesLine.Validate("Unit of Measure Code", TempSalesLine."Unit of Measure Code");
                 SalesLine.Validate("Variant Code", TempSalesLine."Variant Code");
-                OnCreateSalesLineOnBeforeValidateQuantity(SalesLine, TempSalesLine);
-                if TempSalesLine.Quantity <> 0 then begin
+                ShouldValidateQuantity := TempSalesLine.Quantity <> 0;
+                OnCreateSalesLineOnBeforeValidateQuantity(SalesLine, TempSalesLine, ShouldValidateQuantity);
+                if ShouldValidateQuantity then begin
                     SalesLine.Validate(Quantity, TempSalesLine.Quantity);
                     SalesLine.Validate("Qty. to Assemble to Order", TempSalesLine."Qty. to Assemble to Order");
                 end;
                 SalesLine."Purchase Order No." := TempSalesLine."Purchase Order No.";
                 SalesLine."Purch. Order Line No." := TempSalesLine."Purch. Order Line No.";
-                SalesLine."Drop Shipment" := TempSalesLine."Drop Shipment";
+
+                IsHandled := false;
+                OnCreateSalesLineOnBeforeSetDropShipment(SalesLine, TempSalesLine, IsHandled);
+                if not IsHandled then
+                    SalesLine."Drop Shipment" := TempSalesLine."Drop Shipment";
             end;
-            SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
+
+            IsHandled := false;
+            OnCreateSalesLineOnBeforeValidateShipmentDate(SalesLine, TempSalesLine, Rec, IsHandled);
+            if not IsHandled then
+                SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
         end;
         OnBeforeSalesLineInsert(SalesLine, TempSalesLine, Rec);
         SalesLine.Insert();
@@ -6541,7 +6564,14 @@ table 36 "Sales Header"
     end;
 
     local procedure ConfirmUpdateDeferralDate()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmUpdateDeferralDate(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetHideValidationDialog() or not GuiAllowed then
             Confirmed := true
         else
@@ -7360,7 +7390,7 @@ table 36 "Sales Header"
         OnAfterSelltoCustomerNoOnAfterValidate(Rec, xRec);
     end;
 
-    internal procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
+    procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         NoOfSelected: Integer;
@@ -7372,7 +7402,7 @@ table 36 "Sales Header"
         BatchProcessingMgt.BatchProcess(SalesHeader, Codeunit::"Sales Manual Release", Enum::"Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
     end;
 
-    internal procedure PerformManualRelease()
+    procedure PerformManualRelease()
     var
         ReleaseSalesDoc: Codeunit "Release Sales Document";
     begin
@@ -7382,7 +7412,7 @@ table 36 "Sales Header"
         end;
     end;
 
-    internal procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
+    procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
     var
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         NoOfSelected: Integer;
@@ -9116,7 +9146,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesLineOnBeforeValidateQuantity(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnCreateSalesLineOnBeforeValidateQuantity(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var ShouldValidateQuantity: Boolean)
     begin
     end;
 
@@ -9196,7 +9226,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSellToCustomerNoOnAfterCalcShouldSkipConfirmSellToCustomerDialog(var SalesHeader: Record "Sales Header"; var ShouldSkipConfirmSellToCustomerDialog: Boolean)
+    local procedure OnValidateSellToCustomerNoOnAfterCalcShouldSkipConfirmSellToCustomerDialog(var SalesHeader: Record "Sales Header"; var ShouldSkipConfirmSellToCustomerDialog: Boolean; var ConfirmedShouldBeFalse: Boolean)
     begin
     end;
 
@@ -9806,7 +9836,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLinesExist(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSalesLinesExist(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -9906,7 +9936,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 
@@ -9917,6 +9947,36 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetInvoiceDiscountValue(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeAssignType(var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeValidateShipmentDate(var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeSetDropShipment(var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnAfterValidateNo(var SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCustomerCreatedOnBeforeConfirmProcess(SalesHeader: Record "Sales Header"; var Prompt: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmUpdateDeferralDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

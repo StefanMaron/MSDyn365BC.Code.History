@@ -33,7 +33,7 @@ codeunit 906 "SO Activities Calculate"
         ReturnResults.Add(SalesCue.FieldName("Ready to Ship"), Format(SalesCue."Ready to Ship"));
         ReturnResults.Add(SalesCue.FieldName("Partially Shipped"), Format(SalesCue."Partially Shipped"));
         ReturnResults.Add(SalesCue.FieldName(Delayed), Format(SalesCue.Delayed));
-
+        ReturnResults.Add(SalesCue.FieldName("S. Ord. - Reserved From Stock"), Format(SalesCue."S. Ord. - Reserved From Stock"));
         ReturnResults.Add(SalesCue.FieldName("Missing SII Entries"), Format(SalesCue."Missing SII Entries"));
         ReturnResults.Add(SalesCue.FieldName("Days Since Last SII Check"), Format(SalesCue."Days Since Last SII Check"));
     end;
@@ -55,7 +55,8 @@ codeunit 906 "SO Activities Calculate"
             Evaluate(SalesCue."Partially Shipped", ResultValue);
         if TryGetDictionaryValue(Results, SalesCue.FieldName(Delayed), ResultValue) then
             Evaluate(SalesCue.Delayed, ResultValue);
-
+        if TryGetDictionaryValue(Results, SalesCue.FieldName("S. Ord. - Reserved From Stock"), ResultValue) then
+            Evaluate(SalesCue."S. Ord. - Reserved From Stock", ResultValue);
         if TryGetDictionaryValue(Results, SalesCue.FieldName("Missing SII Entries"), ResultValue) then
             Evaluate(SalesCue."Missing SII Entries", ResultValue);
         if TryGetDictionaryValue(Results, SalesCue.FieldName("Days Since Last SII Check"), ResultValue) then
@@ -79,7 +80,7 @@ codeunit 906 "SO Activities Calculate"
         SalesCue."Ready to Ship" := SalesCue.CountOrders(SalesCue.FieldNo("Ready to Ship"));
         SalesCue."Partially Shipped" := SalesCue.CountOrders(SalesCue.FieldNo("Partially Shipped"));
         SalesCue.Delayed := SalesCue.CountOrders(SalesCue.FieldNo(Delayed));
-
+        SalesCue."S. Ord. - Reserved From Stock" := SalesCue.CalcNoOfReservedFromStockSalesOrders();
         SalesCue."Missing SII Entries" := SIIRecreateMissingEntries.GetMissingEntriesCount();
         SalesCue."Days Since Last SII Check" := SIIRecreateMissingEntries.GetDaysSinceLastCheck();
     end;

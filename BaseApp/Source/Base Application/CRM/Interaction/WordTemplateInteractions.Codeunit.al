@@ -234,6 +234,8 @@ codeunit 5069 "Word Template Interactions"
                 repeat
                     InteractionLogEntry.Get(TempDeliverySorter."No.");
 
+                    OnExecuteMergeOnAfterGetInteractLogEntry(InteractionLogEntry);
+
                     MergeSourceText := GetMergeSourceText(Attachment, TempDeliverySorter."No.", TempDeliverySorter."Correspondence Type".AsInteger());
                     DataSource := GetDataSource(MergeSourceText);
                     GetMergedDocumentStream(AttachmentWordTemplateFileName, DataSource, TempDeliverySorter, DocumentInStream);
@@ -345,7 +347,6 @@ codeunit 5069 "Word Template Interactions"
                         Attachment."File Extension" := 'html';
 
                         DummyTempBlob.CreateInStream(DummyInStream);
-                        Commit();
                         DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                         FileManagement.DeleteServerFile(TempServerFileName);
                     end;
@@ -571,6 +572,7 @@ codeunit 5069 "Word Template Interactions"
         ContactNo: Code[20];
         LanguageCode: Code[10];
         ActiveDate: Date;
+        IsHandled: Boolean;
     begin
         InitMergeFields(InteractLogEntry, SegLine, ContactAltAddressCode, LineNo, SalesPersonCode, ContactNo, LanguageCode, ActiveDate);
 
@@ -595,34 +597,36 @@ codeunit 5069 "Word Template Interactions"
         if not Salesperson.Get(SalesPersonCode) then
             Clear(Salesperson);
 
-
-        DataSource.Add(InteractionLogEntry.FieldCaption("Entry No."), LineNo);
-        DataSource.Add(Contact.TableCaption + MailAddressTxt, GetContactAltAddresses(Contact, ContactAltAddressCode, ActiveDate));
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("No."), Contact."No.");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Company Name"), Contact."Company Name");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(Name), Contact.Name);
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Name 2"), Contact."Name 2");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(Address), Contact.Address);
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Address 2"), Contact."Address 2");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Post Code"), Contact."Post Code");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(City), Contact.City);
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(County), Contact.County);
-        DataSource.Add(Contact.TableCaption + ' ' + Country.TableCaption + ' ' + Country.FieldCaption(Name), Country.Name);
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Job Title"), Contact."Job Title");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Phone No."), Contact."Phone No.");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Fax No."), Contact."Fax No.");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("E-Mail"), Contact."E-Mail");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Mobile Phone No."), Contact."Mobile Phone No.");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("VAT Registration No."), Contact."VAT Registration No.");
-        DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Home Page"), Contact."Home Page");
-        DataSource.Add(FormalSalutationTxt, Contact.GetSalutation("Salutation Formula Salutation Type"::Formal, LanguageCode));
-        DataSource.Add(InformalSalutationTxt, Contact.GetSalutation("Salutation Formula Salutation Type"::Informal, LanguageCode));
-        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption(Code), Salesperson.Code);
-        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption(Name), Salesperson.Name);
-        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("Job Title"), Salesperson."Job Title");
-        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("Phone No."), Salesperson."Phone No.");
-        DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("E-Mail"), Salesperson."E-Mail");
-
+        IsHandled := false;
+        OnGetDataSourceOnBeforeAddDataSources(DataSource, InteractionLogEntry, Contact, Salesperson, Country, LineNo, ContactAltAddressCode, LanguageCode, ActiveDate, IsHandled);
+        if not IsHandled then begin
+            DataSource.Add(InteractionLogEntry.FieldCaption("Entry No."), LineNo);
+            DataSource.Add(Contact.TableCaption + MailAddressTxt, GetContactAltAddresses(Contact, ContactAltAddressCode, ActiveDate));
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("No."), Contact."No.");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Company Name"), Contact."Company Name");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(Name), Contact.Name);
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Name 2"), Contact."Name 2");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(Address), Contact.Address);
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Address 2"), Contact."Address 2");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Post Code"), Contact."Post Code");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(City), Contact.City);
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption(County), Contact.County);
+            DataSource.Add(Contact.TableCaption + ' ' + Country.TableCaption + ' ' + Country.FieldCaption(Name), Country.Name);
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Job Title"), Contact."Job Title");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Phone No."), Contact."Phone No.");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Fax No."), Contact."Fax No.");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("E-Mail"), Contact."E-Mail");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Mobile Phone No."), Contact."Mobile Phone No.");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("VAT Registration No."), Contact."VAT Registration No.");
+            DataSource.Add(Contact.TableCaption + ' ' + Contact.FieldCaption("Home Page"), Contact."Home Page");
+            DataSource.Add(FormalSalutationTxt, Contact.GetSalutation("Salutation Formula Salutation Type"::Formal, LanguageCode));
+            DataSource.Add(InformalSalutationTxt, Contact.GetSalutation("Salutation Formula Salutation Type"::Informal, LanguageCode));
+            DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption(Code), Salesperson.Code);
+            DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption(Name), Salesperson.Name);
+            DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("Job Title"), Salesperson."Job Title");
+            DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("Phone No."), Salesperson."Phone No.");
+            DataSource.Add(Salesperson.TableCaption + ' ' + Salesperson.FieldCaption("E-Mail"), Salesperson."E-Mail");
+        end;
         if InteractLogEntry.IsEmpty() then begin
             DataSource.Add(DocumentTxt + SegLine.FieldCaption(Date), Format(SegLine.Date));
             DataSource.Add(DocumentTxt + SegLine.FieldCaption("Campaign No."), SegLine."Campaign No.");
@@ -751,6 +755,16 @@ codeunit 5069 "Word Template Interactions"
 
     [IntegrationEvent(false, false)]
     local procedure OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; var SaveFormat: Enum "Word Templates Save Format")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExecuteMergeOnAfterGetInteractLogEntry(InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDataSourceOnBeforeAddDataSources(var DataSource: Dictionary of [Text, Text]; var InteractionLogEntry: Record "Interaction Log Entry"; var Contact: Record Contact; var SalespersonPurchaser: Record "Salesperson/Purchaser"; var CountryRegion: Record "Country/Region"; LineNo: Text; ContactAltAddressCode: Code[10]; LanguageCode: Code[10]; ActiveDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

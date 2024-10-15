@@ -2059,6 +2059,33 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         CreateAndRegisterPickFromWareshouseShipment(SalesHeader."No.", LotNo, SerialNo, Quantity);
     end;
 
+    [HandlerFunctions('ItemTrackingSummaryModalPageHandler')]
+    [Test]
+    procedure LookupItemJournalLotNoWithItemTrackingDefinedOnlyOnLineAndDecimalQuantity()
+    var
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Item Journal] [Item Tracking on Lines] [UI]
+        // [SCENARIO 485524] Lookup "Lot No." on item journal line with item tracking defined on the line work with decimal Quantity.
+        Initialize();
+        // [GIVEN] Lot-tracked item "I" with decimal Rounding Precision.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Rounding Precision", 0.00001);
+        Item.Modify(true);
+        // [GIVEN] Item journal batch with "Item Tracking on Lines" = true.
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch."Item Tracking on Lines" := true;
+        ItemJournalBatch.Modify();
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 0.01);
+        // [WHEN] Lookup "Lot No." on item journal line.
+        ItemJournalLine.LookUpTrackingSummary("Item Tracking Type"::"Lot No.");
+        // [THEN] The "Lot No. Information List" page opens.
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

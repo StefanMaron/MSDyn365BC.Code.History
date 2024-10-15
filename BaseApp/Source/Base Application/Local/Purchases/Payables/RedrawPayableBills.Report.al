@@ -33,17 +33,23 @@ report 7000083 "Redraw Payable Bills"
             DataItemTableView = sorting("Entry No.");
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;            
             begin
                 CheckUnrealizedVAT(VendLedgEntry);
 
-                if NewDueDate < "Due Date" then begin
-                    Window.Close();
-                    Error(
-                      Text1100002,
-                      FieldCaption("Due Date"),
-                      FieldCaption("Entry No."),
-                      "Entry No.");
-                end;
+                IsHandled := false;
+                OnAfterGetVendorLedgerEntryOnBeforeCheckNewDueDate(VendLedgEntry, NewDueDate, IsHandled);
+                if not IsHandled then
+                    if NewDueDate < "Due Date" then begin
+                        Window.Close();
+                        Error(
+                        Text1100002,
+                        FieldCaption("Due Date"),
+                        FieldCaption("Entry No."),
+                        "Entry No.");
+                    end;
+
                 SumLCYAmt := 0;
                 DocCount := DocCount + 1;
                 Window.Update(1, DocCount);
@@ -494,6 +500,11 @@ report 7000083 "Redraw Payable Bills"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendFindVATSetup(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVendorLedgerEntryOnBeforeCheckNewDueDate(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewDueDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

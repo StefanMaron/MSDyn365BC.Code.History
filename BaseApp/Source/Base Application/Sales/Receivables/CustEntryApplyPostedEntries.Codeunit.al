@@ -297,8 +297,12 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     local procedure UnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
         UnapplyCustEntries: Page "Unapply Customer Entries";
+        IsHandled: Boolean;
     begin
-        OnBeforeUnApplyCustomer(DtldCustLedgEntry);
+        IsHandled := false;
+        OnBeforeUnApplyCustomer(DtldCustLedgEntry, IsHandled);
+        If IsHandled then
+            exit;
 
         DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
         DtldCustLedgEntry.TestField(Unapplied, false);
@@ -824,7 +828,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
+    local procedure OnBeforeUnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean);
     begin
     end;
 

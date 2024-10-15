@@ -22,6 +22,7 @@ codeunit 70 "Purch.-Calc.Discount"
         PurchLine.Copy(Rec);
 
         TempPurchHeader.Get(Rec."Document Type", Rec."Document No.");
+        OnOnRunOnBeforeUpdateHeader(TempPurchHeader, Rec);
         UpdateHeader := true;
         CalculateInvoiceDiscount(TempPurchHeader, TempPurchLine);
 
@@ -170,6 +171,8 @@ codeunit 70 "Purch.-Calc.Discount"
                                 PurchLine2.Delete(true);
                         end;
                     until TempServiceChargeLine.Next() = 0;
+
+            OnCalculateInvoiceDiscountOnBeforeGetGLSetup(VendInvDisc, PurchHeader);
 
             GLSetup.Get();
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then
@@ -410,6 +413,16 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeDeletePurchaseLine(UpdateHeader: Boolean; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnRunOnBeforeUpdateHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeGetGLSetup(var VendorInvoiceDisc: Record "Vendor Invoice Disc."; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

@@ -62,8 +62,8 @@ codeunit 137154 "SCM Warehouse Management II"
         GetSourceDocErr: Label '%1 source documents were not included because the customer is blocked.';
         CheckShipmentLineErr: Label 'Expect shipment line from Source No. %1 exist: %2, contrary to actual result';
         CheckReceiptLineErr: Label 'Expect Receipt Linefrom Source No. %1 exist: %2, contrary to actual result';
-        ShipmentLinesNotCreatedErr: Label 'There are no Warehouse Shipment Lines created.';
-        ReceiptLinesNotCreatedErr: Label 'There are no Warehouse Receipt Lines created.';
+        ShipmentLinesNotCreatedErr: Label 'There are no warehouse shipment lines created.';
+        ReceiptLinesNotCreatedErr: Label 'There are no warehouse receipt lines created.';
         LocationValidationError: Label 'Directed Put-away and Pick must be equal to ''No''';
         ItemTrackingMode: Option " ","Assign Lot No.","Assign Multiple Lot No.","Assign Serial No.","Assign Lot And Serial","Select Entries","Blank Quantity Base","Assign Lot No. & Expiration Date";
         DescriptionMustBeSame: Label 'Description must be same.';

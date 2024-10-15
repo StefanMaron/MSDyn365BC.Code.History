@@ -137,20 +137,20 @@ page 1190 "Create Payment"
 
     trigger OnOpenPage()
     var
-        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlManagement: Codeunit GenJnlManagement;
     begin
         PostingDate := WorkDate();
 
-        if not GenJnlTemplate.Get(JournalTemplateName) then
+        if not GenJournalTemplate.Get(JournalTemplateName) then
             Clear(JournalTemplateName);
         if not GenJournalBatch.Get(JournalTemplateName, JournalBatchName) then
             Clear(JournalBatchName);
 
         if JournalTemplateName = '' then
-            if GenJnlManagement.TemplateSelectionSimple(GenJnlTemplate, GenJnlTemplate.Type::Payments, false) then
-                JournalTemplateName := GenJnlTemplate.Name;
+            if GenJnlManagement.TemplateSelectionSimple(GenJournalTemplate, GenJournalTemplate.Type::Payments, false) then
+                JournalTemplateName := GenJournalTemplate.Name;
 
         BatchSelection(JournalTemplateName, JournalBatchName, true);
     end;
@@ -168,7 +168,6 @@ page 1190 "Create Payment"
     end;
 
     var
-        GenJnlManagement: Codeunit GenJnlManagement;
         PostingDate: Date;
         BalAccountNo: Code[20];
         NextDocNo: Code[20];
@@ -334,7 +333,10 @@ page 1190 "Create Payment"
                     then
                         "Document Type" := "Document Type"::Payment
                     else
-                        "Document Type" := "Document Type"::Refund;
+                        if TempVendorPaymentBuffer.Amount > 0 then
+                            "Document Type" := "Document Type"::Payment
+                        else
+                            "Document Type" := "Document Type"::Refund;
                     "Posting No. Series" := GenJournalBatch."Posting No. Series";
                     "Document No." := TempVendorPaymentBuffer."Document No.";
                     "Account Type" := "Account Type"::Vendor;
@@ -396,7 +398,7 @@ page 1190 "Create Payment"
         DimSetIDArr: array[10] of Integer;
     begin
         with GenJnlLine do begin
-            IF "Dimension Set ID" = 0 then begin
+            if "Dimension Set ID" = 0 then begin
                 NewDimensionID := "Dimension Set ID";
 
                 DimBuf.Reset();
@@ -439,7 +441,7 @@ page 1190 "Create Payment"
     local procedure SetNextNo(GenJournalBatchNoSeries: Code[20]; KeepSavedDocumentNo: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         if (GenJournalBatchNoSeries = '') then begin
             if not KeepSavedDocumentNo then
@@ -450,8 +452,8 @@ page 1190 "Create Payment"
             if GenJournalLine.FindLast() then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
-                NextDocNo := NoSeriesMgt.DoGetNextNo(GenJournalBatchNoSeries, PostingDate, false, true);
-            Clear(NoSeriesMgt);
+                NextDocNo := NoSeriesManagement.DoGetNextNo(GenJournalBatchNoSeries, PostingDate, false, true);
+            Clear(NoSeriesManagement);
         end;
     end;
 
@@ -502,6 +504,7 @@ page 1190 "Create Payment"
     local procedure BatchSelection(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; KeepSaveDocumentNo: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlManagement: Codeunit GenJnlManagement;
     begin
         GenJnlManagement.CheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
         GenJournalBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName);

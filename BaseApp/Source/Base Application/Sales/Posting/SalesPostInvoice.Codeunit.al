@@ -166,7 +166,10 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
                     SalesPostInvoiceEvents.RunOnPrepareLineOnBeforeSetLineDiscAccount(SalesLine, GenPostingSetup, LineDiscAccount, IsHandled);
                     if not IsHandled then
                         LineDiscAccount := GenPostingSetup.GetSalesLineDiscAccount();
-                    InvoicePostingBuffer.SetAccount(LineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
+                    IsHandled := false;
+                    SalesPostInvoiceEvents.RunOnPrepareLineOnBeforeInvoicePostingBufferSetAccount(InvoicePostingBuffer, SalesLine, GenPostingSetup, LineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, IsHandled);
+                    if not IsHandled then
+                        InvoicePostingBuffer.SetAccount(LineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                     InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                     UpdateInvoicePostingBuffer(InvoicePostingBuffer, true);
                     SalesPostInvoiceEvents.RunOnPrepareLineOnAfterSetLineDiscAccount(SalesLine, GenPostingSetup, InvoicePostingBuffer, TempInvoicePostingBuffer);

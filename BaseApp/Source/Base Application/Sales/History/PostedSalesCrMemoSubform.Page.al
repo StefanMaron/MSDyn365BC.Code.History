@@ -482,7 +482,6 @@ page 135 "Posted Sales Cr. Memo Subform"
 
     var
         DocumentTotals: Codeunit "Document Totals";
-        VATAmount: Decimal;
         IsFoundation: Boolean;
 
     protected var
@@ -496,6 +495,7 @@ page 135 "Posted Sales Cr. Memo Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        VATAmount: Decimal;
 
     local procedure PageShowItemReturnRcptLines()
     begin

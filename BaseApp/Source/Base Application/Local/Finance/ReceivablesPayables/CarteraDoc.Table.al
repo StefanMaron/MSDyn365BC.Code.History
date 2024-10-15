@@ -134,6 +134,7 @@ table 7000002 "Cartera Doc."
             trigger OnValidate()
             begin
                 ResetNoPrinted();
+                UpdateDirectDebitMandate();
             end;
         }
         field(21; "Pmt. Address Code"; Code[10])
@@ -243,6 +244,7 @@ table 7000002 "Cartera Doc."
             trigger OnValidate()
             begin
                 CODEUNIT.Run(CODEUNIT::"Document-Edit", Rec);
+                UpdateBankAccountCode();
                 Modify();
                 ResetNoPrinted();
             end;
@@ -431,6 +433,28 @@ table 7000002 "Cartera Doc."
                 Modify(true);
             end;
         end;
+    end;
+
+    procedure UpdateDirectDebitMandate()
+    var
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        if (Rec."Bill Gr./Pmt. Order No." <> '') or (Rec.Type = Rec.Type::Payable) then
+            exit;
+        SEPADirectDebitMandate.SetRange("Customer No.", Rec."Account No.");
+        SEPADirectDebitMandate.SetRange("Customer Bank Account Code", Rec."Cust./Vendor Bank Acc. Code");
+        if SEPADirectDebitMandate.FindFirst() then
+            Rec.Validate("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
+    end;
+
+    procedure UpdateBankAccountCode()
+    var
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        if (Rec."Bill Gr./Pmt. Order No." = '') or (Rec.Type = Rec.Type::Payable) then
+            exit;
+        if SEPADirectDebitMandate.Get(Rec."Direct Debit Mandate ID") then
+            Rec.Validate("Cust./Vendor Bank Acc. Code", SEPADirectDebitMandate."Customer Bank Account Code");
     end;
 }
 

@@ -365,6 +365,45 @@ codeunit 137298 "SCM Prod. Whse. Handling"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CreateProductionConsumptionAndCalcConsumption()
+    begin
+        // Production order for an item with 2 components with 2 qty. each is the test data
+        CreateProductionConsumptionAndCalcConsumption(Enum::"Prod. Consump. Whse. Handling"::"No Warehouse Handling", 2, 2);
+        CreateProductionConsumptionAndCalcConsumption(Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", 2, 2);
+        CreateProductionConsumptionAndCalcConsumption(Enum::"Prod. Consump. Whse. Handling"::"Inventory Pick/Movement", 2, 2);
+        CreateProductionConsumptionAndCalcConsumption(Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", 2, 0); // Quantity is set to 0 if Warehouse Pick is mandatory.
+    end;
+
+    local procedure CreateProductionConsumptionAndCalcConsumption(ProdConsumpWhseHandling: Enum "Prod. Consump. Whse. Handling"; TotalConsumptionLines: Integer; ExpectedQuantity: Integer)
+    var
+        Item: Record Item;
+        CompItem1: Record Item;
+        CompItem2: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO] Calculate consumption creates consumption line with 0 quantity if the Production Consumption Warehouse Handling is set to 'Warehouse Pick (Manatory)'
+        Initialize();
+
+        // [GIVEN] Create needed setup with production order for a item with 2 components
+        CreateProductionOrderWithLocationBinsAndTwoComponents(ProductionOrder, Location, Item, CompItem1, CompItem2);
+        Location."Prod. Consump. Whse. Handling" := ProdConsumpWhseHandling;
+        Location.Modify(true);
+
+        //[WHEN] Consumption is calculated.
+        CreateConsumptionJournal(ItemJournalLine, ProductionOrder."No.");
+
+        // [THEN] Expected number of Consumption lines are created.
+        Assert.RecordCount(ItemJournalLine, TotalConsumptionLines);
+
+        // [THEN] Expected quantity is set on the consumption lines.
+        ItemJournalLine.SetRange(Quantity, ExpectedQuantity);
+        Assert.RecordCount(ItemJournalLine, TotalConsumptionLines);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [HandlerFunctions('ProductionJournalHandlerWithQtyCheckAndPost,ConfirmationHandlerYes,SimpleMessageHandler')]
     procedure ProdJnlPostSucceedsWhenProdOutputIsNoWhseHandlingAndRequirePutawayON()
     var
@@ -547,6 +586,193 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Item.TestField(Inventory, ProductionOrder.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure EnablingDisablingProdConsumpWhseHandlingOnLocation()
+    var
+        Item: Record Item;
+        CompItem1: Record Item;
+        CompItem2: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [SCENARIO] Cannot disable prod. consump. whse. handling on location if an inventory activity for prod. order component exists.
+        Initialize();
+
+        CreateProductionOrderWithLocationBinsAndTwoComponents(ProductionOrder, Location, Item, CompItem1, CompItem2);
+        Location."Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+        Location.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+
+        Commit();
+        asserterror Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        WarehouseActivityHeader.Delete(true);
+
+        Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinishingProdOrderChecksConsumptionLocation()
+    begin
+        // [THEN] Production order finishes without any error
+        FinishingProdOrderChecksConsumptionLocation("Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+        FinishingProdOrderChecksConsumptionLocation("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        FinishingProdOrderChecksConsumptionLocation("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+
+        // [THEN] Production order does not finishe but throws an error.
+        asserterror FinishingProdOrderChecksConsumptionLocation("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Assert.ExpectedError('must not be 0');
+    end;
+
+    procedure FinishingProdOrderChecksConsumptionLocation(ProdConsumpWhseHanling: Enum "Prod. Consump. Whse. Handling")
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        Location: Record Location;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        OutputItemJournalTemplate: Record "Item Journal Template";
+        OutputItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Create Location with 5 bins where "Prod. Consump. Whse. Handling is set to the value passed.".
+        CreateLocationSetupWithBins(Location, false, false, false, false, true, 5, false);
+        Location."Prod. Consump. Whse. Handling" := ProdConsumpWhseHanling;
+        Location.Modify(true);
+
+        // [GIVEN] Create an production item.
+        LibraryInventory.CreateItem(ParentItem);
+
+        // [GIVEN] Create 2 components with "Pick + Backward" flushing method.
+        LibraryInventory.CreateItem(CompItem1);
+        CompItem1.Validate("Flushing Method", "Flushing Method"::"Pick + Backward");
+        CompItem1.Modify(true);
+
+        LibraryInventory.CreateItem(CompItem2);
+        CompItem2.Validate("Flushing Method", "Flushing Method"::"Pick + Backward");
+        CompItem2.Modify(true);
+
+        // [GIVEN] Create Production BOM with 2 components and assign it to the production item.
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, CompItem1."No.", CompItem2."No.", 2);
+        ParentItem."Production BOM No." := ProductionBOMHeader."No.";
+        ParentItem."Replenishment System" := ParentItem."Replenishment System"::"Prod. Order";
+        ParentItem.Modify(true);
+
+        // [GIVEN] Ensure all Bins have quantity 20 of the created item.
+        Bin.SetRange("Location Code", Location.Code);
+        Bin.FindSet(true);
+        repeat
+            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
+            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
+        until Bin.Next() = 0;
+
+        // [GIVEN] Create Released Produciton Order for 1 quantity of the parent item.
+        CreateAndRefreshProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, ParentItem."No.", 1, Location.Code);
+
+        // [GIVEN] Create Output Item Journal Template and Batch.
+        LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
+        LibraryInventory.SelectItemJournalBatchName(OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
+        LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, ParentItem."No.", ProductionOrder."No.");
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Validate("Output Quantity", 1);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Output Journal without posting the consumption.
+        LibraryManufacturing.PostOutputJournal();
+
+        // [WHEN] Finish the Production Order.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Caller validates the outcome.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure NegativeConsumptionAsInventoryPutaway_CheckPutawaySource()
+    var
+        PutawayTemplateHeader: Record "Put-away Template Header";
+        PutawayTemplateLine: Record "Put-away Template Line";
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        xProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseProdRelease: Codeunit "Whse.-Production Release";
+    begin
+        // [SCENARIO 487478] Check Source Document on inventory put-away created for negative consumption.
+        Initialize();
+
+        // [GIVEN] Location with bin mandatory, put-away bin policy = put-away template, and set up for consumption posting via inventory pick.
+        LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, false, false, false, false);
+        CreateLocationSetupWithBins(Location, false, false, false, false, true, 2, false);
+        Location."Put-away Bin Policy" := Location."Put-away Bin Policy"::"Put-away Template";
+        Location."Put-away Template Code" := PutAwayTemplateHeader.Code;
+        Location."Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+        Location."Always Create Put-away Line" := true;
+        Location.Modify(true);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        // [GIVEN] Released production order at the location.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Create prod. order component with negative quantity.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Location Code", ProdOrderLine."Location Code");
+        ProdOrderComponent.Validate("Quantity per", -1);
+        ProdOrderComponent.Modify(true);
+
+        WhseProdRelease.ReleaseLine(ProdOrderComponent, xProdOrderComponent);
+
+        // [WHEN] Create inventory put-away to post the negative consumption.
+        Commit();
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", true, false, false);
+
+        // [THEN] Source document fields on the inventory put-away match the production order.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away",
+          Location.Code, WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.TestField("Source Type", Database::"Prod. Order Component");
+        WarehouseActivityLine.Testfield("Source Subtype", 3);
+        WarehouseActivityLine.TestField("Source No.", ProductionOrder."No.");
+
+        // [THEN] The inventory put-away can be posted.
+        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -598,6 +824,22 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         // [THEN] Error is thrown if "Prod. Consump. Whse. Handling" is set to "Warehouse Pick (Mandatory)" and the caller validates the error thrown.
     end;
 
+    local procedure CreateConsumptionJournal(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(
+          ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption, ItemJournalTemplate.Name);
+        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
+        ItemJournalLine.FindFirst();
+    end;
+
     local procedure CreateAndPostConsumptionJournal(ProductionOrderNo: Code[20])
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -612,6 +854,13 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
+        ItemJournalLine.SetRange(Quantity, 0);
+        if ItemJournalLine.FindSet(true) then begin
+            ItemJournalLine.Validate(Quantity, 1);
+            ItemJournalLine.Modify(true);
+        end;
+
+        ItemJournalLine.SetRange(Quantity);
         ItemJournalLine.FindFirst();
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -649,9 +898,15 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         until Bin.Next() = 0;
 
         // [GIVEN] Create Released Produciton Order for 1 quantity of the parent item.
-        LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, ParentItem."No.", 1);
-        ProductionOrder.Validate("Location Code", Location.Code);
+        CreateAndRefreshProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, ParentItem."No.", 1, Location.Code);
+    end;
+
+    procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProdOrderStatus, SourceType, SourceNo, Quantity);
+        ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
     local procedure CreateProductionOrderWithLocationBinsAndNoComponents(var ProductionOrder: Record "Production Order"; var Location: Record Location; var ProdItem: Record Item)
@@ -807,10 +1062,18 @@ codeunit 137298 "SCM Prod. Whse. Handling"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalHandlerWithQtyCheckAndPost(var ProductionJournal: TestPage "Production Journal")
+    var
+        Bin: Record Bin;
     begin
         ProductionJournal.First();
         repeat
+            /*if Bin.Code = '' then begin
+                Bin.SetRange("Location Code", ProductionJournal."Location Code".Value);
+                Bin.FindFirst();
+            end;*/
             ProductionJournal.Quantity.AssertEquals(LibraryVariableStorage.DequeueInteger());
+        /*if ProductionJournal."Bin Code".Value = '' then
+            ProductionJournal."Bin Code".Value := Bin.Code;*/
         until ProductionJournal.Next() = false;
 
         ProductionJournal.Post.Invoke();

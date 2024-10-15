@@ -2511,7 +2511,7 @@ table 39 "Purchase Line"
         }
         field(2678; "Allocation Account No."; Code[20])
         {
-            Caption = 'Allocation Account No.';
+            Caption = 'Posting Allocation Account No.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
@@ -5523,11 +5523,29 @@ table 39 "Purchase Line"
     var
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
+        DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
     begin
         FASetup.Get();
-        "Depreciation Book Code" := FASetup."Default Depr. Book";
-        if not FADeprBook.Get("No.", "Depreciation Book Code") then
-            "Depreciation Book Code" := '';
+
+        DefaultFADeprBook.SetRange("FA No.", "No.");
+        DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
+
+        SetFADeprBook.SetRange("FA No.", "No.");
+
+        case true of
+            SetFADeprBook.Count = 1:
+                begin
+                    SetFADeprBook.FindFirst();
+                    "Depreciation Book Code" := SetFADeprBook."Depreciation Book Code";
+                end;
+            DefaultFADeprBook.FindFirst():
+                "Depreciation Book Code" := DefaultFADeprBook."Depreciation Book Code";
+            FADeprBook.Get("No.", FASetup."Default Depr. Book"):
+                "Depreciation Book Code" := FASetup."Default Depr. Book"
+            else
+                "Depreciation Book Code" := '';
+        end;
         Result := "Depreciation Book Code" <> '';
 
         OnAfterFindDefaultFADeprBook(Rec, Result);
@@ -6560,7 +6578,7 @@ table 39 "Purchase Line"
                                         LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
                                 end;
                                 OnUpdateVATOnLinesOnAfterCalculateVATDifference(
-                                    Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, QtyType);
+                                    Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, QtyType, PurchLine, LineAmountToInvoice, InvDiscAmount);
                             end;
                             OnUpdateVATOnLinesOnAfterCalculateAmounts(PurchLine, PurchHeader);
 
@@ -6590,7 +6608,7 @@ table 39 "Purchase Line"
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
                             TempVATAmountLineRemainder."EC Difference" := ECDifference - "EC Difference";
-                            OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount);
+                            OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount, PurchLine);
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
@@ -7577,6 +7595,7 @@ table 39 "Purchase Line"
         ItemVend."Variant Code" := "Variant Code";
         Item.FindItemVend(ItemVend, "Location Code");
         Validate("Vendor Item No.", ItemVend."Vendor Item No.");
+        OnAfterSetVendorItemNo(Rec, ItemVend, Item);
     end;
 
     procedure ZeroAmountLine(QtyType: Option General,Invoicing,Shipping) Result: Boolean
@@ -10006,7 +10025,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATOnLinesOnAfterCalculateVATDifference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineReminder: Record "VAT Amount Line" temporary; QtyType: Option General,Invoicing,Shipping)
+    local procedure OnUpdateVATOnLinesOnAfterCalculateVATDifference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineReminder: Record "VAT Amount Line" temporary; QtyType: Option General,Invoicing,Shipping; var CurrentPurchaseLine: Record "Purchase Line"; LineAmountToInvoice: Decimal; InvDiscAmount: Decimal)
     begin
     end;
 
@@ -10021,7 +10040,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var PurchaseLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; VATAmount: Decimal; NewVATBaseAmount: Decimal)
+    local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(var PurchaseLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; VATAmount: Decimal; NewVATBaseAmount: Decimal; var CurrentPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -10821,6 +10840,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetVendorItemNo(var PurchaseLine: Record "Purchase Line"; ItemVendor: Record "Item Vendor"; Item: Record Item)
     begin
     end;
 }

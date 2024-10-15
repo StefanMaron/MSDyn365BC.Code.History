@@ -28,6 +28,7 @@ report 406 "Purchase - Invoice"
     RDLCLayout = './Purchases/History/PurchaseInvoice.rdlc';
     Caption = 'Purchase - Invoice';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purch. Inv. Header";
 
     dataset
     {

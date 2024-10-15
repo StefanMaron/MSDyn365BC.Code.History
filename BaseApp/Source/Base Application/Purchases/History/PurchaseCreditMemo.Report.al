@@ -25,6 +25,7 @@ report 407 "Purchase - Credit Memo"
     RDLCLayout = './Purchases/History/PurchaseCreditMemo.rdlc';
     Caption = 'Purchase - Credit Memo';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Purch. Cr. Memo Hdr.";
 
     dataset
     {

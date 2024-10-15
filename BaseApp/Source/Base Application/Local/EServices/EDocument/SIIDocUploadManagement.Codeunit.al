@@ -9,6 +9,7 @@ using Microsoft.Sales.Receivables;
 using System;
 using System.IO;
 using System.Security.Encryption;
+using System.Telemetry;
 using System.Utilities;
 
 codeunit 10752 "SII Doc. Upload Management"
@@ -40,6 +41,8 @@ codeunit 10752 "SII Doc. Upload Management"
         GeneratingXmlSuccMsg: Label 'Xml successfully generated for document type %1', Locked = true;
         GeneratingXmlErrMsg: Label 'Cannot generate xml: %1', Locked = true;
         CannotDownloadRequestXmlErr: Label 'Not possible to download request XML for selected documents because of the following error: %1.', Comment = '%1 = error message';
+        SIIFeatureNameTok: Label 'SII', Locked = true;
+        GenerateContentForDocTxt: Label 'Generate XML content for document %1 %2', Locked = true, Comment = '%1 = document type; %2 = document no.';
 
     local procedure InvokeBatchSoapRequest(SIISession: Record "SII Session"; var TempSIIHistoryBuffer: Record "SII History" temporary; RequestText: Text; RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration; var ResponseText: Text): Boolean
     var
@@ -211,6 +214,7 @@ codeunit 10752 "SII Doc. Upload Management"
     local procedure ExecutePendingRequestsPerDocument(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; var XMLDoc: DotNet XmlDocument; var IsInvokeSoapRequest: Boolean; SIISessionId: Integer)
     var
         DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         IsSupported: Boolean;
         Message: Text;
     begin
@@ -219,6 +223,7 @@ codeunit 10752 "SII Doc. Upload Management"
         if TempSIIHistoryBuffer.FindSet() then
             repeat
                 TempSIIHistoryBuffer."Session Id" := SIISessionId;
+                FeatureTelemetry.LogUsage('0000LN3', SIIFeatureNameTok, StrSubstNo(GenerateContentForDocTxt, Format(SIIDocUploadState."Document Type"), SIIDocUploadState."Document No."));
                 if not TryGenerateXml(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsSupported, Message) then begin
                     DotNetExceptionHandler.Collect();
                     TempSIIHistoryBuffer.Status := TempSIIHistoryBuffer.Status::Failed;

@@ -273,7 +273,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }
-        key(Key6; "Vendor No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Initial Entry Due Date", "Posting Date")
+        key(Key6; "Vendor No.", "Currency Code", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2", "Initial Entry Due Date", "Posting Date", "Excluded from calculation")
         {
             SumIndexFields = Amount, "Amount (LCY)";
         }

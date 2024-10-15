@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Reminder;
+﻿namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Contact;
@@ -24,6 +24,7 @@ report 117 Reminder
 {
     Caption = 'Reminder';
     DefaultRenderingLayout = "Reminder.rdlc";
+    WordMergeDataItem = "Issued Reminder Header";
 
     dataset
     {

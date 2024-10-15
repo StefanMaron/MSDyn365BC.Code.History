@@ -21,6 +21,8 @@
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         CarteraRecvBasicScenarios: Codeunit "Cartera Recv. Basic Scenarios";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryInventory: Codeunit "Library - Inventory";
         RecordNotFoundErr: Label '%1 was not found.', Comment = '%1=TableCaption';
         BillGroupNotPrintedMsg: Label 'This %1 has not been printed. Do you want to continue?';
         SettlementCompletedSuccessfullyMsg: Label '%1 receivable documents totaling %2 have been settled.';
@@ -34,8 +36,9 @@
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
         DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
-        LibraryDimension: Codeunit "Library - Dimension";
-        LibraryInventory: Codeunit "Library - Inventory";
+        CarterDocExistErr: Label 'Carter Document Exists';
+        DirectDebitMandateIDErr: Label 'The direct debit mandate should be the same.';
+        CustVendorBankAccountErr: Label 'The customer bank account should be the same.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1625,6 +1628,71 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDirectDebitMandateAndBankAccount()
+    var
+        Customer: Record Customer;
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        SEPADirectDebitMandate1: Record "SEPA Direct Debit Mandate";
+        CarteraDoc: Record "Cartera Doc.";
+        DocumentNo: Code[20];
+        PaymentMethodCode: Code[10];
+        PaymentTermCode: Code[10];
+        CustomerBankAccountCode: Code[20];
+        CustomerBankAccountCode1: Code[20];
+    begin
+        // [SCENARIO 484624] Verify that The Cust./Vendor Bank Acc. Code and Direct Debit Mandate ID from the Bill Group or Receivable Docs should always be in sync.
+        Initialize();
+
+        // [GIVEN] Create a Carter Payment Method & Update the Bill Type.
+        PaymentMethodCode := CreatePaymentMethodAndUpdate();
+
+        // [GIVEN] Create a Payment Terms & update some field data.
+        PaymentTermCode := CreatePaymentTermsAndUpdate();
+
+        // [GIVEN] Create an Installment based on Payment Terms.
+        LibraryCarteraReceivables.CreateMultipleInstallments(PaymentTermCode, LibraryRandom.RandInt(5));
+
+        // [GIVEN] Create a Customer & update.
+        CreateCustomerAndUpdate(Customer, PaymentMethodCode, PaymentTermCode);
+
+        // [GIVEN] Create a Customer Bank Account & update.
+        CustomerBankAccountCode := CreateCustomerBankAccountAndUpdate(Customer);
+
+        // [GIVEN] Create another Customer Bank Account for same Customer & update.
+        CustomerBankAccountCode1 := CreateCustomerBankAccountAndUpdate(Customer);
+
+        // [GIVEN] Create a Customer Direct Debit Mandate & update.
+        CreateDirectDebitMandateAndUpdate(SEPADirectDebitMandate, Customer."No.", CustomerBankAccountCode);
+
+        // [GIVEN] Create another Customer Direct Debit Mandate for same Customer & update.
+        CreateDirectDebitMandateAndUpdate(SEPADirectDebitMandate1, Customer."No.", CustomerBankAccountCode1);
+
+        // [GIVEN] Create a Sales invoice & Post. 
+        DocumentNo := CreateAndPostSalesInvoice(Customer."No.", SEPADirectDebitMandate.ID);
+
+        // [VERIFY] Verify that Carter Doc. entries were created or not.
+        Assert.IsTrue(FindCarteraDoc(CarteraDoc, DocumentNo, Customer."No."), CarterDocExistErr);
+
+        // [GIVEN] Open the Receivables Cartera Docs page and update.
+        OpenReceivablesCarteraDocPageAndUpdate(CarteraDoc, SEPADirectDebitMandate1);
+        FindCarteraDoc(CarteraDoc, DocumentNo, Customer."No.");
+
+        // [VERIFY] Verify that after the change in the "Cust./Vendor Bank Account Code" field data, the respective customer bank account field data changed.
+        Assert.AreEqual(CarteraDoc."Direct Debit Mandate ID", SEPADirectDebitMandate1.ID, DirectDebitMandateIDErr);
+
+        // [GIVEN] Create a Bill Group Document with Carter Lines.
+        CreateBillGroupDocumentAndAddCarterLine(CarteraDoc, DocumentNo, Customer."No.");
+
+        // [GIVEN] Open the Docs BG Subform page and update.
+        OpenDocsBGSubformPageAndUpdate(CarteraDoc, SEPADirectDebitMandate.ID);
+        FindCarteraDoc(CarteraDoc, DocumentNo, Customer."No.");
+
+        // [VERIFY] Verify that after the change in the "Direct Debit Mandate ID" field, the respective Cust./Vendor Bank Account field data changed.
+        Assert.AreEqual(CarteraDoc."Cust./Vendor Bank Acc. Code", SEPADirectDebitMandate."Customer Bank Account Code", CustVendorBankAccountErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2114,6 +2182,109 @@
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         Assert.RecordCount(GLEntry, ExpectedCount);
+    end;
+
+    local procedure CreatePaymentMethodAndUpdate(): Code[10]
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        LibraryCarteraReceivables.CreateBillToCarteraPaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bill Type", PaymentMethod."Bill Type"::IOU);
+        PaymentMethod.Modify(true);
+        exit(PaymentMethod.Code);
+    end;
+
+    local procedure CreatePaymentTermsAndUpdate(): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        PaymentTerms.Validate("Discount %", 0);
+        Evaluate(PaymentTerms."Discount Date Calculation", '');
+        PaymentTerms.Validate("Discount Date Calculation", PaymentTerms."Discount Date Calculation");
+        PaymentTerms.Validate("VAT distribution", PaymentTerms."VAT distribution"::Proportional);
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure CreateCustomerAndUpdate(Var Customer: Record Customer; PaymentMethodCode: Code[10]; PaymentTermCode: Code[10])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", '');
+        Customer.Validate("Payment Method Code", PaymentMethodCode);
+        Customer.Validate("Payment Terms Code", PaymentTermCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerBankAccountAndUpdate(var Customer: Record Customer): Code[20]
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        LibraryCarteraReceivables.CreateCustomerBankAccount(Customer, CustomerBankAccount);
+        CustomerBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
+        CustomerBankAccount.Modify(true);
+        exit(CustomerBankAccount.Code);
+    end;
+
+    local procedure CreateDirectDebitMandateAndUpdate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; CustomerBankAccountNo: Code[20])
+    begin
+        LibrarySales.CreateCustomerMandate(
+           SEPADirectDebitMandate,
+           CustomerNo,
+           CustomerBankAccountNo,
+           LibraryRandom.RandDate(10),
+           LibraryRandom.RandDate(30));
+        SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
+        SEPADirectDebitMandate.Validate("Expected Number of Debits", LibraryRandom.RandInt(100));
+        SEPADirectDebitMandate.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; SEPADirectDebitMandateID: Code[35]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader, CustomerNo);
+        SalesHeader.Validate("Direct Debit Mandate ID", SEPADirectDebitMandateID);
+        SalesHeader.Modify();
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
+    local procedure FindCarteraDoc(var CarteraDocs: Record "Cartera Doc."; DocNo: Code[20]; AccNo: Code[20]): Boolean
+    begin
+        CarteraDocs.SetRange("Document No.", DocNo);
+        CarteraDocs.SetRange("Account No.", AccNo);
+        exit(CarteraDocs.FindFirst());
+    end;
+
+    local procedure OpenReceivablesCarteraDocPageAndUpdate(var CarteraDoc: Record "Cartera Doc."; SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
+    var
+        ReceivablesCarteraDocs: TestPage "Receivables Cartera Docs";
+    begin
+        ReceivablesCarteraDocs.OpenEdit();
+        ReceivablesCarteraDocs.GoToRecord(CarteraDoc);
+        ReceivablesCarteraDocs."Cust./Vendor Bank Acc. Code".SetValue(SEPADirectDebitMandate."Customer Bank Account Code");
+        ReceivablesCarteraDocs.Close();
+    end;
+
+    local procedure OpenDocsBGSubformPageAndUpdate(var CarteraDoc: Record "Cartera Doc."; SEPADirectDebitMandateID: Code[35])
+    var
+        DocsinBGSubform: TestPage "Docs. in BG Subform";
+    begin
+        DocsinBGSubform.OpenEdit();
+        DocsinBGSubform.GoToRecord(CarteraDoc);
+        DocsinBGSubform."Direct Debit Mandate ID".SetValue(SEPADirectDebitMandateID);
+        DocsinBGSubform.Close();
+    end;
+
+    local procedure CreateBillGroupDocumentAndAddCarterLine(var CarteraDoc: Record "Cartera Doc."; DocumentNo: code[20]; CustomerNo: code[20])
+    var
+        BankAccount: Record "Bank Account";
+        BillGroup: Record "Bill Group";
+    begin
+        LibraryCarteraReceivables.CreateBankAccount(BankAccount, '');
+        LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
+        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, DocumentNo, CustomerNo, BillGroup."No.");
     end;
 
     [ConfirmHandler]

@@ -157,6 +157,12 @@ report 10748 "Vendor - Overdue Payments"
             column(ABS_TotalOpenPaymentWithinLegalLimitCaption; ABS_TotalOpenPaymentWithinLegalLimit_Lbl)
             {
             }
+            column(InvoicesPaidWithinLegalDueDateCountCaption; InvoicesPaidWithinLegalDueDateCountLbl)
+            {
+            }
+            column(InvoicesPaidToTotalCountPctCaption; InvoicesPaidToTotalCountPctLbl)
+            {
+            }
             column(CalcVendorRatioOfPaidTransactions_; CalcVendorRatioOfPaidTransactions())
             {
             }
@@ -195,6 +201,20 @@ report 10748 "Vendor - Overdue Payments"
             }
             column(TotalOpenPaymentWithinDueDate; TotalOpenPaymentWithinLegalDueDate)
             {
+            }
+            column(InvPaidWithinLegalDueDateCountPerVendorVal; InvPaidWithinLegalDueDateCountPerVendor)
+            {
+            }
+            column(InvPaidToTotalCountPctPerVendorVal; InvoicesPaidToTotalCountPctPerVendor)
+            {
+                DecimalPlaces = 0 : 2;
+            }
+            column(InvPaidWithinLegalDueDateTotalCountVal; InvPaidWithinLegalDueDateTotalCount)
+            {
+            }
+            column(InvoicesPaidToTotalCountPctValue; InvoicesPaidToTotalCountPct)
+            {
+                DecimalPlaces = 0 : 2;
             }
             dataitem("Vendor Ledger Entry"; "Vendor Ledger Entry")
             {
@@ -349,9 +369,23 @@ report 10748 "Vendor - Overdue Payments"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    LegalDueDate: Date;
                 begin
                     FindAppliedPayments("Entry No.");
                     FindOpenInvoices("Entry No.");
+
+                    InvoicesCountPerVendor += 1;
+                    InvoicesTotalCount += 1;
+
+                    LegalDueDate := CalcMaxDueDate("Vendor Ledger Entry");
+                    if (not Open) and ("Closed at Date" <= LegalDueDate) then begin
+                        InvPaidWithinLegalDueDateCountPerVendor += 1;
+                        InvPaidWithinLegalDueDateTotalCount += 1;
+                    end;
+
+                    InvoicesPaidToTotalCountPctPerVendor := 100 * InvPaidWithinLegalDueDateCountPerVendor / InvoicesCountPerVendor;
+                    InvoicesPaidToTotalCountPct := 100 * InvPaidWithinLegalDueDateTotalCount / InvoicesTotalCount;
                 end;
             }
 
@@ -458,9 +492,12 @@ report 10748 "Vendor - Overdue Payments"
         ABS_Amount_CaptionLbl: Label 'Amount';
         ABS__Amount__LCY___CaptionLbl: Label 'Amount(LCY)';
         DaysOverdue_Control1100024CaptionLbl: Label 'Days Overdue';
+        ABS_TotalOpenPaymentOutsideLegalLimit__Control1100046CaptionLbl: Label 'Open Payments outside the legal limit (LCY):';
+        ABS_TotalOpenPaymentWithinLegalLimit_Lbl: Label 'Open Payments within the legal limit (LCY):';
+        InvoicesPaidWithinLegalDueDateCountLbl: Label 'No. of invoices paid within the legal limit:';
+        InvoicesPaidToTotalCountPctLbl: Label '% of invoices paid within the legal limit:';
         OpenVendPaymentOutsideLegalDueDate: Decimal;
         TotalOpenPaymentOutsideLegalDueDate: Decimal;
-        ABS_TotalOpenPaymentOutsideLegalLimit__Control1100046CaptionLbl: Label 'Open Payments outside the legal limit (LCY):';
         OpenVendPaymentWithinLegalDueDate: Decimal;
         TotalOpenPaymentWithinLegalDueDate: Decimal;
         VendDaysOverdue: Decimal;
@@ -475,7 +512,12 @@ report 10748 "Vendor - Overdue Payments"
         VendWeightedOpenPaymentAmount: Decimal;
         TotalWeightedOpenPaymentAmount: Decimal;
         TotalDaysOverdue: Decimal;
-        ABS_TotalOpenPaymentWithinLegalLimit_Lbl: Label 'Open Payments within the legal limit (LCY):';
+        InvPaidWithinLegalDueDateCountPerVendor: Integer;
+        InvoicesCountPerVendor: Integer;
+        InvoicesPaidToTotalCountPctPerVendor: Decimal;
+        InvPaidWithinLegalDueDateTotalCount: Integer;
+        InvoicesTotalCount: Integer;
+        InvoicesPaidToTotalCountPct: Decimal;
 
     local procedure FindAppliedPayments(VendLedgEntryNo: Integer)
     var
@@ -515,7 +557,7 @@ report 10748 "Vendor - Overdue Payments"
             SetRange("Posting Date", StartDate, EndDate);
             if FindSet() then
                 repeat
-                    if "Vendor Ledger Entry No." <> "Applied Vend. Ledger Entry No." then begin
+                    if "Vendor Ledger Entry No." <> "Applied Vend. Ledger Entry No." then
                         if IsPaymentEntry("Vendor Ledger Entry No.", PayVendLedgEntry) and
                            PrintEntry(InvVendLedgEntry, "Posting Date")
                         then begin
@@ -530,7 +572,6 @@ report 10748 "Vendor - Overdue Payments"
                             if not DtldEntryNoToLegalDueDateMap.ContainsKey(AppldVendLedgEntryTmp."Entry No.") then
                                 DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
                         end;
-                    end;
                 until Next() = 0;
         end;
     end;
@@ -652,6 +693,9 @@ report 10748 "Vendor - Overdue Payments"
         VendApplAmount := 0;
         VendWeightedOpenPaymentAmount := 0;
         VendOpenAmount := 0;
+        InvPaidWithinLegalDueDateCountPerVendor := 0;
+        InvoicesCountPerVendor := 0;
+        InvoicesPaidToTotalCountPctPerVendor := 0;
     end;
 
     local procedure CalcVendorRatioOfPaidTransactions(): Decimal

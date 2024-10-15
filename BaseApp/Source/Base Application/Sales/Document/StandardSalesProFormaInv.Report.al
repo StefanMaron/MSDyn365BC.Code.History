@@ -25,6 +25,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
 {
     Caption = 'Pro Forma Invoice';
     DefaultRenderingLayout = "StandardSalesProFormaInv.rdlc";
+    WordMergeDataItem = Header;
 
     dataset
     {

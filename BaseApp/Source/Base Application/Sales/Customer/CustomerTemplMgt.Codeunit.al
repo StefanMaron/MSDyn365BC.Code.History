@@ -410,10 +410,16 @@ codeunit 1381 "Customer Templ. Mgt."
             Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
     end;
 
-    procedure IsOpenBlankCardConfirmed(): Boolean
+    procedure IsOpenBlankCardConfirmed() Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenBlankCardConfirmed(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(ConfirmManagement.GetResponse(OpenBlankCardQst, false));
     end;
 
@@ -588,5 +594,10 @@ codeunit 1381 "Customer Templ. Mgt."
             FldRef := RecRef.Field(Customer.FieldNo("No. Series"));
             FldRef.Value := Customer."No. Series";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenBlankCardConfirmed(var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }

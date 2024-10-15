@@ -761,7 +761,6 @@ page 233 "Apply Vendor Entries"
     end;
 
     var
-        GenJnlLine: Record "Gen. Journal Line";
         PurchHeader: Record "Purchase Header";
         Vend: Record Vendor;
         GLSetup: Record "General Ledger Setup";
@@ -799,6 +798,7 @@ page 233 "Apply Vendor Entries"
         CurrExchRate: Record "Currency Exchange Rate";
         TempApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary;
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
         ApplnDate: Date;

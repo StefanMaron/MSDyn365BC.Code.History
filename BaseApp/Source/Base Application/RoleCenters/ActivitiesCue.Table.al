@@ -193,6 +193,10 @@ table 1313 "Activities Cue"
             Caption = 'Dataverse Integration Errors';
             FieldClass = FlowField;
         }
+        field(34; "S. Ord. - Reserved From Stock"; Integer)
+        {
+            Caption = 'Sales Orders - Completely Reserved from Stock';
+        }
         field(110; "Last Date/Time Modified"; DateTime)
         {
             Caption = 'Last Date/Time Modified';

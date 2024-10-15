@@ -1232,7 +1232,7 @@ page 6640 "Purchase Return Order"
                     Caption = 'Move Negative Lines';
                     Ellipsis = true;
                     Image = MoveNegativeLines;
-                    ToolTip = 'Prepare to create a replacement sales order in a sales return process.';
+                    ToolTip = 'Prepare to create a replacement purchase order in a purchase return process.';
 
                     trigger OnAction()
                     begin

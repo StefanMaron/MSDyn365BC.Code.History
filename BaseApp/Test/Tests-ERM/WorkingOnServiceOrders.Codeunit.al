@@ -37,6 +37,7 @@ codeunit 136112 "Working On Service Orders"
         UnexpectedFilterErr: Label 'Unexpected filter for ServiceHeader."No." when opened from %1 page';
         ExistErr: Label '%1 for %2 must not exist.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the Report.', Comment = '%1 = Field Caption , %2 = Expected Value';
+        ValueMustBlankErr: Label '%1 must blank.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1282,6 +1283,43 @@ codeunit 136112 "Working On Service Orders"
             ServiceHeader."No.",
             LibraryVariableStorage.DequeueText(),
             StrSubstNo(ValueMustBeEqualErr, ServiceHeader.FieldCaption("No."), ServiceHeader."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyVariantCodeClearedWhenSelectingNewItemOnServiceOrder()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ItemVariant: Record "Item Variant";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        // [SCENARIO 483466] When user select item, previously selected variant code is no cleared: service item line
+        Initialize();
+
+        // [GIVEN] Create 2 Items "I1" and "I2", and Item Variant for "I1"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        ItemVariant.Modify(true);
+
+        // [THEN] Create Service Order
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
+
+        // [THEN] Create Service Item Line for item "I1" update Item Variant "IV1" 
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        ServiceItemLine.Validate("Item No.", Item."No.");
+        ServiceItemLine.Validate("Variant Code", ItemVariant.Code);
+        ServiceItemLine.Modify(true);
+
+        // [VERIFY] Verify: Changing Item No. on "Service Order Line" should be cleared the "Variant Code" field value
+        ServiceItemLine.Validate("Item No.", Item2."No.");
+        Assert.IsTrue(
+            (ServiceItemLine."Variant Code" = ''),
+            StrSubstNo(
+                ValueMustBlankErr,
+                ServiceItemLine.FieldCaption("Variant Code")));
     end;
 
     local procedure Initialize()

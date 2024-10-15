@@ -23,6 +23,7 @@ report 216 "Archived Sales Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Sales/Archive/ArchivedSalesOrder.rdlc';
     Caption = 'Archived Sales Order';
+    WordMergeDataItem = "Sales Header Archive";
 
     dataset
     {

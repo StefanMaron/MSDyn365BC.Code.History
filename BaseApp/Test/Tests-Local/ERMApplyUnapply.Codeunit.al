@@ -51,6 +51,7 @@ codeunit 147310 "ERM Apply Unapply"
         ApplnTypeRef: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         IsInitialized: Boolean;
         UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
+        UnAppliedErr: Label 'Entries are  still applied.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1490,6 +1491,85 @@ codeunit 147310 "ERM Apply Unapply"
         VerifyEmployeeLedgerEntry(EmployeeNo, -AmountBill);
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyEmployeeEntriesHandler,UnApplyEmployeeEntriesHandler,PostApplicationHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnApplyEmpLedgerEntryWithoutAnyError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        GLAccountNo: Record "G/L Account";
+        DocumentNo: Code[20];
+        EmployeeNo: Code[20];
+        Payment: Decimal;
+        InvoiceAmount: Decimal;
+    begin
+        // [SCENARIO 482731] Unable to unapply employee ledger entry the second time on both Saas and On-Prem environment
+        Initialize();
+
+        // [GIVEN] Create Employee with Bank Account
+        EmployeeNo := LibraryHR.CreateEmployeeNoWithBankAccount();
+
+        // [GIVEN] Create G/L Account
+        LibraryERM.CreateGLAccount(GLAccountNo);
+
+        // [WHEN] Prepare General Journal Template and Batch
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        // [GIVEN] Save Payment and Invoice Amount.
+        Payment := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        InvoiceAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Create General Journal Line for Payment Entry
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+         GenJournalLine,
+         GenJournalTemplate.Name,
+         GenJournalBatch.Name,
+         GenJournalLine."Document Type"::Payment,
+         GenJournalLine."Account Type"::Employee,
+         EmployeeNo,
+         GenJournalLine."Bal. Account Type"::"G/L Account",
+         GLAccountNo."No.",
+         Payment);
+
+        // [GIVEN] Post the General Journal Line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Save the Payment Document No.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Create General Journal Line for Invoice Entry
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+        GenJournalLine,
+        GenJournalTemplate.Name,
+        GenJournalBatch.Name,
+        GenJournalLine."Document Type"::" ",
+        GenJournalLine."Account Type"::Employee,
+        EmployeeNo,
+        GenJournalLine."Bal. Account Type"::"G/L Account",
+        GLAccountNo."No.",
+        -InvoiceAmount);
+
+        // [GIVEN] Post the Invoice entry for the Employee x
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Apply the Payment Employee Ledger Entry with Invoice 
+        ApplyEmployeeLedgerEntries(EmployeeNo, DocumentNo, EmployeeLedgerEntry."Document Type"::Payment);
+
+        // [WHEN] UnApply the Payment Employee Ledger Entry 
+        UnApplyEmployeeLedgerEntries(EmployeeNo, DocumentNo, EmployeeLedgerEntry."Document Type"::Payment);
+
+        // [GIVEN] Find the last Employee Ledger Entry and CalcFiled the Remaining Amount
+        EmployeeLedgerEntry.FindLast();
+        EmployeeLedgerEntry.CalcFields("Remaining Amount");
+
+        // [VERIFY] Verify the Invoice Employee Ledger Entry has successfully unapplied and remaining amount equal to Invoice Amount
+        Assert.AreEqual(-InvoiceAmount, EmployeeLedgerEntry."Remaining Amount", UnAppliedErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2348,6 +2428,28 @@ codeunit 147310 "ERM Apply Unapply"
         end;
     end;
 
+    local procedure ApplyEmployeeLedgerEntries(EmployeeNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        EmployeeLedgerEntriesPage: TestPage "Employee Ledger Entries";
+    begin
+        EmployeeLedgerEntriesPage.OpenView();
+        EmployeeLedgerEntriesPage.FILTER.SetFilter("Employee No.", EmployeeNo);
+        EmployeeLedgerEntriesPage.FILTER.SetFilter("Document No.", DocumentNo);
+        EmployeeLedgerEntriesPage.FILTER.SetFilter("Document Type", Format(DocumentType));
+        EmployeeLedgerEntriesPage.ActionApplyEntries.Invoke();
+    end;
+
+    local procedure UnApplyEmployeeLedgerEntries(EmployeeNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        EmployeeLedgerEntriesPage: TestPage "Employee Ledger Entries";
+    begin
+        EmployeeLedgerEntriesPage.OpenView();
+        EmployeeLedgerEntriesPage.FILTER.SetFilter("Employee No.", EmployeeNo);
+        EmployeeLedgerEntriesPage.FILTER.SetFilter("Document No.", DocumentNo);
+        EmployeeLedgerEntriesPage.FILTER.SetFilter("Document Type", Format(DocumentType));
+        EmployeeLedgerEntriesPage.UnapplyEntries.Invoke();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
@@ -2371,6 +2473,28 @@ codeunit 147310 "ERM Apply Unapply"
     procedure UnapplyVendorEntriesMPH(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
         UnapplyVendorEntries.Unapply.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyEmployeeEntriesHandler(var ApplyEmployeeEntries: TestPage "Apply Employee Entries")
+    begin
+        ApplyEmployeeEntries.ActionSetAppliesToID.Invoke();
+        ApplyEmployeeEntries.ActionPostApplication.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure UnApplyEmployeeEntriesHandler(var UnApplyEmployeeEntries: TestPage "Unapply Employee Entries")
+    begin
+        UnApplyEmployeeEntries.Unapply.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
+    begin
+        PostApplication.OK().Invoke();
     end;
 }
 

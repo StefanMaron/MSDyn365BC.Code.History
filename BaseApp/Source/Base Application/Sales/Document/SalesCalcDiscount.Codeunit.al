@@ -61,6 +61,8 @@ codeunit 60 "Sales-Calc. Discount"
         ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeCalculateInvoiceDiscount(SalesHeader, SalesLine2, UpdateHeader);
+
         SalesSetup.Get();
         if UpdateHeader then
             SalesHeader.Find(); // To ensure we have the latest - otherwise update fails.
@@ -172,6 +174,8 @@ codeunit 60 "Sales-Calc. Discount"
                                 SalesLine2.Delete(true);
                         end;
                     until TempServiceChargeLine.Next() = 0;
+
+            OnCalculateInvoiceDiscountOnBeforeGetGLSetup(CustInvDisc, SalesHeader);        
 
             GLSetup.Get();
             if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines"
@@ -504,6 +508,17 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustInvDiscRecExists(InvDiscCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var UpdateHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeGetGLSetup(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

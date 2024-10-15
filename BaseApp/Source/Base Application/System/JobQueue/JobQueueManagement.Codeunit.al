@@ -22,6 +22,9 @@ codeunit 456 "Job Queue Management"
         RunJobQueueOnceTxt: Label 'Running job queue once.', Locked = true;
         JobQueueWorkflowSetupErr: Label 'The Job Queue approval workflow has not been setup.';
         DelegatedAdminSendingApprovalLbl: Label 'Delegated admin sending approval', Locked = true;
+        TooManyScheduledTasksLinkTxt: Label 'Learn more';
+        TooManyScheduledTasksNotificationMsg: Label 'There are more than 100,000 scheduled tasks in the system. This can prevent Job Queues and tasks from running in a timely manner. Please contact your system administrator.';
+        TooManyScheduledTasksNotificationGuidLbl: Label 'cedc5167-e04c-4127-b7dd-114d1749700a', Locked = true;
 
     trigger OnRun()
     begin
@@ -321,6 +324,39 @@ codeunit 456 "Job Queue Management"
         GlobalLanguage(CurrentLanguage);
     end;
 
+    internal procedure TooManyScheduledTasksNotification()
+    var
+        ScheduledTaskNotification: Notification;
+        NoOfScheduledTasks: Integer;
+    begin
+        NoOfScheduledTasks := GetNumberOfScheduledTasks();
+        if NoOfScheduledTasks >= 100000 then begin
+            ScheduledTaskNotification.Id := TooManyScheduledTasksNotificationGuidLbl;
+            ScheduledTaskNotification.Message := TooManyScheduledTasksNotificationMsg;
+            ScheduledTaskNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
+            ScheduledTaskNotification.AddAction(
+              TooManyScheduledTasksLinkTxt, CODEUNIT::"Job Queue Management", 'TooManyScheduledTasksDocs');
+            ScheduledTaskNotification.Send();
+        end;
+    end;
+
+    internal procedure TooManyScheduledTasksDocs(ScheduledTaskNotification: Notification)
+    begin
+        Hyperlink('https://aka.ms/JobQueueDocs');
+    end;
+
+    local procedure GetNumberOfScheduledTasks(): Integer
+    var
+        ScheduledTasks: Record "Scheduled Task";
+    begin
+        if ScheduledTasks.ReadPermission() then begin
+            ScheduledTasks.SetRange("Is Ready", true);
+            exit(ScheduledTasks.Count());
+        end;
+
+        exit(0);
+    end;
+
     /// <summary>
     /// Due to certain usages of JQLE, we need to determine if the log entry is from normal usage
     /// Abnormal usages like assisted company setup should be ignored
@@ -334,7 +370,7 @@ codeunit 456 "Job Queue Management"
             case JobQueueLogEntry."Object ID to Run" of
                 Codeunit::"Import Config. Package Files":
                     Process := false;
-            end;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'ScheduleReport', '', false, false)]

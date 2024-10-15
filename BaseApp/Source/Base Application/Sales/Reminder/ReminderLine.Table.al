@@ -111,7 +111,7 @@ table 296 "Reminder Line"
 
                 "No. of Reminders" := GetNoOfReminderForCustLedgEntry("Entry No.");
 
-                CalcFinChrg();
+                CalcFinanceCharge();
             end;
         }
         field(6; "No. of Reminders"; Integer)
@@ -298,7 +298,7 @@ table 296 "Reminder Line"
             begin
                 TestField(Type, Type::"Customer Ledger Entry");
                 TestField("Entry No.");
-                CalcFinChrg();
+                CalcFinanceCharge();
             end;
         }
         field(18; "Gen. Prod. Posting Group"; Code[20])
@@ -574,7 +574,7 @@ table 296 "Reminder Line"
         NotEnoughSpaceToInsertErr: Label 'There is not enough space to insert lines with additional interest rates.';
         InvalidInterestRateDateErr: Label 'Create interest rate with start date prior to %1.', Comment = '%1 - date';
 
-    local procedure CalcFinChrg()
+    procedure CalcFinanceCharge()
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         IssuedReminderHeader: Record "Issued Reminder Header";
@@ -623,6 +623,11 @@ table 296 "Reminder Line"
             exit;
         FinChrgTerms.Get(ReminderHeader."Fin. Charge Terms Code");
 
+        IsHandled := false;
+        OnCalcFinChrgOnBeforeCalcFinanceChargeInterestRate(Rec, ReminderHeader, FinChrgTerms, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFinanceChargeInterestRate(FinanceChargeInterestRate, UseDueDate, UseInterestRate, UseCalcDate);
 
         case FinChrgTerms."Interest Calculation Method" of
@@ -638,6 +643,7 @@ table 296 "Reminder Line"
                     ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
                     ReminderEntry.SetRange("Interest Posted", true);
+                    OnCalcFinChrgOnAfterReminderEntrySetFilters(ReminderEntry);
                     if ReminderEntry.FindLast() then
                         InterestCalcDate := ReminderEntry."Document Date";
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::"Finance Charge Memo");
@@ -656,6 +662,7 @@ table 296 "Reminder Line"
                           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Excl.)",
                           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)");
                         DetailedCustLedgEntry.SetRange("Posting Date", 0D, ReminderHeader."Document Date");
+                        OnCalcFinChrgOnAfterDetailedCustLedgEntrySetFilters(DetailedCustLedgEntry, Rec);
                         if DetailedCustLedgEntry.Find('-') then
                             repeat
                                 if DetailedCustLedgEntry."Entry Type" = DetailedCustLedgEntry."Entry Type"::"Initial Entry" then
@@ -680,6 +687,9 @@ table 296 "Reminder Line"
                         Amount := Amount / FinChrgTerms."Interest Period (Days)" * "Interest Rate" / 100
                     else
                         Amount := 0;
+
+                    OnCalcFinChrgOnAfterCalcInterest(FinChrgTerms, Amount);
+
                     if (InterestCalcDate < ReminderHeader."Document Date") and (NrOfLinesToInsert = 0) then
                         if NrOfLinesToInsert = 0 then
                             CumulateDetailedEntries(
@@ -888,21 +898,22 @@ table 296 "Reminder Line"
     begin
         IsHandled := false;
         OnBeforeLookupDocNo(Rec, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            if Type <> Type::"Customer Ledger Entry" then
+                exit;
 
-        if Type <> Type::"Customer Ledger Entry" then
-            exit;
+            SetCustLedgEntryView();
+            if "Document Type" <> "Document Type"::" " then
+                CustLedgEntry.SetRange("Document Type", "Document Type");
+            if "Document No." <> '' then
+                CustLedgEntry.SetRange("Document No.", "Document No.");
+            if CustLedgEntry.FindFirst() then;
+            CustLedgEntry.SetRange("Document Type");
+            CustLedgEntry.SetRange("Document No.");
+            LookupCustLedgEntry();
+        end;
 
-        SetCustLedgEntryView();
-        if "Document Type" <> "Document Type"::" " then
-            CustLedgEntry.SetRange("Document Type", "Document Type");
-        if "Document No." <> '' then
-            CustLedgEntry.SetRange("Document No.", "Document No.");
-        if CustLedgEntry.FindFirst() then;
-        CustLedgEntry.SetRange("Document Type");
-        CustLedgEntry.SetRange("Document No.");
-        LookupCustLedgEntry();
+        OnAfterLookupDocNo(Rec, xRec);
     end;
 
     procedure CalcFinanceChargeInterestRate(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; var UseDueDate: Date; var UseInterestRate: Decimal; var UseCalcDate: Date)
@@ -1070,6 +1081,31 @@ table 296 "Reminder Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoOfReminderForCustLedgEntry(var ReminderLine: Record "Reminder Line"; var NoOfReminders: Integer; EntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupDocNo(var ReminderLine: Record "Reminder Line"; xRecReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnBeforeCalcFinanceChargeInterestRate(var ReminderLine: Record "Reminder Line"; var ReminderHeader: Record "Reminder Header"; var FinanceChargeTerms: Record "Finance Charge Terms"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnAfterDetailedCustLedgEntrySetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnAfterReminderEntrySetFilters(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnAfterCalcInterest(var FinanceChargeTerms: Record "Finance Charge Terms"; var Amount: Decimal)
     begin
     end;
 }

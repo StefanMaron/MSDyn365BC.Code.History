@@ -316,13 +316,13 @@ codeunit 10750 "SII XML Creator"
         OnCalculateNonExemptVATEntriesOnAfterTempVATEntryOutSetFilters(TempVATEntryOut, TempVATEntry, SplitByEUService, VATAmount);
         if TempVATEntryOut.FindFirst() then begin
             TempVATEntryOut.Amount += VATAmount;
-            TempVATEntryOut.Base += TempVATEntry.Base + TempVATEntry."Unrealized Base";
+            TempVATEntryOut.Base += TempVATEntry.Base + TempVATEntry."Unrealized Base" + TempVATEntry."Non-Deductible VAT Base";
             TempVATEntryOut.Modify();
         end else begin
             TempVATEntryOut.Init();
             TempVATEntryOut.Copy(TempVATEntry);
             TempVATEntryOut.Amount := VATAmount;
-            TempVATEntryOut.Base := TempVATEntryOut.Base + TempVATEntryOut."Unrealized Base";
+            TempVATEntryOut.Base := TempVATEntryOut.Base + TempVATEntryOut."Unrealized Base" + TempVATEntry."Non-Deductible VAT Base";
             TempVATEntryOut.Insert();
         end;
         TempVATEntryOut.SetRange("VAT %");
@@ -1008,7 +1008,7 @@ codeunit 10750 "SII XML Creator"
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
         if SIIManagement.FindVatEntriesFromLedger(VendorLedgerEntryRecRef, VATEntry) then
             repeat
-                VATAmount := CalcVATAmountExclEC(VATEntry);
+                VATAmount := CalcVATAmountExclEC(VATEntry) + VATEntry."Non-Deductible VAT Amount";
                 CuotaDeducible += Sign * VATAmount;
                 CalculateNonExemptVATEntries(TempVATEntry, VATEntry, true, VATAmount);
             until VATEntry.Next() = 0;
@@ -1194,6 +1194,7 @@ codeunit 10750 "SII XML Creator"
     begin
         VATAmount := VATEntry.Amount + VATEntry."Unrealized Amount";
         CuotaDeducibleValue += VATAmount;
+        VATAmount += VATEntry."Non-Deductible VAT Amount";
         OnAfterCalculateCuotaDeducibleValue(CuotaDeducibleValue, VATAmount, VATEntry);
 
         if UseReverseChargeNotIntracommunity(VATEntry."VAT Calculation Type", VendorNo, PostingDate, InvoiceType) then
